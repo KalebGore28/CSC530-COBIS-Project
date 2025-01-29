@@ -47,6 +47,20 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create the import history table
+    await runQuery(`
+      CREATE TABLE IF NOT EXISTS imports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        entity_type TEXT NOT NULL,
+        file_name TEXT NOT NULL,
+        total_records INTEGER NOT NULL,
+        error_details TEXT,
+        import_status TEXT NOT NULL DEFAULT 'Pending',
+        imported_by TEXT NOT NULL,
+        import_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+    )
+    `);
+
     console.log('Tables initialized successfully.');
   } catch (err) {
     console.error('Error initializing tables:', err.message);

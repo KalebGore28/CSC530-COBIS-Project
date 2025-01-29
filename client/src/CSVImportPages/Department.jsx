@@ -4,6 +4,8 @@ import UploadModal from '../modals/UploadModal';
 import CSVMappingPage from '../components/CSVMappingPage';
 import CSVPreviewPage from '../components/CSVPreviewPage';
 import PDFPreviewModal from '../modals/PDFPreviewModal';
+import ImportHistory from '../components/ImportHistory';
+
 import Papa from 'papaparse';
 
 const Department = () => {
@@ -12,8 +14,10 @@ const Department = () => {
   const [headers, setHeaders] = useState([]);
   const [tableColumns, setTableColumns] = useState([]);
   const [columnMapping, setColumnMapping] = useState({});
-  const [step, setStep] = useState('landing'); // landing, mapping, preview
-  const [pdfUrl, setPdfUrl] = useState(null); // PDF URL for preview modal
+  const [step, setStep] = useState('landing');
+  const [pdfUrl, setPdfUrl] = useState(null);
+  const [fileName, setFileName] = useState('');
+
 
   const handleOnCancel = () => {
     setStep('landing');
@@ -28,6 +32,7 @@ const Department = () => {
         setCsvData(results.data);
         setShowModal(false);
         setStep('mapping');
+        setFileName(file.name);
       },
     });
 
@@ -52,7 +57,7 @@ const Department = () => {
   };
 
   return (
-    <div>
+    <div className="flex flex-col space-y-6 p-6">
       {step === 'landing' && (
         <>
           <CSVImporterPage
@@ -60,6 +65,7 @@ const Department = () => {
             onUploadStart={() => setShowModal(true)}
             onGenerateReport={generateReport}
           />
+          <ImportHistory entityType="departments" />
           {showModal && (
             <UploadModal
               onClose={() => setShowModal(false)}
@@ -88,6 +94,7 @@ const Department = () => {
           onBack={() => setStep('mapping')}
           apiEndpoint="http://localhost:4000/departments/import"
           entityName="Departments"
+          fileName={fileName}
         />
       )}
 

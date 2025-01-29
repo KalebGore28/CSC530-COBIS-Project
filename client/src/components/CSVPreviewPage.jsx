@@ -5,7 +5,8 @@ const PreviewPage = ({
   columnMapping,
   onBack,
   apiEndpoint,
-  entityName = "Data"
+  entityName = "Data",
+  fileName
 }) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
@@ -29,7 +30,7 @@ const PreviewPage = ({
       const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mappedData }),
+        body: JSON.stringify({ mappedData, fileName }),
       });
 
       const result = await response.json();

@@ -22,17 +22,19 @@ router.get('/column-names', (req, res) => {
 
 // Endpoint: Import mapped CSV data into the departments table
 router.post('/import', async (req, res) => {
-  const { mappedData } = req.body;
+  const { mappedData, fileName, importedBy } = req.body;
 
   if (!Array.isArray(mappedData) || mappedData.length === 0) {
     return res.status(400).json({ error: 'Invalid CSV data.' });
   }
 
+  let totalRecords = mappedData.length;
+  let errorDetails = [];
+
   try {
     for (const row of mappedData) {
       const { code, description, prefixes, canvas_id, college } = row;
 
-      // Build dynamic update fields
       const fieldsToUpdate = [];
       const values = [];
 
@@ -53,10 +55,9 @@ router.post('/import', async (req, res) => {
         values.push(college);
       }
 
-      // If no fields to update, skip row
       if (fieldsToUpdate.length === 0) continue;
 
-      values.push(code); // Add 'code' as the WHERE condition
+      values.push(code);
 
       const updateQuery = `
         UPDATE departments
@@ -67,7 +68,21 @@ router.post('/import', async (req, res) => {
       await db.run(updateQuery, values);
     }
 
-    res.json({ message: 'Departments imported/updated successfully.' });
+    // ✅ Log import in `imports` table
+    await db.run(
+      `INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        'departments',
+        fileName || 'Unknown File',
+        totalRecords,
+        errorDetails.length > 0 ? JSON.stringify(errorDetails) : null,
+        'Completed',
+        importedBy || 'System'
+      ]
+    );
+
+    res.json({ message: 'Departments imported successfully.', totalRecords });
   } catch (error) {
     console.error('Error importing department data:', error);
     res.status(500).json({ error: 'Error importing department data.' });
