@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import DepartmentLandingPage from './LandingPage';
+import CSVImporterPage from '../components/CSVImportPage';
 import UploadModal from '../modals/UploadModal';
-import MappingPage from './MappingPage';
-import PreviewPage from './PreviewPage';
+import CSVMappingPage from '../components/CSVMappingPage';
+import CSVPreviewPage from '../components/CSVPreviewPage';
 import PDFPreviewModal from '../modals/PDFPreviewModal';
 import Papa from 'papaparse';
 
@@ -54,9 +54,10 @@ const Department = () => {
     <div>
       {step === 'landing' && (
         <>
-          <DepartmentLandingPage
+          <CSVImporterPage
+            entityName="Department"
             onUploadStart={() => setShowModal(true)}
-            onGenerateReport={generateReport} // ✅ Pass report function
+            onGenerateReport={generateReport}
           />
           {showModal && (
             <UploadModal
@@ -68,24 +69,24 @@ const Department = () => {
       )}
 
       {step === 'mapping' && (
-        <MappingPage
+        <CSVMappingPage
           csvData={csvData}
           headers={headers}
           tableColumns={tableColumns}
           onMappingChange={(mapping) => setColumnMapping(mapping)}
           onNext={() => setStep('preview')}
           onCancel={handleOnCancel}
+          entityName="Departments"
         />
       )}
 
       {step === 'preview' && (
-        <PreviewPage
+        <CSVPreviewPage
           csvData={csvData}
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
-          onProceed={() => {
-            console.log('Proceeding to import...');
-          }}
+          apiEndpoint="http://localhost:4000/department/import"
+          entityName="Departments"
         />
       )}
 

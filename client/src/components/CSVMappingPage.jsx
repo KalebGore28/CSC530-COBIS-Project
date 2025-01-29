@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 
-const MappingPage = ({ csvData, headers, tableColumns, onMappingChange, onNext, onCancel }) => {
+const MappingPage = ({ 
+  csvData, 
+  headers, 
+  tableColumns, 
+  onMappingChange, 
+  onNext, 
+  onCancel, 
+  entityName = "Data" // Default to generic "Data" if no entity name is provided
+}) => {
   const [columnMapping, setColumnMapping] = useState({});
 
   const handleMappingChange = (csvColumn, dbColumn) => {
@@ -11,13 +19,13 @@ const MappingPage = ({ csvData, headers, tableColumns, onMappingChange, onNext, 
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-gray-800 mb-6">Match Fields</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Match Fields for {entityName}</h1>
       <div className="bg-white shadow-md rounded-lg w-full max-w-4xl overflow-clip">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-blue-500 text-white">
               <th className="p-3 text-left">CSV Column Name</th>
-              <th className="p-3 text-left">Department Fields</th>
+              <th className="p-3 text-left">{entityName} Fields</th>
               <th className="p-3 text-left">Examples from CSV</th>
             </tr>
           </thead>
@@ -54,7 +62,7 @@ const MappingPage = ({ csvData, headers, tableColumns, onMappingChange, onNext, 
 
       {/* Buttons Section */}
       <div className="mt-6 flex space-x-4">
-        {/* Cancel Button - Calls onCancel prop to return to the department view */}
+        {/* Cancel Button - Calls onCancel prop to return to the main page */}
         <button
           onClick={onCancel}
           className="px-6 py-3 bg-gray-500 text-white font-semibold rounded-lg hover:bg-gray-600 transition-all"

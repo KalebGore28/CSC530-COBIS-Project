@@ -34,6 +34,19 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Create the courses table
+    await runQuery(`
+      CREATE TABLE IF NOT EXISTS courses (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        course TEXT NOT NULL UNIQUE,
+        crsetitle TEXT NOT NULL,
+        crhrs INTEGER NOT NULL,
+        course_fee REAL,
+        web_fee REAL,
+        lastChanged TEXT DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
     console.log('Tables initialized successfully.');
   } catch (err) {
     console.error('Error initializing tables:', err.message);

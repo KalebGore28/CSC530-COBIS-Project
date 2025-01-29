@@ -1,13 +1,19 @@
 import React, { useState } from 'react';
 
-const PreviewPage = ({ csvData, columnMapping, onBack }) => {
+const PreviewPage = ({
+  csvData,
+  columnMapping,
+  onBack,
+  apiEndpoint,
+  entityName = "Data"
+}) => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(null);
 
   const handleImport = async () => {
     setLoading(true);
 
-    // Map CSV data to database column names
+    // Map CSV data to selected database fields
     const mappedData = csvData.map((row) => {
       const mappedRow = {};
       Object.keys(columnMapping).forEach((csvColumn) => {
@@ -18,9 +24,9 @@ const PreviewPage = ({ csvData, columnMapping, onBack }) => {
       return mappedRow;
     });
 
-    // Send data to the backend
+    // Send mapped data to the API
     try {
-      const response = await fetch('http://localhost:4000/department/import', {
+      const response = await fetch(apiEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mappedData }),
@@ -47,16 +53,16 @@ const PreviewPage = ({ csvData, columnMapping, onBack }) => {
     (csvColumn) => columnMapping[csvColumn]
   );
 
-  // Limit to 10 rows for preview
+  // Limit preview to 10 rows
   const previewData = csvData.slice(0, 10);
   const totalRows = csvData.length;
   const hasMoreRows = totalRows > 10;
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen flex flex-col items-center">
-      <h1 className="text-2xl font-bold text-gray-800 mb-2">Preview Import</h1>
+      <h1 className="text-2xl font-bold text-gray-800 mb-2">Preview Import for {entityName}</h1>
       <p className="text-gray-600 mb-4">
-        Below is a preview of your data after mapping. Please verify before proceeding.
+        Below is a preview of your {entityName.toLowerCase()} data after mapping. Please verify before proceeding.
       </p>
 
       {success === false && (
@@ -100,6 +106,7 @@ const PreviewPage = ({ csvData, columnMapping, onBack }) => {
         </table>
       </div>
 
+      {/* Buttons Section */}
       <div className="mt-6 flex space-x-4">
         <button
           onClick={onBack}
@@ -111,8 +118,8 @@ const PreviewPage = ({ csvData, columnMapping, onBack }) => {
           onClick={handleImport}
           disabled={loading}
           className={`px-6 py-3 font-semibold rounded-lg transition-all ${loading
-              ? 'bg-gray-500 text-white cursor-not-allowed'
-              : 'bg-blue-600 text-white hover:bg-blue-700'
+            ? 'bg-gray-500 text-white cursor-not-allowed'
+            : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
         >
           {loading ? 'Importing...' : 'Submit Import'}

@@ -1,12 +1,12 @@
 import React from 'react';
 
-const DepartmentLandingPage = ({ onUploadStart, onGenerateReport }) => {
+const CSVImporterPage = ({ entityName, onUploadStart, onGenerateReport }) => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="text-center p-10 bg-white shadow-md rounded-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Import Department CSV</h1>
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Import {entityName} CSV</h1>
         <p className="text-gray-600 mb-6">
-          Use the buttons below to import department data or generate a report.
+          Use the buttons below to import {entityName.toLowerCase()} data or generate a report.
         </p>
 
         <div className="flex space-x-4 justify-between">
@@ -31,4 +31,4 @@ const DepartmentLandingPage = ({ onUploadStart, onGenerateReport }) => {
   );
 };
 
-export default DepartmentLandingPage;
+export default CSVImporterPage;
