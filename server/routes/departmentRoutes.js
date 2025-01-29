@@ -1,0 +1,53 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../database/db');
+
+// Endpoint: Get column names for the departments table
+router.get('/column-names', (req, res) => {
+  const tableName = 'departments'; // Fixed table name for now
+  db.all(`PRAGMA table_info(${tableName})`, [], (err, rows) => {
+    if (err) {
+      console.error(`Error fetching column names for table ${tableName}:`, err);
+      return res.status(500).send('Error retrieving table columns');
+    }
+
+    const columnNames = rows.map((row) => row.name);
+    res.json({
+      table: tableName,
+      columns: columnNames,
+    });
+  });
+});
+
+// Endpoint: Import mapped CSV data into the departments table
+router.post('/import', async (req, res) => {
+  const { mappedData } = req.body;
+
+  if (!Array.isArray(mappedData) || mappedData.length === 0) {
+    return res.status(400).json({ error: 'Invalid CSV data.' });
+  }
+
+  try {
+    for (const row of mappedData) {
+      const { code, description, prefixes, canvas_id, college } = row;
+
+      await db.run(
+        `INSERT INTO departments (code, description, prefixes, canvas_id, college)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(code) DO UPDATE 
+         SET description = excluded.description,
+             prefixes = excluded.prefixes,
+             canvas_id = excluded.canvas_id,
+             college = excluded.college`,
+        [code, description, prefixes, canvas_id, college]
+      );
+    }
+
+    res.json({ message: 'Departments imported/updated successfully.' });
+  } catch (error) {
+    console.error('Import Error:', error);
+    res.status(500).json({ error: 'Database error while importing departments.' });
+  }
+});
+
+module.exports = router;
