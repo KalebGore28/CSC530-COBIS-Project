@@ -11,6 +11,7 @@ function App() {
 			<ul>
 				<li style={{ listStyleType: 'none', display: 'flex', flexDirection: 'column' }}>
 					<a href="/import-departments">Department Importer</a>
+					<a href="/import-courses">Course Importer</a>
 				</li>
 			</ul>
 		</div>

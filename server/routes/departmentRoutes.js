@@ -70,7 +70,7 @@ router.get('/pdf-report', async (req, res) => {
     // Fetch departments from the database
     db.all(`SELECT * FROM departments`, (err, rows) => {
       if (err) {
-        console.error('Database error:', err);
+				console.error(`Error fetching data from Department Table.`, err);
         return res.status(500).send('Database error');
       }
 
@@ -108,7 +108,7 @@ router.get('/pdf-report', async (req, res) => {
         },
       };
 
-      // Generate the PDF
+      // Create a PDF document
       let pdfDoc = printer.createPdfKitDocument(docDefinition);
 
       // Collect PDF data into a buffer

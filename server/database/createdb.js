@@ -39,11 +39,11 @@ const initializeDatabase = async () => {
       CREATE TABLE IF NOT EXISTS courses (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         course TEXT NOT NULL UNIQUE,
-        crsetitle TEXT NOT NULL,
-        crhrs INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        hours INTEGER NOT NULL,
         course_fee REAL,
         web_fee REAL,
-        lastChanged TEXT DEFAULT CURRENT_TIMESTAMP
+        last_changed TEXT DEFAULT CURRENT_TIMESTAMP
       )
     `);
 

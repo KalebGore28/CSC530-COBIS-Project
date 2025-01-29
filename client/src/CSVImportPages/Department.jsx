@@ -32,7 +32,7 @@ const Department = () => {
     });
 
     // Fetch table columns
-    fetch('http://localhost:4000/department/column-names')
+    fetch('http://localhost:4000/departments/column-names')
       .then((res) => res.json())
       .then((data) => setTableColumns(data.columns))
       .catch((err) => console.error('Error fetching table columns:', err));
@@ -41,7 +41,7 @@ const Department = () => {
   // 📌 Fetch & Preview PDF Report
   const generateReport = async () => {
     try {
-      const response = await fetch('http://localhost:4000/department/pdf-report');
+      const response = await fetch('http://localhost:4000/departments/pdf-report');
       const blob = await response.blob();
       const pdfUrl = URL.createObjectURL(blob);
       setPdfUrl(pdfUrl);
@@ -85,7 +85,7 @@ const Department = () => {
           csvData={csvData}
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
-          apiEndpoint="http://localhost:4000/department/import"
+          apiEndpoint="http://localhost:4000/departments/import"
           entityName="Departments"
         />
       )}
