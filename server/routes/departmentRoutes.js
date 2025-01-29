@@ -32,22 +32,45 @@ router.post('/import', async (req, res) => {
     for (const row of mappedData) {
       const { code, description, prefixes, canvas_id, college } = row;
 
-      await db.run(
-        `INSERT INTO departments (code, description, prefixes, canvas_id, college)
-         VALUES (?, ?, ?, ?, ?)
-         ON CONFLICT(code) DO UPDATE 
-         SET description = excluded.description,
-             prefixes = excluded.prefixes,
-             canvas_id = excluded.canvas_id,
-             college = excluded.college`,
-        [code, description, prefixes, canvas_id, college]
-      );
+      // Build dynamic update fields
+      const fieldsToUpdate = [];
+      const values = [];
+
+      if (description !== undefined) {
+        fieldsToUpdate.push('description = ?');
+        values.push(description);
+      }
+      if (prefixes !== undefined) {
+        fieldsToUpdate.push('prefixes = ?');
+        values.push(prefixes);
+      }
+      if (canvas_id !== undefined) {
+        fieldsToUpdate.push('canvas_id = ?');
+        values.push(canvas_id);
+      }
+      if (college !== undefined) {
+        fieldsToUpdate.push('college = ?');
+        values.push(college);
+      }
+
+      // If no fields to update, skip row
+      if (fieldsToUpdate.length === 0) continue;
+
+      values.push(code); // Add 'code' as the WHERE condition
+
+      const updateQuery = `
+        UPDATE departments
+        SET ${fieldsToUpdate.join(', ')}
+        WHERE code = ?
+      `;
+
+      await db.run(updateQuery, values);
     }
 
     res.json({ message: 'Departments imported/updated successfully.' });
   } catch (error) {
-    console.error('Import Error:', error);
-    res.status(500).json({ error: 'Database error while importing departments.' });
+    console.error('Error importing department data:', error);
+    res.status(500).json({ error: 'Error importing department data.' });
   }
 });
 

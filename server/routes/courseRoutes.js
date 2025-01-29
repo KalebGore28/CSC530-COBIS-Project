@@ -23,33 +23,56 @@ router.get('/column-names', (req, res) => {
 // Endpoint: Import mapped CSV data into the course titles table
 router.post('/import', async (req, res) => {
 	const { mappedData } = req.body;
-
+  
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
-		return res.status(400).json({ error: 'Invalid CSV data.' });
+	  return res.status(400).json({ error: 'Invalid CSV data.' });
 	}
-
+  
 	try {
-		for (const row of mappedData) {
-			const { course, title, hours, course_fee, web_fee } = row;
-
-			await db.run(
-				`INSERT INTO courses (course, title, hours, course_fee, web_fee)
-		  VALUES (?, ?, ?, ?, ?)
-		  ON CONFLICT(course) DO UPDATE 
-		  SET title = excluded.title,
-			  hours = excluded.hours,
-			  course_fee = excluded.course_fee,
-			  web_fee = excluded.web_fee`,
-				[course, title, hours, course_fee, web_fee]
-			);
+	  for (const row of mappedData) {
+		const { course, crsetitle, crhrs, course_fee, web_fee } = row;
+  
+		// Build dynamic update fields
+		const fieldsToUpdate = [];
+		const values = [];
+  
+		if (crsetitle !== undefined) {
+		  fieldsToUpdate.push('crsetitle = ?');
+		  values.push(crsetitle);
 		}
-
-		res.json({ message: 'Course titles imported/updated successfully.' });
+		if (crhrs !== undefined) {
+		  fieldsToUpdate.push('crhrs = ?');
+		  values.push(crhrs);
+		}
+		if (course_fee !== undefined) {
+		  fieldsToUpdate.push('course_fee = ?');
+		  values.push(course_fee);
+		}
+		if (web_fee !== undefined) {
+		  fieldsToUpdate.push('web_fee = ?');
+		  values.push(web_fee);
+		}
+  
+		// ✅ If no fields to update, skip row
+		if (fieldsToUpdate.length === 0) continue;
+  
+		values.push(course); // Add 'course' as the WHERE condition
+  
+		const updateQuery = `
+		  UPDATE courses
+		  SET ${fieldsToUpdate.join(', ')}
+		  WHERE course = ?
+		`;
+  
+		await db.run(updateQuery, values);
+	  }
+  
+	  res.json({ message: 'Courses imported/updated successfully.' });
 	} catch (error) {
-		console.error('Error importing course titles:', error);
-		res.status(500).json({ error: 'Error importing course titles.' });
+	  console.error('Error importing course data:', error);
+	  res.status(500).json({ error: 'Error importing course data.' });
 	}
-});
+  });
 
 // Endpoint: Generate a PDF report of course titles
 router.get('/pdf-report', async (req, res) => {
