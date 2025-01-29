@@ -1,20 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
-const PdfPrinter = require('pdfmake');
-const fs = require('fs');
-const path = require('path');
-
-// Define fonts required by pdfmake
-const fonts = {
-	Roboto: {
-		normal: path.join(__dirname, '../fonts/Roboto-Regular.ttf'),
-		bold: path.join(__dirname, '../fonts/Roboto-Bold.ttf'),
-	},
-};
-
-// Create a PdfPrinter instance
-const printer = new PdfPrinter(fonts);
+const { generatePDF } = require('../utils/pdfGenerator');;
 
 // Endpoint: Get column names for the course titles table
 router.get('/column-names', (req, res) => {
@@ -34,8 +21,6 @@ router.get('/column-names', (req, res) => {
 });
 
 // Endpoint: Import mapped CSV data into the course titles table
-// columns: course,title,hours,course_fee,web_fee,last_changed
-
 router.post('/import', async (req, res) => {
 	const { mappedData } = req.body;
 
@@ -69,76 +54,40 @@ router.post('/import', async (req, res) => {
 // Endpoint: Generate a PDF report of course titles
 router.get('/pdf-report', async (req, res) => {
 	try {
-		db.all(`SELECT * FROM courses`, (err, rows) => {
+		db.all(`SELECT * FROM courses`, async (err, rows) => {
 			if (err) {
-				console.error(`Error fetching data from Courses Table.`, err);
-				return res.status(500).send('Error fetching data');
+				console.error('Error fetching data:', err);
+				return res.status(500).send('Database error');
 			}
 
-			// Construct table body: First row is the header
-			const tableBody = [
-				[
-					{ text: 'Course', bold: true },
-					{ text: 'Title', bold: true },
-					{ text: 'Hours', bold: true },
-					{ text: 'Course Fee', bold: true },
-					{ text: 'Web Fee', bold: true }
-				],
+			// Define table headers
+			const headers = [
+				{ text: 'Course', bold: true },
+				{ text: 'Title', bold: true },
+				{ text: 'Hours', bold: true },
+				{ text: 'Course Fee', bold: true },
+				{ text: 'Web Fee', bold: true }
 			];
 
-			// Append course data, ensuring NULL values are handled
-			rows.forEach((course) => {
-				tableBody.push([
-					course.course || 'N/A',
-					course.title || 'N/A',
-					course.hours || '0',
-					course.course_fee !== null ? `$${course.course_fee.toFixed(2)}` : 'N/A',
-					course.web_fee !== null ? `$${course.web_fee.toFixed(2)}` : 'N/A'
-				]);
-			});
+			// Map course data for the table
+			const data = rows.map(course => [
+				course.course || 'N/A',
+				course.title || 'N/A',
+				course.hours || '0',
+				typeof course.course_fee === 'number' ? `$${course.course_fee.toFixed(2)}` : 'N/A',
+				typeof course.web_fee === 'number' ? `$${course.web_fee.toFixed(2)}` : 'N/A'
+			]);
 
-			// Define PDF document structure
-			let docDefinition = {
-				pageSize: 'A4',
-				pageMargins: [40, 60, 40, 60],
-				content: [
-					{ text: 'Courses Report', style: 'header' },
-					{
-						table: {
-							widths: ['auto', '*', 'auto', 'auto', 'auto'], // Adjusted widths
-							body: tableBody,
-						},
-						margin: [0, 20, 0, 0],
-					},
-				],
-				styles: {
-					header: {
-						fontSize: 18,
-						bold: true,
-						alignment: 'center',
-						margin: [0, 0, 0, 10],
-					},
-				},
-			};
+			// Set custom column widths
+			const columnWidths = ['auto', '*', 'auto', 'auto', 'auto']; // Adjust title column for readability
 
-			// Create a PDF document
-			const pdfDoc = printer.createPdfKitDocument(docDefinition);
+			// Generate the PDF
+			const pdfBuffer = await generatePDF('Courses Report', headers, data, { columnWidths });
 
-			// Collect PDF data into a buffer
-			let chunks = [];
-			pdfDoc.on('data', (chunk) => {
-				chunks.push(chunk);
-			});
-
-			pdfDoc.on('end', () => {
-				const pdfBuffer = Buffer.concat(chunks);
-				res.setHeader('Content-Type', 'application/pdf');
-				res.setHeader('Content-Disposition', 'attachment; filename=courses-report.pdf');
-				res.send(pdfBuffer);
-			});
-
-			// Finalize PDF creation
-			pdfDoc.end();
+			// Send the PDF response
+			res.setHeader('Content-Type', 'application/pdf');
+			res.setHeader('Content-Disposition', 'attachment; filename=courses-report.pdf');
+			res.send(pdfBuffer);
 		});
 	} catch (error) {
 		console.error('Error generating report:', error);
