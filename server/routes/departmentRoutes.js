@@ -75,12 +75,11 @@ router.get('/pdf-report', async (req, res) => {
       ]);
 
       // Set custom column widths
-      const columnWidths = ['auto', '*', 'auto']; // Scale description column
+      const columnWidths = ['auto', '*', 'auto'];
 
       // Generate the PDF
       const pdfBuffer = await generatePDF('Department Report', headers, data, { columnWidths });
 
-      // Send the PDF response
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename=department-report.pdf');
       res.send(pdfBuffer);

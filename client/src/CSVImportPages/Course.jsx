@@ -38,13 +38,14 @@ const Course = () => {
       .catch((err) => console.error('Error fetching table columns:', err));
   };
 
-  // 📌 Fetch & Preview PDF Report
+  // Fetch & Preview PDF Report
   const generateReport = async () => {
     try {
       const response = await fetch('http://localhost:4000/courses/pdf-report');
       const blob = await response.blob();
       const pdfUrl = URL.createObjectURL(blob);
       setPdfUrl(pdfUrl);
+      setReportType('Courses');
     } catch (error) {
       console.error('Error generating report:', error);
     }
@@ -91,7 +92,7 @@ const Course = () => {
       )}
 
       {/* PDF Preview Modal */}
-      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
+      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} reportType="courses" onClose={() => setPdfUrl(null)} />}
     </div>
   );
 };

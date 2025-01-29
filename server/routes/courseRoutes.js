@@ -54,45 +54,44 @@ router.post('/import', async (req, res) => {
 // Endpoint: Generate a PDF report of course titles
 router.get('/pdf-report', async (req, res) => {
 	try {
-		db.all(`SELECT * FROM courses`, async (err, rows) => {
-			if (err) {
-				console.error('Error fetching data:', err);
-				return res.status(500).send('Database error');
-			}
-
-			// Define table headers
-			const headers = [
-				{ text: 'Course', bold: true },
-				{ text: 'Title', bold: true },
-				{ text: 'Hours', bold: true },
-				{ text: 'Course Fee', bold: true },
-				{ text: 'Web Fee', bold: true }
-			];
-
-			// Map course data for the table
-			const data = rows.map(course => [
-				course.course || 'N/A',
-				course.title || 'N/A',
-				course.hours || '0',
-				typeof course.course_fee === 'number' ? `$${course.course_fee.toFixed(2)}` : 'N/A',
-				typeof course.web_fee === 'number' ? `$${course.web_fee.toFixed(2)}` : 'N/A'
-			]);
-
-			// Set custom column widths
-			const columnWidths = ['auto', '*', 'auto', 'auto', 'auto']; // Adjust title column for readability
-
-			// Generate the PDF
-			const pdfBuffer = await generatePDF('Courses Report', headers, data, { columnWidths });
-
-			// Send the PDF response
-			res.setHeader('Content-Type', 'application/pdf');
-			res.setHeader('Content-Disposition', 'attachment; filename=courses-report.pdf');
-			res.send(pdfBuffer);
-		});
+	  db.all(`SELECT * FROM courses`, async (err, rows) => {
+		if (err) {
+		  console.error('Error fetching data:', err);
+		  return res.status(500).send('Database error');
+		}
+  
+		// Define table headers
+		const headers = [
+		  { text: 'Course', bold: true },
+		  { text: 'Title', bold: true },
+		  { text: 'Hours', bold: true },
+		  { text: 'Course Fee', bold: true },
+		  { text: 'Web Fee', bold: true }
+		];
+  
+		// Map course data for the table
+		const data = rows.map(course => [
+		  course.course || 'N/A',
+		  course.title || 'N/A',
+		  course.hours || '0',
+		  typeof course.course_fee === 'number' ? `$${course.course_fee.toFixed(2)}` : 'N/A',
+		  typeof course.web_fee === 'number' ? `$${course.web_fee.toFixed(2)}` : 'N/A'
+		]);
+  
+		// Set custom column widths
+		const columnWidths = ['auto', '*', 'auto', 'auto', 'auto'];
+  
+		// Generate the PDF
+		const pdfBuffer = await generatePDF('Courses Report', headers, data, { columnWidths });
+  
+		res.setHeader('Content-Type', 'application/pdf');
+		res.setHeader('Content-Disposition', 'attachment; filename=courses-report.pdf');
+		res.send(pdfBuffer);
+	  });
 	} catch (error) {
-		console.error('Error generating report:', error);
-		res.status(500).json({ error: 'Error generating report' });
+	  console.error('Error generating report:', error);
+	  res.status(500).json({ error: 'Error generating report' });
 	}
-});
+  });
 
 module.exports = router;

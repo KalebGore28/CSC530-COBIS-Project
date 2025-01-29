@@ -38,13 +38,14 @@ const Department = () => {
       .catch((err) => console.error('Error fetching table columns:', err));
   };
 
-  // 📌 Fetch & Preview PDF Report
+  // Fetch & Preview PDF Report
   const generateReport = async () => {
     try {
       const response = await fetch('http://localhost:4000/departments/pdf-report');
       const blob = await response.blob();
       const pdfUrl = URL.createObjectURL(blob);
       setPdfUrl(pdfUrl);
+      setReportType('Departments');
     } catch (error) {
       console.error('Error generating report:', error);
     }
@@ -91,7 +92,7 @@ const Department = () => {
       )}
 
       {/* PDF Preview Modal */}
-      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
+      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} reportType="departments" onClose={() => setPdfUrl(null)} />}
     </div>
   );
 };
