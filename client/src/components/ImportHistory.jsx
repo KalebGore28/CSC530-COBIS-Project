@@ -10,6 +10,11 @@ const ImportHistory = ({ entityType }) => {
       .catch((err) => console.error('Error fetching import history:', err));
   }, [entityType]);
 
+  const formatLocalTime = (utcTimestamp) => {
+    const date = new Date(utcTimestamp + 'Z'); // Force UTC parsing
+    return date.toLocaleString(); // Convert to local time format
+  };
+
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg mt-6">
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">{entityType} Import History</h2>
@@ -38,15 +43,15 @@ const ImportHistory = ({ entityType }) => {
                   <td className="p-4">{importEntry.total_records}</td>
                   <td
                     className={`p-4 font-semibold ${importEntry.import_status === 'Completed'
-                        ? 'text-green-600'
-                        : 'text-red-500'
+                      ? 'text-green-600'
+                      : 'text-red-500'
                       }`}
                   >
                     {importEntry.import_status}
                   </td>
                   <td className="p-4">{importEntry.imported_by}</td>
                   <td className="p-4">
-                    {new Date(importEntry.import_date).toLocaleString()}
+                    <td className="p-4">{formatLocalTime(importEntry.import_date)}</td>
                   </td>
                 </tr>
               ))}
