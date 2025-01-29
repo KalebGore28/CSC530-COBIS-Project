@@ -3,6 +3,7 @@ import DepartmentLandingPage from './LandingPage';
 import UploadModal from '../modals/UploadModal';
 import MappingPage from './MappingPage';
 import PreviewPage from './PreviewPage';
+import PDFPreviewModal from '../modals/PDFPreviewModal';
 import Papa from 'papaparse';
 
 const Department = () => {
@@ -12,6 +13,7 @@ const Department = () => {
   const [tableColumns, setTableColumns] = useState([]);
   const [columnMapping, setColumnMapping] = useState({});
   const [step, setStep] = useState('landing'); // landing, mapping, preview
+  const [pdfUrl, setPdfUrl] = useState(null); // PDF URL for preview modal
 
   const handleOnCancel = () => {
     setStep('landing');
@@ -36,11 +38,26 @@ const Department = () => {
       .catch((err) => console.error('Error fetching table columns:', err));
   };
 
+  // 📌 Fetch & Preview PDF Report
+  const generateReport = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/department/pdf-report');
+      const blob = await response.blob();
+      const pdfUrl = URL.createObjectURL(blob);
+      setPdfUrl(pdfUrl);
+    } catch (error) {
+      console.error('Error generating report:', error);
+    }
+  };
+
   return (
     <div>
       {step === 'landing' && (
         <>
-          <DepartmentLandingPage onUploadStart={() => setShowModal(true)} />
+          <DepartmentLandingPage
+            onUploadStart={() => setShowModal(true)}
+            onGenerateReport={generateReport} // ✅ Pass report function
+          />
           {showModal && (
             <UploadModal
               onClose={() => setShowModal(false)}
@@ -67,11 +84,13 @@ const Department = () => {
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
           onProceed={() => {
-            // Proceed to final import step or API call
             console.log('Proceeding to import...');
           }}
         />
       )}
+
+      {/* PDF Preview Modal */}
+      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} onClose={() => setPdfUrl(null)} />}
     </div>
   );
 };
