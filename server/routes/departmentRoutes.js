@@ -35,40 +35,50 @@ router.post('/import', async (req, res) => {
     for (const row of mappedData) {
       const { code, description, prefixes, canvas_id, college } = row;
 
-      const fieldsToUpdate = [];
-      const values = [];
+      try {
+        // ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
+        await db.run(
+          `INSERT OR IGNORE INTO departments (code, description, prefixes, canvas_id, college)
+           VALUES (?, ?, ?, ?, ?)`,
+          [code || '', description || '', prefixes || '', canvas_id || '', college || '']
+        );
 
-      if (description !== undefined) {
-        fieldsToUpdate.push('description = ?');
-        values.push(description);
+        // ✅ Step 2: Update only provided fields if record exists
+        const fieldsToUpdate = [];
+        const values = [];
+
+        if (description !== undefined) {
+          fieldsToUpdate.push('description = ?');
+          values.push(description);
+        }
+        if (prefixes !== undefined) {
+          fieldsToUpdate.push('prefixes = ?');
+          values.push(prefixes);
+        }
+        if (canvas_id !== undefined) {
+          fieldsToUpdate.push('canvas_id = ?');
+          values.push(canvas_id);
+        }
+        if (college !== undefined) {
+          fieldsToUpdate.push('college = ?');
+          values.push(college);
+        }
+
+        if (fieldsToUpdate.length > 0) {
+          values.push(code);
+          await db.run(
+            `UPDATE departments
+             SET ${fieldsToUpdate.join(', ')}
+             WHERE code = ?`,
+            values
+          );
+        }
+      } catch (error) {
+        errorDetails.push({ row, error: error.message });
       }
-      if (prefixes !== undefined) {
-        fieldsToUpdate.push('prefixes = ?');
-        values.push(prefixes);
-      }
-      if (canvas_id !== undefined) {
-        fieldsToUpdate.push('canvas_id = ?');
-        values.push(canvas_id);
-      }
-      if (college !== undefined) {
-        fieldsToUpdate.push('college = ?');
-        values.push(college);
-      }
-
-      if (fieldsToUpdate.length === 0) continue;
-
-      values.push(code);
-
-      const updateQuery = `
-        UPDATE departments
-        SET ${fieldsToUpdate.join(', ')}
-        WHERE code = ?
-      `;
-
-      await db.run(updateQuery, values);
     }
 
-    // ✅ Log import in `imports` table
+    // ✅ Log the import in `imports` table
     await db.run(
       `INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
        VALUES (?, ?, ?, ?, ?, ?)`,

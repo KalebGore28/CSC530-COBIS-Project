@@ -25,8 +25,7 @@ const initializeDatabase = async () => {
     // Create the departments table
     await runQuery(`
       CREATE TABLE IF NOT EXISTS departments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        code TEXT NOT NULL UNIQUE,
+        code TEXT PRIMARY KEY,
         description TEXT NOT NULL,
         prefixes TEXT,
         canvas_id TEXT,
@@ -37,8 +36,7 @@ const initializeDatabase = async () => {
     // Create the courses table
     await runQuery(`
       CREATE TABLE IF NOT EXISTS courses (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        course TEXT NOT NULL UNIQUE,
+        course TEXT PRIMARY KEY,
         title TEXT NOT NULL,
         hours INTEGER NOT NULL,
         course_fee REAL,
@@ -58,7 +56,15 @@ const initializeDatabase = async () => {
         import_status TEXT NOT NULL DEFAULT 'Pending',
         imported_by TEXT NOT NULL,
         import_date TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
-    )
+      )
+    `);
+
+    // Create the academic standing table
+    await runQuery(`
+      CREATE TABLE IF NOT EXISTS academic_standing (
+          code TEXT PRIMARY KEY,
+          description TEXT NOT NULL
+      )
     `);
 
     console.log('Tables initialized successfully.');

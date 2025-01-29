@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../database/db');
-const { generatePDF } = require('../utils/pdfGenerator');;
+const { generatePDF } = require('../utils/pdfGenerator');
 
 // Endpoint: Get column names for the course titles table
 router.get('/column-names', (req, res) => {
@@ -35,43 +35,53 @@ router.post('/import', async (req, res) => {
 		for (const row of mappedData) {
 			const { course, title, hours, course_fee, web_fee } = row;
 
-			const fieldsToUpdate = [];
-			const values = [];
+			try {
+				// ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
+				await db.run(
+					`INSERT OR IGNORE INTO courses (course, title, hours, course_fee, web_fee)
+					 VALUES (?, ?, ?, ?, ?)`,
+					[course || '', title || '', hours || 0, course_fee || null, web_fee || null]
+				);
 
-			if (title !== undefined) {
-				fieldsToUpdate.push('title = ?');
-				values.push(title);
+				// ✅ Step 2: Update only provided fields
+				const fieldsToUpdate = [];
+				const values = [];
+
+				if (title !== undefined) {
+					fieldsToUpdate.push('title = ?');
+					values.push(title);
+				}
+				if (hours !== undefined) {
+					fieldsToUpdate.push('hours = ?');
+					values.push(hours);
+				}
+				if (course_fee !== undefined) {
+					fieldsToUpdate.push('course_fee = ?');
+					values.push(course_fee);
+				}
+				if (web_fee !== undefined) {
+					fieldsToUpdate.push('web_fee = ?');
+					values.push(web_fee);
+				}
+
+				if (fieldsToUpdate.length > 0) {
+					values.push(course);
+					await db.run(
+						`UPDATE courses
+						SET ${fieldsToUpdate.join(', ')}
+						WHERE course = ?`,
+						values
+					);
+				}
+			} catch (error) {
+				errorDetails.push({ row, error: error.message });
 			}
-			if (hours !== undefined) {
-				fieldsToUpdate.push('hours = ?');
-				values.push(hours);
-			}
-			if (course_fee !== undefined) {
-				fieldsToUpdate.push('course_fee = ?');
-				values.push(course_fee);
-			}
-			if (web_fee !== undefined) {
-				fieldsToUpdate.push('web_fee = ?');
-				values.push(web_fee);
-			}
-
-			if (fieldsToUpdate.length === 0) continue;
-
-			values.push(course);
-
-			const updateQuery = `
-		  UPDATE courses
-		  SET ${fieldsToUpdate.join(', ')}
-		  WHERE course = ?
-		`;
-
-			await db.run(updateQuery, values);
 		}
 
 		// ✅ Log import in `imports` table
 		await db.run(
 			`INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
-		 VALUES (?, ?, ?, ?, ?, ?)`,
+			VALUES (?, ?, ?, ?, ?, ?)`,
 			[
 				'courses',
 				fileName || 'Unknown File',
