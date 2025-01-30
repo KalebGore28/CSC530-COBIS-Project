@@ -1,28 +1,37 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../db');
+const { poolPromise } = require('../db'); // Use poolPromise instead of `db`
+
+const sql = require('mssql');
 
 // ✅ Get Import History (Filtered by Entity Type)
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
   const { entity } = req.query; // Get entity type from query params
 
-  let query = `SELECT * FROM imports`;
-  let params = [];
+  try {
+    const pool = await poolPromise; // Ensure connection pool is ready
 
-  if (entity) {
-    query += ` WHERE entity_type = ?`;
-    params.push(entity);
-  }
-
-  query += ` ORDER BY import_date DESC`;
-
-  db.all(query, params, (err, rows) => {
-    if (err) {
-      console.error('Error fetching import history:', err);
-      return res.status(500).json({ error: 'Failed to retrieve import history' });
+    let query = `SELECT * FROM imports`;
+    
+    if (entity) {
+      query += ` WHERE entity_type = @entity`;
     }
-    res.json(rows);
-  });
+
+    query += ` ORDER BY import_date DESC`;
+
+    const request = pool.request();
+    
+    if (entity) {
+      request.input('entity', sql.NVarChar, entity);
+    }
+
+    const result = await request.query(query);
+    
+    res.json(result.recordset); // SQL Server returns results in `recordset`
+  } catch (err) {
+    console.error('Error fetching import history:', err);
+    res.status(500).json({ error: 'Failed to retrieve import history' });
+  }
 });
 
 module.exports = router;

@@ -1,81 +1,85 @@
-const sqlite3 = require('sqlite3').verbose();
-const fs = require('fs');
-const path = require('path');
+const sql = require('mssql');
 
-const isDev = process.env.NODE_ENV !== 'prod';
-const defaultDevDBPath = path.join(__dirname, 'db.sqlite');
-const DB_PATH = isDev ? defaultDevDBPath : process.env.DB_PATH;
-
-// Ensure the database file exists in dev mode; warn in prod mode if missing
-if (isDev) {
-	if (!fs.existsSync(DB_PATH)) {
-		console.log(`⚠️ No existing database found in dev mode. Creating new SQLite database at: ${DB_PATH}`);
-	}
-} else if (!DB_PATH) {
-	console.error('❌ Error: DB_PATH is required in production mode. Pass in the DB_PATH.');
-	process.exit(1);
-}
-
-// Initialize SQLite database
-console.log(`🔗 Connecting to SQLite database at: ${DB_PATH}`);
-const db = new sqlite3.Database(DB_PATH, (err) => {
-	if (err) {
-		console.error('❌ Database connection error:', err.message);
-		process.exit(1);
-	}
-});
-
-// Function to create necessary tables asynchronously
-const runQuery = (query) => {
-	return new Promise((resolve, reject) => {
-		db.run(query, (err) => {
-			if (err) reject(err);
-			else resolve();
-		});
-	});
+// Read environment variables for SQL Server connection
+const config = {
+  user: process.env.DB_USER || 'sa',
+  password: process.env.DB_PASSWORD || 'YourStrongPassw0rd',
+  server: process.env.DB_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT) || 1433,
+  database: process.env.DB_NAME || 'master',
+  options: {
+    encrypt: true, // Set to `true` if using Azure SQL Server
+    trustServerCertificate: true, // Needed for self-signed certs in Docker
+  },
 };
 
+console.log(`🔌 Connecting to SQL Server at ${config.server}:${config.port}...`);
+console.log(`🏢 Database: ${config.database}`);
+
+// Create a connection pool
+const poolPromise = new sql.ConnectionPool(config)
+  .connect()
+  .then((pool) => {
+    console.log('✅ Connected to SQL Server');
+    return pool;
+  })
+  .catch((err) => {
+    console.error('❌ Database connection failed:', err);
+    process.exit(1);
+  });
+
+// Run queries using the connection pool
+const runQuery = async (query) => {
+  const pool = await poolPromise;
+  return pool.request().query(query);
+};
+
+// Initialize database tables (migrating from SQLite to SQL Server)
 const initialize = async () => {
-	try {
-		await runQuery(`
-			CREATE TABLE IF NOT EXISTS departments (
-				code TEXT PRIMARY KEY,
-				description TEXT NOT NULL,
-				prefixes TEXT,
-				canvas_id TEXT,
-				college TEXT
-			)
-		`);
+  try {
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='departments' AND xtype='U')
+      CREATE TABLE departments (
+        code NVARCHAR(255) PRIMARY KEY,
+        description TEXT NOT NULL,
+        prefixes TEXT,
+        canvas_id TEXT,
+        college TEXT
+      )
+    `);
 
-		await runQuery(`
-			CREATE TABLE IF NOT EXISTS courses (
-				course TEXT PRIMARY KEY,
-				title TEXT NOT NULL,
-				hours INTEGER NOT NULL,
-				course_fee REAL,
-				web_fee REAL,
-				last_changed TEXT DEFAULT CURRENT_TIMESTAMP
-			)
-		`);
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='courses' AND xtype='U')
+      CREATE TABLE courses (
+        course NVARCHAR(255) PRIMARY KEY,
+        title TEXT NOT NULL,
+        hours INT NOT NULL,
+        course_fee DECIMAL(10,2),
+        web_fee DECIMAL(10,2),
+        last_changed DATETIME DEFAULT GETDATE()
+      )
+    `);
 
-		await runQuery(`
-			CREATE TABLE IF NOT EXISTS imports (
-				id INTEGER PRIMARY KEY AUTOINCREMENT,
-				entity_type TEXT NOT NULL,
-				file_name TEXT NOT NULL,
-				total_records INTEGER NOT NULL,
-				error_details TEXT,
-				import_status TEXT NOT NULL,
-				imported_by TEXT NOT NULL,
-				import_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-			)
-		`);
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='imports' AND xtype='U')
+      CREATE TABLE imports (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        entity_type NVARCHAR(255) NOT NULL,
+        file_name NVARCHAR(255) NOT NULL,
+        total_records INT NOT NULL,
+        error_details TEXT,
+        import_status NVARCHAR(50) NOT NULL,
+        imported_by NVARCHAR(255) NOT NULL,
+        import_date DATETIME DEFAULT GETDATE()
+      )
+    `);
 
-		console.log("✅ Database verification complete. All necessary tables exist.");
-	} catch (error) {
-		console.error("❌ Error ensuring database tables:", error.message);
-		process.exit(1);
-	}
+    console.log("✅ Database schema initialized.");
+  } catch (error) {
+    console.error("❌ Error creating tables:", error.message);
+    process.exit(1);
+  }
 };
 
-module.exports = { db, initialize };
+// Export connection pool and initialization function
+module.exports = { poolPromise, initialize };

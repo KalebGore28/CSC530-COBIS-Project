@@ -1,26 +1,34 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../db');
+const { poolPromise } = require('../db'); // Ensure db.js exports poolPromise
 const { generatePDF } = require('../utils/pdfGenerator');
+const isFalsy = require('../utils/isFalsy');
+const sql = require('mssql');
 
-// Endpoint: Get column names for the departments table
-router.get('/column-names', (req, res) => {
-  const tableName = 'departments'; // Fixed table name for now
-  db.all(`PRAGMA table_info(${tableName})`, [], (err, rows) => {
-    if (err) {
-      console.error(`Error fetching column names for table ${tableName}:`, err);
-      return res.status(500).send('Error retrieving table columns');
-    }
+// 📌 Endpoint: Get column names for the departments table
+router.get('/column-names', async (req, res) => {
+  const tableName = 'departments';
 
-    const columnNames = rows.map((row) => row.name);
-    res.json({
-      table: tableName,
-      columns: columnNames,
-    });
-  });
+  try {
+    const pool = await poolPromise;
+    const query = `
+      SELECT COLUMN_NAME
+      FROM INFORMATION_SCHEMA.COLUMNS
+      WHERE TABLE_NAME = @tableName
+    `;
+    const result = await pool.request()
+      .input('tableName', sql.NVarChar, tableName)
+      .query(query);
+
+    const columnNames = result.recordset.map(row => row.COLUMN_NAME);
+    res.json({ table: tableName, columns: columnNames });
+  } catch (error) {
+    console.error(`Error fetching column names for table ${tableName}:`, error);
+    res.status(500).send('Error retrieving table columns');
+  }
 });
 
-// Endpoint: Import mapped CSV data into the departments table
+// 📌 Endpoint: Import mapped CSV data into the departments table
 router.post('/import', async (req, res) => {
   const { mappedData, fileName, importedBy } = req.body;
 
@@ -32,46 +40,54 @@ router.post('/import', async (req, res) => {
   let errorDetails = [];
 
   try {
+    const pool = await poolPromise;
+
     for (const row of mappedData) {
       const { code, description, prefixes, canvas_id, college } = row;
+      const test = !college ? null : college.toUpperCase() == 'NULL' ? null : college
 
       try {
         // ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
-        await db.run(
-          `INSERT OR IGNORE INTO departments (code, description, prefixes, canvas_id, college)
-           VALUES (?, ?, ?, ?, ?)`,
-          [code || '', description || '', prefixes || '', canvas_id || '', college || '']
-        );
+        const query = `
+          MERGE INTO departments AS target
+          USING (SELECT @code AS code, @description AS description, 
+                        @prefixes AS prefixes, @canvas_id AS canvas_id, 
+                        @college AS college) AS source
+          ON target.code = source.code
+          WHEN NOT MATCHED THEN
+            INSERT (code, description, prefixes, canvas_id, college)
+            VALUES (source.code, source.description, source.prefixes, source.canvas_id, source.college);
+        `;
+
+        await pool.request()
+          .input('code', sql.NVarChar, isFalsy(code) ? null : code)
+          .input('description', sql.NVarChar, isFalsy(description) ? null : description)
+          .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
+          .input('canvas_id', sql.NVarChar, isFalsy(canvas_id) ? null : canvas_id)
+          .input('college', sql.NVarChar, isFalsy(college) ? null : college)
+          .query(query);
 
         // ✅ Step 2: Update only provided fields if record exists
         const fieldsToUpdate = [];
-        const values = [];
-
-        if (description !== undefined) {
-          fieldsToUpdate.push('description = ?');
-          values.push(description);
-        }
-        if (prefixes !== undefined) {
-          fieldsToUpdate.push('prefixes = ?');
-          values.push(prefixes);
-        }
-        if (canvas_id !== undefined) {
-          fieldsToUpdate.push('canvas_id = ?');
-          values.push(canvas_id);
-        }
-        if (college !== undefined) {
-          fieldsToUpdate.push('college = ?');
-          values.push(college);
-        }
+        if (description !== null) fieldsToUpdate.push(`description = @description`);
+        if (prefixes !== null) fieldsToUpdate.push(`prefixes = @prefixes`);
+        if (canvas_id !== null) fieldsToUpdate.push(`canvas_id = @canvas_id`);
+        if (college !== null) fieldsToUpdate.push(`college = @college`);
 
         if (fieldsToUpdate.length > 0) {
-          values.push(code);
-          await db.run(
-            `UPDATE departments
-             SET ${fieldsToUpdate.join(', ')}
-             WHERE code = ?`,
-            values
-          );
+          const updateQuery = `
+            UPDATE departments
+            SET ${fieldsToUpdate.join(', ')}
+            WHERE code = @code
+          `;
+
+          await pool.request()
+            .input('code', sql.NVarChar, isFalsy(code) ? null : code)
+            .input('description', sql.NVarChar, isFalsy(description) ? null : description)
+            .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
+            .input('canvas_id', sql.NVarChar, isFalsy(canvas_id) ? null : canvas_id)
+            .input('college', sql.NVarChar, isFalsy(college) ? null : college)
+            .query(updateQuery);
         }
       } catch (error) {
         errorDetails.push({ row, error: error.message });
@@ -79,18 +95,19 @@ router.post('/import', async (req, res) => {
     }
 
     // ✅ Log the import in `imports` table
-    await db.run(
-      `INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        'departments',
-        fileName || 'Unknown File',
-        totalRecords,
-        errorDetails.length > 0 ? JSON.stringify(errorDetails) : null,
-        'Completed',
-        importedBy || 'System'
-      ]
-    );
+    const importQuery = `
+      INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
+      VALUES (@entity_type, @file_name, @total_records, @error_details, @import_status, @imported_by)
+    `;
+
+    await pool.request()
+      .input('entity_type', sql.NVarChar, 'departments')
+      .input('file_name', sql.NVarChar, fileName || 'Unknown File')
+      .input('total_records', sql.Int, totalRecords)
+      .input('error_details', sql.NVarChar, errorDetails.length > 0 ? JSON.stringify(errorDetails) : null)
+      .input('import_status', sql.NVarChar, 'Completed')
+      .input('imported_by', sql.NVarChar, importedBy || 'System')
+      .query(importQuery);
 
     res.json({ message: 'Departments imported successfully.', totalRecords });
   } catch (error) {
@@ -99,44 +116,41 @@ router.post('/import', async (req, res) => {
   }
 });
 
-// Endpoint: Generate Department Report as PDF
+// 📌 Endpoint: Generate Department Report as PDF
 router.get('/pdf-report', async (req, res) => {
   try {
-    db.all(`SELECT * FROM departments`, async (err, rows) => {
-      if (err) {
-        console.error('Error fetching data:', err);
-        return res.status(500).send('Database error');
-      }
+    const pool = await poolPromise;
+    const result = await pool.request().query(`SELECT * FROM departments`);
 
-      // Define table headers
-      const headers = [
-        { text: 'Code', bold: true },
-        { text: 'Description', bold: true },
-        { text: 'College', bold: true }
-      ];
+    const rows = result.recordset;
 
-      // Map department data for the table
-      const data = rows.map(dept => [
-        dept.code || 'N/A',
-        dept.description || 'N/A',
-        dept.college || 'N/A'
-      ]);
+    // Define table headers
+    const headers = [
+      { text: 'Code', bold: true },
+      { text: 'Description', bold: true },
+      { text: 'College', bold: true }
+    ];
 
-      // Set custom column widths
-      const columnWidths = ['auto', '*', 'auto'];
+    // Map department data for the table
+    const data = rows.map(dept => [
+      dept.code || 'N/A',
+      dept.description || 'N/A',
+      dept.college || 'N/A'
+    ]);
 
-      // Generate the PDF
-      const pdfBuffer = await generatePDF('Department Report', headers, data, { columnWidths });
+    // Set custom column widths
+    const columnWidths = ['auto', '*', 'auto'];
 
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', 'attachment; filename=department-report.pdf');
-      res.send(pdfBuffer);
-    });
+    // Generate the PDF
+    const pdfBuffer = await generatePDF('Department Report', headers, data, { columnWidths });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=department-report.pdf');
+    res.send(pdfBuffer);
   } catch (error) {
     console.error('Error generating report:', error);
     res.status(500).json({ error: 'Error generating report' });
   }
 });
-
 
 module.exports = router;
