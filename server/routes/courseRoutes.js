@@ -68,10 +68,10 @@ router.post('/import', async (req, res) => {
 
         // ✅ Step 2: Update only provided fields
         const fieldsToUpdate = [];
-        if (title !== undefined) fieldsToUpdate.push(`title = @title`);
-        if (hours !== undefined) fieldsToUpdate.push(`hours = @hours`);
-        if (course_fee !== undefined) fieldsToUpdate.push(`course_fee = @course_fee`);
-        if (web_fee !== undefined) fieldsToUpdate.push(`web_fee = @web_fee`);
+        if (!isFalsy(title)) fieldsToUpdate.push(`title = @title`);
+        if (!isFalsy(hours)) fieldsToUpdate.push(`hours = @hours`);
+        if (!isFalsy(course_fee)) fieldsToUpdate.push(`course_fee = @course_fee`);
+        if (!isFalsy(web_fee)) fieldsToUpdate.push(`web_fee = @web_fee`);
 
         if (fieldsToUpdate.length > 0) {
           const updateQuery = `

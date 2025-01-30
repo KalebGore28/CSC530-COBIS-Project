@@ -44,7 +44,6 @@ router.post('/import', async (req, res) => {
 
     for (const row of mappedData) {
       const { code, description, prefixes, canvas_id, college } = row;
-      const test = !college ? null : college.toUpperCase() == 'NULL' ? null : college
 
       try {
         // ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
@@ -69,10 +68,10 @@ router.post('/import', async (req, res) => {
 
         // ✅ Step 2: Update only provided fields if record exists
         const fieldsToUpdate = [];
-        if (description !== null) fieldsToUpdate.push(`description = @description`);
-        if (prefixes !== null) fieldsToUpdate.push(`prefixes = @prefixes`);
-        if (canvas_id !== null) fieldsToUpdate.push(`canvas_id = @canvas_id`);
-        if (college !== null) fieldsToUpdate.push(`college = @college`);
+        if (!isFalsy(description)) fieldsToUpdate.push(`description = @description`);
+        if (!isFalsy(prefixes)) fieldsToUpdate.push(`prefixes = @prefixes`);
+        if (!isFalsy(canvas_id)) fieldsToUpdate.push(`canvas_id = @canvas_id`);
+        if (!isFalsy(college)) fieldsToUpdate.push(`college = @college`);
 
         if (fieldsToUpdate.length > 0) {
           const updateQuery = `
@@ -91,6 +90,7 @@ router.post('/import', async (req, res) => {
         }
       } catch (error) {
         errorDetails.push({ row, error: error.message });
+        console.log(`Error importing row:`, error.message);
       }
     }
 
@@ -111,7 +111,6 @@ router.post('/import', async (req, res) => {
 
     res.json({ message: 'Departments imported successfully.', totalRecords });
   } catch (error) {
-    console.error('Error importing department data:', error);
     res.status(500).json({ error: 'Error importing department data.' });
   }
 });
@@ -148,8 +147,9 @@ router.get('/pdf-report', async (req, res) => {
     res.setHeader('Content-Disposition', 'attachment; filename=department-report.pdf');
     res.send(pdfBuffer);
   } catch (error) {
-    console.error('Error generating report:', error);
     res.status(500).json({ error: 'Error generating report' });
+    console.error('Error generating report:', error);
+
   }
 });
 
