@@ -6,7 +6,6 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon --watch routes --ext js index.js",
-    "build": "esbuild index.js --bundle --platform=node --minify --outfile=dist/index.js",
     "docker": "docker build -t cobis-server ."
   },
   "keywords": [],
@@ -21,7 +20,6 @@
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
-    "esbuild": "^0.24.2",
     "nodemon": "^3.1.9"
   }
 }
