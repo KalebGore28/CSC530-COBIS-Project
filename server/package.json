@@ -1,12 +1,13 @@
 {
-  "name": "server",
+  "name": "cobis-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
-    "dev": "nodemon --watch routes --ext js index.js"
-
+    "dev": "nodemon --watch routes --ext js index.js",
+    "build": "esbuild index.js --bundle --platform=node --minify --outfile=dist/index.js",
+    "docker": "docker build -t cobis-server ."
   },
   "keywords": [],
   "author": "",
@@ -14,11 +15,13 @@
   "description": "",
   "dependencies": {
     "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "pdfmake": "^0.2.18",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
+    "esbuild": "^0.24.2",
     "nodemon": "^3.1.9"
   }
 }

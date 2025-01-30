@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const { db } = require('../db');
 
 // ✅ Get Import History (Filtered by Entity Type)
 router.get('/', (req, res) => {

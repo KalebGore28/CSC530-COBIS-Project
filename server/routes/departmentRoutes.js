@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database/db');
+const { db } = require('../db');
 const { generatePDF } = require('../utils/pdfGenerator');
 
 // Endpoint: Get column names for the departments table
