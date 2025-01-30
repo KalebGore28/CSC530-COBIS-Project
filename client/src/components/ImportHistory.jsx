@@ -11,9 +11,16 @@ const ImportHistory = ({ entityType }) => {
   }, [entityType]);
 
   const formatLocalTime = (utcTimestamp) => {
-    const date = new Date(utcTimestamp + 'Z'); // Force UTC parsing
-    return date.toLocaleString(); // Convert to local time format
-  };
+    if (!utcTimestamp) return "Unknown Date"; // Handle null cases
+
+    const date = new Date(utcTimestamp); // Directly parse the ISO string
+    if (isNaN(date.getTime())) {
+        console.error("Invalid Date:", utcTimestamp);
+        return "Invalid Date";
+    }
+
+    return date.toLocaleString(); // Convert to local format
+};
 
   return (
     <div className="bg-white p-6 rounded-xl shadow-lg mt-6">
