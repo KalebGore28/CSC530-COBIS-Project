@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const db = require('./db');
-require('dotenv').config();
 
 // Import routes
 const departmentRoutes = require('./routes/departmentRoutes');
@@ -10,7 +9,7 @@ const importHistoryRoutes = require('./routes/importHistoryRoutes');
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = 4000;
 
 // Middleware
 app.use(cors());

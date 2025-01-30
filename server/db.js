@@ -1,7 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const fs = require('fs');
 const path = require('path');
-require('dotenv').config();
 
 const isDev = process.env.NODE_ENV !== 'prod';
 const defaultDevDBPath = path.join(__dirname, 'db.sqlite');
@@ -13,7 +12,7 @@ if (isDev) {
 		console.log(`⚠️ No existing database found in dev mode. Creating new SQLite database at: ${DB_PATH}`);
 	}
 } else if (!DB_PATH) {
-	console.error('❌ Error: DB_PATH is required in production mode. Set it in your .env file.');
+	console.error('❌ Error: DB_PATH is required in production mode. Pass in the DB_PATH.');
 	process.exit(1);
 }
 
