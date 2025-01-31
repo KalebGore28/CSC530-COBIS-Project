@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     const pool = await poolPromise; // Ensure connection pool is ready
 
     let query = `SELECT * FROM imports`;
-    
+
     if (entity) {
       query += ` WHERE entity_type = @entity`;
     }
@@ -19,13 +19,13 @@ router.get('/', async (req, res) => {
     query += ` ORDER BY import_date DESC`;
 
     const request = pool.request();
-    
+
     if (entity) {
       request.input('entity', sql.NVarChar, entity);
     }
 
     const result = await request.query(query);
-    
+
     res.json(result.recordset); // SQL Server returns results in `recordset`
   } catch (err) {
     console.error('Error fetching import history:', err);
