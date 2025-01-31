@@ -1,7 +1,7 @@
 import sql from 'mssql';
 
-// Defaults the database name to 'test_db' when not in production mode
-const databaseName = process.env.NODE_ENV !== 'prod' ? 'test_db' : process.env.DB_NAME;
+// Defaults the database name to 'tempdb' when not in production mode
+const databaseName = process.env.NODE_ENV !== 'prod' ? 'tempdb' : process.env.DB_NAME;
 
 // Read environment variables for SQL Server connection
 const config = {

@@ -1,6 +1,12 @@
 import PdfPrinter from 'pdfmake';
 import path from 'path';
-const __dirname = import.meta.dirname; // Required for ESM to work with __dirname
+
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Correctly get __dirname in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Load fonts for pdfmake
 const fonts = {
