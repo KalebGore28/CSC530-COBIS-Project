@@ -2,6 +2,10 @@
 
 This guide helps you **set up and run Microsoft SQL Server in Docker** and deploy the **COBIS backend server**.
 
+
+### ⚠️ **Rosetta Requirement for Apple Silicon (M Series)**
+To run **Microsoft SQL Server** on Mac **with Apple Silicon (M Series)**, you must enable **Rosetta** for emulation.
+
 ---
 
 ## **🛠️ Running SQL Server in Docker**
