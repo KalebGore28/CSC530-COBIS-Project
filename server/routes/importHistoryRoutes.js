@@ -1,8 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { poolPromise } = require('../db'); // Use poolPromise instead of `db`
-
-const sql = require('mssql');
+import { poolPromise } from '../db.js';
+import sql from 'mssql';
 
 // ✅ Get Import History (Filtered by Entity Type)
 router.get('/', async (req, res) => {
@@ -34,4 +33,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

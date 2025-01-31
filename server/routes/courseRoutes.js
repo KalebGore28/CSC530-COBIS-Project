@@ -1,10 +1,9 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const { poolPromise } = require('../db'); // Use SQL Server connection pool
-const { generatePDF } = require('../utils/pdfGenerator');
-const isFalsy = require('../utils/isFalsy');
-
-const sql = require('mssql');
+import { poolPromise } from '../db.js';
+import generatePDF from '../utils/pdfGenerator.js';
+import isFalsy from '../utils/isFalsy.js';
+import sql from 'mssql';
 
 // 📌 Endpoint: Get column names for the courses table
 router.get('/column-names', async (req, res) => {
@@ -157,4 +156,4 @@ router.get('/pdf-report', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;

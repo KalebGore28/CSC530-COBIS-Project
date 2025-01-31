@@ -1,6 +1,6 @@
-const PdfPrinter = require('pdfmake');
-const fs = require('fs');
-const path = require('path');
+import PdfPrinter from 'pdfmake';
+import path from 'path';
+const __dirname = import.meta.dirname; // Required for ESM to work with __dirname
 
 // Load fonts for pdfmake
 const fonts = {
@@ -78,4 +78,4 @@ const generatePDF = (title, headers, data, options = {}) => {
   });
 };
 
-module.exports = { generatePDF };
+export default generatePDF;

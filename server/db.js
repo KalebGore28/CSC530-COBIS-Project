@@ -1,4 +1,4 @@
-const sql = require('mssql');
+import sql from 'mssql';
 
 // Read environment variables for SQL Server connection
 const config = {
@@ -6,7 +6,7 @@ const config = {
   password: process.env.DB_PASSWORD || 'YourStrongPassw0rd',
   server: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT) || 1433,
-  database: process.env.DB_NAME || 'master',
+  database: process.env.DB_NAME || 'test_db',
   options: {
     encrypt: true, // Set to `true` if using Azure SQL Server
     trustServerCertificate: true, // Needed for self-signed certs in Docker
@@ -82,4 +82,4 @@ const initialize = async () => {
 };
 
 // Export connection pool and initialization function
-module.exports = { poolPromise, initialize };
+export { poolPromise, initialize };

@@ -18,4 +18,4 @@ const isFalsy = (value) => {
 	return !value;
 };
 
-module.exports = isFalsy;
+export default isFalsy;
