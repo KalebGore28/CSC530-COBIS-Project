@@ -62,7 +62,7 @@ router.post('/import', async (req, res) => {
           .input('code', sql.NVarChar, isFalsy(code) ? null : code)
           .input('description', sql.NVarChar, isFalsy(description) ? null : description)
           .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
-          .input('canvas_id', sql.NVarChar, isFalsy(canvas_id) ? null : canvas_id)
+          .input('canvas_id', sql.Int, isFalsy(canvas_id) ? null : parseInt(canvas_id, 10))
           .input('college', sql.NVarChar, isFalsy(college) ? null : college)
           .query(query);
 
@@ -84,7 +84,7 @@ router.post('/import', async (req, res) => {
             .input('code', sql.NVarChar, isFalsy(code) ? null : code)
             .input('description', sql.NVarChar, isFalsy(description) ? null : description)
             .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
-            .input('canvas_id', sql.NVarChar, isFalsy(canvas_id) ? null : canvas_id)
+            .input('canvas_id', sql.Int, isFalsy(canvas_id) ? null : parseInt(canvas_id, 10))
             .input('college', sql.NVarChar, isFalsy(college) ? null : college)
             .query(updateQuery);
         }

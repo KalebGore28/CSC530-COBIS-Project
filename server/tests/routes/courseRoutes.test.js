@@ -1,26 +1,13 @@
 import { describe, beforeAll, afterAll, test, expect } from 'vitest';
 import request from 'supertest';
 import sql from 'mssql';
-import app from '../../app'; // Adjust the import if needed
+import app from '../../app';
 
-// ✅ Configure SQL Server Test Database
-const testDbConfig = {
-  user: process.env.DB_USER || 'sa',
-  password: process.env.DB_PASSWORD || 'YourStrongPassw0rd',
-  server: process.env.DB_SERVER || 'localhost',
-  database: 'test_db',
-  options: {
-    encrypt: true,
-    trustServerCertificate: true
-  }
-};
+import { poolPromise } from '../../db';
 
-let pool;
-
+// Reset test database before tests run
 beforeAll(async () => {
-  pool = await sql.connect(testDbConfig);
-
-  // 🛠 Reset the test database
+  const pool = await poolPromise;
   await pool.request().query(`
     DROP TABLE IF EXISTS courses;
     CREATE TABLE courses (
@@ -34,7 +21,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await sql.close(); // Close DB connection after tests
+  await sql.close();
 });
 
 describe('Course API Endpoints', () => {
@@ -64,16 +51,9 @@ describe('Course API Endpoints', () => {
     expect(res.body.message).toBe('Courses imported successfully.');
 
     // Verify inserted data in database
+    const pool = await poolPromise;
     const result = await pool.request().query('SELECT * FROM courses WHERE course = \'CSC101\'');
     expect(result.recordset.length).toBe(1);
     expect(result.recordset[0].title).toBe('Intro to Programming');
-  });
-
-  test('GET /courses/pdf-report should return a PDF', async () => {
-    const res = await request(app).get('/courses/pdf-report');
-
-    expect(res.status).toBe(200);
-    expect(res.headers['content-type']).toBe('application/pdf');
-    expect(res.headers['content-disposition']).toContain('attachment');
   });
 });

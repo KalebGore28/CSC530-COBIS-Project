@@ -1,12 +1,15 @@
 import sql from 'mssql';
 
+// Defaults the database name to 'test_db' when not in production mode
+const databaseName = process.env.NODE_ENV !== 'prod' ? 'test_db' : process.env.DB_NAME;
+
 // Read environment variables for SQL Server connection
 const config = {
   user: process.env.DB_USER || 'sa',
   password: process.env.DB_PASSWORD || 'YourStrongPassw0rd',
   server: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT) || 1433,
-  database: process.env.DB_NAME || 'test_db',
+  database: databaseName,
   options: {
     encrypt: true, // Set to `true` if using Azure SQL Server
     trustServerCertificate: true, // Needed for self-signed certs in Docker
@@ -38,21 +41,21 @@ const runQuery = async (query) => {
 const initialize = async () => {
   try {
     await runQuery(`
-      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='departments' AND xtype='U')
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'departments')
       CREATE TABLE departments (
-        code NVARCHAR(255) PRIMARY KEY,
-        description TEXT NOT NULL,
-        prefixes TEXT,
-        canvas_id TEXT,
-        college TEXT
+        code NVARCHAR(50) PRIMARY KEY,
+        description NVARCHAR(255) NOT NULL,
+        prefixes NVARCHAR(50),
+        canvas_id INT NULL,
+        college NVARCHAR(255)
       )
     `);
 
     await runQuery(`
-      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='courses' AND xtype='U')
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'courses')
       CREATE TABLE courses (
-        course NVARCHAR(255) PRIMARY KEY,
-        title TEXT NOT NULL,
+        course NVARCHAR(50) PRIMARY KEY,
+        title NVARCHAR(255) NOT NULL,
         hours INT NOT NULL,
         course_fee DECIMAL(10,2),
         web_fee DECIMAL(10,2),
@@ -61,13 +64,13 @@ const initialize = async () => {
     `);
 
     await runQuery(`
-      IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='imports' AND xtype='U')
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'imports')
       CREATE TABLE imports (
         id INT IDENTITY(1,1) PRIMARY KEY,
         entity_type NVARCHAR(255) NOT NULL,
         file_name NVARCHAR(255) NOT NULL,
         total_records INT NOT NULL,
-        error_details TEXT,
+        error_details NVARCHAR(255) NULL,
         import_status NVARCHAR(50) NOT NULL,
         imported_by NVARCHAR(255) NOT NULL,
         import_date DATETIME DEFAULT GETDATE()

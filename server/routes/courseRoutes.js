@@ -61,8 +61,8 @@ router.post('/import', async (req, res) => {
           .input('course', sql.NVarChar, isFalsy(course) ? null : course)
           .input('title', sql.NVarChar, isFalsy(title) ? null : title)
           .input('hours', sql.Int, isFalsy(hours) ? 0.0 : hours)
-		  .input('course_fee', sql.Decimal(10, 2), isFalsy(course_fee) ? 0.0 : course_fee)
-		  .input('web_fee', sql.Decimal(10, 2), isFalsy(web_fee) ? 0.0 : web_fee)
+          .input('course_fee', sql.Decimal(10, 2), isFalsy(course_fee) ? 0.0 : course_fee)
+          .input('web_fee', sql.Decimal(10, 2), isFalsy(web_fee) ? 0.0 : web_fee)
           .query(query);
 
         // ✅ Step 2: Update only provided fields
@@ -82,14 +82,14 @@ router.post('/import', async (req, res) => {
           await pool.request()
             .input('course', sql.NVarChar, isFalsy(course) ? null : course)
             .input('title', sql.NVarChar, isFalsy(title) ? null : title)
-            .input('hours', sql.Int,isFalsy(hours) ? 0.0 : hours) 
-			.input('course_fee', sql.Decimal(10, 2), isFalsy(course_fee) ? 0.0 : course_fee)
-			.input('web_fee', sql.Decimal(10, 2), isFalsy(web_fee) ? 0.0 : web_fee)
+            .input('hours', sql.Int, isFalsy(hours) ? 0.0 : hours)
+            .input('course_fee', sql.Decimal(10, 2), isFalsy(course_fee) ? 0.0 : course_fee)
+            .input('web_fee', sql.Decimal(10, 2), isFalsy(web_fee) ? 0.0 : web_fee)
             .query(updateQuery);
         }
       } catch (error) {
         errorDetails.push({ row, error: error.message });
-		console.log(row, error.message);
+        console.log(row, error.message);
       }
     }
 
