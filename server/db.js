@@ -37,44 +37,287 @@ const runQuery = async (query) => {
   return pool.request().query(query);
 };
 
-// Initialize database tables (migrating from SQLite to SQL Server)
+// Initialize database tables
 const initialize = async () => {
   try {
+
+    // Core Entity Tables
     await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'departments')
-      CREATE TABLE departments (
-        code NVARCHAR(50) PRIMARY KEY,
-        description NVARCHAR(255) NOT NULL,
-        prefixes NVARCHAR(50),
-        canvas_id INT NULL,
-        college NVARCHAR(255)
-      )
+      BEGIN
+        CREATE TABLE departments (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL,
+            prefixes NVARCHAR(50),
+            canvas_id INT NULL,
+            college_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+            FOREIGN KEY (college_code) REFERENCES colleges(code)
+        );
+      END;
+
+      IF NOT EXISTS (SELECT * FROM departments WHERE code = 'UNASSIGNED')
+      BEGIN
+        INSERT INTO departments (code, description, college_code) VALUES ('UNASSIGNED', 'Unassigned Department', 'UNASSIGNED');
+      END;
     `);
 
+    // Note: The "code" field is still used for reference. Imported data combines subject and course_number into a single field.
     await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'courses')
       CREATE TABLE courses (
-        course NVARCHAR(50) PRIMARY KEY,
-        title NVARCHAR(255) NOT NULL,
-        hours INT NOT NULL,
-        course_fee DECIMAL(10,2),
-        web_fee DECIMAL(10,2),
-        last_changed DATETIME DEFAULT GETDATE()
-      )
+          code NVARCHAR(10) PRIMARY KEY, -- Unique ID (Still stores "ACC100" for reference)
+          subject NVARCHAR(10) NOT NULL, -- Extracted from course_id (e.g., "ACC")
+          course_number NVARCHAR(10) NOT NULL, -- Extracted from course_id (e.g., "100")
+          title NVARCHAR(255) NOT NULL,
+          hours INT NOT NULL,
+          course_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+          web_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+          last_changed DATETIME DEFAULT GETDATE(),
+          FOREIGN KEY (subject) REFERENCES subjects(code)
+      );
     `);
 
     await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'programs')
+      BEGIN
+        CREATE TABLE programs (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL,
+            cip_code NVARCHAR(10) NULL,
+            is_major BIT NOT NULL DEFAULT 0,
+            is_minor BIT NOT NULL DEFAULT 0,
+            has_concentration BIT NOT NULL DEFAULT 0,
+            is_discontinued BIT NOT NULL DEFAULT 0,
+            is_aacsb BIT NOT NULL DEFAULT 0,
+            department_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+            college_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+            added_on DATETIME DEFAULT GETDATE(),
+            FOREIGN KEY (department_code) REFERENCES departments(code),
+            FOREIGN KEY (college_code) REFERENCES colleges(code)
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'test_scores')
+      BEGIN
+        CREATE TABLE test_scores (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            student_code NVARCHAR(10) NOT NULL,
+            test_code NVARCHAR(10) NOT NULL,
+            test_description NVARCHAR(255) NOT NULL,
+            score DECIMAL(5,2) NOT NULL,
+            test_date DATE NOT NULL
+            FOREIGN KEY (student_code) REFERENCES students(code)
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'previous_colleges')
+      BEGIN
+        CREATE TABLE previous_colleges (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            student_code NVARCHAR(10) NOT NULL,
+            college_code NVARCHAR(10) NOT NULL,
+            degree NVARCHAR(50) NULL,
+            degree_date DATE NULL,
+            FOREIGN KEY (student_code) REFERENCES students(code),
+            FOREIGN KEY (college_code) REFERENCES college_codes(code)
+        );
+      END;
+    `);
+
+    // Relationship Tables
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_courses')
+      BEGIN
+        CREATE TABLE student_courses (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            student_code NVARCHAR(10) NOT NULL,
+            year INT NOT NULL, -- YYYY Extracted from term (YYYYSS)
+            term_code NVARCHAR(10) NOT NULL, -- SS Extracted from term (YYYYSS)
+            crn NVARCHAR(10) NOT NULL, -- Course Reference Number (Registration ID)
+            subject_code NVARCHAR(10) NOT NULL, -- Course Prefix (e.g., "ACC", "ENG")
+            course_number NVARCHAR(10) NOT NULL, -- Course Number (e.g., "100", "099")
+            section NVARCHAR(10) NOT NULL, -- Course Section (e.g., "03")
+            credit_hours DECIMAL(4,1) NOT NULL, -- Course Credit Hours (99.9 format)
+            course_level NVARCHAR(10) NOT NULL, -- Course Level (UG, GR, ES)
+            part_of_term_code NVARCHAR(10) NULL,
+            registration_status_code NVARCHAR(10) NULL,
+            instructional_method_code NVARCHAR(10) NULL,
+            last_attendance DATE NULL,
+            midterm_grade NVARCHAR(10) NULL,
+            final_grade NVARCHAR(10) NULL,
+            FOREIGN KEY (student_code) REFERENCES students(code),
+            FOREIGN KEY (term_code) REFERENCES terms(code),
+            FOREIGN KEY (subject_code) REFERENCES subjects(code),
+            FOREIGN KEY (part_of_term_code) REFERENCES part_of_term(code),
+            FOREIGN KEY (registration_status_code) REFERENCES registration_status(code),
+            FOREIGN KEY (instructional_method_code) REFERENCES instructional_methods(code)
+        );
+      END;
+    `);
+
+    // Logging/Audit Tables
+    await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'imports')
-      CREATE TABLE imports (
-        id INT IDENTITY(1,1) PRIMARY KEY,
-        entity_type NVARCHAR(255) NOT NULL,
-        file_name NVARCHAR(255) NOT NULL,
-        total_records INT NOT NULL,
-        error_details NVARCHAR(255) NULL,
-        import_status NVARCHAR(50) NOT NULL,
-        imported_by NVARCHAR(255) NOT NULL,
-        import_date DATETIME DEFAULT GETDATE()
-      )
+      BEGIN
+        CREATE TABLE imports (
+          id INT IDENTITY(1,1) PRIMARY KEY,
+          entity_type NVARCHAR(255) NOT NULL,
+          file_name NVARCHAR(255) NOT NULL,
+          total_records INT NOT NULL,
+          error_details NVARCHAR(255) NULL,
+          import_status NVARCHAR(50) NOT NULL,
+          imported_by NVARCHAR(255) NOT NULL,
+          import_date DATETIME DEFAULT GETDATE()
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
+      BEGIN
+        CREATE TABLE overrides (
+            id INT IDENTITY(1,1) PRIMARY KEY,
+            student_code NVARCHAR(10) NOT NULL, -- Student receiving the override
+            year INT NOT NULL, -- YYYY Extracted from TERM (YYYYSS)
+            term_code NVARCHAR(10) NOT NULL, -- SS Extracted from TERM (YYYYSS)
+            crn NVARCHAR(10) NOT NULL, -- Course Reference Number
+            subject_code NVARCHAR(10) NOT NULL, -- Course Prefix (e.g., "ACC", "ENG")
+            course_number NVARCHAR(10) NOT NULL, -- Course Number (e.g., "099", "100")
+            section NVARCHAR(10) NOT NULL, -- Course Section (e.g., "03")
+            override_type NVARCHAR(50) NOT NULL, -- Type of override granted
+            granted_by NVARCHAR(10) NOT NULL, -- UserID of the instructor or admin
+            activity_date DATE NOT NULL, -- Date the override was granted
+            FOREIGN KEY (student_code) REFERENCES students(code),
+            FOREIGN KEY (term_code) REFERENCES terms(code),
+            FOREIGN KEY (subject_code) REFERENCES subjects(code)
+            FOREIGN KEY (course_number) REFERENCES courses(code)
+        );
+      END;
+    `);
+
+    // Structured Lookup Tables
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'subjects')
+      BEGIN
+        CREATE TABLE subjects (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL,
+            department_code NVARCHAR(10) NOT NULL,
+            college_code NVARCHAR(10) NOT NULL,
+            FOREIGN KEY (department_code) REFERENCES departments(code),
+            FOREIGN KEY (college_code) REFERENCES colleges(code)
+        );
+      END;
+    `);
+
+    // Pure Lookup Tables
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_types')
+      BEGIN
+        CREATE TABLE student_types (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'college_codes')
+      BEGIN
+        CREATE TABLE college_codes (
+            code NVARCHAR(10) PRIMARY KEY,
+            name NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'colleges')
+      BEGIN
+        CREATE TABLE colleges (
+          code NVARCHAR(10) PRIMARY KEY,
+          description NVARCHAR(255) NOT NULL
+        );
+      END;
+    
+      IF NOT EXISTS (SELECT * FROM colleges WHERE code = 'UNASSIGNED')
+      BEGIN
+        INSERT INTO colleges (code, description) VALUES ('UNASSIGNED', 'Unassigned College');
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'nations')
+      BEGIN
+        CREATE TABLE nations (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'part_of_term')
+      BEGIN
+        CREATE TABLE part_of_term (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'academic_standing')
+      BEGIN
+        CREATE TABLE academic_standing (
+          code NVARCHAR(10) PRIMARY KEY,
+          description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'admit_codes')
+      BEGIN
+        CREATE TABLE admit_codes (
+          code NVARCHAR(10) PRIMARY KEY,
+          description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'registration_status')
+      BEGIN
+        CREATE TABLE registration_status (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instructional_methods')
+      BEGIN
+        CREATE TABLE instructional_methods (
+            code NVARCHAR(10) PRIMARY KEY,
+            description NVARCHAR(255) NOT NULL
+        );
+      END;
+    `);
+
+    await runQuery(`
+      IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'terms')
+      BEGIN
+        CREATE TABLE terms (
+            code NVARCHAR(10) PRIMARY KEY, -- Term code (10, 50, 80)
+            description NVARCHAR(50) NOT NULL -- Expanded description (Spring, Summer, Fall, Winter)
+        );
+      END;
     `);
 
     console.log("✅ Database schema initialized.");
