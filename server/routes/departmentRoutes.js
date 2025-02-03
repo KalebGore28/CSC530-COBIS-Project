@@ -5,7 +5,7 @@ import generatePDF from '../utils/pdfGenerator.js';
 import isFalsy from '../utils/isFalsy.js';
 import sql from 'mssql';
 
-// 📌 Endpoint: Get column names for the departments table
+// Endpoint: Get column names for the departments table
 router.get('/column-names', async (req, res) => {
   const tableName = 'departments';
 
@@ -28,7 +28,7 @@ router.get('/column-names', async (req, res) => {
   }
 });
 
-// 📌 Endpoint: Import mapped CSV data into the departments table
+// Endpoint: Import mapped CSV data into the departments table
 router.post('/import', async (req, res) => {
   const { mappedData, fileName, importedBy } = req.body;
 
@@ -46,7 +46,7 @@ router.post('/import', async (req, res) => {
       const { code, description, prefixes, canvas_id, college } = row;
 
       try {
-        // ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
+        // Ensure the record exists (INSERT if it doesn’t exist)
         const query = `
           MERGE INTO departments AS target
           USING (SELECT @code AS code, @description AS description, 
@@ -66,7 +66,7 @@ router.post('/import', async (req, res) => {
           .input('college', sql.NVarChar, isFalsy(college) ? null : college)
           .query(query);
 
-        // ✅ Step 2: Update only provided fields if record exists
+        // Update only provided fields if record exists
         const fieldsToUpdate = [];
         if (!isFalsy(description)) fieldsToUpdate.push(`description = @description`);
         if (!isFalsy(prefixes)) fieldsToUpdate.push(`prefixes = @prefixes`);
@@ -94,7 +94,7 @@ router.post('/import', async (req, res) => {
       }
     }
 
-    // ✅ Log the import in `imports` table
+    // Log the import in `imports` table
     const importQuery = `
       INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
       VALUES (@entity_type, @file_name, @total_records, @error_details, @import_status, @imported_by)
@@ -115,7 +115,7 @@ router.post('/import', async (req, res) => {
   }
 });
 
-// 📌 Endpoint: Generate Department Report as PDF
+// Endpoint: Generate Department Report as PDF
 router.get('/pdf-report', async (req, res) => {
   try {
     const pool = await poolPromise;

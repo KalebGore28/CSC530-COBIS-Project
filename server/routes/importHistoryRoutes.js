@@ -3,7 +3,7 @@ const router = express.Router();
 import { poolPromise } from '../db.js';
 import sql from 'mssql';
 
-// ✅ Get Import History (Filtered by Entity Type)
+// Get Import History (Filtered by Entity Type)
 router.get('/', async (req, res) => {
   const { entity } = req.query; // Get entity type from query params
 

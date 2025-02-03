@@ -5,7 +5,7 @@ import generatePDF from '../utils/pdfGenerator.js';
 import isFalsy from '../utils/isFalsy.js';
 import sql from 'mssql';
 
-// 📌 Endpoint: Get column names for the courses table
+// Endpoint: Get column names for the courses table
 router.get('/column-names', async (req, res) => {
   const tableName = 'courses';
 
@@ -28,7 +28,7 @@ router.get('/column-names', async (req, res) => {
   }
 });
 
-// 📌 Endpoint: Import mapped CSV data into the courses table
+// Endpoint: Import mapped CSV data into the courses table
 router.post('/import', async (req, res) => {
   const { mappedData, fileName, importedBy } = req.body;
 
@@ -46,7 +46,7 @@ router.post('/import', async (req, res) => {
       const { course, title, hours, course_fee, web_fee } = row;
 
       try {
-        // ✅ Step 1: Ensure the record exists (INSERT if it doesn’t exist)
+        // Ensure the record exists (INSERT if it doesn’t exist)
         const query = `
           MERGE INTO courses AS target
           USING (SELECT @course AS course, @title AS title, @hours AS hours, 
@@ -65,7 +65,7 @@ router.post('/import', async (req, res) => {
           .input('web_fee', sql.Decimal(10, 2), isFalsy(web_fee) ? 0.0 : web_fee)
           .query(query);
 
-        // ✅ Step 2: Update only provided fields
+        // Update only provided fields
         const fieldsToUpdate = [];
         if (!isFalsy(title)) fieldsToUpdate.push(`title = @title`);
         if (!isFalsy(hours)) fieldsToUpdate.push(`hours = @hours`);
@@ -93,7 +93,7 @@ router.post('/import', async (req, res) => {
       }
     }
 
-    // ✅ Log import in `imports` table
+    // Log import in `imports` table
     const importQuery = `
       INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
       VALUES (@entity_type, @file_name, @total_records, @error_details, @import_status, @imported_by)
@@ -115,7 +115,7 @@ router.post('/import', async (req, res) => {
   }
 });
 
-// 📌 Endpoint: Generate a PDF report of courses
+// Endpoint: Generate a PDF report of courses
 router.get('/pdf-report', async (req, res) => {
   try {
     const pool = await poolPromise;
