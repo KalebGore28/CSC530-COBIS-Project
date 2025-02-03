@@ -92,6 +92,7 @@ const initialize = async () => {
           gender CHAR(1) CHECK (gender IN ('M', 'F')) NULL,
           citizenship CHAR(1) CHECK (citizenship IN ('Y', 'N', 'R')) NOT NULL, -- Y=Yes, N=No, R=Resident Alien
           race_code NVARCHAR(10) NULL,
+          race_description NVARCHAR(255) NULL,
           nation_code NVARCHAR(10) NULL,
           FOREIGN KEY (nation_code) REFERENCES nation(code)
         );  
@@ -226,7 +227,8 @@ const initialize = async () => {
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_enrollment')
       BEGIN
         CREATE TABLE student_enrollment (
-          student_code NVARCHAR(10) PRIMARY KEY,
+          id INT IDENTITY(1,1) PRIMARY KEY,
+          student_code NVARCHAR(10) NOT NULL,
           admit_term_year INT NOT NULL,
           admit_term_code NVARCHAR(10) NOT NULL,
           catalog_year INT NULL,
