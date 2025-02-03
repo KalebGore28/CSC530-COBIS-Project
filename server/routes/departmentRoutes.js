@@ -1,8 +1,8 @@
 import express from 'express';
 const router = express.Router();
 import { poolPromise } from '../db.js';
+import { buildInsertQuery, buildUpdateQuery, buildLogQuery } from '../utils/queryBuilders.js';
 import generatePDF from '../utils/pdfGenerator.js';
-import isFalsy from '../utils/isFalsy.js';
 import sql from 'mssql';
 
 // Endpoint: Get column names for the departments table
@@ -43,74 +43,70 @@ router.post('/import', async (req, res) => {
     const pool = await poolPromise;
 
     for (const row of mappedData) {
-      const { code, description, prefixes, canvas_id, college } = row;
+      const { code, ...data } = row; // Extract primary key separately
 
       try {
-        // Ensure the record exists (INSERT if it doesn’t exist)
-        const query = `
-          MERGE INTO departments AS target
-          USING (SELECT @code AS code, @description AS description, 
-                        @prefixes AS prefixes, @canvas_id AS canvas_id, 
-                        @college AS college) AS source
-          ON target.code = source.code
-          WHEN NOT MATCHED THEN
-            INSERT (code, description, prefixes, canvas_id, college)
-            VALUES (source.code, source.description, source.prefixes, source.canvas_id, source.college);
-        `;
+        // 1️⃣ CHECK IF ROW EXISTS
+        const checkQuery = `SELECT COUNT(*) AS count FROM departments WHERE code = @code`;
+        const checkResult = await pool.request()
+          .input('code', sql.NVarChar, code)
+          .query(checkQuery);
 
-        await pool.request()
-          .input('code', sql.NVarChar, isFalsy(code) ? null : code)
-          .input('description', sql.NVarChar, isFalsy(description) ? null : description)
-          .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
-          .input('canvas_id', sql.Int, isFalsy(canvas_id) ? null : parseInt(canvas_id, 10))
-          .input('college', sql.NVarChar, isFalsy(college) ? null : college)
-          .query(query);
+        const exists = checkResult.recordset[0].count > 0;
 
-        // Update only provided fields if record exists
-        const fieldsToUpdate = [];
-        if (!isFalsy(description)) fieldsToUpdate.push(`description = @description`);
-        if (!isFalsy(prefixes)) fieldsToUpdate.push(`prefixes = @prefixes`);
-        if (!isFalsy(canvas_id)) fieldsToUpdate.push(`canvas_id = @canvas_id`);
-        if (!isFalsy(college)) fieldsToUpdate.push(`college = @college`);
+        if (exists) {
+          // 2️⃣ UPDATE IF ROW EXISTS
+          const { query, columns } = buildUpdateQuery("departments", data, "code");
 
-        if (fieldsToUpdate.length > 0) {
-          const updateQuery = `
-            UPDATE departments
-            SET ${fieldsToUpdate.join(', ')}
-            WHERE code = @code
-          `;
+          const updateRequest = pool.request().input('code', sql.NVarChar, code);
+          columns.forEach(col => updateRequest.input(col, sql.NVarChar, data[col]));
 
-          await pool.request()
-            .input('code', sql.NVarChar, isFalsy(code) ? null : code)
-            .input('description', sql.NVarChar, isFalsy(description) ? null : description)
-            .input('prefixes', sql.NVarChar, isFalsy(prefixes) ? null : prefixes)
-            .input('canvas_id', sql.Int, isFalsy(canvas_id) ? null : parseInt(canvas_id, 10))
-            .input('college', sql.NVarChar, isFalsy(college) ? null : college)
-            .query(updateQuery);
+          await updateRequest.query(query);
+        } else {
+          // 3️⃣ INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
+          const { query, columns } = buildInsertQuery("departments", row);
+
+          const insertRequest = pool.request();
+          columns.forEach(col => insertRequest.input(col, sql.NVarChar, row[col]));
+
+          await insertRequest.query(query);
         }
       } catch (error) {
         errorDetails.push({ row, error: error.message });
-        console.log(`Error importing row:`, error.message);
+        console.error(`Error processing row:`, error.message);
       }
     }
 
-    // Log the import in `imports` table
-    const importQuery = `
-      INSERT INTO imports (entity_type, file_name, total_records, error_details, import_status, imported_by)
-      VALUES (@entity_type, @file_name, @total_records, @error_details, @import_status, @imported_by)
-    `;
+    // 4️⃣ LOG IMPORT OPERATION USING `buildLogQuery`
+    const logData = {
+      entity_type: 'departments',
+      file_name: fileName || 'Unknown File',
+      import_status: 'Completed',
+      imported_by: importedBy || 'System',
+      total_records: parseInt(totalRecords, 10),
+      error_details: errorDetails.length > 0 ? JSON.stringify(errorDetails) : null
+    };
 
-    await pool.request()
-      .input('entity_type', sql.NVarChar, 'departments')
-      .input('file_name', sql.NVarChar, fileName || 'Unknown File')
-      .input('total_records', sql.Int, totalRecords)
-      .input('error_details', sql.NVarChar, errorDetails.length > 0 ? JSON.stringify(errorDetails) : null)
-      .input('import_status', sql.NVarChar, 'Completed')
-      .input('imported_by', sql.NVarChar, importedBy || 'System')
-      .query(importQuery);
+    const { query: logQuery, columns: logColumns } = buildLogQuery("imports", logData);
+    const logRequest = pool.request();
+    logColumns.forEach(col => {
+      if (col === 'total_records') {
+        logRequest.input(col, sql.Int, logData[col]); // Explicitly set as INT
+      } else {
+        logRequest.input(col, sql.NVarChar, logData[col]);
+      }
+    });
 
-    res.json({ message: 'Departments imported successfully.', totalRecords });
+    await logRequest.query(logQuery);
+
+    res.json({
+      message: 'Departments imported successfully.',
+      totalRecords,
+      errors: errorDetails
+    });
+
   } catch (error) {
+    console.error(`Error importing department data:`, error.message);
     res.status(500).json({ error: 'Error importing department data.' });
   }
 });
@@ -134,7 +130,7 @@ router.get('/pdf-report', async (req, res) => {
     const data = rows.map(dept => [
       dept.code || 'N/A',
       dept.description || 'N/A',
-      dept.college || 'N/A'
+      dept.college_code || 'N/A'
     ]);
 
     // Set custom column widths

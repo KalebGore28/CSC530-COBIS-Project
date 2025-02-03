@@ -92,14 +92,19 @@ const Department = () => {
           csvData={csvData}
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
-          apiEndpoint="http://localhost:4000/departments/import"
+          apiEndpoint={'http://localhost:4000/departments/import'}
           entityName="Departments"
           fileName={fileName}
         />
       )}
 
-      {/* PDF Preview Modal */}
-      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} reportType="departments" onClose={() => setPdfUrl(null)} />}
+      {pdfUrl &&
+        <PDFPreviewModal
+          pdfUrl={pdfUrl}
+          reportType="departments"
+          onClose={() => setPdfUrl(null)}
+        />
+      }
     </div>
   );
 };

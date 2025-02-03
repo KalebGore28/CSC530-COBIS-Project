@@ -150,7 +150,7 @@ const initialize = async () => {
           description NVARCHAR(255) NOT NULL,
           prefixes NVARCHAR(50),
           canvas_id INT NULL,
-          college_code NVARCHAR(10) NOT NULL,
+          college_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
           FOREIGN KEY (college_code) REFERENCES colleges(code)
         );
       END;
@@ -409,7 +409,7 @@ const initialize = async () => {
           entity_type NVARCHAR(255) NOT NULL,
           file_name NVARCHAR(255) NOT NULL,
           total_records INT NOT NULL,
-          error_details NVARCHAR(255) NULL,
+          error_details NVARCHAR(MAX) DEFAULT 'No errors reported.',
           import_status NVARCHAR(50) NOT NULL,
           imported_by NVARCHAR(255) NOT NULL,
           import_date DATETIME DEFAULT GETDATE()
@@ -437,6 +437,21 @@ const initialize = async () => {
             FOREIGN KEY (subject_code) REFERENCES subjects(code),
             FOREIGN KEY (course_number) REFERENCES courses(code)
         );
+      END;
+    `);
+
+    // Insert DEFAULT values
+    await runQuery(`
+      -- Insert 'UNASSIGNED' college code if it doesn't exist
+      IF NOT EXISTS (SELECT * FROM colleges WHERE code = 'UNASSIGNED')
+      BEGIN
+        INSERT INTO colleges (code, description) VALUES ('UNASSIGNED', 'Unassigned');
+      END;
+
+      -- Insert 'UNASSIGNED' department if it doesn't exist
+      IF NOT EXISTS (SELECT * FROM departments WHERE code = 'UNASSIGNED')
+      BEGIN
+        INSERT INTO departments (code, description, college_code) VALUES ('UNASSIGNED', 'Unassigned', 'UNASSIGNED');
       END;
     `);
 

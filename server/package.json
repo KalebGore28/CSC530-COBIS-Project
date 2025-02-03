@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest --coverage",
     "start": "node index.js",
-    "dev": "nodemon --watch routes --ext js index.js",
+    "dev": "nodemon --watch routes --watch utils --watch middleware --watch server --ext js index.js",
     "docker": "docker build -t cobis-server ."
   },
   "keywords": [],

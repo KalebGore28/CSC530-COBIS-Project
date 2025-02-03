@@ -7,6 +7,7 @@ import cors from 'cors';
 import departmentRoutes from './routes/departmentRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import importHistoryRoutes from './routes/importHistoryRoutes.js';
+import collegesRoutes from './routes/collegesRoutes.js';
 
 // Create Express app
 const app = express();
@@ -20,5 +21,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/departments', departmentRoutes);
 app.use('/courses', courseRoutes);
 app.use('/import-history', importHistoryRoutes);
+app.use('/colleges', collegesRoutes);
 
 export default app;
