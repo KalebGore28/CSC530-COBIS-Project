@@ -13,10 +13,10 @@ The following command starts a **SQL Server 2022 instance** inside a Docker cont
 📌 **Note:** After running this command, **wait a few seconds** for SQL Server to fully start.
 
 ```sh
-docker run -d --name sqlserver --network cobis-network \\
-  -e 'ACCEPT_EULA=Y' \\
-  -e 'SA_PASSWORD=YourStrongPassw0rd' \\
-  -p 1433:1433 \\
+docker run -d --name sqlserver --network cobis-network \
+  -e 'ACCEPT_EULA=Y' \
+  -e 'SA_PASSWORD=YourStrongPassw0rd' \
+  -p 1433:1433 \
   mcr.microsoft.com/mssql/server:2022-latest
 ```
 
@@ -38,12 +38,12 @@ npm run docker
 ## **🚀 Deploying the COBIS Backend**
 After building the backend, run it inside a Docker container:
 ```sh
-docker run -d --name cobis-server --network cobis-network \\
-  -e DB_HOST=sqlserver \\
-  -e DB_USER=sa \\
-  -e DB_PASSWORD=YourStrongPassw0rd \\
-  -e DB_NAME=tempdb \\
-  -p 4000:4000 \\
+docker run -d --name cobis-server --network cobis-network \
+  -e DB_HOST=sqlserver \
+  -e DB_USER=sa \
+  -e DB_PASSWORD=YourStrongPassw0rd \
+  -e DB_NAME=tempdb \
+  -p 4000:4000 \
   cobis-server
 ```
 
