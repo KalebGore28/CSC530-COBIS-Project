@@ -28,7 +28,7 @@ router.get('/column-names', async (req, res) => {
 	}
 });
 
-// Endpoint: Generate Colleges Report as PDF
+// Endpoint:
 router.post('/import', async (req, res) => {
 	const { mappedData, fileName, importedBy } = req.body;
 

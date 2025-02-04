@@ -161,7 +161,7 @@ const initialize = async () => {
       BEGIN
         CREATE TABLE subjects (
             code NVARCHAR(10) PRIMARY KEY,
-            description NVARCHAR(255) NOT NULL,
+            description NVARCHAR(255) NOT NULL DEFAULT 'No description available.',
             department_code NVARCHAR(10) NOT NULL,
             college_code NVARCHAR(10) NOT NULL,
             FOREIGN KEY (department_code) REFERENCES departments(code),

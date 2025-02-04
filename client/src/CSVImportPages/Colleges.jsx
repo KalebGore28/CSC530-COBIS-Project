@@ -37,7 +37,7 @@ const Colleges = () => {
 	}
 
 	// Fetch table columns
-	fetch('http://localhost:4000/colleges/column-names')
+	fetch('http://localhost:4000/columns?table=colleges')
 		.then((res) => res.json())
 		.then((data) => setTableColumns(data.columns))
 		.catch((err) => console.error('Error fetching table columns:', err));
@@ -92,7 +92,7 @@ const Colleges = () => {
 					csvData={csvData}
 					columnMapping={columnMapping}
 					onBack={() => setStep('mapping')}
-					apiEndpoint={'http://localhost:4000/colleges/import'}
+					apiEndpoint={'http://localhost:4000/import/colleges'}
 					entityName='Colleges'
 					fileName={fileName}
 				/>

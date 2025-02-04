@@ -8,6 +8,8 @@ import departmentRoutes from './routes/departmentRoutes.js';
 import courseRoutes from './routes/courseRoutes.js';
 import importHistoryRoutes from './routes/importHistoryRoutes.js';
 import collegesRoutes from './routes/collegesRoutes.js';
+import importRoutes from './routes/imports.js';
+import columnNamesRoutes from './routes/columnNames.js';
 
 // Create Express app
 const app = express();
@@ -22,5 +24,7 @@ app.use('/departments', departmentRoutes);
 app.use('/courses', courseRoutes);
 app.use('/import-history', importHistoryRoutes);
 app.use('/colleges', collegesRoutes);
+app.use('/import', importRoutes);
+app.use('/', columnNamesRoutes);
 
 export default app;

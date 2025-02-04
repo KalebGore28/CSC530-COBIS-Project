@@ -5,6 +5,7 @@ import App from './App'
 import Department from './CSVImportPages/Department'
 import Course from './CSVImportPages/Course'
 import Colleges from './CSVImportPages/Colleges'
+import Subjects from './CSVImportPages/Subjects'
 
 import './index.css'
 
@@ -16,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <Route path="/import-departments" element={<Department />} />
         <Route path="/import-courses" element={<Course />} />
         <Route path="/import-colleges" element={<Colleges />} />
+        <Route path="/import-subjects" element={<Subjects />} />
         </Routes>
     </Router>
   </React.StrictMode>,

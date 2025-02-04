@@ -37,7 +37,7 @@ const Course = () => {
     });
 
     // Fetch table columns
-    fetch('http://localhost:4000/courses/column-names')
+    fetch('http://localhost:4000/columns?table=courses')
       .then((res) => res.json())
       .then((data) => setTableColumns(data.columns))
       .catch((err) => console.error('Error fetching table columns:', err));
@@ -92,7 +92,7 @@ const Course = () => {
           csvData={csvData}
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
-          apiEndpoint="http://localhost:4000/courses/import"
+          apiEndpoint="http://localhost:4000/import/courses"
           entityName="Courses"
           fileName={fileName}
         />
