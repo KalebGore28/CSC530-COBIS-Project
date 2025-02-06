@@ -1,0 +1,28 @@
+{
+  "type": "module",
+  "name": "cobis-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest --coverage",
+    "start": "node index.js",
+    "dev": "nodemon --watch routes --ext js index.js",
+    "docker": "docker build -t cobis-server ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mssql": "^11.0.1",
+    "pdfmake": "^0.2.18"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^3.0.4",
+    "nodemon": "^3.1.9",
+    "supertest": "^7.0.0",
+    "vitest": "^3.0.4"
+  }
+}
