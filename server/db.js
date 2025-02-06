@@ -1,48 +1,50 @@
-import sql from 'mssql';
+import sql from "mssql";
 
 // Defaults the database name to 'tempdb' when not in production mode
-const databaseName = process.env.NODE_ENV !== 'prod' ? 'tempdb' : process.env.DB_NAME;
+const databaseName =
+    process.env.NODE_ENV !== "prod" ? "tempdb" : process.env.DB_NAME;
 
 // Read environment variables for SQL Server connection
 const config = {
-  user: process.env.DB_USER || 'sa',
-  password: process.env.DB_PASSWORD || 'YourStrongPassw0rd',
-  server: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT) || 1433,
-  database: databaseName,
-  options: {
-    encrypt: true, // Set to `true` if using Azure SQL Server
-    trustServerCertificate: true, // Needed for self-signed certs in Docker
-  },
+    user: process.env.DB_USER || "sa",
+    password: process.env.DB_PASSWORD || "YourStrongPassw0rd",
+    server: process.env.DB_HOST || "localhost",
+    port: parseInt(process.env.DB_PORT) || 1433,
+    database: databaseName,
+    options: {
+        encrypt: true, // Set to `true` if using Azure SQL Server
+        trustServerCertificate: true, // Needed for self-signed certs in Docker
+    },
 };
 
-console.log(`🔌 Connecting to SQL Server at ${config.server}:${config.port}...`);
+console.log(
+    `🔌 Connecting to SQL Server at ${config.server}:${config.port}...`,
+);
 console.log(`🏢 Database: ${config.database}`);
 
 // Create a connection pool
 const poolPromise = new sql.ConnectionPool(config)
-  .connect()
-  .then((pool) => {
-    console.log('✅ Connected to SQL Server');
-    return pool;
-  })
-  .catch((err) => {
-    console.error('❌ Database connection failed:', err);
-    process.exit(1);
-  });
+    .connect()
+    .then((pool) => {
+        console.log("✅ Connected to SQL Server");
+        return pool;
+    })
+    .catch((err) => {
+        console.error("❌ Database connection failed:", err);
+        process.exit(1);
+    });
 
 // Run queries using the connection pool
 const runQuery = async (query) => {
-  const pool = await poolPromise;
-  return pool.request().query(query);
+    const pool = await poolPromise;
+    return pool.request().query(query);
 };
 
 // Initialize database tables
 const initialize = async () => {
-  try {
-
-    // Pure Lookup Tables
-    await runQuery(`
+    try {
+        // Pure Lookup Tables
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_types')
       BEGIN
         CREATE TABLE student_types (
@@ -52,7 +54,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'college_codes')
       BEGIN
         CREATE TABLE college_codes (
@@ -62,7 +64,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'colleges')
       BEGIN
         CREATE TABLE colleges (
@@ -72,7 +74,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'nations')
       BEGIN
         CREATE TABLE nations (
@@ -82,7 +84,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'part_of_term')
       BEGIN
         CREATE TABLE part_of_term (
@@ -92,7 +94,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'academic_standing')
       BEGIN
         CREATE TABLE academic_standing (
@@ -102,7 +104,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'admit_codes')
       BEGIN
         CREATE TABLE admit_codes (
@@ -112,7 +114,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'registration_status')
       BEGIN
         CREATE TABLE registration_status (
@@ -122,7 +124,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instructional_methods')
       BEGIN
         CREATE TABLE instructional_methods (
@@ -132,7 +134,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'terms')
       BEGIN
         CREATE TABLE terms (
@@ -142,7 +144,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'departments')
       BEGIN
         CREATE TABLE departments (
@@ -156,7 +158,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'subjects')
       BEGIN
         CREATE TABLE subjects (
@@ -170,9 +172,8 @@ const initialize = async () => {
       END;
     `);
 
-
-    // Note: The "code" field is still used for reference. Imported data combines subject and course_number into a single field.
-    await runQuery(`
+        // Note: The "code" field is still used for reference. Imported data combines subject and course_number into a single field.
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'courses')
       BEGIN
         CREATE TABLE courses (
@@ -189,7 +190,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')
       BEGIN
         CREATE TABLE students (
@@ -209,7 +210,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'programs')
       BEGIN
         CREATE TABLE programs (
@@ -230,7 +231,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'test_scores')
       BEGIN
         CREATE TABLE test_scores (
@@ -245,7 +246,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'previous_colleges')
       BEGIN
         CREATE TABLE previous_colleges (
@@ -260,7 +261,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'advisors')
       BEGIN
         CREATE TABLE advisors (
@@ -273,8 +274,8 @@ const initialize = async () => {
       END;
     `);
 
-    // Relationship Tables
-    await runQuery(`
+        // Relationship Tables
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_courses')
       BEGIN
         CREATE TABLE student_courses (
@@ -304,7 +305,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_addresses')
       BEGIN
         CREATE TABLE student_addresses (
@@ -333,7 +334,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_enrollment')
       BEGIN
         CREATE TABLE student_enrollment (
@@ -367,7 +368,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_programs')
       BEGIN
         CREATE TABLE student_programs (
@@ -385,7 +386,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_advisors')
       BEGIN
         CREATE TABLE student_advisors (
@@ -400,8 +401,8 @@ const initialize = async () => {
       END;
     `);
 
-    // Logging/Audit Tables
-    await runQuery(`
+        // Logging/Audit Tables
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'imports')
       BEGIN
         CREATE TABLE imports (
@@ -417,7 +418,7 @@ const initialize = async () => {
       END;
     `);
 
-    await runQuery(`
+        await runQuery(`
       IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
       BEGIN
         CREATE TABLE overrides (
@@ -440,8 +441,8 @@ const initialize = async () => {
       END;
     `);
 
-    // Insert DEFAULT values
-    await runQuery(`
+        // Insert DEFAULT values
+        await runQuery(`
       -- Insert 'UNASSIGNED' college code if it doesn't exist
       IF NOT EXISTS (SELECT * FROM colleges WHERE code = 'UNASSIGNED')
       BEGIN
@@ -455,11 +456,11 @@ const initialize = async () => {
       END;
     `);
 
-    console.log("✅ Database schema initialized.");
-  } catch (error) {
-    console.error("❌ Error creating tables:", error.message);
-    process.exit(1);
-  }
+        console.log("✅ Database schema initialized.");
+    } catch (error) {
+        console.error("❌ Error creating tables:", error.message);
+        process.exit(1);
+    }
 };
 
 // Export connection pool and initialization function

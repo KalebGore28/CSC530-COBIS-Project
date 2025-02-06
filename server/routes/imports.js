@@ -22,7 +22,7 @@ router.post('/colleges', async (req, res) => {
 			const { code, ...data } = row; // Extract primary key separately
 
 			try {
-				// 1️⃣ CHECK IF ROW EXISTS
+				// CHECK IF ROW EXISTS
 				const checkQuery = `SELECT COUNT(*) AS count FROM colleges WHERE code = @code`;
 				const checkResult = await pool.request()
 					.input('code', sql.NVarChar, code)
@@ -31,7 +31,7 @@ router.post('/colleges', async (req, res) => {
 				const exists = checkResult.recordset[0].count > 0;
 
 				if (exists) {
-					// 2️⃣ UPDATE IF ROW EXISTS
+					// UPDATE IF ROW EXISTS
 					const { query, columns } = buildUpdateQuery("colleges", data, "code");
 
 					const updateRequest = pool.request().input('code', sql.NVarChar, code);
@@ -39,7 +39,7 @@ router.post('/colleges', async (req, res) => {
 
 					await updateRequest.query(query);
 				} else {
-					// 3️⃣ INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
+					// INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
 					const { query, columns } = buildInsertQuery("colleges", row);
 
 					const insertRequest = pool.request();
@@ -53,7 +53,7 @@ router.post('/colleges', async (req, res) => {
 			}
 		}
 
-		// 4️⃣ LOG IMPORT OPERATION USING `buildLogQuery`
+		// LOG IMPORT OPERATION USING `buildLogQuery`
 		const logData = {
 			entity_type: 'colleges',
 			file_name: fileName || 'Unknown File',
@@ -105,7 +105,7 @@ router.post('/departments', async (req, res) => {
 			const { code, ...data } = row; // Extract primary key separately
 
 			try {
-				// 1️⃣ CHECK IF ROW EXISTS
+				// CHECK IF ROW EXISTS
 				const checkQuery = `SELECT COUNT(*) AS count FROM departments WHERE code = @code`;
 				const checkResult = await pool.request()
 					.input('code', sql.NVarChar, code)
@@ -114,7 +114,7 @@ router.post('/departments', async (req, res) => {
 				const exists = checkResult.recordset[0].count > 0;
 
 				if (exists) {
-					// 2️⃣ UPDATE IF ROW EXISTS
+					// UPDATE IF ROW EXISTS
 					const { query, columns } = buildUpdateQuery("departments", data, "code");
 
 					const updateRequest = pool.request().input('code', sql.NVarChar, code);
@@ -122,7 +122,7 @@ router.post('/departments', async (req, res) => {
 
 					await updateRequest.query(query);
 				} else {
-					// 3️⃣ INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
+					// INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
 					const { query, columns } = buildInsertQuery("departments", row);
 
 					const insertRequest = pool.request();
@@ -136,7 +136,7 @@ router.post('/departments', async (req, res) => {
 			}
 		}
 
-		// 4️⃣ LOG IMPORT OPERATION USING `buildLogQuery`
+		// LOG IMPORT OPERATION USING `buildLogQuery`
 		const logData = {
 			entity_type: 'departments',
 			file_name: fileName || 'Unknown File',
@@ -188,7 +188,7 @@ router.post('/courses', async (req, res) => {
 			const { code, ...data } = row; // Extract primary key separately
 
 			try {
-				// 1️⃣ CHECK IF ROW EXISTS
+				// CHECK IF ROW EXISTS
 				const checkQuery = `SELECT COUNT(*) AS count FROM courses WHERE code = @code`;
 				const checkResult = await pool.request()
 					.input('code', sql.NVarChar, code)
@@ -197,7 +197,7 @@ router.post('/courses', async (req, res) => {
 				const exists = checkResult.recordset[0].count > 0;
 
 				if (exists) {
-					// 2️⃣ UPDATE IF ROW EXISTS
+					// UPDATE IF ROW EXISTS
 					const { query, columns } = buildUpdateQuery("courses", data, "code");
 
 					const updateRequest = pool.request().input('code', sql.NVarChar, code);
@@ -205,7 +205,7 @@ router.post('/courses', async (req, res) => {
 
 					await updateRequest.query(query);
 				} else {
-					// 3️⃣ INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
+					// INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
 					const { query, columns } = buildInsertQuery("courses", row);
 
 					const insertRequest = pool.request();
@@ -219,7 +219,7 @@ router.post('/courses', async (req, res) => {
 			}
 		}
 
-		// 4️⃣ LOG IMPORT OPERATION USING `buildLogQuery`
+		// LOG IMPORT OPERATION USING `buildLogQuery`
 		const logData = {
 			entity_type: 'courses',
 			file_name: fileName || 'Unknown File',
@@ -271,7 +271,7 @@ router.post('/subjects', async (req, res) => {
 			const { code, ...data } = row; // Extract primary key separately
 
 			try {
-				// 1️⃣ CHECK IF ROW EXISTS
+				// CHECK IF ROW EXISTS
 				const checkQuery = `SELECT COUNT(*) AS count FROM subjects WHERE code = @code`;
 				const checkResult = await pool.request()
 					.input('code', sql.NVarChar, code)
@@ -280,7 +280,7 @@ router.post('/subjects', async (req, res) => {
 				const exists = checkResult.recordset[0].count > 0;
 
 				if (exists) {
-					// 2️⃣ UPDATE IF ROW EXISTS
+					// UPDATE IF ROW EXISTS
 					const { query, columns } = buildUpdateQuery("subjects", data, "code");
 
 					const updateRequest = pool.request().input('code', sql.NVarChar, code);
@@ -288,7 +288,7 @@ router.post('/subjects', async (req, res) => {
 
 					await updateRequest.query(query);
 				} else {
-					// 3️⃣ INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
+					// INSERT NEW ROW, OMITTING NULL VALUES SO SQL Server USES DEFAULTS
 					const { query, columns } = buildInsertQuery("subjects", row);
 
 					const insertRequest = pool.request();
@@ -302,7 +302,7 @@ router.post('/subjects', async (req, res) => {
 			}
 		}
 
-		// 4️⃣ LOG IMPORT OPERATION USING `buildLogQuery`
+		// LOG IMPORT OPERATION USING `buildLogQuery`
 		const logData = {
 			entity_type: 'subjects',
 			file_name: fileName || 'Unknown File',

@@ -1,0 +1,384 @@
+﻿CODE   ,NAME
+0003   ,Faulkner University
+0015S  ,Troy University - Dothan
+0026   ,Marion Military Institution
+0047   ,Jefferson State CC
+0048S  ,Troy University - Troy
+0053   ,Univ of Alabama-Huntsvill
+0053   ,Univ of Alabama-Huntsville
+0056   ,Univ of Alabama at Birmin
+0056   ,Univ of Alabama at Birmingham
+0064   ,University of Alaska-Fairbanks
+0075   ,Calhoun Community College
+0083   ,Wallace State CC
+0085   ,Central Arizona College
+0093   ,Mesa CC
+0105   ,Scottsdale CC
+0109   ,East Arkansas CC
+0112   ,Lyon College
+0116   ,Arkansas State University
+0118   ,Univ of Central Arkansas
+0173   ,Cabrillo College
+0201   ,California St Univ-Bakers
+0201   ,California St Univ-Bakersfield
+0217   ,Cuyamaca College
+0240   ,Univ of The Pacific
+0244   ,College of San Mateo
+0264   ,Fresno City College
+0267   ,Feather River College
+0286   ,Humboldt State University
+0333   ,Merced College
+0336   ,Monterey Peninsula Colleg
+0366   ,Palomar College
+0390   ,Gavilan College
+0398   ,San Diego State Universit
+0420   ,Santa Monica College
+0440   ,Skyline College
+0444   ,Univ of California-Berkle
+0483   ,West Los Angeles College
+0496   ,Adams State College
+0497   ,Arapahoe CC
+0522   ,Otero Jr College
+0528   ,Trinidad State Jr College
+0637   ,Deleware Tech-Dover
+0664   ,George Washington Univers
+0694   ,Strayer University
+0721   ,Central Florida CC
+0725   ,Embry Riddle Aeronautical
+0731S  ,Eckerd College
+0733   ,Flordia Gulf Coast University
+0736   ,Valencia CC
+0738   ,Gulf Coast Comm College
+0741   ,Manatee Community College
+0745   ,NW Florida State College
+0752   ,St.Petersburg C-St.Petersburg
+0755   ,Saint Leo University
+0757   ,Polk State College
+0760   ,University of Miami
+0761   ,University of South Flori
+0761   ,University of South Florida
+0769   ,Brevard CC
+0796   ,Augusta State College
+0830   ,Georgia Southern Universi
+0858Q  ,Savanah State Univ
+0874   ,Valdosta State University
+0879   ,Georgia Highlands College
+0888   ,American Intercontinental Univ
+0950   ,Aurora University
+0954   ,Southwestern Illinois Col
+0954   ,Southwestern Illinois College
+0959   ,Prairie State College
+0964   ,Kaskaskia College
+0970   ,Truman College
+0972   ,Malcolm X College
+0975   ,Harold Washington College
+0995   ,Frontier CC
+1003S  ,College of Du Page
+1005   ,College of Lake County
+1015   ,Parkland College
+1016   ,Eastern Illinois Universi
+1017   ,John A Logan College
+1019   ,John Wood CC
+1032   ,Greenville College
+1035   ,Illinois Central College
+1038   ,Lewis & Clark CC
+1046   ,Heartland CC
+1048   ,Joliet Jr College
+1051   ,Kishwaukee College
+1053   ,Kankakee CC
+1055   ,Lake Land College
+1056   ,Illinois Valley CC
+1061   ,Lincoln Land CC
+1064   ,Loyola Univ of Chicago
+1067   ,Lincoln Trail College
+1075   ,McHenry County College
+1091   ,Rend Lake College
+1104   ,Oakton CC
+1144   ,Southern Illinois Univers
+1144   ,Southern Illinois University
+1147   ,Southern IL Univ-Edwardsv
+1147   ,Southern IL Univ-Edwardsville
+1161   ,Southeastern IL College
+1162   ,Wabash Valley College
+1163   ,William Rainey Harper Col
+1163   ,William Rainey Harper College
+1173   ,Shawnee College
+1188   ,University of Evansville
+1206   ,Indiana State University
+1207   ,Univ Southern Indiana
+1210   ,Indiana University
+1213   ,Ivy Tech State Colg-South
+1213   ,Ivy Tech State Colg-Southwest
+1217   ,Indiana U-Purdue U @ Fort
+1217   ,Indiana U-Purdue U @ Fort Wyne
+1228   ,Oakland City University
+1229   ,Indiana University Southeast
+1230   ,Purdue University
+1240   ,Saint Josephs College
+1252   ,University of Notre Dame
+1256   ,Valparaiso University
+1258   ,Vincennes University
+1269   ,Indian Hills CC-Ottumwa
+1269   ,Indiana Hills CC-Ottumwa
+1312   ,Iowa Central CC-Fort Dodge
+1322   ,University of Northern Io
+1342   ,Ashford University
+1354   ,Simpson College
+1356   ,University of Iowa
+1387   ,Barton County CC
+1398   ,Coffeyville Community Col
+1398   ,Coffeyville Community College
+1402   ,Dodge City Community College
+1406   ,Butler County CC
+1408   ,Fort Hays State Universit
+1422   ,Independence Cmnty Jr Col
+1422   ,Independence Cmnty Jr College
+1425   ,Johnson County CC
+1430   ,Emporia State University
+1436   ,Manhattan Christian Colle
+1486   ,Asbury College
+1490   ,Bellarmine University
+1492   ,Berea College
+1498   ,Brescia College
+1500   ,Campbellsville University
+1506   ,Centre College
+1509   ,Central Kentucky Tech Col
+1510   ,Univ of the Cumberlands
+1512   ,Eastern Kentucky Universi
+1512   ,Eastern Kentucky University
+1513   ,Elizabethtown CTC
+1514   ,Georgetown College
+1516   ,Kentucky State University
+1518   ,Kentucky Wesleyan College
+1519   ,Owensboro CTC
+1522   ,Lindsey Wilson College
+1524   ,Mid-Continent University
+1527   ,Maysville CTC
+1530   ,Morehead State University
+1531   ,Bluegrass CTC
+1533   ,Madisonville CC
+1534   ,Spalding University
+1535   ,Gateway CTC-Covington
+1538   ,West Kentucky CTC
+1539   ,Jefferson Tech College
+1541   ,Big Sandy CTC
+1542   ,Saint Catharine College
+1550   ,Transylvania University
+1552   ,Union College
+1554   ,University of Kentucky
+1555   ,Southeast Kentucky CTC
+1556   ,University of Louisville
+1557   ,Henderson CC
+1562   ,Western Kentucky Universi
+1562   ,Western Kentucky University
+1564   ,Ashland CTC
+1566   ,Northern Kentucky Univers
+1566   ,Northern Kentucky University
+1567S  ,Gainesville State College
+1569   ,Hopkinsville CC
+1570   ,Somerset CC
+1571   ,Jefferson CTC-Downtown
+1572   ,Hazard CTC
+1590   ,LA St Univ-A & M-Baton Ro
+1590   ,LA St Univ-A & M-Baton Rouge
+1608   ,Southeastern Louisiana Un
+1608   ,Southeastern Louisiana Univ
+1614   ,Tulane Univ of Louisiana
+1694   ,Frederick CC
+1742   ,US Naval Academy
+1880   ,Northeastern University
+1998   ,Kettering University
+1999   ,Glen Oaks CC
+2004   ,Grand Rapids Community Co
+2016   ,Kalamazoo Valley CC
+2019   ,Lansing CC
+2031   ,Lake Superior State University
+2038   ,Northern Michigan Univers
+2041   ,Northwood Univ-MI
+2043   ,Oakland CC-Auburn Hills
+2054   ,Macomb County CC
+2066   ,Western Michigan University
+2072   ,Rochester College
+2126   ,Minnesota State Univ-Mankato
+2157   ,University of Minnesota
+2161   ,Ridgewater College
+2196   ,E MS CC-Golden Triangle Campus
+2220   ,Mississippi State Univers
+2220   ,Mississippi State University
+2228   ,Northwest Miss Comm Colle
+2228   ,Northwest Miss Comm College
+2244   ,MSDelta CC-Greenville HEC
+2250   ,University of Mississippi
+2272   ,University of Central Missouri
+2274   ,Devry Univ-Kansas City MO
+2281   ,St. Charles County CC
+2292   ,Drury University
+2297   ,Saint Louis CC-Florissant
+2297   ,Saint Louis CC-Florissant Vly
+2299   ,Saint Louis CC-Forest Par
+2299   ,Saint Louis CC-Forest Park
+2306   ,Mineral Area College
+2313   ,Jefferson College
+2322   ,Lincoln University
+2323   ,Missouri Baptist Universi
+2323   ,Missouri Baptist University
+2324   ,Lindenwood University
+2326   ,Maryville Univ of Saint Louis
+2328   ,St. Louis CC-Meramec
+2332   ,Moberly Area Community College
+2340   ,Park University
+2341   ,Metro CC-Penn Valley
+2352   ,St. Louis University
+2366   ,Southeast Missouri St Uni
+2366   ,Southeast Missouri St Univ
+2370   ,Missouri State University
+2372   ,Three Rivers Community Co
+2372   ,Three Rivers Community College
+2380   ,Univ of Missouri-Kansas C
+2380   ,Univ of Missouri-Kansas City
+2382   ,Univ of Missouri-Columbia
+2383   ,Univ of Missouri-St. Loui
+2383   ,Univ of Missouri-St. Louis
+2386   ,Washington University in
+2398   ,Missouri Univ of Sci and
+2398   ,Missouri Univ of Sci and Tech
+2401   ,Missouri State Univ-W. Plains
+2422Q  ,Univ of Montana-Missoula
+2466   ,Chadron State College
+2480   ,Union College
+2491   ,Mid-Plains Community Coll
+2541   ,Bergen CC
+2638   ,New Mexico St Univ-Main Campus
+2660   ,Santa Fe Community Colleg
+2751   ,Genesee CC
+2760   ,Hofstra University
+2775   ,Jefferson CC
+2821   ,Monroe CC
+2838   ,New York University
+2882   ,St. Bonaventure Universit
+2882   ,St. Bonaventure University
+2901   ,Hennepin Tech College
+2926   ,University at Albany/Suny
+2976   ,US Military Academy
+3131   ,Mount Olive College
+3164   ,NC State University-Ralei
+3166   ,University of NC-Greensboro
+3261   ,Columbus St. Community Co
+3261   ,Columbus St. Community College
+3263   ,Cuyahoga CC-Metro Campus
+3294   ,Miami University
+3295   ,Wright State University
+3316   ,Ohio Wesleyan University
+3338   ,University of Akron
+3340   ,University of Cincinnati
+3362   ,Wilmington College of Ohio
+3366   ,Xavier University-OH
+3377   ,Edison State CC
+3378   ,Western Oklahoma St College
+3424   ,Oklahoma State University
+3442   ,University of Oklahoma
+3489   ,Portland CC
+3500   ,University of Portland
+3518   ,Albright College
+3534   ,Carnegie-Mellon Universit
+3534   ,Carnegie-Mellon University
+3585   ,Minnesota State Comm & Te
+3585   ,Minnesota State Comm & Tech Co
+3869   ,Midlands Tech College
+3871   ,Trident Tech College
+3884   ,Winthrop University
+3944   ,Austin Peay State Univers
+3944   ,Austin Peay State University
+3944Q  ,Austin Peay State University
+3946   ,Belmont University
+3948   ,Bethel University
+3952   ,Christian Brothers University
+3953   ,Columbia State CC
+3956   ,Lipscomb University
+3958   ,East Tenn State Universit
+3958   ,East Tenn State University
+3962   ,Freed-Hardeman University
+3967   ,Jackson State CC
+3969   ,Dyersburg State CC
+3974   ,Lambuth University
+3978   ,Lee University
+3980   ,Lemoyne-Owen College
+3983   ,Nashville State Comm Coll
+3983   ,Nashville State Comm College
+3986   ,Martin Methodist College
+3992   ,University of Memphis
+3994   ,Middle Tennessee State Un
+3994   ,Middle Tennessee State Univ
+3995   ,Crichton College
+4003   ,Motlow State CC
+4008   ,Rhodes College
+4011   ,Southwest TN CC
+4012   ,Tennessee Technological U
+4012   ,Tennessee Technological Univ
+4020   ,Union University
+4022   ,Univ of Tennessee-Chattan
+4022   ,Univ of Tennessee-Chattanooga
+4026   ,University of TN-Knoxvill
+4026   ,University of TN-Knoxville
+4028   ,Walters State CC
+4032   ,University of TN-Martin
+4037   ,Volunteer State CC
+4041   ,Chattanooga State Tech CC
+4054   ,Alvin Community College
+4081   ,Central Texas College
+4105   ,Houston CC System
+4167   ,San Jacinto College Centr
+4167   ,San Jacinto College Central
+4168   ,Schreiner University
+4176   ,Southwest Texas Jr College
+4184   ,Southwestern Adventist Un
+4195   ,Tarrant County C-NorthW C
+4195   ,Tarrant County C-NorthW Campus
+4202   ,Prairie View A&M University
+4250   ,West Texas AM University
+4276   ,Utah State University
+4299   ,CC of Vermont
+4353   ,Tidewater CC-Portsmouth
+4362Q  ,J Sargeant Reynolds CC
+4363   ,John Tyler CC
+4364   ,Liberty University
+4378   ,Marymount University
+4469   ,Pierce College
+4473   ,South Seattle CC
+4482   ,Washington State Universi
+4482   ,Washington State University
+4568   ,Cardinal Stritch Universi
+4568   ,Cardinal Stritch University
+4658   ,Univ of Wisconsin-Milwauk
+4658   ,Univ of Wisconsin-Milwaukee
+4675   ,University of Wisconsin C
+5184   ,Kaplan University
+5367   ,Ranken Technical College
+5535   ,Sullivan University
+5569   ,Central New Mexico CC
+5570   ,Cincinnati State Tech & C
+5570   ,Cincinnati State Tech & CC
+AP     ,Advance Placement
+CCAF   ,CC of the Air Force
+CLEP   ,CLEP
+INTL   ,International Institution
+INTLBA ,International Baccalaurea
+INTLBA ,International Baccalaureate
+MILSER ,Military Service
+NC006  ,University of Phoenix
+NC013  ,Excelsior College
+NC021  ,Amercn Council on Educ Cr
+NC021  ,Amercn Council on Educ Credit
+NC024  ,St. John's College/Belize
+NC025  ,University of Belize
+NC031  ,GCE-Advanced Level Examin
+NC043  ,American Intercontinental
+NC043  ,American Intercontinental Univ
+NC049  ,International College
+NC051  ,Unv Del Sagrado Corazon
+NC068  ,Univ of Maryland-Univeristy Co
+NC074  ,Chinese Culture University
+NC079  ,Copper Mt College
+NC080  ,Cape Breton University
+NC101  ,Panama Canal College
+NC104  ,ASA Institute
