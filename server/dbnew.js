@@ -138,16 +138,6 @@ const initialize = async () => {
         `);
 
         await runQuery(`
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'terms')
-            BEGIN
-                CREATE TABLE terms (
-                    code NVARCHAR(10) PRIMARY KEY,
-                    description NVARCHAR(50) NOT NULL
-                );
-            END;
-        `);
-
-        await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'departments')
             BEGIN 
                 CREATE TABLE departments (
@@ -179,6 +169,27 @@ const initialize = async () => {
         `);
 
         await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'programs')
+            BEGIN
+                CREATE TABLE programs (
+                    code NVARCHAR(10) PRIMARY KEY,
+                    description NVARCHAR(255) NOT NULL,
+                    cip_code NVARCHAR(10) NULL,
+                    is_major BIT NOT NULL DEFAULT 0,
+                    is_minor BIT NOT NULL DEFAULT 0,
+                    has_concentration BIT NOT NULL DEFAULT 0,
+                    is_discontinued BIT NOT NULL DEFAULT 0,
+                    is_aacsb BIT NOT NULL DEFAULT 0,
+                    department_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+                    college_code NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+                    added_on DATETIME DEFAULT GETDATE(),
+                    FOREIGN KEY (department_code) REFERENCES departments(code),
+                    FOREIGN KEY (college_code) REFERENCES colleges(code)
+                );
+            END;
+        `);
+
+        await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')
             BEGIN
                 CREATE TABLE students (
@@ -192,6 +203,8 @@ const initialize = async () => {
                     citizen_status NVARCHAR(10) NOT NULL,
                     race_code NVARCHAR(10) NOT NULL,
                     race_description NVARCHAR(255) NOT NULL,
+                    residency_code NVARCHAR(10) NOT NULL, -- Not sure what to do with this
+                    residency_description NVARCHAR(255) NOT NULL, -- Not sure what to do with this either
                     age INT NOT NULL,
                 );
             END;
@@ -215,6 +228,55 @@ const initialize = async () => {
                 );
             END;
         `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_academic_info')
+            BEGIN
+                CREATE TABLE student_academic_info (
+                    mnumber NVARCHAR(10) PRIMARY KEY,
+                    term NVARCHAR(10) NOT NULL,
+                    admit_term NVARCHAR(10) NOT NULL,
+                    level NVARCHAR(10) NOT NULL,
+                    degree_code NVARCHAR(10) NOT NULL,
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber)
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_enrollment')
+            BEGIN
+                CREATE TABLE student_enrollment (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    term NVARCHAR(10) NOT NULL,
+                    course_subject NVARCHAR(10) NOT NULL,
+                    course_number INT NOT NULL,
+                    course_suffix NVARCHAR(5) NULL,
+                    section_number INT NOT NULL,
+                    grade NVARCHAR(10) NULL,
+                    hours INT NOT NULL,
+                    status NVARCHAR(10) NOT NULL,
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (course_subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix)
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_programs')
+            BEGIN
+                CREATE TABLE student_programs (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    program_code NVARCHAR(10) NOT NULL,
+                    start_term NVARCHAR(10) NOT NULL,
+                    end_term NVARCHAR(10) NULL,
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (program_code) REFERENCES programs(code)
+                );
+            END;
+        `);
+
+
 
         console.log("✅ Database schema initialized.");
     } catch (error) {
