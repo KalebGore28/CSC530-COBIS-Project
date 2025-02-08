@@ -16,3 +16,6 @@ DROP TABLE student_addresses;
 DROP TABLE student_enrollment;
 DROP TABLE student_programs;
 DROP TABLE imports;
+DROP TABLE subject_prefixes;
+DROP TABLE terms;
+DROP TABLE overrides;

@@ -231,6 +231,7 @@ const initialize = async () => {
             END;
         `);
 
+        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')
             BEGIN
@@ -252,6 +253,7 @@ const initialize = async () => {
             END;
         `);
 
+        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_addresses')
             BEGIN
@@ -270,6 +272,7 @@ const initialize = async () => {
             END;
         `);
 
+        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_academic_info')
             BEGIN
@@ -284,6 +287,7 @@ const initialize = async () => {
             END;
         `);
 
+        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_enrollment')
             BEGIN
@@ -293,7 +297,7 @@ const initialize = async () => {
                     year INT NOT NULL,
                     course_subject NVARCHAR(10) NOT NULL,
                     course_number INT NOT NULL,
-                    course_suffix NVARCHAR(5) NULL,
+                    course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
                     section_number INT NOT NULL,
                     grade NVARCHAR(10) NULL,
                     hours INT NOT NULL,
@@ -302,6 +306,7 @@ const initialize = async () => {
             END;
         `);
 
+        //TODO: Add foreign keys
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
             BEGIN
@@ -313,6 +318,7 @@ const initialize = async () => {
                 crn NVARCHAR(10) NOT NULL,
                 subject NVARCHAR(10) NOT NULL,
                 course_number NVARCHAR(10) NOT NULL,
+                course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
                 section NVARCHAR(10) NOT NULL,
                 override_type NVARCHAR(50) NOT NULL,
                 granted_by NVARCHAR(10) NOT NULL,
@@ -322,19 +328,32 @@ const initialize = async () => {
             END; 
         `);
 
-
-
-
-
-        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_programs')
             BEGIN
                 CREATE TABLE student_programs (
                     mnumber NVARCHAR(10) NOT NULL,
-                    program_code NVARCHAR(10) NOT NULL,
-                    start_term NVARCHAR(10) NOT NULL,
-                    end_term NVARCHAR(10) NULL
+                    term NVARCHAR(10) NOT NULL,
+                    year INT NOT NULL,
+                    part_of_term NVARCHAR(10) NOT NULL,
+                    crn NVARCHAR(10) NOT NULL,
+                    subject NVARCHAR(10) NOT NULL,
+                    course_number INT NOT NULL,
+                    course_suffix NVARCHAR(5) NULL,
+                    section INT NOT NULL,
+                    hours INT NOT NULL,
+                    level NVARCHAR(10) NOT NULL,
+                    registration_status NVARCHAR(10) NOT NULL,
+                    instructional_method NVARCHAR(10) NOT NULL,
+                    last_attendance DATE NULL,
+                    midterm_grade NVARCHAR(10) NULL,
+                    final_grade NVARCHAR(10) NULL,
+                    PRIMARY KEY (mnumber, term, year, crn, section), -- Composite key
+                    FOREIGN KEY (term) REFERENCES terms(code),
+                    FOREIGN KEY (part_of_term) REFERENCES part_of_term(code),
+                    FOREIGN KEY (subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix),
+                    FOREIGN KEY (registration_status) REFERENCES registration_status(code),
+                    FOREIGN KEY (instructional_method) REFERENCES instructional_methods(code)
                 );
             END;
         `);

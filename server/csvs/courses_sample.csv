@@ -1,0 +1,6 @@
+MNUMBER    ,TERM   ,PARTOFTERM ,CRN   ,CRSESUBJ ,CRSENUMB ,SECTION ,CRHRS ,LEVLCODE ,RSTSCODE ,INSMCODE ,LASTATTEND ,MIDGRADE ,FINGRADE
+M100123456 ,202310 ,1          ,12345 ,ACC      ,     200 ,     03 ,  3.0 ,UG       ,RE       ,CLAS     ,2023-02-15 ,B        ,A
+M100234567 ,202350 ,4          ,67890 ,ENG      ,     101 ,     01 ,  3.0 ,UG       ,RE       ,WEB      ,2023-06-10 ,C        ,B
+M100345678 ,202380 ,10W        ,34567 ,MAT      ,     215 ,     05 ,  4.0 ,UG       ,DR       ,LAB      ,2023-09-20 ,F        ,W
+M100456789 ,202410 ,2          ,89012 ,CSC      ,     301 ,     02 ,  3.0 ,UG       ,RE       ,SEM      ,2024-03-05 ,B        ,A
+M100567890 ,202450 ,5          ,45678 ,BUS      ,     442 ,     04 ,  3.0 ,GR       ,RW       ,WEB      ,2024-07-18 ,A        ,A
