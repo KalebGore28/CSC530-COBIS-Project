@@ -8,11 +8,8 @@ const buildInsertQuery = (tableName, data, primaryKey) => {
 	const insertValues = [];
 
 	Object.entries(data).forEach(([key, value]) => {
-		// Always include the key fields, and for non-key fields, only skip if value is undefined, null, or an empty string.
-		if ((value !== undefined && value !== null && value !== '') || keyFields.includes(key)) {
-			insertColumns.push(key);
-			insertValues.push(`@${key}`);
-		}
+		insertColumns.push(key);
+		insertValues.push(`@${key}`);
 	});
 
 	if (insertColumns.length === 0) {
