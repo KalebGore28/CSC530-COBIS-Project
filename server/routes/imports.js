@@ -645,8 +645,6 @@ router.post('/test_scores', async (req, res) => {
       };
     });
 
-    console.log(transformedData);
-
     const columnTypes = {
       mnumber: 'nvarchar',
       code: 'nvarchar',
