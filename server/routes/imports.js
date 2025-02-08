@@ -7,40 +7,112 @@ const router = express.Router();
 
 /**
  * Process a single row: Check if it exists and then update or insert.
+ * This version allows for dynamic type conversion based on a columnTypes mapping.
+ * 
  * @param {Object} pool - The SQL connection pool.
  * @param {string} tableName - The target table name.
  * @param {string} primaryKey - The primary key column name.
  * @param {Object} row - The data row from the CSV.
+ * @param {Object} [columnTypes={}] - Optional mapping of column names to type strings.
+ *                                    Example: { age: 'int', course_fee: 'decimal' }
  */
-async function processRow(pool, tableName, primaryKey, row) {
-  const primaryKeyValue = row[primaryKey];
-  const { [primaryKey]: _, ...data } = row; // Remove primary key from data
 
-  // Check if the row already exists
-  const checkQuery = `SELECT COUNT(*) AS count FROM ${tableName} WHERE ${primaryKey} = @${primaryKey}`;
-  const checkResult = await pool.request()
-    .input(primaryKey, sql.NVarChar, primaryKeyValue)
-    .query(checkQuery);
+async function processRow(pool, tableName, primaryKey, row, columnTypes = {}) {
+  // Allow primaryKey to be either a single string or an array (for composite keys)
+  const keyFields = Array.isArray(primaryKey) ? primaryKey : [primaryKey];
 
+  // Helper: Maps a type string to an mssql type.
+  function getSqlType(typeStr) {
+    switch (typeStr.toLowerCase()) {
+      case 'int':
+      case 'integer':
+        return sql.Int;
+      case 'decimal':
+        return sql.Decimal(18, 2); // default precision 18, scale 2
+      case 'float':
+        return sql.Float;
+      case 'bit':
+      case 'boolean':
+        return sql.Bit;
+      default:
+        return sql.NVarChar;
+    }
+  }
+
+  // Helper: Converts a value to the correct type based on the type string.
+  function convertValue(value, typeStr) {
+    if (value == null) return null;
+    switch (typeStr.toLowerCase()) {
+      case 'int':
+      case 'integer':
+        return parseInt(value, 10);
+      case 'decimal':
+      case 'float':
+        return parseFloat(value);
+      case 'bit':
+      case 'boolean':
+        if (typeof value === 'boolean') return value;
+        return value.toString().toLowerCase() === 'true' || value === 1 || value === '1';
+      default:
+        return value.toString().trim();
+    }
+  }
+
+  // Remove composite key fields from the rest of the data to update
+  const data = { ...row };
+  keyFields.forEach(key => delete data[key]);
+
+  // Build the check query using composite key conditions
+  const conditions = keyFields.map(key => `${key} = @${key}`).join(' AND ');
+  const checkQuery = `SELECT COUNT(*) AS count FROM ${tableName} WHERE ${conditions}`;
+
+  const checkRequest = pool.request();
+  keyFields.forEach(key => {
+    const typeStr = columnTypes[key] || 'nvarchar';
+    const type = getSqlType(typeStr);
+    checkRequest.input(key, type, convertValue(row[key], typeStr));
+  });
+  const checkResult = await checkRequest.query(checkQuery);
   const exists = checkResult.recordset[0].count > 0;
 
   if (exists) {
-    // Build and execute the update query
+    // // Update the row
+    // console.log(`Updating row with composite key: ${JSON.stringify(keyFields.reduce((acc, key) => {
+    //   acc[key] = row[key];
+    //   return acc;
+    // }, {}))}`);
+
+    // Build the update query. Note: Ensure your buildUpdateQuery supports composite keys.
     const { query, columns } = buildUpdateQuery(tableName, data, primaryKey);
-    const request = pool.request().input(primaryKey, sql.NVarChar, primaryKeyValue);
-    columns.forEach(col =>
-      request.input(col, sql.NVarChar, data[col])
-    );
-    await request.query(query);
-  } else {
-    // Build and execute the insert query
-    const { query, columns } = buildInsertQuery(tableName, row, primaryKey);
-    const request = pool.request();
+    const updateRequest = pool.request();
+    // Add each key field as an input parameter
+    keyFields.forEach(key => {
+      const typeStr = columnTypes[key] || 'nvarchar';
+      const type = getSqlType(typeStr);
+      updateRequest.input(key, type, convertValue(row[key], typeStr));
+    });
+    // Add the rest of the columns to update
     columns.forEach(col => {
-      let value = row[col]?.toString().trim() || null;
-      request.input(col, sql.NVarChar, value);
-  });
-    await request.query(query);
+      const typeStr = columnTypes[col] || 'nvarchar';
+      const type = getSqlType(typeStr);
+      updateRequest.input(col, type, convertValue(row[col], typeStr));
+    });
+    await updateRequest.query(query);
+  } else {
+    // // Insert the row
+    // console.log(`Inserting row with composite key: ${JSON.stringify(keyFields.reduce((acc, key) => {
+    //   acc[key] = row[key];
+    //   return acc;
+    // }, {}))}`);
+
+    const { query, columns } = buildInsertQuery(tableName, row, primaryKey);
+    const insertRequest = pool.request();
+    columns.forEach(col => {
+      const typeStr = columnTypes[col] || 'nvarchar';
+      const type = getSqlType(typeStr);
+      insertRequest.input(col, type, convertValue(row[col], typeStr));
+    });
+    await insertRequest.query(query);
   }
 }
 
@@ -71,7 +143,7 @@ async function logImportOperation(pool, logData) {
  * @param {string} importedBy - Identifier of who performed the import.
  * @returns {Object} - An object with the total records processed and any errors.
  */
-async function importData(tableName, primaryKey, mappedData, fileName, importedBy) {
+async function importData(tableName, primaryKey, mappedData, fileName, importedBy, columnTypes = {}) {
   if (!Array.isArray(mappedData) || mappedData.length === 0) {
     throw new Error('Invalid CSV data.');
   }
@@ -82,7 +154,7 @@ async function importData(tableName, primaryKey, mappedData, fileName, importedB
 
   for (const row of mappedData) {
     try {
-      await processRow(pool, tableName, primaryKey, row);
+      await processRow(pool, tableName, primaryKey, row, columnTypes);
     } catch (error) {
       errorDetails.push({ row, error: error.message });
       console.error(`Error processing row: ${error.message}`);
@@ -245,6 +317,82 @@ router.post('/instructional_methods', async (req, res) => {
   } catch (error) {
     console.error(`Error importing instructional methods data: ${error.message}`);
     res.status(500).json({ error: 'Error importing instructional methods data.' });
+  }
+});
+
+// Endpoint: Import departments data
+router.post('/departments', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    const columnTypes = {
+      code: 'nvarchar',
+      description: 'nvarchar',
+      prefixes: 'nvarchar',
+      canvas_id: 'int',
+      college: 'nvarchar'
+    };
+
+    const result = await importData('departments', 'code', mappedData, fileName, importedBy, columnTypes);
+    res.json({
+      message: 'Departments imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing departments data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing departments data.' });
+  }
+});
+
+// Endpoint: Import courses data
+router.post('/courses', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+
+      const courseMatch = row.course.match(/^([A-Za-z]+)(\d+)([A-Za-z]*)$/);
+
+      if (!courseMatch) {
+        console.warn(`⚠ Invalid COURSE format: ${row.course}`);
+        return null; // Skip invalid rows
+      }
+
+      return {
+        subject: courseMatch[1],          // Extracts the subject (e.g., "ACC")
+        course_number: parseInt(courseMatch[2], 10),  // Extracts course number (e.g., 200)
+        course_suffix: courseMatch[3] || '', // Extracts suffix if present (e.g., "T" from "100T")
+        title: row.crsetitle.trim(),      // Map to `title`
+        hours: parseInt(row.crhrs, 10) || 0, // Map to `hours` (default 0 if null)
+        course_fee: parseFloat(row.course_fee) || 0, // Map to `course_fee`, default 0
+        web_fee: parseFloat(row.web_fee) || 0,  // Map to `web_fee`, default 0
+        // last_changed: row.lastchanged && row.lastchanged.trim() !== '' ? row.lastchanged : null // Map to `last_changed`
+      };
+    }).filter(row => row !== null); // Remove invalid rows
+
+    const columnTypes = {
+      subject: 'nvarchar',
+      course_number: 'int',
+      course_suffix: 'nvarchar',
+      title: 'nvarchar',
+      hours: 'int',
+      course_fee: 'decimal',
+      web_fee: 'decimal',
+      last_changed: 'nvarchar'
+    };
+
+    const result = await importData('courses', ['subject', 'course_number', 'course_suffix'], transformedData, fileName, importedBy, columnTypes);
+
+    res.json({
+      message: 'Courses imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing courses data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing courses data.' });
   }
 });
 

@@ -8,7 +8,6 @@ const isFalsy = (value) => {
 			normalized === "null" ||
 			normalized === "undefined" ||
 			normalized === "" ||
-			normalized === "0" ||
 			normalized === "nan") {
 			return true;
 		}
