@@ -2184,8 +2184,6 @@ CIS    ,685    ,Special Problems                          ,    3 ,9.00       ,30
 ECO    ,190    ,Consumer Economics                        ,    3 ,NULL       ,NULL    ,NULL
 TSM    ,617    ,Advanced Systems Planning                 ,    3 ,NULL       ,NULL    ,NULL
 COM    ,630    ,Sem in Interpersonal Com                  ,    3 ,NULL       ,NULL    ,NULL
-JMC    ,685    ,Specialized Mass Communication            ,    1 ,NULL       ,NULL    ,NULL
-JMC    ,685    ,Specialized Mass Communication            ,    2 ,NULL       ,NULL    ,NULL
 JMC    ,685    ,Specialized Mass Communication            ,    3 ,NULL       ,NULL    ,NULL
 JMC    ,615    ,History of Media/Mass Com                 ,    3 ,NULL       ,NULL    ,NULL
 ECO    ,386    ,Intl Experience in Economics              ,    3 ,NULL       ,NULL    ,NULL
@@ -2298,7 +2296,6 @@ LSC    ,489    ,Coop Ed/Internship                        ,    3 ,NULL       ,NU
 COM    ,887    ,Sem in Organizational Leadersh            ,    3 ,NULL       ,NULL    ,NULL
 CSC    ,100T   ,Transitions                               ,    1 ,NULL       ,NULL    ,NULL
 MKT    ,669    ,Seminar in Global Marketing               ,    3 ,NULL       ,NULL    ,NULL
-CIS    ,299    ,Special Topics in Computer App            ,    1 ,NULL       ,NULL    ,NULL
 FIN    ,100T   ,Transitions                               ,    1 ,NULL       ,NULL    ,NULL
 BUS    ,100T   ,Transitions                               ,    1 ,NULL       ,NULL    ,NULL
 ACC    ,100T   ,Transitions                               ,    1 ,NULL       ,NULL    ,NULL

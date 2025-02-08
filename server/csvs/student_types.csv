@@ -4,8 +4,8 @@ D    ,First-time EDS                ,C
 E    ,ESL                           ,E
 F    ,First-time freshman           ,C
 G    ,First-time graduate           ,C
-H    ,Summer First-Time Freshman    ,I
 I    ,IPEDS New Freshman for Fall   ,C
+H    ,Summer First-Time Freshman    ,I
 N    ,New transfer < 30 hours       ,C
 O    ,Readmitted transfer           ,C
 P    ,FTF prev Sum/Code will change ,C
