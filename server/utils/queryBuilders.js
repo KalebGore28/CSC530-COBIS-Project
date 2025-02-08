@@ -1,24 +1,25 @@
 import isFalsy from './isFalsy.js';
 
-const buildInsertQuery = (tableName, data) => {
-	const insertColumns = [];
-	const insertValues = [];
+const buildInsertQuery = (tableName, data, primaryKey) => {
+    const insertColumns = [];
+    const insertValues = [];
 
-	Object.entries(data).forEach(([key, value]) => {
-		if (!isFalsy(value)) { // Ignore falsy (null, undefined, empty string)
-			insertColumns.push(key);
-			insertValues.push(`@${key}`);
-		}
-	});
+    Object.entries(data).forEach(([key, value]) => {
+        // Ensure the primary key is ALWAYS included
+        if (!isFalsy(value) || key === primaryKey) {  
+            insertColumns.push(key);
+            insertValues.push(`@${key}`);
+        }
+    });
 
-	if (insertColumns.length === 0) {
-		throw new Error("No valid fields provided for INSERT.");
-	}
+    if (insertColumns.length === 0) {
+        throw new Error("No valid fields provided for INSERT.");
+    }
 
-	return {
-		query: `INSERT INTO ${tableName} (${insertColumns.join(', ')}) VALUES (${insertValues.join(', ')})`,
-		columns: insertColumns
-	};
+    return {
+        query: `INSERT INTO ${tableName} (${insertColumns.join(', ')}) VALUES (${insertValues.join(', ')})`,
+        columns: insertColumns
+    };
 };
 
 const buildUpdateQuery = (tableName, data, primaryKey) => {

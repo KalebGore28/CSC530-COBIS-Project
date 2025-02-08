@@ -45,6 +45,23 @@ const initialize = async () => {
 
     try {
 
+        // Logging/Audit Tables
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'imports')
+            BEGIN
+                CREATE TABLE imports (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                entity_type NVARCHAR(255) NOT NULL,
+                file_name NVARCHAR(255) NOT NULL,
+                total_records INT NOT NULL,
+                error_details NVARCHAR(MAX) DEFAULT 'No errors reported.',
+                import_status NVARCHAR(50) NOT NULL,
+                imported_by NVARCHAR(255) NOT NULL,
+                import_date DATETIME DEFAULT GETDATE()
+                );
+            END;
+        `);
+        
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_types')
             BEGIN
