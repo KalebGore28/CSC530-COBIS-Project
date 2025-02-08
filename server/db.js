@@ -231,6 +231,20 @@ const initialize = async () => {
             END;
         `);
 
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'test_scores')
+            BEGIN
+                CREATE TABLE test_scores (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    code NVARCHAR(10) NOT NULL,
+                    description NVARCHAR(255) NOT NULL,
+                    score INT NOT NULL,
+                    date DATE NOT NULL,
+                    PRIMARY KEY (mnumber, code)
+                );
+            END;
+        `);
+
         //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')

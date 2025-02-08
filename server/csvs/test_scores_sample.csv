@@ -1,0 +1,6 @@
+MNUMBER    ,TESTCODE ,TESTDESC                              ,TESTSCORE ,TESTDATE
+M100123456 ,ACT      ,ACT Composite                         ,       28 ,03152023
+M100234567 ,SAT      ,SAT Verbal                            ,      640 ,11202022
+M100345678 ,GRE      ,GRE Quantitative                      ,      160 ,06052021
+M100456789 ,TOEFL    ,Test of English as a Foreign Language ,       95 ,09012020
+M100567890 ,GMAT     ,Graduate Management Admission Test    ,      700 ,01082024

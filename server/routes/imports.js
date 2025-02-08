@@ -11,7 +11,7 @@ const router = express.Router();
  * 
  * @param {Object} pool - The SQL connection pool.
  * @param {string} tableName - The target table name.
- * @param {string} primaryKey - The primary key column name.
+ * @param {string|Array} primaryKey - The primary key column name(s).
  * @param {Object} row - The data row from the CSV.
  * @param {Object} [columnTypes={}] - Optional mapping of column names to type strings.
  *                                    Example: { age: 'int', course_fee: 'decimal' }
@@ -134,7 +134,7 @@ async function logImportOperation(pool, logData) {
 /**
  * Generic import function that can be reused for any table.
  * @param {string} tableName - The target table name.
- * @param {string} primaryKey - The primary key column name.
+ * @param {string|Array} primaryKey - The primary key column name(s).
  * @param {Array} mappedData - Array of data rows to import.
  * @param {string} fileName - Name of the file being imported.
  * @param {string} importedBy - Identifier of who performed the import.
@@ -171,6 +171,24 @@ async function importData(tableName, primaryKey, mappedData, fileName, importedB
   await logImportOperation(pool, logData);
 
   return { totalRecords, errorDetails };
+}
+
+// Helper function to convert DDMMYYYY to YYYY-MM-DD
+function convertDateDDMMYYYY(dateStr) {
+  if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
+  const day = dateStr.substring(0, 2);
+  const month = dateStr.substring(2, 4);
+  const year = dateStr.substring(4, 8);
+  return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
+}
+
+// Helper function to convert MMDDYYYY to YYYY-MM-DD
+function convertDateMMDDYYYY(dateStr) {
+  if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
+  const month = dateStr.substring(0, 2);
+  const day = dateStr.substring(2, 4);
+  const year = dateStr.substring(4, 8);
+  return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
 }
 
 // Endpoint: Import academic_standing data
@@ -398,15 +416,6 @@ router.post('/overrides', async (req, res) => {
   try {
     const { mappedData, fileName, importedBy } = req.body;
 
-    // Helper function to convert DDMMYYYY to YYYY-MM-DD
-    function convertDate(dateStr) {
-      if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
-      const day = dateStr.substring(0, 2);
-      const month = dateStr.substring(2, 4);
-      const year = dateStr.substring(4, 8);
-      return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
-    }
-
     // Transform the CSV data to match the database schema
     const transformedData = mappedData.map(row => {
 
@@ -431,7 +440,7 @@ router.post('/overrides', async (req, res) => {
         section: row.section,
         override_type: row.override,
         granted_by: row.userid,
-        override_date: convertDate(row.activitydate)
+        override_date: convertDateDDMMYYYY(row.activitydate)
       };
     }).filter(row => row !== null); // Remove invalid rows
 
@@ -604,8 +613,6 @@ router.post('/student_programs', async (req, res) => {
   }
 });
 
-
-
 // Endpoint: Import terms data
 router.post('/terms', async (req, res) => {
   try {
@@ -619,6 +626,44 @@ router.post('/terms', async (req, res) => {
   } catch (error) {
     console.error(`Error importing terms data: ${error.message}`);
     res.status(500).json({ error: 'Error importing terms data.' });
+  }
+});
+
+// Endpoint: Import test_scores data
+router.post('/test_scores', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+      return {
+        mnumber: row.mnumber,
+        code: row.testcode,
+        description: row.testdesc,
+        score: parseFloat(row.testscore) || 0,
+        date: convertDateMMDDYYYY(row.testdate),
+      };
+    });
+
+    console.log(transformedData);
+
+    const columnTypes = {
+      mnumber: 'nvarchar',
+      code: 'nvarchar',
+      description: 'nvarchar',
+      score: 'decimal',
+      date: 'datetime',
+    };
+
+    const result = await importData('test_scores', ['mnumber', 'code'], transformedData, fileName, importedBy, columnTypes);
+    res.json({
+      message: 'Test scores imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing test scores data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing test scores data.' });
   }
 });
 
