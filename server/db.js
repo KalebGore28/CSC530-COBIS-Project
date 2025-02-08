@@ -61,7 +61,7 @@ const initialize = async () => {
                 );
             END;
         `);
-        
+
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_types')
             BEGIN
@@ -152,6 +152,16 @@ const initialize = async () => {
                     description NVARCHAR(255) NOT NULL
                 );
             END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'terms')
+            BEGIN
+                CREATE TABLE terms (
+                    code NVARCHAR(10) PRIMARY KEY,
+                    description NVARCHAR(255) NOT NULL
+                );
+            END;    
         `);
 
         await runQuery(`
@@ -280,6 +290,7 @@ const initialize = async () => {
                 CREATE TABLE student_enrollment (
                     mnumber NVARCHAR(10) NOT NULL,
                     term NVARCHAR(10) NOT NULL,
+                    year INT NOT NULL,
                     course_subject NVARCHAR(10) NOT NULL,
                     course_number INT NOT NULL,
                     course_suffix NVARCHAR(5) NULL,
@@ -291,7 +302,25 @@ const initialize = async () => {
             END;
         `);
 
-
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
+            BEGIN
+                CREATE TABLE overrides (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                mnumber NVARCHAR(10) NOT NULL,
+                term NVARCHAR(10) NOT NULL,
+                year INT NOT NULL,
+                crn NVARCHAR(10) NOT NULL,
+                subject NVARCHAR(10) NOT NULL,
+                course_number NVARCHAR(10) NOT NULL,
+                section NVARCHAR(10) NOT NULL,
+                override_type NVARCHAR(50) NOT NULL,
+                granted_by NVARCHAR(10) NOT NULL,
+                override_date DATETIME DEFAULT GETDATE(),
+                FOREIGN KEY (term) REFERENCES terms(code)
+                );
+            END; 
+        `);
 
 
 

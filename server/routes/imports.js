@@ -393,6 +393,71 @@ router.post('/nations', async (req, res) => {
   }
 });
 
+// Endpoint: Import overrides data
+router.post('/overrides', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Helper function to convert DDMMYYYY to YYYY-MM-DD
+    function convertDate(dateStr) {
+      if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
+      const day = dateStr.substring(0, 2);
+      const month = dateStr.substring(2, 4);
+      const year = dateStr.substring(4, 8);
+      return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
+    }
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+
+      const termMatch = row.term.match(/^(\d{4})(\d{2})$/);
+
+      if (!termMatch) {
+        console.warn(`⚠ Invalid TERM format: ${row.term}`);
+        return null; // Skip invalid rows
+      }
+
+      return {
+        mnumber: row.mnumber,
+        term: termMatch[2],
+        year: parseInt(termMatch[1]),
+        crn: row.crn,
+        subject: row.subj,
+        course_number: parseInt(row.crsenumb, 10),
+        section: row.section,
+        override_type: row.override,
+        granted_by: row.userid,
+        override_date:convertDate(row.activitydate)
+      };
+    }).filter(row => row !== null); // Remove invalid rows
+
+    // Define column types for SQL binding
+    const columnTypes = {
+      mnumber: 'nvarchar',
+      term: 'nvarchar',
+      year: 'int',
+      crn: 'nvarchar',
+      subject: 'nvarchar',
+      course_number: 'int',
+      section: 'nvarchar',
+      override_type: 'nvarchar',
+      granted_by: 'nvarchar',
+      override_date: 'datetime'
+    };
+
+
+    const result = await importData('overrides', 'mnumber', transformedData, fileName, importedBy, columnTypes);
+    res.json({
+      message: 'Overrides imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing override data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing override data.' });
+  }
+});
+
 // Endpoint: Import part_of_term data
 router.post('/part_of_term', async (req, res) => {
   try {
@@ -464,6 +529,22 @@ router.post('/subject_prefixes', async (req, res) => {
   } catch (error) {
     console.error(`Error importing course prefixes data: ${error.message}`);
     res.status(500).json({ error: 'Error importing course prefixes data.' });
+  }
+});
+
+// Endpoint: Import terms data
+router.post('/terms', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+    const result = await importData('terms', 'code', mappedData, fileName, importedBy);
+    res.json({
+      message: 'Terms imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing terms data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing terms data.' });
   }
 });
 

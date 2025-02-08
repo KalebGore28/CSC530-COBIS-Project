@@ -67,15 +67,17 @@ async function importCSV(csvName, endpoint, importedBy = "System") {
 
 // 🔹 List of CSV imports with corresponding API endpoints
 const csvImports = [
+	{ file: "terms.csv", endpoint: "terms" },
 	// { file: "academic_standing.csv", endpoint: "academic_standing" },
 	// { file: "admit_codes.csv", endpoint: "admit_codes" },
 	// { file: "college_codes.csv", endpoint: "college_codes" },
-	{ file: "colleges.csv", endpoint: "colleges" },
-	{ file: "course_titles.csv", endpoint: "courses" },
-	{ file: "departments.csv", endpoint: "departments" },
+	// { file: "colleges.csv", endpoint: "colleges" },
+	// { file: "course_titles.csv", endpoint: "courses" },
+	// { file: "departments.csv", endpoint: "departments" },
 	// { file: "instructional_methods.csv", endpoint: "instructional_methods" },
-	{ file: "major_minor.csv", endpoint: "programs" },
+	// { file: "major_minor.csv", endpoint: "programs" },
 	// { file: "nations.csv", endpoint: "nations" },
+	{ file: "overrides.csv", endpoint: "overrides" },
 	// { file: "part_of_term.csv", endpoint: "part_of_term" },
 	// { file: "registration_status.csv", endpoint: "registration_status" },
 	// { file: "student_types.csv", endpoint: "student_types" },
