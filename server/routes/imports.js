@@ -76,37 +76,34 @@ async function processRow(pool, tableName, primaryKey, row, columnTypes = {}) {
   const exists = checkResult.recordset[0].count > 0;
 
   if (exists) {
-    // // Update the row
-    // console.log(`Updating row with composite key: ${JSON.stringify(keyFields.reduce((acc, key) => {
-    //   acc[key] = row[key];
-    //   return acc;
-    // }, {}))}`);
+    // Update the row
 
-    // Build the update query. Note: Ensure your buildUpdateQuery supports composite keys.
     const { query, columns } = buildUpdateQuery(tableName, data, primaryKey);
     const updateRequest = pool.request();
+
     // Add each key field as an input parameter
     keyFields.forEach(key => {
       const typeStr = columnTypes[key] || 'nvarchar';
       const type = getSqlType(typeStr);
       updateRequest.input(key, type, convertValue(row[key], typeStr));
     });
+
     // Add the rest of the columns to update
     columns.forEach(col => {
       const typeStr = columnTypes[col] || 'nvarchar';
       const type = getSqlType(typeStr);
-      updateRequest.input(col, type, convertValue(row[col], typeStr));
+      let value = row[col] === null ? null : convertValue(row[col], typeStr);
+
+      updateRequest.input(col, type, value);
     });
     await updateRequest.query(query);
   } else {
-    // // Insert the row
-    // console.log(`Inserting row with composite key: ${JSON.stringify(keyFields.reduce((acc, key) => {
-    //   acc[key] = row[key];
-    //   return acc;
-    // }, {}))}`);
+    // Insert the row
 
     const { query, columns } = buildInsertQuery(tableName, row, primaryKey);
     const insertRequest = pool.request();
+
+    // Add the columns to insert
     columns.forEach(col => {
       const typeStr = columnTypes[col] || 'nvarchar';
       const type = getSqlType(typeStr);
@@ -176,19 +173,35 @@ async function importData(tableName, primaryKey, mappedData, fileName, importedB
   return { totalRecords, errorDetails };
 }
 
-// Endpoint: Import student_types data
-router.post('/student_types', async (req, res) => {
+// Endpoint: Import academic_standing data
+router.post('/academic_standing', async (req, res) => {
   try {
     const { mappedData, fileName, importedBy } = req.body;
-    const result = await importData('student_types', 'code', mappedData, fileName, importedBy);
+    const result = await importData('academic_standing', 'code', mappedData, fileName, importedBy);
     res.json({
-      message: 'Student types imported successfully.',
+      message: 'Academic standing imported successfully.',
       totalRecords: result.totalRecords,
       errors: result.errorDetails
     });
   } catch (error) {
-    console.error(`Error importing student type data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing student type data.' });
+    console.error(`Error importing academic standing data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing academic standing data.' });
+  }
+});
+
+// Endpoint: Import admit_codes data
+router.post('/admit_codes', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+    const result = await importData('admit_codes', 'code', mappedData, fileName, importedBy);
+    res.json({
+      message: 'Admit codes imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing admit codes data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing admit codes data.' });
   }
 });
 
@@ -224,6 +237,146 @@ router.post('/colleges', async (req, res) => {
   }
 });
 
+// Endpoint: Import courses data
+router.post('/courses', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+
+      const courseMatch = row.course.match(/^([A-Za-z]+)(\d+)([A-Za-z]*)$/);
+
+      if (!courseMatch) {
+        console.warn(`⚠ Invalid COURSE format: ${row.course}`);
+        return null; // Skip invalid rows
+      }
+
+      return {
+        subject: courseMatch[1],          // Extracts the subject (e.g., "ACC")
+        course_number: parseInt(courseMatch[2], 10),  // Extracts course number (e.g., 200)
+        course_suffix: courseMatch[3] || '', // Extracts suffix if present (e.g., "T" from "100T")
+        title: row.crsetitle.trim(),      // Map to `title`
+        hours: parseInt(row.crhrs, 10) || 0, // Map to `hours` (default 0 if null)
+        course_fee: parseFloat(row.course_fee) || 0, // Map to `course_fee`, default 0
+        web_fee: parseFloat(row.web_fee) || 0,  // Map to `web_fee`, default 0
+      };
+    }).filter(row => row !== null); // Remove invalid rows
+
+    const columnTypes = {
+      subject: 'nvarchar',
+      course_number: 'int',
+      course_suffix: 'nvarchar',
+      title: 'nvarchar',
+      hours: 'int',
+      course_fee: 'decimal',
+      web_fee: 'decimal',
+    };
+
+    const result = await importData('courses', ['subject', 'course_number', 'course_suffix'], transformedData, fileName, importedBy, columnTypes);
+
+    res.json({
+      message: 'Courses imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing courses data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing courses data.' });
+  }
+});
+
+// Endpoint: Import departments data
+router.post('/departments', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+
+      // Split the prefixes into an array
+      const prefixes = row.prefixes.split(',').map(p => p.trim()).filter(p => p.length > 0);
+
+      return {
+        code: row.code,
+        description: row.description,
+        prefixes: row.prefixes === 'NULL' ? null : prefixes.join(','),
+        canvas_id: parseInt(row.canvas_id, 10) || null,
+        college: row.college === 'NULL' ? "UNASSIGNED" : row.college
+      };
+    });
+
+    const columnTypes = {
+      code: 'nvarchar',
+      description: 'nvarchar',
+      prefixes: 'nvarchar',
+      canvas_id: 'int',
+      college: 'nvarchar'
+    };
+
+    const result = await importData('departments', 'code', transformedData, fileName, importedBy, columnTypes);
+    res.json({
+      message: 'Departments imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing departments data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing departments data.' });
+  }
+});
+
+// Endpoint: Import instructional_methods data
+router.post('/instructional_methods', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+    const result = await importData('instructional_methods', 'code', mappedData, fileName, importedBy);
+    res.json({
+      message: 'Instructional methods imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing instructional methods data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing instructional methods data.' });
+  }
+});
+
+// Endpoint: Import programs data
+router.post('/programs', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+      return {
+        code: row.code,
+        description: row.description,
+        cip_code: row.cip_code === 'NULL' ? null : row.cip_code,
+        is_major: row.is_major === '1',
+        is_minor: row.is_minor === '1',
+        has_concentration: row.has_concentration === '1',
+        is_discontinued: row.is_discontinued === '1',
+        is_aacsb: row.is_aacsb === '1',
+        department: row.department === 'NULL' ? 'UNASSIGNED' : row.department,
+        college: row.college === 'NULL' ? 'UNASSIGNED' : row.college
+      };
+    });
+
+    // console.log(transformedData);
+
+    const result = await importData('programs', 'code', transformedData, fileName, importedBy);
+    res.json({
+      message: 'Programs imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing programs data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing programs data.' });
+  }
+});
+
 // Endpoint: Import nations data
 router.post('/nations', async (req, res) => {
   try {
@@ -256,38 +409,6 @@ router.post('/part_of_term', async (req, res) => {
   }
 });
 
-// Endpoint: Import academic_standing data
-router.post('/academic_standing', async (req, res) => {
-  try {
-    const { mappedData, fileName, importedBy } = req.body;
-    const result = await importData('academic_standing', 'code', mappedData, fileName, importedBy);
-    res.json({
-      message: 'Academic standing imported successfully.',
-      totalRecords: result.totalRecords,
-      errors: result.errorDetails
-    });
-  } catch (error) {
-    console.error(`Error importing academic standing data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing academic standing data.' });
-  }
-});
-
-// Endpoint: Import admit_codes data
-router.post('/admit_codes', async (req, res) => {
-  try {
-    const { mappedData, fileName, importedBy } = req.body;
-    const result = await importData('admit_codes', 'code', mappedData, fileName, importedBy);
-    res.json({
-      message: 'Admit codes imported successfully.',
-      totalRecords: result.totalRecords,
-      errors: result.errorDetails
-    });
-  } catch (error) {
-    console.error(`Error importing admit codes data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing admit codes data.' });
-  }
-});
-
 // Endpoint: Import registration_status data
 router.post('/registration_status', async (req, res) => {
   try {
@@ -304,97 +425,46 @@ router.post('/registration_status', async (req, res) => {
   }
 });
 
-// Endpoint: Import instructional_methods data
-router.post('/instructional_methods', async (req, res) => {
+// Endpoint: Import student_types data
+router.post('/student_types', async (req, res) => {
   try {
     const { mappedData, fileName, importedBy } = req.body;
-    const result = await importData('instructional_methods', 'code', mappedData, fileName, importedBy);
+    const result = await importData('student_types', 'code', mappedData, fileName, importedBy);
     res.json({
-      message: 'Instructional methods imported successfully.',
+      message: 'Student types imported successfully.',
       totalRecords: result.totalRecords,
       errors: result.errorDetails
     });
   } catch (error) {
-    console.error(`Error importing instructional methods data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing instructional methods data.' });
+    console.error(`Error importing student type data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing student type data.' });
   }
 });
 
-// Endpoint: Import departments data
-router.post('/departments', async (req, res) => {
-  try {
-    const { mappedData, fileName, importedBy } = req.body;
-
-    const columnTypes = {
-      code: 'nvarchar',
-      description: 'nvarchar',
-      prefixes: 'nvarchar',
-      canvas_id: 'int',
-      college: 'nvarchar'
-    };
-
-    const result = await importData('departments', 'code', mappedData, fileName, importedBy, columnTypes);
-    res.json({
-      message: 'Departments imported successfully.',
-      totalRecords: result.totalRecords,
-      errors: result.errorDetails
-    });
-  } catch (error) {
-    console.error(`Error importing departments data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing departments data.' });
-  }
-});
-
-// Endpoint: Import courses data
-router.post('/courses', async (req, res) => {
+// Endpoint: Import course_prefixes data
+router.post('/subject_prefixes', async (req, res) => {
   try {
     const { mappedData, fileName, importedBy } = req.body;
 
     // Transform the CSV data to match the database schema
     const transformedData = mappedData.map(row => {
-
-      const courseMatch = row.course.match(/^([A-Za-z]+)(\d+)([A-Za-z]*)$/);
-
-      if (!courseMatch) {
-        console.warn(`⚠ Invalid COURSE format: ${row.course}`);
-        return null; // Skip invalid rows
-      }
-
       return {
-        subject: courseMatch[1],          // Extracts the subject (e.g., "ACC")
-        course_number: parseInt(courseMatch[2], 10),  // Extracts course number (e.g., 200)
-        course_suffix: courseMatch[3] || '', // Extracts suffix if present (e.g., "T" from "100T")
-        title: row.crsetitle.trim(),      // Map to `title`
-        hours: parseInt(row.crhrs, 10) || 0, // Map to `hours` (default 0 if null)
-        course_fee: parseFloat(row.course_fee) || 0, // Map to `course_fee`, default 0
-        web_fee: parseFloat(row.web_fee) || 0,  // Map to `web_fee`, default 0
-        // last_changed: row.lastchanged && row.lastchanged.trim() !== '' ? row.lastchanged : null // Map to `last_changed`
+        college: row.college,
+        department: row.department,
+        prefix: row.prefix,
       };
-    }).filter(row => row !== null); // Remove invalid rows
+    });
 
-    const columnTypes = {
-      subject: 'nvarchar',
-      course_number: 'int',
-      course_suffix: 'nvarchar',
-      title: 'nvarchar',
-      hours: 'int',
-      course_fee: 'decimal',
-      web_fee: 'decimal',
-      last_changed: 'nvarchar'
-    };
-
-    const result = await importData('courses', ['subject', 'course_number', 'course_suffix'], transformedData, fileName, importedBy, columnTypes);
-
+    const result = await importData('subject_prefixes', ['college', 'department', 'prefix'], transformedData, fileName, importedBy);
     res.json({
-      message: 'Courses imported successfully.',
+      message: 'Course prefixes imported successfully.',
       totalRecords: result.totalRecords,
       errors: result.errorDetails
     });
   } catch (error) {
-    console.error(`Error importing courses data: ${error.message}`);
-    res.status(500).json({ error: 'Error importing courses data.' });
+    console.error(`Error importing course prefixes data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing course prefixes data.' });
   }
 });
-
 
 export default router;

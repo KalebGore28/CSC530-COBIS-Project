@@ -5,6 +5,7 @@ ACS,Adolescent Career Special Ed,NULL,NULL,NULL
 AES,Animal & Equine Science,NULL,NULL,NULL
 AGR,Agricultural Science,NULL,NULL,NULL
 AHT,Animal Health Tech & PreVet Md,NULL,NULL,NULL
+AHS,Unknown,NULL,NULL,NULL
 ART,Art,NULL,NULL,NULL
 BIO,Biology,NULL,NULL,NULL
 BPA,Business,"BPA,BUS",NULL,NULL
@@ -23,6 +24,7 @@ ENPH,English & Philosophy,NULL,NULL,NULL
 ESL,English Language,NULL,NULL,NULL
 ESLC,Ed Stdies Ldrshp & Counseling,NULL,NULL,NULL
 GLIA,Govt Law & Intl Affairs,NULL,NULL,NULL
+GLTA,Unknown,NULL,NULL,NULL
 GSC,Geosciences,NULL,NULL,NULL
 HFA,Humanities & Fine Arts,NULL,NULL,NULL
 HIS,History,NULL,NULL,NULL
@@ -47,3 +49,11 @@ SET,Science Engineering & Technology,NULL,NULL,NULL
 SOA,School of Agriculture,NULL,NULL,NULL
 THR,Theatre,NULL,NULL,NULL
 WTS,Wellness & Therapeutic Science,NULL,NULL,NULL
+IOE,Unknown,NULL,NULL,NULL
+CLH,Unknown,NULL,NULL,NULL
+AHS,Unknown,NULL,NULL,NULL
+EES,Unknown,NULL,NULL,NULL
+CAS,Unknown,NULL,NULL,NULL
+CCD,Unknown,NULL,NULL,NULL
+POL,Unknown,NULL,NULL,NULL
+NHP,Unknown,NULL,NULL,NULL

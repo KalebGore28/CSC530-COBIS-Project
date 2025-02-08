@@ -32,7 +32,7 @@ const buildUpdateQuery = (tableName, data, primaryKey) => {
 
 	// Iterate over data fields, excluding any that are part of the composite key.
 	Object.entries(data).forEach(([key, value]) => {
-		if (!isFalsy(value) && !keyFields.includes(key)) { // Ignore primary key fields and falsy values
+		if (!keyFields.includes(key)) { // Ignore primary key fields
 			updateFields.push(`${key} = @${key}`);
 		}
 	});

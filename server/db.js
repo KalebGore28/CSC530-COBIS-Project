@@ -162,9 +162,25 @@ const initialize = async () => {
                     description NVARCHAR(255) NULL,
                     prefixes NVARCHAR(50) NULL,
                     canvas_id INT NULL,
-                    college NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED'
+                    college NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
+                    FOREIGN KEY (college) REFERENCES colleges(code)
                 );
             END 
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'subject_prefixes')
+            BEGIN
+                CREATE TABLE subject_prefixes (
+                    college NVARCHAR(10) NOT NULL,
+                    department NVARCHAR(10) NOT NULL,
+                    prefix NVARCHAR(10) NOT NULL,
+                    PRIMARY KEY (college, department, prefix), -- Composite Primary Key
+                    FOREIGN KEY (college) REFERENCES colleges(code),
+                    FOREIGN KEY (department) REFERENCES departments(code)
+                );
+            END;    
+            
         `);
 
         await runQuery(`
@@ -179,7 +195,7 @@ const initialize = async () => {
                     course_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
                     web_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
                     last_changed DATETIME DEFAULT GETDATE(),
-                    PRIMARY KEY (subject, course_number, course_suffix)
+                    PRIMARY KEY (subject, course_number, course_suffix),
                 );
             END;
         `);
@@ -198,7 +214,9 @@ const initialize = async () => {
                     is_aacsb BIT NOT NULL DEFAULT 0,
                     department NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
                     college NVARCHAR(10) NOT NULL DEFAULT 'UNASSIGNED',
-                    added_on DATETIME DEFAULT GETDATE()
+                    added_on DATETIME DEFAULT GETDATE(),
+                    FOREIGN KEY (department) REFERENCES departments(code),
+                    FOREIGN KEY (college) REFERENCES colleges(code)
                 );
             END;
         `);
