@@ -246,22 +246,6 @@ const initialize = async () => {
         `);
 
         await runQuery(`
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'previous_colleges')
-            BEGIN
-                CREATE TABLE previous_colleges (
-                    mnumber NVARCHAR(10) NOT NULL,
-                    college_code NVARCHAR(10) NOT NULL,
-                    college_description NVARCHAR(255) NOT NULL,
-                    degree NVARCHAR(10) NOT NULL,
-                    date DATE NOT NULL,
-                    PRIMARY KEY (mnumber, college_code),
-                    FOREIGN KEY (college_code) REFERENCES college_codes(code)
-                );
-            END;
-        `);
-
-        //TODO: fix this
-        await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')
             BEGIN
                 CREATE TABLE students (
@@ -272,17 +256,33 @@ const initialize = async () => {
                     suffix NVARCHAR(10) NULL,
                     gender NVARCHAR(10) NOT NULL,
                     birth_date DATE NOT NULL,
-                    citizen_status NVARCHAR(10) NOT NULL,
+                    citizenship NVARCHAR(10) NOT NULL,
                     race_code NVARCHAR(10) NOT NULL,
                     race_description NVARCHAR(255) NOT NULL,
-                    residency_code NVARCHAR(10) NOT NULL, -- Not sure what to do with this
-                    residency_description NVARCHAR(255) NOT NULL, -- Not sure what to do with this either
-                    age INT NOT NULL
+                    residency_code NVARCHAR(10) NOT NULL,
+                    residency_description NVARCHAR(255) NOT NULL,
+                    age INT NOT NULL,
+                    cell_phone NVARCHAR(20) NULL,
                 );
             END;
         `);
 
-        //TODO: fix this
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'previous_colleges')
+            BEGIN
+                CREATE TABLE previous_colleges (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    college_code NVARCHAR(10) NOT NULL,
+                    college_description NVARCHAR(255) NOT NULL,
+                    degree NVARCHAR(10) NOT NULL,
+                    date DATE NOT NULL,
+                    PRIMARY KEY (mnumber, college_code),
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (college_code) REFERENCES college_codes(code)
+                );
+            END;
+        `);
+
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_addresses')
             BEGIN
@@ -296,71 +296,62 @@ const initialize = async () => {
                     zip NVARCHAR(20) NULL,
                     nation_code NVARCHAR(10) NULL,
                     phone NVARCHAR(20) NULL,
-                    PRIMARY KEY (mnumber, type) -- Composite key that allows a local and home address
+                    PRIMARY KEY (mnumber, type), -- Composite key that allows a local and home address
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (nation_code) REFERENCES nations(code)
                 );
             END;
         `);
 
-        //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_academic_info')
             BEGIN
                 CREATE TABLE student_academic_info (
-                    mnumber NVARCHAR(10) PRIMARY KEY,
-                    term NVARCHAR(10) NOT NULL,
-                    year INT NOT NULL,
-                    admit_term NVARCHAR(10) NOT NULL,
-                    level NVARCHAR(10) NOT NULL,
-                    degree_code NVARCHAR(10) NOT NULL
-                );
-            END;
-        `);
-
-        //TODO: fix this
-        await runQuery(`
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_enrollment')
-            BEGIN
-                CREATE TABLE student_enrollment (
                     mnumber NVARCHAR(10) NOT NULL,
-                    term NVARCHAR(10) NOT NULL,
-                    year INT NOT NULL,
-                    course_subject NVARCHAR(10) NOT NULL,
-                    course_number INT NOT NULL,
-                    course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
-                    section_number INT NOT NULL,
-                    grade NVARCHAR(10) NULL,
-                    hours INT NOT NULL,
-                    status NVARCHAR(10) NOT NULL
+                    admit_term NVARCHAR(10) NOT NULL,
+                    admit_year INT NOT NULL,
+                    admit_code NVARCHAR(10) NOT NULL,
+                    academic_standing NVARCHAR(10) NOT NULL,
+                    msu_attempted_hours DECIMAL(10, 2) NOT NULL,
+                    msu_earned_hours DECIMAL(10, 2) NOT NULL,
+                    msu_quality_points DECIMAL(10, 2) NOT NULL,
+                    msu_gpa DECIMAL(3, 2) NOT NULL,
+                    overall_attempted_hours DECIMAL(10, 2) NOT NULL,
+                    overall_earned_hours DECIMAL(10, 2) NOT NULL,
+                    overall_quality_points DECIMAL(10, 2) NOT NULL,
+                    overall_gpa DECIMAL(3, 2) NOT NULL,
+                    PRIMARY KEY (mnumber, admit_term, admit_year), -- Composite key
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
                 );
             END;
-        `);
-
-        //TODO: Add foreign keys
-        await runQuery(`
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
-            BEGIN
-                CREATE TABLE overrides (
-                id INT IDENTITY(1,1) PRIMARY KEY,
-                mnumber NVARCHAR(10) NOT NULL,
-                term NVARCHAR(10) NOT NULL,
-                year INT NOT NULL,
-                crn NVARCHAR(10) NOT NULL,
-                subject NVARCHAR(10) NOT NULL,
-                course_number NVARCHAR(10) NOT NULL,
-                course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
-                section NVARCHAR(10) NOT NULL,
-                override_type NVARCHAR(50) NOT NULL,
-                granted_by NVARCHAR(10) NOT NULL,
-                override_date DATETIME DEFAULT GETDATE(),
-                FOREIGN KEY (term) REFERENCES terms(code)
-                );
-            END; 
         `);
 
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_programs')
             BEGIN
                 CREATE TABLE student_programs (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    term NVARCHAR(10) NOT NULL,
+                    year INT NOT NULL,
+                    study NVARCHAR(10) NOT NULL,
+                    type NVARCHAR(10) NOT NULL CHECK (type IN ('MAJOR', 'MINOR')),
+                    level NVARCHAR(10) NOT NULL CHECK (level IN ('UG', 'GR', 'PB')),
+                    program_code NVARCHAR(10) NOT NULL,
+                    department NVARCHAR(10) NOT NULL,
+                    college NVARCHAR(10) NOT NULL,
+                    PRIMARY KEY (mnumber, term, year, type, program_code), -- Composite key
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (program_code) REFERENCES programs(code),
+                    FOREIGN KEY (department) REFERENCES departments(code),
+                    FOREIGN KEY (college) REFERENCES colleges(code)
+                );
+            END;    
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_courses')
+            BEGIN
+                CREATE TABLE student_courses (
                     mnumber NVARCHAR(10) NOT NULL,
                     term NVARCHAR(10) NOT NULL,
                     year INT NOT NULL,
@@ -385,6 +376,30 @@ const initialize = async () => {
                     FOREIGN KEY (instructional_method) REFERENCES instructional_methods(code)
                 );
             END;
+        `);
+
+        //TODO: Add foreign keys
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
+            BEGIN
+                CREATE TABLE overrides (
+                id INT IDENTITY(1,1) PRIMARY KEY,
+                mnumber NVARCHAR(10) NOT NULL,
+                term NVARCHAR(10) NOT NULL,
+                year INT NOT NULL,
+                crn NVARCHAR(10) NOT NULL,
+                subject NVARCHAR(10) NOT NULL,
+                course_number INT NOT NULL,
+                course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
+                section NVARCHAR(10) NOT NULL,
+                override_type NVARCHAR(50) NOT NULL,
+                granted_by NVARCHAR(10) NOT NULL,
+                override_date DATETIME DEFAULT GETDATE(),
+                FOREIGN KEY (term) REFERENCES terms(code),
+                FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                FOREIGN KEY (subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix)
+                );
+            END; 
         `);
 
         // Insert DEFAULT values

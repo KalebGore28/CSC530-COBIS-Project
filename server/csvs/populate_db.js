@@ -77,14 +77,15 @@ const csvImports = [
 	{ file: "instructional_methods.csv", endpoint: "instructional_methods" },
 	{ file: "major_minor.csv", endpoint: "programs" },
 	{ file: "nations.csv", endpoint: "nations" },
-	{ file: "overrides_sample.csv", endpoint: "overrides" },
 	{ file: "part_of_term.csv", endpoint: "part_of_term" },
-	{ file: "previous_colleges_sample.csv", endpoint: "previous_colleges" },
 	{ file: "registration_status.csv", endpoint: "registration_status" },
 	{ file: "student_types.csv", endpoint: "student_types" },
 	{ file: "subject_prefixes.csv", endpoint: "subject_prefixes" },
-	{ file: "courses_sample.csv", endpoint: "student_programs" },
+	{ file: "courses_sample.csv", endpoint: "student_courses" },
 	{ file: "test_scores_sample.csv", endpoint: "test_scores" },
+	{ file: "demographics_sample.csv", endpoint: "demographics" },
+	{ file: "overrides_sample.csv", endpoint: "overrides" },
+	{ file: "previous_colleges_sample.csv", endpoint: "previous_colleges" },
 ];
 
 /**
