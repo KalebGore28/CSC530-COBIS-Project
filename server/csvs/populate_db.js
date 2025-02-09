@@ -79,6 +79,7 @@ const csvImports = [
 	{ file: "nations.csv", endpoint: "nations" },
 	{ file: "overrides_sample.csv", endpoint: "overrides" },
 	{ file: "part_of_term.csv", endpoint: "part_of_term" },
+	{ file: "previous_colleges_sample.csv", endpoint: "previous_colleges" },
 	{ file: "registration_status.csv", endpoint: "registration_status" },
 	{ file: "student_types.csv", endpoint: "student_types" },
 	{ file: "subject_prefixes.csv", endpoint: "subject_prefixes" },

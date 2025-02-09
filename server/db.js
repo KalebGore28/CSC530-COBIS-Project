@@ -245,6 +245,21 @@ const initialize = async () => {
             END;
         `);
 
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'previous_colleges')
+            BEGIN
+                CREATE TABLE previous_colleges (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    college_code NVARCHAR(10) NOT NULL,
+                    college_description NVARCHAR(255) NOT NULL,
+                    degree NVARCHAR(10) NOT NULL,
+                    date DATE NOT NULL,
+                    PRIMARY KEY (mnumber, college_code),
+                    FOREIGN KEY (college_code) REFERENCES college_codes(code)
+                );
+            END;
+        `);
+
         //TODO: fix this
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')

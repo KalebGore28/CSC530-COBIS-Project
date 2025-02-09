@@ -1,9 +1,13 @@
 import express from 'express';
 import sql from 'mssql';
 import { poolPromise } from '../db.js';
+import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders.js';
 import { buildInsertQuery, buildUpdateQuery, buildLogQuery } from '../utils/queryBuilders.js';
 
 const router = express.Router();
+
+// Middleware to normalize column headers to lowercase
+router.use(normalizeHeadersMiddleware);
 
 /**
  * Process a single row: Check if it exists and then update or insert.
@@ -16,7 +20,6 @@ const router = express.Router();
  * @param {Object} [columnTypes={}] - Optional mapping of column names to type strings.
  *                                    Example: { age: 'int', course_fee: 'decimal' }
  */
-
 async function processRow(pool, tableName, primaryKey, row, columnTypes = {}) {
   // Allow primaryKey to be either a single string or an array (for composite keys)
   const keyFields = Array.isArray(primaryKey) ? primaryKey : [primaryKey];
@@ -227,6 +230,7 @@ router.post('/admit_codes', async (req, res) => {
 router.post('/college_codes', async (req, res) => {
   try {
     const { mappedData, fileName, importedBy } = req.body;
+
     const result = await importData('college_codes', 'code', mappedData, fileName, importedBy);
     res.json({
       message: 'College codes imported successfully.',
@@ -485,6 +489,42 @@ router.post('/part_of_term', async (req, res) => {
   } catch (error) {
     console.error(`Error importing part of term data: ${error.message}`);
     res.status(500).json({ error: 'Error importing part of term data.' });
+  }
+});
+
+// Endpoint: Import previous_colleges data
+router.post('/previous_colleges', async (req, res) => {
+  try {
+    const { mappedData, fileName, importedBy } = req.body;
+
+    // Transform the CSV data to match the database schema
+    const transformedData = mappedData.map(row => {
+      return {
+        mnumber: row.mnumber,
+        college_code: row.collegecode,
+        college_description: row.collegedesc,
+        degree: row.degree,
+        date: convertDateDDMMYYYY(row.degreedate),
+      };
+    });
+
+    const columnTypes = {
+      mnumber: 'nvarchar',
+      college_code: 'nvarchar',
+      college_description: 'nvarchar',
+      degree: 'nvarchar',
+      date: 'datetime',
+    };
+
+    const result = await importData('previous_colleges', ['mnumber', 'college_code'], transformedData, fileName, importedBy, columnTypes);
+    res.json({
+      message: 'Registration status imported successfully.',
+      totalRecords: result.totalRecords,
+      errors: result.errorDetails
+    });
+  } catch (error) {
+    console.error(`Error importing registration status data: ${error.message}`);
+    res.status(500).json({ error: 'Error importing registration status data.' });
   }
 });
 

@@ -20,3 +20,4 @@ DROP TABLE subject_prefixes;
 DROP TABLE terms;
 DROP TABLE overrides;
 DROP TABLE test_scores;
+DROP TABLE previous_colleges;
