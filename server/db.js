@@ -185,7 +185,7 @@ const initialize = async () => {
                     college NVARCHAR(10) NOT NULL,
                     department NVARCHAR(10) NOT NULL,
                     prefix NVARCHAR(10) NOT NULL,
-                    PRIMARY KEY (college, department, prefix), -- Composite Primary Key
+                    PRIMARY KEY (college, department, prefix),
                     FOREIGN KEY (college) REFERENCES colleges(code),
                     FOREIGN KEY (department) REFERENCES departments(code)
                 );
@@ -238,7 +238,7 @@ const initialize = async () => {
                     mnumber NVARCHAR(10) NOT NULL,
                     code NVARCHAR(10) NOT NULL,
                     description NVARCHAR(255) NOT NULL,
-                    score INT NOT NULL,
+                    score DECIMAL(5,2) NOT NULL,
                     date DATE NOT NULL,
                     PRIMARY KEY (mnumber, code)
                 );
@@ -254,14 +254,14 @@ const initialize = async () => {
                     middle_name NVARCHAR(50) NULL,
                     last_name NVARCHAR(50) NOT NULL,
                     suffix NVARCHAR(10) NULL,
-                    gender NVARCHAR(10) NOT NULL,
-                    birth_date DATE NOT NULL,
-                    citizenship NVARCHAR(10) NOT NULL,
-                    race_code NVARCHAR(10) NOT NULL,
-                    race_description NVARCHAR(255) NOT NULL,
-                    residency_code NVARCHAR(10) NOT NULL,
-                    residency_description NVARCHAR(255) NOT NULL,
-                    age INT NOT NULL,
+                    gender NVARCHAR(10) NULL,
+                    birth_date DATE NULL,
+                    citizenship NVARCHAR(10) NULL,
+                    race_code NVARCHAR(10) NULL,
+                    race_description NVARCHAR(255) NULL,
+                    residency_code NVARCHAR(10) NULL,
+                    residency_description NVARCHAR(255) NULL,
+                    age INT NULL,
                     cell_phone NVARCHAR(20) NULL,
                 );
             END;
@@ -274,7 +274,7 @@ const initialize = async () => {
                     mnumber NVARCHAR(10) NOT NULL,
                     college_code NVARCHAR(10) NOT NULL,
                     college_description NVARCHAR(255) NOT NULL,
-                    degree NVARCHAR(10) NOT NULL,
+                    degree NVARCHAR(50) NOT NULL,
                     date DATE NOT NULL,
                     PRIMARY KEY (mnumber, college_code),
                     FOREIGN KEY (mnumber) REFERENCES students(mnumber),
@@ -292,7 +292,7 @@ const initialize = async () => {
                     street1 NVARCHAR(255) NOT NULL,
                     street2 NVARCHAR(255) NULL,
                     city NVARCHAR(100) NULL,
-                    state NVARCHAR(10) NULL,
+                    state NVARCHAR(20) NULL,
                     zip NVARCHAR(20) NULL,
                     nation_code NVARCHAR(10) NULL,
                     phone NVARCHAR(20) NULL,
@@ -320,7 +320,9 @@ const initialize = async () => {
                     overall_earned_hours DECIMAL(10, 2) NOT NULL,
                     overall_quality_points DECIMAL(10, 2) NOT NULL,
                     overall_gpa DECIMAL(3, 2) NOT NULL,
-                    PRIMARY KEY (mnumber, admit_term, admit_year), -- Composite key
+                    PRIMARY KEY (mnumber, admit_term, admit_year),
+                    FOREIGN KEY (admit_term) REFERENCES terms(code),
+                    FOREIGN KEY (admit_code) REFERENCES admit_codes(code),
                     FOREIGN KEY (mnumber) REFERENCES students(mnumber),
                 );
             END;
@@ -339,8 +341,9 @@ const initialize = async () => {
                     program_code NVARCHAR(10) NOT NULL,
                     department NVARCHAR(10) NOT NULL,
                     college NVARCHAR(10) NOT NULL,
-                    PRIMARY KEY (mnumber, term, year, type, program_code), -- Composite key
+                    PRIMARY KEY (mnumber, term, year, type, program_code),
                     FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (term) REFERENCES terms(code),
                     FOREIGN KEY (program_code) REFERENCES programs(code),
                     FOREIGN KEY (department) REFERENCES departments(code),
                     FOREIGN KEY (college) REFERENCES colleges(code)
@@ -368,7 +371,7 @@ const initialize = async () => {
                     last_attendance DATE NULL,
                     midterm_grade NVARCHAR(10) NULL,
                     final_grade NVARCHAR(10) NULL,
-                    PRIMARY KEY (mnumber, term, year, crn, section), -- Composite key
+                    PRIMARY KEY (mnumber, term, year, crn),
                     FOREIGN KEY (term) REFERENCES terms(code),
                     FOREIGN KEY (part_of_term) REFERENCES part_of_term(code),
                     FOREIGN KEY (subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix),
@@ -378,7 +381,6 @@ const initialize = async () => {
             END;
         `);
 
-        //TODO: Add foreign keys
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'overrides')
             BEGIN

@@ -641,7 +641,7 @@ router.post('/student_courses', async (req, res) => {
       final_grade: 'nvarchar',
     };
 
-    const result = await importData('student_courses', ['mnumber', 'term', 'year', 'crn', 'section'], transformedData, fileName, importedBy, columnTypes);
+    const result = await importData('student_courses', ['mnumber', 'term', 'year', 'crn'], transformedData, fileName, importedBy, columnTypes);
     res.json({
       message: 'Student Courses imported successfully.',
       totalRecords: result.totalRecords,
