@@ -920,6 +920,46 @@ router.post('/demographics', async (req, res) => {
 
     const result4 = await importData('student_programs', ['mnumber', 'term', 'year', 'type', 'program_code'], studentProgramsData, fileName, importedBy, programColumnTypes);
 
+    const advisorData = mappedData.map(row => {
+      return {
+        advisor_id: row.advnumb,
+        first_name: row.advfname,
+        last_name: row.advlname,
+        middle_name: row.advmname,
+        suffix: row.advsuffix,
+      };
+    });
+
+    const advisorColumnTypes = {
+      advisor_id: 'nvarchar',
+      first_name: 'nvarchar',
+      last_name: 'nvarchar',
+      middle_name: 'nvarchar',
+      suffix: 'nvarchar',
+    };
+
+    const result5 = await importData('advisors', 'advisor_id', advisorData, fileName, importedBy, advisorColumnTypes);
+
+    const studentAdvisorData = mappedData.map(row => {
+
+      const termMatch = row.admitterm.match(/^(\d{4})(\d{2})$/);
+      return {
+        mnumber: row.mnumber,
+        term: termMatch[2],
+        year: parseInt(termMatch[1], 10),
+        advisor_id: row.advnumb,
+      };
+    });
+
+    const studentAdvisorColumnTypes = {
+      mnumber: 'nvarchar',
+      term: 'nvarchar',
+      year: 'int',
+      advisor_id: 'nvarchar',
+    };
+
+    const result6 = await importData('student_advisors', ['mnumber', 'term', 'year', 'advisor_id'], studentAdvisorData, fileName, importedBy, studentAdvisorColumnTypes);
+
     res.json({
       message: 'Demographics imported successfully.',
       totalRecords: result1.totalRecords,
@@ -927,6 +967,8 @@ router.post('/demographics', async (req, res) => {
       totalAddresses: result2.totalRecords,
       totalAcademic: result3.totalRecords,
       totalPrograms: result4.totalRecords,
+      totalAdvisors: result5.totalRecords,
+      totalStudentAdvisors: result6.totalRecords,
     });
 
   } catch (error) {

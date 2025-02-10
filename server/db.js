@@ -246,6 +246,19 @@ const initialize = async () => {
         `);
 
         await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'advisors')
+            BEGIN
+                CREATE TABLE advisors (
+                    advisor_id NVARCHAR(10) PRIMARY KEY,
+                    first_name NVARCHAR(50) NOT NULL,
+                    last_name NVARCHAR(50) NOT NULL,
+                    middle_name NVARCHAR(50) NULL,
+                    suffix NVARCHAR(10) NULL,
+                );
+            END;
+        `);
+
+        await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'students')
             BEGIN
                 CREATE TABLE students (
@@ -379,6 +392,22 @@ const initialize = async () => {
                     FOREIGN KEY (instructional_method) REFERENCES instructional_methods(code)
                 );
             END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'student_advisors')
+            BEGIN
+                CREATE TABLE student_advisors (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    term NVARCHAR(10) NOT NULL,
+                    year INT NOT NULL,
+                    advisor_id NVARCHAR(10) NOT NULL,
+                    PRIMARY KEY (mnumber, term, year, advisor_id),
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (term) REFERENCES terms(code),
+                    FOREIGN KEY (advisor_id) REFERENCES advisors(advisor_id)
+                );
+            END;    
         `);
 
         await runQuery(`
