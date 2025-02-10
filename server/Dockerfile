@@ -26,4 +26,4 @@ EXPOSE 4000
 
 # Start the backend
 ENTRYPOINT ["node"]
-CMD ["dist/index.cjs"]
+CMD ["dist/server.cjs"]
