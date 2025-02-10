@@ -6,7 +6,7 @@
   "scripts": {
     "test": "vitest --coverage",
     "build": "npx esbuild --platform=node --target=node18 --bundle index.js --minify --sourcemap --format=cjs --outfile=dist/server.cjs",
-    "binary_build": "npx pkg dist/server.js --output dist/server --targets node18-linux,node18-macos,node18-win",
+    "binary_build": "npx pkg dist/server.cjs --output dist/server --targets node18-linux,node18-macos,node18-win",
     "start": "node dist/server.cjs",
     "dev": "nodemon --watch routes --watch utils --watch middleware --watch server --ext js index.js",
     "docker": "docker build -t cobis-server ."
