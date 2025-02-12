@@ -232,20 +232,6 @@ const initialize = async () => {
         `);
 
         await runQuery(`
-            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'test_scores')
-            BEGIN
-                CREATE TABLE test_scores (
-                    mnumber NVARCHAR(10) NOT NULL,
-                    code NVARCHAR(10) NOT NULL,
-                    description NVARCHAR(255) NOT NULL,
-                    score DECIMAL(5,2) NOT NULL,
-                    date DATE NOT NULL,
-                    PRIMARY KEY (mnumber, code)
-                );
-            END;
-        `);
-
-        await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'advisors')
             BEGIN
                 CREATE TABLE advisors (
@@ -276,6 +262,21 @@ const initialize = async () => {
                     residency_description NVARCHAR(255) NULL,
                     age INT NULL,
                     cell_phone NVARCHAR(20) NULL,
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'test_scores')
+            BEGIN
+                CREATE TABLE test_scores (
+                    mnumber NVARCHAR(10) NOT NULL,
+                    code NVARCHAR(10) NOT NULL,
+                    description NVARCHAR(255) NOT NULL,
+                    score DECIMAL(5,2) NOT NULL,
+                    date DATE NOT NULL,
+                    PRIMARY KEY (mnumber, code),
+                    FOREIGN KEY (mnumber) REFERENCES students(mnumber)
                 );
             END;
         `);
@@ -431,6 +432,88 @@ const initialize = async () => {
                 FOREIGN KEY (subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix)
                 );
             END; 
+        `);
+
+        // RBAC Tables
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'users')
+            BEGIN
+                CREATE TABLE users (
+                    user_id NVARCHAR(255) PRIMARY KEY, -- Unique SSO identifier
+                    email NVARCHAR(255) UNIQUE NOT NULL,
+                    display_name NVARCHAR(255) NOT NULL,
+                    sso_provider NVARCHAR(50) NULL, -- e.g., "AzureAD", "Google", "Okta"
+                    sso_external_id NVARCHAR(255) NULL, -- Unique ID from SSO system
+                    is_active BIT DEFAULT 1, -- Soft delete mechanism
+                    last_login DATETIME NULL,
+                    created_at DATETIME DEFAULT GETDATE(),
+                    updated_at DATETIME DEFAULT GETDATE()
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'roles')
+            BEGIN
+                CREATE TABLE roles (
+                    role_id INT PRIMARY KEY IDENTITY(1,1), -- Fix for SQL Server
+                    role_name NVARCHAR(50) UNIQUE NOT NULL
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'user_roles')
+            BEGIN
+                CREATE TABLE user_roles (
+                    user_id NVARCHAR(255) NOT NULL,
+                    role_id INT NOT NULL,
+                    PRIMARY KEY (user_id, role_id),
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'permissions')
+            BEGIN
+                CREATE TABLE permissions (
+                    permission_id INT PRIMARY KEY IDENTITY(1,1), -- Fix for SQL Server
+                    table_name NVARCHAR(100) NOT NULL,  -- Which table the permission applies to
+                    column_name NVARCHAR(100) NULL,     -- NULL means entire table access
+                    can_read BIT DEFAULT 0,  -- Read access (BOOLEAN -> BIT Fix)
+                    can_write BIT DEFAULT 0, -- Write access (BOOLEAN -> BIT Fix)
+                    description NVARCHAR(255) NULL      -- Short explanation for admin UI
+                );
+            END;
+        `);
+
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'role_permissions')
+            BEGIN
+                CREATE TABLE role_permissions (
+                    role_id INT NOT NULL,
+                    permission_id INT NOT NULL,
+                    PRIMARY KEY (role_id, permission_id),
+                    FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE,
+                    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE
+                );
+            END;
+        `);
+
+        // User Permissions Table (Overrides Role-Based Permissions)
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'user_permissions')
+            BEGIN
+                CREATE TABLE user_permissions (
+                    user_id NVARCHAR(255) NOT NULL, 
+                    permission_id INT NOT NULL,
+                    PRIMARY KEY (user_id, permission_id),
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                    FOREIGN KEY (permission_id) REFERENCES permissions(permission_id) ON DELETE CASCADE
+                );
+            END;
         `);
 
         // Insert DEFAULT values

@@ -82,8 +82,8 @@ const csvImports = [
 	{ file: "student_types.csv", endpoint: "student_types" },
 	{ file: "subject_prefixes.csv", endpoint: "subject_prefixes" },
 	{ file: "courses_sample.csv", endpoint: "student_courses" },
-	{ file: "test_scores_sample.csv", endpoint: "test_scores" },
 	{ file: "demographics_sample.csv", endpoint: "demographics" },
+	{ file: "test_scores_sample.csv", endpoint: "test_scores" },
 	{ file: "overrides_sample.csv", endpoint: "overrides" },
 	{ file: "previous_colleges_sample.csv", endpoint: "previous_colleges" },
 ];
