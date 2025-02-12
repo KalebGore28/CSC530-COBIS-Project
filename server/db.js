@@ -1,29 +1,11 @@
 import sql from "mssql";
+import config from "./utils/config.js";
 
-// Defaults the database name to 'tempdb' when not in production mode
-const databaseName =
-    process.env.NODE_ENV !== "prod" ? "tempdb" : process.env.DB_NAME;
-
-// Read environment variables for SQL Server connection
-const config = {
-    user: process.env.DB_USER || "sa",
-    password: process.env.DB_PASSWORD || "YourStrongPassw0rd",
-    server: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT) || 1433,
-    database: databaseName,
-    options: {
-        encrypt: true, // Set to `true` if using Azure SQL Server
-        trustServerCertificate: true, // Needed for self-signed certs in Docker
-    },
-};
-
-console.log(
-    `🔌 Connecting to SQL Server at ${config.server}:${config.port}...`,
-);
-console.log(`🏢 Database: ${config.database}`);
+console.log(`🔌 Connecting to SQL Server at ${config.database.server}:${config.database.port}...`);
+console.log(`🏢 Database: ${config.database.database}`);
 
 // Create a connection pool
-const poolPromise = new sql.ConnectionPool(config)
+const poolPromise = new sql.ConnectionPool(config.database)
     .connect()
     .then((pool) => {
         console.log("✅ Connected to SQL Server");
@@ -44,7 +26,6 @@ const runQuery = async (query) => {
 const initialize = async () => {
 
     try {
-
         // Logging/Audit Tables
         await runQuery(`
             IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'imports')
