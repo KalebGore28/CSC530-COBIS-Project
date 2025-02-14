@@ -10,7 +10,7 @@ export function authenticateJWT(req, res, next) {
       if (err) {
         return res.status(403).json({ message: "Invalid or expired token" });
       }
-      // Optionally attach the decoded payload to the request
+      // Attach the decoded payload to the request
       req.user = decoded;
       next();
     });

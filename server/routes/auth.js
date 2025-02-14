@@ -1,6 +1,7 @@
 // /routes/auth.js
 import express from 'express';
 import passport from '../middleware/passport-config.js';
+import { authenticateJWT } from '../middleware/authenticateJWT.js';
 import { generateToken } from '../utils/jwt.js';
 
 const router = express.Router();
@@ -32,9 +33,16 @@ router.get(
     });
 
     // Redirect to your front-end or send a JSON response
-    res.redirect('/dashboard'); // or res.json({ message: "Authentication successful" });
+    res.redirect('/dashboard');
   }
 );
+
+// Get decoded JWT payload
+router.get('/me',
+  authenticateJWT,
+  (req, res) => {
+  res.json(req.user);
+});
 
 // Optional logout route: Clear the JWT cookie
 router.get('/logout', (req, res) => {

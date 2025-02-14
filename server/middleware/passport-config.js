@@ -11,10 +11,9 @@ passport.use(
       clientSecret: config.googleClientSecret,
       callbackURL: '/auth/google/callback', // Must match your Google Developer Console settings
     },
-    (accessToken, refreshToken, profile, done) => {
-      // In a real-world scenario, you’d look up or create a user in your database here.
-      // For now, simply return the profile.
-      return done(null, profile);
+    (_accessToken, _refreshToken, _profile, done) => {
+      // Only need the profile information
+      done(null, _profile);
     }
   )
 );

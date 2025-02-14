@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import passport from "./middleware/passport-config.js";
 
 // Import Routes
-import importRoutes from "./routes/imports.js";
+import importRoutes from "./routes/imports/index.js";
 import authRoutes from "./routes/auth.js";
 import homeRoutes from "./routes/home.js";
 

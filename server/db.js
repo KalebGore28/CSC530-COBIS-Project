@@ -423,8 +423,6 @@ const initialize = async () => {
                     user_id NVARCHAR(255) PRIMARY KEY, -- Unique SSO identifier
                     email NVARCHAR(255) UNIQUE NOT NULL,
                     display_name NVARCHAR(255) NOT NULL,
-                    sso_provider NVARCHAR(50) NULL, -- e.g., "AzureAD", "Google", "Okta"
-                    sso_external_id NVARCHAR(255) NULL, -- Unique ID from SSO system
                     is_active BIT DEFAULT 1, -- Soft delete mechanism
                     last_login DATETIME NULL,
                     created_at DATETIME DEFAULT GETDATE(),
