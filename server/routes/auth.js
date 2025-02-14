@@ -53,7 +53,7 @@ router.get('/google/callback',
       }
 
       // If user is inactive (pending approval), deny access
-      if (user.is_active === 0) {
+      if (user.is_active === false) {
         return res.status(403).json({
           message: 'Your account is still pending approval. Please wait for admin confirmation.',
         });
