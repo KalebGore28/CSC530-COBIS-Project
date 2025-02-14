@@ -12,7 +12,7 @@ passport.use(
       callbackURL: '/auth/google/callback', // Must match your Google Developer Console settings
     },
     (_accessToken, _refreshToken, _profile, done) => {
-      // Only need the profile information
+      // Pass the profile data to the next
       done(null, _profile);
     }
   )
