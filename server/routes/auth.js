@@ -74,7 +74,7 @@ router.get('/google/callback',
         maxAge: 3600 * 1000, // 1 hour
       });
 
-      res.redirect('/dashboard');
+      res.redirect('/');
     } catch (error) {
       console.error('Database query failed:', error);
       return res.status(500).json({ message: 'Internal server error' });
