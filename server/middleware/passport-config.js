@@ -13,6 +13,7 @@ passport.use(
     },
     (_accessToken, _refreshToken, profile, done) => {
       // Pass the profile data to the next
+      done(null, profile);
     }
   )
 );
