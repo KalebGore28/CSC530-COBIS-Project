@@ -45,7 +45,7 @@ app.get(BASE_URL + '/home', (req, res) => {
 
 // The catch-all handler: for any request that doesn't match /api, send back index.html.
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
+  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
 });
 
 // Export the Express app

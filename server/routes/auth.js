@@ -66,7 +66,7 @@ router.get('/google/callback',
         .query('UPDATE users SET last_login = GETDATE() WHERE email = @email');
 
       // Generate JWT and set cookie
-      const token = generateToken(user);
+      const token = generateToken(req.user);
       res.cookie('jwt', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',

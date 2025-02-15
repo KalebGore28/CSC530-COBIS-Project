@@ -11,9 +11,8 @@ passport.use(
       clientSecret: config.googleClientSecret,
       callbackURL: '/api/auth/google/callback', // Must match your Google Developer Console settings
     },
-    (_accessToken, _refreshToken, _profile, done) => {
+    (_accessToken, _refreshToken, profile, done) => {
       // Pass the profile data to the next
-      done(null, _profile);
     }
   )
 );
