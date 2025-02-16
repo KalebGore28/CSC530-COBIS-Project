@@ -86,8 +86,8 @@ router.get('/google/callback',
 router.get('/me',
   authenticateJWT,
   (req, res) => {
-  res.json(req.user);
-});
+    res.json(req.user);
+  });
 
 // Logout route
 router.get('/logout', (req, res) => {
