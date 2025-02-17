@@ -1,8 +1,13 @@
 import React, { useState } from "react";
 import logo from './assets/primary_white.png';
 import { Helmet } from "react-helmet";
+import Login from "./components/Login";
+var authenticated = false; // For demo purposes of the login page
 
 const App = () => {
+  if(!authenticated) { // Implementation for demonstration purposes / To be changed later
+    return (<Login></Login>);
+  }
   const [activeTab, setActiveTab] = useState('Dashboard');
 
   const getContent = () => {
