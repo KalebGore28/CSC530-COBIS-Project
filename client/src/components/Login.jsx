@@ -4,8 +4,8 @@ import { Helmet } from 'react-helmet';
 
 const Login = () => {
   const handleLogin = () => {
-    // The SSO implementation logic goes here
-    alert("To be implemented later...");
+    // Redirect to the SSO login page
+    window.location.href = `/api/auth/google`;
   };
 
   return (
