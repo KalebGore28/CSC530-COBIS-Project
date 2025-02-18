@@ -1,4 +1,4 @@
-// To preview the schema, install these VS Code extensions:
+// To preview the schema, install these VS Code extensions. Just copy the name and paste it into the Extensions search bar:
 // 		bocovo.dbml-erd-visualizer
 //		matt-meyers.vscode-dbml
 // When you open the dbml file, you can preview the schema by clicking on the "Preview" button in the top right corner of the editor. Should have a magnifying glass in the icon.
