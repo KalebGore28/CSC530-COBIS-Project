@@ -1,0 +1,326 @@
+// To preview the schema, install these VS Code extensions:
+// 		bocovo.dbml-erd-visualizer
+//		matt-meyers.vscode-dbml
+// When you open the dbml file, you can preview the schema by clicking on 
+
+Table imports {
+  id             int           [pk, increment]
+  entity_type    nvarchar(255) [not null]
+  file_name      nvarchar(255) [not null]
+  total_records  int           [not null]
+  error_details  nvarchar(max) [default: 'No errors reported.']
+  import_status  nvarchar(50)  [not null]
+  imported_by    nvarchar(255) [not null]
+  import_date    datetime      [default: 'GETDATE()']
+}
+
+Table student_types {
+  code              nvarchar(10)  [pk]
+  description       nvarchar(255) [not null]
+  next_student_type nvarchar(10)
+}
+
+Ref: student_types.next_student_type - student_types.code
+
+Table college_codes {
+  code nvarchar(10)  [pk]
+  name nvarchar(255) [not null]
+}
+
+Table colleges {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table nations {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table part_of_term {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table academic_standing {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table admit_codes {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table registration_status {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table instructional_methods {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table terms {
+  code         nvarchar(10)  [pk]
+  description  nvarchar(255) [not null]
+}
+
+Table departments {
+  code        nvarchar(10)  [pk]
+  description nvarchar(255)
+  prefixes    nvarchar(50)
+  canvas_id   int
+  college     nvarchar(10)  [not null, default: 'UNASSIGNED']
+}
+
+ref: colleges.code < departments.college
+
+Table subject_prefixes {
+  college    nvarchar(10) [pk, not null]
+  department nvarchar(10) [pk, not null]
+  prefix     nvarchar(10) [pk, not null]
+}
+
+ref: colleges.code < subject_prefixes.college
+ref: departments.code < subject_prefixes.department
+
+Table courses {
+  subject       nvarchar(10)  [not null, pk]
+  course_number int           [not null, pk]
+  course_suffix nvarchar(5)   [not null, pk, default: '']
+  title         nvarchar(255) [not null]
+  hours         int           [not null]
+  course_fee    decimal(10,2) [not null, default: 0]
+  web_fee       decimal(10,2) [not null, default: 0]
+  last_changed  datetime      [default: 'GETDATE()']
+}
+
+Table programs {
+  code              nvarchar(10)  [pk]
+  description       nvarchar(255) [not null]
+  cip_code          nvarchar(10)
+  is_major          bit           [not null, default: 0]
+  is_minor          bit           [not null, default: 0]
+  has_concentration bit           [not null, default: 0]
+  is_discontinued   bit           [not null, default: 0]
+  is_aacsb          bit           [not null, default: 0]
+  department        nvarchar(10)  [not null, default: 'UNASSIGNED']
+  college           nvarchar(10)  [not null, default: 'UNASSIGNED']
+  added_on          datetime      [default: 'GETDATE();']
+}
+
+ref: departments.code < programs.department
+ref: colleges.code < programs.college
+
+Table advisors {
+  advisor_id  nvarchar(10) [pk]
+  first_name  nvarchar(50) [not null]
+  last_name   nvarchar(50) [not null]
+  middle_name nvarchar(50)
+  suffix      nvarchar(10)
+}
+
+Table students {
+  mnumber               nvarchar(10)  [pk]
+  first_name            nvarchar(50)  [not null]
+  middle_name           nvarchar(50)
+  last_name             nvarchar(50)  [not null]
+  suffix                nvarchar(10)
+  gender                nvarchar(10)
+  birth_date            date
+  citizenship           nvarchar(10)
+  race_code             nvarchar(10)
+  race_description      nvarchar(255)
+  residency_code        nvarchar(10)
+  residency_description nvarchar(255)
+  age                   int
+  cell_phone            nvarchar(20)
+}
+
+Table test_scores {
+  mnumber     nvarchar(10)  [pk, not null]
+  code        nvarchar(10)  [pk, not null]
+  description nvarchar(255) [not null]
+  score       decimal(5,2)  [not null]
+  date        date          [not null]
+}
+
+ref: students.mnumber < test_scores.mnumber
+
+Table previous_colleges {
+  mnumber             nvarchar(10)  [pk, not null]
+  college_code        nvarchar(10)  [pk, not null]
+  college_description nvarchar(255) [not null]
+  degree              nvarchar(50)  [not null]
+  date                date          [not null]
+}
+
+ref: students.mnumber < previous_colleges.mnumber
+ref: college_codes.code < previous_colleges.college_code
+
+Table student_addresses {
+  mnumber     nvarchar(10)  [pk, not null]
+  type        nvarchar(10)  [pk, not null, note: "CHECK (type IN ('HOME', 'LOCAL'))"]
+  street1     nvarchar(255) [not null]
+  street2     nvarchar(255)
+  city        nvarchar(100)
+  state       nvarchar(20)
+  zip         nvarchar(20)
+  nation_code nvarchar(10)
+  phone       nvarchar(20)
+}
+
+ref: students.mnumber < student_addresses.mnumber
+ref: nations.code < student_addresses.nation_code
+
+Table student_academic_info {
+  mnumber                 nvarchar(10)  [pk, not null]
+  admit_term              nvarchar(10)  [pk, not null]
+  admit_year              int           [pk, not null]
+  admit_code              nvarchar(10)  [not null]
+  academic_standing       nvarchar(10)  [not null]
+  msu_attempted_hours     decimal(10,2) [not null]
+  msu_earned_hours        decimal(10,2) [not null]
+  msu_quality_points      decimal(10,2) [not null]
+  msu_gpa                 decimal(3,2)  [not null]
+  overall_attempted_hours decimal(10,2) [not null]
+  overall_earned_hours    decimal(10,2) [not null]
+  overall_quality_points  decimal(10,2) [not null]
+  overall_gpa             decimal(3,2)  [not null]
+}
+
+ref: terms.code < student_academic_info.admit_term
+ref: admit_codes.code < student_academic_info.admit_code
+ref: students.mnumber < student_academic_info.mnumber
+ref: academic_standing.code < student_academic_info.academic_standing
+
+Table student_programs {
+  mnumber      nvarchar(10) [pk, not null]
+  term         nvarchar(10) [pk, not null]
+  year         int          [pk, not null]
+  study        nvarchar(10) [not null]
+  type         nvarchar(10) [pk, not null, note: "CHECK (type IN ('MAJOR', 'MINOR'))"]
+  level        nvarchar(10) [not null, note: "CHECK (level IN ('UG', 'GR', 'PB'))"]
+  program_code nvarchar(10) [pk, not null]
+  department   nvarchar(10) [not null]
+  college      nvarchar(10) [not null]
+}
+
+ref: students.mnumber   < student_programs.mnumber
+ref: terms.code         < student_programs.term
+ref: programs.code      < student_programs.program_code
+ref: departments.code   < student_programs.department
+ref: colleges.code      < student_programs.college
+
+Table student_courses {
+  mnumber               nvarchar(10)  [pk, not null]
+  term                  nvarchar(10)  [pk, not null]
+  year                  int           [pk, not null]
+  part_of_term          nvarchar(10)  [not null]
+  crn                   nvarchar(10)  [pk, not null]
+  subject               nvarchar(10)  [not null]
+  course_number         int           [not null]
+  course_suffix         nvarchar(5)
+  section               int           [not null]
+  hours                 int           [not null]
+  level                 nvarchar(10)  [not null]
+  registration_status   nvarchar(10)  [not null]
+  instructional_method  nvarchar(10)  [not null]
+  last_attendance       date
+  midterm_grade         nvarchar(10)
+  final_grade           nvarchar(10)
+}
+
+ref: terms.code < student_courses.term
+ref: part_of_term.code < student_courses.part_of_term
+// Composite foreign key: (courses.subject, courses.course_number, courses.course_suffix) 
+// is referenced by (student_courses.subject, student_courses.course_number, student_courses.course_suffix)
+ref: courses.subject < student_courses.subject
+ref: courses.course_number < student_courses.course_number
+ref: courses.course_suffix < student_courses.course_suffix
+
+ref: registration_status.code < student_courses.registration_status
+ref: instructional_methods.code < student_courses.instructional_method
+
+Table student_advisors {
+  mnumber    nvarchar(10) [pk, not null]
+  term       nvarchar(10) [pk, not null]
+  year       int          [pk, not null]
+  advisor_id nvarchar(10) [pk, not null]
+}
+
+ref: students.mnumber < student_advisors.mnumber
+ref: terms.code < student_advisors.term
+ref: advisors.advisor_id < student_advisors.advisor_id
+
+Table overrides {
+  id             int          [pk, increment]
+  mnumber        nvarchar(10) [not null]
+  term           nvarchar(10) [not null]
+  year           int          [not null]
+  crn            nvarchar(10) [not null]
+  subject        nvarchar(10) [not null]
+  course_number  int          [not null]
+  course_suffix  nvarchar(5)  [not null, default: '']
+  section        nvarchar(10) [not null]
+  override_type  nvarchar(50) [not null]
+  granted_by     nvarchar(10) [not null]
+  override_date  datetime     [default: 'GETDATE()']
+}
+
+ref: terms.code < overrides.term
+ref: students.mnumber < overrides.mnumber
+// Composite foreign key to courses: split into individual references
+ref: courses.subject < overrides.subject
+ref: courses.course_number < overrides.course_number
+ref: courses.course_suffix < overrides.course_suffix
+
+Table users {
+  user_id      nvarchar(255) [pk, note: "Unique SSO identifier"]
+  email        nvarchar(255) [unique, not null]
+  display_name nvarchar(255) [not null]
+  is_active    bit           [default: 1, note: "Soft delete mechanism"]
+  last_login   datetime
+  created_at   datetime      [default: 'GETDATE()']
+  updated_at   datetime      [default: 'GETDATE()']
+}
+
+Table roles {
+  role_id   int           [pk, increment]
+  role_name nvarchar(50)  [unique, not null]
+}
+
+Table user_roles {
+  user_id nvarchar(255) [pk, not null]
+  role_id int           [pk, not null]
+}
+
+ref: users.user_id < user_roles.user_id
+ref: roles.role_id < user_roles.role_id
+
+Table permissions {
+  permission_id int           [pk, increment]
+  table_name    nvarchar(100) [not null, note: "Which table the permission applies to"]
+  column_name   nvarchar(100)
+  can_read      bit           [default: 0, note: "Read access (BOOLEAN -> BIT Fix)"]
+  can_write     bit           [default: 0, note: "Write access (BOOLEAN -> BIT Fix)"]
+  description   nvarchar(255) [note: "Short explanation for admin UI"]
+}
+
+Table role_permissions {
+  role_id       int [pk, not null]
+  permission_id int [pk, not null]
+}
+
+ref: roles.role_id < role_permissions.role_id
+ref: permissions.permission_id < role_permissions.permission_id
+
+Table user_permissions {
+  user_id       nvarchar(255) [pk, not null]
+  permission_id int           [pk, not null]
+}
+
+ref: users.user_id < user_permissions.user_id
+ref: permissions.permission_id < user_permissions.permission_id

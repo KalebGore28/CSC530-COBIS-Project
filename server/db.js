@@ -319,6 +319,7 @@ const initialize = async () => {
                     FOREIGN KEY (admit_term) REFERENCES terms(code),
                     FOREIGN KEY (admit_code) REFERENCES admit_codes(code),
                     FOREIGN KEY (mnumber) REFERENCES students(mnumber),
+                    FOREIGN KEY (academic_standing) REFERENCES academic_standing(code)
                 );
             END;
         `);
