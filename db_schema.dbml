@@ -324,3 +324,17 @@ Table user_permissions {
 
 ref: users.user_id < user_permissions.user_id
 ref: permissions.permission_id < user_permissions.permission_id
+
+Table instructor_courses {
+  user_id       nvarchar(255) [pk, not null]
+  term          nvarchar(10)  [pk, not null]
+  subject       nvarchar(10)  [pk, not null]
+  course_number int           [pk, not null]
+  course_suffix nvarchar(5)   [pk, not null, default: '']
+  role          nvarchar(50)
+}
+
+ref: users.user_id < instructor_courses.user_id
+ref: courses.subject < instructor_courses.subject
+ref: courses.course_number < instructor_courses.course_number
+ref: courses.course_suffix < instructor_courses.course_suffix

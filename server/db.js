@@ -496,6 +496,23 @@ const initialize = async () => {
             END;
         `);
 
+        await runQuery(`
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'instructor_courses')
+            BEGIN
+                CREATE TABLE instructor_courses (
+                    user_id NVARCHAR(255) NOT NULL,
+                    term NVARCHAR(10) NOT NULL,
+                    subject NVARCHAR(10) NOT NULL,
+                    course_number INT NOT NULL,
+                    course_suffix NVARCHAR(5) NOT NULL DEFAULT '',
+                    role NVARCHAR(50) NULL,  -- e.g., "Lead", "Co-Instructor"
+                    PRIMARY KEY (user_id, term, subject, course_number, course_suffix),
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
+                    FOREIGN KEY (subject, course_number, course_suffix) REFERENCES courses(subject, course_number, course_suffix)
+                );
+            END;
+        `);
+
         // Insert DEFAULT values
         await runQuery(`
             -- Insert 'UNASSIGNED' college code if it doesn't exist
