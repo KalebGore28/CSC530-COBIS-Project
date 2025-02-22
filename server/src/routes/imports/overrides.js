@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData, convertDateDDMMYYYY } from './helpers.js';
+import { importData, convertDateDDMMYYYY } from './helpers.ts';
 
 const router = express.Router();
 

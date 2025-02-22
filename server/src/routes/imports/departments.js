@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers.js';
+import { importData } from './helpers.ts';
 
 const router = express.Router();
 

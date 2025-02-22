@@ -11,9 +11,9 @@ const BASE_URL = "/api";
 
 
 // Import Routes
-import importRoutes from "./routes/imports/index.js";
-import authRoutes from "./routes/auth.js";
-import homeRoutes from "./routes/home.js";
+import importRoutes from "./routes/imports";
+// import authRoutes from "./routes/auth.js";
+// import homeRoutes from "./routes/home.js";
 
 // Create Express app
 const app = express();
@@ -29,8 +29,8 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Routes
 app.use(BASE_URL + "/imports", importRoutes);
-app.use(BASE_URL + "/auth", authRoutes);
-app.use(BASE_URL + "/", homeRoutes);
+// app.use(BASE_URL + "/auth", authRoutes);
+// app.use(BASE_URL + "/", homeRoutes);
 
 
 // Example home route

@@ -8,7 +8,7 @@
 		"build": "npx esbuild --platform=node --target=node18 --bundle index.js --minify --sourcemap --format=cjs --outfile=dist/server.cjs",
 		"binary_build": "npx pkg dist/server.cjs --output dist/server --targets node18-linux,node18-macos,node18-win",
 		"start": "node dist/server.cjs",
-		"dev": "nodemon --watch src --watch server --ext ts,js --exec node --loader ts-node/esm index.ts",
+		"dev": "npx nodemon --exec tsx src/index.ts",
 		"dbml": "tsx src/db/dbml.ts"
 	},
 	"keywords": [],
@@ -40,7 +40,6 @@
 		"esbuild": "^0.24.2",
 		"nodemon": "^3.1.9",
 		"supertest": "^7.0.0",
-		"ts-node": "^10.9.2",
 		"tsx": "^4.19.3",
 		"drizzle-dbml-generator": "^0.10.0",
 		"typescript": "^5.7.3",
