@@ -1,14 +1,14 @@
-import { sqliteTable, int, text } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 import { colleges } from "./colleges";
 
 export const departments = sqliteTable("departments", {
-	code: text().primaryKey(),
-	description: text().notNull(),
-	prefixes: text().notNull(),
-	canvas_id: int().notNull(),
-	college: text().notNull().default("UNASSIGNED").references(() => colleges.code),
+	code: text("code").primaryKey(),
+	description: text("description").notNull(),
+	prefixes: text("prefixes").notNull(),
+	canvas_id: text("canvas_id").notNull(),
+	college: text("college").notNull().default("UNASSIGNED").references(() => colleges.code),
 });
 
 // Define relationships for DBML generation

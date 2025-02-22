@@ -45,7 +45,7 @@ table departments {
   code text [pk, not null]
   description text [not null]
   prefixes text [not null]
-  canvas_id integer [not null]
+  canvas_id text [not null]
   college text [not null, default: 'UNASSIGNED']
 }
 
@@ -56,7 +56,7 @@ table imports {
   total_records integer [not null]
   error_details text [not null]
   import_status text [not null]
-  imported_by integer [not null]
+  imported_by text [not null]
   import_date text [not null, default: `CURRENT_TIMESTAMP`]
 }
 
