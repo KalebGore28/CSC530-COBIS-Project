@@ -23,16 +23,19 @@ export const overrides = sqliteTable("overrides", {
 ]);
 
 // Define relationships for DBML generation
-export const overridesOne = relations(overrides, ({ one }) => ({
-	student: one(students, {
+export const overridesOne = relations(overrides, ({ many, one }) => ({
+	students: many(students), // Students have many overrides
+	courses: many(courses), // Courses have many overrides
+	terms: many(terms), // Terms have many overrides
+	student: one(students, { // Overrides have a student
 		fields: [overrides.mnumber],
 		references: [students.mnumber],
 	}),
-	course: one(courses, {
+	course: one(courses, { // Overrides have a course
 		fields: [overrides.course_subject, overrides.course_number, overrides.course_suffix],
 		references: [courses.subject, courses.number, courses.suffix],
 	}),
-	term: one(terms, {
+	term: one(terms, { // Overrides have a term
 		fields: [overrides.term],
 		references: [terms.code],
 	}),

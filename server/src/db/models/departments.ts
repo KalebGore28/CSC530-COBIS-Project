@@ -12,8 +12,9 @@ export const departments = sqliteTable("departments", {
 });
 
 // Define relationships for DBML generation
-export const departmentsOne = relations(departments, ({ one }) => ({
-	college: one(colleges, {
+export const departmentsMany = relations(departments, ({ many, one }) => ({
+	colleges: many(colleges), // Colleges have many departments
+	college: one(colleges, { // Departments have a college
 		fields: [departments.college],
 		references: [colleges.code],
 	})

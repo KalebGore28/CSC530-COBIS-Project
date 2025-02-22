@@ -3,3 +3,4 @@ node_modules
 bundle.js
 coverage
 dist
+dev.sqlite3

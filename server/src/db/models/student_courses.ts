@@ -12,7 +12,7 @@ export const studentCourses = sqliteTable("student_courses", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),
 	term: text("term_code").notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	part_of_term: text("part_of_term_code").notNull().references(() => partOfTerm.code),
+	part_of_term: text("part_of_term").notNull().references(() => partOfTerm.code),
 	crn: text("crn").notNull(),
 	course_subject: text("subject").notNull(),
 	course_number: text("number").notNull(),
@@ -20,8 +20,8 @@ export const studentCourses = sqliteTable("student_courses", {
 	course_section: text("section").notNull(),
 	course_hours: int("hours").notNull(),
 	course_level: text("level").notNull(),
-	registration_status: text("registration_status_code").notNull().references(() => registrationStatus.code),
-	instructional_method: text("instructional_method_code").notNull().references(() => instructionalMethods.code),
+	registration_status: text("registration_status").notNull().references(() => registrationStatus.code),
+	instructional_method: text("instructional_method").notNull().references(() => instructionalMethods.code),
 	last_attendance: int({ mode: "timestamp" }),
 	midterm_grade: real(),
 	final_grade: real(),
@@ -31,28 +31,34 @@ export const studentCourses = sqliteTable("student_courses", {
 ]);
 
 // Define relationships for DBML generation
-export const studentCoursesMany = relations(studentCourses, ({ one }) => ({
-	student: one(students, {
+export const studentCoursesMany = relations(studentCourses, ({ many, one }) => ({
+	students: many(students), // Students have many student courses
+	terms: many(terms), // Terms have many student courses
+	partOfTerms: many(partOfTerm), // Part of terms have many student courses
+	courses: many(courses), // Courses have many student courses
+	registrationStatuses: many(registrationStatus), // Registration statuses have many student courses
+	instructionalMethods: many(instructionalMethods), // Instructional methods have many student courses
+	student: one(students, { // Student courses have a student
 		fields: [studentCourses.mnumber],
 		references: [students.mnumber],
 	}),
-	term: one(terms, {
+	term: one(terms, { // Student courses have a term
 		fields: [studentCourses.term],
 		references: [terms.code],
 	}),
-	partOfTerm: one(partOfTerm, {
+	partOfTerm: one(partOfTerm, { // Student courses have a part of term
 		fields: [studentCourses.part_of_term],
 		references: [partOfTerm.code],
 	}),
-	course: one(courses, {
+	course: one(courses, { // Student courses have a course
 		fields: [studentCourses.course_subject, studentCourses.course_number, studentCourses.course_suffix],
 		references: [courses.subject, courses.number, courses.suffix],
 	}),
-	registrationStatus: one(registrationStatus, {
+	registrationStatus: one(registrationStatus, { // Student courses have a registration status
 		fields: [studentCourses.registration_status],
 		references: [registrationStatus.code],
 	}),
-	instructionalMethod: one(instructionalMethods, {
+	instructionalMethod: one(instructionalMethods, { // Student courses have an instructional method
 		fields: [studentCourses.instructional_method],
 		references: [instructionalMethods.code],
 	}),

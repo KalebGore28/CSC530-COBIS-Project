@@ -18,16 +18,19 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 ]);
 
 // Define relationships for DBML generation
-export const instructorCoursesOne = relations(instructorCourses, ({ one }) => ({
-	instructor: one(users, {
+export const instructorCoursesOne = relations(instructorCourses, ({ many, one }) => ({
+	users: many(users), // Users have many instructor courses
+	courses: many(courses), // Courses have many instructor courses
+	terms: many(terms), // Terms have many instructor courses
+	instructor: one(users, { // Instructor courses have an instructor
 		fields: [instructorCourses.user_id],
 		references: [users.id],
 	}),
-	course: one(courses, {
+	course: one(courses, { // Instructor courses have a course
 		fields: [instructorCourses.course_subject, instructorCourses.course_number, instructorCourses.course_suffix],
 		references: [courses.subject, courses.number, courses.suffix],
 	}),
-	term: one(terms, {
+	term: one(terms, { // Instructor courses have a term
 		fields: [instructorCourses.term],
 		references: [terms.code],
 	}),

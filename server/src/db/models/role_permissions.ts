@@ -12,12 +12,14 @@ export const rolePermissions = sqliteTable("role_permissions", {
 ]);
 
 // Define relationships for DBML generation
-export const rolePermissionsOne = relations(rolePermissions, ({ one }) => ({
-	role: one(roles, {
+export const rolePermissionsOne = relations(rolePermissions, ({ many, one }) => ({
+	roles: many(roles), // Roles have many role permissions
+	permissions: many(permissions), // Permissions have many role permissions
+	role: one(roles, { // Role permissions have a role
 		fields: [rolePermissions.role_id],
 		references: [roles.id],
 	}),
-	permission: one(permissions, {
+	permission: one(permissions, { // Role permissions have a permission
 		fields: [rolePermissions.permission_id],
 		references: [permissions.id],
 	}),

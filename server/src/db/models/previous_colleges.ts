@@ -15,12 +15,14 @@ export const previousColleges = sqliteTable("previous_colleges", {
 ]);
 
 // Define relationships for DBML generation
-export const previousCollegesOne = relations(previousColleges, ({ one }) => ({
-	college: one(collegeCodes, {
+export const previousCollegesOne = relations(previousColleges, ({ many, one }) => ({
+	colleges: many(collegeCodes), // College codes have many previous colleges
+	students: many(students), // Students have many previous colleges
+	college: one(collegeCodes, { // Previous colleges have a college
 		fields: [previousColleges.college_code],
 		references: [collegeCodes.code],
 	}),
-	student: one(students, {
+	student: one(students, { // Previous colleges have a student
 		fields: [previousColleges.mnumber],
 		references: [students.mnumber],
 	}),

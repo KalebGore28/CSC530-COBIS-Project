@@ -242,7 +242,7 @@ ref: courses.course_number < student_courses.course_number
 ref: courses.course_suffix < student_courses.course_suffix
 
 ref: registration_status.code < student_courses.registration_status
-ref: instructional_methods.code < student_courses.instructional_method
+ref: instructional_methods.code < student_courses.instructional_method //! Look at this 
 
 Table student_advisors {
   mnumber    nvarchar(10) [pk, not null]

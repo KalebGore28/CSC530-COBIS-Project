@@ -210,7 +210,7 @@ table student_courses {
   mnumber text [not null]
   term_code text [not null]
   year integer [not null]
-  part_of_term_code text [not null]
+  part_of_term text [not null]
   crn text [not null]
   subject text [not null]
   number text [not null]
@@ -218,8 +218,8 @@ table student_courses {
   section text [not null]
   hours integer [not null]
   level text [not null]
-  registration_status_code text [not null]
-  instructional_method_code text [not null]
+  registration_status text [not null]
+  instructional_method text [not null]
   last_attendance integer
   midterm_grade real
   final_grade real
@@ -325,86 +325,86 @@ table users {
   created_at text [not null, default: `CURRENT_TIMESTAMP`]
 }
 
-ref: departments.college - colleges.code
+ref: departments.college > colleges.code
 
 ref: imports.imported_by - users.id
 
-ref: instructor_courses.user_id - users.id
+ref: instructor_courses.user_id > users.id
 
-ref: instructor_courses.(course_subject, course_number, course_suffix) - courses.(subject, number, suffix)
+ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
-ref: instructor_courses.term - terms.code
+ref: instructor_courses.term > terms.code
 
-ref: overrides.mnumber - students.mnumber
+ref: overrides.mnumber > students.mnumber
 
-ref: overrides.(subject, number, suffix) - courses.(subject, number, suffix)
+ref: overrides.(subject, number, suffix) > courses.(subject, number, suffix)
 
-ref: overrides.term - terms.code
+ref: overrides.term > terms.code
 
-ref: previous_colleges.college_code - college_codes.code
+ref: previous_colleges.college_code > college_codes.code
 
-ref: previous_colleges.mnumber - students.mnumber
+ref: previous_colleges.mnumber > students.mnumber
 
-ref: programs.college - colleges.code
+ref: programs.college > colleges.code
 
-ref: programs.department - departments.code
+ref: programs.department > departments.code
 
-ref: role_permissions.role_id - roles.id
+ref: role_permissions.role_id > roles.id
 
-ref: role_permissions.permission_id - permissions.id
+ref: role_permissions.permission_id > permissions.id
 
-ref: student_academic_info.mnumber - students.mnumber
+ref: student_academic_info.mnumber > students.mnumber
 
-ref: student_academic_info.admit_term - terms.code
+ref: student_academic_info.admit_term > terms.code
 
-ref: student_academic_info.admit_code - admit_codes.code
+ref: student_academic_info.admit_code > admit_codes.code
 
-ref: student_academic_info.standing_code - academic_standing.code
+ref: student_academic_info.standing_code > academic_standing.code
 
-ref: student_addresses.mnumber - students.mnumber
+ref: student_addresses.mnumber > students.mnumber
 
-ref: student_addresses.nation_code - nations.code
+ref: student_addresses.nation_code > nations.code
 
-ref: student_advisors.mnumber - students.mnumber
+ref: student_advisors.mnumber > students.mnumber
 
-ref: student_advisors.term_code - terms.code
+ref: student_advisors.term_code > terms.code
 
-ref: student_advisors.advisor_id - advisors.id
+ref: student_advisors.advisor_id > advisors.id
 
-ref: student_courses.mnumber - students.mnumber
+ref: student_courses.mnumber > students.mnumber
 
-ref: student_courses.term_code - terms.code
+ref: student_courses.term_code > terms.code
 
-ref: student_courses.part_of_term_code - part_of_term.code
+ref: student_courses.part_of_term > part_of_term.code
 
-ref: student_courses.(subject, number, suffix) - courses.(subject, number, suffix)
+ref: student_courses.(subject, number, suffix) > courses.(subject, number, suffix)
 
-ref: student_courses.registration_status_code - registration_status.code
+ref: student_courses.registration_status > registration_status.code
 
-ref: student_courses.instructional_method_code - instructional_methods.code
+ref: student_courses.instructional_method > instructional_methods.code
 
-ref: student_programs.mnumber - students.mnumber
+ref: student_programs.mnumber > students.mnumber
 
-ref: student_programs.term - terms.code
+ref: student_programs.term > terms.code
 
-ref: student_programs.program - programs.code
+ref: student_programs.program > programs.code
 
-ref: student_programs.department - departments.code
+ref: student_programs.department > departments.code
 
-ref: student_programs.college - colleges.code
+ref: student_programs.college > colleges.code
 
 ref: student_types.next_student_type - student_types.code
 
-ref: subject_prefixes.college - colleges.code
+ref: subject_prefixes.college > colleges.code
 
-ref: subject_prefixes.department - departments.code
+ref: subject_prefixes.department > departments.code
 
-ref: test_scores.mnumber - students.mnumber
+ref: test_scores.mnumber > students.mnumber
 
-ref: user_permissions.user_id - users.id
+ref: user_permissions.user_id > users.id
 
-ref: user_permissions.permission_id - permissions.id
+ref: user_permissions.permission_id > permissions.id
 
-ref: user_roles.user_id - users.id
+ref: user_roles.user_id > users.id
 
-ref: user_roles.role_id - roles.id
+ref: user_roles.role_id > roles.id

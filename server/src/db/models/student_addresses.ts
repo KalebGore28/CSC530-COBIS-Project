@@ -20,12 +20,14 @@ export const studentAddresses = sqliteTable("student_addresses", {
 ]);
 
 // Define relationships for DBML generation
-export const studentAddressesOne = relations(studentAddresses, ({ one }) => ({
-	student: one(students, {
+export const studentAddressesOne = relations(studentAddresses, ({ many, one }) => ({
+	students: many(students), // Students have many addresses
+	nations: many(nations), // Nations have many addresses
+	student: one(students, { // Student addresses have a student
 		fields: [studentAddresses.mnumber],
 		references: [students.mnumber],
 	}),
-	nation: one(nations, {
+	nation: one(nations, { // Student addresses have a nation
 		fields: [studentAddresses.nation_code],
 		references: [nations.code],
 	}),
