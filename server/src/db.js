@@ -1,5 +1,5 @@
 import sql from "mssql";
-import config from "./utils/config.js";
+import config from "./utils/config.ts";
 
 console.log(`🔌 Connecting to SQL Server at ${config.database.server}:${config.database.port}...`);
 console.log(`🏢 Database: ${config.database.database}`);

@@ -1,38 +1,49 @@
 {
-  "type": "module",
-  "name": "cobis-server",
-  "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "vitest --coverage",
-    "build": "npx esbuild --platform=node --target=node18 --bundle index.js --minify --sourcemap --format=cjs --outfile=dist/server.cjs",
-    "binary_build": "npx pkg dist/server.cjs --output dist/server --targets node18-linux,node18-macos,node18-win",
-    "start": "node dist/server.cjs",
-    "dev": "nodemon --watch routes --watch utils --watch middleware --watch server --ext js index.js",
-    "docker": "docker build -t cobis-server ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "jsonwebtoken": "^9.0.2",
-    "mssql": "^11.0.1",
-    "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0",
-    "pdfmake": "^0.2.18"
-  },
-  "devDependencies": {
-    "@vitest/coverage-v8": "^3.0.4",
-    "axios": "^1.7.9",
-    "csv-parser": "^3.2.0",
-    "dotenv": "^16.4.7",
-    "esbuild": "^0.24.2",
-    "nodemon": "^3.1.9",
-    "supertest": "^7.0.0",
-    "vitest": "^3.0.4"
-  }
+	"type": "module",
+	"name": "cobis-server",
+	"version": "1.0.0",
+	"main": "index.js",
+	"scripts": {
+		"test": "vitest --coverage",
+		"build": "npx esbuild --platform=node --target=node18 --bundle index.js --minify --sourcemap --format=cjs --outfile=dist/server.cjs",
+		"binary_build": "npx pkg dist/server.cjs --output dist/server --targets node18-linux,node18-macos,node18-win",
+		"start": "node dist/server.cjs",
+		"dev": "nodemon --watch src --watch server --ext ts,js --exec node --loader ts-node/esm index.ts",
+		"dbml": "tsx src/db/dbml.ts"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"@libsql/client": "^0.14.0",
+		"@types/express": "^5.0.0",
+		"cookie-parser": "^1.4.7",
+		"cors": "^2.8.5",
+		"drizzle-orm": "^0.39.3",
+		"express": "^4.21.2",
+		"jsonwebtoken": "^9.0.2",
+		"mssql": "^11.0.1",
+		"passport": "^0.7.0",
+		"passport-google-oauth20": "^2.0.0",
+		"pdfmake": "^0.2.18"
+	},
+	"devDependencies": {
+		"@types/cookie-parser": "^1.4.8",
+		"@types/cors": "^2.8.17",
+		"@types/node": "^22.13.5",
+		"@vitest/coverage-v8": "^3.0.4",
+		"axios": "^1.7.9",
+		"csv-parser": "^3.2.0",
+		"dotenv": "^16.4.7",
+		"drizzle-kit": "^0.30.4",
+		"esbuild": "^0.24.2",
+		"nodemon": "^3.1.9",
+		"supertest": "^7.0.0",
+		"ts-node": "^10.9.2",
+		"tsx": "^4.19.3",
+		"drizzle-dbml-generator": "^0.10.0",
+		"typescript": "^5.7.3",
+		"vitest": "^3.0.4"
+	}
 }

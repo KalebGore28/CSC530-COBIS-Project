@@ -1,0 +1,410 @@
+table academic_standing {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table admit_codes {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table advisors {
+  id text [pk, not null]
+  first_name text [not null]
+  last_name text [not null]
+  middle_name text [not null]
+  suffix text [not null]
+}
+
+table college_codes {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table colleges {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table courses {
+  subject text [not null]
+  number text [not null]
+  suffix text [not null, default: '']
+  title text [not null]
+  hours integer [not null]
+  fee real [not null, default: 0]
+  web_fee real [not null, default: 0]
+  last_updated text [not null, default: `CURRENT_TIMESTAMP`]
+
+  indexes {
+    (subject, number, suffix) [pk]
+  }
+}
+
+table departments {
+  code text [pk, not null]
+  description text [not null]
+  prefixes text [not null]
+  canvas_id integer [not null]
+  college text [not null, default: 'UNASSIGNED']
+}
+
+table imports {
+  id integer [pk, not null]
+  entity_type text [not null]
+  file_name text [not null]
+  total_records integer [not null]
+  error_details text [not null]
+  import_status text [not null]
+  imported_by integer [not null]
+  import_date text [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+table instructional_methods {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table instructor_courses {
+  user_id text [not null]
+  term text [not null]
+  course_subject text [not null]
+  course_number text [not null]
+  course_suffix text [not null, default: '']
+  role text [not null, default: 'Instructor']
+
+  indexes {
+    (user_id, term, course_subject, course_number, course_suffix) [pk]
+    
+  }
+}
+
+table nations {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table overrides {
+  id integer [pk, not null]
+  mnumber text [not null]
+  term text [not null]
+  year integer [not null]
+  crn text [not null]
+  subject text [not null]
+  number text [not null]
+  suffix text [not null, default: '']
+  section text [not null]
+  override_type text [not null]
+  granted_by text [not null]
+  override_date integer [not null]
+}
+
+table part_of_term {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table permissions {
+  id integer [pk, not null]
+  name text [not null]
+  column_name text [not null]
+  can_read integer [not null, default: false]
+  can_write integer [not null, default: false]
+  description text [not null]
+}
+
+table previous_colleges {
+  mnumber text [not null]
+  college_code text [not null]
+  college_description text [not null]
+  degree text [not null]
+  date integer [not null]
+
+  indexes {
+    (mnumber, college_code) [pk]
+  }
+}
+
+table programs {
+  code text [pk, not null]
+  description text [not null]
+  cip_code text [not null]
+  is_major integer [not null, default: false]
+  is_minor integer [not null, default: false]
+  has_concentration integer [not null, default: false]
+  is_discontinued integer [not null, default: false]
+  is_aacsb integer [not null, default: false]
+  department text [not null]
+  college text [not null]
+  added_on text [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+table registration_status {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table role_permissions {
+  role_id integer [not null]
+  permission_id integer [not null]
+
+  indexes {
+    (role_id, permission_id) [pk]
+  }
+}
+
+table roles {
+  id integer [pk, not null]
+  name text [not null]
+}
+
+table student_academic_info {
+  mnumber text [not null]
+  admit_term text [not null]
+  admit_year integer [not null]
+  admit_code text [not null]
+  standing_code text [not null]
+  msu_attempted_hours real [not null]
+  msu_earned_hours real [not null]
+  msu_quality_points real [not null]
+  msu_gpa real [not null]
+  overall_attempted_hours real [not null]
+  overall_earned_hours real [not null]
+  overall_quality_points real [not null]
+  overall_gpa real [not null]
+
+  indexes {
+    (mnumber, admit_term, admit_year) [pk]
+  }
+}
+
+table student_addresses {
+  mnumber text [not null]
+  type text [not null]
+  street1 text [not null]
+  street2 text
+  city text [not null]
+  state text [not null]
+  zip text [not null]
+  nation_code text [not null]
+  phone text [not null]
+
+  indexes {
+    (mnumber, type) [pk]
+    
+  }
+}
+
+table student_advisors {
+  mnumber text [not null]
+  term_code text [not null]
+  year integer [not null]
+  advisor_id text [not null]
+
+  indexes {
+    (mnumber, term_code, year, advisor_id) [pk]
+  }
+}
+
+table student_courses {
+  mnumber text [not null]
+  term_code text [not null]
+  year integer [not null]
+  part_of_term_code text [not null]
+  crn text [not null]
+  subject text [not null]
+  number text [not null]
+  suffix text [not null]
+  section text [not null]
+  hours integer [not null]
+  level text [not null]
+  registration_status_code text [not null]
+  instructional_method_code text [not null]
+  last_attendance integer
+  midterm_grade real
+  final_grade real
+
+  indexes {
+    (mnumber, term_code, year, crn) [pk]
+    
+  }
+}
+
+table student_programs {
+  mnumber text [not null]
+  term text [not null]
+  year integer [not null]
+  study text [not null]
+  type text [not null]
+  level text [not null]
+  program text [not null]
+  department text [not null]
+  college text [not null]
+
+  indexes {
+    (mnumber, term, year, type, program) [pk]
+    
+    
+  }
+}
+
+table student_types {
+  code text [pk, not null]
+  description text [not null]
+  next_student_type text [not null]
+}
+
+table students {
+  mnumber text [pk, not null]
+  first_name text [not null]
+  middle_name text [not null]
+  last_name text [not null]
+  suffix text [not null]
+  gender text [not null]
+  birthdate integer [not null]
+  citizenship text [not null]
+  race_code text [not null]
+  race_description text [not null]
+  residency_code text [not null]
+  residency_description text [not null]
+  age integer [not null]
+  cell_phone text [not null]
+}
+
+table subject_prefixes {
+  college text [not null]
+  department text [not null]
+  prefix text [not null]
+
+  indexes {
+    (college, department, prefix) [pk]
+  }
+}
+
+table terms {
+  code text [pk, not null]
+  description text [not null]
+}
+
+table test_scores {
+  mnumber text [not null]
+  code text [not null]
+  description text [not null]
+  score real [not null]
+  date integer [not null]
+
+  indexes {
+    (mnumber, code, date) [pk]
+  }
+}
+
+table user_permissions {
+  user_id text [not null]
+  permission_id integer [not null]
+
+  indexes {
+    (user_id, permission_id) [pk]
+  }
+}
+
+table user_roles {
+  user_id text [not null]
+  role_id integer [not null]
+
+  indexes {
+    (user_id, role_id) [pk]
+  }
+}
+
+table users {
+  id text [pk, not null]
+  email text [not null, unique]
+  display_name text [not null]
+  is_active integer [not null, default: false]
+  last_login text [not null, default: `CURRENT_TIMESTAMP`]
+  created_at text [not null, default: `CURRENT_TIMESTAMP`]
+}
+
+ref: departments.college - colleges.code
+
+ref: imports.imported_by - users.id
+
+ref: instructor_courses.user_id - users.id
+
+ref: instructor_courses.(course_subject, course_number, course_suffix) - courses.(subject, number, suffix)
+
+ref: instructor_courses.term - terms.code
+
+ref: overrides.mnumber - students.mnumber
+
+ref: overrides.(subject, number, suffix) - courses.(subject, number, suffix)
+
+ref: overrides.term - terms.code
+
+ref: previous_colleges.college_code - college_codes.code
+
+ref: previous_colleges.mnumber - students.mnumber
+
+ref: programs.college - colleges.code
+
+ref: programs.department - departments.code
+
+ref: role_permissions.role_id - roles.id
+
+ref: role_permissions.permission_id - permissions.id
+
+ref: student_academic_info.mnumber - students.mnumber
+
+ref: student_academic_info.admit_term - terms.code
+
+ref: student_academic_info.admit_code - admit_codes.code
+
+ref: student_academic_info.standing_code - academic_standing.code
+
+ref: student_addresses.mnumber - students.mnumber
+
+ref: student_addresses.nation_code - nations.code
+
+ref: student_advisors.mnumber - students.mnumber
+
+ref: student_advisors.term_code - terms.code
+
+ref: student_advisors.advisor_id - advisors.id
+
+ref: student_courses.mnumber - students.mnumber
+
+ref: student_courses.term_code - terms.code
+
+ref: student_courses.part_of_term_code - part_of_term.code
+
+ref: student_courses.(subject, number, suffix) - courses.(subject, number, suffix)
+
+ref: student_courses.registration_status_code - registration_status.code
+
+ref: student_courses.instructional_method_code - instructional_methods.code
+
+ref: student_programs.mnumber - students.mnumber
+
+ref: student_programs.term - terms.code
+
+ref: student_programs.program - programs.code
+
+ref: student_programs.department - departments.code
+
+ref: student_programs.college - colleges.code
+
+ref: student_types.next_student_type - student_types.code
+
+ref: subject_prefixes.college - colleges.code
+
+ref: subject_prefixes.department - departments.code
+
+ref: test_scores.mnumber - students.mnumber
+
+ref: user_permissions.user_id - users.id
+
+ref: user_permissions.permission_id - permissions.id
+
+ref: user_roles.user_id - users.id
+
+ref: user_roles.role_id - roles.id

@@ -1,7 +1,7 @@
 // /middleware/passport-config.js
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import config from '../utils/config.js';
+import config from '../utils/config.ts';
 
 // Configure Google OAuth Strategy without session support
 passport.use(
