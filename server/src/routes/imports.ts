@@ -23,30 +23,30 @@ import termsRouter from './imports/terms';
 import testScores from './imports/test_scores';
 
 // Create a router
-const router = express.Router();
+const router = express.Router()
 
-// Middleware to normalize column headers to lowercase
-router.use(normalizeHeadersMiddleware);
+	// Middleware to normalize column headers to lowercase
+	.use(normalizeHeadersMiddleware)
 
-// Routes
-router.use(academicStandingRouter);
-router.use(admitCodesRouter);
-router.use(collegeCodesRouter);
-router.use(collegesRouter);
-router.use(coursesRouter);
-router.use(demographicsRouter);
-router.use(departmentsRouter);
-router.use(instructionalMethodsRouter);
-router.use(nationsRouter);
-router.use(overridesRouter);
-router.use(partOfTermRouter);
-router.use(previousCollegesRouter);
-router.use(programsRouter);
-router.use(registrationStatusRouter);
-router.use(studentCoursesRouter);
-router.use(studentTypesRouter);
-router.use(subjectPrefixesRouter);
-router.use(termsRouter);
-router.use(testScores);
+	// Routes
+	.use(academicStandingRouter)
+	.use(admitCodesRouter)
+	.use(collegeCodesRouter)
+	.use(collegesRouter)
+	.use(coursesRouter)
+	.use(demographicsRouter)
+	.use(departmentsRouter)
+	.use(instructionalMethodsRouter)
+	.use(nationsRouter)
+	.use(overridesRouter)
+	.use(partOfTermRouter)
+	.use(previousCollegesRouter)
+	.use(programsRouter)
+	.use(registrationStatusRouter)
+	.use(studentCoursesRouter)
+	.use(studentTypesRouter)
+	.use(subjectPrefixesRouter)
+	.use(termsRouter)
+	.use(testScores)
 
 export default router;
