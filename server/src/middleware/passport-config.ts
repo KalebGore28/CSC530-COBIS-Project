@@ -1,15 +1,15 @@
 // /middleware/passport-config.js
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import config from '../utils/config.ts';
+import { config } from '../utils/config.js';
 
 // Configure Google OAuth Strategy without session support
 passport.use(
   new GoogleStrategy(
     {
-      clientID: config.googleClientId,
-      clientSecret: config.googleClientSecret,
-      callbackURL: '/api/auth/google/callback', // Must match your Google Developer Console settings
+      clientID: config.oauth.google.clientId,
+      clientSecret: config.oauth.google.clientSecret,
+      callbackURL: config.oauth.google.callBack, // Must match your Google Developer Console settings
     },
     (_accessToken, _refreshToken, profile, done) => {
       // Pass the profile data to the next

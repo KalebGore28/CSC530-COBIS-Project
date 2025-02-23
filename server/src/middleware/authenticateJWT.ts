@@ -1,6 +1,6 @@
-// /middleware/authenticateJWT.js
+// /middleware/authenticateJWT.ts
 import jwt from 'jsonwebtoken';
-import config from '../utils/config.ts';
+import { config } from '../utils/config.js';
 
 export function authenticateJWT(req, res, next) {
   // Retrieve the token from the HTTP-only cookie

@@ -1,8 +1,8 @@
 // /utils/jwt.js
 import jwt from 'jsonwebtoken';
-import config from './config.ts';
+import { config } from './config.js';
 
-export function generateToken(user) {
+export function generateToken(user: any) {
   // Create a payload. You can store whatever you need.
   // Here we use a unique identifier from the user object and some basic info.
   const payload = {
