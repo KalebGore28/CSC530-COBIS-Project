@@ -21,21 +21,82 @@ async function importInstructionalMethods(
 	);
 }
 
-const router = express.Router();
+const router = express.Router()
 
-router.post('/instructional_methods', async (req, res) => {
-	try {
-		const { mappedData, fileName, importedBy } = req.body;
-		const result = await importInstructionalMethods(mappedData, fileName, importedBy);
-		res.json({
-			message: 'Instructional methods imported successfully.',
-			totalRecords: result.totalRecords,
-			errors: result.errorDetails
-		});
-	} catch (error: any) {
-		console.error(`Error importing instructional methods data: ${error.message}`);
-		res.status(500).json({ error: 'Error importing instructional methods data.' });
-	}
-});
+	/**
+	 * @openapi
+	 * /api/import/instructional_methods:
+	 *   post:
+	 *     tags:
+	 *       - Imports
+	 *     summary: Import instructional methods data.
+	 *     description: >
+	 *       Imports instructional methods from a CSV file. For each row, if an instructional method with the provided code exists,
+	 *       it will be updated; otherwise, a new row is inserted.
+	 *     requestBody:
+	 *       required: true
+	 *       content:
+	 *         application/json:
+	 *           schema:
+	 *             type: object
+	 *             properties:
+	 *               mappedData:
+	 *                 type: array
+	 *                 items:
+	 *                   type: object
+	 *                   properties:
+	 *                     code:
+	 *                       type: string
+	 *                     description:
+	 *                       type: string
+	 *               fileName:
+	 *                 type: string
+	 *               importedBy:
+	 *                 type: string
+	 *     responses:
+	 *       200:
+	 *         description: Instructional methods imported successfully.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 message:
+	 *                   type: string
+	 *                 totalRecords:
+	 *                   type: integer
+	 *                 errors:
+	 *                   type: array
+	 *                   items:
+	 *                     type: object
+	 *                     properties:
+	 *                       row:
+	 *                         type: object
+	 *                       error:
+	 *                         type: string
+	 *       500:
+	 *         description: Error importing instructional methods data.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 error:
+	 *                   type: string
+	 */
+	.post('/instructional_methods', async (req, res) => {
+		try {
+			const { mappedData, fileName, importedBy } = req.body;
+			const result = await importInstructionalMethods(mappedData, fileName, importedBy);
+			res.json({
+				message: 'Instructional methods imported successfully.',
+				totalRecords: result.totalRecords,
+				errors: result.errorDetails
+			});
+		} catch (error: any) {
+			console.error(`Error importing instructional methods data: ${error.message}`);
+			res.status(500).json({ error: 'Error importing instructional methods data.' });
+		}
+	});
 
 export default router;
