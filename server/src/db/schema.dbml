@@ -85,7 +85,6 @@ table nations {
 }
 
 table overrides {
-  id integer [pk, not null]
   mnumber text [not null]
   term text [not null]
   year integer [not null]
@@ -96,7 +95,12 @@ table overrides {
   section text [not null]
   override_type text [not null]
   granted_by text [not null]
-  override_date integer [not null]
+  override_date text [not null]
+
+  indexes {
+    (mnumber, term, year, crn) [pk]
+    
+  }
 }
 
 table part_of_term {
@@ -118,7 +122,7 @@ table previous_colleges {
   college_code text [not null]
   college_description text [not null]
   degree text [not null]
-  date integer [not null]
+  date text [not null]
 
   indexes {
     (mnumber, college_code) [pk]
@@ -291,7 +295,7 @@ table test_scores {
   code text [not null]
   description text [not null]
   score real [not null]
-  date integer [not null]
+  date text [not null]
 
   indexes {
     (mnumber, code, date) [pk]
