@@ -11,7 +11,7 @@ export const studentAcademicInfo = sqliteTable("student_academic_info", {
 	admit_term: text("admit_term").notNull().references(() => terms.code),
 	admit_year: int("admit_year").notNull(),
 	admit_code: text("admit_code").notNull().references(() => admitCodes.code),
-	standing_code: text("standing_code").notNull().references(() => academicStanding.code),
+	academic_standing: text("academic_standing").notNull().references(() => academicStanding.code),
 	msu_attempted_hours: real("msu_attempted_hours").notNull(),
 	msu_earned_hours: real("msu_earned_hours").notNull(),
 	msu_quality_points: real("msu_quality_points").notNull(),
@@ -43,7 +43,7 @@ export const studentAcademicInfoOne = relations(studentAcademicInfo, ({ many, on
 		references: [admitCodes.code],
 	}),
 	standing: one(academicStanding, { // Student academic info has an academic standing
-		fields: [studentAcademicInfo.standing_code],
+		fields: [studentAcademicInfo.academic_standing],
 		references: [academicStanding.code],
 	}),
 }));

@@ -22,7 +22,7 @@ export const studentCourses = sqliteTable("student_courses", {
 	course_level: text("level").notNull(),
 	registration_status: text("registration_status").notNull().references(() => registrationStatus.code),
 	instructional_method: text("instructional_method").notNull().references(() => instructionalMethods.code),
-	last_attendance: int({ mode: "timestamp" }),
+	last_attendance: text("last_attendance"),
 	midterm_grade: real(),
 	final_grade: real(),
 }, (table) => [

@@ -6,9 +6,9 @@ import { colleges } from "./colleges";
 export const departments = sqliteTable("departments", {
 	code: text("code").primaryKey(),
 	description: text("description").notNull(),
-	prefixes: text("prefixes").notNull(),
-	canvas_id: text("canvas_id").notNull(),
-	college: text("college").notNull().default("UNASSIGNED").references(() => colleges.code),
+	prefixes: text("prefixes"),
+	canvas_id: text("canvas_id"),
+	college: text("college").notNull().default("0").references(() => colleges.code),
 });
 
 // Define relationships for DBML generation

@@ -28,7 +28,7 @@ table colleges {
 
 table courses {
   subject text [not null]
-  number text [not null]
+  number integer [not null]
   suffix text [not null, default: '']
   title text [not null]
   hours integer [not null]
@@ -44,9 +44,9 @@ table courses {
 table departments {
   code text [pk, not null]
   description text [not null]
-  prefixes text [not null]
-  canvas_id text [not null]
-  college text [not null, default: 'UNASSIGNED']
+  prefixes text
+  canvas_id text
+  college text [not null, default: '0']
 }
 
 table imports {
@@ -128,7 +128,7 @@ table previous_colleges {
 table programs {
   code text [pk, not null]
   description text [not null]
-  cip_code text [not null]
+  cip_code text
   is_major integer [not null, default: false]
   is_minor integer [not null, default: false]
   has_concentration integer [not null, default: false]
@@ -163,7 +163,7 @@ table student_academic_info {
   admit_term text [not null]
   admit_year integer [not null]
   admit_code text [not null]
-  standing_code text [not null]
+  academic_standing text [not null]
   msu_attempted_hours real [not null]
   msu_earned_hours real [not null]
   msu_quality_points real [not null]
@@ -197,12 +197,12 @@ table student_addresses {
 
 table student_advisors {
   mnumber text [not null]
-  term_code text [not null]
+  term text [not null]
   year integer [not null]
   advisor_id text [not null]
 
   indexes {
-    (mnumber, term_code, year, advisor_id) [pk]
+    (mnumber, term, year, advisor_id) [pk]
   }
 }
 
@@ -220,7 +220,7 @@ table student_courses {
   level text [not null]
   registration_status text [not null]
   instructional_method text [not null]
-  last_attendance integer
+  last_attendance text
   midterm_grade real
   final_grade real
 
@@ -261,7 +261,7 @@ table students {
   last_name text [not null]
   suffix text [not null]
   gender text [not null]
-  birthdate integer [not null]
+  birthdate text [not null]
   citizenship text [not null]
   race_code text [not null]
   race_description text [not null]
@@ -359,7 +359,7 @@ ref: student_academic_info.admit_term > terms.code
 
 ref: student_academic_info.admit_code > admit_codes.code
 
-ref: student_academic_info.standing_code > academic_standing.code
+ref: student_academic_info.academic_standing > academic_standing.code
 
 ref: student_addresses.mnumber > students.mnumber
 
@@ -367,7 +367,7 @@ ref: student_addresses.nation_code > nations.code
 
 ref: student_advisors.mnumber > students.mnumber
 
-ref: student_advisors.term_code > terms.code
+ref: student_advisors.term > terms.code
 
 ref: student_advisors.advisor_id > advisors.id
 

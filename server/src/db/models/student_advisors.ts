@@ -7,11 +7,11 @@ import { advisors } from "./advisors";
 
 export const studentAdvisors = sqliteTable("student_advisors", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),
-	term_code: text("term_code").notNull().references(() => terms.code),
+	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	advisor_id: text("advisor_id").notNull().references(() => advisors.id),
 }, (table) => [
-	primaryKey({ columns: [table.mnumber, table.term_code, table.year, table.advisor_id] }),
+	primaryKey({ columns: [table.mnumber, table.term, table.year, table.advisor_id] }),
 ]);
 
 // Define relationships for DBML generation
@@ -24,7 +24,7 @@ export const studentAdvisorsOne = relations(studentAdvisors, ({ many, one }) => 
 		references: [students.mnumber],
 	}),
 	term: one(terms, { // Student advisors have a term
-		fields: [studentAdvisors.term_code],
+		fields: [studentAdvisors.term],
 		references: [terms.code],
 	}),
 	advisor: one(advisors, { // Student advisors have an advisor

@@ -3,7 +3,7 @@ import { sql } from "drizzle-orm";
 
 export const courses = sqliteTable("courses", {
 	subject: text("subject").notNull(),
-	number: text("number").notNull(),
+	number: int("number").notNull(),
 	suffix: text("suffix").notNull().default(""),
 	title: text("title").notNull(),
 	hours: int("hours").notNull(),

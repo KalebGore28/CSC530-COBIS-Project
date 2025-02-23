@@ -7,7 +7,7 @@ export const students = sqliteTable("students", {
 	last_name: text("last_name").notNull(),
 	suffix: text("suffix").notNull(),
 	gender: text("gender").notNull(),
-	birthdate: int({ mode: "timestamp" }).notNull(),
+	birthdate: text().notNull(),
 	citizenship: text("citizenship").notNull(),
 	race_code: text("race_code").notNull(),
 	race_description: text("race_description").notNull(),

@@ -1,4 +1,4 @@
-import { sqliteTable, text, int, real, primaryKey } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, real, primaryKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 import { students } from "./students";
@@ -8,7 +8,7 @@ export const testScores = sqliteTable("test_scores", {
 	code: text("code").notNull(),
 	description: text("description").notNull(),
 	score: real("score").notNull(),
-	date: int({ mode: "timestamp" }).notNull(),
+	date: text("date").notNull(),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.code, table.date] }),
 ]);

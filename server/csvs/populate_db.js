@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const apiBaseUrl = "http://localhost:4000/import"; // Ensure this matches your server's API route
+const apiBaseUrl = "http://localhost:4000/api/import"; // Ensure this matches your server's API route
 
 /**
  * Reads a CSV file and sends data to the appropriate API endpoint.
@@ -81,8 +81,8 @@ const csvImports = [
 	{ file: "registration_status.csv", endpoint: "registration_status" },
 	{ file: "student_types.csv", endpoint: "student_types" },
 	{ file: "subject_prefixes.csv", endpoint: "subject_prefixes" },
-	{ file: "courses_sample.csv", endpoint: "student_courses" },
 	{ file: "demographics_sample.csv", endpoint: "demographics" },
+	{ file: "courses_sample.csv", endpoint: "student_courses" },
 	{ file: "test_scores_sample.csv", endpoint: "test_scores" },
 	{ file: "overrides_sample.csv", endpoint: "overrides" },
 	{ file: "previous_colleges_sample.csv", endpoint: "previous_colleges" },

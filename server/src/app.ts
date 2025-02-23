@@ -25,10 +25,10 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
 // Serve static files from the Vite-built dist folder.
-app.use(express.static(path.join(__dirname, '../client/dist')));
+// app.use(express.static(path.join(__dirname, '../client/dist')));
 
 // Routes
-app.use(BASE_URL + "/imports", importRoutes);
+app.use(BASE_URL + "/import", importRoutes);
 // app.use(BASE_URL + "/auth", authRoutes);
 // app.use(BASE_URL + "/", homeRoutes);
 
@@ -44,9 +44,9 @@ app.get(BASE_URL + '/home', (req, res) => {
 });
 
 // The catch-all handler: for any request that doesn't match /api, send back index.html.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, '../client/dist', 'index.html'));
+// });
 
 // Export the Express app
 export default app;

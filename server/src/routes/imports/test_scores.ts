@@ -1,5 +1,28 @@
 import express from 'express';
-import { importData, convertDateMMDDYYYY } from './helpers.ts';
+import { importData, convertDateMMDDYYYY } from './helpers';
+import { testScores } from '../../db/models/test_scores';
+
+interface TestScoreRow {
+	mnumber: string;
+	testcode: string;
+	testdesc: string;
+	testscore: string;
+	testdate: string;
+}
+
+async function importTestScores(
+	mappedData: TestScoreRow[],
+	fileName: string,
+	importedBy: string
+) {
+	return importData(
+		testScores,
+		['mnumber', 'code', 'date'],
+		mappedData,
+		fileName,
+		importedBy
+	);
+}
 
 const router = express.Router();
 
@@ -8,7 +31,7 @@ router.post('/test_scores', async (req, res) => {
 		const { mappedData, fileName, importedBy } = req.body;
 
 		// Transform the CSV data to match the database schema
-		const transformedData = mappedData.map(row => {
+		const transformedData = mappedData.map((row: { mnumber: string; testcode: string; testdesc: string; testscore: string; testdate: string; }) => {
 			return {
 				mnumber: row.mnumber,
 				code: row.testcode,
@@ -26,13 +49,13 @@ router.post('/test_scores', async (req, res) => {
 			date: 'datetime',
 		};
 
-		const result = await importData('test_scores', ['mnumber', 'code'], transformedData, fileName, importedBy, columnTypes);
+		const result = await importTestScores(transformedData, fileName, importedBy);
 		res.json({
 			message: 'Test scores imported successfully.',
 			totalRecords: result.totalRecords,
 			errors: result.errorDetails
 		});
-	} catch (error) {
+	} catch (error: any) {
 		console.error(`Error importing test scores data: ${error.message}`);
 		res.status(500).json({ error: 'Error importing test scores data.' });
 	}

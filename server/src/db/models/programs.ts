@@ -7,7 +7,7 @@ import { departments } from "./departments";
 export const programs = sqliteTable("programs", {
 	code: text("code").primaryKey(),
 	description: text("description").notNull(),
-	cip_code: text("cip_code").notNull(),
+	cip_code: text("cip_code"),
 	is_major: int({ mode: 'boolean' }).notNull().default(false),
 	is_minor: int({ mode: 'boolean' }).notNull().default(false),
 	has_concentration: int({ mode: 'boolean' }).notNull().default(false),

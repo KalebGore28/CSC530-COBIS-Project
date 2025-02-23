@@ -1,5 +1,32 @@
 import express from 'express';
-import { importData, convertDateDDMMYYYY } from './helpers.ts';
+import { importData, convertDateDDMMYYYY } from './helpers';
+import { overrides } from '../../db/models/overrides';
+
+interface OverrideRow {
+	mnumber: string;
+	term: string;
+	crn: string;
+	subj: string;
+	crsenumb: string;
+	section: string;
+	override: string;
+	userid: string;
+	activitydate: string;
+}
+
+async function importOverrides(
+	mappedData: OverrideRow[],
+	fileName: string,
+	importedBy: string
+) {
+	return importData(
+		overrides,
+		['mnumber', 'term', 'year', 'crn'],
+		mappedData,
+		fileName,
+		importedBy
+	);
+}
 
 const router = express.Router();
 
@@ -8,7 +35,7 @@ router.post('/overrides', async (req, res) => {
 		const { mappedData, fileName, importedBy } = req.body;
 
 		// Transform the CSV data to match the database schema
-		const transformedData = mappedData.map(row => {
+		const transformedData = mappedData.map((row: { term: string; crsenumb: string; mnumber: string; crn: string; subj: string; section: string; override: string; userid: string; activitydate: string; }) => {
 
 			const termMatch = row.term.match(/^(\d{4})(\d{2})$/);
 
@@ -17,23 +44,27 @@ router.post('/overrides', async (req, res) => {
 				return null; // Skip invalid rows
 			}
 
-			// Separate optional course suffix from course number
 			const courseMatch = row.crsenumb.match(/^(\d+)([A-Za-z]*)$/);
+
+			if (!courseMatch) {
+				console.warn(`⚠ Invalid COURSE format: ${row.crsenumb}`);
+				return null; // Skip invalid rows
+			}
 
 			return {
 				mnumber: row.mnumber,
 				term: termMatch[2],
 				year: parseInt(termMatch[1]),
 				crn: row.crn,
-				subject: row.subj,
+				course_subject: row.subj,
 				course_number: parseInt(courseMatch[1], 10),
 				course_suffix: courseMatch[2] || '',
-				section: row.section,
+				course_section: row.section,
 				override_type: row.override,
 				granted_by: row.userid,
 				override_date: convertDateDDMMYYYY(row.activitydate)
 			};
-		}).filter(row => row !== null); // Remove invalid rows
+		}).filter((row: null) => row !== null); // Remove invalid rows
 
 		// Define column types for SQL binding
 		const columnTypes = {
@@ -51,13 +82,13 @@ router.post('/overrides', async (req, res) => {
 		};
 
 
-		const result = await importData('overrides', 'mnumber', transformedData, fileName, importedBy, columnTypes);
+		const result = await importOverrides(transformedData, fileName, importedBy);
 		res.json({
 			message: 'Overrides imported successfully.',
 			totalRecords: result.totalRecords,
 			errors: result.errorDetails
 		});
-	} catch (error) {
+	} catch (error: any) {
 		console.error(`Error importing override data: ${error.message}`);
 		res.status(500).json({ error: 'Error importing override data.' });
 	}

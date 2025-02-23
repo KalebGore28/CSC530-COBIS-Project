@@ -9,7 +9,7 @@ export const previousColleges = sqliteTable("previous_colleges", {
 	college_code: text("college_code").notNull().references(() => collegeCodes.code),
 	college_description: text("college_description").notNull(),
 	degree: text("degree").notNull(),
-	date: int({ mode: "timestamp" }).notNull(),
+	date: text("date").notNull(),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.college_code] }),
 ]);

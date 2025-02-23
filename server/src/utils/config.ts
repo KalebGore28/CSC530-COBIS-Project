@@ -1,7 +1,8 @@
-// /utils/config.js
+import dotenv from 'dotenv';
+
 if (process.env.NODE_ENV !== 'production') {
 	console.log("🔁 Environment is not production. Loading dotenv...");
-	require('dotenv').config();
+	dotenv.config({ path: 'src/.env' });
 }
 
 export const config = {
