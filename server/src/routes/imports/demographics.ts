@@ -357,11 +357,11 @@ router.post('/demographics', async (req, res) => {
 			message: 'Demographics imported successfully.',
 			totalRecords: result1.totalRecords,
 			errors: result1.errorDetails,
-			// totalAddresses: result2.totalRecords,
-			// totalAcademic: result3.totalRecords,
-			// totalPrograms: result4.totalRecords,
-			// totalAdvisors: result5.totalRecords,
-			// totalStudentAdvisors: result6.totalRecords,
+			totalAddresses: result2.totalRecords,
+			totalAcademic: result3.totalRecords,
+			totalPrograms: result4.totalRecords,
+			totalAdvisors: result5.totalRecords,
+			totalStudentAdvisors: result6.totalRecords,
 		});
 
 	} catch (error: any) {
