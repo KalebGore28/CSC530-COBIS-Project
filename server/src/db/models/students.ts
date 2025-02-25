@@ -1,4 +1,14 @@
 import { sqliteTable, text, int } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
+
+import { studentAcademicInfo } from "./student_academic_info";
+import { overrides } from "./overrides";
+import { previousColleges } from "./previous_colleges";
+import { studentAddresses } from "./student_addresses";
+import { studentAdvisors } from "./student_advisors";
+import { studentCourses } from "./student_courses";
+import { studentPrograms } from "./student_programs";
+import { testScores } from "./test_scores";
 
 export const students = sqliteTable("students", {
 	mnumber: text("mnumber").primaryKey(),
@@ -16,3 +26,14 @@ export const students = sqliteTable("students", {
 	age: int("age").notNull(),
 	cell_phone: text("cell_phone").notNull(),
 });
+
+export const studentsRelations = relations(students, ({ many }) => ({
+	studentAcademicInfo: many(studentAcademicInfo),
+	overrides: many(overrides),
+	previousColleges: many(previousColleges),
+	studentAddresses: many(studentAddresses),
+	studentAdvisors: many(studentAdvisors),
+	studentCourses: many(studentCourses),
+	studentPrograms: many(studentPrograms),
+	testScores: many(testScores),
+}));

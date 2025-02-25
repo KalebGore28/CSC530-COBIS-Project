@@ -13,9 +13,7 @@ export const subjectPrefixes = sqliteTable("subject_prefixes", {
 ]);
 
 // Define relationships for DBML generation
-export const subjectPrefixesMany = relations(subjectPrefixes, ({ many, one }) => ({
-	colleges: many(colleges), // Colleges have many subject prefixes
-	departments: many(departments), // Departments have many subject prefixes
+export const subjectPrefixesMany = relations(subjectPrefixes, ({ one }) => ({
 	college: one(colleges, { // Subject prefixes have a college
 		fields: [subjectPrefixes.college],
 		references: [colleges.code],

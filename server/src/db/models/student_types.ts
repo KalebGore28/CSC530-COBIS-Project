@@ -8,7 +8,7 @@ export const studentTypes: any = sqliteTable("student_types", {
 });
 
 // Define relationships for DBML generation
-export const studentTypesOne = relations(studentTypes, ({ one }) => ({
+export const studentTypeRelations = relations(studentTypes, ({ one }) => ({
 	nextStudentType: one(studentTypes, {
 		fields: [studentTypes.next_student_type],
 		references: [studentTypes.code],

@@ -25,11 +25,7 @@ export const studentAcademicInfo = sqliteTable("student_academic_info", {
 ]);
 
 // Define relationships for DBML generation
-export const studentAcademicInfoOne = relations(studentAcademicInfo, ({ many, one }) => ({
-	students: many(students), // Students have many academic info
-	academicStanding: many(academicStanding), // Academic standings have many academic info
-	terms: many(terms), // Terms have many academic info
-	admitCodes: many(admitCodes), // Admit codes have many academic info
+export const studentAcademicInfoRelations = relations(studentAcademicInfo, ({ one }) => ({
 	student: one(students, { // Student academic info has a student
 		fields: [studentAcademicInfo.mnumber],
 		references: [students.mnumber],

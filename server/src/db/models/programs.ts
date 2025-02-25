@@ -3,6 +3,7 @@ import { sql, relations } from "drizzle-orm";
 
 import { colleges } from "./colleges";
 import { departments } from "./departments";
+import { studentPrograms } from "./student_programs";
 
 export const programs = sqliteTable("programs", {
 	code: text("code").primaryKey(),
@@ -19,9 +20,8 @@ export const programs = sqliteTable("programs", {
 });
 
 // Define relationships for DBML generation
-export const programsOne = relations(programs, ({ many, one }) => ({
-	colleges: many(colleges), // Colleges have many programs
-	departments: many(departments), // Departments have many programs
+export const programsOne = relations(programs, ({ one, many }) => ({
+	studentPrograms: many(studentPrograms),
 	college: one(colleges, { // Programs have a college
 		fields: [programs.college],
 		references: [colleges.code],

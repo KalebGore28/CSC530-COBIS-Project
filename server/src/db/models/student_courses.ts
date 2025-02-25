@@ -1,5 +1,5 @@
 import { sqliteTable, text, int, primaryKey, check, real, foreignKey } from "drizzle-orm/sqlite-core";
-import { sql, relations } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 
 import { terms } from "./terms";
 import { students } from "./students";
@@ -31,13 +31,7 @@ export const studentCourses = sqliteTable("student_courses", {
 ]);
 
 // Define relationships for DBML generation
-export const studentCoursesMany = relations(studentCourses, ({ many, one }) => ({
-	students: many(students), // Students have many student courses
-	terms: many(terms), // Terms have many student courses
-	partOfTerms: many(partOfTerm), // Part of terms have many student courses
-	courses: many(courses), // Courses have many student courses
-	registrationStatuses: many(registrationStatus), // Registration statuses have many student courses
-	instructionalMethods: many(instructionalMethods), // Instructional methods have many student courses
+export const studentCourseRelations = relations(studentCourses, ({ one }) => ({
 	student: one(students, { // Student courses have a student
 		fields: [studentCourses.mnumber],
 		references: [students.mnumber],
