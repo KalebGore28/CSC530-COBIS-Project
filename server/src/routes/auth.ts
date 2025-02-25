@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import passport from '../middleware/passport-config';
+import passport from '../utils/passport-config';
 import { authenticateJWT } from '../middleware/authenticateJWT';
 import { generateToken } from '../utils/jwt';
 import { db } from '../db/connection.js';

@@ -1,12 +1,14 @@
-// /middleware/authenticateJWT.ts
+// src/middleware/authenticateJWT.ts
+
 import jwt from 'jsonwebtoken';
 import { config } from '../utils/config.js';
+import { Request, Response, NextFunction } from 'express';
 
-export function authenticateJWT(req, res, next) {
+export function authenticateJWT(req: Request, res: Response, next: NextFunction): void {
   // Retrieve the token from the HTTP-only cookie
   const token = req.cookies.jwt;
   if (token) {
-    jwt.verify(token, config.jwtSecret, (err, decoded) => {
+    jwt.verify(token, config.jwtSecret, (err: any, decoded: string | object | undefined) => {
       if (err) {
         return res.status(403).json({ message: "Invalid or expired token" });
       }
