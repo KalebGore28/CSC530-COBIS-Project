@@ -111,7 +111,7 @@ router.get('/credit-hours', async (req, res) => {
         )
       );
 
-    return res.json(instructorCoursesResult);
+    return res.json(instructorCoursesResult[0]);
   } catch (error) {
     console.error("Error fetching credit hours:", error);
     return res.status(500).json({ error: "Internal server error" });
