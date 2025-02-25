@@ -37,7 +37,7 @@ const Department = () => {
     });
 
     // Fetch table columns
-    fetch('http://localhost:4000/departments/column-names')
+    fetch('http://localhost:4000/columns?table=departments')
       .then((res) => res.json())
       .then((data) => setTableColumns(data.columns))
       .catch((err) => console.error('Error fetching table columns:', err));
@@ -92,14 +92,19 @@ const Department = () => {
           csvData={csvData}
           columnMapping={columnMapping}
           onBack={() => setStep('mapping')}
-          apiEndpoint="http://localhost:4000/departments/import"
+          apiEndpoint={'http://localhost:4000/import/departments'}
           entityName="Departments"
           fileName={fileName}
         />
       )}
 
-      {/* PDF Preview Modal */}
-      {pdfUrl && <PDFPreviewModal pdfUrl={pdfUrl} reportType="departments" onClose={() => setPdfUrl(null)} />}
+      {pdfUrl &&
+        <PDFPreviewModal
+          pdfUrl={pdfUrl}
+          reportType="departments"
+          onClose={() => setPdfUrl(null)}
+        />
+      }
     </div>
   );
 };
