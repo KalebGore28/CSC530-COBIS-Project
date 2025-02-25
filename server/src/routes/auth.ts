@@ -4,7 +4,7 @@ import { authenticateJWT } from '../middleware/authenticateJWT';
 import { generateToken } from '../utils/jwt';
 import { db } from '../db/connection.js';
 import { eq } from 'drizzle-orm';
-import { users } from '../db/models/users.js'; // Ensure you have a Drizzle model for users
+import { users } from '../db/models/users';
 
 const router = express.Router()
 
@@ -93,9 +93,8 @@ const router = express.Router()
             email: email,
             display_name: display_name,
             is_active: false,
-            last_login: new Date(),
-            created_at: new Date(),
-            updated_at: new Date(),
+            last_login: new Date().toISOString(),
+            created_at: new Date().toISOString(),
           });
           return res.status(403).json({
             message: 'Your account is pending admin approval. Please contact an administrator.',
@@ -112,7 +111,7 @@ const router = express.Router()
         // If user is active, update last login time
         await db
           .update(users)
-          .set({ last_login: new Date() })
+          .set({ last_login: new Date().toISOString() })
           .where(eq(users.email, email));
 
         // Generate JWT and set cookie
