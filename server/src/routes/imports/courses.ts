@@ -114,7 +114,7 @@ const router = express.Router()
 
 				return {
 					subject: courseMatch[1],          // Extracts the subject (e.g., "ACC")
-					number: parseInt(courseMatch[2], 10),  // Extracts course number (e.g., 200)
+					number: courseMatch[2],  // Extracts course number (e.g., 200)
 					suffix: courseMatch[3] || '', // Extracts suffix if present (e.g., "T" from "100T")
 					title: row.crsetitle.trim(),      // Map to `title`
 					hours: parseInt(row.crhrs, 10) || 0, // Map to `hours` (default 0 if null)

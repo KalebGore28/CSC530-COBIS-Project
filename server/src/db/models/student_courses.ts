@@ -10,7 +10,7 @@ import { registrationStatus } from "./registration_status";
 
 export const studentCourses = sqliteTable("student_courses", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),
-	term: text("term_code").notNull().references(() => terms.code),
+	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	part_of_term: text("part_of_term").notNull().references(() => partOfTerm.code),
 	crn: text("crn").notNull(),

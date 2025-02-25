@@ -154,7 +154,7 @@ const router = express.Router()
 					part_of_term: row.partofterm,
 					crn: row.crn,
 					course_subject: row.crsesubj,
-					course_number: parseInt(courseMatch[1], 10),
+					course_number: courseMatch[1],
 					course_suffix: courseMatch[2] || '',
 					course_section: row.section,
 					course_hours: parseFloat(row.crhrs) || 0,
