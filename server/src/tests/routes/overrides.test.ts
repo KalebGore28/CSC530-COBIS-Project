@@ -85,7 +85,6 @@ describe('Overrides Import Tests', () => {
 			});
 
 		// Verify the response.
-		console.log(response.error);
 		expect(response.status).toBe(200);
 		expect(response.body.message).toBe('Overrides imported successfully.');
 

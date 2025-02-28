@@ -126,7 +126,6 @@ export const overridesRouter = express.Router()
 				}
 
 				const courseMatch = row.crsenumb.match(/^(\d+)([A-Za-z]*)$/);
-				console.log("Course Match:",courseMatch);
 				if (!courseMatch) {
 					console.warn(`⚠ Invalid COURSE format: ${row.crsenumb}`);
 					return null; // Skip invalid rows
