@@ -24,7 +24,7 @@ async function importDepartments(
 	);
 }
 
-const router = express.Router()
+export const departmentsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -103,15 +103,12 @@ const router = express.Router()
 			// Transform the CSV data to match the database schema
 			const transformedData = mappedData.map((row: { prefixes: string; code: string; description: string; canvas_id: string; college: string; }) => {
 
-				// Split the prefixes into an array
-				const prefixes = row.prefixes.split(',').map((p: string) => p.trim()).filter((p: string | any[]) => p.length > 0);
-
 				return {
 					code: row.code,
 					description: row.description,
-					prefixes: row.prefixes === 'NULL' ? null : prefixes.join(','),
+					prefixes: row.prefixes ? row.prefixes.split(',').map((prefix: string) => prefix.trim()).join(',') : null,
 					canvas_id: row.canvas_id || null,
-					college: row.college === 'NULL' ? "0" : row.college
+					college: row.college ? row.college : '0' // Default to '0' if missing
 				};
 			});
 
@@ -121,10 +118,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing departments data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing departments data.' });
 		}
 	});
-
-export default router;

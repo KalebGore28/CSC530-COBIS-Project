@@ -7,7 +7,7 @@ interface CollegeCodeRow {
 	description: string;
 }
 
-export async function importCollegeCodes(
+async function importCollegeCodes(
 	mappedData: CollegeCodeRow[],
 	fileName: string,
 	importedBy: string
@@ -21,7 +21,7 @@ export async function importCollegeCodes(
 	);
 }
 
-const router = express.Router()
+export const collegeCodesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing college codes data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing college codes data.' });
 		}
 	});
-
-export default router;

@@ -5,6 +5,7 @@ import { studentTypes } from '../../db/models/student_types';
 interface StudentTypeRow {
 	code: string;
 	description: string;
+	next_student_type: string;
 }
 
 async function importStudentTypes(
@@ -21,7 +22,7 @@ async function importStudentTypes(
 	);
 }
 
-const router = express.Router()
+export const studentTypesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -48,6 +49,8 @@ const router = express.Router()
 	 *                     code:
 	 *                       type: string
 	 *                     description:
+	 *                       type: string
+	 *					   next_student_type:
 	 *                       type: string
 	 *               fileName:
 	 *                 type: string
@@ -93,10 +96,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing student type data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing student type data.' });
 		}
 	});
-
-export default router;

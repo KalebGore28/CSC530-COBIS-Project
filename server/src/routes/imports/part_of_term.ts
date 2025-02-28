@@ -21,7 +21,7 @@ async function importPartOfTerm(
 	);
 }
 
-const router = express.Router()
+export const partOfTermRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing part of term data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing part of term data.' });
 		}
 	});
-
-export default router;

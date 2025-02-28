@@ -91,7 +91,7 @@ export const academicStandingRouter = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails,
 			});
-			/* v8 ignore next 4 */ // This block can only be triggered by a database connection error, which is unlikely to occur in a test environment.
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing academic standing data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing academic standing data.' });

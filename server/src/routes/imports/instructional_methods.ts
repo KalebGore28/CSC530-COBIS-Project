@@ -21,7 +21,7 @@ async function importInstructionalMethods(
 	);
 }
 
-const router = express.Router()
+export const instructionalMethodsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing instructional methods data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing instructional methods data.' });
 		}
 	});
-
-export default router;

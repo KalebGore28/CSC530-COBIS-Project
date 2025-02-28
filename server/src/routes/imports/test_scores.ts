@@ -25,7 +25,7 @@ async function importTestScores(
 	);
 }
 
-const router = express.Router()
+export const testScoresRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -127,10 +127,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing test scores data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing test scores data.' });
 		}
 	});
-
-export default router;

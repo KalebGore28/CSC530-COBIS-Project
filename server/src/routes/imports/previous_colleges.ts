@@ -25,7 +25,7 @@ async function importPreviousColleges(
 	);
 }
 
-const router = express.Router()
+export const previousCollegesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -118,10 +118,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing registration status data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing registration status data.' });
 		}
 	});
-
-export default router;

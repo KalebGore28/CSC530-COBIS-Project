@@ -29,7 +29,7 @@ async function importPrograms(
 	);
 }
 
-const router = express.Router()
+export const programsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -119,14 +119,14 @@ const router = express.Router()
 				return {
 					code: row.code,
 					description: row.description,
-					cip_code: row.cip_code === 'NULL' ? null : row.cip_code,
+					cip_code: row.cip_code ? row.cip_code : null,
 					is_major: row.is_major === '1',
 					is_minor: row.is_minor === '1',
 					has_concentration: row.has_concentration === '1',
 					is_discontinued: row.is_discontinued === '1',
 					is_aacsb: row.is_aacsb === '1',
-					department: row.department === 'NULL' ? '0000' : row.department,
-					college: row.college === 'NULL' ? '0' : row.college
+					department: row.department ? row.department : '0000', // default to '0000' if department is NULL
+					college: row.college ? row.college : '0' // default to '0' if college is NULL
 				};
 			});
 
@@ -136,10 +136,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing programs data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing programs data.' });
 		}
 	});
-
-export default router;

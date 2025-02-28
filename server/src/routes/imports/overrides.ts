@@ -168,6 +168,7 @@ export const overridesRouter = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing override data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing override data.' });
