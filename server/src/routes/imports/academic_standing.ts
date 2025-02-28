@@ -1,13 +1,13 @@
 import express from 'express';
-import { importData } from './helpers';
-import { academicStanding } from '../../db/models/academic_standing';
+import { importData } from '../../utils/importData';
+import { academicStanding } from '../../db/schema';
 
 interface AcademicStandingRow {
 	code: string;
 	description: string;
 }
 
-async function importAcademicStanding(
+export async function importAcademicStanding(
 	mappedData: AcademicStandingRow[],
 	fileName: string,
 	importedBy: string

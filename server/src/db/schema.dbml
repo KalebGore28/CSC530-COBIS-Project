@@ -68,13 +68,14 @@ table instructional_methods {
 table instructor_courses {
   user_id text [not null]
   term text [not null]
+  year integer [not null]
   course_subject text [not null]
   course_number text [not null]
   course_suffix text [not null, default: '']
   role text [not null, default: 'Instructor']
 
   indexes {
-    (user_id, term, course_subject, course_number, course_suffix) [pk]
+    (user_id, term, year, course_subject, course_number, course_suffix) [pk]
     
   }
 }
@@ -212,7 +213,7 @@ table student_advisors {
 
 table student_courses {
   mnumber text [not null]
-  term_code text [not null]
+  term text [not null]
   year integer [not null]
   part_of_term text [not null]
   crn text [not null]
@@ -229,7 +230,7 @@ table student_courses {
   final_grade real
 
   indexes {
-    (mnumber, term_code, year, crn) [pk]
+    (mnumber, term, year, crn) [pk]
     
   }
 }
@@ -377,7 +378,7 @@ ref: student_advisors.advisor_id > advisors.id
 
 ref: student_courses.mnumber > students.mnumber
 
-ref: student_courses.term_code > terms.code
+ref: student_courses.term > terms.code
 
 ref: student_courses.part_of_term > part_of_term.code
 

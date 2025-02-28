@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { instructionalMethods } from '../../db/models/instructional_methods';
 
 interface InstructionalMethodRow {

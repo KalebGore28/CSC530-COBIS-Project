@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { partOfTerm } from '../../db/models/part_of_term';
 
 interface PartOfTermRow {

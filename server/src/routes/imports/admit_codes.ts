@@ -1,13 +1,13 @@
 import express from 'express';
-import { importData } from './helpers';
-import { admitCodes } from '../../db/models/admit_codes';
+import { importData } from '../../utils/importData';
+import { admitCodes } from '../../db/schema';
 
 interface AdmitCodeRow {
 	code: string;
 	description: string;
 }
 
-async function importAdmitCodes(
+export async function importAdmitCodes(
 	mappedData: AdmitCodeRow[],
 	fileName: string,
 	importedBy: string

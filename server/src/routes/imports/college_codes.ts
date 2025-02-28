@@ -1,13 +1,13 @@
 import express from 'express';
-import { importData } from './helpers';
-import { collegeCodes } from '../../db/models/college_codes';
+import { importData } from '../../utils/importData';
+import { collegeCodes } from '../../db/schema';
 
 interface CollegeCodeRow {
 	code: string;
 	description: string;
 }
 
-async function importCollegeCodes(
+export async function importCollegeCodes(
 	mappedData: CollegeCodeRow[],
 	fileName: string,
 	importedBy: string

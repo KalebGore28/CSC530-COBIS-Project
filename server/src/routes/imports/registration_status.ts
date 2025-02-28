@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { registrationStatus } from '../../db/models/registration_status';
 
 interface RegistrationStatusRow {

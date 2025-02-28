@@ -4,12 +4,13 @@
 	"version": "1.0.0",
 	"main": "index.js",
 	"scripts": {
-		"test": "vitest --coverage",
-		"build": "npx esbuild --platform=node --target=node18 --bundle index.js --minify --sourcemap --format=cjs --outfile=dist/server.cjs",
-		"binary_build": "npx pkg dist/server.cjs --output dist/server --targets node18-linux,node18-macos,node18-win",
-		"start": "node dist/server.cjs",
 		"dev": "npx nodemon --exec tsx src/index.ts",
-		"dbml": "tsx src/db/dbml.ts"
+		"start": "node dist/server.cjs",
+		"test": "vitest --coverage",
+		"db:studio": "drizzle-kit studio",
+		"db:push": "drizzle-kit push && tsx src/db/dbml.ts",
+		"db:generate": "drizzle-kit generate && tsx src/db/dbml.ts",
+		"db:migrate": "drizzle-kit migrate && tsx src/db/dbml.ts"
 	},
 	"keywords": [],
 	"author": "",
@@ -17,6 +18,7 @@
 	"description": "",
 	"dependencies": {
 		"@libsql/client": "^0.14.0",
+		"better-sqlite3": "^11.8.1",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
 		"drizzle-orm": "^0.40.0",
@@ -26,12 +28,14 @@
 		"passport-google-oauth20": "^2.0.0",
 		"pdfmake": "^0.2.18",
 		"swagger-jsdoc": "^6.2.8",
-		"swagger-ui-express": "^5.0.1"
+		"swagger-ui-express": "^5.0.1",
+		"typescript": "^5.7.3"
 	},
 	"devDependencies": {
-		"@types/express": "^5.0.0",
+		"@types/better-sqlite3": "^7.6.12",
 		"@types/cookie-parser": "^1.4.8",
 		"@types/cors": "^2.8.17",
+		"@types/express": "^5.0.0",
 		"@types/jsonwebtoken": "^9.0.9",
 		"@types/node": "^22.13.5",
 		"@types/passport": "^1.0.17",
@@ -48,7 +52,6 @@
 		"nodemon": "^3.1.9",
 		"supertest": "^7.0.0",
 		"tsx": "^4.19.3",
-		"typescript": "^5.7.3",
 		"vitest": "^3.0.7"
 	}
 }

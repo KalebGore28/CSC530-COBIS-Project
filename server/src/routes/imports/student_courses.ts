@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { studentCourses } from '../../db/models/student_courses';
 
 interface StudentCoursesRow {

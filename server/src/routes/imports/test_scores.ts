@@ -1,5 +1,6 @@
 import express from 'express';
-import { importData, convertDateMMDDYYYY } from './helpers';
+import { importData } from '../../utils/importData';
+import { convertDateMMDDYYYY } from '../../utils/convertDates';
 import { testScores } from '../../db/models/test_scores';
 
 interface TestScoreRow {

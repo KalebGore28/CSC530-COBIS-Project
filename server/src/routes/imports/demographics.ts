@@ -1,12 +1,8 @@
 import express from 'express';
-import { importData, convertDateMMDDYYYY } from './helpers';
+import { importData } from '../../utils/importData';
+import { convertDateMMDDYYYY } from '../../utils/convertDates';
 
-import { students } from '../../db/models/students';
-import { studentAddresses } from '../../db/models/student_addresses';
-import { studentAcademicInfo } from '../../db/models/student_academic_info';
-import { studentPrograms } from '../../db/models/student_programs';
-import { advisors } from '../../db/models/advisors';
-import { studentAdvisors } from '../../db/models/student_advisors';
+import { students, studentAddresses, studentAcademicInfo, studentPrograms, advisors, studentAdvisors } from '../../db/schema';
 
 interface DemographicsRow {
 	mnumber: string;
@@ -69,7 +65,7 @@ interface DemographicsRow {
 	advsuffix: string;
 }
 
-async function importStudents(
+export async function importStudents(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -83,7 +79,7 @@ async function importStudents(
 	);
 }
 
-async function importAddresses(
+export async function importAddresses(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -97,7 +93,7 @@ async function importAddresses(
 	);
 }
 
-async function importAcademicInfo(
+export async function importAcademicInfo(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -111,7 +107,7 @@ async function importAcademicInfo(
 	);
 }
 
-async function importPrograms(
+export async function importPrograms(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -125,7 +121,7 @@ async function importPrograms(
 	);
 }
 
-async function importAdvisors(
+export async function importAdvisors(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -139,7 +135,7 @@ async function importAdvisors(
 	);
 }
 
-async function importStudentAdvisors(
+export async function importStudentAdvisors(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string

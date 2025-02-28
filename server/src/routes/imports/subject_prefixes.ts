@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { subjectPrefixes } from '../../db/models/subject_prefixes';
 
 interface SubjectPrefixRow {

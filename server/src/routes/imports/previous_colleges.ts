@@ -1,5 +1,6 @@
 import express from 'express';
-import { importData, convertDateDDMMYYYY } from './helpers';
+import { importData } from '../../utils/importData';
+import { convertDateDDMMYYYY } from '../../utils/convertDates';
 import { previousColleges } from '../../db/models/previous_colleges';
 
 interface PreviousCollegeRow {
