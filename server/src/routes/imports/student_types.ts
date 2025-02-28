@@ -50,7 +50,7 @@ export const studentTypesRouter = express.Router()
 	 *                       type: string
 	 *                     description:
 	 *                       type: string
-	 *					   next_student_type:
+	 *                     next_student_type:
 	 *                       type: string
 	 *               fileName:
 	 *                 type: string
