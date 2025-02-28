@@ -4,19 +4,19 @@ process.env.NODE_ENV = 'test';
 import express from 'express';
 import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
-import { dbConnection } from '../../db/connection';
+import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { academicStanding } from '../../db/schema';
 import { academicStandingRouter } from '../../routes/imports/academic_standing';
-import exp from 'constants';
 
 describe('Academic Standing Import Tests', () => {
 	let app: express.Express;
 	let orm: any;
 
 	beforeEach(async () => {
-		// Ensure a fresh in-memory DB is prepared.
-		const db = await dbConnection;
-		orm = db.orm;
+		// Reset the DB connection so that each test starts fresh.
+		await resetDbConnection();
+		const { orm: freshOrm } = await getDbConnection();
+		orm = freshOrm;
 
 		// Create a new Express app and mount the router.
 		app = express();
@@ -49,5 +49,10 @@ describe('Academic Standing Import Tests', () => {
 		// Verify the data was imported.
 		const rows = await orm.select().from(academicStanding).execute();
 		expect(rows).toHaveLength(4);
+	});
+
+	test('database should be empty with a fresh connection', async () => {
+		const rows = await orm.select().from(academicStanding).execute();
+		expect(rows).toHaveLength(0);
 	});
 });

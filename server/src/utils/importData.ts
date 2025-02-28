@@ -1,8 +1,6 @@
 import type { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import { eq, and } from "drizzle-orm";
-import { dbConnection } from '../db/connection';
-import { use } from "passport";
-import { d } from "drizzle-kit/index-BAUrj6Ib";
+import { getDbConnection } from '../db/connection';
 
 /**
  * Imports data into any table.
@@ -27,7 +25,7 @@ export async function importData<T extends Record<string, any>>(
 	updateExcludes: string[] = []
 ) {
 	// Get the ORM instance from the database
-	const db = (await dbConnection).orm;
+	const db = (await getDbConnection()).orm;
 
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
 		throw new Error("Invalid CSV data.");
