@@ -14,8 +14,7 @@ export const testScores = sqliteTable("test_scores", {
 ]);
 
 // Define relationships for DBML generation
-export const testScoresOne = relations(testScores, ({ many, one }) => ({
-	students: many(students), // Students have many test scores
+export const testScoresOne = relations(testScores, ({ one }) => ({
 	student: one(students, { // Test scores have a student
 		fields: [testScores.mnumber],
 		references: [students.mnumber],

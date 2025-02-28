@@ -331,7 +331,7 @@ table users {
 
 ref: departments.college > colleges.code
 
-ref: imports.imported_by - users.id
+ref: imports.imported_by > users.id
 
 ref: instructor_courses.user_id > users.id
 

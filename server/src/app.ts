@@ -12,6 +12,7 @@ const __dirname = path.dirname(__filename);
 // Import Routes
 import importRoutes from "./routes/imports";
 import authRoutes from "./routes/auth";
+import testRoute from "./routes/instructors";
 
 // Create Express app
 const app = express()
@@ -29,6 +30,7 @@ const app = express()
   // Routes
   .use("/api/import", importRoutes)
   .use("/api/auth", authRoutes)
+  .use("/api/instructor", testRoute)
 
 
 export default app;

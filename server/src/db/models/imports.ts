@@ -17,7 +17,7 @@ export const imports = sqliteTable("imports", {
 });
 
 // Define relationships for DBML generation
-export const importsOne = relations(imports, ({ one }) => ({
+export const importRelations = relations(imports, ({ one }) => ({
 	importedBy: one(users, {
 		fields: [imports.imported_by],
 		references: [users.id],

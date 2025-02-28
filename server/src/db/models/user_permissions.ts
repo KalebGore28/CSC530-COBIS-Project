@@ -12,9 +12,7 @@ export const userPermissions = sqliteTable("user_permissions", {
 ]);
 
 // Define relationships for DBML generation
-export const userPermissionsOne = relations(userPermissions, ({ many, one }) => ({
-	users: many(users), // Users have many user permissions
-	permissions: many(permissions), // Permissions have many user permissions
+export const userPermissionRelations = relations(userPermissions, ({ one }) => ({
 	user: one(users, { // User permissions have a user
 		fields: [userPermissions.user_id],
 		references: [users.id],

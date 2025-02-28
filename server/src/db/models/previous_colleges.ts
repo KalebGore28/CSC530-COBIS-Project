@@ -1,4 +1,4 @@
-import { sqliteTable, text, int, primaryKey } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, primaryKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 import { collegeCodes } from "./college_codes";
@@ -15,14 +15,12 @@ export const previousColleges = sqliteTable("previous_colleges", {
 ]);
 
 // Define relationships for DBML generation
-export const previousCollegesOne = relations(previousColleges, ({ many, one }) => ({
-	colleges: many(collegeCodes), // College codes have many previous colleges
-	students: many(students), // Students have many previous colleges
-	college: one(collegeCodes, { // Previous colleges have a college
+export const previousCollegesRelations = relations(previousColleges, ({ one }) => ({
+	college: one(collegeCodes, { // Each previous college record is linked to one college
 		fields: [previousColleges.college_code],
 		references: [collegeCodes.code],
 	}),
-	student: one(students, { // Previous colleges have a student
+	student: one(students, { // Each previous college record is linked to one student
 		fields: [previousColleges.mnumber],
 		references: [students.mnumber],
 	}),

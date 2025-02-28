@@ -1,4 +1,7 @@
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { relations } from "drizzle-orm";
+
+import { studentAdvisors } from "./student_advisors";
 
 export const advisors = sqliteTable("advisors", {
 	id: text("id").primaryKey(),
@@ -7,3 +10,7 @@ export const advisors = sqliteTable("advisors", {
 	middle_name: text("middle_name").notNull(),
 	suffix: text("suffix").notNull(),
 });
+
+export const advisorsRelations = relations(advisors, ({ many }) => ({
+	studentAdvisors: many(studentAdvisors),
+}));
