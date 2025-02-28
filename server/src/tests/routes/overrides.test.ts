@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'test';
 import express from 'express';
 import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
-import { dbConnection } from '../../db/connection';
+import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { overrides } from '../../db/schema';
 import { overridesRouter } from '../../routes/imports/overrides';
 
@@ -39,9 +39,10 @@ describe('Overrides Import Tests', () => {
 	];
 
 	beforeEach(async () => {
-		// Ensure a fresh in-memory DB is prepared.
-		const db = await dbConnection;
-		orm = db.orm;
+		// Reset the DB connection so that each test starts fresh.
+		await resetDbConnection();
+		const { orm: freshOrm } = await getDbConnection();
+		orm = freshOrm;
 
 		// Create a new Express app and mount the router.
 		app = express();

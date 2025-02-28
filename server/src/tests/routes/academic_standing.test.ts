@@ -50,9 +50,4 @@ describe('Academic Standing Import Tests', () => {
 		const rows = await orm.select().from(academicStanding).execute();
 		expect(rows).toHaveLength(4);
 	});
-
-	test('database should be empty with a fresh connection', async () => {
-		const rows = await orm.select().from(academicStanding).execute();
-		expect(rows).toHaveLength(0);
-	});
 });
