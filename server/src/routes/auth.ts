@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 import passport from '../utils/passport-config';
 import { authenticateJWT } from '../middleware/authenticateJWT';
 import { generateToken } from '../utils/jwt';
-import { dbConnection } from '../db/connection.js';
+import { getDbConnection } from '../db/connection.js';
 import { eq } from 'drizzle-orm';
 import { users } from '../db/models/users';
 
@@ -70,7 +70,7 @@ const router = express.Router()
     '/google/callback',
     passport.authenticate('google', { session: false, failureRedirect: '/login' }),
     async (req: any, res: any) => {
-      const dbConnectionInstance = await dbConnection();
+      const dbConnectionInstance = await getDbConnection();
       const db = dbConnectionInstance.orm;
       
       // Cast req.user to any or a proper interface if available

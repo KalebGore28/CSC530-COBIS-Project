@@ -1,11 +1,10 @@
-// src/db/connection.ts
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { config } from '../utils/config';
-import { users } from './schema';
+// import { users } from './schema';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +28,7 @@ export const createDb = async (
   if (useInMemory) {
     const db = new Database(':memory:');
     const orm = drizzle(db);
-    const migrationPath = path.join(__dirname, '../../drizzle', '0000_lying_otto_octavius.sql');
+    const migrationPath = path.join(__dirname, '../../drizzle', '0000_lying_otto_octavius.sql');  // This file varies depending on the project
     const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
     db.exec(migrationSQL);
 
@@ -74,6 +73,3 @@ export const resetDbConnection = async (): Promise<DbConnection> => {
   _dbConnection = createDb(useInMemory, useInMemory);
   return _dbConnection;
 };
-
-// For production code, you might export a singleton:
-export const dbConnection: Promise<DbConnection> = getDbConnection();
