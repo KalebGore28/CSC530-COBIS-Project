@@ -2,8 +2,8 @@ import express from 'express';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
 
 // Import routes
-import academicStandingRouter from './imports/academic_standing';
-import admitCodesRouter from './imports/admit_codes';
+import { academicStandingRouter } from './imports/academic_standing';
+import { admitCodesRouter } from './imports/admit_codes';
 import collegeCodesRouter from './imports/college_codes';
 import collegesRouter from './imports/colleges';
 import coursesRouter from './imports/courses';
@@ -11,7 +11,7 @@ import demographicsRouter from './imports/demographics';
 import departmentsRouter from './imports/departments';
 import instructionalMethodsRouter from './imports/instructional_methods';
 import nationsRouter from './imports/nations';
-import overridesRouter from './imports/overrides';
+import { overridesRouter } from './imports/overrides';
 import partOfTermRouter from './imports/part_of_term';
 import previousCollegesRouter from './imports/previous_colleges';
 import programsRouter from './imports/programs.js';

@@ -29,7 +29,7 @@ async function importOverrides(
 	);
 }
 
-const router = express.Router()
+export const overridesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -126,7 +126,7 @@ const router = express.Router()
 				}
 
 				const courseMatch = row.crsenumb.match(/^(\d+)([A-Za-z]*)$/);
-
+				console.log("Course Match:",courseMatch);
 				if (!courseMatch) {
 					console.warn(`⚠ Invalid COURSE format: ${row.crsenumb}`);
 					return null; // Skip invalid rows
@@ -174,5 +174,3 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error importing override data.' });
 		}
 	});
-
-export default router;

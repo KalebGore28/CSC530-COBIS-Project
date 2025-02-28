@@ -7,7 +7,7 @@ interface AdmitCodeRow {
 	description: string;
 }
 
-export async function importAdmitCodes(
+async function importAdmitCodes(
 	mappedData: AdmitCodeRow[],
 	fileName: string,
 	importedBy: string
@@ -21,7 +21,7 @@ export async function importAdmitCodes(
 	);
 }
 
-const router = express.Router()
+export const admitCodesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -98,5 +98,3 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error importing admit codes data.' });
 		}
 	});
-
-export default router;

@@ -7,7 +7,7 @@ interface AcademicStandingRow {
 	description: string;
 }
 
-export async function importAcademicStanding(
+async function importAcademicStanding(
 	mappedData: AcademicStandingRow[],
 	fileName: string,
 	importedBy: string
@@ -21,7 +21,7 @@ export async function importAcademicStanding(
 	);
 }
 
-const router = express.Router()
+export const academicStandingRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -96,5 +96,3 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error importing academic standing data.' });
 		}
 	});
-
-export default router;
