@@ -2,6 +2,7 @@ import { eq, like, and } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import { departments, colleges, users, roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
 import express from 'express';
+import { attachUserPermissions } from '../middleware/attachUserPermissions';
 
 const allowedTables: Record<string, any> = {
 	departments: departments,
@@ -9,7 +10,6 @@ const allowedTables: Record<string, any> = {
 	// Add more allowed table mappings here
 };
 
-import Database from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 
 export async function seedRBAC(orm: ReturnType<typeof drizzle>) {
@@ -78,55 +78,28 @@ export async function seedRBAC(orm: ReturnType<typeof drizzle>) {
 }
 
 // Example usage:
-(async () => {
-	const { orm } = await getDbConnection();
+// (async () => {
+// 	const { orm } = await getDbConnection();
 
-	// Run your migrations here, if necessary.
-	// e.g., db.exec(migrationSQL);
+// 	// Run your migrations here, if necessary.
+// 	// e.g., db.exec(migrationSQL);
 
-	// Seed the RBAC data.
-	await seedRBAC(orm);
+// 	// Seed the RBAC data.
+// 	await seedRBAC(orm);
 
-	// Verify seeded data (for debugging purposes).
-	const usersData = await orm.select().from(users).execute();
-	// console.log('Seeded Users:', usersData);
+// 	// Verify seeded data (for debugging purposes).
+// 	const usersData = await orm.select().from(users).execute();
+// 	// console.log('Seeded Users:', usersData);
 
-	const rolesData = await orm.select().from(roles).execute();
-	// console.log('Seeded Roles:', rolesData);
+// 	const rolesData = await orm.select().from(roles).execute();
+// 	// console.log('Seeded Roles:', rolesData);
 
-	const permissionsData = await orm.select().from(permissions).execute();
-	// console.log('Seeded Permissions:', permissionsData);
-})();
+// 	const permissionsData = await orm.select().from(permissions).execute();
+// 	// console.log('Seeded Permissions:', permissionsData);
+// })();
 
 const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
 
-// Function to check if the user has permission for the requested table
-async function checkUserPermissions(userId: string, table: string) {
-	const { orm } = await getDbConnection();
-
-	try {
-		// Combine conditions with `and`
-		const condition = and(
-			eq(userPermissions.user_id, userId),
-			eq(permissions.table_name, table)
-		);
-
-		// Build and execute the query using a single .where() with the combined condition
-		const permissionsResult = await orm
-			.select()
-			.from(userPermissions)
-			.innerJoin(permissions, eq(userPermissions.permission_id, permissions.id))
-			.where(condition)
-			.execute();
-
-		console.log("Permissions result:", permissionsResult);
-
-		return permissionsResult.length > 0;
-	} catch (error) {
-		console.error("Error in permission check:", error);
-		throw new Error("Error while checking user permissions.");
-	}
-}
 
 // Build the Drizzle query with the RBAC check
 async function buildDrizzleQuery(queryDef: any, orm: any, userId: string) {
@@ -291,6 +264,7 @@ export const customQuery = express.Router()
 	 *                 error:
 	 *                   type: string
 	 */
+	.use(attachUserPermissions)
 	.post('/custom_query', async (req, res) => {
 		try {
 			const userId = "112958238101772307723"; // Extract user ID from authentication (e.g., JWT token)
