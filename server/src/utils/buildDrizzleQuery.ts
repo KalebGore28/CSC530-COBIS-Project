@@ -45,11 +45,24 @@ export async function buildDrizzleQuery(
 	}
 
 	// Check if the user has read permission for the requested table.
-	const permitted = currentUser.permissions.some(
+	const tablePermission = currentUser.permissions.some(
 		(perm) => perm.permission_table === queryDef.table && perm.can_read
 	);
-	if (!permitted) {
+	if (!tablePermission) {
 		throw new Error("User does not have permission to access this table");
+	}
+
+	// Check if the user has read permission for each requested column.
+	for (const col of queryDef.select) {
+		const hasColumnPermission = currentUser.permissions.some(
+			(perm) =>
+				perm.permission_table === queryDef.table &&
+				perm.permission_column === col &&
+				perm.can_read
+		);
+		if (!hasColumnPermission) {
+			throw new Error(`User does not have permission to access column ${col}`);
+		}
 	}
 
 	// Build column mapping from the select array.
@@ -105,7 +118,6 @@ export async function buildDrizzleQuery(
 
 	return query;
 }
-
 
 function automaticFilters(queryDef: any, table: any, currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string } }) {
 	let whereClause = null

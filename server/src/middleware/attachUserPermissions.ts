@@ -31,6 +31,7 @@ export async function attachUserPermissions(req: any, res: any, next: any) {
         permission_id: permissions.id,
         permission_description: permissions.description,
         permission_table: permissions.table_name,
+        permission_column: permissions.column_name,
         can_read: permissions.can_read,
         can_write: permissions.can_write,
       })
