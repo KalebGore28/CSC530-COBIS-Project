@@ -1,8 +1,9 @@
-import { eq, like, and } from 'drizzle-orm';
-import { getDbConnection } from '../db/connection';
-import { departments, colleges, users, roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
 import express from 'express';
+import { getDbConnection } from '../db/connection';
+import { departments, colleges } from '../db/schema';
 import { attachUserPermissions } from '../middleware/attachUserPermissions';
+import { authenticateJWT } from '../middleware/authenticateJWT';
+import { eq, like } from 'drizzle-orm';
 
 const allowedTables: Record<string, any> = {
 	departments: departments,
@@ -10,155 +11,76 @@ const allowedTables: Record<string, any> = {
 	// Add more allowed table mappings here
 };
 
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-
-export async function seedRBAC(orm: ReturnType<typeof drizzle>) {
-	// Insert a sample user.
-	// await orm.insert(users).values({
-	// 	id: '112958238101772307723',
-	// 	email: 'testuser@example.com',
-	// 	display_name: 'Test User',
-	// 	is_active: true, // Assuming 1 represents true.
-	// 	last_login: new Date().toISOString(),
-	// 	created_at: new Date().toISOString(),
-	// }).execute();
-
-	// Insert sample roles.
-	// await orm.insert(roles).values([
-	// 	{ id: 1, name: 'admin' },
-	// 	{ id: 2, name: 'report_viewer' },
-	// 	{ id: 3, name: 'basic_user' },
-	// ]).execute();
-
-	// Insert sample permissions individually.
-	// await orm.insert(permissions).values({
-	// 	id: 1,
-	// 	table_name: 'departments',
-	// 	column_name: 'id',
-	// 	description: 'Permission to select departments',
-	// 	can_read: true,
-	// 	can_write: false,
-	// }).execute();
-
-	// await orm.insert(permissions).values({
-	// 	id: 2,
-	// 	table_name: 'colleges',
-	// 	column_name: 'id',
-	// 	description: 'Permission to select colleges',
-	// 	can_read: true,
-	// 	can_write: false,
-	// }).execute();
-
-	// await orm.insert(permissions).values({
-	// 	id: 3,
-	// 	table_name: 'reports',
-	// 	column_name: 'id',
-	// 	description: 'Permission to select reports',
-	// 	can_read: true,
-	// 	can_write: false,
-	// }).execute();
-	// // Assign the admin role to the sample user.
-	// await orm.insert(userRoles).values({
-	// 	user_id: '112958238101772307723',
-	// 	role_id: 1,
-	// }).execute();
-
-	// // Optionally, assign a direct permission to the sample user.
-	// await orm.insert(userPermissions).values({
-	// 	user_id: '112958238101772307723',
-	// 	permission_id: 1,
-	// }).execute();
-
-	// // Link the admin role with all available permissions.
-	// await orm.insert(rolePermissions).values([
-	// 	{ role_id: 1, permission_id: 1 },
-	// 	{ role_id: 1, permission_id: 2 },
-	// 	{ role_id: 1, permission_id: 3 },
-	// ]).execute();
-}
-
-// Example usage:
-// (async () => {
-// 	const { orm } = await getDbConnection();
-
-// 	// Run your migrations here, if necessary.
-// 	// e.g., db.exec(migrationSQL);
-
-// 	// Seed the RBAC data.
-// 	await seedRBAC(orm);
-
-// 	// Verify seeded data (for debugging purposes).
-// 	const usersData = await orm.select().from(users).execute();
-// 	// console.log('Seeded Users:', usersData);
-
-// 	const rolesData = await orm.select().from(roles).execute();
-// 	// console.log('Seeded Roles:', rolesData);
-
-// 	const permissionsData = await orm.select().from(permissions).execute();
-// 	// console.log('Seeded Permissions:', permissionsData);
-// })();
-
 const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
 
-
-// Build the Drizzle query with the RBAC check
-async function buildDrizzleQuery(queryDef: any, orm: any, userId: string) {
+/**
+ * Builds a Drizzle ORM query based on the query definition.
+ * Uses the permissions attached by middleware (req.user.permissions) to enforce RBAC.
+ *
+ * @param queryDef - The JSON query definition from the client.
+ * @param orm - The Drizzle ORM instance.
+ * @param userPermissions - The permissions array attached to req.user.permissions.
+ */
+export async function buildDrizzleQuery(queryDef: any, orm: any, userPermissions: any[]) {
 	// Validate table
 	const table = allowedTables[queryDef.table];
 	if (!table) {
-		throw new Error("Invalid table name");
+	  throw new Error("Invalid table name");
 	}
-
-	// Await the permission check
-	const hasPermission = await checkUserPermissions(userId, queryDef.table);
-	if (!hasPermission) {
-		throw new Error("User does not have permission to access this table");
+  
+	// Check if the user has read permission for the requested table.
+	const permitted = userPermissions.some(
+	  (perm) => perm.permission_table === queryDef.table && perm.can_read
+	);
+	if (!permitted) {
+	  throw new Error("User does not have permission to access this table");
 	}
-
-	// Build column mapping from the select array
+  
+	// Build column mapping from the select array.
 	const columnsToSelect = queryDef.select.reduce((acc: any, col: any) => {
-		if (!(col in table)) {
-			throw new Error(`Column ${col} is not allowed for table ${queryDef.table}`);
-		}
-		acc[col] = table[col];
-		return acc;
+	  if (!(col in table)) {
+		throw new Error(`Column ${col} is not allowed for table ${queryDef.table}`);
+	  }
+	  acc[col] = table[col];
+	  return acc;
 	}, {} as Record<string, any>);
-
-	// Start building the query: select the requested columns
+  
+	// Start building the query: select the requested columns.
 	let query = orm.select(columnsToSelect).from(table);
-
+  
 	// Apply filters
 	if (queryDef.filters && Array.isArray(queryDef.filters)) {
-		for (const filter of queryDef.filters) {
-			// Validate operator
-			if (!allowedOperators.includes(filter.operator)) {
-				throw new Error("Invalid operator");
-			}
-			// Validate column
-			if (!Object.keys(table).includes(filter.column)) {
-				throw new Error(`Column ${filter.column} is not allowed for table ${queryDef.table}`);
-			}
-			// Map operator to drizzle operator
-			if (filter.operator === '=') {
-				query = query.where(eq(table[filter.column], filter.value));
-			} else if (filter.operator === 'LIKE') {
-				query = query.where(like(table[filter.column], filter.value));
-			}
+	  for (const filter of queryDef.filters) {
+		// Validate operator.
+		if (!allowedOperators.includes(filter.operator)) {
+		  throw new Error("Invalid operator");
 		}
+		// Validate column.
+		if (!Object.keys(table).includes(filter.column)) {
+		  throw new Error(`Column ${filter.column} is not allowed for table ${queryDef.table}`);
+		}
+		// Map operator to drizzle operator.
+		if (filter.operator === '=') {
+		  query = query.where(eq(table[filter.column], filter.value));
+		} else if (filter.operator === 'LIKE') {
+		  query = query.where(like(table[filter.column], filter.value));
+		}
+		// You can add more operator cases as needed.
+	  }
 	}
-
+  
 	// Sorting
 	if (queryDef.sort) {
-		query = query.orderBy(table[queryDef.sort.column], queryDef.sort.direction);
+	  query = query.orderBy(table[queryDef.sort.column], queryDef.sort.direction);
 	}
-
+  
 	// Pagination
 	if (queryDef.pagination) {
-		query = query.limit(queryDef.pagination.limit).offset(queryDef.pagination.offset);
+	  query = query.limit(queryDef.pagination.limit).offset(queryDef.pagination.offset);
 	}
-
+  
 	return query;
-}
+  }
 
 // Define the API endpoint
 export const customQuery = express.Router()
@@ -264,18 +186,18 @@ export const customQuery = express.Router()
 	 *                 error:
 	 *                   type: string
 	 */
+	.use(authenticateJWT)
 	.use(attachUserPermissions)
 	.post('/custom_query', async (req, res) => {
 		try {
-			const userId = "112958238101772307723"; // Extract user ID from authentication (e.g., JWT token)
 			const queryDef = req.body;
-			// Assume you have a pre-established drizzle ORM instance.
 			const { orm } = await getDbConnection();
-			const query = buildDrizzleQuery(queryDef, orm, userId); // Pass user ID for RBAC validation
+			// Instead of passing a user ID, we pass the permissions attached by the middleware.
+			const query = await buildDrizzleQuery(queryDef, orm, req.user.permissions);
 			const results = await query;
 			res.json({ results });
-		} catch (error: any) {
+		  } catch (error: any) {
 			console.error("Error processing custom query:", error);
 			res.status(400).json({ error: error.message });
-		}
+		  }
 	});
