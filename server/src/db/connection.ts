@@ -28,7 +28,7 @@ export const createDb = async (
 	if (useInMemory) {
 		const db = new Database(':memory:');
 		const orm = drizzle(db);
-		const migrationPath = path.join(__dirname, '../../drizzle', '0000_lying_otto_octavius.sql');  // This file varies depending on the project
+		const migrationPath = path.join(__dirname, '../../drizzle', '0000_thankful_blob.sql');  // This file varies depending on the project
 		const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
 		db.exec(migrationSQL);
 
@@ -38,6 +38,7 @@ export const createDb = async (
 		}
 		return { orm, db };
 	} else {
+		console.log('Connecting to production database:', config.db.url);
 		const orm = drizzle(config.db.url);
 		return { orm };
 	}

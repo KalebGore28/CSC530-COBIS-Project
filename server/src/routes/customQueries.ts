@@ -1,86 +1,8 @@
 import express from 'express';
 import { getDbConnection } from '../db/connection';
-import { departments, colleges } from '../db/schema';
 import { attachUserPermissions } from '../middleware/attachUserPermissions';
 import { authenticateJWT } from '../middleware/authenticateJWT';
-import { eq, like } from 'drizzle-orm';
-
-const allowedTables: Record<string, any> = {
-	departments: departments,
-	colleges: colleges,
-	// Add more allowed table mappings here
-};
-
-const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
-
-/**
- * Builds a Drizzle ORM query based on the query definition.
- * Uses the permissions attached by middleware (req.user.permissions) to enforce RBAC.
- *
- * @param queryDef - The JSON query definition from the client.
- * @param orm - The Drizzle ORM instance.
- * @param userPermissions - The permissions array attached to req.user.permissions.
- */
-export async function buildDrizzleQuery(queryDef: any, orm: any, userPermissions: any[]) {
-	// Validate table
-	const table = allowedTables[queryDef.table];
-	if (!table) {
-		throw new Error("Invalid table name");
-	}
-
-	// Check if the user has read permission for the requested table.
-	const permitted = userPermissions.some(
-		(perm) => perm.permission_table === queryDef.table && perm.can_read
-	);
-	if (!permitted) {
-		throw new Error("User does not have permission to access this table");
-	}
-
-	// Build column mapping from the select array.
-	const columnsToSelect = queryDef.select.reduce((acc: any, col: any) => {
-		if (!(col in table)) {
-			throw new Error(`Column ${col} is not allowed for table ${queryDef.table}`);
-		}
-		acc[col] = table[col];
-		return acc;
-	}, {} as Record<string, any>);
-
-	// Start building the query: select the requested columns.
-	let query = orm.select(columnsToSelect).from(table);
-
-	// Apply filters
-	if (queryDef.filters && Array.isArray(queryDef.filters)) {
-		for (const filter of queryDef.filters) {
-			// Validate operator.
-			if (!allowedOperators.includes(filter.operator)) {
-				throw new Error("Invalid operator");
-			}
-			// Validate column.
-			if (!Object.keys(table).includes(filter.column)) {
-				throw new Error(`Column ${filter.column} is not allowed for table ${queryDef.table}`);
-			}
-			// Map operator to drizzle operator.
-			if (filter.operator === '=') {
-				query = query.where(eq(table[filter.column], filter.value));
-			} else if (filter.operator === 'LIKE') {
-				query = query.where(like(table[filter.column], filter.value));
-			}
-			// You can add more operator cases as needed.
-		}
-	}
-
-	// Sorting
-	if (queryDef.sort) {
-		query = query.orderBy(table[queryDef.sort.column], queryDef.sort.direction);
-	}
-
-	// Pagination
-	if (queryDef.pagination) {
-		query = query.limit(queryDef.pagination.limit).offset(queryDef.pagination.offset);
-	}
-
-	return query;
-}
+import { buildDrizzleQuery } from '../utils/buildDrizzleQuery';
 
 // Define the API endpoint
 export const customQuery = express.Router()
@@ -194,7 +116,9 @@ export const customQuery = express.Router()
 			const { orm } = await getDbConnection();
 			// Instead of passing a user ID, we pass the permissions attached by the middleware.
 			// @ts-ignore
-			const query = await buildDrizzleQuery(queryDef, orm, req.user.permissions);
+			console.log(req.user);
+			const currentUser = { id: req.user.user_id }; // Ensure req.user is defined and has an id
+			const query = await buildDrizzleQuery(queryDef, orm, req.user?.permissions, currentUser);
 			const results = await query;
 			res.json({ results });
 		} catch (error: any) {
