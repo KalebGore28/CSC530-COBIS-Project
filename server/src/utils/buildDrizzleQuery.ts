@@ -30,14 +30,13 @@ const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
  *
  * @param queryDef - The JSON query definition from the client.
  * @param orm - The Drizzle ORM instance.
- * @param userPermissions - The permissions array attached to req.user.permissions.
- * @param currentUser - An object representing the current user (e.g. { id: string }).
+ * @param currentUser - An object representing the current user.
  * @returns A built query that can be executed.
  */
 export async function buildDrizzleQuery(
 	queryDef: any,
 	orm: any,
-	currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string} }
+	currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string } }
 ) {
 	// Validate table: ensure the requested table is allowed.
 	const table = allowedTables[queryDef.table];
@@ -108,7 +107,7 @@ export async function buildDrizzleQuery(
 }
 
 
-function automaticFilters(queryDef: any, table: any, currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string} }) {
+function automaticFilters(queryDef: any, table: any, currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string } }) {
 	let whereClause = null
 
 	// Apply automatic filters based on the table.

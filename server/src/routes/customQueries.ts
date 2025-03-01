@@ -1,3 +1,4 @@
+// @ts-nocheck
 import express from 'express';
 import { getDbConnection } from '../db/connection';
 import { attachUserPermissions } from '../middleware/attachUserPermissions';
@@ -112,12 +113,18 @@ export const customQuery = express.Router()
 	.use(attachUserPermissions)
 	.post('/custom_query', async (req, res) => {
 		try {
-			const queryDef = req.body;
+			const { queryDef, role } = req.body;
 			const { orm } = await getDbConnection();
-			// Instead of passing a user ID, we pass the permissions attached by the middleware.
-			// @ts-ignore
-			req.user.currentRole = req.user.roles[0];
-			console.log("current role", req.user.currentRole);
+
+			// Check if the user has the role they claim to have.
+			const hasRole = req.user.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
+
+			if (!hasRole) {
+				return res.status(403).json({ error: "User does not have the specified role" });
+			}
+
+			// If they have said role, assign it to the user object.
+			req.user.currentRole = req.user.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
 			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
 			res.json({ results });
