@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { getDbConnection } from '../db/connection';
 import { eq } from 'drizzle-orm';
 import {
+  roles,
   permissions, 
   userRoles, 
   userPermissions, 
@@ -53,6 +54,17 @@ export async function attachUserPermissions(req: any, res: any, next: any) {
       .where(eq(userPermissions.user_id, userId))
       .execute();
 
+    // 3. Get user roles and their names
+    const allUserRoles = await orm
+      .select({
+        role_id: userRoles.role_id,
+        role_name: roles.name,
+      })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.role_id, roles.id))
+      .where(eq(userRoles.user_id, userId))
+      .execute();
+
     // 3. Combine the two arrays, ensuring no duplicates (by permission_id)
     const permissionMap = new Map<number, {
       permission_id: number;
@@ -71,8 +83,9 @@ export async function attachUserPermissions(req: any, res: any, next: any) {
 
     const allPermissions = Array.from(permissionMap.values());
 
-    // Attach the combined permissions to req.user.permissions.
+    // Attach permissions and roles to the request object
     req.user.permissions = allPermissions;
+    req.user.roles = allUserRoles;
     next();
   } catch (error: any) {
     console.error('Error attaching user permissions:', error);
