@@ -116,9 +116,9 @@ export const customQuery = express.Router()
 			const { orm } = await getDbConnection();
 			// Instead of passing a user ID, we pass the permissions attached by the middleware.
 			// @ts-ignore
-			console.log(req.user);
-			const currentUser = { id: req.user.user_id }; // Ensure req.user is defined and has an id
-			const query = await buildDrizzleQuery(queryDef, orm, req.user?.permissions, currentUser);
+			req.user.currentRole = req.user.roles[0];
+			console.log("current role", req.user.currentRole);
+			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
 			res.json({ results });
 		} catch (error: any) {

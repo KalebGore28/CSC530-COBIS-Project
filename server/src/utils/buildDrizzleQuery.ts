@@ -37,8 +37,7 @@ const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
 export async function buildDrizzleQuery(
 	queryDef: any,
 	orm: any,
-	userPermissions: any[],
-	currentUser: { id: string, permissions: any[], roles: any[] }
+	currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string} }
 ) {
 	// Validate table: ensure the requested table is allowed.
 	const table = allowedTables[queryDef.table];
@@ -47,7 +46,7 @@ export async function buildDrizzleQuery(
 	}
 
 	// Check if the user has read permission for the requested table.
-	const permitted = userPermissions.some(
+	const permitted = currentUser.permissions.some(
 		(perm) => perm.permission_table === queryDef.table && perm.can_read
 	);
 	if (!permitted) {
@@ -109,12 +108,13 @@ export async function buildDrizzleQuery(
 }
 
 
-function automaticFilters(queryDef: any, table: any, currentUser: { id: string }) {
+function automaticFilters(queryDef: any, table: any, currentUser: { user_id: string, permissions: any[], currentRole: { role_id: number, role_name: string} }) {
 	let whereClause = null
 
 	// Apply automatic filters based on the table.
-	if (queryDef.table === 'instructor_courses') {
-		whereClause = eq(table.user_id, currentUser.id);
+	if (queryDef.table === 'instructor_courses' && currentUser.currentRole.role_name === 'Faculty') {
+		console.log('Faculty role detected');
+		whereClause = eq(table.user_id, currentUser.user_id);
 	}
 
 	return whereClause;
