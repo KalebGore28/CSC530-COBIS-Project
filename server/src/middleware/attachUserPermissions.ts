@@ -3,10 +3,10 @@ import { getDbConnection } from '../db/connection';
 import { eq } from 'drizzle-orm';
 import {
   roles,
-  permissions, 
-  userRoles, 
-  userPermissions, 
-  rolePermissions 
+  permissions,
+  userRoles,
+  userPermissions,
+  rolePermissions
 } from '../db/schema';
 
 /**

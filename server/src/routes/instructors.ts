@@ -3,7 +3,6 @@ import { and, eq, sql } from "drizzle-orm";
 import { getDbConnection } from "../db/connection";
 import { instructorCourses } from "../db/models/instructor_courses";
 import { studentCourses } from "../db/models/student_courses";
-import { get } from 'http';
 
 const router = express.Router()
 
