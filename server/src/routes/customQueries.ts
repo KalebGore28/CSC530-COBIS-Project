@@ -11,11 +11,12 @@ export const customQuery = express.Router()
 	 * @openapi
 	 * /api/custom_query:
 	 *   post:
-	 *     summary: Execute a custom query using Drizzle ORM.
+	 *     summary: Execute a custom query using Drizzle ORM with role-based filters.
 	 *     description: >
 	 *       Accepts a JSON payload that defines a custom query, including the table, selected columns,
-	 *       filters, sorting, and pagination options. The backend validates the input, builds the query
-	 *       dynamically using Drizzle ORM, and returns the query results.
+	 *       filters, sorting, and pagination options, as well as the role view to use. The backend validates
+	 *       the input, applies automatic role-based filters (e.g. Faculty only sees their own courses),
+	 *       builds the query dynamically using Drizzle ORM, and returns the query results.
 	 *     requestBody:
 	 *       required: true
 	 *       content:
@@ -23,60 +24,68 @@ export const customQuery = express.Router()
 	 *           schema:
 	 *             type: object
 	 *             properties:
-	 *               table:
+	 *               queryDef:
+	 *                 type: object
+	 *                 properties:
+	 *                   table:
+	 *                     type: string
+	 *                     description: Name of the table to query. Must be an allowed table.
+	 *                     example: "instructor_courses"
+	 *                   select:
+	 *                     type: array
+	 *                     items:
+	 *                       type: string
+	 *                     description: List of columns to select.
+	 *                     example: ["user_id", "term", "year", "course_subject", "course_number", "course_suffix", "role"]
+	 *                   filters:
+	 *                     type: array
+	 *                     items:
+	 *                       type: object
+	 *                       properties:
+	 *                         column:
+	 *                           type: string
+	 *                           description: Column name to filter on.
+	 *                           example: "term"
+	 *                         operator:
+	 *                           type: string
+	 *                           description: Comparison operator (e.g., "=", "LIKE").
+	 *                           example: "="
+	 *                         value:
+	 *                           type: string
+	 *                           description: Value to compare against.
+	 *                           example: "50"
+	 *                     description: List of filter conditions.
+	 *                   sort:
+	 *                     type: object
+	 *                     properties:
+	 *                       column:
+	 *                         type: string
+	 *                         description: Column name to sort by.
+	 *                         example: "course_number"
+	 *                       direction:
+	 *                         type: string
+	 *                         enum: [asc, desc]
+	 *                         description: Sort direction.
+	 *                         example: "asc"
+	 *                   pagination:
+	 *                     type: object
+	 *                     properties:
+	 *                       limit:
+	 *                         type: integer
+	 *                         description: Maximum number of records to return.
+	 *                         example: 10
+	 *                       offset:
+	 *                         type: integer
+	 *                         description: Number of records to skip.
+	 *                         example: 0
+	 *                 required:
+	 *                   - table
+	 *                   - select
+	 *               role:
 	 *                 type: string
-	 *                 description: Name of the table to query. Must be an allowed table.
-	 *                 example: "departments"
-	 *               select:
-	 *                 type: array
-	 *                 items:
-	 *                   type: string
-	 *                 description: List of columns to select.
-	 *                 example: ["code", "description", "prefixes"]
-	 *               filters:
-	 *                 type: array
-	 *                 items:
-	 *                   type: object
-	 *                   properties:
-	 *                     column:
-	 *                       type: string
-	 *                       description: Column name to filter on.
-	 *                       example: "college"
-	 *                     operator:
-	 *                       type: string
-	 *                       description: Comparison operator (e.g., "=", "LIKE").
-	 *                       example: "="
-	 *                     value:
-	 *                       type: string
-	 *                       description: Value to compare against.
-	 *                       example: "BP"
-	 *                 description: List of filter conditions.
-	 *               sort:
-	 *                 type: object
-	 *                 properties:
-	 *                   column:
-	 *                     type: string
-	 *                     description: Column name to sort by.
-	 *                     example: "code"
-	 *                   direction:
-	 *                     type: string
-	 *                     enum: [asc, desc]
-	 *                     description: Sort direction.
-	 *                     example: "asc"
-	 *               pagination:
-	 *                 type: object
-	 *                 properties:
-	 *                   limit:
-	 *                     type: integer
-	 *                     description: Maximum number of records to return.
-	 *                     example: 50
-	 *                   offset:
-	 *                     type: integer
-	 *                     description: Number of records to skip.
-	 *                     example: 0
-	 *             required:
-	 *               - table
-	 *               - select
+	 *                 description: >
+	 *                   The role view to apply (e.g., "Faculty"). This determines which automatic filters are applied.
+	 *                 example: "Faculty"
 	 *     responses:
 	 *       200:
 	 *         description: Query executed successfully.
