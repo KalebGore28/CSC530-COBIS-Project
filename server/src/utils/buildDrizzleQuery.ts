@@ -1,4 +1,4 @@
-import { eq, like, and } from 'drizzle-orm';
+import { eq, like, and, not, gt, lt } from 'drizzle-orm';
 import {
 	departments,
 	colleges,
@@ -41,7 +41,7 @@ export async function buildDrizzleQuery(
 	// Validate table: ensure the requested table is allowed.
 	const table = allowedTables[queryDef.table];
 	if (!table) {
-		throw new Error("Invalid table name");
+		throw new Error("Table not allowed to be queried");
 	}
 
 	// Check if the user has read permission for the requested table.
@@ -78,12 +78,11 @@ export async function buildDrizzleQuery(
 	let query = orm.select(columnsToSelect).from(table);
 
 	// Build the WHERE clause.
-	let whereClause: any = automaticFilters(queryDef, table, currentUser);
+	let whereClause: any = automaticFilters(queryDef, table, currentUser); // May be null
 
 	// Apply any user-specified filters.
 	if (queryDef.filters && Array.isArray(queryDef.filters)) {
 		for (const filter of queryDef.filters) {
-
 			// Validate operator.
 			if (!allowedOperators.includes(filter.operator)) {
 				throw new Error("Invalid operator");
@@ -93,12 +92,25 @@ export async function buildDrizzleQuery(
 				throw new Error(`Column ${filter.column} is not allowed for table ${queryDef.table}`);
 			}
 
-			// For other filters, apply them normally
+			// Determine the condition for this filter.
+			let condition: any;
 			if (filter.operator === '=') {
-				whereClause = and(whereClause, eq(table[filter.column], filter.value));
+				condition = eq(table[filter.column], filter.value);
+			} else if (filter.operator === '!=') {
+				condition = not(eq(table[filter.column], filter.value));
+			} else if (filter.operator === '>') {
+				condition = gt(table[filter.column], filter.value);
+			} else if (filter.operator === '<') {
+				condition = lt(table[filter.column], filter.value);
 			} else if (filter.operator === 'LIKE') {
-				whereClause = and(whereClause, like(table[filter.column], filter.value));
+				condition = like(table[filter.column], filter.value);
+			} else {
+				throw new Error("Operator not implemented");
 			}
+
+			// Combine condition with the existing whereClause.
+			whereClause = whereClause ? and(whereClause, condition) : condition;
+			console.log('[buildDrizzleQuery] Added filter:', filter, '-> condition:', condition);
 		}
 	}
 
