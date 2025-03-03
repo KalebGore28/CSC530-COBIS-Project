@@ -119,14 +119,14 @@ export const programsRouter = express.Router()
 				return {
 					code: row.code,
 					description: row.description,
-					cip_code: row.cip_code ? row.cip_code : null,
+					cip_code: row.cip_code === 'NULL' ? null : row.cip_code,
 					is_major: row.is_major === '1',
 					is_minor: row.is_minor === '1',
 					has_concentration: row.has_concentration === '1',
 					is_discontinued: row.is_discontinued === '1',
 					is_aacsb: row.is_aacsb === '1',
-					department: row.department ? row.department : '0000', // default to '0000' if department is NULL
-					college: row.college ? row.college : '0' // default to '0' if college is NULL
+					department: row.department === 'NULL' ? '0000' : row.department, // default to '0000' if department is NULL
+					college: row.college === 'NULL' ? '0' : row.college // default to '0' if college is NULL
 				};
 			});
 

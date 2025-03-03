@@ -10,7 +10,9 @@
 		"db:studio": "drizzle-kit studio",
 		"db:push": "drizzle-kit push && tsx src/db/dbml.ts",
 		"db:generate": "drizzle-kit generate && tsx src/db/dbml.ts",
-		"db:migrate": "drizzle-kit migrate && tsx src/db/dbml.ts"
+		"db:migrate": "drizzle-kit migrate && tsx src/db/dbml.ts",
+		"db:reset": "rm -f src/db/dev.sqlite3 && drizzle-kit push && tsx src/db/dbml.ts",
+		"db:seed": "tsx src/seed/csvs.ts"
 	},
 	"keywords": [],
 	"author": "",

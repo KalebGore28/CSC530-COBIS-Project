@@ -106,9 +106,9 @@ export const departmentsRouter = express.Router()
 				return {
 					code: row.code,
 					description: row.description,
-					prefixes: row.prefixes ? row.prefixes.split(',').map((prefix: string) => prefix.trim()).join(',') : null,
-					canvas_id: row.canvas_id || null,
-					college: row.college ? row.college : '0' // Default to '0' if missing
+					prefixes: row.prefixes === 'NULL' ? null : row.prefixes.split(',').map((prefix: string) => prefix.trim()).join(','),
+					canvas_id: row.canvas_id === 'NULL' ? null : row.canvas_id,
+					college: row.college === 'NULL' ? '0' : row.college
 				};
 			});
 

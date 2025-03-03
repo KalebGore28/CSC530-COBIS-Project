@@ -7,7 +7,7 @@ import { admitCodesRouter } from './imports/admit_codes';
 import { collegeCodesRouter } from './imports/college_codes';
 import { collegesRouter } from './imports/colleges';
 import { coursesRouter } from './imports/courses';
-import demographicsRouter from './imports/demographics';
+import { demographicsRouter } from './imports/demographics';
 import { departmentsRouter } from './imports/departments';
 import { instructionalMethodsRouter } from './imports/instructional_methods';
 import { nationsRouter } from './imports/nations';

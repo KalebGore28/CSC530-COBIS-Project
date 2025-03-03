@@ -65,7 +65,7 @@ interface DemographicsRow {
 	advsuffix: string;
 }
 
-export async function importStudents(
+async function importStudents(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -79,7 +79,7 @@ export async function importStudents(
 	);
 }
 
-export async function importAddresses(
+async function importAddresses(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -93,7 +93,7 @@ export async function importAddresses(
 	);
 }
 
-export async function importAcademicInfo(
+async function importAcademicInfo(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -107,7 +107,7 @@ export async function importAcademicInfo(
 	);
 }
 
-export async function importPrograms(
+async function importPrograms(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -121,7 +121,7 @@ export async function importPrograms(
 	);
 }
 
-export async function importAdvisors(
+async function importAdvisors(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -135,7 +135,7 @@ export async function importAdvisors(
 	);
 }
 
-export async function importStudentAdvisors(
+async function importStudentAdvisors(
 	mappedData: DemographicsRow[],
 	fileName: string,
 	importedBy: string
@@ -149,7 +149,7 @@ export async function importStudentAdvisors(
 	);
 }
 
-const router = express.Router()
+export const demographicsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -554,5 +554,3 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error importing terms data.' });
 		}
 	});
-
-export default router;
