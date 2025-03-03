@@ -217,12 +217,12 @@ table student_courses {
   year integer [not null]
   part_of_term text [not null]
   crn text [not null]
-  subject text [not null]
-  number text [not null]
-  suffix text [not null]
-  section text [not null]
-  hours integer [not null]
-  level text [not null]
+  course_subject text [not null]
+  course_number text [not null]
+  course_suffix text [not null]
+  course_section text [not null]
+  course_hours integer [not null]
+  course_level text [not null]
   registration_status text [not null]
   instructional_method text [not null]
   last_attendance text
@@ -382,7 +382,7 @@ ref: student_courses.term > terms.code
 
 ref: student_courses.part_of_term > part_of_term.code
 
-ref: student_courses.(subject, number, suffix) > courses.(subject, number, suffix)
+ref: student_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
 ref: student_courses.registration_status > registration_status.code
 
