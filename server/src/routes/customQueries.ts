@@ -11,12 +11,12 @@ export const customQuery = express.Router()
 	 * @openapi
 	 * /api/custom_query:
 	 *   post:
-	 *     summary: Execute a custom query using Drizzle ORM with role-based filters.
+	 *     summary: Execute a custom query using Drizzle ORM with role-based filters and joins.
 	 *     description: >
 	 *       Accepts a JSON payload that defines a custom query, including the table, selected columns,
-	 *       filters, sorting, and pagination options, as well as the role view to use. The backend validates
-	 *       the input, applies automatic role-based filters (e.g. Faculty only sees their own courses),
-	 *       builds the query dynamically using Drizzle ORM, and returns the query results.
+	 *       filters, joins, sorting, and pagination options, as well as the role view to use.
+	 *       The backend validates the input, applies automatic role-based filters (e.g., Faculty only sees their own courses),
+	 *       builds the query dynamically using Drizzle ORM (with joins if specified), and returns the query results.
 	 *     requestBody:
 	 *       required: true
 	 *       content:
@@ -29,14 +29,29 @@ export const customQuery = express.Router()
 	 *                 properties:
 	 *                   table:
 	 *                     type: string
-	 *                     description: Name of the table to query. Must be an allowed table.
-	 *                     example: "instructor_courses"
+	 *                     description: Name of the base table to query. Must be an allowed table.
+	 *                     example: "student_courses"
 	 *                   select:
 	 *                     type: array
 	 *                     items:
 	 *                       type: string
-	 *                     description: List of columns to select.
-	 *                     example: ["user_id", "term", "year", "course_subject", "course_number", "course_suffix", "role"]
+	 *                     description: List of columns to select. Qualified names (e.g. "students.first_name") are allowed.
+	 *                     example: [
+	 *                       "mnumber",
+	 *                       "term",
+	 *                       "year",
+	 *                       "crn",
+	 *                       "course_subject",
+	 *                       "course_number",
+	 *                       "course_suffix",
+	 *                       "course_section",
+	 *                       "course_hours",
+	 *                       "registration_status",
+	 *                       "instructional_method",
+	 *                       "last_attendance",
+	 *                       "students.first_name",
+	 *                       "students.last_name"
+	 *                     ]
 	 *                   filters:
 	 *                     type: array
 	 *                     items:
@@ -45,7 +60,7 @@ export const customQuery = express.Router()
 	 *                         column:
 	 *                           type: string
 	 *                           description: Column name to filter on.
-	 *                           example: "term"
+	 *                           example: "registration_status"
 	 *                         operator:
 	 *                           type: string
 	 *                           description: Comparison operator (e.g., "=", "LIKE").
@@ -53,15 +68,36 @@ export const customQuery = express.Router()
 	 *                         value:
 	 *                           type: string
 	 *                           description: Value to compare against.
-	 *                           example: "50"
+	 *                           example: "Enrolled"
 	 *                     description: List of filter conditions.
+	 *                   joins:
+	 *                     type: array
+	 *                     items:
+	 *                       type: object
+	 *                       properties:
+	 *                         table:
+	 *                           type: string
+	 *                           description: The name of the table to join.
+	 *                           example: "students"
+	 *                         on:
+	 *                           type: object
+	 *                           properties:
+	 *                             left:
+	 *                               type: string
+	 *                               description: Column from the base table to join on.
+	 *                               example: "mnumber"
+	 *                             right:
+	 *                               type: string
+	 *                               description: Column from the join table to join on.
+	 *                               example: "mnumber"
+	 *                     description: List of join definitions.
 	 *                   sort:
 	 *                     type: object
 	 *                     properties:
 	 *                       column:
 	 *                         type: string
 	 *                         description: Column name to sort by.
-	 *                         example: "course_number"
+	 *                         example: "crn"
 	 *                       direction:
 	 *                         type: string
 	 *                         enum: [asc, desc]
@@ -86,6 +122,37 @@ export const customQuery = express.Router()
 	 *                 description: >
 	 *                   The role view to apply (e.g., "Faculty"). This determines which automatic filters are applied.
 	 *                 example: "Faculty"
+	 *           example:
+	 *             queryDef:
+	 *               table: "student_courses"
+	 *               select:
+	 *                 - "mnumber"
+	 *                 - "term"
+	 *                 - "year"
+	 *                 - "crn"
+	 *                 - "course_subject"
+	 *                 - "course_number"
+	 *                 - "course_suffix"
+	 *                 - "course_section"
+	 *                 - "course_hours"
+	 *                 - "registration_status"
+	 *                 - "instructional_method"
+	 *                 - "last_attendance"
+	 *                 - "students.first_name"
+	 *                 - "students.last_name"
+	 *               joins:
+	 *                 - table: "students"
+	 *                   on:
+	 *                     left: "mnumber"
+	 *                     right: "mnumber"
+	 *               filters: []
+	 *               sort:
+	 *                 column: "crn"
+	 *                 direction: "asc"
+	 *               pagination:
+	 *                 limit: 10
+	 *                 offset: 0
+	 *             role: "Faculty"
 	 *     responses:
 	 *       200:
 	 *         description: Query executed successfully.
