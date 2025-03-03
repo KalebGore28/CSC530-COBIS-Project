@@ -33,7 +33,7 @@ const __dirname = path.dirname(__filename);
 /**
  * Seeds database with all of the csv files in the data/csvs directory.
  */
-(async () => {
+export const seedDatabase = async () => {
 	// Import all csv files in the data/csvs directory
 	const academicStandingCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/academic_standing.csv'));
 	const admitCodesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/admit_codes.csv'));
@@ -233,23 +233,27 @@ const __dirname = path.dirname(__filename);
 			importedBy: 'seed script',
 		});
 
-	console.log(termsResponse.body);
-	console.log(academicStandingResponse.body);
-	console.log(admitCodesResponse.body);
-	console.log(collegeCodesResponse.body);
-	console.log(collegesResponse.body);
-	console.log(coursesResponse.body);
-	console.log(departmentsResponse.body);
-	console.log(instructionalMethodsResponse.body);
-	console.log(programsResponse.body);
-	console.log(nationsResponse.body);
-	console.log(partOfTermResponse.body);
-	console.log(registrationStatusResponse.body);
-	console.log(studentTypesResponse.body);
-	console.log(subjectPrefixesResponse.body);
-	console.log(demographicsResponse.body);
-	console.log(studentCoursesResponse.body);
-	console.log(testScoresResponse.body);
-	console.log(overridesResponse.body);
-	console.log(previousCollegesResponse.body);
-})();
+	// Check if any of the responses have failed status codes
+	if (
+		termsResponse.status !== 200 ||
+		academicStandingResponse.status !== 200 ||
+		admitCodesResponse.status !== 200 ||
+		collegeCodesResponse.status !== 200 ||
+		collegesResponse.status !== 200 ||
+		coursesResponse.status !== 200 ||
+		departmentsResponse.status !== 200 ||
+		instructionalMethodsResponse.status !== 200 ||
+		nationsResponse.status !== 200 ||
+		partOfTermResponse.status !== 200 ||
+		registrationStatusResponse.status !== 200 ||
+		studentTypesResponse.status !== 200 ||
+		subjectPrefixesResponse.status !== 200 ||
+		demographicsResponse.status !== 200 ||
+		studentCoursesResponse.status !== 200 ||
+		testScoresResponse.status !== 200 ||
+		overridesResponse.status !== 200 ||
+		previousCollegesResponse.status !== 200
+	) {
+		throw new Error('Failed to seed database.');
+	}
+};
