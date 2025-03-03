@@ -1,10 +1,5 @@
 import fs from 'fs';
 import csvParser from 'csv-parser';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 /**
  * Reads a CSV file and returns a Promise that resolves to an array of objects.
@@ -21,10 +16,7 @@ export async function importCSV<T = Record<string, any>>(
 	return new Promise((resolve, reject) => {
 		const results: T[] = [];
 
-		// Get absolute path to the CSV file
-		console.log(path.resolve(__dirname, csvFilePath));
-
-		fs.createReadStream(path.resolve(__dirname, csvFilePath))
+		fs.createReadStream(csvFilePath)
 			.pipe(csvParser())
 			.on('data', (data) => {
 				let row = transformFn ? transformFn(data) : data;
