@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import logo from './assets/primary_white.png';
 import { Helmet } from "react-helmet";
 import Login from "./components/Login";
+import StudentFilter from "./components/StudentFilter";
 
 // var authenticated = false; // For demo purposes of the login page
 
@@ -44,7 +45,7 @@ const App = () => {
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-xl font-semibold text-center text-gray-800 mb-4">Student Lookup</h3>
                 <p className="text-gray-600 text-center mb-4">
-                  Search for students by name, ID, or department.
+                  Search for students by name, ID, department, major, minor, GPA, or previous classes.
                 </p>
                 <div className="flex justify-center">
                   <button className="bg-blue-950 text-white px-4 py-2 rounded hover:bg-blue-900" onClick={() => setActiveTab('Student Lookup')}>
@@ -77,7 +78,7 @@ const App = () => {
           </div>
         );
       case 'Student Lookup':
-        return <div>Any content related to querying students goes here...</div>;
+        return <StudentFilter/>
       case 'Generate Reports':
         return <div>Any content related to generating reports goes here...</div>;
       case 'Settings':
