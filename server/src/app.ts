@@ -32,7 +32,7 @@ const app = express()
   .use("/api/import", importRoutes)
   .use("/api/auth", authRoutes)
   .use("/api/instructor", testRoute)
-  .use('/api', customQuery);
+  .use('/api/custom-query', customQuery);
 
 
 export default app;

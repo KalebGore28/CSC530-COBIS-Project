@@ -3,14 +3,87 @@ import express from 'express';
 import { getDbConnection } from '../db/connection';
 import { attachUserPermissions } from '../middleware/attachUserPermissions';
 import { authenticateJWT } from '../middleware/authenticateJWT';
-import { buildDrizzleQuery } from '../utils/buildDrizzleQuery';
+import { buildDrizzleQuery, allowedTables } from '../utils/buildDrizzleQuery';
+import { relationshipsMapping } from '../utils/relationshipMapping';
 
 // Define the API endpoint
 export const customQuery = express.Router()
+	.use(authenticateJWT)
+	.use(attachUserPermissions)
+
 	/**
 	 * @openapi
-	 * /api/custom_query:
+	 * /api/custom-query/metadata:
+	 *   get:
+	 *     tags:
+	 *      - Custom Queries
+	 *     summary: Get metadata for allowed tables and columns based on user permissions.
+	 *     description: >
+	 *       Returns a list of allowed tables and columns based on the user's permissions.
+	 *       This metadata can be used to build custom queries with role-based filters and joins.
+	 *     responses:
+	 *       200:
+	 *         description: Metadata retrieved successfully.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 metadata:
+	 *                   type: array
+	 *                   items:
+	 *                     type: object
+	 *                     properties:
+	 *                       table:
+	 *                         type: string
+	 *                         description: Name of the table.
+	 *                         example: "student_courses"
+	 *                       columns:
+	 *                         type: array
+	 *                         items:
+	 *                           type: string
+	 *                         description: List of columns that the user has permission to read.
+	 *                         example: ["mnumber", "term", "year", "crn", "course_subject", "course_number"]
+	 */
+	.get('/metadata', (req, res) => {
+		try {
+			// Ensure that RBAC middleware has populated req.user.permissions.
+			const userPermissions = req.user?.permissions;
+			if (!userPermissions) {
+				return res.status(400).json({ error: "User permissions not found" });
+			}
+
+			// Build metadata for each allowed table.
+			const metadata = Object.keys(allowedTables).map((tableName) => {
+				// Get allowed columns for this table from user permissions.
+				const allowedColumns = userPermissions
+					.filter((perm: any) => perm.permission_table === tableName && perm.can_read)
+					.map((perm: any) => perm.permission_column);
+				const columns = Array.from(new Set(allowedColumns));
+
+				// Retrieve relationship info from the static mapping.
+				const relationships = relationshipsMapping[tableName] || [];
+
+				return {
+					table: tableName,
+					columns,
+					relationships
+				};
+			});
+
+			res.json({ metadata });
+		} catch (error: any) {
+			res.status(500).json({ error: error.message });
+		}
+	})
+
+
+	/**
+	 * @openapi
+	 * /api/custom-query/execute:
 	 *   post:
+	 *     tags:
+	 *      - Custom Queries
 	 *     summary: Execute a custom query using Drizzle ORM with role-based filters and joins.
 	 *     description: >
 	 *       Accepts a JSON payload that defines a custom query, including the table, selected columns,
@@ -185,12 +258,11 @@ export const customQuery = express.Router()
 	 *                 error:
 	 *                   type: string
 	 */
-	.use(authenticateJWT)
-	.use(attachUserPermissions)
-	.post('/custom_query', async (req, res) => {
+	.post('/execute', async (req, res) => {
 		try {
 			const { queryDef, role } = req.body;
 			const { orm } = await getDbConnection();
+			console.log(JSON.stringify(queryDef, null, 2));
 
 			// Check if the user has the role they claim to have.
 			const hasRole = req.user.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
@@ -203,6 +275,7 @@ export const customQuery = express.Router()
 			req.user.currentRole = req.user.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
 			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
+			console.log(results);
 			res.json({ results });
 		} catch (error: any) {
 			console.error("Error processing custom query:", error);

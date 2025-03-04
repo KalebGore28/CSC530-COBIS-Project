@@ -10,7 +10,7 @@ import {
 	studentAdvisors,
 } from '../db/schema';
 
-const allowedTables: Record<string, any> = {
+export const allowedTables: Record<string, any> = {
 	departments,
 	colleges,
 	instructor_courses: instructorCourses,
@@ -106,47 +106,56 @@ export async function buildDrizzleQuery(
 	// Process joins if provided.
 	if (queryDef.joins && Array.isArray(queryDef.joins)) {
 		// Accumulate join definitions by join table.
-		const joinMap: Record<string, Array<{ left: string; right: string }>> = {};
+		// Instead of expecting .left and .right, we expect an object with multiple columns.
+		const joinMap: Record<string, Array<Record<string, string>>> = {};
 		for (const joinDef of queryDef.joins) {
 			if (!allowedTables[joinDef.table]) {
 				throw new Error(`Join table ${joinDef.table} is not allowed`);
 			}
-			if (!joinDef.on || !joinDef.on.left || !joinDef.on.right) {
-				throw new Error("Join definition must include 'on' with 'left' and 'right'");
+
+			if (!joinDef.on || typeof joinDef.on !== 'object') {
+				throw new Error("Join definition must include an 'on' object with key/value pairs");
 			}
+
 			if (!joinMap[joinDef.table]) {
 				joinMap[joinDef.table] = [];
 			}
+			// Push the entire "on" object (with multiple pairs) for this join
 			joinMap[joinDef.table].push(joinDef.on);
 		}
+
 		// For each join table, combine the conditions using an array.
 		for (const joinTableName in joinMap) {
 			const joinTable = allowedTables[joinTableName];
-			const conditions = joinMap[joinTableName].map((onClause) => {
-				// Determine the left column.
-				let leftCol;
-				if (onClause.left.includes('.')) {
-					// If qualified (e.g., "student_courses.mnumber"), split it.
-					const [sourceAlias, colName] = onClause.left.split('.');
-					const sourceTable = allowedTables[sourceAlias];
-					if (!sourceTable || !(colName in sourceTable)) {
-						throw new Error(`Column ${onClause.left} is not allowed or join table ${sourceAlias} is not permitted`);
+			// Each element in joinMap[joinTableName] is an object like { term: 'term', year: 'year', ... }
+			const conditions = joinMap[joinTableName].map(onClause => {
+				const subconditions = Object.entries(onClause).map(([leftKey, rightKey]) => {
+					let leftCol;
+					// If leftKey is qualified (e.g., "someTable.mnumber")
+					if (leftKey.includes('.')) {
+						const [sourceAlias, colName] = leftKey.split('.');
+						const sourceTable = allowedTables[sourceAlias];
+						if (!sourceTable || !(colName in sourceTable)) {
+							throw new Error(`Column ${leftKey} is not allowed or join table ${sourceAlias} is not permitted`);
+						}
+						leftCol = sourceTable[colName];
+					} else {
+						// Else assume it's on the base table
+						leftCol = baseTable[leftKey];
 					}
-					leftCol = sourceTable[colName];
-				} else {
-					// Otherwise, use the base table.
-					leftCol = baseTable[onClause.left];
-				}
-				// The right-hand side always comes from the join table.
-				const rightCol = joinTable[onClause.right];
-				if (!leftCol || !rightCol) {
-					throw new Error(`Invalid join condition: ${onClause.left} or ${onClause.right} not found`);
-				}
-				return eq(leftCol, rightCol);
+
+					const rightCol = joinTable[rightKey];
+					if (!leftCol || !rightCol) {
+						throw new Error(`Invalid join condition: ${leftKey} or ${rightKey} not found`);
+					}
+					return eq(leftCol, rightCol);
+				});
+				// Combine all column comparisons into one AND condition
+				return and(...subconditions);
 			});
-			// Combine all conditions into one composite condition.
+
+			// Combine multiple "on" objects for the same table into a single AND
 			const joinCondition = and(...conditions);
-			// Add the join with the composite condition.
 			query = query.innerJoin(joinTable, joinCondition);
 		}
 	}
