@@ -48,8 +48,29 @@ const QueryBuilder = () => {
 	};
 
 	const handleRemoveJoin = (index) => {
+		const joinToRemove = joins[index];
 		const newJoins = joins.filter((_, i) => i !== index);
-		setJoins(newJoins);
+
+		// Check for dependent joins
+		const dependentJoins = newJoins.filter(join =>
+			Object.keys(join.on).some(leftCol =>
+				leftCol.startsWith(joinToRemove.table + '.')
+			)
+		);
+
+		// Remove dependent joins
+		if (dependentJoins.length > 0) {
+			const dependentTables = dependentJoins.map(j => j.table);
+			setJoins(newJoins.filter(join => !dependentTables.includes(join.table)));
+		} else {
+			setJoins(newJoins);
+		}
+
+		// Update selectedColumns to remove columns from removed tables
+		const removedTables = [joinToRemove.table, ...dependentJoins.map(j => j.table)];
+		setSelectedColumns(selectedColumns.filter(col =>
+			!removedTables.some(table => col.startsWith(table + '.'))
+		));
 	};
 
 	const handleExecuteQuery = async () => {
