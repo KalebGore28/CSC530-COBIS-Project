@@ -8,6 +8,7 @@ import {
 	students,
 	studentAcademicInfo,
 	studentAdvisors,
+	users,
 } from '../db/schema';
 
 export const allowedTables: Record<string, any> = {
@@ -19,6 +20,7 @@ export const allowedTables: Record<string, any> = {
 	students,
 	student_academic_info: studentAcademicInfo,
 	student_advisors: studentAdvisors,
+	users,
 };
 
 const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
