@@ -113,9 +113,6 @@ table permissions {
   id integer [pk, not null]
   table_name text [not null]
   column_name text [not null]
-  can_read integer [not null, default: false]
-  can_write integer [not null, default: false]
-  description text [not null]
 }
 
 table previous_colleges {
