@@ -13,8 +13,9 @@ const QueryBuilder = () => {
 	const [pagination, setPagination] = useState({ limit: 10, offset: 0 });
 	const [results, setResults] = useState([]);
 	const [error, setError] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	const [isRelationshipsOpen, setIsRelationshipsOpen] = useState(true);
 
-	// Fetch metadata on mount
 	useEffect(() => {
 		axios.get('/api/custom-query/metadata')
 			.then(res => {
@@ -26,47 +27,41 @@ const QueryBuilder = () => {
 			});
 	}, []);
 
-	// When the user selects a table, reset columns (but do NOT force joins).
 	useEffect(() => {
 		if (selectedTable) {
 			const tableMeta = metadata.find(m => m.table === selectedTable);
 			if (tableMeta) {
-				// Default to selecting all columns (or none, if you prefer).
-				setSelectedColumns(tableMeta.columns);
-				// Clear joins or keep them as is. Let the user manually add them.
+				setSelectedColumns(tableMeta.columns); // Default to all main table columns
 				setJoins([]);
 			}
 		}
 	}, [selectedTable, metadata]);
 
-	// Adds a new join definition (based on an available relationship).
-	// For example, if the user picks "student_courses" from a dropdown of possible relationships.
-	// Function to handle adding joins with unique checks
 	const handleAddJoin = (table, condition) => {
-		// Instead of expanding every key, build one join object
-		console.log("Joins:", table, condition);
-		const newJoin = {
-			table,
-			on: condition // e.g. { term: "term", year: "year" }
-		};
-
-		// Check if we already have the same table+on combination
+		const newJoin = { table, on: condition };
 		const isDuplicate = joins.some(
 			join => join.table === table && JSON.stringify(join.on) === JSON.stringify(condition)
 		);
-
 		if (!isDuplicate) {
 			setJoins([...joins, newJoin]);
 		}
 	};
 
-	// Function to remove a join by index
 	const handleRemoveJoin = (index) => {
 		const newJoins = joins.filter((_, i) => i !== index);
 		setJoins(newJoins);
 	};
 
 	const handleExecuteQuery = async () => {
+		if (!selectedTable) {
+			setError('Please select a table');
+			return;
+		}
+		if (selectedColumns.length === 0) {
+			setError('Please select at least one column');
+			return;
+		}
+
 		const queryDef = {
 			table: selectedTable,
 			select: selectedColumns,
@@ -75,268 +70,348 @@ const QueryBuilder = () => {
 			pagination
 		};
 
-		// Only include sort if a valid column has been specified
 		if (sort.column && sort.column.trim() !== '') {
-			query.sort = sort;
+			queryDef.sort = sort;
 		}
 
+		setIsLoading(true);
 		try {
 			const res = await axios.post('/api/custom-query/execute', {
 				queryDef,
 				role: "Faculty"
 			});
-			console.log(res.data.results);
 			setResults(res.data.results);
 			setError('');
 		} catch (err) {
-			console.error(err);
 			setError(err.response?.data?.error || "Query execution failed");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
+	const getAvailableRelationships = () => {
+		if (!selectedTable) return [];
+
+		const mainTableMeta = metadata.find(m => m.table === selectedTable);
+		let availableRelationships = mainTableMeta ? [...(mainTableMeta.relationships || [])] : [];
+
+		joins.forEach(join => {
+			const joinedTableMeta = metadata.find(m => m.table === join.table);
+			if (joinedTableMeta && joinedTableMeta.relationships) {
+				availableRelationships = availableRelationships.concat(joinedTableMeta.relationships);
+			}
+		});
+
+		return availableRelationships.filter(rel =>
+			!joins.some(join =>
+				join.table === rel.relatedTable &&
+				JSON.stringify(join.on) === JSON.stringify(rel.on)
+			)
+		);
+	};
+
+	// New helper function to get all available columns
+	const getAvailableColumns = () => {
+		if (!selectedTable) return [];
+
+		const mainTableMeta = metadata.find(m => m.table === selectedTable);
+		let availableColumns = mainTableMeta ? mainTableMeta.columns.map(col => `${selectedTable}.${col}`) : [];
+
+		joins.forEach(join => {
+			const joinedTableMeta = metadata.find(m => m.table === join.table);
+			if (joinedTableMeta && joinedTableMeta.columns) {
+				const joinedColumns = joinedTableMeta.columns.map(col => `${join.table}.${col}`);
+				availableColumns = [...availableColumns, ...joinedColumns];
+			}
+		});
+
+		// Remove duplicates (in case of overlapping column names, though prefixes should prevent this)
+		return [...new Set(availableColumns)];
+	};
+
+	const handleColumnChange = (e) => {
+		const options = e.target.options;
+		const selected = [];
+		for (let i = 0; i < options.length; i++) {
+			if (options[i].selected) {
+				selected.push(options[i].value);
+			}
+		}
+		setSelectedColumns(selected);
+	};
+
 	return (
-		<div className="p-4 max-w-4xl mx-auto">
-			<h1 className="text-2xl font-bold mb-4">Custom Query Builder</h1>
-			{error && <div className="text-red-500 mb-4">{error}</div>}
+		<div className="min-h-screen bg-gray-100 py-8">
+			<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+				<div className="bg-white shadow-lg rounded-lg p-6">
+					<h1 className="text-3xl font-bold text-gray-900 mb-6">Custom Query Builder</h1>
 
-			{/* Table Selector */}
-			<div className="mb-4">
-				<label className="block font-medium mb-1">Table:</label>
-				<select
-					className="border rounded p-2 w-full"
-					value={selectedTable}
-					onChange={(e) => setSelectedTable(e.target.value)}
-				>
-					<option value="">Select table</option>
-					{metadata.map(m => (
-						<option key={m.table} value={m.table}>{m.table}</option>
-					))}
-				</select>
-			</div>
+					{error && (
+						<div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded">
+							{error}
+						</div>
+					)}
 
-			{/* Column Selector */}
-			{selectedTable && (
-				<div className="mb-4">
-					<label className="block font-medium mb-1">
-						Columns (comma-separated):
-					</label>
-					<input
-						className="border rounded p-2 w-full"
-						type="text"
-						value={selectedColumns.join(', ')}
-						onChange={(e) =>
-							setSelectedColumns(e.target.value.split(',').map(s => s.trim()))
-						}
-					/>
-					<small className="text-gray-500">
-						Available:&nbsp;
-						{metadata.find(m => m.table === selectedTable)?.columns.join(', ')}
-					</small>
-				</div>
-			)}
-
-			{/* Filters Builder */}
-			<div className="mb-4">
-				<h3 className="font-bold mb-2">Filters</h3>
-				{filters.map((f, index) => (
-					<div key={index} className="flex space-x-2 mb-2">
-						<input
-							className="border rounded p-2 flex-1"
-							type="text"
-							placeholder="Column"
-							value={f.column}
-							onChange={(e) => {
-								const newFilters = [...filters];
-								newFilters[index].column = e.target.value;
-								setFilters(newFilters);
-							}}
-						/>
+					{/* Table Selector */}
+					<div className="mb-6">
+						<label className="block text-sm font-medium text-gray-700 mb-2">Table</label>
 						<select
-							className="border rounded p-2"
-							value={f.operator}
-							onChange={(e) => {
-								const newFilters = [...filters];
-								newFilters[index].operator = e.target.value;
-								setFilters(newFilters);
-							}}
+							className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+							value={selectedTable}
+							onChange={(e) => setSelectedTable(e.target.value)}
 						>
-							{allowedOperators.map(op => (
-								<option key={op} value={op}>{op}</option>
+							<option value="">Select table</option>
+							{metadata.map(m => (
+								<option key={m.table} value={m.table}>{m.table}</option>
 							))}
 						</select>
-						<input
-							className="border rounded p-2 flex-1"
-							type="text"
-							placeholder="Value"
-							value={f.value}
-							onChange={(e) => {
-								const newFilters = [...filters];
-								newFilters[index].value = e.target.value;
-								setFilters(newFilters);
-							}}
-						/>
-						<button
-							className="bg-red-500 text-white px-2 py-1 rounded"
-							onClick={() => {
-								const newFilters = filters.filter((_, i) => i !== index);
-								setFilters(newFilters);
-							}}
-						>
-							Remove
-						</button>
 					</div>
-				))}
-				<button
-					className="bg-blue-500 text-white px-3 py-1 rounded"
-					onClick={() => setFilters([...filters, { column: '', operator: '=', value: '' }])}
-				>
-					Add Filter
-				</button>
-			</div>
 
-			{/* Show available relationships, let user optionally add them */}
-			{selectedTable && (
-				<div className="mb-4">
-					<h3 className="font-bold mb-2">Available Relationships</h3>
-					{(metadata.find(m => m.table === selectedTable)?.relationships || []).map((rel, index) => (
-						<div key={index} className="p-2 border rounded mb-2">
-							<strong>Join with:</strong> {rel.relatedTable}<br />
-							<strong>On:</strong>{' '}
-							<span className="text-gray-600">{JSON.stringify(rel.on)}</span>
-							<button
-								className="ml-2 bg-blue-400 text-white px-2 py-1 rounded"
-								onClick={() => {
-									console.log("Adding join", rel.relatedTable, rel.on);
-									handleAddJoin(rel.relatedTable, rel.on)
-								}}
+					{/* Column Selector */}
+					{selectedTable && (
+						<div className="mb-6">
+							<label className="block text-sm font-medium text-gray-700 mb-2">
+								Select Columns
+							</label>
+							<select
+								multiple
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 h-40"
+								value={selectedColumns}
+								onChange={handleColumnChange}
 							>
-								Add Join
-							</button>
-						</div>
-					))}
-				</div>
-			)}
-
-			{/* Show relationships for each joined table */}
-			{joins.map((join, jIndex) => {
-				const joinedMeta = metadata.find(m => m.table === join.table);
-				if (!joinedMeta) return null;
-				return (
-					<div key={jIndex} className="mb-4">
-						<h4 className="font-bold mb-2">More Relationships for {join.table}</h4>
-						{(joinedMeta.relationships || []).map((rel, rIndex) => (
-							<div key={rIndex} className="p-2 border rounded mb-2">
-								<strong>Join with:</strong> {rel.relatedTable}
-								<br />
-								<strong>Columns:</strong>{' '}
-								{Object.entries(rel.on).map(([leftKey, rightKey]) => (
-									<div key={leftKey}>
-										{`${join.table}.${leftKey} = ${rel.relatedTable}.${rightKey}`}
-									</div>
+								{getAvailableColumns().map(col => (
+									<option key={col} value={col}>
+										{col}
+									</option>
 								))}
-								<button
-									className="ml-2 bg-blue-400 text-white px-2 py-1 rounded"
-									onClick={() => handleAddJoin(rel.relatedTable, rel.on)}
+							</select>
+							<p className="mt-1 text-sm text-gray-500">
+								Hold Ctrl (or Cmd) to select multiple columns
+							</p>
+						</div>
+					)}
+
+					{/* Filters Builder */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold text-gray-900 mb-3">Filters</h3>
+						{filters.map((f, index) => (
+							<div key={index} className="flex items-center space-x-3 mb-3">
+								<input
+									className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+									type="text"
+									placeholder="Column"
+									value={f.column}
+									onChange={(e) => {
+										const newFilters = [...filters];
+										newFilters[index].column = e.target.value;
+										setFilters(newFilters);
+									}}
+								/>
+								<select
+									className="w-24 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+									value={f.operator}
+									onChange={(e) => {
+										const newFilters = [...filters];
+										newFilters[index].operator = e.target.value;
+										setFilters(newFilters);
+									}}
 								>
-									Add Join
+									{allowedOperators.map(op => (
+										<option key={op} value={op}>{op}</option>
+									))}
+								</select>
+								<input
+									className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+									type="text"
+									placeholder="Value"
+									value={f.value}
+									onChange={(e) => {
+										const newFilters = [...filters];
+										newFilters[index].value = e.target.value;
+										setFilters(newFilters);
+									}}
+								/>
+								<button
+									className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+									onClick={() => {
+										const newFilters = filters.filter((_, i) => i !== index);
+										setFilters(newFilters);
+									}}
+								>
+									Remove
 								</button>
 							</div>
 						))}
+						<button
+							className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+							onClick={() => setFilters([...filters, { column: '', operator: '=', value: '' }])}
+						>
+							Add Filter
+						</button>
 					</div>
-				);
-			})}
 
-			{/* Join Editor (the user can remove or see the merges) */}
-			{joins.length > 0 && (
-				<div className="mb-4">
-					<h3 className="font-bold mb-2">Selected Joins</h3>
-					{joins.map((join, idx) => (
-						<div key={idx} className="p-2 border rounded mb-2 flex items-center justify-between">
-							<div>
-								<strong>Table:</strong> {join.table}<br />
-								<strong>On:</strong>{' '}
-								<span className="text-gray-600">{JSON.stringify(join.on)}</span>
+					{/* Available Relationships */}
+					{selectedTable && (
+						<div className="mb-6">
+							<div className="flex items-center justify-between">
+								<h3 className="text-lg font-semibold text-gray-900 mb-3">Available Relationships</h3>
+								<button
+									className="text-blue-600 hover:text-blue-800 mb-3"
+									onClick={() => setIsRelationshipsOpen(!isRelationshipsOpen)}
+								>
+									{isRelationshipsOpen ? 'Hide' : 'Show'}
+								</button>
 							</div>
-							<button
-								className="bg-red-500 text-white px-2 py-1 rounded"
-								onClick={() => handleRemoveJoin(idx)}
-							>
-								Remove Join
-							</button>
+							{isRelationshipsOpen && (
+								<div>
+									{getAvailableRelationships().map((rel, index) => (
+										<div key={index} className="p-4 bg-gray-50 rounded-lg mb-3 flex justify-between items-center">
+											<div>
+												<p><strong>Join with:</strong> {rel.relatedTable}</p>
+												<div className="text-sm text-gray-600 mt-1">
+													<strong>On:</strong>
+													<ul className="list-disc pl-5">
+														{Object.entries(rel.on).map(([leftCol, rightCol]) => (
+															<li key={leftCol}>
+																{`${leftCol} = ${rel.relatedTable}.${rightCol}`}
+															</li>
+														))}
+													</ul>
+												</div>
+											</div>
+											<button
+												className="px-3 py-1 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+												onClick={() => handleAddJoin(rel.relatedTable, rel.on)}
+											>
+												Add Join
+											</button>
+										</div>
+									))}
+								</div>
+							)}
 						</div>
-					))}
-				</div>
-			)}
+					)}
 
-			{/* Sorting */}
-			<div className="mb-4">
-				<h3 className="font-bold mb-2">Sort</h3>
-				<input
-					className="border rounded p-2 w-full mb-2"
-					type="text"
-					placeholder="Sort Column (e.g., student_courses.mnumber)"
-					value={sort.column}
-					onChange={(e) => setSort({ ...sort, column: e.target.value })}
-				/>
-				<select
-					className="border rounded p-2 w-full"
-					value={sort.direction}
-					onChange={(e) => setSort({ ...sort, direction: e.target.value })}
-				>
-					<option value="asc">asc</option>
-					<option value="desc">desc</option>
-				</select>
-			</div>
-
-			{/* Pagination */}
-			<div className="mb-4">
-				<h3 className="font-bold mb-2">Pagination</h3>
-				<input
-					className="border rounded p-2 w-full mb-2"
-					type="number"
-					placeholder="Limit"
-					value={pagination.limit}
-					onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value) })}
-				/>
-				<input
-					className="border rounded p-2 w-full"
-					type="number"
-					placeholder="Offset"
-					value={pagination.offset}
-					onChange={(e) => setPagination({ ...pagination, offset: Number(e.target.value) })}
-				/>
-			</div>
-
-			<button
-				className="bg-green-500 text-white px-4 py-2 rounded"
-				onClick={handleExecuteQuery}
-			>
-				Execute Query
-			</button>
-
-			<h3 className="mt-6 font-bold">Results</h3>
-			{results.length > 0 ? (
-				<table className="mt-2 border-collapse border w-full">
-					<thead>
-						<tr>
-							{results[0] && Object.keys(results[0]).map(col => (
-								<th key={col} className="border p-2 bg-gray-200">{col}</th>
+					{/* Selected Joins */}
+					{joins.length > 0 && (
+						<div className="mb-6">
+							<h3 className="text-lg font-semibold text-gray-900 mb-3">Selected Joins</h3>
+							{joins.map((join, idx) => (
+								<div key={idx} className="p-4 bg-gray-50 rounded-lg mb-3 flex justify-between items-center">
+									<div>
+										<p><strong>Table:</strong> {join.table}</p>
+										<div className="text-sm text-gray-600 mt-1">
+											<strong>On:</strong>
+											<ul className="list-disc pl-5">
+												{Object.entries(join.on).map(([leftCol, rightCol]) => (
+													<li key={leftCol}>
+														{`${leftCol} = ${join.table}.${rightCol}`}
+													</li>
+												))}
+											</ul>
+										</div>
+									</div>
+									<button
+										className="px-3 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+										onClick={() => handleRemoveJoin(idx)}
+									>
+										Remove
+									</button>
+								</div>
 							))}
-						</tr>
-					</thead>
-					<tbody>
-						{results.map((row, idx) => (
-							<tr key={idx}>
-								{Object.entries(row).map(([col, value]) => (
-									<td key={col} className="border p-2">{value}</td>
-								))}
-							</tr>
-						))}
-					</tbody>
-				</table>
-			) : (
-				<div className="mt-4">No results</div>
-			)}
+						</div>
+					)}
+
+					{/* Sorting */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold text-gray-900 mb-3">Sort</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<input
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+								type="text"
+								placeholder="Sort Column (e.g., student_courses.mnumber)"
+								value={sort.column}
+								onChange={(e) => setSort({ ...sort, column: e.target.value })}
+							/>
+							<select
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+								value={sort.direction}
+								onChange={(e) => setSort({ ...sort, direction: e.target.value })}
+							>
+								<option value="asc">Ascending</option>
+								<option value="desc">Descending</option>
+							</select>
+						</div>
+					</div>
+
+					{/* Pagination */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold text-gray-900 mb-3">Pagination</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<input
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+								type="number"
+								placeholder="Limit"
+								value={pagination.limit}
+								onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value) })}
+							/>
+							<input
+								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+								type="number"
+								placeholder="Offset"
+								value={pagination.offset}
+								onChange={(e) => setPagination({ ...pagination, offset: Number(e.target.value) })}
+							/>
+						</div>
+					</div>
+
+					<button
+						className="w-full px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-lg font-medium disabled:bg-gray-400"
+						onClick={handleExecuteQuery}
+						disabled={isLoading}
+					>
+						{isLoading ? 'Executing...' : 'Execute Query'}
+					</button>
+
+					{/* Results */}
+					<div className="mt-8">
+						<h3 className="text-lg font-semibold text-gray-900 mb-3">Results</h3>
+						{results.length > 0 ? (
+							<div className="overflow-x-auto">
+								<table className="min-w-full divide-y divide-gray-200">
+									<thead className="bg-gray-50">
+										<tr>
+											{results[0] && Object.keys(results[0]).map(col => (
+												<th
+													key={col}
+													className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+												>
+													{col}
+												</th>
+											))}
+										</tr>
+									</thead>
+									<tbody className="bg-white divide-y divide-gray-200">
+										{results.map((row, idx) => (
+											<tr key={idx} className="hover:bg-gray-50">
+												{Object.entries(row).map(([col, value]) => (
+													<td key={col} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+														{value}
+													</td>
+												))}
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						) : (
+							<div className="p-4 text-gray-500 text-center bg-gray-50 rounded-lg">
+								No results
+							</div>
+						)}
+					</div>
+				</div>
+			</div>
 		</div>
 	);
 };
