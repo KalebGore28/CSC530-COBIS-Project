@@ -1,5 +1,6 @@
 import express from 'express';
-import { importData, convertDateDDMMYYYY } from './helpers';
+import { importData } from '../../utils/importData';
+import { convertDateDDMMYYYY } from '../../utils/convertDates';
 import { overrides } from '../../db/models/overrides';
 
 interface OverrideRow {
@@ -28,7 +29,7 @@ async function importOverrides(
 	);
 }
 
-const router = express.Router()
+export const overridesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -125,7 +126,6 @@ const router = express.Router()
 				}
 
 				const courseMatch = row.crsenumb.match(/^(\d+)([A-Za-z]*)$/);
-
 				if (!courseMatch) {
 					console.warn(`⚠ Invalid COURSE format: ${row.crsenumb}`);
 					return null; // Skip invalid rows
@@ -168,10 +168,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing override data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing override data.' });
 		}
 	});
-
-export default router;

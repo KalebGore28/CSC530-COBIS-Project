@@ -1,6 +1,6 @@
 import express from 'express';
 import { and, eq, sql } from "drizzle-orm";
-import { db } from "../db/connection";
+import { getDbConnection } from "../db/connection";
 import { instructorCourses } from "../db/models/instructor_courses";
 import { studentCourses } from "../db/models/student_courses";
 
@@ -67,7 +67,9 @@ const router = express.Router()
    *                   type: string
    *                   example: "Internal server error"
    */
-  .get('/credit-hours', async (req, res) => {
+  .get('/credit-hours', async (req: any, res: any) => {
+      const dbConnectionInstance = await getDbConnection();
+      const db = dbConnectionInstance.orm;
     const { instructorId, termCode, year } = req.query;
 
     // Validate query parameters

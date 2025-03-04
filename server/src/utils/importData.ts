@@ -1,6 +1,6 @@
 import type { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import { eq, and } from "drizzle-orm";
-import { db } from '../../db/connection';
+import { getDbConnection } from '../db/connection';
 
 /**
  * Imports data into any table.
@@ -20,10 +20,13 @@ export async function importData<T extends Record<string, any>>(
 	table: AnySQLiteTable,
 	primaryKey: string | string[],
 	mappedData: T[],
-	fileName: string,
-	importedBy: string,
+	fileName: string, // TODO
+	importedBy: string, // TODO
 	updateExcludes: string[] = []
 ) {
+	// Get the ORM instance from the database
+	const db = (await getDbConnection()).orm;
+
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
 		throw new Error("Invalid CSV data.");
 	}
@@ -66,22 +69,4 @@ export async function importData<T extends Record<string, any>>(
 	// Optionally, you could log the import operation here using fileName and importedBy.
 
 	return { totalRecords, errorDetails };
-}
-
-// Helper function to convert DDMMYYYY to YYYY-MM-DD
-export function convertDateDDMMYYYY(dateStr: string) {
-	if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
-	const day = dateStr.substring(0, 2);
-	const month = dateStr.substring(2, 4);
-	const year = dateStr.substring(4, 8);
-	return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
-}
-
-// Helper function to convert MMDDYYYY to YYYY-MM-DD
-export function convertDateMMDDYYYY(dateStr: string) {
-	if (!dateStr || dateStr.length !== 8) return null; // Ensure valid format
-	const month = dateStr.substring(0, 2);
-	const day = dateStr.substring(2, 4);
-	const year = dateStr.substring(4, 8);
-	return `${year}-${month}-${day}`; // Convert to YYYY-MM-DD
 }

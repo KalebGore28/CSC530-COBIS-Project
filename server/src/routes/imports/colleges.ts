@@ -1,6 +1,6 @@
 import express from 'express';
-import { importData } from './helpers.js';
-import { colleges } from '../../db/models/colleges.js';
+import { importData } from '../../utils/importData';
+import { colleges } from '../../db/schema';
 
 interface CollegeRow {
 	code: string;
@@ -21,7 +21,7 @@ async function importColleges(
 	);
 }
 
-const router = express.Router()
+export const collegesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing colleges data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing colleges data.' });
 		}
 	});
-
-export default router;

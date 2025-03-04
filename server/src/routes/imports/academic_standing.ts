@@ -1,6 +1,6 @@
 import express from 'express';
-import { importData } from './helpers';
-import { academicStanding } from '../../db/models/academic_standing';
+import { importData } from '../../utils/importData';
+import { academicStanding } from '../../db/schema';
 
 interface AcademicStandingRow {
 	code: string;
@@ -21,7 +21,7 @@ async function importAcademicStanding(
 	);
 }
 
-const router = express.Router()
+export const academicStandingRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -91,10 +91,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails,
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing academic standing data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing academic standing data.' });
 		}
 	});
-
-export default router;

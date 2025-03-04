@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { subjectPrefixes } from '../../db/models/subject_prefixes';
 
 interface SubjectPrefixRow {
@@ -22,7 +22,7 @@ async function importSubjectPrefixes(
 	);
 }
 
-const router = express.Router()
+export const subjectPrefixesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -107,10 +107,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing course prefixes data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing course prefixes data.' });
 		}
 	});
-
-export default router;

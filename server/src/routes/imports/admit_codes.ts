@@ -1,6 +1,6 @@
 import express from 'express';
-import { importData } from './helpers';
-import { admitCodes } from '../../db/models/admit_codes';
+import { importData } from '../../utils/importData';
+import { admitCodes } from '../../db/schema';
 
 interface AdmitCodeRow {
 	code: string;
@@ -21,7 +21,7 @@ async function importAdmitCodes(
 	);
 }
 
-const router = express.Router()
+export const admitCodesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing admit codes data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing admit codes data.' });
 		}
 	});
-
-export default router;

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "eede837a-984e-4428-9c1d-8cbb432bde13",
+  "id": "a44c0b69-b116-4f31-8b66-2b2fc15d3708",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -706,8 +706,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "name": {
-          "name": "name",
+        "table_name": {
+          "name": "table_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

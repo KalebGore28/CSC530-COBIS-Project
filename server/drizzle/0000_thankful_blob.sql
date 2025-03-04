@@ -108,7 +108,7 @@ CREATE TABLE `part_of_term` (
 --> statement-breakpoint
 CREATE TABLE `permissions` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`name` text NOT NULL,
+	`table_name` text NOT NULL,
 	`column_name` text NOT NULL,
 	`can_read` integer DEFAULT false NOT NULL,
 	`can_write` integer DEFAULT false NOT NULL,

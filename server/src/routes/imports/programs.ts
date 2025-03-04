@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { programs } from '../../db/models/programs';
 
 interface ProgramRow {
@@ -29,7 +29,7 @@ async function importPrograms(
 	);
 }
 
-const router = express.Router()
+export const programsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -125,8 +125,8 @@ const router = express.Router()
 					has_concentration: row.has_concentration === '1',
 					is_discontinued: row.is_discontinued === '1',
 					is_aacsb: row.is_aacsb === '1',
-					department: row.department === 'NULL' ? '0000' : row.department,
-					college: row.college === 'NULL' ? '0' : row.college
+					department: row.department === 'NULL' ? '0000' : row.department, // default to '0000' if department is NULL
+					college: row.college === 'NULL' ? '0' : row.college // default to '0' if college is NULL
 				};
 			});
 
@@ -136,10 +136,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing programs data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing programs data.' });
 		}
 	});
-
-export default router;

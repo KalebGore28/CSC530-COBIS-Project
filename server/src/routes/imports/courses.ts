@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { courses } from '../../db/models/courses';
 
 interface CourseRow {
@@ -24,7 +24,7 @@ async function importCourses(
 	);
 }
 
-const router = express.Router()
+export const coursesRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -130,10 +130,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing courses data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing courses data.' });
 		}
 	});
-
-export default router;

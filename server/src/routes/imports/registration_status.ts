@@ -1,5 +1,5 @@
 import express from 'express';
-import { importData } from './helpers';
+import { importData } from '../../utils/importData';
 import { registrationStatus } from '../../db/models/registration_status';
 
 interface RegistrationStatusRow {
@@ -21,7 +21,7 @@ async function importRegistrationStatus(
 	);
 }
 
-const router = express.Router()
+export const registrationStatusRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -93,10 +93,9 @@ const router = express.Router()
 				totalRecords: result.totalRecords,
 				errors: result.errorDetails
 			});
+			/* v8 ignore next 4 */
 		} catch (error: any) {
 			console.error(`Error importing registration status data: ${error.message}`);
 			res.status(500).json({ error: 'Error importing registration status data.' });
 		}
 	});
-
-export default router;

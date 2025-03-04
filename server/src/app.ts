@@ -13,6 +13,7 @@ const __dirname = path.dirname(__filename);
 import importRoutes from "./routes/imports";
 import authRoutes from "./routes/auth";
 import testRoute from "./routes/instructors";
+import { customQuery } from "./routes/customQueries";
 
 // Create Express app
 const app = express()
@@ -31,6 +32,7 @@ const app = express()
   .use("/api/import", importRoutes)
   .use("/api/auth", authRoutes)
   .use("/api/instructor", testRoute)
+  .use('/api/custom-query', customQuery);
 
 
 export default app;

@@ -2,25 +2,25 @@ import express from 'express';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
 
 // Import routes
-import academicStandingRouter from './imports/academic_standing';
-import admitCodesRouter from './imports/admit_codes';
-import collegeCodesRouter from './imports/college_codes';
-import collegesRouter from './imports/colleges';
-import coursesRouter from './imports/courses';
-import demographicsRouter from './imports/demographics';
-import departmentsRouter from './imports/departments';
-import instructionalMethodsRouter from './imports/instructional_methods';
-import nationsRouter from './imports/nations';
-import overridesRouter from './imports/overrides';
-import partOfTermRouter from './imports/part_of_term';
-import previousCollegesRouter from './imports/previous_colleges';
-import programsRouter from './imports/programs.js';
-import registrationStatusRouter from './imports/registration_status';
-import studentCoursesRouter from './imports/student_courses';
-import studentTypesRouter from './imports/student_types';
-import subjectPrefixesRouter from './imports/subject_prefixes';
-import termsRouter from './imports/terms';
-import testScores from './imports/test_scores';
+import { academicStandingRouter } from './imports/academic_standing';
+import { admitCodesRouter } from './imports/admit_codes';
+import { collegeCodesRouter } from './imports/college_codes';
+import { collegesRouter } from './imports/colleges';
+import { coursesRouter } from './imports/courses';
+import { demographicsRouter } from './imports/demographics';
+import { departmentsRouter } from './imports/departments';
+import { instructionalMethodsRouter } from './imports/instructional_methods';
+import { nationsRouter } from './imports/nations';
+import { overridesRouter } from './imports/overrides';
+import { partOfTermRouter } from './imports/part_of_term';
+import { previousCollegesRouter } from './imports/previous_colleges';
+import { programsRouter } from './imports/programs.js';
+import { registrationStatusRouter } from './imports/registration_status';
+import { studentCoursesRouter } from './imports/student_courses';
+import { studentTypesRouter } from './imports/student_types';
+import { subjectPrefixesRouter } from './imports/subject_prefixes';
+import { termsRouter } from './imports/terms';
+import { testScoresRouter } from './imports/test_scores';
 
 // Create a router
 const router = express.Router()
@@ -47,6 +47,6 @@ const router = express.Router()
 	.use(studentTypesRouter)
 	.use(subjectPrefixesRouter)
 	.use(termsRouter)
-	.use(testScores)
+	.use(testScoresRouter)
 
 export default router;

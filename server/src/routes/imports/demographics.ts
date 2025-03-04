@@ -1,12 +1,8 @@
 import express from 'express';
-import { importData, convertDateMMDDYYYY } from './helpers';
+import { importData } from '../../utils/importData';
+import { convertDateMMDDYYYY } from '../../utils/convertDates';
 
-import { students } from '../../db/models/students';
-import { studentAddresses } from '../../db/models/student_addresses';
-import { studentAcademicInfo } from '../../db/models/student_academic_info';
-import { studentPrograms } from '../../db/models/student_programs';
-import { advisors } from '../../db/models/advisors';
-import { studentAdvisors } from '../../db/models/student_advisors';
+import { students, studentAddresses, studentAcademicInfo, studentPrograms, advisors, studentAdvisors } from '../../db/schema';
 
 interface DemographicsRow {
 	mnumber: string;
@@ -153,7 +149,7 @@ async function importStudentAdvisors(
 	);
 }
 
-const router = express.Router()
+export const demographicsRouter = express.Router()
 
 	/**
 	 * @openapi
@@ -558,5 +554,3 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error importing terms data.' });
 		}
 	});
-
-export default router;
