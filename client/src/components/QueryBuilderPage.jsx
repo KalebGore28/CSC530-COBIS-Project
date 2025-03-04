@@ -369,6 +369,7 @@ const QueryBuilder = () => {
 					<div className="mb-6">
 						<h3 className="text-lg font-semibold text-gray-900 mb-3">Pagination</h3>
 						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<p>Limit</p>
 							<input
 								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
 								type="number"
@@ -376,6 +377,7 @@ const QueryBuilder = () => {
 								value={pagination.limit}
 								onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value) })}
 							/>
+							<p>Offset</p>
 							<input
 								className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
 								type="number"
