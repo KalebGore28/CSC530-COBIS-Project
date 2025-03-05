@@ -48,34 +48,33 @@ export async function buildDrizzleQuery(
 		throw new Error("Table not allowed to be queried");
 	}
 
-	// Check table-level permission.
+	// Check table-level permission
 	const tablePermission = currentUser.permissions.some(
-		(perm) => perm.permission_table === queryDef.table && perm.can_read
+		(perm) => perm.table_name === queryDef.table
 	);
 	if (!tablePermission) {
 		throw new Error("User does not have permission to access this table");
 	}
 
-	// Check column-level permissions for the base table.
+	// Check column-level permissions for the base table and joins
 	for (const col of queryDef.select) {
 		if (!col.includes('.')) {
+			// Unqualified columns from the base table
 			const hasColumnPermission = currentUser.permissions.some(
 				(perm) =>
-					perm.permission_table === queryDef.table &&
-					perm.permission_column === col &&
-					perm.can_read
+					perm.table_name === queryDef.table &&
+					perm.column_name === col
 			);
 			if (!hasColumnPermission) {
 				throw new Error(`User does not have permission to access column ${col}`);
 			}
 		} else {
-			// For qualified columns like "students.first_name"
+			// Qualified columns like "students.first_name"
 			const [joinTableName, columnName] = col.split('.');
 			const joinPermission = currentUser.permissions.some(
 				(perm) =>
-					perm.permission_table === joinTableName &&
-					perm.permission_column === columnName &&
-					perm.can_read
+					perm.table_name === joinTableName &&
+					perm.column_name === columnName
 			);
 			if (!joinPermission) {
 				throw new Error(`User does not have permission to access column ${col}`);
@@ -235,7 +234,7 @@ function automaticFilters(
 	currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
 ) {
 	let whereClause = null;
-	if (queryDef.table === 'instructor_courses' && currentUser.currentRole.role_name === 'Faculty') {
+	if (queryDef.table === 'instructor_courses' && currentUser.currentRole.role_name === 'faculty') {
 		console.log('[automaticFilters] Faculty role detected: applying filter on user_id');
 		whereClause = eq(table.user_id, currentUser.user_id);
 	}

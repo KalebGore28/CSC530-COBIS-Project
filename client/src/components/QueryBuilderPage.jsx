@@ -99,7 +99,7 @@ const QueryBuilder = () => {
 		try {
 			const res = await axios.post('/api/custom-query/execute', {
 				queryDef,
-				role: "Faculty"
+				role: "faculty"
 			});
 			setResults(res.data.results);
 			setError('');

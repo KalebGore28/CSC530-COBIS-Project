@@ -14,7 +14,7 @@ import { seedDatabase } from "./csvs";
     await seedPermissions(orm);
 
     // Seed additional data from CSV (assumed to handle other tables)
-    // await seedDatabase();
+    await seedDatabase();
 
     console.log("Database seeded successfully.");
 })();

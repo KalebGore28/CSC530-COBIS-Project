@@ -47,21 +47,21 @@ export const customQuery = express.Router()
 	 */
 	.get('/metadata', (req, res) => {
 		try {
-			// Ensure that RBAC middleware has populated req.user.permissions.
-			const userPermissions = req.user?.permissions;
+			// Ensure RBAC middleware has populated req.user.permissions
+			const userPermissions = (req as any).user?.permissions; // Use 'as any' if req.user isn't typed
 			if (!userPermissions) {
-				return res.status(400).json({ error: "User permissions not found" });
+				return res.status(400).json({ error: 'User permissions not found' });
 			}
 
-			// Build metadata for each allowed table.
+			// Build metadata for each allowed table
 			const metadata = Object.keys(allowedTables).map((tableName) => {
-				// Get allowed columns for this table from user permissions.
+				// Get allowed columns for this table from user permissions
 				const allowedColumns = userPermissions
-					.filter((perm: any) => perm.permission_table === tableName && perm.can_read)
-					.map((perm: any) => perm.permission_column);
-				const columns = Array.from(new Set(allowedColumns));
+					.filter((perm: { table_name: string; column_name: string }) => perm.table_name === tableName)
+					.map((perm: { table_name: string; column_name: string }) => perm.column_name);
+				const columns = Array.from(new Set(allowedColumns)); // Remove duplicates
 
-				// Retrieve relationship info from the static mapping.
+				// Retrieve relationship info from the static mapping
 				const relationships = relationshipsMapping[tableName] || [];
 
 				return {
