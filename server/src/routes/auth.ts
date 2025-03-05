@@ -72,7 +72,7 @@ const router = express.Router()
     async (req: any, res: any) => {
       const dbConnectionInstance = await getDbConnection();
       const db = dbConnectionInstance.orm;
-      
+
       // Cast req.user to any or a proper interface if available
       const userProfile = req.user as any;
       const user_id = userProfile.id; // Google SSO unique identifier
@@ -121,7 +121,7 @@ const router = express.Router()
         const token = generateToken(req.user);
         res.cookie('jwt', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: false, //process.env.NODE_ENV === 'production', //TODO: Set to true in production
           sameSite: 'lax',
           maxAge: 3600 * 1000, // 1 hour
         });

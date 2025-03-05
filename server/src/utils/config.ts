@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: 'src/.env' });
+
+// Load .env from src/ in dev, but allow override in production
+dotenv.config({ path: process.env.NODE_ENV === 'production' ? undefined : 'src/.env' });
 
 export const config = {
   sessionSecret: process.env.SESSION_SECRET as string,

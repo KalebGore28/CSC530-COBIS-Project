@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "a44c0b69-b116-4f31-8b66-2b2fc15d3708",
+  "id": "886178e4-c671-47f1-896f-35a6e02915a9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -699,13 +699,6 @@
     "permissions": {
       "name": "permissions",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
         "table_name": {
           "name": "table_name",
           "type": "text",
@@ -719,34 +712,19 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "can_read": {
-          "name": "can_read",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "can_write": {
-          "name": "can_write",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "permissions_table_name_column_name_pk": {
+          "columns": [
+            "table_name",
+            "column_name"
+          ],
+          "name": "permissions_table_name_column_name_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -984,9 +962,16 @@
           "notNull": true,
           "autoincrement": false
         },
-        "permission_id": {
-          "name": "permission_id",
-          "type": "integer",
+        "table_name": {
+          "name": "table_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "column_name": {
+          "name": "column_name",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1007,27 +992,30 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "role_permissions_permission_id_permissions_id_fk": {
-          "name": "role_permissions_permission_id_permissions_id_fk",
+        "role_permissions_table_name_column_name_permissions_table_name_column_name_fk": {
+          "name": "role_permissions_table_name_column_name_permissions_table_name_column_name_fk",
           "tableFrom": "role_permissions",
           "tableTo": "permissions",
           "columnsFrom": [
-            "permission_id"
+            "table_name",
+            "column_name"
           ],
           "columnsTo": [
-            "id"
+            "table_name",
+            "column_name"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "role_permissions_role_id_permission_id_pk": {
+        "role_permissions_role_id_table_name_column_name_pk": {
           "columns": [
             "role_id",
-            "permission_id"
+            "table_name",
+            "column_name"
           ],
-          "name": "role_permissions_role_id_permission_id_pk"
+          "name": "role_permissions_role_id_table_name_column_name_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1459,43 +1447,43 @@
           "notNull": true,
           "autoincrement": false
         },
-        "subject": {
-          "name": "subject",
+        "course_subject": {
+          "name": "course_subject",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "number": {
-          "name": "number",
+        "course_number": {
+          "name": "course_number",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "suffix": {
-          "name": "suffix",
+        "course_suffix": {
+          "name": "course_suffix",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "section": {
-          "name": "section",
+        "course_section": {
+          "name": "course_section",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "hours": {
-          "name": "hours",
+        "course_hours": {
+          "name": "course_hours",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
-        "level": {
-          "name": "level",
+        "course_level": {
+          "name": "course_level",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1604,14 +1592,14 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "student_courses_subject_number_suffix_courses_subject_number_suffix_fk": {
-          "name": "student_courses_subject_number_suffix_courses_subject_number_suffix_fk",
+        "student_courses_course_subject_course_number_course_suffix_courses_subject_number_suffix_fk": {
+          "name": "student_courses_course_subject_course_number_course_suffix_courses_subject_number_suffix_fk",
           "tableFrom": "student_courses",
           "tableTo": "courses",
           "columnsFrom": [
-            "subject",
-            "number",
-            "suffix"
+            "course_subject",
+            "course_number",
+            "course_suffix"
           ],
           "columnsTo": [
             "subject",
@@ -2117,9 +2105,16 @@
           "notNull": true,
           "autoincrement": false
         },
-        "permission_id": {
-          "name": "permission_id",
-          "type": "integer",
+        "table_name": {
+          "name": "table_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "column_name": {
+          "name": "column_name",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -2140,27 +2135,30 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "user_permissions_permission_id_permissions_id_fk": {
-          "name": "user_permissions_permission_id_permissions_id_fk",
+        "user_permissions_table_name_column_name_permissions_table_name_column_name_fk": {
+          "name": "user_permissions_table_name_column_name_permissions_table_name_column_name_fk",
           "tableFrom": "user_permissions",
           "tableTo": "permissions",
           "columnsFrom": [
-            "permission_id"
+            "table_name",
+            "column_name"
           ],
           "columnsTo": [
-            "id"
+            "table_name",
+            "column_name"
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "user_permissions_user_id_permission_id_pk": {
+        "user_permissions_user_id_table_name_column_name_pk": {
           "columns": [
             "user_id",
-            "permission_id"
+            "table_name",
+            "column_name"
           ],
-          "name": "user_permissions_user_id_permission_id_pk"
+          "name": "user_permissions_user_id_table_name_column_name_pk"
         }
       },
       "uniqueConstraints": {},
