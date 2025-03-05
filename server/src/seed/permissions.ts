@@ -1,4 +1,3 @@
-// src/db/permissions.ts
 import { permissions, roles, rolePermissions } from '../db/schema';
 import { sql } from 'drizzle-orm';
 import { roleAccessDefinitions } from './data/roleAccess';
