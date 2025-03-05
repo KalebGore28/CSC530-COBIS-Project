@@ -1,11 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { getDbConnection } from '../db/connection';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
 
 export async function attachUserPermissions(req: any, res: Response, next: NextFunction) {
 	try {
-		// Ensure the user is authenticated and has an id
 		const userId = req.user?.user_id;
 		if (!userId) {
 			return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
@@ -13,7 +12,7 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 
 		const { orm } = await getDbConnection();
 
-		// 1. Get permissions from roles (via userRoles -> rolePermissions -> permissions)
+		// 1. Get permissions from roles
 		const rolePermissionsResult = await orm
 			.select({
 				table_name: permissions.table_name,
@@ -23,13 +22,15 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 			.innerJoin(rolePermissions, eq(userRoles.role_id, rolePermissions.role_id))
 			.innerJoin(
 				permissions,
-				eq(rolePermissions.table_name, permissions.table_name) &&
-				eq(rolePermissions.column_name, permissions.column_name)
+				and(
+					eq(rolePermissions.table_name, permissions.table_name),
+					eq(rolePermissions.column_name, permissions.column_name)
+				)
 			)
 			.where(eq(userRoles.user_id, userId))
 			.execute();
 
-		// 2. Get direct user permissions (from userPermissions -> permissions)
+		// 2. Get direct user permissions
 		const directPermissionsResult = await orm
 			.select({
 				table_name: permissions.table_name,
@@ -38,8 +39,10 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 			.from(userPermissions)
 			.innerJoin(
 				permissions,
-				eq(userPermissions.table_name, permissions.table_name) &&
-				eq(userPermissions.column_name, permissions.column_name)
+				and(
+					eq(userPermissions.table_name, permissions.table_name),
+					eq(userPermissions.column_name, permissions.column_name)
+				)
 			)
 			.where(eq(userPermissions.user_id, userId))
 			.execute();
@@ -55,12 +58,8 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 			.where(eq(userRoles.user_id, userId))
 			.execute();
 
-		// 4. Combine permissions, ensuring no duplicates (by table_name.column_name)
-		const permissionMap = new Map<string, {
-			table_name: string;
-			column_name: string;
-		}>();
-
+		// 4. Combine permissions, ensuring no duplicates
+		const permissionMap = new Map<string, { table_name: string; column_name: string }>();
 		rolePermissionsResult.forEach((perm: any) => {
 			const key = `${perm.table_name}.${perm.column_name}`;
 			permissionMap.set(key, perm);
@@ -72,11 +71,12 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 
 		const allPermissions = Array.from(permissionMap.values());
 
-		//Debugging
-		console.log('Role permissions:', rolePermissionsResult);
-		console.log('Direct permissions:', directPermissionsResult);
+		// Debugging
+		// console.log('Role permissions:', rolePermissionsResult);
+		// console.log('Direct permissions:', directPermissionsResult);
+		// console.log('All permissions:', allPermissions);
 
-		// Attach permissions and roles to the request object
+		// Attach to request
 		req.user.permissions = allPermissions;
 		req.user.roles = allUserRoles;
 		next();
