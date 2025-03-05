@@ -1,24 +1,27 @@
-import { sqliteTable, text, int, primaryKey } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, int, primaryKey, foreignKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
-
 import { users } from "./users";
 import { permissions } from "./permissions";
 
 export const userPermissions = sqliteTable("user_permissions", {
 	user_id: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
-	permission_id: int("permission_id").notNull().references(() => permissions.id, { onDelete: "cascade" }),
+	table_name: text("table_name").notNull(),
+	column_name: text("column_name").notNull(),
 }, (table) => [
-	primaryKey({ columns: [table.user_id, table.permission_id] }),
+	primaryKey({ columns: [table.user_id, table.table_name, table.column_name] }),
+	foreignKey({
+		columns: [table.table_name, table.column_name],
+		foreignColumns: [permissions.table_name, permissions.column_name],
+	}).onDelete("cascade"),
 ]);
 
-// Define relationships for DBML generation
 export const userPermissionRelations = relations(userPermissions, ({ one }) => ({
-	user: one(users, { // User permissions have a user
+	user: one(users, {
 		fields: [userPermissions.user_id],
 		references: [users.id],
 	}),
-	permission: one(permissions, { // User permissions have a permission
-		fields: [userPermissions.permission_id],
-		references: [permissions.id],
+	permission: one(permissions, {
+		fields: [userPermissions.table_name, userPermissions.column_name],
+		references: [permissions.table_name, permissions.column_name],
 	}),
 }));
