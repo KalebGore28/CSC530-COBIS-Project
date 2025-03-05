@@ -5,9 +5,9 @@
 	"main": "index.js",
 	"scripts": {
 		"dev": "npx nodemon --exec tsx src/index.ts",
-		"start": "node dist/server.cjs",
+		"start": "node --enable-source-maps dist/server.cjs",
 		"test": "vitest --coverage",
-		"db:studio": "drizzle-kit studio",
+		"build": "node esbuild.config.js",
 		"db:push": "drizzle-kit push && tsx src/db/dbml.ts",
 		"db:generate": "drizzle-kit generate && tsx src/db/dbml.ts",
 		"db:migrate": "drizzle-kit migrate && tsx src/db/dbml.ts",
@@ -19,7 +19,6 @@
 	"license": "ISC",
 	"description": "",
 	"dependencies": {
-		"@libsql/client": "^0.14.0",
 		"better-sqlite3": "^11.8.1",
 		"cookie-parser": "^1.4.7",
 		"cors": "^2.8.5",
@@ -29,8 +28,7 @@
 		"passport": "^0.7.0",
 		"passport-google-oauth20": "^2.0.0",
 		"pdfmake": "^0.2.18",
-		"swagger-jsdoc": "^6.2.8",
-		"swagger-ui-express": "^5.0.1",
+		"dotenv": "^16.4.7",
 		"typescript": "^5.7.3"
 	},
 	"devDependencies": {
@@ -47,8 +45,9 @@
 		"@types/swagger-ui-express": "^4.1.8",
 		"@vitest/coverage-v8": "^3.0.7",
 		"axios": "^1.8.1",
+		"swagger-jsdoc": "^6.2.8",
+		"swagger-ui-express": "^5.0.1",
 		"csv-parser": "^3.2.0",
-		"dotenv": "^16.4.7",
 		"drizzle-dbml-generator": "^0.10.0",
 		"drizzle-kit": "^0.30.5",
 		"esbuild": "^0.25.0",

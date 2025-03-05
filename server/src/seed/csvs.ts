@@ -24,36 +24,35 @@ import { testScoresRouter } from '../routes/imports/test_scores';
 
 // Stuff to import CSVs
 import { importCSV } from '../utils/importCSV';
-import { fileURLToPath } from 'url';
 import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const __dirname = path.resolve();
+
 
 /**
  * Seeds database with all of the csv files in the data/csvs directory.
  */
 export const seedDatabase = async () => {
 	// Import all csv files in the data/csvs directory
-	const academicStandingCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/academic_standing.csv'));
-	const admitCodesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/admit_codes.csv'));
-	const collegeCodesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/college_codes.csv'));
-	const collegesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/colleges.csv'));
-	const coursesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/course_titles.csv'));
-	const demographicsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/demographics_sample.csv'));
-	const departmentsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/departments.csv'));
-	const instructionalMethodsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/instructional_methods.csv'));
-	const nationsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/nations.csv'));
-	const overridesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/overrides_sample.csv'));
-	const partOfTermCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/part_of_term.csv'));
-	const previousCollegesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/previous_colleges_sample.csv'));
-	const programsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/major_minor.csv'));
-	const registrationStatusCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/registration_status.csv'));
-	const studentCoursesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/courses_sample.csv'));
-	const studentTypesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/student_types.csv'));
-	const subjectPrefixesCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/subject_prefixes.csv'));
-	const termsCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/terms.csv'));
-	const testScoresCSV: any = await importCSV<any>(path.resolve(__dirname, './data/csvs/test_scores_sample.csv'));
+	const academicStandingCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/academic_standing.csv'));
+	const admitCodesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/admit_codes.csv'));
+	const collegeCodesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/college_codes.csv'));
+	const collegesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/colleges.csv'));
+	const coursesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/course_titles.csv'));
+	const demographicsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/demographics_sample.csv'));
+	const departmentsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/departments.csv'));
+	const instructionalMethodsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/instructional_methods.csv'));
+	const nationsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/nations.csv'));
+	const overridesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/overrides_sample.csv'));
+	const partOfTermCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/part_of_term.csv'));
+	const previousCollegesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/previous_colleges_sample.csv'));
+	const programsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/major_minor.csv'));
+	const registrationStatusCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/registration_status.csv'));
+	const studentCoursesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/courses_sample.csv'));
+	const studentTypesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/student_types.csv'));
+	const subjectPrefixesCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/subject_prefixes.csv'));
+	const termsCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/terms.csv'));
+	const testScoresCSV: any = await importCSV<any>(path.resolve(__dirname, './src/seed/data/csvs/test_scores_sample.csv'));
 
 
 	const app = express()

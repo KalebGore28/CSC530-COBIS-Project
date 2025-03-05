@@ -1,38 +1,37 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { fileURLToPath } from 'url';
 import path from 'path';
 import swaggerUi from 'swagger-ui-express';
-import swaggerSpec from '../src/utils/swaggerConfig';
+import swaggerSpec from './utils/swaggerConfig'; // Adjusted path
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Use __dirname from CommonJS
+const app = express()
 
-// Import Routes
+    // Middleware
+    .use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
+    .use(cors())
+    .use(express.json({ limit: "10mb" }))
+    .use(express.urlencoded({ extended: true, limit: "10mb" }))
+    .use(cookieParser())
+
+    // Serve static files from dist/public
+    .use(express.static(path.join(__dirname, 'public')))
+
+// Routes
 import importRoutes from "./routes/imports";
 import authRoutes from "./routes/auth";
 import testRoute from "./routes/instructors";
 import { customQuery } from "./routes/customQueries";
 
-// Create Express app
-const app = express()
+app.use("/api/import", importRoutes)
+   .use("/api/auth", authRoutes)
+   .use("/api/instructor", testRoute)
+   .use('/api/custom-query', customQuery);
 
-  // Middleware
-  .use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-  .use(cors())
-  .use(express.json({ limit: "10mb" }))
-  .use(express.urlencoded({ extended: true, limit: "10mb" }))
-  .use(cookieParser())
-
-  // Serve static files from the Vite-built dist folder.
-  .use(express.static(path.join(__dirname, '../../client/dist')))
-
-  // Routes
-  .use("/api/import", importRoutes)
-  .use("/api/auth", authRoutes)
-  .use("/api/instructor", testRoute)
-  .use('/api/custom-query', customQuery);
-
+// Fallback for SPA routing
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 export default app;
