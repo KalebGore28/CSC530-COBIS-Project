@@ -75,9 +75,6 @@ export async function seedPermissions(orm: any): Promise<void> {
             }
         }
 
-        // Debug: Log mappings to check against permissions
-        console.log('Role mappings to insert:', roleMappings);
-
         if (roleMappings.length > 0) {
             await orm.insert(rolePermissions)
                 .values(roleMappings)

@@ -9,6 +9,7 @@ import {
 	studentAdvisors,
 	studentCourses,
 	students,
+	partOfTerm,
 	users,
 } from '../db/schema';
 
@@ -22,6 +23,7 @@ export const allowedTables: Record<string, any> = {
 	student_advisors: studentAdvisors,
 	student_courses: studentCourses,
 	students,
+	part_of_term: partOfTerm,
 	users,
 };
 

@@ -35,6 +35,20 @@ export const relationshipsMapping: Record<string, Array<{ relatedTable: string; 
 			on: {
 				"student_courses.mnumber": "mnumber"
 			}
+		},
+		{
+			relatedTable: "courses",
+			on: {
+				"student_courses.course_subject": "subject",
+				"student_courses.course_number": "number",
+				"student_courses.course_suffix": "suffix"
+			}
+		},
+		{
+			relatedTable: "part_of_term",
+			on: {
+				"student_courses.part_of_term": "code"
+			}
 		}
 	],
 	students: [

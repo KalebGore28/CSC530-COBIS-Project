@@ -46,3 +46,7 @@ docker run -v cobis-db:/data -v $(pwd)/data:/mnt busybox sh -c "cp -r /mnt/* /da
 ```
 
 Now when you run the container again it should start up.
+
+```sh
+DB_URL=./data/prod.sqlite3 npm run db:seed
+```

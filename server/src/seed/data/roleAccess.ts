@@ -86,6 +86,10 @@ export const roleAccessDefinitions = {
             'middle_name',
             'suffix'
         ],
+        part_of_term: [
+            'code',
+            'description'
+        ],
     },
     advisor: {
         student_academic_info: [
