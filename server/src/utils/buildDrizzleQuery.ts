@@ -1,25 +1,27 @@
 import { eq, like, and, not, gt, lt } from 'drizzle-orm';
 import {
-	departments,
+	advisors,
 	colleges,
-	instructorCourses,
 	courses,
-	studentCourses,
-	students,
+	departments,
+	instructorCourses,
 	studentAcademicInfo,
 	studentAdvisors,
+	studentCourses,
+	students,
 	users,
 } from '../db/schema';
 
 export const allowedTables: Record<string, any> = {
-	departments,
+	advisors,
 	colleges,
-	instructor_courses: instructorCourses,
 	courses,
-	student_courses: studentCourses,
-	students,
+	departments,
+	instructor_courses: instructorCourses,
 	student_academic_info: studentAcademicInfo,
 	student_advisors: studentAdvisors,
+	student_courses: studentCourses,
+	students,
 	users,
 };
 
