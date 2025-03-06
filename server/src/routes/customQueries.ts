@@ -275,7 +275,6 @@ export const customQuery = express.Router()
 			req.user.currentRole = req.user.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
 			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
-			console.log(results);
 			res.json({ results });
 		} catch (error: any) {
 			console.error("Error processing custom query:", error);

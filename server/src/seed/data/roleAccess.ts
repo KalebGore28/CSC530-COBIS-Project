@@ -1,4 +1,4 @@
-import { advisors, colleges, courses, departments } from "../../db/schema";
+import { advisors, colleges, courses, departments, terms } from "../../db/schema";
 
 // Role-specific access definitions
 export const roleAccessDefinitions = {
@@ -39,6 +39,10 @@ export const roleAccessDefinitions = {
             'course_number',
             'course_suffix',
             'role'
+        ],
+        registration_status: [
+            'code',
+            'description'
         ],
         student_academic_info: [
             'mnumber',
@@ -85,6 +89,14 @@ export const roleAccessDefinitions = {
             'last_name',
             'middle_name',
             'suffix'
+        ],
+        terms: [
+            'code',
+            'description'
+        ],
+        instructional_methods: [
+            'code',
+            'description'
         ],
         part_of_term: [
             'code',
