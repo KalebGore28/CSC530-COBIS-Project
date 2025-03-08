@@ -2,12 +2,13 @@ import { useState, useEffect } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom"
 import Layout from "./layout.tsx"
-import Dashboard from "./Dashboard.tsx"
-import LoginPage from "./login/page.tsx"
-import Reports from "./Reports.tsx"
-import StudentsReport from "./StudentsReport.tsx"
+import Dashboard from "./pages/Dashboard.tsx"
+import LoginPage from "./pages/Login.tsx"
+import Reports from "./pages/Reports.tsx"
+import StudentsReport from "./pages/StudentsReport.tsx"
 import QueryBuilderPage from "./pages/QueryBuilder.tsx"
 import CobisTools from "./pages/CobisTools.tsx"
+import CsvImport from "./pages/CsvImport.tsx"
 
 function App() {
 	const [user, setUser] = useState<any>(null)
@@ -68,6 +69,7 @@ function App() {
 						</Route>
 						<Route path="cobis-tools" element={<CobisTools user={user} />}>
 							<Route path="query-builder" element={<QueryBuilderPage />} />
+							<Route path="imports" element={<CsvImport user={user} />} />
 						</Route>
 					</Route>
 

@@ -93,7 +93,7 @@ const data = {
 			icon: TerminalSquareIcon,
 			items: [
 				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
-				{ title: "Feedback", url: "/cobis-tools/feedback" },
+				{ title: "Importing", url: "/cobis-tools/imports" },
 				{ title: "Contact", url: "/cobis-tools/contact" },
 			],
 		},
@@ -112,12 +112,15 @@ const rolePermissions: { navMain: { [key: number]: string[] }, projects: { [key:
 		3: ["Models"],
 		4: ["Settings"],
 		5: ["Settings"],
-		6: ["COBIS Tools"],
+		// COBIS Admin has access to all navMain items
+		6: data.navMain.map((item) => item.title),
 	},
 	projects: {
 		1: ["Design Engineering"],
 		3: ["Design Engineering", "Sales & Marketing"],
 		5: ["Travel"],
+		// COBIS Admin has access to all projects
+		6: data.projects.map((project) => project.name),
 	},
 }
 
