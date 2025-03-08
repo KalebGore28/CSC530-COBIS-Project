@@ -7,7 +7,6 @@ import {
 	Trash2,
 	type LucideIcon,
 } from "lucide-react"
-
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -27,12 +26,10 @@ import {
 
 export function NavProjects({
 	projects,
+	redirect,
 }: {
-	projects: {
-		name: string
-		url: string
-		icon: LucideIcon
-	}[]
+	projects: { name: string; url: string; icon: LucideIcon }[]
+	redirect?: (path: string) => void
 }) {
 	const { isMobile } = useSidebar()
 
@@ -42,11 +39,9 @@ export function NavProjects({
 			<SidebarMenu>
 				{projects.map((item) => (
 					<SidebarMenuItem key={item.name}>
-						<SidebarMenuButton asChild>
-							<a href={item.url}>
-								<item.icon />
-								<span>{item.name}</span>
-							</a>
+						<SidebarMenuButton onClick={() => redirect && redirect(item.url)}>
+							<item.icon />
+							<span>{item.name}</span>
 						</SidebarMenuButton>
 						<DropdownMenu>
 							<DropdownMenuTrigger asChild>

@@ -1,7 +1,6 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
-
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -20,17 +19,16 @@ import {
 
 export function NavMain({
 	items,
+	redirect,
 }: {
 	items: {
 		title: string
 		url: string
 		icon?: LucideIcon
 		isActive?: boolean
-		items?: {
-			title: string
-			url: string
-		}[]
+		items?: { title: string; url: string }[]
 	}[]
+	redirect?: (path: string) => void
 }) {
 	return (
 		<SidebarGroup>
@@ -45,7 +43,10 @@ export function NavMain({
 					>
 						<SidebarMenuItem>
 							<CollapsibleTrigger asChild>
-								<SidebarMenuButton tooltip={item.title}>
+								<SidebarMenuButton
+									tooltip={item.title}
+									onClick={() => redirect && redirect(item.url)}
+								>
 									{item.icon && <item.icon />}
 									<span>{item.title}</span>
 									<ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -55,10 +56,10 @@ export function NavMain({
 								<SidebarMenuSub>
 									{item.items?.map((subItem) => (
 										<SidebarMenuSubItem key={subItem.title}>
-											<SidebarMenuSubButton asChild>
-												<a href={subItem.url}>
-													<span>{subItem.title}</span>
-												</a>
+											<SidebarMenuSubButton
+												onClick={() => redirect && redirect(subItem.url)}
+											>
+												<span>{subItem.title}</span>
 											</SidebarMenuSubButton>
 										</SidebarMenuSubItem>
 									))}

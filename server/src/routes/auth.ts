@@ -130,8 +130,8 @@ const router = express.Router()
 
         // Determine the redirect URL based on the environment:
         const redirectURL = process.env.NODE_ENV === 'development'
-          ? 'http://localhost:5173'  // your React dev server URL
-          : '/';
+          ? 'http://localhost:5173/dashboard'  // your React dev server URL
+          : '/dashboard';
         res.redirect(redirectURL);
       } catch (error: any) {
         console.error('Database query failed:', error);

@@ -48,7 +48,7 @@ export const customQuery = express.Router()
 	.get('/metadata', (req, res) => {
 		try {
 			// Ensure RBAC middleware has populated req.user.permissions
-			const userPermissions = (req as any).user?.permissions; // Use 'as any' if req.user isn't typed
+			const userPermissions = (req as any).permissions; // Use 'as any' if req.user isn't typed
 			if (!userPermissions) {
 				return res.status(400).json({ error: 'User permissions not found' });
 			}

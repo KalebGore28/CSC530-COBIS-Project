@@ -19,32 +19,23 @@ import {
 
 export function RoleSwitcher({
 	roles,
+	selectedRole,
 	onRoleChange,
 }: {
-	roles: {
-		id: number
-		name: string
-		logo: React.ElementType
-	}[]
+	roles: { id: number; name: string; logo: React.ElementType }[]
+	selectedRole?: { id: number; name: string; logo: React.ElementType } | null
 	onRoleChange?: (role: { id: number; name: string; logo: React.ElementType } | null) => void
 }) {
 	const { isMobile } = useSidebar()
-	const [activeRole, setActiveRole] = React.useState(roles[0]) // Default to first role
 
-	// Set initial role only on mount
-	React.useEffect(() => {
-		if (roles.length > 0 && !activeRole && onRoleChange) {
-			setActiveRole(roles[0])
-			onRoleChange(roles[0])
-		}
-	}, [roles, onRoleChange]) // Runs when roles or onRoleChange changes, but only sets if activeRole is unset
+	// Use selectedRole directly; default to first role if null
+	const currentRole = selectedRole || roles[0] || null
 
-	if (!activeRole) {
+	if (!currentRole) {
 		return null
 	}
 
 	const handleRoleSelect = (role: { id: number; name: string; logo: React.ElementType }) => {
-		setActiveRole(role)
 		if (onRoleChange) {
 			onRoleChange(role)
 		}
@@ -60,10 +51,10 @@ export function RoleSwitcher({
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-								<activeRole.logo className="size-4" />
+								<currentRole.logo className="size-4" />
 							</div>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">{activeRole.name}</span>
+								<span className="truncate font-semibold">{currentRole.name}</span>
 							</div>
 							<ChevronsUpDown className="ml-auto" />
 						</SidebarMenuButton>

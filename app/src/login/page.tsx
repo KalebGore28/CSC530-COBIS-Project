@@ -10,7 +10,7 @@ export default function LoginPage() {
 				<div className="flex items-center justify-center">
 					<img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
 				</div>
-				<a href="#" className="flex items-center gap-2 self-center font-medium text-primary-foreground">
+				<a className="flex items-center gap-2 self-center font-medium text-primary-foreground">
 					<div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
 						<Wrench className="size-4" />
 					</div>
