@@ -20,7 +20,7 @@ export default function Layout({
 		<SidebarProvider>
 			<AppSidebar className="bg-blue-950" user={user} /> {/* Pass user to AppSidebar */}
 			<main>
-				<div className="flex items-center justify-around">
+				<div className="flex items-center">
 					<SidebarTrigger variant='outline' className="m-4" />
 					<Breadcrumb className="border-l-1 border-gray-200 pl-4">
 						<BreadcrumbList>
