@@ -47,21 +47,21 @@ export const customQuery = express.Router()
 	 */
 	.get('/metadata', (req, res) => {
 		try {
-			// Ensure that RBAC middleware has populated req.user.permissions.
-			const userPermissions = req.user?.permissions;
+			// Ensure RBAC middleware has populated req.user.permissions
+			const userPermissions = (req as any).permissions; // Use 'as any' if req.user isn't typed
 			if (!userPermissions) {
-				return res.status(400).json({ error: "User permissions not found" });
+				return res.status(400).json({ error: 'User permissions not found' });
 			}
 
-			// Build metadata for each allowed table.
+			// Build metadata for each allowed table
 			const metadata = Object.keys(allowedTables).map((tableName) => {
-				// Get allowed columns for this table from user permissions.
+				// Get allowed columns for this table from user permissions
 				const allowedColumns = userPermissions
-					.filter((perm: any) => perm.permission_table === tableName && perm.can_read)
-					.map((perm: any) => perm.permission_column);
-				const columns = Array.from(new Set(allowedColumns));
+					.filter((perm: { table_name: string; column_name: string }) => perm.table_name === tableName)
+					.map((perm: { table_name: string; column_name: string }) => perm.column_name);
+				const columns = Array.from(new Set(allowedColumns)); // Remove duplicates
 
-				// Retrieve relationship info from the static mapping.
+				// Retrieve relationship info from the static mapping
 				const relationships = relationshipsMapping[tableName] || [];
 
 				return {
@@ -265,17 +265,17 @@ export const customQuery = express.Router()
 			console.log(JSON.stringify(queryDef, null, 2));
 
 			// Check if the user has the role they claim to have.
-			const hasRole = req.user.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
+			const hasRole = req.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
 
 			if (!hasRole) {
 				return res.status(403).json({ error: "User does not have the specified role" });
 			}
 
 			// If they have said role, assign it to the user object.
-			req.user.currentRole = req.user.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
+			req.user.currentRole = req.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
+			req.user.permissions = req.permissions;
 			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
-			console.log(results);
 			res.json({ results });
 		} catch (error: any) {
 			console.error("Error processing custom query:", error);

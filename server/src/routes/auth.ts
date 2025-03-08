@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express';
 import passport from '../utils/passport-config';
 import { authenticateJWT } from '../middleware/authenticateJWT';
+import { attachUserPermissions } from '../middleware/attachUserPermissions';
 import { generateToken } from '../utils/jwt';
 import { getDbConnection } from '../db/connection.js';
 import { eq } from 'drizzle-orm';
 import { users } from '../db/models/users';
+import { roles } from '../db/schema';
 
 const router = express.Router()
 
@@ -72,7 +74,7 @@ const router = express.Router()
     async (req: any, res: any) => {
       const dbConnectionInstance = await getDbConnection();
       const db = dbConnectionInstance.orm;
-      
+
       // Cast req.user to any or a proper interface if available
       const userProfile = req.user as any;
       const user_id = userProfile.id; // Google SSO unique identifier
@@ -121,15 +123,15 @@ const router = express.Router()
         const token = generateToken(req.user);
         res.cookie('jwt', token, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
+          secure: false, //process.env.NODE_ENV === 'production', //TODO: Set to true in production
           sameSite: 'lax',
           maxAge: 3600 * 1000, // 1 hour
         });
 
         // Determine the redirect URL based on the environment:
         const redirectURL = process.env.NODE_ENV === 'development'
-          ? 'http://localhost:5173'  // your React dev server URL
-          : '/';
+          ? 'http://localhost:5173/dashboard'  // your React dev server URL
+          : '/dashboard';
         res.redirect(redirectURL);
       } catch (error: any) {
         console.error('Database query failed:', error);
@@ -161,9 +163,15 @@ const router = express.Router()
    *       401:
    *         description: Unauthorized. Authentication token is missing or invalid.
    */
-  .get('/me', authenticateJWT, (req: Request, res: Response) => {
-    res.json(req.user);
-  })
+  .get('/me',
+    authenticateJWT,
+    attachUserPermissions,
+    (req: Request, res: Response) => {
+      res.json({
+        info: req.user,
+        roles: req.roles,
+      });
+    })
 
   // Logout route
 

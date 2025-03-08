@@ -1,42 +1,20 @@
-// process.env.NODE_ENV = 'test';
-import { eq } from "drizzle-orm";
+// src/db/seed.ts
 import { getDbConnection } from '../db/connection';
-
 import { seedPermissions } from './permissions';
 import { seedDatabase } from "./csvs";
-import { permissions, rolePermissions } from '../db/schema';
+
+// Uncomment to test in-memory DB
+// process.env.NODE_ENV = 'test';
 
 (async () => {
-	// Create an in-memory database or use your connection
-	const { db, orm } = await getDbConnection();
+    // Get DB connection (in-memory for 'test', file-based otherwise)
+    const { db, orm } = await getDbConnection();
 
-	// Seed Faculty permissions
-	await seedPermissions(orm);
+    // Seed permissions dynamically
+    await seedPermissions(orm);
 
-	// console.log("Faculty permissions seeded successfully.");
+    // Seed additional data from CSV (assumed to handle other tables)
+    await seedDatabase();
 
-	// Verify the permissions were inserted correctly for the Faculty role
-	const facultyPermissions = await orm
-		.select()
-		.from(permissions)
-		.leftJoin(rolePermissions, eq(permissions.id, rolePermissions.permission_id))
-		.where(eq(rolePermissions.role_id, 1))
-		.execute();
-
-	// console.log("Faculty permissions:", facultyPermissions);
-
-	// Verify the permissions were inserted correctly for the Advisor role
-	const advisorPermissions = await orm
-		.select()
-		.from(permissions)
-		.leftJoin(rolePermissions, eq(permissions.id, rolePermissions.permission_id))
-		.where(eq(rolePermissions.role_id, 2))
-		.execute();
-
-	// console.log("Advisor permissions:", advisorPermissions);
-
-	await seedDatabase();
-	console.log("Database seeded successfully.");
-
-
+    console.log("Database seeded successfully.");
 })();

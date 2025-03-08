@@ -107,12 +107,9 @@ CREATE TABLE `part_of_term` (
 );
 --> statement-breakpoint
 CREATE TABLE `permissions` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`table_name` text NOT NULL,
 	`column_name` text NOT NULL,
-	`can_read` integer DEFAULT false NOT NULL,
-	`can_write` integer DEFAULT false NOT NULL,
-	`description` text NOT NULL
+	PRIMARY KEY(`table_name`, `column_name`)
 );
 --> statement-breakpoint
 CREATE TABLE `previous_colleges` (
@@ -149,10 +146,11 @@ CREATE TABLE `registration_status` (
 --> statement-breakpoint
 CREATE TABLE `role_permissions` (
 	`role_id` integer NOT NULL,
-	`permission_id` integer NOT NULL,
-	PRIMARY KEY(`role_id`, `permission_id`),
+	`table_name` text NOT NULL,
+	`column_name` text NOT NULL,
+	PRIMARY KEY(`role_id`, `table_name`, `column_name`),
 	FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`permission_id`) REFERENCES `permissions`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`table_name`,`column_name`) REFERENCES `permissions`(`table_name`,`column_name`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `roles` (
@@ -214,12 +212,12 @@ CREATE TABLE `student_courses` (
 	`year` integer NOT NULL,
 	`part_of_term` text NOT NULL,
 	`crn` text NOT NULL,
-	`subject` text NOT NULL,
-	`number` text NOT NULL,
-	`suffix` text NOT NULL,
-	`section` text NOT NULL,
-	`hours` integer NOT NULL,
-	`level` text NOT NULL,
+	`course_subject` text NOT NULL,
+	`course_number` text NOT NULL,
+	`course_suffix` text NOT NULL,
+	`course_section` text NOT NULL,
+	`course_hours` integer NOT NULL,
+	`course_level` text NOT NULL,
 	`registration_status` text NOT NULL,
 	`instructional_method` text NOT NULL,
 	`last_attendance` text,
@@ -231,7 +229,7 @@ CREATE TABLE `student_courses` (
 	FOREIGN KEY (`part_of_term`) REFERENCES `part_of_term`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`registration_status`) REFERENCES `registration_status`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`instructional_method`) REFERENCES `instructional_methods`(`code`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`subject`,`number`,`suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `student_programs` (
@@ -304,10 +302,11 @@ CREATE TABLE `test_scores` (
 --> statement-breakpoint
 CREATE TABLE `user_permissions` (
 	`user_id` text NOT NULL,
-	`permission_id` integer NOT NULL,
-	PRIMARY KEY(`user_id`, `permission_id`),
+	`table_name` text NOT NULL,
+	`column_name` text NOT NULL,
+	PRIMARY KEY(`user_id`, `table_name`, `column_name`),
 	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`permission_id`) REFERENCES `permissions`(`id`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`table_name`,`column_name`) REFERENCES `permissions`(`table_name`,`column_name`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `user_roles` (

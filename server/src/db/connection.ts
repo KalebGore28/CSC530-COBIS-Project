@@ -1,75 +1,85 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { config } from '../utils/config';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 export interface DbConnection {
 	orm: ReturnType<typeof drizzle>;
-	db?: DatabaseType; // Only available for in-memory connections
+	db?: DatabaseType;
 }
 
 let _dbConnection: Promise<DbConnection> | null = null;
 
-/**
- * Creates a fresh database connection.
- * In test mode, this creates an in-memory DB with migrations (and optional seeding).
- * In production, it uses your config.db.url.
- */
-export const createDb = async (
-	useInMemory: boolean = false,
-	seedTestData: boolean = false
-): Promise<DbConnection> => {
+export const createDb = async (useInMemory: boolean = false): Promise<DbConnection> => {
 	if (useInMemory) {
 		const db = new Database(':memory:');
 		const orm = drizzle(db);
-		const migrationPath = path.join(__dirname, '../../drizzle', '0000_thankful_blob.sql');  // This file varies depending on the project
-		const migrationSQL = fs.readFileSync(migrationPath, 'utf8');
-		db.exec(migrationSQL);
-
-		if (seedTestData) {
-			// Optionally seed default test data here.
-			// e.g., await orm.insert(users).values([...]).execute();
-		}
 		return { orm, db };
 	} else {
-		console.log('Connecting to production database:', config.db.url);
-		const orm = drizzle(config.db.url);
+		const isProduction = process.env.NODE_ENV === 'production';
+		const dbUrl = config.db.url;
+
+		if (isProduction && !dbUrl) {
+			throw new Error('DB_URL is required in production mode');
+		}
+
+		const finalDbUrl = dbUrl || 'dev.sqlite3';
+		console.log('Connecting to database:', finalDbUrl);
+
+		const dbExists = fs.existsSync(finalDbUrl);
+		let db: DatabaseType;
+
+		try {
+			db = new Database(finalDbUrl);
+		} catch (error: any) {
+			throw new Error(`Failed to connect to database at ${finalDbUrl}: ${error.message}`);
+		}
+
+		// Check if the database has any schema (via __drizzle_migrations or user tables)
+		let hasSchema = false;
+		try {
+			// Try to query __drizzle_migrations
+			const hasMigrations = db.prepare(`SELECT name FROM __drizzle_migrations LIMIT 1`).all().length > 0;
+			hasSchema = hasMigrations;
+		} catch (error: any) {
+			// If __drizzle_migrations doesn’t exist, check for user tables
+			try {
+				const hasUserTables = db.prepare(`SELECT name FROM sqlite_schema WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name != '__drizzle_migrations' LIMIT 1`).all().length > 0;
+				hasSchema = hasUserTables;
+			} catch (tableError) {
+				// If no tables at all, DB is uninitialized
+			}
+		}
+
+		if (!dbExists || !hasSchema) {
+			db.close();
+			console.error(`Database at ${finalDbUrl} is new or uninitialized. Run 'drizzle-kit migrate' to apply migrations before starting the app.\nNote: If you in production, make sure to pass in the DB_URL when applying migrations. Ex: DB_URL=dist/prod.sqlite3 npx drizzle-kit migrate`);
+			process.exit(1); // Graceful shutdown
+		}
+
+		if (dbExists && !hasSchema) {
+			console.warn(`Database ${finalDbUrl} exists but has no schema tracked. Ensure migrations are applied with 'drizzle-kit migrate'.`);
+		}
+
+		const orm = drizzle(db);
 		return { orm };
 	}
 };
 
-/**
- * Returns the current DB connection.
- * In production, this will be the singleton connection.
- * In test mode, you can call resetDbConnection() to get a fresh connection.
- */
 export const getDbConnection = async (): Promise<DbConnection> => {
 	if (!_dbConnection) {
 		const useInMemory = process.env.NODE_ENV === 'test';
-		_dbConnection = createDb(useInMemory, useInMemory);
+		_dbConnection = createDb(useInMemory);
 	}
 	return _dbConnection;
 };
 
-/**
- * Resets the DB connection.
- * In test mode, calling this will create a fresh in-memory connection.
- */
 export const resetDbConnection = async (): Promise<DbConnection> => {
 	const useInMemory = process.env.NODE_ENV === 'test';
-	_dbConnection = createDb(useInMemory, useInMemory);
+	_dbConnection = createDb(useInMemory);
 	return _dbConnection;
 };
 
-/**
- * Runs additional seed data on an existing connection.
- * This function accepts an array of seed functions that take the ORM as a parameter.
- */
 export const seedDb = async (
 	dbConn: DbConnection,
 	seeders: Array<(orm: DbConnection['orm']) => Promise<void>>

@@ -110,12 +110,12 @@ table part_of_term {
 }
 
 table permissions {
-  id integer [pk, not null]
   table_name text [not null]
   column_name text [not null]
-  can_read integer [not null, default: false]
-  can_write integer [not null, default: false]
-  description text [not null]
+
+  indexes {
+    (table_name, column_name) [pk]
+  }
 }
 
 table previous_colleges {
@@ -151,10 +151,12 @@ table registration_status {
 
 table role_permissions {
   role_id integer [not null]
-  permission_id integer [not null]
+  table_name text [not null]
+  column_name text [not null]
 
   indexes {
-    (role_id, permission_id) [pk]
+    (role_id, table_name, column_name) [pk]
+    
   }
 }
 
@@ -305,10 +307,12 @@ table test_scores {
 
 table user_permissions {
   user_id text [not null]
-  permission_id integer [not null]
+  table_name text [not null]
+  column_name text [not null]
 
   indexes {
-    (user_id, permission_id) [pk]
+    (user_id, table_name, column_name) [pk]
+    
   }
 }
 
@@ -356,7 +360,7 @@ ref: programs.department > departments.code
 
 ref: role_permissions.role_id > roles.id
 
-ref: role_permissions.permission_id > permissions.id
+ref: role_permissions.(table_name, column_name) > permissions.(table_name, column_name)
 
 ref: student_academic_info.mnumber > students.mnumber
 
@@ -408,7 +412,7 @@ ref: test_scores.mnumber > students.mnumber
 
 ref: user_permissions.user_id > users.id
 
-ref: user_permissions.permission_id > permissions.id
+ref: user_permissions.(table_name, column_name) > permissions.(table_name, column_name)
 
 ref: user_roles.user_id > users.id
 

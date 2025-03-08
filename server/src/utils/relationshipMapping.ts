@@ -1,3 +1,7 @@
+/**
+ * This file contains the mapping of relationships between tables in the database.
+ * The relationships are used for the frontend to determine how to join tables together.
+ */
 export const relationshipsMapping: Record<string, Array<{ relatedTable: string; on: Record<string, string> }>> = {
 	instructor_courses: [
 		{
@@ -30,6 +34,38 @@ export const relationshipsMapping: Record<string, Array<{ relatedTable: string; 
 			relatedTable: "students",
 			on: {
 				"student_courses.mnumber": "mnumber"
+			}
+		},
+		{
+			relatedTable: "courses",
+			on: {
+				"student_courses.course_subject": "subject",
+				"student_courses.course_number": "number",
+				"student_courses.course_suffix": "suffix"
+			}
+		},
+		{
+			relatedTable: "part_of_term",
+			on: {
+				"student_courses.part_of_term": "code"
+			}
+		},
+		{
+			relatedTable: "terms",
+			on: {
+				"student_courses.term": "code"
+			}
+		},
+		{
+			relatedTable: "instructional_methods",
+			on: {
+				"student_courses.instructional_method": "code"
+			}
+		},
+		{
+			relatedTable: "registration_status",
+			on: {
+				"student_courses.registration_status": "code"
 			}
 		}
 	],
