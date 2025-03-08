@@ -17,7 +17,7 @@ export default function Reports({ user }: { user: any }) {
 	const isBaseRoute = location.pathname === "/reports"
 
 	return (
-		<div className="p-6">
+		<div>
 			{/* Show overview if on /reports, otherwise show nested route */}
 			{isBaseRoute ? (
 				<>
