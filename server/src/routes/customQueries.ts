@@ -265,14 +265,15 @@ export const customQuery = express.Router()
 			console.log(JSON.stringify(queryDef, null, 2));
 
 			// Check if the user has the role they claim to have.
-			const hasRole = req.user.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
+			const hasRole = req.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
 
 			if (!hasRole) {
 				return res.status(403).json({ error: "User does not have the specified role" });
 			}
 
 			// If they have said role, assign it to the user object.
-			req.user.currentRole = req.user.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
+			req.user.currentRole = req.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
+			req.user.permissions = req.permissions;
 			const query = await buildDrizzleQuery(queryDef, orm, req.user);
 			const results = await query;
 			res.json({ results });

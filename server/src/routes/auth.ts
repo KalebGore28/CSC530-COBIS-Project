@@ -1,10 +1,12 @@
 import express, { Request, Response } from 'express';
 import passport from '../utils/passport-config';
 import { authenticateJWT } from '../middleware/authenticateJWT';
+import { attachUserPermissions } from '../middleware/attachUserPermissions';
 import { generateToken } from '../utils/jwt';
 import { getDbConnection } from '../db/connection.js';
 import { eq } from 'drizzle-orm';
 import { users } from '../db/models/users';
+import { roles } from '../db/schema';
 
 const router = express.Router()
 
@@ -161,9 +163,15 @@ const router = express.Router()
    *       401:
    *         description: Unauthorized. Authentication token is missing or invalid.
    */
-  .get('/me', authenticateJWT, (req: Request, res: Response) => {
-    res.json(req.user);
-  })
+  .get('/me',
+    authenticateJWT,
+    attachUserPermissions,
+    (req: Request, res: Response) => {
+      res.json({
+        info: req.user,
+        roles: req.roles,
+      });
+    })
 
   // Logout route
 

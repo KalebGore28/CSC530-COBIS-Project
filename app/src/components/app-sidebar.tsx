@@ -37,26 +37,32 @@ import logoIcon from "../assets/primary-icon.png"
 const data = {
   roles: [
     {
+      id: 1,
       name: "Faculty",
       logo: BookOpen,
     },
     {
+      id: 2,
       name: "Advisor",
       logo: Compass,
     },
     {
+      id: 3,
       name: "Program Coordinator",
       logo: LayoutList,
     },
     {
+      id: 4,
       name: "Department Chair",
       logo: Armchair,
     },
     {
+      id: 5,
       name: "Administrator",
       logo: Settings,
     },
     {
+      id: 6,
       name: "COBIS Admin",
       logo: Shield,
     },
@@ -174,6 +180,14 @@ export function AppSidebar({
 }: React.ComponentProps<typeof Sidebar> & { user: any }) {
   const { state } = useSidebar()
 
+  // Extract role IDs from user.roles
+  const userRoleIds = user?.roles?.map((role: { role_id: number }) => role.role_id) || []
+
+  // Filter data.roles to only include roles the user has
+  const filteredRoles = data.roles.filter((role) =>
+    userRoleIds.includes(role.id)
+  )
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -186,14 +200,14 @@ export function AppSidebar({
         </SidebarMenuItem>
         <span className={state === "collapsed" ? "hidden text-nowrap" : "text-white text-sm font-semibold text-center text-nowrap"}>COBIS Tool v0.0.1</span>
         <div className="border-t border-white" />
-        <RoleSwitcher roles={data.roles} />
+        <RoleSwitcher roles={filteredRoles} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} /> {/* Pass user here */}
+        <NavUser user={user.info} /> {/* Pass user here */}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

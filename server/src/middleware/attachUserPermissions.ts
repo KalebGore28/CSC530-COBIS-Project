@@ -3,7 +3,7 @@ import { getDbConnection } from '../db/connection';
 import { eq, and } from 'drizzle-orm';
 import { roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
 
-export async function attachUserPermissions(req: any, res: Response, next: NextFunction) {
+export async function attachUserPermissions(req: Request, res: Response, next: NextFunction) {
 	try {
 		const userId = req.user?.user_id;
 		if (!userId) {
@@ -77,8 +77,8 @@ export async function attachUserPermissions(req: any, res: Response, next: NextF
 		// console.log('All permissions:', allPermissions);
 
 		// Attach to request
-		req.user.permissions = allPermissions;
-		req.user.roles = allUserRoles;
+		req.permissions = allPermissions;
+		req.roles = allUserRoles;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);

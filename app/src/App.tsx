@@ -17,8 +17,8 @@ function App() {
 
 				if (response.ok) {
 					const data = await response.json()
+
 					setUser(data || null) // Store user data if present, null if empty
-					console.log("User data:", data)
 				} else {
 					setUser(null) // Not authenticated
 				}
