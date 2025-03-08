@@ -1,5 +1,3 @@
-import React from "react"
-
 export default function StudentsReport({ user }: { user: any }) {
 	return (
 		<div className="p-6">

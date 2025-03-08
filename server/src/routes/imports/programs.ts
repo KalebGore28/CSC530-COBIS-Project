@@ -13,6 +13,7 @@ interface ProgramRow {
 	is_aacsb: string;
 	department: string;
 	college: string;
+	added_on?: string;
 }
 
 async function importPrograms(
@@ -115,7 +116,7 @@ export const programsRouter = express.Router()
 			const { mappedData, fileName, importedBy } = req.body;
 
 			// Transform the CSV data to match the database schema
-			const transformedData = mappedData.map((row: { code: string; description: string; cip_code: string; is_major: string; is_minor: string; has_concentration: string; is_discontinued: string; is_aacsb: string; department: string; college: string; }) => {
+			const transformedData = mappedData.map((row: { code: string; description: string; cip_code: string; is_major: string; is_minor: string; has_concentration: string; is_discontinued: string; is_aacsb: string; department: string; college: string; added_on: string; }) => {
 				return {
 					code: row.code,
 					description: row.description,
@@ -126,9 +127,16 @@ export const programsRouter = express.Router()
 					is_discontinued: row.is_discontinued === '1',
 					is_aacsb: row.is_aacsb === '1',
 					department: row.department === 'NULL' ? '0000' : row.department, // default to '0000' if department is NULL
-					college: row.college === 'NULL' ? '0' : row.college // default to '0' if college is NULL
+					college: row.college === 'NULL' ? '0' : row.college, // default to '0' if college is NULL
+					added_on: row.added_on === 'NULL' ? new Date().toISOString() : row.added_on // Create date if  not provided
 				};
 			});
+
+			// Log any transformedData departments that are '0' instead of '0000'
+			const zeroDepartments = transformedData.filter((row) => row.department === '0');
+			if (zeroDepartments.length > 0) {
+				console.log('Departments with "0" value:', zeroDepartments);
+			}
 
 			const result = await importPrograms(transformedData, fileName, importedBy);
 			res.json({

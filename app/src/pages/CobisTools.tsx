@@ -1,4 +1,3 @@
-import React from "react"
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -35,22 +34,22 @@ export default function CobisTools({ user }: { user: any }) {
 					</Card>
 					<Card>
 						<CardHeader>
-							<CardTitle className="text-center">Feedback</CardTitle>
+							<CardTitle className="text-center">Imports</CardTitle>
 							<CardDescription className="text-center">
-								Submit feedback to improve COBIS tools.
+								Upload csv files to import data into the COBIS database.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex justify-center">
-							<Button variant="default" disabled>
-								Coming Soon
-							</Button>
+							<Link to="/cobis-tools/imports">
+								<Button variant="default">Go to Imports</Button>
+							</Link>
 						</CardContent>
 					</Card>
 					<Card>
 						<CardHeader>
-							<CardTitle className="text-center">Contact</CardTitle>
+							<CardTitle className="text-center">Placeholder</CardTitle>
 							<CardDescription className="text-center">
-								Reach out to the COBIS support team.
+								Placeholder description for a future tool.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex justify-center">
