@@ -64,7 +64,7 @@ export default function CsvImport({ user }: { user: any }) {
 		fetchTables()
 	}, [])
 
-	// Handle file upload and parse via backend
+	// Handle file upload and parse via backend with auto-mapping
 	const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (file) {
@@ -82,7 +82,21 @@ export default function CsvImport({ user }: { user: any }) {
 				const { headers, data } = await response.json()
 				setCsvHeaders(headers)
 				setCsvData(data)
-				setColumnMapping({}) // Reset mapping when new file is uploaded
+
+				// Auto-map columns based on case-insensitive exact match
+				const tableConfig = tables.find((t) => t.name === selectedTable)
+				if (tableConfig) {
+					const newMapping: Record<string, string> = {}
+					tableConfig.fields.forEach((field) => {
+						const matchedHeader = headers.find((header: string) =>
+							header.toLowerCase() === field.toLowerCase()
+						)
+						newMapping[field] = matchedHeader || "" // Empty if no match
+					})
+					setColumnMapping(newMapping)
+				} else {
+					setColumnMapping({}) // Reset if no table selected
+				}
 			} catch (error: any) {
 				setResult({ message: error.message || "Error parsing CSV file" })
 			}
@@ -150,12 +164,12 @@ export default function CsvImport({ user }: { user: any }) {
 	}
 
 	return (
-		<div className="p-6">
-			<Card>
+		<div className="p-6 flex-1 flex justify-center">
+			<Card className="w-full max-w-full md:max-w-6xl flex flex-col">
 				<CardHeader>
 					<CardTitle className="text-3xl">CSV Import</CardTitle>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="flex-1 overflow-y-auto px-6">
 					{/* Table Selection */}
 					<div className="mb-6">
 						<label className="block mb-2 text-sm font-medium">Select Table</label>
@@ -183,40 +197,44 @@ export default function CsvImport({ user }: { user: any }) {
 					{selectedTable && csvHeaders.length > 0 && (
 						<div className="mb-6">
 							<h3 className="text-lg font-semibold mb-3">Map CSV Columns</h3>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										<TableHead>Required Field</TableHead>
-										<TableHead>CSV Column</TableHead>
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{tables
-										.find((t) => t.name === selectedTable)!
-										.fields.map((field) => (
-											<TableRow key={field}>
-												<TableCell>{field}</TableCell>
-												<TableCell>
-													<Select
-														value={columnMapping[field] || ""}
-														onValueChange={(value) => handleColumnMap(field, value)}
-													>
-														<SelectTrigger>
-															<SelectValue placeholder="Select a column" />
-														</SelectTrigger>
-														<SelectContent>
-															{csvHeaders.map((header) => (
-																<SelectItem key={header} value={header}>
-																	{header}
-																</SelectItem>
-															))}
-														</SelectContent>
-													</Select>
-												</TableCell>
-											</TableRow>
-										))}
-								</TableBody>
-							</Table>
+							<div className="max-h-96 overflow-y-auto border rounded">
+								<Table>
+									<TableHeader>
+										<TableRow>
+											<TableHead>Required Field</TableHead>
+											<TableHead>CSV Column</TableHead>
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{tables
+											.find((t) => t.name === selectedTable)!
+											.fields.map((field) => (
+												<TableRow key={field}>
+													<TableCell>{field}</TableCell>
+													<TableCell>
+														<Select
+															value={columnMapping[field] || ""}
+															onValueChange={(value) => handleColumnMap(field, value)}
+														>
+															<SelectTrigger
+																className={columnMapping[field] ? "" : "border-red-500"}
+															>
+																<SelectValue placeholder={columnMapping[field] ? columnMapping[field] : "Select a column (unmapped)"} />
+															</SelectTrigger>
+															<SelectContent>
+																{csvHeaders.map((header) => (
+																	<SelectItem key={header} value={header}>
+																		{header}
+																	</SelectItem>
+																))}
+															</SelectContent>
+														</Select>
+													</TableCell>
+												</TableRow>
+											))}
+									</TableBody>
+								</Table>
+							</div>
 						</div>
 					)}
 
@@ -224,24 +242,26 @@ export default function CsvImport({ user }: { user: any }) {
 					{csvData.length > 0 && (
 						<div className="mb-6">
 							<h3 className="text-lg font-semibold mb-3">CSV Preview</h3>
-							<Table>
-								<TableHeader>
-									<TableRow>
-										{csvHeaders.map((header) => (
-											<TableHead key={header}>{header}</TableHead>
-										))}
-									</TableRow>
-								</TableHeader>
-								<TableBody>
-									{csvData.slice(0, 5).map((row, index) => ( // Show up to 5 rows
-										<TableRow key={index}>
-											{row.map((cell, i) => (
-												<TableCell key={i}>{cell}</TableCell>
+							<div className="max-h-96 overflow-x-auto border rounded" style={{ maxWidth: "100%", overflowX: "auto" }}>
+								<Table style={{ minWidth: "100%", maxWidth: "100%" }}>
+									<TableHeader>
+										<TableRow>
+											{csvHeaders.map((header) => (
+												<TableHead key={header}>{header}</TableHead>
 											))}
 										</TableRow>
-									))}
-								</TableBody>
-							</Table>
+									</TableHeader>
+									<TableBody>
+										{csvData.slice(0, 5).map((row, index) => (
+											<TableRow key={index}>
+												{row.map((cell, i) => (
+													<TableCell key={i}>{cell}</TableCell>
+												))}
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							</div>
 						</div>
 					)}
 

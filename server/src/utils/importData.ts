@@ -60,8 +60,6 @@ export async function importData<T extends Record<string, any>>(
 			}
 		} catch (error: any) {
 			errorDetails.push({ row, error: error.message });
-			console.log(row);
-
 			console.error(
 				`Error processing row with key ${JSON.stringify(keyFields.map((k) => row[k]))}: ${error.message}`
 			);

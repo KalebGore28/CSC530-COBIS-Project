@@ -1,20 +1,20 @@
 import express from 'express';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
-import { importCSV } from '../utils/importCSV'; // Adjust path to your importCSV function
-import multer from 'multer'; // For handling file uploads
+import { importCSV } from '../utils/importCSV';
+import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
 // Configure multer for file uploads
 const upload = multer({
-	dest: 'uploads/', // Temporary storage for uploaded files
+	dest: 'uploads/',
 	fileFilter: (req, file, cb) => {
 		if (file.mimetype !== 'text/csv') {
 			return cb(new Error('Only CSV files are allowed'));
 		}
 		cb(null, true);
 	},
-	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
 
 // Import routes
@@ -60,13 +60,33 @@ import {
 	testScores,
 } from '../db/schema';
 
-// Map routers to their schemas and endpoints
+// Utility to extract fields from Drizzle ORM schema
+const getFieldsFromSchema = (schema: any): string[] => {
+	return Object.keys(schema).filter((key) => key !== 'id' && key !== 'createdAt' && key !== 'updatedAt');
+};
+
+// Map routers to their schemas, endpoints, and fields (if special case)
 const routerSchemaMap = [
 	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic_standing" },
 	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit_codes" },
 	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college_codes" },
 	{ router: collegesRouter, schema: colleges, name: "Colleges", endpoint: "/api/import/colleges" },
 	{ router: coursesRouter, schema: courses, name: "Courses", endpoint: "/api/import/courses" },
+	{
+		router: demographicsRouter,
+		name: "Demographics",
+		endpoint: "/api/import/demographics",
+		fields: [
+			"mnumber", "firstname", "lastname", "middlename", "suffix", "gender", "birthdate", "citizen",
+			"race", "racedesc", "residcode", "residdesc", "age", "cellphone", "homestreet1", "homestreet2",
+			"homecity", "homestate", "homezip", "homenation", "homephone", "locstreet1", "locstreet2",
+			"loccity", "locstate", "loczip", "locnation", "locphone", "admitterm", "admitcode", "acadstanding",
+			"msuatthours", "msuearnhours", "msuqp", "msugpa", "overatthours", "overearnhours", "overqp",
+			"overgpa", "program", "levl", "major1", "major1dept", "major1coll", "major2", "major2dept",
+			"major2coll", "minor1", "minor1dept", "minor2", "minor2dept",
+			"advnumb", "advfname", "advlname", "advmname", "advsuffix",
+		], // Manually define fields for Demographics
+	},
 	{ router: departmentsRouter, schema: departments, name: "Departments", endpoint: "/api/import/departments" },
 	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional_methods" },
 	{ router: nationsRouter, schema: nations, name: "Nations", endpoint: "/api/import/nations" },
@@ -82,57 +102,52 @@ const routerSchemaMap = [
 	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test_scores" },
 ];
 
-// Utility to extract fields from Drizzle ORM schema
-const getFieldsFromSchema = (schema: any): string[] => {
-	return Object.keys(schema).filter((key) => key !== 'id' && key !== 'createdAt' && key !== 'updatedAt'); // Exclude common metadata fields if present
-};
-
-const importMetadata = routerSchemaMap.map(({ schema, name, endpoint }) => ({
+// Generate metadata
+const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) => ({
 	name,
 	endpoint,
-	fields: getFieldsFromSchema(schema),
+	fields: fields || (schema ? getFieldsFromSchema(schema) : []),
 }));
-
 
 // Create a router
 const router = express.Router()
 
 	/**
-	* @openapi
-	* /api/import/metadata:
-	*   get:
-	*     tags:
-	*       - Imports
-	*     summary: Get metadata for all importable tables.
-	*     description: Returns a list of all tables that can be imported into, including their endpoints and required fields.
-	*     responses:
-	*       200:
-	*         description: Successfully retrieved metadata.
-	*         content:
-	*           application/json:
-	*             schema:
-	*               type: array
-	*               items:
-	*                 type: object
-	*                 properties:
-	*                   name:
-	*                     type: string
-	*                   endpoint:
-	*                     type: string
-	*                   fields:
-	*                     type: array
-	*                     items:
-	*                       type: string
-	*       500:
-	*         description: Error retrieving metadata.
-	*         content:
-	*           application/json:
-	*             schema:
-	*               type: object
-	*               properties:
-	*                 error:
-	*                   type: string
-	*/
+	 * @openapi
+	 * /api/import/metadata:
+	 *   get:
+	 *     tags:
+	 *       - Imports
+	 *     summary: Get metadata for all importable tables.
+	 *     description: Returns a list of all tables that can be imported into, including their endpoints and required fields.
+	 *     responses:
+	 *       200:
+	 *         description: Successfully retrieved metadata.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: array
+	 *               items:
+	 *                 type: object
+	 *                 properties:
+	 *                   name:
+	 *                     type: string
+	 *                   endpoint:
+	 *                     type: string
+	 *                   fields:
+	 *                     type: array
+	 *                     items:
+	 *                       type: string
+	 *       500:
+	 *         description: Error retrieving metadata.
+	 *         content:
+	 *           application/json:
+	 *             schema:
+	 *               type: object
+	 *               properties:
+	 *                 error:
+	 *                   type: string
+	 */
 	.get('/metadata', (req, res) => {
 		try {
 			res.json(importMetadata);
@@ -208,12 +223,9 @@ const router = express.Router()
 				return res.status(400).json({ error: 'Empty or invalid CSV file' });
 			}
 
-			// Extract headers from the first row
 			const headers = Object.keys(parsedData[0]);
-			// Convert data to array of arrays (to match frontend format)
 			const data = parsedData.map(row => headers.map(header => row[header] || ''));
 
-			// Clean up the uploaded file
 			fs.unlinkSync(req.file.path);
 
 			res.json({
@@ -221,7 +233,6 @@ const router = express.Router()
 				data,
 			});
 		} catch (error: any) {
-			// Clean up file in case of error
 			if (req.file?.path) {
 				fs.unlinkSync(req.file.path);
 			}
@@ -251,6 +262,6 @@ const router = express.Router()
 	.use(studentTypesRouter)
 	.use(subjectPrefixesRouter)
 	.use(termsRouter)
-	.use(testScoresRouter)
+	.use(testScoresRouter);
 
 export default router;
