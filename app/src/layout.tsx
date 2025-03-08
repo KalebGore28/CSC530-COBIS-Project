@@ -2,20 +2,23 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ModeToggle } from "./components/mode-toggle.tsx";
 
-import { Slash } from "lucide-react"
 import {
 	Breadcrumb,
 	BreadcrumbItem,
-	BreadcrumbLink,
 	BreadcrumbList,
 	BreadcrumbPage,
-	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+export default function Layout({
+	children,
+	user
+}: {
+	children: React.ReactNode,
+	user: any // Adjust type based on your user object shape
+}) {
 	return (
 		<SidebarProvider>
-			<AppSidebar className="bg-blue-950" />
+			<AppSidebar className="bg-blue-950" user={user} /> {/* Pass user to AppSidebar */}
 			<main>
 				<div className="flex items-center justify-around">
 					<SidebarTrigger variant='outline' className="m-4" />
@@ -26,7 +29,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
-					<ModeToggle className="absolute right-4 top-4" /> {/* Absolute positioning */}				</div>
+					<ModeToggle className="absolute right-4 top-4" />
+				</div>
 				{children}
 			</main>
 		</SidebarProvider>
