@@ -104,7 +104,7 @@ const data = {
 }
 
 // Define role-based permissions
-const rolePermissions = {
+const rolePermissions: { navMain: { [key: number]: string[] }, projects: { [key: number]: string[] } } = {
 	navMain: {
 		1: ["Reports", "Documentation"], // Faculty
 		2: ["Reports"], // Advisor
@@ -132,7 +132,7 @@ export function AppSidebar({
 	const filteredRoles = data.roles.filter((role) => userRoleIds.includes(role.id))
 
 	// Initialize selectedRole to the first filtered role
-	const [selectedRole, setSelectedRole] = React.useState(filteredRoles[0] || null)
+	const [selectedRole, setSelectedRole] = React.useState<{ id: number; name: string; logo: React.ElementType } | null>(filteredRoles[0] || null)
 
 	// Memoize filtered data
 	const filteredData = React.useMemo(() => {

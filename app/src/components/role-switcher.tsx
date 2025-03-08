@@ -44,7 +44,6 @@ export function RoleSwitcher({
 	}
 
 	const handleRoleSelect = (role: { id: number; name: string; logo: React.ElementType }) => {
-		console.log("Selected role:", role) // Debug log
 		setActiveRole(role)
 		if (onRoleChange) {
 			onRoleChange(role)
