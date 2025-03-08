@@ -44,7 +44,7 @@ function App() {
 	return (
 		<ThemeProvider>
 			{user ? (
-				<Layout user={user}> {/* Pass user data to Layout */}
+				<Layout user={user}>
 					<h1></h1>
 				</Layout>
 			) : (

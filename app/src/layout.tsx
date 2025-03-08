@@ -14,7 +14,7 @@ export default function Layout({
 	user
 }: {
 	children: React.ReactNode,
-	user: any // Adjust type based on your user object shape
+	user: any
 }) {
 	return (
 		<SidebarProvider>
@@ -25,7 +25,7 @@ export default function Layout({
 					<Breadcrumb className="border-l-1 border-gray-200 pl-4">
 						<BreadcrumbList>
 							<BreadcrumbItem>
-								<BreadcrumbPage>Home</BreadcrumbPage>
+								<BreadcrumbPage>Layout</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>
