@@ -15,7 +15,7 @@ esbuild.build({
     plugins: [
         copy({
             assets: {
-                from: ['../client/dist/**/*'],  // Include all files and subdirectories
+                from: ['../app/dist/**/*'],  // Include all files and subdirectories
                 to: ['public'],         // Destination in backend dist
             }
         })
