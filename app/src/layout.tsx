@@ -25,7 +25,7 @@ export default function Layout({
 					<Breadcrumb className="border-l-1 border-gray-200 pl-4">
 						<BreadcrumbList>
 							<BreadcrumbItem>
-								<BreadcrumbPage>Layout</BreadcrumbPage>
+								<BreadcrumbPage>Dashboard</BreadcrumbPage>
 							</BreadcrumbItem>
 						</BreadcrumbList>
 					</Breadcrumb>

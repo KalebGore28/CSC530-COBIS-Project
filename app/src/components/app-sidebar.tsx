@@ -32,7 +32,6 @@ import {
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
-// Sample data
 const data = {
 	roles: [
 		{ id: 1, name: "Faculty", logo: BookOpen },
@@ -111,7 +110,7 @@ const rolePermissions = {
 		2: ["Reports"], // Advisor
 		3: ["Models"], // Program Coordinator
 		4: ["Settings"], // Department Chair
-		5: ["Settings", "COBIS Tools"], // Administrator
+		5: ["Settings"], // Administrator
 		6: ["COBIS Tools"], // COBIS Admin
 	},
 	projects: {
