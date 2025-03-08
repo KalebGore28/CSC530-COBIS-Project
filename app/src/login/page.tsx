@@ -11,7 +11,7 @@ export default function LoginPage() {
 					<img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
 				</div>
 				<a href="#" className="flex items-center gap-2 self-center font-medium text-primary-foreground">
-					<div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+					<div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
 						<Wrench className="size-4" />
 					</div>
 					COBIS Tool (v0.0.1)
