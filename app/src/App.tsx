@@ -1,31 +1,31 @@
 import { useState, useEffect } from "react"
 import { ThemeProvider } from "@/components/theme-provider"
-import Layout from './layout.tsx'
-import LoginPage from "./login/page.tsx"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import Layout from "./layout.tsx"
 import Dashboard from "./Dashboard.tsx"
+import LoginPage from "./login/page.tsx"
 
 function App() {
-	const [user, setUser] = useState(null) // Store full user data (null if not authenticated)
+	const [user, setUser] = useState<any>(null) // Store full user data (null if not authenticated)
 	const [isLoading, setIsLoading] = useState(true)
 
 	useEffect(() => {
 		const checkAuth = async () => {
 			try {
-				const response = await fetch('/api/auth/me', {
-					method: 'GET',
-					credentials: 'include',
+				const response = await fetch("/api/auth/me", {
+					method: "GET",
+					credentials: "include",
 				})
 
 				if (response.ok) {
 					const data = await response.json()
-
-					setUser(data || null) // Store user data if present, null if empty
+					setUser(data || null)
 				} else {
-					setUser(null) // Not authenticated
+					setUser(null)
 				}
 			} catch (error) {
 				console.error("Error checking auth:", error)
-				setUser(null) // Default to unauthenticated on error
+				setUser(null)
 			} finally {
 				setIsLoading(false)
 			}
@@ -44,13 +44,29 @@ function App() {
 
 	return (
 		<ThemeProvider>
-			{user ? (
-				<Layout user={user}>
-					<Dashboard user={user} />
-				</Layout>
-			) : (
-				<LoginPage />
-			)}
+			<BrowserRouter>
+				<Routes>
+					{/* Public Route */}
+					<Route
+						path="/login"
+						element={!user ? <LoginPage /> : <Navigate to="/dashboard" />}
+					/>
+
+					{/* Protected Routes */}
+					<Route
+						path="/"
+						element={
+							user ? <Layout user={user} /> : <Navigate to="/login" />
+						}
+					>
+						<Route index element={<Dashboard user={user} />} />
+						<Route path="dashboard" element={<Dashboard user={user} />} />
+					</Route>
+
+					{/* Catch-all redirect */}
+					<Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
+				</Routes>
+			</BrowserRouter>
 		</ThemeProvider>
 	)
 }

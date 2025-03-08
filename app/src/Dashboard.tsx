@@ -12,7 +12,7 @@ export default function Dashboard({ user }: { user: any }) {
 					Query student information and generate reports.
 				</p>
 			</header>
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6">
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 				<Card>
 					<CardHeader>
 						<CardTitle className="text-center">Student Lookup</CardTitle>

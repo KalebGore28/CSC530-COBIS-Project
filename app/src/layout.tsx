@@ -1,3 +1,4 @@
+import { Outlet } from "react-router-dom"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { ModeToggle } from "./components/mode-toggle.tsx";
@@ -10,10 +11,8 @@ import {
 } from "@/components/ui/breadcrumb"
 
 export default function Layout({
-	children,
 	user
 }: {
-	children: React.ReactNode,
 	user: any
 }) {
 	return (
@@ -31,7 +30,9 @@ export default function Layout({
 					</Breadcrumb>
 					<ModeToggle className="absolute right-4 top-4" />
 				</div>
-				{children}
+				<div className="p-6">
+					<Outlet /> {/* Render child routes here */}
+				</div>
 			</main>
 		</SidebarProvider>
 	)
