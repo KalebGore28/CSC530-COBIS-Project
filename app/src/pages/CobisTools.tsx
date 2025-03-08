@@ -7,7 +7,7 @@ export default function CobisTools({ user }: { user: any }) {
 	const location = useLocation()
 
 	return (
-		<div className="p-6">
+		<div>
 			<header className="mb-12">
 				<h2 className="text-3xl font-bold text-center text-foreground">
 					COBIS Tools
