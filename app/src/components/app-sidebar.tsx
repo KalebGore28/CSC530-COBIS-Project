@@ -94,7 +94,7 @@ const data = {
 			items: [
 				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
-				{ title: "Contact", url: "/cobis-tools/contact" },
+				// { title: "Contact", url: "/cobis-tools/contact" },
 			],
 		},
 	],
