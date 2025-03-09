@@ -98,14 +98,17 @@ const data = {
 			],
 		},
 	],
-	projects: [
-		{ name: "Design Engineering", url: "/projects/design-engineering", icon: Frame },
-		{ name: "Sales & Marketing", url: "/projects/sales-marketing", icon: PieChart },
-		{ name: "Travel", url: "/projects/travel", icon: Map },
-	],
+	// projects: [
+	// 	{ name: "Design Engineering", url: "/projects/design-engineering", icon: Frame },
+	// 	{ name: "Sales & Marketing", url: "/projects/sales-marketing", icon: PieChart },
+	// 	{ name: "Travel", url: "/projects/travel", icon: Map },
+	// ],
 }
 
-const rolePermissions: { navMain: { [key: number]: string[] }, projects: { [key: number]: string[] } } = {
+const rolePermissions: {
+	navMain: { [key: number]: string[] },
+	// projects: { [key: number]: string[] }
+} = {
 	navMain: {
 		1: ["Reports", "Documentation"],
 		2: ["Reports"],
@@ -115,13 +118,13 @@ const rolePermissions: { navMain: { [key: number]: string[] }, projects: { [key:
 		// COBIS Admin has access to all navMain items
 		6: data.navMain.map((item) => item.title),
 	},
-	projects: {
-		1: ["Design Engineering"],
-		3: ["Design Engineering", "Sales & Marketing"],
-		5: ["Travel"],
-		// COBIS Admin has access to all projects
-		6: data.projects.map((project) => project.name),
-	},
+	// projects: {
+	// 	1: ["Design Engineering"],
+	// 	3: ["Design Engineering", "Sales & Marketing"],
+	// 	5: ["Travel"],
+	// 	// COBIS Admin has access to all projects
+	// 	6: data.projects.map((project) => project.name),
+	// },
 }
 
 export function AppSidebar({
@@ -130,7 +133,10 @@ export function AppSidebar({
 	redirect,
 	...props
 }: React.ComponentProps<typeof Sidebar> & { user: any; redirect?: (path: string) => void }) {
-	const { state } = useSidebar()
+	const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
+
+	// Derive isExpanded from open and openMobile
+	const isExpanded = isMobile ? openMobile : open;
 
 	const userRoleIds = user?.roles?.map((role: { role_id: number }) => role.role_id) || []
 	const filteredRoles = data.roles.filter((role) => userRoleIds.includes(role.id))
@@ -158,18 +164,21 @@ export function AppSidebar({
 		if (!selectedRole) {
 			return {
 				navMain: data.navMain,
-				projects: data.projects,
+				// projects: data.projects,
 			}
 		}
 
 		const navMain = data.navMain.filter((item) =>
 			rolePermissions.navMain[selectedRole.id]?.includes(item.title)
 		)
-		const projects = data.projects.filter((project) =>
-			rolePermissions.projects[selectedRole.id]?.includes(project.name)
-		)
+		// const projects = data.projects.filter((project) =>
+		// 	rolePermissions.projects[selectedRole.id]?.includes(project.name)
+		// )
 
-		return { navMain, projects }
+		return {
+			navMain,
+			// projects
+		}
 	}, [selectedRole])
 
 	const handleRoleChange = (role: { id: number; name: string; logo: React.ElementType } | null) => {
@@ -186,40 +195,48 @@ export function AppSidebar({
 						onClick={() => redirect && redirect("/dashboard")}
 					>
 						<img
-							src={state === "collapsed" ? logoIcon : logo}
-							className={state === "collapsed" ? "w-8 h-9 my-2" : "w-auto h-auto mt-4"}
+							src={isExpanded ? logo : logoIcon}
+							className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-9 my-2"}
 							alt="Murray Logo"
 						/>
 					</div>
 				</SidebarMenuItem>
-				<span className={state === "collapsed" ? "hidden text-nowrap" : "text-white text-sm font-semibold text-center text-nowrap"}>
+				<span
+					className={
+						isExpanded
+							? "text-white text-sm font-semibold text-center text-nowrap"
+							: "hidden text-nowrap"
+					}
+				>
 					COBIS Tool v0.0.1
 				</span>
 				<div className="border-t border-white" />
 				<RoleSwitcher
 					roles={filteredRoles}
-					selectedRole={selectedRole} // Pass current selected role
+					selectedRole={selectedRole}
 					onRoleChange={handleRoleChange}
 				/>
 				<SidebarMenuItem>
 					<SidebarMenuButton
-						onClick={() => redirect && redirect("/dashboard")}
+						onClick={() => {
+							toggleSidebar(); // Toggle sidebar state
+							redirect && redirect("/dashboard");
+						}}
 						tooltip="Dashboard"
 						className="w-full justify-start"
 					>
 						<LayoutDashboard className="mr-2" />
-						<span className={state === "collapsed" ? "hidden" : ""}>Dashboard</span>
+						<span className={isExpanded ? "block" : "hidden"}>Dashboard</span>
 					</SidebarMenuButton>
 				</SidebarMenuItem>
 			</SidebarHeader>
 			<SidebarContent>
 				<NavMain items={filteredData.navMain} redirect={redirect} />
-				<NavProjects projects={filteredData.projects} redirect={redirect} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={user.info} />
 			</SidebarFooter>
 			<SidebarRail />
 		</Sidebar>
-	)
+	);
 }
