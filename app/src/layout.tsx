@@ -1,3 +1,4 @@
+import React from "react"
 import { Outlet, useLocation } from "react-router-dom"
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -43,30 +44,24 @@ export default function Layout({ user }: { user: any }) {
 					<SidebarTrigger variant="outline" className="m-4" />
 					<Breadcrumb className="border-l-1 border-gray-200 pl-4">
 						<BreadcrumbList>
-							{breadcrumbs.length > 0 ? (
-								breadcrumbs.map((crumb, index) => (
-									<>
-										<BreadcrumbItem key={crumb.path}>
-											{index < breadcrumbs.length - 1 ? (
-												<BreadcrumbLink asChild>
-													<Link to={crumb.path}>{crumb.title}</Link>
-												</BreadcrumbLink>
-											) : (
-												<BreadcrumbPage>{crumb.title}</BreadcrumbPage>
-											)}
-										</BreadcrumbItem>
-										{index < breadcrumbs.length - 1 && (
-											<BreadcrumbSeparator>
-												<Slash className="h-4 w-4" />
-											</BreadcrumbSeparator>
+							{breadcrumbs.map((crumb, index) => (
+								<React.Fragment key={crumb.path}> {/* Add key to the Fragment */}
+									<BreadcrumbItem key={crumb.path}> {/* Keep key on BreadcrumbItem for its own identity */}
+										{index < breadcrumbs.length - 1 ? (
+											<BreadcrumbLink asChild>
+												<Link to={crumb.path}>{crumb.title}</Link>
+											</BreadcrumbLink>
+										) : (
+											<BreadcrumbPage>{crumb.title}</BreadcrumbPage>
 										)}
-									</>
-								))
-							) : (
-								<BreadcrumbItem>
-									<BreadcrumbPage>Dashboard</BreadcrumbPage>
-								</BreadcrumbItem>
-							)}
+									</BreadcrumbItem>
+									{index < breadcrumbs.length - 1 && (
+										<BreadcrumbSeparator>
+											<Slash className="h-4 w-4" />
+										</BreadcrumbSeparator>
+									)}
+								</React.Fragment>
+							))}
 						</BreadcrumbList>
 					</Breadcrumb>
 					<ModeToggle className="absolute right-4 top-4" />
