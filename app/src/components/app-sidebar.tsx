@@ -187,7 +187,7 @@ export function AppSidebar({
 					>
 						<img
 							src={state === "collapsed" ? logoIcon : logo}
-							className={state === "collapsed" ? "w-8 h-9 my-2" : "w-auto h-auto"}
+							className={state === "collapsed" ? "w-8 h-9 my-2" : "w-auto h-auto mt-4"}
 							alt="Murray Logo"
 						/>
 					</div>
