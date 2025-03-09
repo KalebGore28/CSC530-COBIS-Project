@@ -53,7 +53,7 @@ B040, Biology/Secondary Cert                   , 260101  , 1       , 0       , 0
 B050, Business Administration                  , 520301  , 1       , 1       , NULL             , NULL           , 1       , MMB       , BP     , NULL
 B051, Business Administration                  , 520101  , 1       , 0       , 0                , 0              , 1       , MMB       , BP     , NULL
 B053, Business Administration (mjr)            , 520101  , 1       , 0       , 0                , 0              , 1       , MMB       , BP     , NULL
-B054, "Business Adm/Intl Business"             , NULL    , 0       , 0       , 1                , NULL           , 1       , MMB       , BP     , NULL
+B054, Business Adm/Intl Business             , NULL    , 0       , 0       , 1                , NULL           , 1       , MMB       , BP     , NULL
 B055, Business Adm/Accounting                  , 520101  , 1       , 0       , 0                , 0              , 1       , MMB       , BP     , NULL
 B056, Business Admin/Cybersecurity             , NULL    , 1       , 0       , NULL             , NULL           , NULL    , BPA       , BP     , 2022-08-19 06:48:17.887
 B058, Business Adm/Business Analytic           , NULL    , 1       , 0       , NULL             , NULL           , 1       , BPA       , BP     , 2018-08-24 10:07:29.710
@@ -70,7 +70,7 @@ B070, Certificate-Bus Geog Info Sys            , NULL    , NULL    , NULL    , N
 C005, CTE/Business & Marketing Ed              , 131399  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
 C007, CTE/Engr & Technology Ed                 , 131399  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
 C010, CTE/Industrial Education                 , 131399  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
-C013, "No description provided."               , NULL    , 1       , 0       , NULL             , NULL           , NULL    , ACS       , ED     , 2020-08-06 14:28:07.263
+C013, No description provided               , NULL    , 1       , 0       , NULL             , NULL           , NULL    , ACS       , ED     , 2020-08-06 14:28:07.263
 C015, CTE/Technology Education                 , 131399  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
 C017, Career & Tech Ed Associate               , 131320  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
 C020, Career & Tech Education                  , 131309  , 1       , 0       , 0                , 0              , 0       , NULL      , NULL   , NULL
@@ -709,7 +709,7 @@ Z004, Social Work                              , NULL    , 0       , 1       , 0
 Z005, Computer Systems Management              , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z006, Business Edu/Basic Business              , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z007, Human Services                           , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
-Z008, "Food Svc, Admin & Dietetics"            , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
+Z008, Food Svc. Admin & Dietetics            , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z009, Radio-Television                         , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z010, Early Elementary Education               , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z011, Animal Science/Pre-Vet Med Opt           , NULL    , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
@@ -827,7 +827,7 @@ Z218, Industrial Tech                          , 150613  , 1       , 0       , 0
 Z219, Manufacturing Engr Tech                  , 150613  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z220, Nursing                                  , 511601  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z221, Vocational Technical Education           , 131320  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
-Z222, "Undeclared--Sci, Engr, Tech"            , 0       , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
+Z222, Undeclared--Sci. Engr. Tech            , 0       , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z223, An Tech/An Hlth Tech                     , 510808  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z224, Civil Engineering Tech                   , 150201  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z225, Elec Engineer Tech                       , 150303  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
@@ -841,7 +841,7 @@ Z232, Graphic Com Tech                         , 100303  , 1       , 0       , 0
 Z233, Fashion Merchandising                    , 190901  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z234, Consumer Affairs                         , 190402  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z235, Manufacturing Technology                 , 150613  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
-Z236, "Nutrition, Diet & Food Mgt"             , 190501  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
+Z236, Nutrition. Diet & Food Mgt             , 190501  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z237, Interior Design                          , 150613  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z238, Mechan Engr Tech                         , 150805  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
 Z239, Mining Mgt Tech                          , 520299  , 1       , 0       , 0                , 1              , 0       , NULL      , NULL   , NULL
