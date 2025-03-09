@@ -51,42 +51,42 @@ const data = {
 			isActive: true,
 			items: [
 				{ title: "Student Reports", url: "/reports/students" },
-				{ title: "Course Reports", url: "/reports/courses" },
-				{ title: "Department Reports", url: "/reports/departments" },
+				// { title: "Course Reports", url: "/reports/courses" },
+				// { title: "Department Reports", url: "/reports/departments" },
 			],
 		},
-		{
-			title: "Models",
-			url: "/models",
-			icon: Bot,
-			items: [
-				{ title: "Genesis", url: "/models/genesis" },
-				{ title: "Explorer", url: "/models/explorer" },
-				{ title: "Quantum", url: "/models/quantum" },
-			],
-		},
-		{
-			title: "Documentation",
-			url: "/documentation",
-			icon: BookOpen,
-			items: [
-				{ title: "Introduction", url: "/documentation/introduction" },
-				{ title: "Get Started", url: "/documentation/get-started" },
-				{ title: "Tutorials", url: "/documentation/tutorials" },
-				{ title: "Changelog", url: "/documentation/changelog" },
-			],
-		},
-		{
-			title: "Settings",
-			url: "/settings",
-			icon: Settings2,
-			items: [
-				{ title: "General", url: "/settings/general" },
-				{ title: "Team", url: "/settings/team" },
-				{ title: "Billing", url: "/settings/billing" },
-				{ title: "Limits", url: "/settings/limits" },
-			],
-		},
+		// {
+		// 	title: "Models",
+		// 	url: "/models",
+		// 	icon: Bot,
+		// 	items: [
+		// 		{ title: "Genesis", url: "/models/genesis" },
+		// 		{ title: "Explorer", url: "/models/explorer" },
+		// 		{ title: "Quantum", url: "/models/quantum" },
+		// 	],
+		// },
+		// {
+		// 	title: "Documentation",
+		// 	url: "/documentation",
+		// 	icon: BookOpen,
+		// 	items: [
+		// 		{ title: "Introduction", url: "/documentation/introduction" },
+		// 		{ title: "Get Started", url: "/documentation/get-started" },
+		// 		{ title: "Tutorials", url: "/documentation/tutorials" },
+		// 		{ title: "Changelog", url: "/documentation/changelog" },
+		// 	],
+		// },
+		// {
+		// 	title: "Settings",
+		// 	url: "/settings",
+		// 	icon: Settings2,
+		// 	items: [
+		// 		{ title: "General", url: "/settings/general" },
+		// 		{ title: "Team", url: "/settings/team" },
+		// 		{ title: "Billing", url: "/settings/billing" },
+		// 		{ title: "Limits", url: "/settings/limits" },
+		// 	],
+		// },
 		{
 			title: "COBIS Tools",
 			url: "/cobis-tools",
