@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install only production dependencies
-RUN npm install --production
+RUN npm ci --omit=dev
 
 # Copy built app and public assets
 COPY dist/ ./dist/

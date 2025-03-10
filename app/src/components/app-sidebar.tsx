@@ -8,17 +8,11 @@ import {
 	Armchair,
 	Settings,
 	Shield,
-	Bot,
-	Frame,
-	Map,
-	PieChart,
-	Settings2,
 	NotepadText,
 	TerminalSquareIcon,
 	LayoutDashboard,
 } from "lucide-react"
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { RoleSwitcher } from "@/components/role-switcher"
 import {
@@ -133,7 +127,7 @@ export function AppSidebar({
 	redirect,
 	...props
 }: React.ComponentProps<typeof Sidebar> & { user: any; redirect?: (path: string) => void }) {
-	const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
+	const { open, openMobile, isMobile } = useSidebar();
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;
