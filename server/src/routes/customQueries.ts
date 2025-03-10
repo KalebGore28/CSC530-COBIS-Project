@@ -193,8 +193,8 @@ export const customQuery = express.Router()
 	 *               role:
 	 *                 type: string
 	 *                 description: >
-	 *                   The role view to apply (e.g., "Faculty"). This determines which automatic filters are applied.
-	 *                 example: "Faculty"
+	 *                   The role view to apply (e.g., "faculty"). This determines which automatic filters are applied.
+	 *                 example: "faculty"
 	 *           example:
 	 *             queryDef:
 	 *               table: "student_courses"
@@ -225,7 +225,7 @@ export const customQuery = express.Router()
 	 *               pagination:
 	 *                 limit: 10
 	 *                 offset: 0
-	 *             role: "Faculty"
+	 *             role: "faculty"
 	 *     responses:
 	 *       200:
 	 *         description: Query executed successfully.

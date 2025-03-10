@@ -219,7 +219,7 @@ export function AppSidebar({
 				<SidebarMenuItem>
 					<SidebarMenuButton
 						onClick={() => {
-							toggleSidebar(); // Toggle sidebar state
+							// toggleSidebar();
 							redirect && redirect("/dashboard");
 						}}
 						tooltip="Dashboard"
