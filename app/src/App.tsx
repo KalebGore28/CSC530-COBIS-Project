@@ -1,93 +1,79 @@
-import { useState, useEffect } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom"
-import Layout from "./layout.tsx"
-import Dashboard from "./pages/Dashboard.tsx"
-import LoginPage from "./pages/Login.tsx"
-import Reports from "./pages/Reports.tsx"
-import StudentsReport from "./pages/StudentsReport.tsx"
-import QueryBuilderPage from "./pages/QueryBuilder.tsx"
-import CobisTools from "./pages/CobisTools.tsx"
-import CsvImport from "./pages/CsvImport.tsx"
+import { useState } from 'react';
+import { signinGoogle } from './lib/auth-client';
+import { authClient } from "@/lib/auth-client";
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+// Define TypeScript interfaces for the session and user
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  emailVerified: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  image?: string | null | undefined | undefined;
+}
+
+interface Session {
+  user: User;
+}
 
 function App() {
-	const [user, setUser] = useState<any>(null)
-	const [isLoading, setIsLoading] = useState(true)
+  // Type the session state as Session | null
+  const [session, setSession] = useState<Session | null>(null);
 
-	useEffect(() => {
-		const checkAuth = async () => {
-			try {
-				const response = await fetch("/api/auth/me", {
-					method: "GET",
-					credentials: "include",
-				})
+  const handleSession = async () => {
+    try {
+      const { data: sessionData, error } = await authClient.getSession();
+      if (error) {
+        console.error(error);
+      } else {
+        // @ts-ignore
+        setSession(sessionData);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-				if (response.ok) {
-					const data = await response.json()
-					setUser(data || null)
-				} else {
-					setUser(null)
-				}
-			} catch (error) {
-				console.error("Error checking auth:", error)
-				setUser(null)
-			} finally {
-				setIsLoading(false)
-			}
-		}
-
-		checkAuth()
-	}, [])
-
-	if (isLoading) {
-		return (
-			<ThemeProvider>
-				<div>Loading...</div>
-			</ThemeProvider>
-		)
-	}
-
-	return (
-		<ThemeProvider>
-			<BrowserRouter>
-				<Routes>
-					{/* Public Route */}
-					<Route
-						path="/login"
-						element={!user ? <LoginPage /> : <Navigate to="/dashboard" replace />}
-					/>
-
-					{/* Protected Routes */}
-					<Route
-						path="/"
-						element={user ? <Layout user={user} /> : <Navigate to="/login" replace />}
-					>
-						<Route index element={<RedirectToDashboard />} />
-						<Route path="dashboard" element={<Dashboard user={user} />} />
-						<Route path="reports" element={<Reports user={user} />}>
-							<Route path="students" element={<StudentsReport user={user} />} />
-						</Route>
-						<Route path="cobis-tools" element={<CobisTools user={user} />}>
-							<Route path="query-builder" element={<QueryBuilderPage />} />
-							<Route path="imports" element={<CsvImport user={user} />} />
-						</Route>
-					</Route>
-
-					{/* Catch-all redirect */}
-					<Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-				</Routes>
-			</BrowserRouter>
-		</ThemeProvider>
-	)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
+        <Button onClick={signinGoogle}>Sign in with Google</Button>
+        <Button onClick={handleSession}>Get Session</Button>
+      </div>
+      <div style={{ display: 'flex', gap: '20px' }}>
+        <Card style={{ minWidth: '300px', maxWidth: '500px' }}>
+          <CardHeader>
+            <CardTitle>Session User</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {session ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                {session.user.image && (
+                  <Avatar style={{ border: '1px solid #ccc', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
+                    <AvatarImage src={session.user.image} alt={`${session.user.name}'s profile picture`} />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
+                )}
+                <div style={{ minWidth: '200px', wordBreak: 'break-word' }}>
+                  <p><strong>Name:</strong> {session.user.name}</p>
+                  <p><strong>Email:</strong> {session.user.email}</p>
+                  <p><strong>Email Verified:</strong> {session.user.emailVerified ? 'Yes' : 'No'}</p>
+                  <p><strong>Created At:</strong> {session.user.createdAt.toLocaleDateString()}</p>
+                  <p><strong>Updated At:</strong> {session.user.updatedAt.toLocaleDateString()}</p>
+                </div>
+              </div>
+            ) : (
+              <p>No session data</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }
 
-function RedirectToDashboard() {
-	const navigate = useNavigate()
-	useEffect(() => {
-		console.log("Redirecting from / to /dashboard")
-		navigate("/dashboard", { replace: true })
-	}, [navigate])
-	return null
-}
-
-export default App
+export default App;

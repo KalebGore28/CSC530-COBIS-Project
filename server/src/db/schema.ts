@@ -31,7 +31,7 @@ import * as terms from './models/terms';
 import * as test_scores from './models/test_scores';
 import * as userPermissions from './models/user_permissions';
 import * as userRoles from './models/user_roles';
-import * as users from './models/users';
+import * as betterAuth from './models/betterAuth';
 
 export * from './models/academic_standing';
 export * from './models/admit_codes';
@@ -64,7 +64,7 @@ export * from './models/terms';
 export * from './models/test_scores';
 export * from './models/user_permissions';
 export * from './models/user_roles';
-export * from './models/users';
+export * from './models/betterAuth';
 
 export const schema = {
 	academicStanding,
@@ -98,5 +98,5 @@ export const schema = {
 	test_scores,
 	userPermissions,
 	userRoles,
-	users,
+	betterAuth,
 };

@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? undefined : 'src/.env' });
 
 export const config = {
+  frontend_origin: process.env.FRONTEND_ORIGIN as string,
   sessionSecret: process.env.SESSION_SECRET as string,
   jwtSecret: process.env.JWT_SECRET as string,
   db: {

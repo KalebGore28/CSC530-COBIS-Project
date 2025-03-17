@@ -1,12 +1,12 @@
 import { sqliteTable, text, int, primaryKey, foreignKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { users } from "./users";
+import { user } from "./betterAuth";
 import { courses } from "./courses";
 import { terms } from "./terms";
 
 export const instructorCourses = sqliteTable("instructor_courses", {
-	user_id: text("user_id").notNull().references(() => users.id),
+	user_id: text("user_id").notNull().references(() => user.id),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	course_subject: text("course_subject").notNull(),
@@ -20,9 +20,9 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 
 // Define relationships for DBML generation
 export const instructorCoursesRelations = relations(instructorCourses, ({ one }) => ({
-	instructor: one(users, {
+	instructor: one(user, {
 		fields: [instructorCourses.user_id],
-		references: [users.id],
+		references: [user.id],
 	}),
 	course: one(courses, {
 		fields: [instructorCourses.course_subject, instructorCourses.course_number, instructorCourses.course_suffix],

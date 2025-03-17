@@ -3,6 +3,22 @@ table academic_standing {
   description text [not null]
 }
 
+table account {
+  id text [pk, not null]
+  account_id text [not null]
+  provider_id text [not null]
+  user_id text [not null]
+  access_token text
+  refresh_token text
+  id_token text
+  access_token_expires_at integer
+  refresh_token_expires_at integer
+  scope text
+  password text
+  created_at integer [not null]
+  updated_at integer [not null]
+}
+
 table admit_codes {
   code text [pk, not null]
   description text [not null]
@@ -165,6 +181,17 @@ table roles {
   name text [not null]
 }
 
+table session {
+  id text [pk, not null]
+  expires_at integer [not null]
+  token text [not null, unique]
+  created_at integer [not null]
+  updated_at integer [not null]
+  ip_address text
+  user_agent text
+  user_id text [not null]
+}
+
 table student_academic_info {
   mnumber text [not null]
   admit_term text [not null]
@@ -305,6 +332,18 @@ table test_scores {
   }
 }
 
+table user {
+  id text [pk, not null]
+  name text [not null]
+  email text [not null, unique]
+  email_verified integer [not null]
+  image text
+  created_at integer [not null]
+  updated_at integer [not null]
+  is_active integer [not null, default: false]
+  last_login integer [not null, default: `CURRENT_TIMESTAMP`]
+}
+
 table user_permissions {
   user_id text [not null]
   table_name text [not null]
@@ -325,20 +364,20 @@ table user_roles {
   }
 }
 
-table users {
+table verification {
   id text [pk, not null]
-  email text [not null, unique]
-  display_name text [not null]
-  is_active integer [not null, default: false]
-  last_login text [not null, default: `CURRENT_TIMESTAMP`]
-  created_at text [not null, default: `CURRENT_TIMESTAMP`]
+  identifier text [not null]
+  value text [not null]
+  expires_at integer [not null]
+  created_at integer
+  updated_at integer
 }
 
 ref: departments.college > colleges.code
 
-ref: imports.imported_by > users.id
+ref: imports.imported_by > user.id
 
-ref: instructor_courses.user_id > users.id
+ref: instructor_courses.user_id > user.id
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
@@ -410,10 +449,10 @@ ref: subject_prefixes.department > departments.code
 
 ref: test_scores.mnumber > students.mnumber
 
-ref: user_permissions.user_id > users.id
+ref: user_permissions.user_id > user.id
 
 ref: user_permissions.(table_name, column_name) > permissions.(table_name, column_name)
 
-ref: user_roles.user_id > users.id
+ref: user_roles.user_id > user.id
 
 ref: user_roles.role_id > roles.id

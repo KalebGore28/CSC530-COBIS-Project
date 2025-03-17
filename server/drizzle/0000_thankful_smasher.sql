@@ -56,7 +56,7 @@ CREATE TABLE `imports` (
 	`import_status` text NOT NULL,
 	`imported_by` text NOT NULL,
 	`import_date` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	FOREIGN KEY (`imported_by`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`imported_by`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `instructional_methods` (
@@ -73,7 +73,7 @@ CREATE TABLE `instructor_courses` (
 	`course_suffix` text DEFAULT '' NOT NULL,
 	`role` text DEFAULT 'Instructor' NOT NULL,
 	PRIMARY KEY(`user_id`, `term`, `year`, `course_subject`, `course_number`, `course_suffix`),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
@@ -305,7 +305,7 @@ CREATE TABLE `user_permissions` (
 	`table_name` text NOT NULL,
 	`column_name` text NOT NULL,
 	PRIMARY KEY(`user_id`, `table_name`, `column_name`),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`table_name`,`column_name`) REFERENCES `permissions`(`table_name`,`column_name`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -313,17 +313,58 @@ CREATE TABLE `user_roles` (
 	`user_id` text NOT NULL,
 	`role_id` integer NOT NULL,
 	PRIMARY KEY(`user_id`, `role_id`),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE TABLE `users` (
+CREATE TABLE `account` (
 	`id` text PRIMARY KEY NOT NULL,
-	`email` text NOT NULL,
-	`display_name` text NOT NULL,
-	`is_active` integer DEFAULT false NOT NULL,
-	`last_login` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	`created_at` text DEFAULT CURRENT_TIMESTAMP NOT NULL
+	`account_id` text NOT NULL,
+	`provider_id` text NOT NULL,
+	`user_id` text NOT NULL,
+	`access_token` text,
+	`refresh_token` text,
+	`id_token` text,
+	`access_token_expires_at` integer,
+	`refresh_token_expires_at` integer,
+	`scope` text,
+	`password` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
+CREATE TABLE `session` (
+	`id` text PRIMARY KEY NOT NULL,
+	`expires_at` integer NOT NULL,
+	`token` text NOT NULL,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`ip_address` text,
+	`user_agent` text,
+	`user_id` text NOT NULL,
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `session_token_unique` ON `session` (`token`);--> statement-breakpoint
+CREATE TABLE `user` (
+	`id` text PRIMARY KEY NOT NULL,
+	`name` text NOT NULL,
+	`email` text NOT NULL,
+	`email_verified` integer NOT NULL,
+	`image` text,
+	`created_at` integer NOT NULL,
+	`updated_at` integer NOT NULL,
+	`is_active` integer DEFAULT false NOT NULL,
+	`last_login` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+--> statement-breakpoint
+CREATE UNIQUE INDEX `user_email_unique` ON `user` (`email`);--> statement-breakpoint
+CREATE TABLE `verification` (
+	`id` text PRIMARY KEY NOT NULL,
+	`identifier` text NOT NULL,
+	`value` text NOT NULL,
+	`expires_at` integer NOT NULL,
+	`created_at` integer,
+	`updated_at` integer
+);
