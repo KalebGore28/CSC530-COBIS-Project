@@ -6,7 +6,7 @@ import Database from "better-sqlite3";
 import { config } from "../utils/config";
 
 const db = new Database(config.db.url);
-const orm = drizzle(db, { schema: { ...schema.betterAuth } });
+const orm = drizzle(db, { schema: { ...schema } });
 
 export const auth = betterAuth({
 	session: {
