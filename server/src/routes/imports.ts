@@ -2,8 +2,9 @@ import express from 'express';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
 import { importCSV } from '../utils/importCSV';
 import multer from 'multer';
-import path from 'path';
 import fs from 'fs';
+import 'zod-openapi/extend';
+import { z } from 'zod';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -18,8 +19,8 @@ const upload = multer({
 });
 
 // Import routes
-import { academicStandingRouter } from './imports/academic_standing';
-import { admitCodesRouter } from './imports/admit_codes';
+import academicStandingRouter, { importAcademicStandingSpec } from './imports/academicStanding';
+import admitCodesRouter, { importAdmitCodesSpec } from './imports/admitCodes';
 import { collegeCodesRouter } from './imports/college_codes';
 import { collegesRouter } from './imports/colleges';
 import { coursesRouter } from './imports/courses';
@@ -109,159 +110,136 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 	fields: fields || (schema ? getFieldsFromSchema(schema) : []),
 }));
 
-// Create a router
-const router = express.Router()
+// Create an Express router
+const router = express.Router();
 
-	/**
-	 * @openapi
-	 * /api/import/metadata:
-	 *   get:
-	 *     tags:
-	 *       - Imports
-	 *     summary: Get metadata for all importable tables.
-	 *     description: Returns a list of all tables that can be imported into, including their endpoints and required fields.
-	 *     responses:
-	 *       200:
-	 *         description: Successfully retrieved metadata.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: array
-	 *               items:
-	 *                 type: object
-	 *                 properties:
-	 *                   name:
-	 *                     type: string
-	 *                   endpoint:
-	 *                     type: string
-	 *                   fields:
-	 *                     type: array
-	 *                     items:
-	 *                       type: string
-	 *       500:
-	 *         description: Error retrieving metadata.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 */
-	.get('/metadata', (req, res) => {
-		try {
-			res.json(importMetadata);
-		} catch (error: any) {
-			console.error(`Error retrieving import metadata: ${error.message}`);
-			res.status(500).json({ error: 'Error retrieving import metadata.' });
+router.get('/metadata', (req: any, res: any) => {
+	try {
+		res.json(importMetadata);
+	} catch (error: any) {
+		console.error(`Error retrieving import metadata: ${error.message}`);
+		res.status(500).json({ error: 'Error retrieving import metadata.' });
+	}
+})
+const metadataSpec = {
+	'/api/import/metadata': {
+		get: {
+			tags: ['Imports'],
+			operationId: 'getImportMetadata',
+			description: 'Get metadata for all import endpoints',
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': { schema: z.array(z.object({ name: z.string(), endpoint: z.string(), fields: z.array(z.string()) })) },
+					},
+				},
+			},
+		},
+	}
+}
+
+
+router.post('/parse-csv', upload.single('file'), async (req: any, res: any) => {
+	try {
+		if (!req.file) {
+			return res.status(400).json({ error: 'No file uploaded' });
 		}
-	})
 
-	/**
-	 * @openapi
-	 * /api/import/parse-csv:
-	 *   post:
-	 *     tags:
-	 *       - Imports
-	 *     summary: Parse a CSV file.
-	 *     description: Accepts a CSV file upload, parses it, and returns the headers and data rows.
-	 *     requestBody:
-	 *       required: true
-	 *       content:
-	 *         multipart/form-data:
-	 *           schema:
-	 *             type: object
-	 *             properties:
-	 *               file:
-	 *                 type: string
-	 *                 format: binary
-	 *     responses:
-	 *       200:
-	 *         description: Successfully parsed CSV file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 headers:
-	 *                   type: array
-	 *                   items:
-	 *                     type: string
-	 *                 data:
-	 *                   type: array
-	 *                   items:
-	 *                     type: array
-	 *                     items:
-	 *                       type: string
-	 *       400:
-	 *         description: Invalid file or missing file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 *       500:
-	 *         description: Error parsing CSV file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 */
-	.post('/parse-csv', upload.single('file'), async (req, res) => {
-		try {
-			if (!req.file) {
-				return res.status(400).json({ error: 'No file uploaded' });
-			}
+		const parsedData = await importCSV(req.file.path);
+		if (!parsedData || parsedData.length === 0) {
+			return res.status(400).json({ error: 'Empty or invalid CSV file' });
+		}
 
-			const parsedData = await importCSV(req.file.path);
-			if (!parsedData || parsedData.length === 0) {
-				return res.status(400).json({ error: 'Empty or invalid CSV file' });
-			}
+		const headers = Object.keys(parsedData[0]);
+		const data = parsedData.map(row => headers.map(header => row[header] || ''));
 
-			const headers = Object.keys(parsedData[0]);
-			const data = parsedData.map(row => headers.map(header => row[header] || ''));
+		fs.unlinkSync(req.file.path);
 
+		res.json({
+			headers,
+			data,
+		});
+	} catch (error: any) {
+		if (req.file?.path) {
 			fs.unlinkSync(req.file.path);
-
-			res.json({
-				headers,
-				data,
-			});
-		} catch (error: any) {
-			if (req.file?.path) {
-				fs.unlinkSync(req.file.path);
-			}
-			console.error(`Error parsing CSV: ${error.message}`);
-			res.status(500).json({ error: 'Error parsing CSV file' });
 		}
-	})
+		console.error(`Error parsing CSV: ${error.message}`);
+		res.status(500).json({ error: 'Error parsing CSV file' });
+	}
+})
+const parseCSVSpec = {
+	'/api/import/parse-csv': {
+		post: {
+			tags: ['Imports'],
+			operationId: 'parseCSV',
+			description: 'Parse a CSV file and return its contents',
+			requestBody: {
+				content: {
+					'multipart/form-data': {
+						schema: z.object({ file: z.string().openapi({ description: 'CSV file to parse', format: 'binary' }) }),
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								headers: z.array(z.string()),
+								data: z.array(z.array(z.string())),
+							}),
+						},
+					},
+				},
+				'400': {
+					description: '400 Bad Request',
+					content: {
+						'application/json': { schema: z.object({ error: z.string() }) },
+					},
+				},
+				'500': {
+					description: '500 Internal Server Error',
+					content: {
+						'application/json': { schema: z.object({ error: z.string() }) },
+					},
+				},
+			},
+		},
+	},
+}
 
-	// Middleware to normalize column headers to lowercase
-	.use(normalizeHeadersMiddleware)
-	// Routes
-	.use(academicStandingRouter)
-	.use(admitCodesRouter)
-	.use(collegeCodesRouter)
-	.use(collegesRouter)
-	.use(coursesRouter)
-	.use(demographicsRouter)
-	.use(departmentsRouter)
-	.use(instructionalMethodsRouter)
-	.use(nationsRouter)
-	.use(overridesRouter)
-	.use(partOfTermRouter)
-	.use(previousCollegesRouter)
-	.use(programsRouter)
-	.use(registrationStatusRouter)
-	.use(studentCoursesRouter)
-	.use(studentTypesRouter)
-	.use(subjectPrefixesRouter)
-	.use(termsRouter)
-	.use(testScoresRouter);
+// Combine all API specs
+export const importAPISpecs = {
+	...metadataSpec,
+	...parseCSVSpec,
+	...importAcademicStandingSpec,
+	...importAdmitCodesSpec,
+}
+
+// Middleware to normalize all column headers to lowercase
+router.use(normalizeHeadersMiddleware)
+
+// Use routers
+router.use(academicStandingRouter)
+router.use(admitCodesRouter)
+router.use(collegeCodesRouter)
+router.use(collegesRouter)
+router.use(coursesRouter)
+router.use(demographicsRouter)
+router.use(departmentsRouter)
+router.use(instructionalMethodsRouter)
+router.use(nationsRouter)
+router.use(overridesRouter)
+router.use(partOfTermRouter)
+router.use(previousCollegesRouter)
+router.use(programsRouter)
+router.use(registrationStatusRouter)
+router.use(studentCoursesRouter)
+router.use(studentTypesRouter)
+router.use(subjectPrefixesRouter)
+router.use(termsRouter)
+router.use(testScoresRouter);
 
 export default router;

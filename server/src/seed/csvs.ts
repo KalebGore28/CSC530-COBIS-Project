@@ -2,8 +2,8 @@
 import express from 'express';
 import request from 'supertest';
 
-import { academicStandingRouter } from '../routes/imports/academic_standing';
-import { admitCodesRouter } from '../routes/imports/admit_codes';
+import { academicStandingRouter } from '../routes/imports/academicStanding';
+import { admitCodesRouter } from '../routes/imports/admitCodes';
 import { collegeCodesRouter } from '../routes/imports/college_codes';
 import { collegesRouter } from '../routes/imports/colleges';
 import { coursesRouter } from '../routes/imports/courses';

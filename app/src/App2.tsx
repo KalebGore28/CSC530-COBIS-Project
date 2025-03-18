@@ -10,6 +10,24 @@ import QueryBuilderPage from "./pages/QueryBuilder.tsx"
 import CobisTools from "./pages/CobisTools.tsx"
 import CsvImport from "./pages/CsvImport.tsx"
 
+import { authClient } from "@/lib/auth-client";
+import { signinGoogle } from './lib/auth-client';
+
+// Define TypeScript interfaces for the session and user
+interface User {
+	id: string;
+	name: string;
+	email: string;
+	emailVerified: boolean;
+	createdAt: Date;
+	updatedAt: Date;
+	image?: string | null | undefined | undefined;
+}
+
+interface Session {
+	user: User;
+}
+
 function App() {
 	const [user, setUser] = useState<any>(null)
 	const [isLoading, setIsLoading] = useState(true)
@@ -17,7 +35,7 @@ function App() {
 	useEffect(() => {
 		const checkAuth = async () => {
 			try {
-				const response = await fetch("/api/auth/me", {
+				const response = await fetch("/api/me", {
 					method: "GET",
 					credentials: "include",
 				})

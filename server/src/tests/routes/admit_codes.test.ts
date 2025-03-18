@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { admitCodes } from '../../db/schema';
-import { admitCodesRouter } from '../../routes/imports/admit_codes';
+import { admitCodesRouter } from '../../routes/imports/admitCodes';
 
 
 describe('Admit Codes Import Tests', () => {
