@@ -1,6 +1,8 @@
 import express from 'express';
 import { importData } from '../../utils/importData';
 import { convertDateMMDDYYYY } from '../../utils/convertDates';
+import 'zod-openapi/extend';
+import { z } from 'zod';
 
 import { students, studentAddresses, studentAcademicInfo, studentPrograms, advisors, studentAdvisors } from '../../db/schema';
 

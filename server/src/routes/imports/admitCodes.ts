@@ -23,8 +23,15 @@ async function importAdmitCodes(
 	);
 }
 
+/**
+ * Import admit codes data
+ * @param mappedData - The admit codes data to import
+ * @param fileName - The name of the file being imported
+ * @param importedBy - The user importing the data
+ * @returns `message`, `totalRecords`, and `errors`
+ */
 const router = express.Router()
-router.post('/admit_codes', async (req, res) => {
+router.post('/admit-codes', async (req, res) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importAdmitCodes(mappedData, fileName, importedBy);
@@ -39,13 +46,14 @@ router.post('/admit_codes', async (req, res) => {
 		res.status(500).json({ error: 'Error importing admit codes data.' });
 	}
 });
-const mappedData = z.array(z.object({
-	code: z.string(),
-	description: z.string(),
-}));
 
-const fileName = z.string();
-const importedBy = z.string();
+// Preparing OpenAPI spec
+const mappedData = z.array(z.object({
+	code: z.string().openapi({ description: 'The admit code', example: 'G1', ref: 'admitCode' }),
+	description: z.string().openapi({ description: 'The admit code description', example: 'Graduate-with UG degree', ref: 'admitCodeDescription' }),
+})).openapi({ description: 'The admit codes data to import', ref: 'admitCodesMappedData' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'admit-codes.csv', ref: 'admitCodesFileName' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'admitCodesImportedBy' });
 
 export const importAdmitCodesSpec = {
 	'/api/import/admit_codes': {

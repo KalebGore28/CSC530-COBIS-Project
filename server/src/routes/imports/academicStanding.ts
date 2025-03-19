@@ -23,6 +23,13 @@ async function importAcademicStanding(
 	);
 }
 
+/**
+ * Import academic standing data
+ * @param mappedData - The academic standing data to import
+ * @param fileName - The name of the file being imported
+ * @param importedBy - The user importing the data
+ * @returns `message`, `totalRecords`, and `errors`
+ */
 const router = express.Router()
 router.post('/academic-standing', async (req, res) => {
 	try {
@@ -39,13 +46,14 @@ router.post('/academic-standing', async (req, res) => {
 		res.status(500).json({ error: 'Error importing academic standing data.' });
 	}
 });
-const mappedData = z.array(z.object({
-	code: z.string(),
-	description: z.string(),
-}));
 
-const fileName = z.string();
-const importedBy = z.string();
+// Preparing OpenAPI spec
+const mappedData = z.array(z.object({
+	code: z.string().openapi({ description: 'The academic standing code', example: 'GS', ref: 'academicStandingCode' }),
+	description: z.string().openapi({ description: 'The academic standing description', example: 'Good Standing', ref: 'academicStandingDescription' }),
+})).openapi({ description: 'The academic standing data to import', ref: 'academicStandingMappedData' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'academicStandingFileName' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'academicStandingImportedBy' });
 
 export const importAcademicStandingSpec = {
 	'/api/import/academic-standing': {

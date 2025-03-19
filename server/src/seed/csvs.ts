@@ -4,7 +4,7 @@ import request from 'supertest';
 
 import { academicStandingRouter } from '../routes/imports/academicStanding';
 import { admitCodesRouter } from '../routes/imports/admitCodes';
-import { collegeCodesRouter } from '../routes/imports/college_codes';
+import { collegeCodesRouter } from '../routes/imports/collegeCodes';
 import { collegesRouter } from '../routes/imports/colleges';
 import { coursesRouter } from '../routes/imports/courses';
 import { demographicsRouter } from '../routes/imports/demographics';

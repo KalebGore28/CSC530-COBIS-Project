@@ -15,11 +15,11 @@ import { AuthandPermissionsRequest } from '../types/requests';
 // Import routes
 import academicStandingRouter, { importAcademicStandingSpec } from './imports/academicStanding';
 import admitCodesRouter, { importAdmitCodesSpec } from './imports/admitCodes';
-import { collegeCodesRouter } from './imports/college_codes';
-import { collegesRouter } from './imports/colleges';
-import { coursesRouter } from './imports/courses';
+import collegeCodesRouter, { importCollegeCodesSpec } from './imports/collegeCodes';
+import collegesRouter, { importCollegesSpec } from './imports/colleges';
+import coursesRouter, { importCoursesSpec } from './imports/courses';
 import { demographicsRouter } from './imports/demographics';
-import { departmentsRouter } from './imports/departments';
+import departmentsRouter, { importDepartmentsSpec } from './imports/departments';
 import { instructionalMethodsRouter } from './imports/instructional_methods';
 import { nationsRouter } from './imports/nations';
 import { overridesRouter } from './imports/overrides';
@@ -35,24 +35,15 @@ import { testScoresRouter } from './imports/test_scores';
 
 // Import schemas
 import {
-	academicStanding,
-	admitCodes,
-	collegeCodes,
-	colleges,
-	courses,
-	departments,
-	instructionalMethods,
-	nations,
-	overrides,
-	partOfTerm,
-	previousColleges,
-	programs,
-	registrationStatus,
-	studentCourses,
-	studentTypes,
-	subjectPrefixes,
-	terms,
-	testScores,
+	academicStanding, admitCodes,
+	collegeCodes, colleges,
+	courses, departments,
+	instructionalMethods, nations,
+	overrides, partOfTerm,
+	previousColleges, programs,
+	registrationStatus, studentCourses,
+	studentTypes, subjectPrefixes,
+	terms, testScores,
 } from '../db/schema';
 
 const COBIS_ADMIN_ROLE_ID = 6;
@@ -235,6 +226,11 @@ export const importAPISpecs = {
 	...parseCSVSpec,
 	...importAcademicStandingSpec,
 	...importAdmitCodesSpec,
+	...importCollegeCodesSpec,
+	...importCollegesSpec,
+	...importCoursesSpec,
+
+	...importDepartmentsSpec,
 }
 
 // Middleware to normalize all column headers to lowercase
