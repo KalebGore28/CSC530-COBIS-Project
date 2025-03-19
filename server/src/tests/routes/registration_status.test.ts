@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { registrationStatus } from '../../db/schema';
-import { registrationStatusRouter } from '../../routes/imports/registration_status';
+import { registrationStatusRouter } from '../../routes/imports/registrationStatus';
 
 describe('Registration Status Import Tests', () => {
 	let app: express.Express;

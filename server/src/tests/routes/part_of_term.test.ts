@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { partOfTerm } from '../../db/schema';
-import { partOfTermRouter } from '../../routes/imports/part_of_term';
+import { partOfTermRouter } from '../../routes/imports/partOfTerm';
 
 describe('Part of Term Import Tests', () => {
 	let app: express.Express;

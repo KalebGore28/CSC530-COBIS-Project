@@ -26,6 +26,13 @@ async function importDepartments(
 	);
 }
 
+/**
+ * Import department data
+ * @param mappedData - The department data to import
+ * @param fileName - The name of the file being imported
+ * @param importedBy - The user importing the data
+ * @returns `message`, `totalRecords`, and `errors`
+ */
 const router = express.Router()
 router.post('/departments', async (req, res) => {
 	try {

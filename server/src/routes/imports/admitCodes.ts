@@ -56,7 +56,7 @@ const fileName = z.string().openapi({ description: 'Name of the file being impor
 const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'admitCodesImportedBy' });
 
 export const importAdmitCodesSpec = {
-	'/api/import/admit_codes': {
+	'/api/import/admit-codes': {
 		post: {
 			tags: ['Imports'],
 			operationId: 'importAdmitCodes',

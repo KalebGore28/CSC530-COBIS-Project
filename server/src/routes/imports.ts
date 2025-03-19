@@ -20,14 +20,14 @@ import collegesRouter, { importCollegesSpec } from './imports/colleges';
 import coursesRouter, { importCoursesSpec } from './imports/courses';
 import { demographicsRouter } from './imports/demographics';
 import departmentsRouter, { importDepartmentsSpec } from './imports/departments';
-import { instructionalMethodsRouter } from './imports/instructional_methods';
-import { nationsRouter } from './imports/nations';
-import { overridesRouter } from './imports/overrides';
-import { partOfTermRouter } from './imports/part_of_term';
-import { previousCollegesRouter } from './imports/previous_colleges';
-import { programsRouter } from './imports/programs.js';
-import { registrationStatusRouter } from './imports/registration_status';
-import { studentCoursesRouter } from './imports/student_courses';
+import instructionalMethodsRouter, { importInstructionalMethodsSpec } from './imports/instructionalMethods';
+import nationsRouter, { importNationsSpec } from './imports/nations';
+import overridesRouter, { importOverridesSpec } from './imports/overrides';
+import partOfTermRouter, { importPartOfTermSpec } from './imports/partOfTerm';
+import previousCollegesRouter, { importPreviousCollegesSpec } from './imports/previousColleges';
+import programsRouter, { importProgramsSpec } from './imports/programs.js';
+import registrationStatusRouter, { importRegistrationStatusSpec } from './imports/registrationStatus';
+import studentCoursesRouter, { importStudentCoursesSpec } from './imports/studentCourses';
 import { studentTypesRouter } from './imports/student_types';
 import { subjectPrefixesRouter } from './imports/subject_prefixes';
 import { termsRouter } from './imports/terms';
@@ -231,6 +231,14 @@ export const importAPISpecs = {
 	...importCoursesSpec,
 
 	...importDepartmentsSpec,
+	...importInstructionalMethodsSpec,
+	...importNationsSpec,
+	...importOverridesSpec,
+	...importPartOfTermSpec,
+	...importPreviousCollegesSpec,
+	...importProgramsSpec,
+	...importRegistrationStatusSpec,
+	...importStudentCoursesSpec,
 }
 
 // Middleware to normalize all column headers to lowercase
