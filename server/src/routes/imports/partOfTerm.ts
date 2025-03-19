@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { partOfTerm } from '../../db/models/part_of_term';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importPartOfTerm(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/part-of-term', async (req, res) => {
+router.post('/part-of-term', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importPartOfTerm(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/part-of-term', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The part of term code', example: '1', ref: 'partOfTermCode' }),
-	description: z.string().openapi({ description: 'The part of term description', example: 'Full Term', ref: 'partOfTermDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'part-of-term.csv', ref: 'partOfTermFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'partOfTermImportedBy' });
+	code: z.string().openapi({ description: 'The part of term code', example: '1', ref: 'part_of_term_code' }),
+	description: z.string().openapi({ description: 'The part of term description', example: 'Full Term', ref: 'part_of_term_description' }),
+})).openapi({ description: 'The part of term data to import', ref: 'part_of_term_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'part-of-term.csv', ref: 'part_of_term_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'part_of_term_imported_by' });
 
 export const importPartOfTermSpec = {
 	'/api/import/part-of-term': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importPartOfTerm',
+			operationId: 'import_part_of_term',
 			description: 'Import part of term data',
 			requestBody: {
 				content: {
@@ -78,32 +78,9 @@ export const importPartOfTermSpec = {
 					content: {
 						'application/json': {
 							schema: z.object({
-								message: z.string().openapi({ description: 'Success message', example: 'Part of term imported successfully', ref: 'partOfTermImportSuccessMessage' }),
-								totalRecords: z.number().openapi({ description: 'Total number of records imported', example: 5, ref: 'partOfTermTotalRecords' }),
-								errors: z.array(z.object({
-									row: z.number().openapi({ description: 'Row number', example: 3, ref: 'partOfTermRowNumber' }),
-									error: z.string().openapi({ description: 'Error message', example: 'Invalid part of term code', ref: 'partOfTermError' }),
-								})).openapi({ description: 'Errors encountered during import', ref: 'partOfTermErrors' }),
-							}),
-						},
-					},
-				},
-				'400': {
-					description: 'Invalid request data',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({ description: 'Error message', example: 'Invalid request data', ref: 'partOfTermInvalidRequestData' }),
-							}),
-						},
-					},
-				},
-				'500': {
-					description: 'Error importing part of term data',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({ description: 'Error message', example: 'Error importing part of term data', ref: 'partOfTermImportError' }),
+								message: z.string(),
+								totalRecords: z.number(),
+								errors: z.array(z.string()),
 							}),
 						},
 					},

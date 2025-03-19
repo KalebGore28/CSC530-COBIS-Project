@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { programs } from '../../db/models/programs';
 import 'zod-openapi/extend';
@@ -40,7 +40,7 @@ async function importPrograms(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/programs', async (req, res) => {
+router.post('/programs', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -82,26 +82,26 @@ router.post('/programs', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The program code', example: 'A005', ref: 'programCode' }),
-	description: z.string().openapi({ description: 'The program description', example: 'Accountancy and Analytics', ref: 'programDescription' }),
-	cip_code: z.string().nullable().openapi({ description: 'The CIP code', example: '12345', ref: 'programCipCode' }),
-	is_major: z.string().openapi({ description: 'Is this a major?', example: '1', ref: 'programIsMajor' }),
-	is_minor: z.string().openapi({ description: 'Is this a minor?', example: '0', ref: 'programIsMinor' }),
-	has_concentration: z.string().openapi({ description: 'Has concentration?', example: '0', ref: 'programHasConcentration' }),
-	is_discontinued: z.string().openapi({ description: 'Is this program discontinued?', example: '0', ref: 'programIsDiscontinued' }),
-	is_aacsb: z.string().openapi({ description: 'Is this program AACSB accredited?', example: '0', ref: 'programIsAacsb' }),
-	department: z.string().openapi({ description: 'The department code', example: '0000', ref: 'programDepartmentCode' }),
-	college: z.string().openapi({ description: 'The college code', example: '0', ref: 'programCollegeCode' }),
-	added_on: z.string().nullable().openapi({ description: 'The date the program was added', example: '2022-01-01', ref: 'programAddedOn' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'programs.csv', ref: 'programsFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'programsImportedBy' });
+	code: z.string().openapi({ description: 'The program code', example: 'A005', ref: 'programs_code' }),
+	description: z.string().openapi({ description: 'The program description', example: 'Accountancy and Analytics', ref: 'programs_description' }),
+	cip_code: z.string().nullable().openapi({ description: 'The CIP code', example: '12345', ref: 'programs_cip_code' }),
+	is_major: z.string().openapi({ description: 'Is this a major?', example: '1', ref: 'programs_is_major' }),
+	is_minor: z.string().openapi({ description: 'Is this a minor?', example: '0', ref: 'programs_is_minor' }),
+	has_concentration: z.string().openapi({ description: 'Has concentration?', example: '0', ref: 'programs_has_concentration' }),
+	is_discontinued: z.string().openapi({ description: 'Is this program discontinued?', example: '0', ref: 'programs_is_discontinued' }),
+	is_aacsb: z.string().openapi({ description: 'Is this program AACSB accredited?', example: '0', ref: 'programs_is_aacsb' }),
+	department: z.string().openapi({ description: 'The department code', example: '0000', ref: 'programs_department_code' }),
+	college: z.string().openapi({ description: 'The college code', example: '0', ref: 'programs_college_code' }),
+	added_on: z.string().nullable().openapi({ description: 'The date the program was added', example: '2022-01-01', ref: 'programs_added_on' }),
+})).openapi({ description: 'The programs data to import', ref: 'programs_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'programs.csv', ref: 'programs_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'programs_imported_by' });
 
 export const importProgramsSpec = {
 	'/api/import/programs': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importPrograms',
+			operationId: 'import_programs',
 			description: 'Import programs data',
 			requestBody: {
 				content: {
@@ -122,11 +122,8 @@ export const importProgramsSpec = {
 							schema: z.object({
 								message: z.string(),
 								totalRecords: z.number(),
-								errors: z.array(z.object({
-									row: z.number(),
-									error: z.string()
-								}))
-							})
+								errors: z.array(z.string()),
+							}),
 						}
 					}
 				}

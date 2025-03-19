@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { convertDateDDMMYYYY } from '../../utils/convertDates';
 import { overrides } from '../../db/models/overrides';
@@ -39,7 +39,7 @@ async function importOverrides(
  * @returns `message`, `totalRecords`, and `errors`
 */
 const router = express.Router()
-router.post('/overrides', async (req, res) => {
+router.post('/overrides', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -105,24 +105,24 @@ router.post('/overrides', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	mnumber: z.string().openapi({ description: 'The MNumber of the student', example: 'M100123456', ref: 'mnumber' }),
-	term: z.string().openapi({ description: 'The term code', example: '202310', ref: 'term' }),
-	crn: z.string().openapi({ description: 'The CRN of the course', example: '12345', ref: 'crn' }),
-	subj: z.string().openapi({ description: 'The course subject', example: 'ACC', ref: 'subj' }),
-	crsenumb: z.string().openapi({ description: 'The course number and suffix', example: '099', ref: 'crsenumb' }),
-	section: z.string().openapi({ description: 'The course section', example: '03', ref: 'section' }),
-	override: z.string().openapi({ description: 'The type of override', example: 'PREREQ', ref: 'override' }),
-	userid: z.string().openapi({ description: 'The user ID of the person granting the override', example: 'WWW2_USER', ref: 'userid' }),
-	activitydate: z.string().openapi({ description: 'The date the override was granted', example: '01032023', ref: 'activitydate' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'overrides.csv', ref: 'fileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'importedBy' });
+	mnumber: z.string().openapi({ description: 'The MNumber of the student', example: 'M100123456', ref: 'overrides_mnumber' }),
+	term: z.string().openapi({ description: 'The term code', example: '202310', ref: 'overrides_term' }),
+	crn: z.string().openapi({ description: 'The CRN of the course', example: '12345', ref: 'overrides_crn' }),
+	subj: z.string().openapi({ description: 'The course subject', example: 'ACC', ref: 'overrides_subj' }),
+	crsenumb: z.string().openapi({ description: 'The course number and suffix', example: '099', ref: 'overrides_crsenumb' }),
+	section: z.string().openapi({ description: 'The course section', example: '03', ref: 'overrides_section' }),
+	override: z.string().openapi({ description: 'The type of override', example: 'PREREQ', ref: 'overrides_override' }),
+	userid: z.string().openapi({ description: 'The user ID of the person granting the override', example: 'WWW2_USER', ref: 'overrides_userid' }),
+	activitydate: z.string().openapi({ description: 'The date the override was granted', example: '01032023', ref: 'overrides_activitydate' }),
+})).openapi({ description: 'The override data to import', ref: 'overrides_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'overrides.csv', ref: 'overrides_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'overrides_imported_by' });
 
 export const importOverridesSpec = {
 	'/api/import/overrides': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importOverrides',
+			operationId: 'import_overrides',
 			description: 'Import override data',
 			requestBody: {
 				content: {

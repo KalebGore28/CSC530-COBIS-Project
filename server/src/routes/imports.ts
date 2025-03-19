@@ -13,14 +13,14 @@ import { hasRole } from '../middleware/hasRole';
 import { AuthandPermissionsRequest } from '../types/requests';
 
 // Import routes
-import academicStandingRouter, { importAcademicStandingSpec } from './imports/academicStanding';
-import admitCodesRouter, { importAdmitCodesSpec } from './imports/admitCodes';
-import collegeCodesRouter, { importCollegeCodesSpec } from './imports/collegeCodes';
-import collegesRouter, { importCollegesSpec } from './imports/colleges';
+import academicStandingRouter, { academicStandingSpec } from './imports/academicStanding';
+import admitCodesRouter, { admitCodesSpec } from './imports/admitCodes';
+import collegeCodesRouter, { collegeCodesSpec } from './imports/collegeCodes';
+import collegesRouter, { collegesSpec } from './imports/colleges';
 import coursesRouter, { importCoursesSpec } from './imports/courses';
 import { demographicsRouter } from './imports/demographics';
-import departmentsRouter, { importDepartmentsSpec } from './imports/departments';
-import instructionalMethodsRouter, { importInstructionalMethodsSpec } from './imports/instructionalMethods';
+import departmentsRouter, { departmentsSpec } from './imports/departments';
+import instructionalMethodsRouter, { instructionalMethodsSpec } from './imports/instructionalMethods';
 import nationsRouter, { importNationsSpec } from './imports/nations';
 import overridesRouter, { importOverridesSpec } from './imports/overrides';
 import partOfTermRouter, { importPartOfTermSpec } from './imports/partOfTerm';
@@ -41,7 +41,7 @@ import {
 	overrides, partOfTerm,
 	previousColleges, programs,
 	registrationStatus, studentCourses,
-	studentTypes, subjectPrefixes,
+	subjectPrefixes,
 	terms, testScores,
 } from '../db/schema';
 
@@ -58,7 +58,6 @@ const upload = multer({
 	},
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
-
 
 // Utility to extract fields from Drizzle ORM schema
 const getFieldsFromSchema = (schema: any): string[] => {
@@ -222,14 +221,14 @@ const parseCSVSpec = {
 export const importAPISpecs = {
 	...metadataSpec,
 	...parseCSVSpec,
-	...importAcademicStandingSpec,
-	...importAdmitCodesSpec,
-	...importCollegeCodesSpec,
-	...importCollegesSpec,
+	...academicStandingSpec,
+	...admitCodesSpec,
+	...collegeCodesSpec,
+	...collegesSpec,
 	...importCoursesSpec,
 
-	...importDepartmentsSpec,
-	...importInstructionalMethodsSpec,
+	...departmentsSpec,
+	...instructionalMethodsSpec,
 	...importNationsSpec,
 	...importOverridesSpec,
 	...importPartOfTermSpec,

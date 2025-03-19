@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { terms } from '../../db/models/terms';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importTerms(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/terms', async (req, res) => {
+router.post('/terms', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importTerms(mappedData, fileName, importedBy);
@@ -49,16 +49,17 @@ router.post('/terms', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The term code', example: '10', ref: 'termCode' }),
-	description: z.string().openapi({ description: 'The term description', example: 'Spring TERM', ref: 'termDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'terms.csv', ref: 'termsFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'termsImportedBy' });
+	code: z.string().openapi({ description: 'The term code', example: '10', ref: 'terms_code' }),
+	description: z.string().openapi({ description: 'The term description', example: 'Spring TERM', ref: 'terms_description' }),
+})).openapi({ description: 'The terms data to import', ref: 'terms_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'terms.csv', ref: 'terms_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'terms_imported_by' });
 
 export const importTermsSpec = {
 	'/api/import/terms': {
 		post: {
-			summary: 'Import terms data',
+			tags: ['Imports'],
+			operationId: 'import_terms',
 			description: 'Import terms data',
 			requestBody: {
 				content: {
@@ -80,16 +81,6 @@ export const importTermsSpec = {
 								message: z.string(),
 								totalRecords: z.number(),
 								errors: z.array(z.string()),
-							}),
-						},
-					},
-				},
-				500: {
-					description: 'Error importing terms data',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string(),
 							}),
 						},
 					},

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { convertDateMMDDYYYY } from '../../utils/convertDates';
 import { testScores } from '../../db/models/test_scores';
@@ -35,7 +35,7 @@ async function importTestScores(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/test-scores', async (req, res) => {
+router.post('/test-scores', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -73,19 +73,20 @@ router.post('/test-scores', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'studentMNumber' }),
-	testcode: z.string().openapi({ description: 'The test code', example: 'ACT', ref: 'testCode' }),
-	testdesc: z.string().openapi({ description: 'The test description', example: 'ACT Composite', ref: 'testDescription' }),
-	testscore: z.string().openapi({ description: 'The test score', example: '28', ref: 'testScore' }),
-	testdate: z.string().openapi({ description: 'The test date', example: '03152023', ref: 'testDate' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'test-scores.csv', ref: 'testScoresFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'testScoresImportedBy' });
+	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'test_scores_mnumber' }),
+	testcode: z.string().openapi({ description: 'The test code', example: 'ACT', ref: 'test_scores_test_code' }),
+	testdesc: z.string().openapi({ description: 'The test description', example: 'ACT Composite', ref: 'test_scores_test_description' }),
+	testscore: z.string().openapi({ description: 'The test score', example: '28', ref: 'test_scores_test_score' }),
+	testdate: z.string().openapi({ description: 'The test date', example: '03152023', ref: 'test_scores_test_date' }),
+})).openapi({ description: 'The test scores data to import', ref: 'test_scores_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'test-scores.csv', ref: 'test_scores_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'test_scores_imported_by' });
 
 export const importTestScoresSpec = {
 	'/api/import/test-scores': {
 		post: {
-			summary: 'Import test scores data',
+			tags: ['Imports'],
+			operationId: 'import_test_scores',
 			description: 'Import test scores data',
 			requestBody: {
 				content: {
@@ -106,10 +107,7 @@ export const importTestScoresSpec = {
 							schema: z.object({
 								message: z.string(),
 								totalRecords: z.number(),
-								errors: z.array(z.object({
-									row: z.number(),
-									message: z.string(),
-								})),
+								errors: z.array(z.string()),
 							}),
 						},
 					},

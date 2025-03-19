@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { colleges } from '../../db/schema';
 import { z } from 'zod';
@@ -30,7 +30,7 @@ async function importColleges(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/colleges', async (req, res) => {
+router.post('/colleges', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importColleges(mappedData, fileName, importedBy);
@@ -48,17 +48,17 @@ router.post('/colleges', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The college code', example: 'BP', ref: 'collegeCode' }),
-	description: z.string().openapi({ description: 'The college description', example: 'Business', ref: 'collegeDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'colleges.csv', ref: 'collegeFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'collegeImportedBy' });
+	code: z.string().openapi({ description: 'The college code', example: 'BP', ref: 'colleges_code' }),
+	description: z.string().openapi({ description: 'The college description', example: 'Business', ref: 'colleges_description' }),
+})).openapi({ description: 'The college data to import', ref: 'colleges_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'colleges.csv', ref: 'colleges_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'colleges_imported_by' });
 
-export const importCollegesSpec = {
+export const collegesSpec = {
 	'/api/import/colleges': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importColleges',
+			operationId: 'import_colleges',
 			description: 'Import college data',
 			requestBody: {
 				content: {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { subjectPrefixes } from '../../db/models/subject_prefixes';
 import 'zod-openapi/extend';
@@ -32,7 +32,7 @@ async function importSubjectPrefixes(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/subject-prefixes', async (req, res) => {
+router.post('/subject-prefixes', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -60,17 +60,18 @@ router.post('/subject-prefixes', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	college: z.string().openapi({ description: 'The college code', example: 'AG', ref: 'subjectPrefixCollegeCode' }),
-	department: z.string().openapi({ description: 'The department code', example: 'AGR', ref: 'subjectPrefixDepartmentCode' }),
-	prefix: z.string().openapi({ description: 'The subject prefix', example: 'AED', ref: 'subjectPrefix' }),
-})).openapi({ description: 'The course prefixes data to import', ref: 'subjectPrefixesMappedData' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'subject-prefixes.csv', ref: 'subjectPrefixesFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'subjectPrefixesImportedBy' });
+	college: z.string().openapi({ description: 'The college code', example: 'AG', ref: 'subject_prefixes_college_code' }),
+	department: z.string().openapi({ description: 'The department code', example: 'AGR', ref: 'subject_prefixes_department_code' }),
+	prefix: z.string().openapi({ description: 'The subject prefix', example: 'AED', ref: 'subject_prefix' }),
+})).openapi({ description: 'The course prefixes data to import', ref: 'subject_prefixes_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'subject-prefixes.csv', ref: 'subject_prefixes_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'subject_prefixes_imported_by' });
 
 export const importSubjectPrefixesSpec = {
 	'/api/import/subject-prefixes': {
 		post: {
-			summary: 'Import subject prefixes data',
+			tags: ['Imports'],
+			operationId: 'import_subject_prefixes',
 			description: 'Import subject prefixes data',
 			requestBody: {
 				content: {
@@ -91,24 +92,11 @@ export const importSubjectPrefixesSpec = {
 							schema: z.object({
 								message: z.string(),
 								totalRecords: z.number(),
-								errors: z.array(z.object({
-									row: z.number(),
-									message: z.string(),
-								})),
+								errors: z.array(z.string()),
 							}),
 						},
 					},
 				},
-				'500': {
-					description: 'Error importing subject prefixes data',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string(),
-							}),
-						},
-					},
-				}
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { collegeCodes } from '../../db/schema';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importCollegeCodes(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/college-codes', async (req, res) => {
+router.post('/college-codes', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importCollegeCodes(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/college-codes', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The college code', example: '0003', ref: 'collegeCodeId' }),
-	description: z.string().openapi({ description: 'The college description', example: 'Faulkner University', ref: 'collegeCodeDescription' }),
-})).openapi({ description: 'The college codes data to import', ref: 'collegeCodesMappedData' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'college-codes.csv', ref: 'collegeCodesFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'collegeCodesImportedBy' });
+	code: z.string().openapi({ description: 'The college code', example: '0003', ref: 'college_codes_code' }),
+	description: z.string().openapi({ description: 'The college description', example: 'Faulkner University', ref: 'college_codes_description' }),
+})).openapi({ description: 'The college codes data to import', ref: 'college_codes_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'college-codes.csv', ref: 'college_codes_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'college_codes_imported_by' });
 
-export const importCollegeCodesSpec = {
+export const collegeCodesSpec = {
 	'/api/import/college-codes': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importCollegeCodes',
+			operationId: 'import_college_codes',
 			description: 'Import college codes data',
 			requestBody: {
 				content: {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { registrationStatus } from '../../db/models/registration_status';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importRegistrationStatus(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/registration-status', async (req, res) => {
+router.post('/registration-status', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importRegistrationStatus(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/registration-status', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The registration status code', example: 'RW', ref: 'registrationStatusCode' }),
-	description: z.string().openapi({ description: 'The registration status description', example: 'Web Registered', ref: 'registrationStatusDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'registration-status.csv', ref: 'registrationStatusFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'registrationStatusImportedBy' });
+	code: z.string().openapi({ description: 'The registration status code', example: 'RW', ref: 'registration_status_code' }),
+	description: z.string().openapi({ description: 'The registration status description', example: 'Web Registered', ref: 'registration_status_description' }),
+})).openapi({ description: 'The registration status data to import', ref: 'registration_status_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'registration-status.csv', ref: 'registration_status_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'registration_status_imported_by' });
 
 export const importRegistrationStatusSpec = {
 	'/api/import/registration-status': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importRegistrationStatus',
+			operationId: 'import_registration_status',
 			description: 'Import registration status data',
 			requestBody: {
 				content: {
@@ -80,8 +80,8 @@ export const importRegistrationStatusSpec = {
 							schema: z.object({
 								message: z.string(),
 								totalRecords: z.number(),
-								errors: z.array(z.object({ index: z.number(), error: z.string() }))
-							})
+								errors: z.array(z.string()),
+							}),
 						}
 					}
 				}

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { academicStanding } from '../../db/schema';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importAcademicStanding(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/academic-standing', async (req, res) => {
+router.post('/academic-standing', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importAcademicStanding(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/academic-standing', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The academic standing code', example: 'GS', ref: 'academicStandingCode' }),
-	description: z.string().openapi({ description: 'The academic standing description', example: 'Good Standing', ref: 'academicStandingDescription' }),
-})).openapi({ description: 'The academic standing data to import', ref: 'academicStandingMappedData' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'academicStandingFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'academicStandingImportedBy' });
+	code: z.string().openapi({ description: 'The academic standing code', example: 'GS', ref: 'academic_standing_code' }),
+	description: z.string().openapi({ description: 'The academic standing description', example: 'Good Standing', ref: 'academic_standing_description' }),
+})).openapi({ description: 'The academic standing data to import', ref: 'academic_standing_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'academic_standing_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'academic_standing_imported_by' });
 
-export const importAcademicStandingSpec = {
+export const academicStandingSpec = {
 	'/api/import/academic-standing': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importAcademicStanding',
+			operationId: 'import_academic_standing',
 			description: 'Import academic standing data',
 			requestBody: {
 				content: {

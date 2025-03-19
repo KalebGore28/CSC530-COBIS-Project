@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { departments } from '../../db/models/departments';
 import 'zod-openapi/extend';
@@ -34,7 +34,7 @@ async function importDepartments(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/departments', async (req, res) => {
+router.post('/departments', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -65,20 +65,20 @@ router.post('/departments', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The department code', example: 'ACC', ref: 'departmentCode' }),
-	description: z.string().openapi({ description: 'The department description', example: 'Accounting', ref: 'departmentDescription' }),
-	prefixes: z.string().openapi({ description: 'The department prefixes', example: 'ACC,BAC', ref: 'departmentPrefixes' }),
-	canvas_id: z.string().openapi({ description: 'The department Canvas ID', example: '12345', ref: 'departmentCanvasId' }),
-	college: z.string().openapi({ description: 'The department college', example: 'BP', ref: 'departmentCollege' }),
-})).openapi({ description: 'The department data to import', ref: 'departmentMappedData' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'departments.csv', ref: 'departmentFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'departmentImportedBy' });
+	code: z.string().openapi({ description: 'The department code', example: 'ACC', ref: 'departments_code' }),
+	description: z.string().openapi({ description: 'The department description', example: 'Accounting', ref: 'departments_description' }),
+	prefixes: z.string().openapi({ description: 'The department prefixes', example: 'ACC,BAC', ref: 'departments_prefixes' }),
+	canvas_id: z.string().openapi({ description: 'The department Canvas ID', example: '12345', ref: 'departments_canvas_id' }),
+	college: z.string().openapi({ description: 'The department college', example: 'BP', ref: 'departments_college' }),
+})).openapi({ description: 'The department data to import', ref: 'departments_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'departments.csv', ref: 'departments_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'departments_imported_by' });
 
-export const importDepartmentsSpec = {
+export const departmentsSpec = {
 	'/api/import/departments': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importDepartments',
+			operationId: 'import_departments',
 			description: 'Import department data',
 			requestBody: {
 				content: {

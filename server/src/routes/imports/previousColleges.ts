@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { convertDateDDMMYYYY } from '../../utils/convertDates';
 import { previousColleges } from '../../db/models/previous_colleges';
@@ -35,7 +35,7 @@ async function importPreviousColleges(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/previous-colleges', async (req, res) => {
+router.post('/previous-colleges', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -65,20 +65,20 @@ router.post('/previous-colleges', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'previousCollegeMNumber' }),
-	collegecode: z.string().openapi({ description: 'The college code', example: '0015S', ref: 'previousCollegeCode' }),
-	collegedesc: z.string().openapi({ description: 'The college description', example: 'Troy University ', ref: 'previousCollegeDescription' }),
-	degree: z.string().openapi({ description: 'The degree', example: 'BBA', ref: 'previousCollegeDegree' }),
-	degreedate: z.string().openapi({ description: 'The degree date', example: '15052019', ref: 'previousCollegeDegreeDate' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'previous-colleges.csv', ref: 'previousCollegeFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'previousCollegeImportedBy' });
+	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'previous_colleges_mnumber' }),
+	collegecode: z.string().openapi({ description: 'The college code', example: '0015S', ref: 'previous_colleges_college_code' }),
+	collegedesc: z.string().openapi({ description: 'The college description', example: 'Troy University ', ref: 'previous_colleges_colleges_description' }),
+	degree: z.string().openapi({ description: 'The degree', example: 'BBA', ref: 'previous_colleges_degree' }),
+	degreedate: z.string().openapi({ description: 'The degree date', example: '15052019', ref: 'previous_colleges_degree_date' }),
+})).openapi({ description: 'The previous college data to import', ref: 'previous_colleges_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'previous-colleges.csv', ref: 'previous_colleges_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'previous_colleges_imported_by' });
 
 export const importPreviousCollegesSpec = {
 	'/api/import/previous-colleges': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importPreviousColleges',
+			operationId: 'import_previous_colleges',
 			description: 'Import previous college data',
 			requestBody: {
 				content: {
@@ -97,12 +97,9 @@ export const importPreviousCollegesSpec = {
 					content: {
 						'application/json': {
 							schema: z.object({
-								message: z.string().openapi({ description: 'Success message', example: 'Previous colleges imported successfully.', ref: 'previousCollegeImportSuccessMessage' }),
-								totalRecords: z.number().openapi({ description: 'Total number of records imported', example: 10, ref: 'previousCollegeTotalRecords' }),
-								errors: z.array(z.object({
-									row: z.number().openapi({ description: 'Row number', example: 2, ref: 'previousCollegeErrorRow' }),
-									message: z.string().openapi({ description: 'Error message', example: 'Invalid M number.', ref: 'previousCollegeErrorMessage' }),
-								})).openapi({ description: 'Errors encountered during import', ref: 'previousCollegeErrors' }),
+								message: z.string(),
+								totalRecords: z.number(),
+								errors: z.array(z.string()),
 							}),
 						},
 					},

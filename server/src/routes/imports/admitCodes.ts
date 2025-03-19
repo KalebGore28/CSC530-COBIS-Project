@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { admitCodes } from '../../db/schema';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importAdmitCodes(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/admit-codes', async (req, res) => {
+router.post('/admit-codes', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importAdmitCodes(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/admit-codes', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The admit code', example: 'G1', ref: 'admitCode' }),
-	description: z.string().openapi({ description: 'The admit code description', example: 'Graduate-with UG degree', ref: 'admitCodeDescription' }),
-})).openapi({ description: 'The admit codes data to import', ref: 'admitCodesMappedData' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'admit-codes.csv', ref: 'admitCodesFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'admitCodesImportedBy' });
+	code: z.string().openapi({ description: 'The admit code', example: 'G1', ref: 'admit_codes_code' }),
+	description: z.string().openapi({ description: 'The admit code description', example: 'Graduate-with UG degree', ref: 'admit_codes_description' }),
+})).openapi({ description: 'The admit codes data to import', ref: 'admit_codes_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'admit-codes.csv', ref: 'admit_codes_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'admit_codes_imported_by' });
 
-export const importAdmitCodesSpec = {
+export const admitCodesSpec = {
 	'/api/import/admit-codes': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importAdmitCodes',
+			operationId: 'import_admit_codes',
 			description: 'Import admit codes data',
 			requestBody: {
 				content: {

@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { instructionalMethods } from '../../db/models/instructional_methods';
 import 'zod-openapi/extend';
@@ -31,7 +31,7 @@ async function importInstructionalMethods(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/instructional-methods', async (req, res) => {
+router.post('/instructional-methods', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importInstructionalMethods(mappedData, fileName, importedBy);
@@ -49,17 +49,17 @@ router.post('/instructional-methods', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The instructional method code', example: 'CLAS', ref: 'instructionalMethodCode' }),
-	description: z.string().openapi({ description: 'The instructional method description', example: 'Traditional Classroom', ref: 'instructionalMethodDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'instructional-methods.csv', ref: 'instructionalMethodFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'instructionalMethodImportedBy' });
+	code: z.string().openapi({ description: 'The instructional method code', example: 'CLAS', ref: 'instructional_methods_code' }),
+	description: z.string().openapi({ description: 'The instructional method description', example: 'Traditional Classroom', ref: 'instructional_methods_description' }),
+})).openapi({ description: 'The instructional method data to import', ref: 'instructional_methods_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'instructional-methods.csv', ref: 'instructional_methods_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'instructional_methods_imported_by' });
 
-export const importInstructionalMethodsSpec = {
+export const instructionalMethodsSpec = {
 	'/api/import/instructional-methods': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importInstructionalMethods',
+			operationId: 'import_instructional_methods',
 			description: 'Import instructional methods data',
 			requestBody: {
 				content: {

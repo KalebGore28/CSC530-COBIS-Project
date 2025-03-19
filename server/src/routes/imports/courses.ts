@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { courses } from '../../db/models/courses';
 import 'zod-openapi/extend';
@@ -34,7 +34,7 @@ async function importCourses(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/courses', async (req, res) => {
+router.post('/courses', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -75,20 +75,20 @@ router.post('/courses', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	course: z.string().openapi({ description: 'Unique course identifier with optional suffix. (e.g. T)', example: 'ACC200', ref: 'courseId' }),
-	crsetitle: z.string().openapi({ description: 'Course title', example: 'Principles of Financial Acct', ref: 'courseTitle' }),
-	crhrs: z.string().openapi({ description: 'Credit hours', example: '3', ref: 'courseHours' }),
-	course_fee: z.string().openapi({ description: 'Course fee', example: '100.00', ref: 'courseFee' }),
-	web_fee: z.string().openapi({ description: 'Web fee', example: '50.00', ref: 'webFee' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'coursesFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'coursesImportedBy' });
+	course: z.string().openapi({ description: 'Unique course identifier with optional suffix. (e.g. T)', example: 'ACC200', ref: 'courses_code' }),
+	crsetitle: z.string().openapi({ description: 'Course title', example: 'Principles of Financial Acct', ref: 'courses_title' }),
+	crhrs: z.string().openapi({ description: 'Credit hours', example: '3', ref: 'courses_hours' }),
+	course_fee: z.string().openapi({ description: 'Course fee', example: '100.00', ref: 'courses_fee' }),
+	web_fee: z.string().openapi({ description: 'Web fee', example: '50.00', ref: 'courses_web_fee' }),
+})).openapi({ description: 'The course data to import', ref: 'courses_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'courses_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'courses_imported_by' });
 
 export const importCoursesSpec = {
 	'/api/import/courses': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importCourses',
+			operationId: 'import_courses',
 			description: 'Import courses data',
 			requestBody: {
 				content: {

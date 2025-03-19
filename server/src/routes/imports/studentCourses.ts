@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { studentCourses } from '../../db/models/student_courses';
 import 'zod-openapi/extend';
@@ -43,7 +43,7 @@ async function importStudentCourses(
  * @returns `message`, `totalRecords`, and `errors`
  */
 const router = express.Router()
-router.post('/student-courses', async (req, res) => {
+router.post('/student-courses', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 
@@ -99,29 +99,29 @@ router.post('/student-courses', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'studentCourseMNumber' }),
-	term: z.string().openapi({ description: 'The term code', example: '202310', ref: 'studentCourseTerm' }),
-	partofterm: z.string().openapi({ description: 'The part of term code', example: '1', ref: 'studentCoursePartOfTerm' }),
-	crn: z.string().openapi({ description: 'The course reference number', example: '12345', ref: 'studentCourseReferenceNumber' }),
-	crsesubj: z.string().openapi({ description: 'The course subject code', example: 'ACC', ref: 'studentCourseSubjectCode' }),
-	crsenumb: z.string().openapi({ description: 'The course number', example: '200', ref: 'studentCourseNumber' }),
-	section: z.string().openapi({ description: 'The course section', example: '03', ref: 'studentCourseSection' }),
-	crhrs: z.string().openapi({ description: 'The course hours', example: '3.0', ref: 'studentCourseHours' }),
-	levlcode: z.string().openapi({ description: 'The course level code', example: 'UG', ref: 'studentCourseLevelCode' }),
-	rstscode: z.string().openapi({ description: 'The registration status code', example: 'RE', ref: 'studentCourseRegistrationStatusCode' }),
-	insmcode: z.string().openapi({ description: 'The instructional method code', example: 'CLAS', ref: 'studentCourseInstructionalMethodCode' }),
-	lastattend: z.string().openapi({ description: 'The last attendance date', example: '2023-02-15', ref: 'studentCourseLastAttendanceDate' }),
-	midgrade: z.string().openapi({ description: 'The midterm grade', example: 'B', ref: 'studentCourseMidtermGrade' }),
-	fingrade: z.string().openapi({ description: 'The final grade', example: 'A', ref: 'studentCourseFinalGrade' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'student-courses.csv', ref: 'studentCoursesFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'studentCoursesImportedBy' });
+	mnumber: z.string().openapi({ description: 'The student M number', example: 'M100123456', ref: 'student_courses_mnumber' }),
+	term: z.string().openapi({ description: 'The term code', example: '202310', ref: 'student_courses_term' }),
+	partofterm: z.string().openapi({ description: 'The part of term code', example: '1', ref: 'student_courses_part_of_term' }),
+	crn: z.string().openapi({ description: 'The course reference number', example: '12345', ref: 'student_courses_crn' }),
+	crsesubj: z.string().openapi({ description: 'The course subject code', example: 'ACC', ref: 'student_courses_course_subject' }),
+	crsenumb: z.string().openapi({ description: 'The course number', example: '200', ref: 'student_courses_course_number' }),
+	section: z.string().openapi({ description: 'The course section', example: '03', ref: 'student_courses_section' }),
+	crhrs: z.string().openapi({ description: 'The course hours', example: '3.0', ref: 'student_courses_hours' }),
+	levlcode: z.string().openapi({ description: 'The course level code', example: 'UG', ref: 'student_courses_level_code' }),
+	rstscode: z.string().openapi({ description: 'The registration status code', example: 'RE', ref: 'student_courses_registration_status' }),
+	insmcode: z.string().openapi({ description: 'The instructional method code', example: 'CLAS', ref: 'student_courses_instructional_method' }),
+	lastattend: z.string().openapi({ description: 'The last attendance date', example: '2023-02-15', ref: 'student_courses_last_attendance_date' }),
+	midgrade: z.string().openapi({ description: 'The midterm grade', example: 'B', ref: 'student_courses__midterm_grade' }),
+	fingrade: z.string().openapi({ description: 'The final grade', example: 'A', ref: 'student_courses_final_grade' }),
+})).openapi({ description: 'The student courses data to import', ref: 'student_courses_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'student-courses.csv', ref: 'student_courses_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'student_courses_imported_by' });
 
 export const importStudentCoursesSpec = {
 	'/api/import/student-courses': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importStudentCourses',
+			operationId: 'import_student_courses',
 			description: 'Import student courses data',
 			requestBody: {
 				content: {
@@ -142,11 +142,8 @@ export const importStudentCoursesSpec = {
 							schema: z.object({
 								message: z.string(),
 								totalRecords: z.number(),
-								errors: z.array(z.object({
-									row: z.number(),
-									error: z.string()
-								}))
-							})
+								errors: z.array(z.string()),
+							}),
 						}
 					}
 				}

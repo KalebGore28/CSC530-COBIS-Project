@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { nations } from '../../db/models/nations';
 import 'zod-openapi/extend';
@@ -24,7 +24,7 @@ async function importNations(
 }
 
 const router = express.Router()
-router.post('/nations', async (req, res) => {
+router.post('/nations', async (req: Request, res: Response) => {
 	try {
 		const { mappedData, fileName, importedBy } = req.body;
 		const result = await importNations(mappedData, fileName, importedBy);
@@ -42,17 +42,17 @@ router.post('/nations', async (req, res) => {
 
 // Preparing OpenAPI spec
 const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The nation code', example: '55913', ref: 'nationCode' }),
-	description: z.string().openapi({ description: 'The nation description', example: 'United States', ref: 'nationDescription' }),
-}));
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'nations.csv', ref: 'nationFileName' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'nationImportedBy' });
+	code: z.string().openapi({ description: 'The nation code', example: '55913', ref: 'nations_code' }),
+	description: z.string().openapi({ description: 'The nation description', example: 'United States', ref: 'nations_description' }),
+})).openapi({ description: 'The nation data to import', ref: 'nations_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'nations.csv', ref: 'nations_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'nations_imported_by' });
 
 export const importNationsSpec = {
 	'/api/import/nations': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'importNations',
+			operationId: 'import_nations',
 			description: 'Import nations data',
 			requestBody: {
 				content: {
