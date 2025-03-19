@@ -28,10 +28,9 @@ import previousCollegesRouter, { importPreviousCollegesSpec } from './imports/pr
 import programsRouter, { importProgramsSpec } from './imports/programs.js';
 import registrationStatusRouter, { importRegistrationStatusSpec } from './imports/registrationStatus';
 import studentCoursesRouter, { importStudentCoursesSpec } from './imports/studentCourses';
-import { studentTypesRouter } from './imports/student_types';
-import { subjectPrefixesRouter } from './imports/subject_prefixes';
-import { termsRouter } from './imports/terms';
-import { testScoresRouter } from './imports/test_scores';
+import subjectPrefixesRouter, { importSubjectPrefixesSpec } from './imports/subjectPrefixes';
+import termsRouter, { importTermsSpec } from './imports/terms';
+import testScoresRouter, { importTestScoresSpec } from './imports/testScores';
 
 // Import schemas
 import {
@@ -98,7 +97,6 @@ const routerSchemaMap = [
 	{ router: programsRouter, schema: programs, name: "Programs", endpoint: "/api/import/programs" },
 	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration_status" },
 	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student_courses" },
-	{ router: studentTypesRouter, schema: studentTypes, name: "Student Types", endpoint: "/api/import/student_types" },
 	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject_prefixes" },
 	{ router: termsRouter, schema: terms, name: "Terms", endpoint: "/api/import/terms" },
 	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test_scores" },
@@ -239,6 +237,9 @@ export const importAPISpecs = {
 	...importProgramsSpec,
 	...importRegistrationStatusSpec,
 	...importStudentCoursesSpec,
+	...importSubjectPrefixesSpec,
+	...importTermsSpec,
+	...importTestScoresSpec,
 }
 
 // Middleware to normalize all column headers to lowercase
@@ -260,7 +261,6 @@ router.use(previousCollegesRouter)
 router.use(programsRouter)
 router.use(registrationStatusRouter)
 router.use(studentCoursesRouter)
-router.use(studentTypesRouter)
 router.use(subjectPrefixesRouter)
 router.use(termsRouter)
 router.use(testScoresRouter);

@@ -18,9 +18,9 @@ import { programsRouter } from '../routes/imports/programs';
 import { registrationStatusRouter } from '../routes/imports/registrationStatus';
 import { studentCoursesRouter } from '../routes/imports/studentCourses';
 import { studentTypesRouter } from '../routes/imports/student_types';
-import { subjectPrefixesRouter } from '../routes/imports/subject_prefixes';
+import { subjectPrefixesRouter } from '../routes/imports/subjectPrefixes';
 import { termsRouter } from '../routes/imports/terms';
-import { testScoresRouter } from '../routes/imports/test_scores';
+import { testScoresRouter } from '../routes/imports/testScores';
 
 // Stuff to import CSVs
 import { importCSV } from '../utils/importCSV';
