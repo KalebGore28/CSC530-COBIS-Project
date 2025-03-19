@@ -13,7 +13,7 @@ import {
 	students,
 	terms,
 	partOfTerm,
-	users,
+	user,
 } from '../db/schema';
 
 export const allowedTables: Record<string, any> = {
@@ -30,7 +30,7 @@ export const allowedTables: Record<string, any> = {
 	students,
 	terms,
 	part_of_term: partOfTerm,
-	users,
+	user,
 };
 
 const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];

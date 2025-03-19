@@ -1,19 +1,18 @@
 import express from "express";
 import cors from "cors";
-import cookieParser from "cookie-parser";
+import { config } from "./utils/config";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import { config } from "./utils/config";
 
 // Open API
 import { apiReference } from '@scalar/express-api-reference'
 import 'zod-openapi/extend';
 import { createDocument } from 'zod-openapi';
 
-// Routes
+// Import routes and API specs for OpenAPI Generation
 import importRoutes, { importAPISpecs } from "./routes/imports";
 
-
+// Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
     info: {
@@ -41,10 +40,9 @@ app.use(
         credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     })
 )
-app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json()
+app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
-app.use(cookieParser())
 
 // app.use("/api", testRoute)
 app.use("/api/import", importRoutes)

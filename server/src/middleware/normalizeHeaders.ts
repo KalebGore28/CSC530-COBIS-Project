@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 /**
  * Middleware to normalize column headers to lowercase.
+ * Looks for a `mappedData` array in the request body and normalizes the column headers to lowercase.
  */
 export function normalizeHeadersMiddleware(req: Request, res: Response, next: NextFunction) {
 	if (!req.body.mappedData || !Array.isArray(req.body.mappedData)) {
@@ -16,5 +17,5 @@ export function normalizeHeadersMiddleware(req: Request, res: Response, next: Ne
 		);
 	});
 
-	next(); // Move to the next middleware/route handler
+	next();
 }

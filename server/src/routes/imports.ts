@@ -118,7 +118,9 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 	fields: fields || (schema ? getFieldsFromSchema(schema) : []),
 }));
 
-// Create an Express router
+/**
+ * Import router for handling all import endpoints.
+ */
 const router = express.Router();
 
 // Attach middleware

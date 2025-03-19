@@ -15,6 +15,9 @@ const orm = drizzle(db, {
 	}
 });
 
+/**
+ * The better-auth instance.
+ */
 export const auth = betterAuth({
 	session: {
 		// For more info: https://www.better-auth.com/docs/guides/optimizing-for-performance

@@ -1,4 +1,9 @@
 import { Request } from "express";
+
+/**
+ * Interface for authenticated requests.
+ * Adds a `session` object and a `user` object to the request.
+ */
 export interface AuthenticatedRequest extends Request {
 	session: {
 		id: string;
@@ -21,6 +26,10 @@ export interface AuthenticatedRequest extends Request {
 	};
 }
 
+/**
+ * Interface for requests that require authentication and permissions.
+ * Extends `AuthenticatedRequest` with `permissions` and `roles` properties.
+ */
 export interface AuthandPermissionsRequest extends AuthenticatedRequest {
 	permissions: { table_name: string; column_name: string }[];
 	roles: { role_id: number; role_name: string }[];
