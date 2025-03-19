@@ -1,7 +1,7 @@
 // @ts-nocheck
 import express from 'express';
 import { getDbConnection } from '../db/connection';
-import { attachUserPermissions } from '../middleware/attachUserPermissions';
+import { attachUserPermissions } from '../middleware/getRolesPermissions';
 import { authenticateJWT } from '../middleware/authenticateJWT';
 import { buildDrizzleQuery, allowedTables } from '../utils/buildDrizzleQuery';
 import { relationshipsMapping } from '../utils/relationshipMapping';

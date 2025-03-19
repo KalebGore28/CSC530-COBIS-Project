@@ -1,22 +1,16 @@
-import express from 'express';
-import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
+import express, { Request, Response, NextFunction } from 'express';
 import { importCSV } from '../utils/importCSV';
 import multer from 'multer';
 import fs from 'fs';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 
-// Configure multer for file uploads
-const upload = multer({
-	dest: 'uploads/',
-	fileFilter: (req, file, cb) => {
-		if (file.mimetype !== 'text/csv') {
-			return cb(new Error('Only CSV files are allowed'));
-		}
-		cb(null, true);
-	},
-	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
-});
+// Import middleware and types
+import { authenticateUser } from '../middleware/authenticateUser';
+import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
+import { getRolesPermissions } from '../middleware/getRolesPermissions';
+import { hasRole } from '../middleware/hasRole';
+import { AuthandPermissionsRequest } from '../types/requests';
 
 // Import routes
 import academicStandingRouter, { importAcademicStandingSpec } from './imports/academicStanding';
@@ -61,6 +55,19 @@ import {
 	testScores,
 } from '../db/schema';
 
+// Configure multer for file uploads
+const upload = multer({
+	dest: 'uploads/',
+	fileFilter: (req, file, cb) => {
+		if (file.mimetype !== 'text/csv') {
+			return cb(new Error('Only CSV files are allowed'));
+		}
+		cb(null, true);
+	},
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+});
+
+
 // Utility to extract fields from Drizzle ORM schema
 const getFieldsFromSchema = (schema: any): string[] => {
 	return Object.keys(schema).filter((key) => key !== 'id' && key !== 'createdAt' && key !== 'updatedAt');
@@ -75,6 +82,7 @@ const routerSchemaMap = [
 	{ router: coursesRouter, schema: courses, name: "Courses", endpoint: "/api/import/courses" },
 	{
 		router: demographicsRouter,
+		schema: null,
 		name: "Demographics",
 		endpoint: "/api/import/demographics",
 		fields: [
@@ -113,14 +121,21 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 // Create an Express router
 const router = express.Router();
 
-router.get('/metadata', (req: any, res: any) => {
-	try {
-		res.json(importMetadata);
-	} catch (error: any) {
-		console.error(`Error retrieving import metadata: ${error.message}`);
-		res.status(500).json({ error: 'Error retrieving import metadata.' });
-	}
-})
+// Attach middleware
+router.use(authenticateUser);
+router.use(getRolesPermissions);
+// @ts-ignore
+router.use(hasRole(6));
+
+router.get('/metadata',
+	(req: Request, res: Response) => {
+		try {
+			res.json(importMetadata);
+		} catch (error: any) {
+			console.error(`Error retrieving import metadata: ${error.message}`);
+			res.status(500).json({ error: 'Error retrieving import metadata.' });
+		}
+	})
 const metadataSpec = {
 	'/api/import/metadata': {
 		get: {
@@ -139,35 +154,35 @@ const metadataSpec = {
 	}
 }
 
+router.post('/parse-csv',
+	upload.single('file'), async (req: AuthandPermissionsRequest, res: any) => {
+		try {
+			if (!req.file) {
+				return res.status(400).json({ error: 'No file uploaded' });
+			}
 
-router.post('/parse-csv', upload.single('file'), async (req: any, res: any) => {
-	try {
-		if (!req.file) {
-			return res.status(400).json({ error: 'No file uploaded' });
-		}
+			const parsedData = await importCSV(req.file.path);
+			if (!parsedData || parsedData.length === 0) {
+				return res.status(400).json({ error: 'Empty or invalid CSV file' });
+			}
 
-		const parsedData = await importCSV(req.file.path);
-		if (!parsedData || parsedData.length === 0) {
-			return res.status(400).json({ error: 'Empty or invalid CSV file' });
-		}
+			const headers = Object.keys(parsedData[0]);
+			const data = parsedData.map(row => headers.map(header => row[header] || ''));
 
-		const headers = Object.keys(parsedData[0]);
-		const data = parsedData.map(row => headers.map(header => row[header] || ''));
-
-		fs.unlinkSync(req.file.path);
-
-		res.json({
-			headers,
-			data,
-		});
-	} catch (error: any) {
-		if (req.file?.path) {
 			fs.unlinkSync(req.file.path);
+
+			res.json({
+				headers,
+				data,
+			});
+		} catch (error: any) {
+			if (req.file?.path) {
+				fs.unlinkSync(req.file.path);
+			}
+			console.error(`Error parsing CSV: ${error.message}`);
+			res.status(500).json({ error: 'Error parsing CSV file' });
 		}
-		console.error(`Error parsing CSV: ${error.message}`);
-		res.status(500).json({ error: 'Error parsing CSV file' });
-	}
-})
+	})
 const parseCSVSpec = {
 	'/api/import/parse-csv': {
 		post: {

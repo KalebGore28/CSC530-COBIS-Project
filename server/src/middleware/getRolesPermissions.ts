@@ -1,13 +1,26 @@
 import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest, AuthandPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
 import { eq, and } from 'drizzle-orm';
 import { roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
 
-export async function attachUserPermissions(req: Request, res: Response, next: NextFunction) {
+
+/**
+ * Middleware to attach user permissions to the request object.
+ * Permissions are attached as an array of objects with table_name and column_name properties.
+ * Roles are attached as an array of objects with role_id and role_name properties.
+ */
+export const getRolesPermissions = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+	minLevel: number = 1
+) => {
 	try {
-		const userId = req.user?.user_id;
+		const userId = (req as AuthenticatedRequest).user.id;
 		if (!userId) {
-			return res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+			res.status(401).json({ error: 'Unauthorized: User not authenticated' });
+			return;
 		}
 
 		const { orm } = await getDbConnection();
@@ -71,14 +84,9 @@ export async function attachUserPermissions(req: Request, res: Response, next: N
 
 		const allPermissions = Array.from(permissionMap.values());
 
-		// Debugging
-		// console.log('Role permissions:', rolePermissionsResult);
-		// console.log('Direct permissions:', directPermissionsResult);
-		// console.log('All permissions:', allPermissions);
-
 		// Attach to request
-		req.permissions = allPermissions;
-		req.roles = allUserRoles;
+		(req as AuthandPermissionsRequest).permissions = allPermissions;
+		(req as AuthandPermissionsRequest).roles = allUserRoles;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);
