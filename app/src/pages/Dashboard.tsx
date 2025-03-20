@@ -1,3 +1,6 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+
 import { Session } from "../App"
 
 interface DashboardProps {
@@ -6,16 +9,49 @@ interface DashboardProps {
 
 export default function Dashboard({ session }: DashboardProps) {
 	return (
-		<div className="flex flex-1 flex-col">
-			<div className="@container/main flex flex-1 flex-col gap-2">
-				<div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-					{session && (
-						<div className="flex flex-col gap-2">
-							<h1 className="text-2xl font-semibold">Welcome, {session.user.name}!</h1>
-							<p className="text-gray-500">You are now logged in.</p>
-						</div>
-					)}
-				</div>
+		<div className="p-6">
+			<header className="mb-12">
+				<h2 className="text-3xl font-bold text-center text-foreground">
+					Welcome Back, {session?.user.name}
+				</h2>
+				<p className="text-muted-foreground text-center">
+					Query student information and generate reports.
+				</p>
+			</header>
+			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-center">Student Lookup</CardTitle>
+						<CardDescription className="text-center">
+							Search for students by name, ID, department, major, minor, GPA, or previous classes.
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<Button variant="default">Search Students</Button>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-center">Class Lookup</CardTitle>
+						<CardDescription className="text-center">
+							Query and view specific students from a particular class.
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<Button variant="default">Search Classes</Button>
+					</CardContent>
+				</Card>
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-center">Generate Reports</CardTitle>
+						<CardDescription className="text-center">
+							Create custom reports for student or department data.
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="flex justify-center">
+						<Button variant="default">Generate</Button>
+					</CardContent>
+				</Card>
 			</div>
 		</div>
 	)

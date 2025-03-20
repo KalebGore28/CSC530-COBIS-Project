@@ -7,20 +7,36 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 import Dashboard from "./pages/Dashboard.tsx"
 import LoginPage from "./pages/Login.tsx"
 import Layout from "./Layout.tsx"
+import Reports from "./pages/Reports.tsx"
+import StudentsReport from "./pages/StudentsReport.tsx"
+import QueryBuilderPage from "./pages/QueryBuilder.tsx"
+import CobisTools from "./pages/CobisTools.tsx"
+import CsvImport from "./pages/CsvImport.tsx"
 
 // Define TypeScript interfaces for the session and user
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  image?: string | undefined;
-}
 
 export interface Session {
-  user: User;
+  session: {
+    id: string;
+    expiresAt: string;
+    token: string;
+    createdAt: string;
+    updatedAt: string;
+    ipAddress: string;
+    userAgent: string;
+    userId: string;
+  }
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    image?: string | undefined;
+  }
+  roles?: { role_id: number; role_name: string }[];
+  permissions?: { table_name: string; column_name: string }[];
 }
 
 function App() {
@@ -34,15 +50,23 @@ function App() {
 
   const handleSession = async () => {
     try {
-      const { data: sessionData, error } = await authClient.getSession();
-      if (error) {
-        console.error(error);
-      } else {
-        // @ts-ignore
-        setSession(sessionData);
+      const response = await fetch("/api/me", {
+        method: "GET",
+        credentials: "include", // Include cookies/credentials in the request
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+
+      const sessionData: Session = await response.json();
+      setSession(sessionData);
     } catch (err) {
-      console.error(err);
+      console.error("Failed to fetch session:", err);
+      setSession(null); // Clear session on error
     }
   };
 
@@ -67,7 +91,13 @@ function App() {
             element={session ? <Layout session={session} /> : <Navigate to="/login" replace />}
           >
             <Route path="dashboard" element={<Dashboard session={session} />} />
-
+            <Route path="reports" element={<Reports session={session} />}>
+              <Route path="students" element={<StudentsReport session={session} />} />
+            </Route>
+            <Route path="cobis-tools" element={<CobisTools session={session} />}>
+              <Route path="query-builder" element={<QueryBuilderPage />} />
+              <Route path="imports" element={<CsvImport session={session} />} />
+            </Route>
 
 
           </Route>

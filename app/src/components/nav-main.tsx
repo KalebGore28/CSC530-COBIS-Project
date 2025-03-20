@@ -19,6 +19,8 @@ import {
 	SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 
+import { useNavigate } from "react-router-dom"
+
 export function NavMain({
 	items,
 }: {
@@ -30,6 +32,7 @@ export function NavMain({
 	}[]
 	redirect?: (path: string) => void
 }) {
+	const navigate = useNavigate()
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
@@ -39,7 +42,9 @@ export function NavMain({
 							{item.items && item.items?.length > 0 ? (
 								<Collapsible>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuButton tooltip={item.title}>
+										<SidebarMenuButton tooltip={item.title}
+											onClick={() => navigate(item.url)}
+										>
 											{item.icon && <item.icon />}
 											<span>{item.title}</span>
 											<ChevronRight className="ml-auto" />
@@ -49,10 +54,10 @@ export function NavMain({
 										<SidebarMenuSub>
 											{item.items.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title} className="text-nowrap">
-													<SidebarMenuSubButton asChild>
-														<a href={subItem.url}>
-															<span>{subItem.title}</span>
-														</a>
+													<SidebarMenuSubButton asChild
+														onClick={() => navigate(subItem.url)}
+													>
+														<span>{subItem.title}</span>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}

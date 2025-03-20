@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+import { Session } from "../App"
+
 // Define table configuration type
 interface TableConfig {
 	name: string
@@ -31,7 +33,11 @@ interface TableConfig {
 	fields: string[]
 }
 
-export default function CsvImport({ user }: { user: any }) {
+interface CsvImportProps {
+	session: Session | null
+}
+
+export default function CsvImport({ session }: CsvImportProps) {
 	const [tables, setTables] = useState<TableConfig[]>([])
 	const [selectedTable, setSelectedTable] = useState<string>("")
 	const [csvFile, setCsvFile] = useState<File | null>(null)
@@ -145,7 +151,7 @@ export default function CsvImport({ user }: { user: any }) {
 				body: JSON.stringify({
 					mappedData,
 					fileName: csvFile.name,
-					importedBy: user.info.email || user.info.first_name,
+					importedBy: session?.user.email || session?.user.name,
 				}),
 			})
 

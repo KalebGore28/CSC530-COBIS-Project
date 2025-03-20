@@ -9,7 +9,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
 
-export default function Reports({ user }: { user: any }) {
+import { Session } from "../App"
+
+interface ReportsProps {
+	session: Session | null
+}
+
+export default function Reports({ session }: ReportsProps) {
 	const location = useLocation()
 
 	// Check if we're on the base /reports route or a nested route
@@ -25,7 +31,7 @@ export default function Reports({ user }: { user: any }) {
 							Reports Dashboard
 						</h2>
 						<p className="text-muted-foreground text-center mt-2">
-							Generate and view reports, {user.info.first_name}.
+							Generate and view reports, {session?.user.name}.
 						</p>
 					</header>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

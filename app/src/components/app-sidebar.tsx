@@ -1,6 +1,6 @@
 "use client"
 
-import * as React from "react"
+import { useEffect, useState, useMemo } from "react"
 import {
 	Armchair,
 	BookOpen,
@@ -32,11 +32,6 @@ import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
 const data = {
-	user: {
-		name: "shadcn",
-		email: "m@example.com",
-		avatar: "/avatars/shadcn.jpg",
-	},
 	roles: [
 		{ id: 1, name: "Faculty", logo: BookOpen },
 		{ id: 2, name: "Advisor", logo: Compass },
@@ -102,6 +97,28 @@ const data = {
 	],
 }
 
+const rolePermissions: {
+	navMain: { [key: number]: string[] },
+	// projects: { [key: number]: string[] }
+} = {
+	navMain: {
+		1: ["Reports", "Documentation"],
+		2: ["Reports"],
+		3: ["Models"],
+		4: ["Settings"],
+		5: ["Settings"],
+		// COBIS Admin has access to all navMain items
+		6: data.navMain.map((item) => item.title),
+	},
+	// projects: {
+	// 	1: ["Design Engineering"],
+	// 	3: ["Design Engineering", "Sales & Marketing"],
+	// 	5: ["Travel"],
+	// 	// COBIS Admin has access to all projects
+	// 	6: data.projects.map((project) => project.name),
+	// },
+}
+
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	session: Session | null;
 }
@@ -111,6 +128,54 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;
+
+	const userRoleIds = session?.roles?.map((role: { role_id: number }) => role.role_id) || []
+	const filteredRoles = data.roles.filter((role) => userRoleIds.includes(role.id))
+
+	// Initialize selectedRole from sessionStorage or default to first role
+	const [selectedRole, setSelectedRole] = useState<{ id: number; name: string; logo: React.ElementType } | null>(() => {
+		const savedRoleId = sessionStorage.getItem("selectedRoleId")
+		const roleIdNum = savedRoleId ? Number(savedRoleId) : null
+		const savedRole = roleIdNum ? filteredRoles.find((role) => role.id === roleIdNum) : null
+		return savedRole || filteredRoles[0] || null
+	})
+
+	// Persist selectedRole to sessionStorage when it changes
+	useEffect(() => {
+		if (selectedRole) {
+			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString())
+			console.log("Saved selectedRoleId to sessionStorage:", selectedRole.id)
+		} else {
+			sessionStorage.removeItem("selectedRoleId")
+			console.log("Cleared selectedRoleId from sessionStorage")
+		}
+	}, [selectedRole])
+
+	const handleRoleChange = (role: { id: number; name: string; logo: React.ElementType } | null) => {
+		console.log("Role changed to:", role)
+		setSelectedRole(role)
+	}
+
+	const filteredData = useMemo(() => {
+		if (!selectedRole) {
+			return {
+				navMain: data.navMain,
+				// projects: data.projects,
+			}
+		}
+
+		const navMain = data.navMain.filter((item) =>
+			rolePermissions.navMain[selectedRole.id]?.includes(item.title)
+		)
+		// const projects = data.projects.filter((project) =>
+		// 	rolePermissions.projects[selectedRole.id]?.includes(project.name)
+		// )
+
+		return {
+			navMain,
+			// projects
+		}
+	}, [selectedRole])
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -145,15 +210,15 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
 					<Separator className="my-2" />
 					<SidebarMenuItem>
 						<RoleSwitcher
-							roles={data.roles}
-							selectedRole={data.roles[0]}
-							onRoleChange={(role) => console.log("Role changed to:", role)}
+							roles={filteredRoles}
+							selectedRole={selectedRole}
+							onRoleChange={handleRoleChange}
 						/>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
+				<NavMain items={filteredData.navMain} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser user={session?.user} />

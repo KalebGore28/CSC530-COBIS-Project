@@ -30,7 +30,7 @@ export interface AuthenticatedRequest extends Request {
  * Interface for requests that require authentication and permissions.
  * Extends `AuthenticatedRequest` with `permissions` and `roles` properties.
  */
-export interface AuthandPermissionsRequest extends AuthenticatedRequest {
+export interface AuthAndPermissionsRequest extends AuthenticatedRequest {
 	permissions: { table_name: string; column_name: string }[];
 	roles: { role_id: number; role_name: string }[];
 }
