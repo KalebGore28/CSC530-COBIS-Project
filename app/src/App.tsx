@@ -4,8 +4,9 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
 // Import Pages
-import Dashboard from './pages/Dashboard';
+import Dashboard from "./pages/Dashboard.tsx"
 import LoginPage from "./pages/Login.tsx"
+import Layout from "./Layout.tsx"
 
 // Define TypeScript interfaces for the session and user
 export interface User {
@@ -63,7 +64,7 @@ function App() {
           {/* Protected Routes */}
           <Route
             path="/"
-            element={session ? <Dashboard session={session} /> : <Navigate to="/login" replace />}
+            element={session ? <Layout session={session} /> : <Navigate to="/login" replace />}
           >
             <Route path="dashboard" element={<Dashboard session={session} />} />
 
