@@ -23,6 +23,7 @@ import {
 
 import { NavMain } from "@/components/nav-main"
 import { NavUser } from "@/components/nav-user"
+import { RoleSwitcher } from "@/components/role-switcher"
 import {
 	Sidebar,
 	SidebarContent,
@@ -35,7 +36,6 @@ import {
 
 import { useNavigate } from "react-router-dom"
 import { Separator } from "./ui/separator"
-import { RoleSwitcher } from "./role-switcher"
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
@@ -228,14 +228,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							COBIS Tool v0.0.1
 						</span>
 					</SidebarMenuItem>
-					<Separator />
-					<RoleSwitcher
-						
-						roles={data.roles}
-						selectedRole={data.roles[0]}
-						onRoleChange={(role) => console.log("Role changed to:", role)}
-					/>
-
+					<Separator className="my-2" />
+					<SidebarMenuItem>
+						<RoleSwitcher
+							roles={data.roles}
+							selectedRole={data.roles[0]}
+							onRoleChange={(role) => console.log("Role changed to:", role)}
+						/>
+					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>

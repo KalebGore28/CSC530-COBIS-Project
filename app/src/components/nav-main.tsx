@@ -33,8 +33,6 @@ export function NavMain({
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
-				{/* <SidebarMenu>
-				</SidebarMenu> */}
 				<SidebarMenu>
 					{items.map((item) => (
 						<SidebarMenuItem key={item.title} className="text-nowrap">
