@@ -111,13 +111,13 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 /**
  * Import router for handling all import endpoints.
  */
-const router = express.Router();
+const router = express.Router()
 
 // Attach middleware
-router.use(authenticateUser);
-router.use(getRolesPermissions);
+router.use(authenticateUser)
+router.use(getRolesPermissions)
 // @ts-ignore
-router.use(hasRole(COBIS_ADMIN_ROLE_ID));
+router.use(hasRole(COBIS_ADMIN_ROLE_ID))
 
 router.get('/metadata',
 	(req: Request, res: Response) => {

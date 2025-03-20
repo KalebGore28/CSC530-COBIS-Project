@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { authClient } from "@/lib/auth-client";
 import { ThemeProvider } from "@/components/theme-provider"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 

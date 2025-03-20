@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { AuthenticatedRequest, AuthandPermissionsRequest } from '../types/requests';
+import { AuthenticatedRequest, AuthAndPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
 import { eq, and } from 'drizzle-orm';
 import { roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
@@ -85,8 +85,8 @@ export const getRolesPermissions = async (
 		const allPermissions = Array.from(permissionMap.values());
 
 		// Attach to request
-		(req as AuthandPermissionsRequest).permissions = allPermissions;
-		(req as AuthandPermissionsRequest).roles = allUserRoles;
+		(req as AuthAndPermissionsRequest).permissions = allPermissions;
+		(req as AuthAndPermissionsRequest).roles = allUserRoles;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);
