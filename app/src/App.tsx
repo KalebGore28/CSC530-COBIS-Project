@@ -74,6 +74,11 @@ function App() {
     setSession(newSession);
   };
 
+  // Callback to clear session after logout
+  const handleLogout = async () => {
+    setSession(null);
+  };
+
   return (
     <ThemeProvider>
       <BrowserRouter>
@@ -87,7 +92,7 @@ function App() {
           {/* Protected Routes */}
           <Route
             path="/"
-            element={session ? <Layout session={session} /> : <Navigate to="/login" replace />}
+            element={session ? <Layout session={session} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
           >
             <Route path="dashboard" element={<Dashboard session={session} />} />
             <Route path="reports" element={<Reports session={session} />}>

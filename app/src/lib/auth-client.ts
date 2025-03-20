@@ -1,4 +1,5 @@
 import { createAuthClient } from "better-auth/client"
+
 export const authClient = createAuthClient({
   baseURL: "http://localhost:4000",
 })
@@ -10,4 +11,8 @@ export const signinGoogle = async () => {
   });
 
   return data;
+};
+
+export const signout = async () => {
+  await authClient.signOut()
 };

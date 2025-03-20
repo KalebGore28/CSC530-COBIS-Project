@@ -7,12 +7,13 @@ import { Session } from "./App"
 
 interface LayoutProps {
 	session: Session | null;
+	onLogout: () => void;
 }
 
-export default function Layout({ session }: LayoutProps) {
+export default function Layout({ session, onLogout }: LayoutProps) {
 	return (
 		<SidebarProvider>
-			<AppSidebar variant="inset" session={session} />
+			<AppSidebar variant="inset" session={session} onLogout={onLogout} />
 			<SidebarInset>
 				<SiteHeader />
 				<Outlet />

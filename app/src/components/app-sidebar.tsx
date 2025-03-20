@@ -121,9 +121,10 @@ const rolePermissions: {
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	session: Session | null;
+	onLogout: () => void;
 }
 
-export function AppSidebar({ session, ...props }: AppSidebarProps) {
+export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 	const { open, openMobile, isMobile } = useSidebar();
 
 	// Derive isExpanded from open and openMobile
@@ -221,7 +222,7 @@ export function AppSidebar({ session, ...props }: AppSidebarProps) {
 				<NavMain items={filteredData.navMain} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={session?.user} />
+				<NavUser session={session} onLogout={onLogout} />
 			</SidebarFooter>
 		</Sidebar>
 	)

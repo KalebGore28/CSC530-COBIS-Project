@@ -27,14 +27,19 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar"
 
-import { User } from "../App"
+import { signout } from "../lib/auth-client"
+import { useNavigate } from "react-router-dom"
 
-export function NavUser({
-	user,
-}: {
-	user: User | undefined
-}) {
+import { Session } from "../App"
+
+interface NavUserProps {
+	session: Session | null;
+	onLogout: () => void;
+}
+
+export function NavUser({ session, onLogout }: NavUserProps) {
 	const { isMobile } = useSidebar()
+	const navigate = useNavigate()
 
 	return (
 		<SidebarMenu>
@@ -46,17 +51,20 @@ export function NavUser({
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 						>
 							<Avatar className="h-8 w-8 rounded-lg grayscale">
-								<AvatarImage src={user?.image} alt={user?.name} />
+								<AvatarImage src={session?.user.image} alt={session?.user.name} />
 								<AvatarFallback className="rounded-lg">
 									{
-										user?.name.split(" ").map((name) => name[0]).join("")
+										session?.user.name
+											.split(" ")
+											.map((name) => name[0])
+											.join("")
 									}
 								</AvatarFallback>
 							</Avatar>
 							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-medium">{user?.name}</span>
+								<span className="truncate font-medium">{session?.user.name}</span>
 								<span className="truncate text-xs text-muted-foreground">
-									{user?.email}
+									{session?.user.email}
 								</span>
 							</div>
 							<MoreVerticalIcon className="ml-auto size-4" />
@@ -71,13 +79,13 @@ export function NavUser({
 						<DropdownMenuLabel className="p-0 font-normal">
 							<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
 								<Avatar className="h-8 w-8 rounded-lg">
-									<AvatarImage src={user?.image} alt={user?.name} />
+									<AvatarImage src={session?.user.image} alt={session?.user.name} />
 									<AvatarFallback className="rounded-lg">CN</AvatarFallback>
 								</Avatar>
 								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-medium">{user?.name}</span>
+									<span className="truncate font-medium">{session?.user.name}</span>
 									<span className="truncate text-xs text-muted-foreground">
-										{user?.email}
+										{session?.user.email}
 									</span>
 								</div>
 							</div>
@@ -90,9 +98,15 @@ export function NavUser({
 							</DropdownMenuItem>
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
-						<DropdownMenuItem>
+						<DropdownMenuItem
+							onClick={async () => {
+								signout()
+								navigate("/")
+								onLogout()
+							}}
+						>
 							<LogOutIcon />
-							Log out
+							Logout
 						</DropdownMenuItem>
 					</DropdownMenuContent>
 				</DropdownMenu>
