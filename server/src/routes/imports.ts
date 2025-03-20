@@ -10,7 +10,7 @@ import { authenticateUser } from '../middleware/authenticateUser';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
 import { getRolesPermissions } from '../middleware/getRolesPermissions';
 import { hasRole } from '../middleware/hasRole';
-import { AuthandPermissionsRequest } from '../types/requests';
+import { AuthAndPermissionsRequest } from '../types/requests';
 
 // Import routes
 import academicStandingRouter, { academicStandingSpec } from './imports/academicStanding';
@@ -147,7 +147,7 @@ const metadataSpec = {
 }
 
 router.post('/parse-csv',
-	upload.single('file'), async (req: AuthandPermissionsRequest, res: any) => {
+	upload.single('file'), async (req: AuthAndPermissionsRequest, res: any) => {
 		try {
 			if (!req.file) {
 				return res.status(400).json({ error: 'No file uploaded' });

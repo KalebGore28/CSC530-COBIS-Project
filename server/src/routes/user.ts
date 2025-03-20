@@ -16,8 +16,13 @@ router.get("/me", async (req: Request, res: Response) => {
 	const session = await auth.api.getSession({
 		headers: fromNodeHeaders(req.headers),
 	});
-	session.roles = (req as AuthAndPermissionsRequest).roles;
-	session.permissions = (req as AuthAndPermissionsRequest).permissions;
+	if (session) {
+		// Attach roles and permissions to the session
+		// @ts-ignore
+		session.roles = (req as AuthAndPermissionsRequest).roles;
+		// @ts-ignore
+		session.permissions = (req as AuthAndPermissionsRequest).permissions;
+	}
 	res.json(session);
 	return;
 });
@@ -43,7 +48,7 @@ export const meSpec = {
 									userAgent: z.string(),
 									userId: z.string(),
 								}),
-								user: z.object({ 
+								user: z.object({
 									id: z.string(),
 									name: z.string(),
 									email: z.string(),
