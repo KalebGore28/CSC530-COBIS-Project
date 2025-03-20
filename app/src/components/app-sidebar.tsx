@@ -18,7 +18,7 @@ import {
 	Settings,
 	SettingsIcon,
 	Shield,
-	TerminalSquareIcon
+	TerminalSquareIcon,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -32,9 +32,10 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
 
 import { useNavigate } from "react-router-dom"
+import { Separator } from "./ui/separator"
+import { RoleSwitcher } from "./role-switcher"
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
@@ -227,10 +228,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 							COBIS Tool v0.0.1
 						</span>
 					</SidebarMenuItem>
-					<Separator
-						orientation="horizontal"
-						className="data-[orientation=vertical]:h-4"
+					<Separator />
+					<RoleSwitcher
+						roles={data.roles}
+						selectedRole={data.roles[0]}
+						onRoleChange={(role) => console.log("Role changed to:", role)}
 					/>
+
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
