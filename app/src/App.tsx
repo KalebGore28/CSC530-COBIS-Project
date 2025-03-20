@@ -1,28 +1,35 @@
-import { useState } from 'react';
-import { signinGoogle } from './lib/auth-client';
+import { useState, useEffect } from 'react';
 import { authClient } from "@/lib/auth-client";
-import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ThemeProvider } from "@/components/theme-provider"
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+
+// Import Pages
+import Dashboard from './pages/Dashboard';
+import LoginPage from "./pages/Login.tsx"
 
 // Define TypeScript interfaces for the session and user
-interface User {
+export interface User {
   id: string;
   name: string;
   email: string;
   emailVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
-  image?: string | null | undefined | undefined;
+  image?: string | undefined;
 }
 
-interface Session {
+export interface Session {
   user: User;
 }
 
 function App() {
   // Type the session state as Session | null
   const [session, setSession] = useState<Session | null>(null);
+
+  // Check session on mount
+  useEffect(() => {
+    handleSession();
+  }, []);
 
   const handleSession = async () => {
     try {
@@ -38,41 +45,34 @@ function App() {
     }
   };
 
+  // Callback to update session after login
+  const handleLoginSuccess = (newSession: Session) => {
+    setSession(newSession);
+  };
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <Button onClick={signinGoogle}>Sign in with Google</Button>
-        <Button onClick={handleSession}>Get Session</Button>
-      </div>
-      <div style={{ display: 'flex', gap: '20px' }}>
-        <Card style={{ minWidth: '300px', maxWidth: '500px' }}>
-          <CardHeader>
-            <CardTitle>Session User</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {session ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                {session.user.image && (
-                  <Avatar style={{ border: '1px solid #ccc', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-                    <AvatarImage src={session.user.image} alt={`${session.user.name}'s profile picture`} />
-                    <AvatarFallback>CN</AvatarFallback>
-                  </Avatar>
-                )}
-                <div style={{ minWidth: '200px', wordBreak: 'break-word' }}>
-                  <p><strong>Name:</strong> {session.user.name}</p>
-                  <p><strong>Email:</strong> {session.user.email}</p>
-                  <p><strong>Email Verified:</strong> {session.user.emailVerified ? 'Yes' : 'No'}</p>
-                  <p><strong>Created At:</strong> {session.user.createdAt.toLocaleDateString()}</p>
-                  <p><strong>Updated At:</strong> {session.user.updatedAt.toLocaleDateString()}</p>
-                </div>
-              </div>
-            ) : (
-              <p>No session data</p>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <ThemeProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Public Route */}
+          <Route
+            path="/login"
+            element={!session ? <LoginPage onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/dashboard" replace />}
+          />
+
+          {/* Protected Routes */}
+          <Route
+            path="/"
+            element={session ? <Dashboard session={session} /> : <Navigate to="/login" replace />}
+          >
+            <Route path="dashboard" element={<Dashboard session={session} />} />
+
+
+
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

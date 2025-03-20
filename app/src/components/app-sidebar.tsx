@@ -4,19 +4,10 @@ import * as React from "react"
 import {
 	Armchair,
 	BookOpen,
-	CameraIcon,
-	ClipboardListIcon,
 	Compass,
-	DatabaseIcon,
-	FileCodeIcon,
-	FileIcon,
-	FileTextIcon,
-	HelpCircleIcon,
 	LayoutList,
 	NotepadText,
-	SearchIcon,
 	Settings,
-	SettingsIcon,
 	Shield,
 	TerminalSquareIcon,
 } from "lucide-react"
@@ -36,6 +27,7 @@ import {
 
 import { useNavigate } from "react-router-dom"
 import { Separator } from "./ui/separator"
+import { Session } from "../App"
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
@@ -108,91 +100,13 @@ const data = {
 			],
 		},
 	],
-	navClouds: [
-		{
-			title: "Capture",
-			icon: CameraIcon,
-			isActive: true,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Proposal",
-			icon: FileTextIcon,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Prompts",
-			icon: FileCodeIcon,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-	],
-	navSecondary: [
-		{
-			title: "Settings",
-			url: "#",
-			icon: SettingsIcon,
-		},
-		{
-			title: "Get Help",
-			url: "#",
-			icon: HelpCircleIcon,
-		},
-		{
-			title: "Search",
-			url: "#",
-			icon: SearchIcon,
-		},
-	],
-	documents: [
-		{
-			name: "Data Library",
-			url: "#",
-			icon: DatabaseIcon,
-		},
-		{
-			name: "Reports",
-			url: "#",
-			icon: ClipboardListIcon,
-		},
-		{
-			name: "Word Assistant",
-			url: "#",
-			icon: FileIcon,
-		},
-	],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+	session: Session | null;
+}
+
+export function AppSidebar({ session, ...props }: AppSidebarProps) {
 	const { open, openMobile, isMobile } = useSidebar();
 
 	// Derive isExpanded from open and openMobile
@@ -242,7 +156,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<NavMain items={data.navMain} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={data.user} />
+				<NavUser user={session?.user} />
 			</SidebarFooter>
 		</Sidebar>
 	)

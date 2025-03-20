@@ -1,4 +1,4 @@
-"use client" // Add this directive if using Next.js App Router for client-side code
+"use client"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -9,14 +9,32 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
+import { signinGoogle } from '../lib/auth-client';
+import { Session } from '../App'; // Import Session type if in separate file
+
+interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
+	onLoginSuccess: (session: Session) => void;
+}
 
 export function LoginForm({
 	className,
+	onLoginSuccess,
 	...props
-}: React.ComponentPropsWithoutRef<"div">) {
-	const handleGoogleLogin = () => {
-		window.location.href = "/api/auth/google"
-	}
+}: LoginFormProps) {
+	const handleGoogleSignIn = async () => {
+		try {
+			const { data, error } = await signinGoogle();
+			if (error) {
+				console.error('Login error:', error);
+				return;
+			}
+			if (data) {
+				onLoginSuccess(data as Session);
+			}
+		} catch (err) {
+			console.error('Sign in failed:', err);
+		}
+	};
 
 	return (
 		<div className={cn("flex flex-col gap-6", className)} {...props}>
@@ -33,7 +51,7 @@ export function LoginForm({
 							<Button
 								variant="outline"
 								className="w-full"
-								onClick={handleGoogleLogin} // Add click handler
+								onClick={handleGoogleSignIn}
 							>
 								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="mr-2 h-5 w-5">
 									<path

@@ -1,9 +1,13 @@
 import { Wrench } from "lucide-react"
 import primaryLogo from "../assets/primary_white.png"
-
 import { LoginForm } from "@/components/login-form"
+import { Session } from '../App'; // Import Session type if in separate file
 
-export default function LoginPage() {
+interface LoginPageProps {
+	onLoginSuccess: (session: Session) => void;
+}
+
+export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
 	return (
 		<div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-secondary">
 			<div className="flex w-full max-w-sm flex-col gap-6">
@@ -16,7 +20,7 @@ export default function LoginPage() {
 					</div>
 					COBIS Tool (v0.0.1)
 				</a>
-				<LoginForm />
+				<LoginForm onLoginSuccess={onLoginSuccess} />
 			</div>
 		</div>
 	)
