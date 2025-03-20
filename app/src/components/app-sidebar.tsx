@@ -230,6 +230,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					</SidebarMenuItem>
 					<Separator />
 					<RoleSwitcher
+						
 						roles={data.roles}
 						selectedRole={data.roles[0]}
 						onRoleChange={(role) => console.log("Role changed to:", role)}

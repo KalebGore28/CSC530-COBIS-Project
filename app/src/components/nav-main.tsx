@@ -41,7 +41,7 @@ export function NavMain({
 							{item.items && item.items?.length > 0 ? (
 								<Collapsible>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuButton>
+										<SidebarMenuButton tooltip={item.title}>
 											{item.icon && <item.icon />}
 											<span>{item.title}</span>
 											<ChevronRight className="ml-auto" />
