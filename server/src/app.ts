@@ -46,7 +46,6 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 // app.use("/api", testRoute)
 app.use("/api/import", importRoutes)
-// app.use("/api/auth", authRoutes)
 // app.use("/api/instructor", testRoute)
 // app.use('/api/custom-query', customQuery)
 
