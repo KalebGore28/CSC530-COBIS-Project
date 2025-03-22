@@ -46,11 +46,7 @@ router.post('/subject-prefixes', async (req: Request, res: Response) => {
 		});
 
 		const result = await importSubjectPrefixes(transformedData, fileName, importedBy);
-		res.json({
-			message: 'Course prefixes imported successfully.',
-			totalRecords: result.totalRecords,
-			errors: result.errorDetails
-		});
+		res.json(result);
 		/* v8 ignore next 4 */
 	} catch (error: any) {
 		console.error(`Error importing course prefixes data: ${error.message}`);

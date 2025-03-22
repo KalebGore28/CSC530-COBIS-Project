@@ -46,9 +46,14 @@ export default function CsvImport({ session }: CsvImportProps) {
 	const [columnMapping, setColumnMapping] = useState<Record<string, string>>({})
 	const [isLoading, setIsLoading] = useState(false)
 	const [result, setResult] = useState<{
-		message?: string
 		totalRecords?: number
-		errors?: { row: any; error: string }[]
+		inserted?: number
+		updated?: number
+		skipped?: number
+		skippedDetails?: { row: any; reason: string }[]
+		failed?: number
+		errorDetails?: { row: any; error: string }[]
+		message?: string
 	} | null>(null)
 
 	// Fetch table metadata on mount
@@ -157,10 +162,15 @@ export default function CsvImport({ session }: CsvImportProps) {
 
 			if (!response.ok) throw new Error("Failed to import data")
 			const data = await response.json()
+			console.log(data)
 			setResult({
-				message: data.message,
 				totalRecords: data.totalRecords,
-				errors: data.errors,
+				inserted: data.inserted,
+				updated: data.updated,
+				skipped: data.skipped,
+				skippedDetails: data.skippedDetails,
+				failed: data.failed,
+				errorDetails: data.errorDetails,
 			})
 		} catch (error: any) {
 			setResult({ message: error.message || "Error importing data" })
@@ -283,20 +293,42 @@ export default function CsvImport({ session }: CsvImportProps) {
 					{/* Result Display */}
 					{result && (
 						<div className="mt-6">
-							{result.message && (
+							{result.totalRecords !== undefined ? (
 								<Alert
-									variant={result.errors && result.errors.length > 0 ? "destructive" : "default"}
+									variant={result.failed && result.failed > 0 ? "destructive" : "default"}
 								>
 									<AlertDescription>
-										<p>{result.message}</p>
-										{result.totalRecords !== undefined && (
-											<p>Total Records: {result.totalRecords}</p>
+										{result.failed && result.failed > 0 ? (
+											<p>Data import completed with errors.</p>
+										) : (
+											<p>Data imported successfully.</p>
 										)}
-										{result.errors && result.errors.length > 0 && (
+										<p>Total Records: {result.totalRecords}</p>
+										<p>Inserted: {result.inserted}</p>
+										<p>Updated: {result.updated}</p>
+										<p>Skipped: {result.skipped}</p>
+										{result.skipped > 0 && result.skippedDetails && (
+											<div className="mt-2">
+												<p>Skipped rows summary:</p>
+												<ul className="list-disc pl-5">
+													{Object.entries(
+														result.skippedDetails.reduce((acc, detail) => {
+															acc[detail.reason] = (acc[detail.reason] || 0) + 1;
+															return acc;
+														}, {} as Record<string, number>)
+													).map(([reason, count]) => (
+														<li key={reason}>
+															{count} rows skipped: {reason}
+														</li>
+													))}
+												</ul>
+											</div>
+										)}
+										{result.failed && result.failed > 0 && result.errorDetails && (
 											<div className="mt-2">
 												<p>Errors:</p>
 												<ul className="list-disc pl-5">
-													{result.errors.map((err, index) => (
+													{result.errorDetails.map((err, index) => (
 														<li key={index}>
 															Row {JSON.stringify(err.row)}: {err.error}
 														</li>
@@ -304,6 +336,12 @@ export default function CsvImport({ session }: CsvImportProps) {
 												</ul>
 											</div>
 										)}
+									</AlertDescription>
+								</Alert>
+							) : (
+								<Alert variant="destructive">
+									<AlertDescription>
+										<p>{result.message}</p>
 									</AlertDescription>
 								</Alert>
 							)}

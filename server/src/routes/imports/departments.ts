@@ -51,11 +51,7 @@ router.post('/departments', async (req: Request, res: Response) => {
 		});
 
 		const result = await importDepartments(transformedData, fileName, importedBy);
-		res.json({
-			message: 'Departments imported successfully.',
-			totalRecords: result.totalRecords,
-			errors: result.errorDetails
-		});
+		res.json(result);
 		/* v8 ignore next 4 */
 	} catch (error: any) {
 		console.error(`Error importing departments data: ${error.message}`);

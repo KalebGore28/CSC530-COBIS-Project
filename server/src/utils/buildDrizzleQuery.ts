@@ -202,7 +202,6 @@ export async function buildDrizzleQuery(
 				throw new Error("Operator not implemented");
 			}
 			whereClause = whereClause ? and(whereClause, condition) : condition;
-			console.log('[buildDrizzleQuery] Added filter:', filter, '-> condition:', condition);
 		}
 	}
 

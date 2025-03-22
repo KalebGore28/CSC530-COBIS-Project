@@ -66,9 +66,9 @@ const getFieldsFromSchema = (schema: any): string[] => {
 
 // Map routers to their schemas, endpoints, and fields (if special case)
 const routerSchemaMap = [
-	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic_standing" },
-	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit_codes" },
-	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college_codes" },
+	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic-standing" },
+	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit-codes" },
+	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college-codes" },
 	{ router: collegesRouter, schema: colleges, name: "Colleges", endpoint: "/api/import/colleges" },
 	{ router: coursesRouter, schema: courses, name: "Courses", endpoint: "/api/import/courses" },
 	{
@@ -88,17 +88,17 @@ const routerSchemaMap = [
 		], // Manually define fields for Demographics
 	},
 	{ router: departmentsRouter, schema: departments, name: "Departments", endpoint: "/api/import/departments" },
-	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional_methods" },
+	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional-methods" },
 	{ router: nationsRouter, schema: nations, name: "Nations", endpoint: "/api/import/nations" },
 	{ router: overridesRouter, schema: overrides, name: "Overrides", endpoint: "/api/import/overrides" },
-	{ router: partOfTermRouter, schema: partOfTerm, name: "Part of Term", endpoint: "/api/import/part_of_term" },
-	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous_colleges" },
+	{ router: partOfTermRouter, schema: partOfTerm, name: "Part of Term", endpoint: "/api/import/part-of-term" },
+	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous-colleges" },
 	{ router: programsRouter, schema: programs, name: "Programs", endpoint: "/api/import/programs" },
-	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration_status" },
-	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student_courses" },
-	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject_prefixes" },
+	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration-status" },
+	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student-courses" },
+	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject-prefixes" },
 	{ router: termsRouter, schema: terms, name: "Terms", endpoint: "/api/import/terms" },
-	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test_scores" },
+	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test-scores" },
 ];
 
 // Generate metadata
