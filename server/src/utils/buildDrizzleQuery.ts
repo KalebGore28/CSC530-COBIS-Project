@@ -50,7 +50,10 @@ const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
 export async function buildDrizzleQuery(
 	queryDef: any,
 	orm: any,
-	currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
+	// currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
+	userId: string,
+	permissions: { table_name: string; column_name: string }[],
+	selectedRole: { role_id: number; role_name: string }
 ) {
 	// Validate base table.
 	const baseTable = allowedTables[queryDef.table];
@@ -59,7 +62,7 @@ export async function buildDrizzleQuery(
 	}
 
 	// Check table-level permission
-	const tablePermission = currentUser.permissions.some(
+	const tablePermission = permissions.some(
 		(perm) => perm.table_name === queryDef.table
 	);
 	if (!tablePermission) {
@@ -70,7 +73,7 @@ export async function buildDrizzleQuery(
 	for (const col of queryDef.select) {
 		if (!col.includes('.')) {
 			// Unqualified columns from the base table
-			const hasColumnPermission = currentUser.permissions.some(
+			const hasColumnPermission = permissions.some(
 				(perm) =>
 					perm.table_name === queryDef.table &&
 					perm.column_name === col
@@ -81,7 +84,7 @@ export async function buildDrizzleQuery(
 		} else {
 			// Qualified columns like "students.first_name"
 			const [joinTableName, columnName] = col.split('.');
-			const joinPermission = currentUser.permissions.some(
+			const joinPermission = permissions.some(
 				(perm) =>
 					perm.table_name === joinTableName &&
 					perm.column_name === columnName
@@ -173,7 +176,7 @@ export async function buildDrizzleQuery(
 
 	// Build the WHERE clause.
 	// Start with automatic filters.
-	let whereClause: any = automaticFilters(queryDef, baseTable, currentUser); // May be null.
+	let whereClause: any = automaticFilters(queryDef, baseTable, userId, selectedRole); // May be null.
 
 	// Process user-specified filters.
 	if (queryDef.filters && Array.isArray(queryDef.filters)) {
@@ -241,12 +244,13 @@ export async function buildDrizzleQuery(
 function automaticFilters(
 	queryDef: any,
 	table: any,
-	currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
+	userId: string,
+	selectedRole: { role_id: number; role_name: string }
 ) {
 	let whereClause = null;
-	if (queryDef.table === 'instructor_courses' && currentUser.currentRole.role_name === 'faculty') {
+	if (queryDef.table === 'instructor_courses' && selectedRole.role_name === 'faculty') {
 		console.log('[automaticFilters] Faculty role detected: applying filter on user_id');
-		whereClause = eq(table.user_id, currentUser.user_id);
+		whereClause = eq(table.user_id, userId);
 	}
 	return whereClause;
 }

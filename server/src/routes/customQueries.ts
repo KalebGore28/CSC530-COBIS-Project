@@ -8,6 +8,8 @@ import { authenticateUser } from '../middleware/authenticateUser';
 import { getRolesPermissions } from '../middleware/getRolesPermissions';
 import { hasRole } from '../middleware/hasRole';
 
+import { AuthAndPermissionsRequest } from '../types/requests';
+
 const COBIS_ADMIN_ROLE_ID = 6;
 
 // Define the API endpoint
@@ -21,10 +23,10 @@ router.use(hasRole(COBIS_ADMIN_ROLE_ID))
 
 router.get('/metadata', (req: Request, res: Response) => {
 	try {
-		// Ensure RBAC middleware has populated req.user.permissions
-		const userPermissions = (req as any).permissions; // Use 'as any' if req.user isn't typed
+		const userPermissions = (req as AuthAndPermissionsRequest).permissions;
 		if (!userPermissions) {
-			return res.status(400).json({ error: 'User permissions not found' });
+			res.status(400).json({ error: 'User permissions not found' });
+			return;
 		}
 
 		// Build metadata for each allowed table
@@ -54,19 +56,18 @@ router.post('/execute', async (req: Request, res: Response) => {
 	try {
 		const { queryDef, role } = req.body;
 		const { orm } = await getDbConnection();
-		console.log(JSON.stringify(queryDef, null, 2));
+		// console.log(JSON.stringify(queryDef, null, 2));
 
-		// Check if the user has the role they claim to have.
-		const hasRole = req.roles.some((r: { role_id: number, role_name: string }) => r.role_name === role);
-
-		if (!hasRole) {
-			return res.status(403).json({ error: "User does not have the specified role" });
+		// Find the role in the user's roles and return the first one that matches
+		const selectedRole = (req as AuthAndPermissionsRequest).roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
+		if (!selectedRole) {
+			res.status(403).json({ error: "User does not have the specified role" });
+			return;
 		}
 
-		// If they have said role, assign it to the user object.
-		req.user.currentRole = req.roles.find((r: { role_id: number, role_name: string }) => r.role_name === role);
-		req.user.permissions = req.permissions;
-		const query = await buildDrizzleQuery(queryDef, orm, req.user);
+		const userId = (req as AuthAndPermissionsRequest).user.id;
+		const userPermissions = (req as AuthAndPermissionsRequest).permissions;
+		const query = await buildDrizzleQuery(queryDef, orm, userId, userPermissions, selectedRole);
 		const results = await query;
 		res.json({ results });
 	} catch (error: any) {
