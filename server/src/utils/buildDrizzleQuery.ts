@@ -44,13 +44,14 @@ const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
  *
  * @param queryDef - The JSON query definition from the client.
  * @param orm - The Drizzle ORM instance.
- * @param currentUser - An object representing the current user (with properties: user_id, permissions, currentRole).
+ * @param userId - The current user's ID.
+ * @param permissions - The user's table and column permissions.
+ * @param selectedRole - The user's selected role.
  * @returns A built query that can be executed.
  */
 export async function buildDrizzleQuery(
 	queryDef: any,
 	orm: any,
-	// currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
 	userId: string,
 	permissions: { table_name: string; column_name: string }[],
 	selectedRole: { role_id: number; role_name: string }
@@ -120,7 +121,6 @@ export async function buildDrizzleQuery(
 	// Process joins if provided.
 	if (queryDef.joins && Array.isArray(queryDef.joins)) {
 		// Accumulate join definitions by join table.
-		// Instead of expecting .left and .right, we expect an object with multiple columns.
 		const joinMap: Record<string, Array<Record<string, string>>> = {};
 		for (const joinDef of queryDef.joins) {
 			if (!allowedTables[joinDef.table]) {
