@@ -1,4 +1,3 @@
-// TODO: Fix type issues in this file
 import express, { Request, Response } from 'express';
 import { getDbConnection } from '../db/connection';
 import { buildDrizzleQuery, allowedTables } from '../utils/buildDrizzleQuery';
