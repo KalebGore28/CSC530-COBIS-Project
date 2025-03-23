@@ -22,7 +22,7 @@ export default function Reports({ session }: ReportsProps) {
 	const isBaseRoute = location.pathname === "/reports"
 
 	return (
-		<div>
+		<div className="p-6">
 			{/* Show overview if on /reports, otherwise show nested route */}
 			{isBaseRoute ? (
 				<>

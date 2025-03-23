@@ -145,15 +145,12 @@ export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 	useEffect(() => {
 		if (selectedRole) {
 			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString())
-			console.log("Saved selectedRoleId to sessionStorage:", selectedRole.id)
 		} else {
 			sessionStorage.removeItem("selectedRoleId")
-			console.log("Cleared selectedRoleId from sessionStorage")
 		}
 	}, [selectedRole])
 
 	const handleRoleChange = (role: { id: number; name: string; logo: React.ElementType } | null) => {
-		console.log("Role changed to:", role)
 		setSelectedRole(role)
 	}
 
@@ -161,20 +158,15 @@ export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 		if (!selectedRole) {
 			return {
 				navMain: data.navMain,
-				// projects: data.projects,
 			}
 		}
 
 		const navMain = data.navMain.filter((item) =>
 			rolePermissions.navMain[selectedRole.id]?.includes(item.title)
 		)
-		// const projects = data.projects.filter((project) =>
-		// 	rolePermissions.projects[selectedRole.id]?.includes(project.name)
-		// )
 
 		return {
 			navMain,
-			// projects
 		}
 	}, [selectedRole])
 
