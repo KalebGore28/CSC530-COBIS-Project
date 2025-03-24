@@ -97,6 +97,7 @@ function App() {
             path="/"
             element={session ? <Layout session={session} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
           >
+            <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard session={session} />} />
             <Route path="reports" element={<Reports session={session} />}>
               <Route path="students" element={<StudentsReport session={session} />} />

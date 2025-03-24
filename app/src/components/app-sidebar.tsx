@@ -132,6 +132,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 
 export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 	const { open, openMobile, isMobile } = useSidebar();
+	const navigate = useNavigate()
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;
@@ -184,7 +185,6 @@ export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 						<div
 							className="cursor-pointer"
 							onClick={() => {
-								const navigate = useNavigate()
 								navigate("/dashboard")
 							}}
 						>
