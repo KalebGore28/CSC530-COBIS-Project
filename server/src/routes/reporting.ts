@@ -81,8 +81,7 @@ router.get('/credit-hours', async (req: Request, res: Response) => {
 const instructorId = z.string().openapi({ description: 'The instructor ID', example: '1234', ref: 'instructor_id' });
 const termCode = z.string().openapi({ description: 'The term code', example: '10', ref: 'term_code' });
 const year = z.string().openapi({ description: 'The year', example: '2023', ref: 'year' });
-
-export const creditHoursSpec = {
+const creditHoursSpec = {
 	'/api/reporting/credit-hours': {
 		get: {
 			tags: ['Reporting'],
@@ -118,17 +117,6 @@ export const creditHoursSpec = {
 	},
 }
 
-/**
- * GET /student-course-requirement
- * Query Params:
- * - programCode: The program code (e.g., "CS")
- * - term: The term (e.g., "Fall")
- * - year: The year (e.g., "2023")
- * - courseSubject: Course subject (e.g., "CS")
- * - courseNumber: Course number (e.g., "101")
- * - courseSuffix: Course suffix (e.g., "A")
- * Returns: Number of students who still need the course
- */
 router.get('/student-course-requirement', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -203,5 +191,9 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 		return;
 	}
 });
+
+export const reportingSpecs = {
+	...creditHoursSpec,
+}
 
 export default router;

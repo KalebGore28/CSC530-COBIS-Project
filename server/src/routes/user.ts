@@ -26,7 +26,7 @@ router.get("/me", async (req: Request, res: Response) => {
 	res.json(session);
 	return;
 });
-export const meSpec = {
+const meSpec = {
 	'/api/user/me': {
 		get: {
 			tags: ['User'],
@@ -65,5 +65,9 @@ export const meSpec = {
 		},
 	},
 };
+
+export const userSpecs = {
+	...meSpec,
+}
 
 export default router;

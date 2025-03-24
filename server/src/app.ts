@@ -12,9 +12,9 @@ import { createDocument } from 'zod-openapi';
 
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importAPISpecs } from "./routes/imports";
-import userRoute, { meSpec } from "./routes/user";
-import reportingRoute, { creditHoursSpec } from "./routes/reporting";
-import searchRoute from "./routes/search";
+import userRoute, { userSpecs } from "./routes/user";
+import reportingRoute, { reportingSpecs } from "./routes/reporting";
+import searchRoute, { searchSpecs } from "./routes/search";
 import customQuery from "./routes/customQueries";
 
 // Create an OpenAPI document
@@ -29,8 +29,9 @@ const document = createDocument({
     ],
     paths: {
         ...importAPISpecs,
-        ...meSpec,
-        ...creditHoursSpec,
+        ...userSpecs,
+        ...reportingSpecs,
+        ...searchSpecs,
     },
 });
 
