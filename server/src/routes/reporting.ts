@@ -1,8 +1,10 @@
 import express, { Request, Response, NextFunction } from 'express';
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, notExists, sql } from "drizzle-orm";
 import { getDbConnection } from "../db/connection";
 import { instructorCourses } from "../db/models/instructor_courses";
 import { studentCourses } from "../db/models/student_courses";
+import { students } from "../db/models/students";
+import { studentPrograms } from "../db/models/student_programs";
 
 import 'zod-openapi/extend';
 import { z } from 'zod';
@@ -115,5 +117,91 @@ export const creditHoursSpec = {
 		},
 	},
 }
+
+/**
+ * GET /student-course-requirement
+ * Query Params:
+ * - programCode: The program code (e.g., "CS")
+ * - term: The term (e.g., "Fall")
+ * - year: The year (e.g., "2023")
+ * - courseSubject: Course subject (e.g., "CS")
+ * - courseNumber: Course number (e.g., "101")
+ * - courseSuffix: Course suffix (e.g., "A")
+ * Returns: Number of students who still need the course
+ */
+router.get('/student-course-requirement', async (req: Request, res: Response) => {
+	const dbConnectionInstance = await getDbConnection();
+	const db = dbConnectionInstance.orm;
+
+	// Extract query parameters
+	const { programCode, term, year, courseSubject, courseNumber, courseSuffix }: any = req.query;
+
+	// Validate inputs
+	if (!programCode || !term || !year || !courseSubject || !courseNumber || !courseSuffix) {
+		res.status(400).json({
+			error: "Missing required parameters: programCode, term, year, courseSubject, courseNumber, courseSuffix"
+		});
+		return;
+	}
+
+	const yearInt = parseInt(year, 10);
+	if (isNaN(yearInt)) {
+		res.status(400).json({ error: "Year must be a valid integer" });
+		return;
+	}
+
+	try {
+		// Subquery: Students who have completed the course with a passing grade
+		const completionSubquery = db
+			.select({ mnumber: studentCourses.mnumber })
+			.from(studentCourses)
+			.where(
+				and(
+					eq(studentCourses.course_subject, courseSubject),
+					eq(studentCourses.course_number, courseNumber),
+					eq(studentCourses.course_suffix, courseSuffix),
+					sql`${studentCourses.final_grade} >= 2.0` // Passing grade assumption
+				)
+			);
+
+		// Main query: Count students in the program who haven’t completed the course
+		const result = await db
+			.select({
+				numberOfStudents: sql`COUNT(*)`.mapWith(Number) // Ensure count is a number
+			})
+			.from(studentPrograms)
+			.innerJoin(students, eq(studentPrograms.mnumber, students.mnumber))
+			.where(
+				and(
+					eq(studentPrograms.program, programCode),
+					eq(studentPrograms.term, term),
+					eq(studentPrograms.year, yearInt),
+					notExists(
+						db.select({ mnumber: studentCourses.mnumber })
+							.from(studentCourses)
+							.where(
+								and(
+									eq(studentCourses.course_subject, courseSubject),
+									eq(studentCourses.course_number, courseNumber),
+									eq(studentCourses.course_suffix, courseSuffix),
+									sql`${studentCourses.final_grade} >= 2.0`,
+									eq(studentCourses.mnumber, studentPrograms.mnumber)
+								)
+							)
+					)
+				)
+			);
+
+		// Return the count
+		res.json({
+			numberOfStudents: result[0]?.numberOfStudents || 0
+		});
+		return;
+	} catch (error) {
+		console.error("Error fetching student course requirement:", error);
+		res.status(500).json({ error: "Internal server error" });
+		return;
+	}
+});
 
 export default router;
