@@ -1,8 +1,11 @@
 import express, { Request, Response } from 'express';
 import { sql } from "drizzle-orm";
-import { getDbConnection } from "../db/connection"; // Adjust path to your DB setup
-import { departments } from '../db/schema';
-import { courses } from "../db/models/courses"; // Adjust path to your schema
+import { getDbConnection } from "../db/connection";
+import {
+	departments,
+	colleges,
+	courses
+} from '../db/schema';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 
@@ -13,17 +16,17 @@ router.get('/courses', async (req: Request, res: Response) => {
 	const db = dbConnectionInstance.orm;
 
 	// Extract query parameter
-	const { coursesQuery } = req.query;
+	const { query } = req.query;
 
 	// Validate input
-	if (!coursesQuery || typeof coursesQuery !== 'string') {
+	if (!query || typeof query !== 'string') {
 		res.status(400).json({ error: "Missing or invalid 'query' parameter." });
 		return;
 	}
 
 	try {
 		// Convert query to uppercase for case-insensitive search
-		const searchQuery = coursesQuery.toUpperCase();
+		const searchQuery = query.toUpperCase();
 
 		// Search courses where combined code starts with the query
 		const results = await db
@@ -57,7 +60,7 @@ const courseSearchSpec = {
 			description: 'Search for courses',
 			requestParams: {
 				query: z.object({
-					coursesQuery,
+					query: coursesQuery,
 				}),
 			},
 			responses: {
@@ -85,23 +88,26 @@ router.get('/departments', async (req: Request, res: Response) => {
 	const db = dbConnectionInstance.orm;
 
 	// Extract query parameter
-	const { departmentsQuery } = req.query;
+	const { query } = req.query;
 
 	// Validate input
-	if (!departmentsQuery || typeof departmentsQuery !== 'string') {
+	if (!query || typeof query !== 'string') {
 		res.status(400).json({ error: "Missing or invalid 'query' parameter." });
 		return;
 	}
 
 	try {
-		// Get all departments
+		// Convert query to uppercase for case-insensitive search
+		const searchQuery = query.toUpperCase();
+
+		// Search departments where code starts with the query
 		const results = await db
 			.select({
 				code: departments.code,
 				name: departments.description,
 			})
 			.from(departments)
-			.where(sql`UPPER(${departments.code}) LIKE ${departmentsQuery.toUpperCase() + '%'}`)
+			.where(sql`UPPER(${departments.code}) LIKE ${searchQuery.toUpperCase() + '%'}`)
 			.limit(10); // Limit to 10 results
 
 		// Return results as JSON
@@ -124,7 +130,7 @@ const departmentSearchSpec = {
 			description: 'Search for departments',
 			requestParams: {
 				query: z.object({
-					departmentsQuery,
+					query: departmentsQuery,
 				}),
 			},
 			responses: {
@@ -144,9 +150,77 @@ const departmentSearchSpec = {
 	},
 };
 
+router.get('/colleges', async (req: Request, res: Response) => {
+	const dbConnectionInstance = await getDbConnection();
+	const db = dbConnectionInstance.orm;
+
+	// Extract query parameter
+	const { query } = req.query;
+
+	// Validate input
+	if (!query || typeof query !== 'string') {
+		res.status(400).json({ error: "Missing or invalid 'query' parameter." });
+		return;
+	}
+
+	try {
+		// Convert query to uppercase for case-insensitive search
+		const searchQuery = query.toUpperCase();
+
+		// Search colleges where code starts with the query
+		const results = await db
+			.select({
+				code: colleges.code,
+				name: colleges.description,
+			})
+			.from(colleges)
+			.where(sql`UPPER(${colleges.code}) LIKE ${searchQuery.toUpperCase() + '%'}`)
+			.limit(10); // Limit to 10 results
+
+		// Return results as JSON
+		res.json(results);
+		return;
+	} catch (error) {
+		console.error("Error fetching colleges:", error);
+		res.status(500).json({ error: "Internal server error" });
+		return;
+	}
+});
+
+// Preparing OpenAPI spec
+const collegesQuery = z.string().openapi({ description: 'The search query', example: 'BP', ref: 'college_search_query' });
+const collegeSearchSpec = {
+	'/api/search/colleges': {
+		get: {
+			tags: ['Search'],
+			operationId: 'search_colleges',
+			description: 'Search for colleges',
+			requestParams: {
+				query: z.object({
+					query: collegesQuery,
+				}),
+			},
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.array(z.object({
+								code: z.string(),
+								name: z.string(),
+							})),
+						},
+					},
+				},
+			},
+		},
+	},
+}
+
 export const searchSpecs = {
 	...courseSearchSpec,
 	...departmentSearchSpec,
+	...collegeSearchSpec,
 }
 
 export default router;
