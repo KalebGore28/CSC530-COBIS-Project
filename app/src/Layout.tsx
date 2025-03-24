@@ -39,6 +39,7 @@ export default function Layout({ session, onLogout }: LayoutProps) {
 		"/cobis-tools": [6],              // COBIS Admin only
 		"/cobis-tools/query-builder": [6],
 		"/cobis-tools/imports": [6],
+		"/test-page": [1, 2, 3, 4, 5, 6],
 		// Add more routes as needed based on your app
 	};
 
