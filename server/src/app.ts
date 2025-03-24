@@ -13,6 +13,7 @@ import { createDocument } from 'zod-openapi';
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importAPISpecs } from "./routes/imports";
 import userRoute, { meSpec } from "./routes/user";
+import reportingRoute, { creditHoursSpec } from "./routes/reporting";
 import customQuery from "./routes/customQueries";
 
 // Create an OpenAPI document
@@ -28,6 +29,7 @@ const document = createDocument({
     paths: {
         ...importAPISpecs,
         ...meSpec,
+        ...creditHoursSpec,
     },
 });
 
@@ -51,7 +53,7 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
-// app.use("/api/instructor", testRoute)
+app.use("/api/reporting", reportingRoute)
 app.use('/api/custom-query', customQuery)
 
 // // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
