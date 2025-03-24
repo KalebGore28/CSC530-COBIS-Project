@@ -52,6 +52,11 @@ const data = {
 				{ title: "Importing", url: "/cobis-tools/imports" },
 			],
 		},
+		{
+			title: "Test Page",
+			url: "/test-page",
+			icon: TerminalSquareIcon,
+		}
 	],
 }
 

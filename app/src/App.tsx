@@ -11,6 +11,10 @@ import StudentsReport from "./pages/StudentsReport.tsx";
 import QueryBuilderPage from "./pages/QueryBuilder.tsx";
 import CobisTools from "./pages/CobisTools.tsx";
 import CsvImport from "./pages/CsvImport.tsx";
+import TestPage from './pages/TestPage.tsx';
+
+// Import UnsavedChangesProvider
+import { UnsavedChangesProvider } from "./components/UnsavedChangesContext";
 
 // Define TypeScript interfaces for the session and user
 export interface Session {
@@ -95,7 +99,11 @@ function App() {
           {/* Protected Routes */}
           <Route
             path="/"
-            element={session ? <Layout session={session} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+            element={session ?
+              <UnsavedChangesProvider>
+                <Layout session={session} onLogout={handleLogout} />
+              </UnsavedChangesProvider>
+              : <Navigate to="/login" replace />}
           >
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard session={session} />} />
@@ -106,6 +114,8 @@ function App() {
               <Route path="query-builder" element={<QueryBuilderPage />} />
               <Route path="imports" element={<CsvImport session={session} />} />
             </Route>
+            <Route path="test-page" element={<TestPage />} />
+
           </Route>
         </Routes>
       </BrowserRouter>
