@@ -108,11 +108,11 @@ const rolePermissions: {
 	// projects: { [key: number]: string[] }
 } = {
 	navMain: {
-		1: ["Reports", "Documentation"],
-		2: ["Reports"],
-		3: ["Models"],
-		4: ["Settings"],
-		5: ["Settings"],
+		1: ["Dashboard", "Reports"],
+		2: ["Dashboard", "Reports"],
+		3: ["Dashboard"],
+		4: ["Dashboard"],
+		5: ["Dashboard"],
 		// COBIS Admin has access to all navMain items
 		6: data.navMain.map((item) => item.title),
 	},
