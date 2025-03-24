@@ -1,14 +1,9 @@
 "use client"
 
-import { useEffect, useState, useMemo } from "react"
+import { useMemo } from "react";
 import {
-	Armchair,
-	BookOpen,
 	Compass,
-	LayoutList,
 	NotepadText,
-	Settings,
-	Shield,
 	TerminalSquareIcon,
 } from "lucide-react"
 
@@ -32,64 +27,22 @@ import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
 const data = {
-	roles: [
-		{ id: 1, name: "Faculty", logo: BookOpen },
-		{ id: 2, name: "Advisor", logo: Compass },
-		{ id: 3, name: "Program Coordinator", logo: LayoutList },
-		{ id: 4, name: "Department Chair", logo: Armchair },
-		{ id: 5, name: "Administrator", logo: Settings },
-		{ id: 6, name: "COBIS Admin", logo: Shield },
-	],
 	navMain: [
 		{
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: Compass,
-			isActive: true,
 		},
 		{
 			title: "Reports",
 			url: "/reports",
 			icon: NotepadText,
-			isActive: true,
 			items: [
 				{ title: "Student Reports", url: "/reports/students" },
 				// { title: "Course Reports", url: "/reports/courses" },
 				// { title: "Department Reports", url: "/reports/departments" },
 			],
 		},
-		// {
-		// 	title: "Models",
-		// 	url: "/models",
-		// 	icon: Bot,
-		// 	items: [
-		// 		{ title: "Genesis", url: "/models/genesis" },
-		// 		{ title: "Explorer", url: "/models/explorer" },
-		// 		{ title: "Quantum", url: "/models/quantum" },
-		// 	],
-		// },
-		// {
-		// 	title: "Documentation",
-		// 	url: "/documentation",
-		// 	icon: BookOpen,
-		// 	items: [
-		// 		{ title: "Introduction", url: "/documentation/introduction" },
-		// 		{ title: "Get Started", url: "/documentation/get-started" },
-		// 		{ title: "Tutorials", url: "/documentation/tutorials" },
-		// 		{ title: "Changelog", url: "/documentation/changelog" },
-		// 	],
-		// },
-		// {
-		// 	title: "Settings",
-		// 	url: "/settings",
-		// 	icon: Settings2,
-		// 	items: [
-		// 		{ title: "General", url: "/settings/general" },
-		// 		{ title: "Team", url: "/settings/team" },
-		// 		{ title: "Billing", url: "/settings/billing" },
-		// 		{ title: "Limits", url: "/settings/limits" },
-		// 	],
-		// },
 		{
 			title: "COBIS Tools",
 			url: "/cobis-tools",
@@ -97,85 +50,57 @@ const data = {
 			items: [
 				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
-				// { title: "Contact", url: "/cobis-tools/contact" },
 			],
 		},
 	],
 }
 
-const rolePermissions: {
-	navMain: { [key: number]: string[] },
-	// projects: { [key: number]: string[] }
-} = {
-	navMain: {
-		1: ["Dashboard", "Reports"],
-		2: ["Dashboard", "Reports"],
-		3: ["Dashboard"],
-		4: ["Dashboard"],
-		5: ["Dashboard"],
-		// COBIS Admin has access to all navMain items
-		6: data.navMain.map((item) => item.title),
-	},
-	// projects: {
-	// 	1: ["Design Engineering"],
-	// 	3: ["Design Engineering", "Sales & Marketing"],
-	// 	5: ["Travel"],
-	// 	// COBIS Admin has access to all projects
-	// 	6: data.projects.map((project) => project.name),
-	// },
-}
-
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 	session: Session | null;
 	onLogout: () => void;
+	selectedRole: { id: number; name: string; logo: React.ElementType } | null;
+	onRoleChange: (role: { id: number; name: string; logo: React.ElementType } | null) => void;
+	roles: { id: number; name: string; logo: React.ElementType }[];
+	routePermissions: { [key: string]: number[] };
 }
 
-export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
+export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, roles, routePermissions, ...props }: AppSidebarProps) {
 	const { open, openMobile, isMobile } = useSidebar();
 	const navigate = useNavigate()
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;
 
-	const userRoleIds = session?.roles?.map((role: { role_id: number }) => role.role_id) || []
-	const filteredRoles = data.roles.filter((role) => userRoleIds.includes(role.id))
-
-	// Initialize selectedRole from sessionStorage or default to first role
-	const [selectedRole, setSelectedRole] = useState<{ id: number; name: string; logo: React.ElementType } | null>(() => {
-		const savedRoleId = sessionStorage.getItem("selectedRoleId")
-		const roleIdNum = savedRoleId ? Number(savedRoleId) : null
-		const savedRole = roleIdNum ? filteredRoles.find((role) => role.id === roleIdNum) : null
-		return savedRole || filteredRoles[0] || null
-	})
-
-	// Persist selectedRole to sessionStorage when it changes
-	useEffect(() => {
-		if (selectedRole) {
-			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString())
-		} else {
-			sessionStorage.removeItem("selectedRoleId")
-		}
-	}, [selectedRole])
-
-	const handleRoleChange = (role: { id: number; name: string; logo: React.ElementType } | null) => {
-		setSelectedRole(role)
-	}
-
-	const filteredData = useMemo(() => {
+	const filteredNavMain = useMemo(() => {
 		if (!selectedRole) {
-			return {
-				navMain: data.navMain,
-			}
+			return data.navMain; // Show all items if no role is selected
 		}
+		return data.navMain
+			.map((item) => {
+				// Handle items with sub-items (e.g., "Reports", "COBIS Tools")
+				if (item.items) {
+					const filteredSubItems = item.items.filter((subItem) => {
+						const allowedRoles = routePermissions[subItem.url] || [];
+						return allowedRoles.includes(selectedRole.id);
+					});
+					// Include the main item if its url is allowed or if it has accessible sub-items
+					const mainAllowed = routePermissions[item.url]?.includes(selectedRole.id) || false;
+					if (filteredSubItems.length > 0 || mainAllowed) {
+						return { ...item, items: filteredSubItems };
+					}
+					return null;
+				} else {
+					// Handle items without sub-items (e.g., "Dashboard")
+					const allowedRoles = routePermissions[item.url] || [];
+					if (allowedRoles.includes(selectedRole.id)) {
+						return item;
+					}
+					return null;
+				}
+			})
+			.filter((item) => item !== null);
+	}, [selectedRole, routePermissions]);
 
-		const navMain = data.navMain.filter((item) =>
-			rolePermissions.navMain[selectedRole.id]?.includes(item.title)
-		)
-
-		return {
-			navMain,
-		}
-	}, [selectedRole])
 
 	return (
 		<Sidebar collapsible="icon" {...props}>
@@ -209,15 +134,15 @@ export function AppSidebar({ session, onLogout, ...props }: AppSidebarProps) {
 					<Separator className="my-2" />
 					<SidebarMenuItem>
 						<RoleSwitcher
-							roles={filteredRoles}
+							roles={roles}
 							selectedRole={selectedRole}
-							onRoleChange={handleRoleChange}
+							onRoleChange={onRoleChange}
 						/>
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={filteredData.navMain} />
+				<NavMain items={filteredNavMain} />
 			</SidebarContent>
 			<SidebarFooter>
 				<NavUser session={session} onLogout={onLogout} />
