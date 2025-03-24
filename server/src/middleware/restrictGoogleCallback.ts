@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 
-
 export const restrictGoogleCallback = (req: Request, res: Response, next: NextFunction): void => {
 	const hd = typeof req.query.hd === 'string' ? req.query.hd : undefined; // Ensure hd is a string
 	const allowedDomains = ['murraystate.edu']; // Your allowed domains

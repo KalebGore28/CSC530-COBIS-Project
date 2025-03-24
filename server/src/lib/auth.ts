@@ -34,6 +34,9 @@ export const auth = betterAuth({
 	}),
 	trustedOrigins: [config.frontend_origin],
 	socialProviders: {
+		// This app was only designed to work with Google OAuth even though better-auth supports more.
+		// It is not recommended to use another provider, otherwise domain restrictions will not work.
+		// Domain restrictions are enforced in the restrictGoogleCallback middleware.
 		google: {
 			clientId: config.oauth.google.clientId,
 			clientSecret: config.oauth.google.clientSecret,

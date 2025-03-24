@@ -44,7 +44,7 @@ app.use(
         credentials: true, // Allow credentials (cookies, authorization headers, etc.)
     })
 )
-app.use('/api/auth/callback/google', restrictGoogleCallback)
+app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
 app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
