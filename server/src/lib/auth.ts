@@ -39,4 +39,7 @@ export const auth = betterAuth({
 			clientSecret: config.oauth.google.clientSecret,
 		}
 	},
+	user: {
+		
+	}
 });
