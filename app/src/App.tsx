@@ -1,19 +1,18 @@
 import { useState, useEffect } from 'react';
-import { ThemeProvider } from "@/components/theme-provider"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { ThemeProvider } from "@/components/theme-provider";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 // Import Pages
-import Dashboard from "./pages/Dashboard.tsx"
-import LoginPage from "./pages/Login.tsx"
-import Layout from "./Layout.tsx"
-import Reports from "./pages/Reports.tsx"
-import StudentsReport from "./pages/StudentsReport.tsx"
-import QueryBuilderPage from "./pages/QueryBuilder.tsx"
-import CobisTools from "./pages/CobisTools.tsx"
-import CsvImport from "./pages/CsvImport.tsx"
+import Dashboard from "./pages/Dashboard.tsx";
+import LoginPage from "./pages/Login.tsx";
+import Layout from "./Layout.tsx";
+import Reports from "./pages/Reports.tsx";
+import StudentsReport from "./pages/StudentsReport.tsx";
+import QueryBuilderPage from "./pages/QueryBuilder.tsx";
+import CobisTools from "./pages/CobisTools.tsx";
+import CsvImport from "./pages/CsvImport.tsx";
 
 // Define TypeScript interfaces for the session and user
-
 export interface Session {
   session: {
     id: string;
@@ -24,7 +23,7 @@ export interface Session {
     ipAddress: string;
     userAgent: string;
     userId: string;
-  }
+  };
   user: {
     id: string;
     name: string;
@@ -33,25 +32,24 @@ export interface Session {
     createdAt: Date;
     updatedAt: Date;
     image?: string | undefined;
-  }
+  };
   roles?: { role_id: number; role_name: string }[];
   permissions?: { table_name: string; column_name: string }[];
 }
 
 function App() {
-  // Type the session state as Session | null
   const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true); // Add loading state
 
-  // Check session on mount
   useEffect(() => {
     handleSession();
   }, []);
 
   const handleSession = async () => {
     try {
-      const response = await fetch("/api/me", {
+      const response = await fetch("/api/user/me", {
         method: "GET",
-        credentials: "include", // Include cookies/credentials in the request
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -65,19 +63,24 @@ function App() {
       setSession(sessionData);
     } catch (err) {
       console.error("Failed to fetch session:", err);
-      setSession(null); // Clear session on error
+      setSession(null);
+    } finally {
+      setIsLoading(false); // Set loading to false after fetch completes
     }
   };
 
-  // Callback to update session after login
   const handleLoginSuccess = (newSession: Session) => {
     setSession(newSession);
   };
 
-  // Callback to clear session after logout
   const handleLogout = async () => {
     setSession(null);
   };
+
+  // Show loading indicator while session is being fetched
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ThemeProvider>
@@ -102,8 +105,6 @@ function App() {
               <Route path="query-builder" element={<QueryBuilderPage />} />
               <Route path="imports" element={<CsvImport session={session} />} />
             </Route>
-
-
           </Route>
         </Routes>
       </BrowserRouter>

@@ -42,6 +42,12 @@ const data = {
 	],
 	navMain: [
 		{
+			title: "Dashboard",
+			url: "/dashboard",
+			icon: Compass,
+			isActive: true,
+		},
+		{
 			title: "Reports",
 			url: "/reports",
 			icon: NotepadText,

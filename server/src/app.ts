@@ -49,7 +49,7 @@ app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.j
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
-app.use("/api", userRoute)
+app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 // app.use("/api/instructor", testRoute)
 app.use('/api/custom-query', customQuery)

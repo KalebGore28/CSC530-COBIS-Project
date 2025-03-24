@@ -27,7 +27,7 @@ router.get("/me", async (req: Request, res: Response) => {
 	return;
 });
 export const meSpec = {
-	'/api/me': {
+	'/api/user/me': {
 		get: {
 			tags: ['User'],
 			operationId: 'getMe',

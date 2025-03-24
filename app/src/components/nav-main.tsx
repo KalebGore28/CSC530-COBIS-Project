@@ -1,13 +1,11 @@
 "use client"
 
 import { ChevronRight, type LucideIcon } from "lucide-react"
-
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible"
-
 import {
 	SidebarGroup,
 	SidebarGroupContent,
@@ -18,7 +16,6 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
-
 import { useNavigate } from "react-router-dom"
 
 export function NavMain({
@@ -42,7 +39,8 @@ export function NavMain({
 							{item.items && item.items?.length > 0 ? (
 								<Collapsible>
 									<CollapsibleTrigger asChild>
-										<SidebarMenuButton tooltip={item.title}
+										<SidebarMenuButton
+											tooltip={item.title}
 											onClick={() => navigate(item.url)}
 										>
 											{item.icon && <item.icon />}
@@ -54,9 +52,7 @@ export function NavMain({
 										<SidebarMenuSub>
 											{item.items.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title} className="text-nowrap">
-													<SidebarMenuSubButton asChild
-														onClick={() => navigate(subItem.url)}
-													>
+													<SidebarMenuSubButton onClick={() => navigate(subItem.url)}>
 														<span>{subItem.title}</span>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
@@ -65,11 +61,9 @@ export function NavMain({
 									</CollapsibleContent>
 								</Collapsible>
 							) : (
-								<SidebarMenuButton asChild>
-									<a href={item.url}>
-										{item.icon && <item.icon />}
-										<span>{item.title}</span>
-									</a>
+								<SidebarMenuButton onClick={() => navigate(item.url)}>
+									{item.icon && <item.icon />}
+									<span>{item.title}</span>
 								</SidebarMenuButton>
 							)}
 						</SidebarMenuItem>
