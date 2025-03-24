@@ -69,7 +69,7 @@ const router = express.Router()
    *                   example: "Internal server error"
    */
   .get(
-    '/google/callback',
+    '/callback/google',
     passport.authenticate('google', { session: false, failureRedirect: '/login' }),
     async (req: any, res: any) => {
       const dbConnectionInstance = await getDbConnection();
