@@ -122,12 +122,13 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 	const db = dbConnectionInstance.orm;
 
 	// Extract query parameters
-	const { programCode, term, year, courseSubject, courseNumber, courseSuffix }: any = req.query;
+	const { programCode, term, year, courseSubject, courseNumber, courseSuffix = "" }: any = req.query;
+
 
 	// Validate inputs
-	if (!programCode || !term || !year || !courseSubject || !courseNumber || !courseSuffix) {
+	if (!programCode || !term || !year || !courseSubject || !courseNumber) {
 		res.status(400).json({
-			error: "Missing required parameters: programCode, term, year, courseSubject, courseNumber, courseSuffix"
+			error: "Missing required parameters: programCode, term, year, courseSubject, courseNumber"
 		});
 		return;
 	}
@@ -142,7 +143,9 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 		// Main query: Count students in the program who haven’t completed the course
 		const result = await db
 			.select({
-				numberOfStudents: sql`COUNT(*)`.mapWith(Number) // Ensure count is a number
+				mnumber: students.mnumber,
+				first_name: students.first_name,
+				last_name: students.last_name
 			})
 			.from(studentPrograms)
 			.innerJoin(students, eq(studentPrograms.mnumber, students.mnumber))
@@ -167,9 +170,10 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 				)
 			);
 
-		// Return the count
+		// Return the response with student list
 		res.json({
-			numberOfStudents: result[0]?.numberOfStudents || 0
+			numberOfStudents: result.length,
+			students: result
 		});
 		return;
 	} catch (error) {
@@ -179,8 +183,48 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 	}
 });
 
+// Preparing OpenAPI spec
+const programCodeSpec = z.string().openapi({ description: 'The program code', example: 'A020', ref: 'course_requirement_program_code' });
+const termSpec = z.string().openapi({ description: 'The term', example: '10', ref: 'course_requirement_term' });
+const yearSpec = z.string().openapi({ description: 'The year', example: '2023', ref: 'course_requirement_year' });
+const courseSubjectSpec = z.string().openapi({ description: 'The course subject', example: 'ACC', ref: 'course_requirement_course_subject' });
+const courseNumberSpec = z.string().openapi({ description: 'The course number', example: '201', ref: 'course_requirement_course_number' });
+const courseSuffixSpec = z.optional(z.string()).openapi({ description: 'The course suffix', example: '', ref: 'course_requirement_course_suffix' });
+const studentCourseRequirementSpec = {
+	'/api/reporting/student-course-requirement': {
+		get: {
+			tags: ['Reporting'],
+			operationId: 'getStudentCourseRequirement',
+			description: 'Get the number of students in a program who haven’t completed a course',
+			requestParams: {
+				query: z.object({
+					programCode: programCodeSpec,
+					term: termSpec,
+					year: yearSpec,
+					courseSubject: courseSubjectSpec,
+					courseNumber: courseNumberSpec,
+					courseSuffix: courseSuffixSpec,
+				}),
+			},
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								numberOfStudents: z.number(),
+							}),
+						},
+					},
+				},
+			},
+		},
+	},
+}
+
 export const reportingSpecs = {
 	...creditHoursSpec,
+	...studentCourseRequirementSpec,
 }
 
 export default router;
