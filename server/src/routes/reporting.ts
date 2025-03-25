@@ -139,19 +139,6 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 	}
 
 	try {
-		// Subquery: Students who have completed the course with a passing grade
-		const completionSubquery = db
-			.select({ mnumber: studentCourses.mnumber })
-			.from(studentCourses)
-			.where(
-				and(
-					eq(studentCourses.course_subject, courseSubject),
-					eq(studentCourses.course_number, courseNumber),
-					eq(studentCourses.course_suffix, courseSuffix),
-					sql`${studentCourses.final_grade} >= 2.0` // Passing grade assumption
-				)
-			);
-
 		// Main query: Count students in the program who haven’t completed the course
 		const result = await db
 			.select({
