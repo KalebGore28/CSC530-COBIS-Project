@@ -1,10 +1,12 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Request, Response } from 'express';
 import { and, eq, notExists, sql } from "drizzle-orm";
 import { getDbConnection } from "../db/connection";
-import { instructorCourses } from "../db/models/instructor_courses";
-import { studentCourses } from "../db/models/student_courses";
-import { students } from "../db/models/students";
-import { studentPrograms } from "../db/models/student_programs";
+import {
+	instructorCourses,
+	studentCourses,
+	students,
+	studentPrograms
+} from "../db/schema";
 
 import 'zod-openapi/extend';
 import { z } from 'zod';
@@ -162,7 +164,7 @@ router.get('/student-course-requirement', async (req: Request, res: Response) =>
 									eq(studentCourses.course_subject, courseSubject),
 									eq(studentCourses.course_number, courseNumber),
 									eq(studentCourses.course_suffix, courseSuffix),
-									sql`${studentCourses.final_grade} >= 2.0`,
+									sql`${studentCourses.final_grade} >= 2.0`, // TODO: Check if this is the correct way to check for passing grade
 									eq(studentCourses.mnumber, studentPrograms.mnumber)
 								)
 							)
