@@ -120,7 +120,7 @@ export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, role
 						>
 							<img
 								src={isExpanded ? logo : logoIcon}
-								className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-9 my-2"}
+								className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-10 my-2"}
 								alt="Murray Logo"
 							/>
 						</div>
