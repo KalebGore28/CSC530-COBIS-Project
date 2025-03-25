@@ -97,7 +97,6 @@ export default function Layout({ session, onLogout }: LayoutProps) {
 	return (
 		<SidebarProvider>
 			<AppSidebar
-				variant="inset"
 				session={session}
 				onLogout={onLogout}
 				selectedRole={selectedRole}
@@ -105,9 +104,11 @@ export default function Layout({ session, onLogout }: LayoutProps) {
 				roles={filteredRoles}
 				routePermissions={routePermissions}
 			/>
-			<SidebarInset>
+			<SidebarInset className="flex flex-col h-screen">
 				<SiteHeader />
-				<Outlet />
+				<div className="flex-1 overflow-y-auto">
+					<Outlet />
+				</div>
 			</SidebarInset>
 		</SidebarProvider>
 	);
