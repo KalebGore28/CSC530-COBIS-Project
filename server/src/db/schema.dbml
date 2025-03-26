@@ -338,10 +338,12 @@ table user {
   name text [not null]
   email text [not null, unique]
   email_verified integer [not null]
+  college text
+  department text
   image text
   created_at integer [not null]
   updated_at integer [not null]
-  is_active integer [not null, default: false]
+  is_enabled integer [not null, default: false]
   last_login integer [not null, default: `CURRENT_TIMESTAMP`]
 }
 
