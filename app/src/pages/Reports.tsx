@@ -50,24 +50,28 @@ export default function Reports({ session }: ReportsProps) {
 						</Card>
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-center">Course Reports</CardTitle>
+								<CardTitle className="text-center">Placeholder</CardTitle>
 								<CardDescription className="text-center">
-									Analyze course enrollment and performance.
+									Placeholder description for a future tool.
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="flex justify-center">
-								<Button variant="default">View Courses</Button>
+								<Button variant="default" disabled>
+									Coming Soon
+								</Button>
 							</CardContent>
 						</Card>
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-center">Department Reports</CardTitle>
+								<CardTitle className="text-center">Placeholder</CardTitle>
 								<CardDescription className="text-center">
-									Summarize department-level metrics.
+									Placeholder description for a future tool.
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="flex justify-center">
-								<Button variant="default">View Departments</Button>
+								<Button variant="default" disabled>
+									Coming Soon
+								</Button>
 							</CardContent>
 						</Card>
 					</div>

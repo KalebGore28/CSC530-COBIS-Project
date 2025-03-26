@@ -1,5 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Link } from "react-router-dom"
 
 import { Session } from "../App"
 
@@ -27,29 +28,35 @@ export default function Dashboard({ session }: DashboardProps) {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
-						<Button variant="default">Search Students</Button>
+						<Link to="/student-lookup">
+							<Button variant="default">Search Students</Button>
+						</Link>
 					</CardContent>
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-center">Class Lookup</CardTitle>
+						<CardTitle className="text-center">Placeholder</CardTitle>
 						<CardDescription className="text-center">
-							Query and view specific students from a particular class.
+							Placeholder description for a future tool.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
-						<Button variant="default">Search Classes</Button>
+						<Button variant="default" disabled>
+							Coming Soon
+						</Button>
 					</CardContent>
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-center">Generate Reports</CardTitle>
+						<CardTitle className="text-center">Placeholder</CardTitle>
 						<CardDescription className="text-center">
-							Create custom reports for student or department data.
+							Placeholder description for a future tool.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
-						<Button variant="default">Generate</Button>
+						<Button variant="default" disabled>
+							Coming Soon
+						</Button>
 					</CardContent>
 				</Card>
 			</div>

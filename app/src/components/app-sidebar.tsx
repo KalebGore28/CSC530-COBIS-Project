@@ -5,6 +5,7 @@ import {
 	Compass,
 	NotepadText,
 	TerminalSquareIcon,
+	ScanSearch,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -32,6 +33,11 @@ const data = {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: Compass,
+		},
+		{
+			title: " Student Lookup",
+			url: "/student-lookup",
+			icon: ScanSearch,
 		},
 		{
 			title: "Reports",
