@@ -76,10 +76,13 @@ export async function seedPermissions(orm: any): Promise<void> {
         }
 
         if (roleMappings.length > 0) {
-            await orm.insert(rolePermissions)
+            const { error } = await orm.insert(rolePermissions)
                 .values(roleMappings)
                 .onConflictDoNothing()
                 .execute();
+            if (error) {
+                console.error('Error seeding role permissions:', error);
+            }
             console.log(`Seeded ${roleMappings.length} role permissions`);
         } else {
             console.log('No role permissions to seed');

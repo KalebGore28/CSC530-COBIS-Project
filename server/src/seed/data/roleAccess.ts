@@ -32,7 +32,7 @@ export const roleAccessDefinitions = {
             'college'
         ],
         instructor_courses: [
-            'user_id',
+            'instructor_mnumber',
             'term',
             'year',
             'course_subject',
