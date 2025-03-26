@@ -622,6 +622,15 @@ router.get('/programs', async (req: Request, res: Response) => {
 			.select({
 				code: programs.code,
 				description: programs.description,
+				cipCode: programs.cip_code,
+				isMajor: programs.is_major,
+				isMinor: programs.is_minor,
+				hasConcentration: programs.has_concentration,
+				isDiscontinued: programs.is_discontinued,
+				isAacsb: programs.is_aacsb,
+				department: programs.department,
+				college: programs.college,
+
 			})
 			.from(programs)
 			.where(

@@ -14,6 +14,7 @@ import CsvImport from "./pages/CsvImport.tsx";
 import TestPage from './pages/TestPage.tsx';
 import WaitingPage from './pages/Waiting.tsx';
 import OnboardingPage from './pages/Onboarding.tsx';
+import StudentLookup from './pages/StudentLookup.tsx';
 
 // Import UnsavedChangesProvider
 import { UnsavedChangesProvider } from "./components/UnsavedChangesContext";
@@ -116,6 +117,7 @@ function App() {
             >
               <Route index element={<Navigate to="dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard session={session} />} />
+              <Route path="student-lookup" element={<StudentLookup />} />
               <Route path="reports" element={<Reports session={session} />}>
                 <Route path="students" element={<StudentsReport session={session} />} />
               </Route>
