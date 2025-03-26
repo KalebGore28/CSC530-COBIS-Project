@@ -44,7 +44,6 @@ function OnboardingPage({ refetchSession }: OnboardingPageProps) {
 			if (response.success) {
 				// Refetch session to update the mnumber
 				await refetchSession();
-				// Navigate to dashboard
 				navigate('/dashboard');
 			} else {
 				setError(response.message || 'Failed to update mnumber');
