@@ -10,26 +10,16 @@ import {
 	CardTitle,
 } from "@/components/ui/card"
 import { signinGoogle } from '../lib/auth-client';
-import { Session } from '../App'; // Import Session type if in separate file
-
-interface LoginFormProps extends React.ComponentPropsWithoutRef<"div"> {
-	onLoginSuccess: (session: Session) => void;
-}
 
 export function LoginForm({
-	className,
-	onLoginSuccess,
 	...props
-}: LoginFormProps) {
+}) {
 	const handleGoogleSignIn = async () => {
 		try {
-			const { data, error } = await signinGoogle();
+			const { error } = await signinGoogle();
 			if (error) {
 				console.error('Login error:', error);
 				return;
-			}
-			if (data) {
-				onLoginSuccess(data as Session);
 			}
 		} catch (err) {
 			console.error('Sign in failed:', err);
@@ -37,7 +27,7 @@ export function LoginForm({
 	};
 
 	return (
-		<div className={cn("flex flex-col gap-6", className)} {...props}>
+		<div className={cn("flex flex-col gap-6", {...props})}>
 			<Card>
 				<CardHeader className="text-center">
 					<CardTitle className="text-xl">Welcome to COBIS</CardTitle>

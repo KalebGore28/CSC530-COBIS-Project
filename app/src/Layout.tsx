@@ -83,15 +83,13 @@ export default function Layout({ session, onLogout }: LayoutProps) {
 
 	// Route protection logic
 	useEffect(() => {
-		if (selectedRole) {
-			const currentPath = location.pathname;
-			const allowedRoles = routePermissions[currentPath];
-			// If the route exists in permissions and the user's role isn't allowed, redirect
-			if (allowedRoles && !allowedRoles.includes(selectedRole.id)) {
-				navigate("/dashboard");
+		const currentPath = location.pathname;
+		const allowedRoles = routePermissions[currentPath];
+		if (allowedRoles) {
+			if (!selectedRole || !allowedRoles.includes(selectedRole.id)) {
+				navigate("/onboarding");
 			}
 		}
-		// Dependencies ensure this runs when path or role changes
 	}, [location.pathname, selectedRole, navigate]);
 
 	return (

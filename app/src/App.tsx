@@ -12,6 +12,8 @@ import QueryBuilderPage from "./pages/QueryBuilder.tsx";
 import CobisTools from "./pages/CobisTools.tsx";
 import CsvImport from "./pages/CsvImport.tsx";
 import TestPage from './pages/TestPage.tsx';
+import WaitingPage from './pages/Waiting.tsx';
+import OnboardingPage from './pages/Onboarding.tsx';
 
 // Import UnsavedChangesProvider
 import { UnsavedChangesProvider } from "./components/UnsavedChangesContext";
@@ -39,11 +41,13 @@ export interface Session {
   };
   roles?: { role_id: number; role_name: string }[];
   permissions?: { table_name: string; column_name: string }[];
+  mnumber: string | null;
+  is_enabled: boolean;
 }
 
 function App() {
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Add loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     handleSession();
@@ -69,19 +73,20 @@ function App() {
       console.error("Failed to fetch session:", err);
       setSession(null);
     } finally {
-      setIsLoading(false); // Set loading to false after fetch completes
+      setIsLoading(false);
     }
-  };
-
-  const handleLoginSuccess = (newSession: Session) => {
-    setSession(newSession);
   };
 
   const handleLogout = async () => {
     setSession(null);
   };
 
-  // Show loading indicator while session is being fetched
+  // Function to refetch session, passed to OnboardingPage
+  const refetchSession = async () => {
+    console.log("Refetching session...");
+    await handleSession();
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -89,35 +94,41 @@ function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
-        <Routes>
-          {/* Public Route */}
-          <Route
-            path="/login"
-            element={!session ? <LoginPage onLoginSuccess={handleLoginSuccess} /> : <Navigate to="/dashboard" replace />}
-          />
+        {!session ? (
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        ) : !session.is_enabled ? (
+          <WaitingPage />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={session ?
-              <UnsavedChangesProvider>
-                <Layout session={session} onLogout={handleLogout} />
-              </UnsavedChangesProvider>
-              : <Navigate to="/login" replace />}
-          >
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard session={session} />} />
-            <Route path="reports" element={<Reports session={session} />}>
-              <Route path="students" element={<StudentsReport session={session} />} />
+        ) : !session.mnumber ? (
+          <OnboardingPage refetchSession={refetchSession} />
+        ) : (
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <UnsavedChangesProvider>
+                  <Layout session={session} onLogout={handleLogout} />
+                </UnsavedChangesProvider>
+              }
+            >
+              <Route index element={<Navigate to="dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard session={session} />} />
+              <Route path="reports" element={<Reports session={session} />}>
+                <Route path="students" element={<StudentsReport session={session} />} />
+              </Route>
+              <Route path="cobis-tools" element={<CobisTools session={session} />}>
+                <Route path="query-builder" element={<QueryBuilderPage />} />
+                <Route path="imports" element={<CsvImport session={session} />} />
+              </Route>
+              <Route path="test-page" element={<TestPage />} />
             </Route>
-            <Route path="cobis-tools" element={<CobisTools session={session} />}>
-              <Route path="query-builder" element={<QueryBuilderPage />} />
-              <Route path="imports" element={<CsvImport session={session} />} />
-            </Route>
-            <Route path="test-page" element={<TestPage />} />
-
-          </Route>
-        </Routes>
+            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        )}
       </BrowserRouter>
     </ThemeProvider>
   );
