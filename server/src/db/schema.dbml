@@ -82,7 +82,7 @@ table instructional_methods {
 }
 
 table instructor_courses {
-  user_id text [not null]
+  instructor_mnumber text [not null]
   term text [not null]
   year integer [not null]
   course_subject text [not null]
@@ -91,7 +91,7 @@ table instructor_courses {
   role text [not null, default: 'Instructor']
 
   indexes {
-    (user_id, term, year, course_subject, course_number, course_suffix) [pk]
+    (instructor_mnumber, term, year, course_subject, course_number, course_suffix) [pk]
     
   }
 }
@@ -334,6 +334,7 @@ table test_scores {
 
 table user {
   id text [pk, not null]
+  mnumber text [unique]
   name text [not null]
   email text [not null, unique]
   email_verified integer [not null]
@@ -377,7 +378,7 @@ ref: departments.college > colleges.code
 
 ref: imports.imported_by > user.id
 
-ref: instructor_courses.user_id > user.id
+ref: instructor_courses.instructor_mnumber > user.mnumber
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 

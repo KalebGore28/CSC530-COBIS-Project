@@ -8,9 +8,12 @@ import { userRoles } from "./user_roles";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(),
+	mnumber: text("mnumber").unique(), // Nullable initially, unique when set
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull(),
+	college: text('college'),
+	department: text('department'),
 	image: text('image'),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
