@@ -28,6 +28,8 @@ export const usersRelations = relations(user, ({ many }) => ({
 	instructor_courses: many(instructorCourses),
 	user_permissions: many(userPermissions),
 	user_roles: many(userRoles),
+	departments: many(departments),
+	colleges: many(colleges),
 }));
 
 export const session = sqliteTable("session", {

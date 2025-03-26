@@ -376,7 +376,11 @@ table verification {
   updated_at integer
 }
 
+ref: colleges.code > user.college
+
 ref: departments.college > colleges.code
+
+ref: departments.code > user.department
 
 ref: imports.imported_by > user.id
 
