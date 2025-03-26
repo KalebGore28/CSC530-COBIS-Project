@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SearchBox from "../components/search-input"; // Adjust the import path
+import SearchInput from "../components/search-input"; // Adjust the import path
 import { Card, CardContent } from "@/components/ui/card";
 
 // Define the Program interface
@@ -16,19 +16,24 @@ interface Program {
 	college?: string;
 }
 
-// API function to fetch programs
-const searchProgramsApi = async (query: string): Promise<Program[]> => {
+// Function to fetch programs from the API
+const fetchPrograms = async (query: string): Promise<Program[]> => {
 	try {
 		const response = await fetch(`/api/search/programs?query=${encodeURIComponent(query)}`, {
-			method: "GET",
-			credentials: "include",
-			headers: { "Content-Type": "application/json" },
+			method: 'GET',
+			credentials: 'include', // Include if authentication is required
+			headers: {
+				'Content-Type': 'application/json',
+			},
 		});
-		if (!response.ok) throw new Error("Failed to fetch programs");
-		return await response.json();
+		if (!response.ok) {
+			throw new Error('Failed to fetch programs');
+		}
+		const data: Program[] = await response.json();
+		return data;
 	} catch (error) {
-		console.error("Error fetching programs:", error);
-		return [];
+		console.error('Error fetching programs:', error);
+		return []; // Return empty array on error to avoid crashing
 	}
 };
 
@@ -54,17 +59,12 @@ const StudentLookup = () => {
 			{/* Search Component for Programs */}
 			<div className="mt-4">
 				<h3>Filter by Program</h3>
-				<SearchBox
-					searchFunction={searchProgramsApi}
-					renderResult={(program) => (
-						<div
-							className="p-2 hover:bg-gray-200 cursor-pointer"
-							onClick={() => handleProgramSelect(program)}
-						>
-							{program.code} - {program.description}
-						</div>
-					)}
-					placeholder="Search programs..."
+				<SearchInput<Program>
+					searchApi={fetchPrograms}
+					onSelect={handleProgramSelect}
+					placeholder="Type to search programs..."
+					debounceTime={300}
+					renderResult={(program: Program) => `${program.code} - ${program.description}`}
 				/>
 			</div>
 
