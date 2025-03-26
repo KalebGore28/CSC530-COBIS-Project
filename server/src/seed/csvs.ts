@@ -85,26 +85,26 @@ export const seedDatabase = async () => {
 		});
 
 	const academicStandingResponse = await request(app)
-		.post('/api/import/academic_standing')
+		.post('/api/import/academic-standing')
 		.send({
 			mappedData: academicStandingCSV,
-			fileName: 'academic_standing.csv',
+			fileName: 'academic-standing.csv',
 			importedBy: 'seed script',
 		});
 
 	const admitCodesResponse = await request(app)
-		.post('/api/import/admit_codes')
+		.post('/api/import/admit-codes')
 		.send({
 			mappedData: admitCodesCSV,
-			fileName: 'admit_codes.csv',
+			fileName: 'admit-codes.csv',
 			importedBy: 'seed script',
 		});
 
 	const collegeCodesResponse = await request(app)
-		.post('/api/import/college_codes')
+		.post('/api/import/college-codes')
 		.send({
 			mappedData: collegeCodesCSV,
-			fileName: 'college_codes.csv',
+			fileName: 'college-codes.csv',
 			importedBy: 'seed script',
 		});
 
@@ -120,7 +120,7 @@ export const seedDatabase = async () => {
 		.post('/api/import/courses')
 		.send({
 			mappedData: coursesCSV,
-			fileName: 'course_titles.csv',
+			fileName: 'course-titles.csv',
 			importedBy: 'seed script',
 		});
 
@@ -133,10 +133,10 @@ export const seedDatabase = async () => {
 		});
 
 	const instructionalMethodsResponse = await request(app)
-		.post('/api/import/instructional_methods')
+		.post('/api/import/instructional-methods')
 		.send({
 			mappedData: instructionalMethodsCSV,
-			fileName: 'instructional_methods.csv',
+			fileName: 'instructional-methods.csv',
 			importedBy: 'seed script',
 		});
 
@@ -144,7 +144,7 @@ export const seedDatabase = async () => {
 		.post('/api/import/programs')
 		.send({
 			mappedData: programsCSV,
-			fileName: 'major_minor.csv',
+			fileName: 'major-minor.csv',
 			importedBy: 'seed script',
 		});
 
@@ -157,26 +157,26 @@ export const seedDatabase = async () => {
 		});
 
 	const partOfTermResponse = await request(app)
-		.post('/api/import/part_of_term')
+		.post('/api/import/part-of-term')
 		.send({
 			mappedData: partOfTermCSV,
-			fileName: 'part_of_term.csv',
+			fileName: 'part-of-term.csv',
 			importedBy: 'seed script',
 		});
 
 	const registrationStatusResponse = await request(app)
-		.post('/api/import/registration_status')
+		.post('/api/import/registration-status')
 		.send({
 			mappedData: registrationStatusCSV,
-			fileName: 'registration_status.csv',
+			fileName: 'registration-status.csv',
 			importedBy: 'seed script',
 		});
 
 	const subjectPrefixesResponse = await request(app)
-		.post('/api/import/subject_prefixes')
+		.post('/api/import/subject-prefixes')
 		.send({
 			mappedData: subjectPrefixesCSV,
-			fileName: 'subject_prefixes.csv',
+			fileName: 'subject-prefixes.csv',
 			importedBy: 'seed script',
 		});
 
@@ -189,18 +189,18 @@ export const seedDatabase = async () => {
 		});
 
 	const studentCoursesResponse = await request(app)
-		.post('/api/import/student_courses')
+		.post('/api/import/student-courses')
 		.send({
 			mappedData: studentCoursesCSV,
-			fileName: 'courses_sample.csv',
+			fileName: 'courses-sample.csv',
 			importedBy: 'seed script',
 		});
 
 	const testScoresResponse = await request(app)
-		.post('/api/import/test_scores')
+		.post('/api/import/test-scores')
 		.send({
 			mappedData: testScoresCSV,
-			fileName: 'test_scores_sample.csv',
+			fileName: 'test-scores-sample.csv',
 			importedBy: 'seed script',
 		});
 
@@ -208,15 +208,15 @@ export const seedDatabase = async () => {
 		.post('/api/import/overrides')
 		.send({
 			mappedData: overridesCSV,
-			fileName: 'overrides_sample.csv',
+			fileName: 'overrides-sample.csv',
 			importedBy: 'seed script',
 		});
 
 	const previousCollegesResponse = await request(app)
-		.post('/api/import/previous_colleges')
+		.post('/api/import/previous-colleges')
 		.send({
 			mappedData: previousCollegesCSV,
-			fileName: 'previous_colleges_sample.csv',
+			fileName: 'previous-colleges-sample.csv',
 			importedBy: 'seed script',
 		});
 
@@ -230,6 +230,7 @@ export const seedDatabase = async () => {
 		coursesResponse.status !== 200 ||
 		departmentsResponse.status !== 200 ||
 		instructionalMethodsResponse.status !== 200 ||
+		programsResponse.status !== 200 ||
 		nationsResponse.status !== 200 ||
 		partOfTermResponse.status !== 200 ||
 		registrationStatusResponse.status !== 200 ||
