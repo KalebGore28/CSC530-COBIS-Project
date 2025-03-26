@@ -59,7 +59,13 @@ function SearchInput<T>({
     onSelect(result);
     setIsOpen(false);
     setQuery('');
-    inputRef.current?.focus(); // Refocus input after selection
+    inputRef.current?.focus();
+  };
+
+  const handleBlur = () => {
+    setTimeout(() => {
+      setIsOpen(false);
+    }, 200);
   };
 
   return (
@@ -69,9 +75,22 @@ function SearchInput<T>({
         placeholder={placeholder}
         value={query}
         onChange={handleInputChange}
+        onBlur={handleBlur}
         ref={inputRef}
-        className="w-full"
+        className="w-full pr-8"
       />
+      {query.length > 0 && (
+        <button
+          onClick={() => {
+            setQuery('');
+            setIsOpen(false);
+            inputRef.current?.focus();
+          }}
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+        >
+          ×
+        </button>
+      )}
       {isOpen && (
         <div className="absolute z-10 mt-1 w-full bg-white border rounded-md shadow-lg max-h-60 overflow-y-auto">
           {isLoading ? (
