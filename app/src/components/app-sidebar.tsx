@@ -78,7 +78,7 @@ export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, role
 
 	const filteredNavMain = useMemo(() => {
 		if (!selectedRole) {
-			return data.navMain; // Show all items if no role is selected
+			return []; // No role selected, so no items to show
 		}
 		return data.navMain
 			.map((item) => {

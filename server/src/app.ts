@@ -10,6 +10,10 @@ import { apiReference } from '@scalar/express-api-reference'
 import 'zod-openapi/extend';
 import { createDocument } from 'zod-openapi';
 
+// Middleware
+import { authenticateUser } from './middleware/authenticateUser';
+import { getRolesPermissions } from './middleware/getRolesPermissions';
+
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importAPISpecs } from "./routes/imports";
 import userRoute, { userSpecs } from "./routes/user";
@@ -53,6 +57,8 @@ app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.j
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
+app.use(authenticateUser)
+app.use(getRolesPermissions)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/reporting", reportingRoute)

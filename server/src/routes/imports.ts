@@ -6,9 +6,7 @@ import 'zod-openapi/extend';
 import { z } from 'zod';
 
 // Import middleware and types
-import { authenticateUser } from '../middleware/authenticateUser';
 import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
-import { getRolesPermissions } from '../middleware/getRolesPermissions';
 import { hasRole } from '../middleware/hasRole';
 import { AuthAndPermissionsRequest } from '../types/requests';
 
@@ -114,8 +112,6 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 const router = express.Router()
 
 // Attach middleware
-router.use(authenticateUser)
-router.use(getRolesPermissions)
 // @ts-ignore
 router.use(hasRole(COBIS_ADMIN_ROLE_ID))
 
