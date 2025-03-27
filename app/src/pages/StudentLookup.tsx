@@ -1,5 +1,5 @@
 import { useState } from "react";
-import SearchInput from "../components/search-input"; // Adjust the import path
+import SearchInput from "@/components/search-input";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Define the Program interface
