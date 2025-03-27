@@ -52,16 +52,24 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 		// Build single whereClause by accumulating conditions
 		const conditions = [];
 
-		// Academic level filter (example logic based on earned hours)
+		// Academic level filter with OR condition for multiple levels
 		if (academicLevelsArray.length > 0) {
 			const levelConditions = academicLevelsArray.map(level => {
-				if (level === 'Freshman') return lte(studentAcademicInfo.overall_earned_hours, 29);
-				if (level === 'Sophomore') return and(gte(studentAcademicInfo.overall_earned_hours, 30), lte(studentAcademicInfo.overall_earned_hours, 59));
-				if (level === 'Junior') return and(gte(studentAcademicInfo.overall_earned_hours, 60), lte(studentAcademicInfo.overall_earned_hours, 89));
-				if (level === 'Senior') return gte(studentAcademicInfo.overall_earned_hours, 90);
+				if (level === 'Freshman') {
+					return lte(studentAcademicInfo.overall_earned_hours, 29);
+				} else if (level === 'Sophomore') {
+					return and(gte(studentAcademicInfo.overall_earned_hours, 30), lte(studentAcademicInfo.overall_earned_hours, 59));
+				} else if (level === 'Junior') {
+					return and(gte(studentAcademicInfo.overall_earned_hours, 60), lte(studentAcademicInfo.overall_earned_hours, 89));
+				} else if (level === 'Senior') {
+					return gte(studentAcademicInfo.overall_earned_hours, 90);
+				}
 				return null;
 			}).filter(Boolean);
-			if (levelConditions.length > 0) conditions.push(...levelConditions);
+
+			if (levelConditions.length > 0) {
+				conditions.push(or(...levelConditions));
+			}
 		}
 
 		// GPA range filter
