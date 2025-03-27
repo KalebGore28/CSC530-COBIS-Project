@@ -9,7 +9,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
 import SearchInput from "@/components/search-input";
 
@@ -126,9 +125,6 @@ const StudentFilters = () => {
     gradeFilters: [{ course: null, grade: null }],
   })
 
-  const [newCourseTaken, setNewCourseTaken] = useState<string>("")
-  const [newCourseNotTaken, setNewCourseNotTaken] = useState<string>("")
-
   const handleAcademicLevelChange = (level: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -206,19 +202,20 @@ const StudentFilters = () => {
     }))
   }
 
-  // TODO: Redo
   const updateGradeFilter = (index: number, field: "course" | "grade", value: string) => {
     setFilters((prev) => {
-      const newGradeFilters = [...prev.gradeFilters]
+      const newGradeFilters = [...prev.gradeFilters];
       if (field === "course") {
-        const course = courseOptions.find((c) => c.id === value) || null
-        newGradeFilters[index] = { ...newGradeFilters[index], course }
+        const selectedCourse = prev.coursesTaken.find(
+          (course) => `${course.subject}${course.number}${course.suffix}` === value
+        ) || null;
+        newGradeFilters[index] = { ...newGradeFilters[index], course: selectedCourse };
       } else {
-        newGradeFilters[index] = { ...newGradeFilters[index], grade: value }
+        newGradeFilters[index] = { ...newGradeFilters[index], grade: value };
       }
-      return { ...prev, gradeFilters: newGradeFilters }
-    })
-  }
+      return { ...prev, gradeFilters: newGradeFilters };
+    });
+  };
 
   const addGradeFilter = () => {
     setFilters((prev) => ({
@@ -343,7 +340,7 @@ const StudentFilters = () => {
                     className="h-40"
                   />
                 </div>
-                
+
                 {/* Courses Not Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Not Taken</Label>
@@ -370,19 +367,42 @@ const StudentFilters = () => {
                   {filters.gradeFilters.map((filter, index) => (
                     <div key={index} className="flex items-center gap-2">
                       <Select
-                        value={filter.course?.id || ""}
+                        value={
+                          filter.course
+                            ? `${filter.course.subject}${filter.course.number}${filter.course.suffix}`
+                            : ""
+                        }
                         onValueChange={(value) => updateGradeFilter(index, "course", value)}
                       >
                         <SelectTrigger className="flex-1">
-                          <SelectValue placeholder="Select course" />
+                          <SelectValue placeholder="Select course..." />
                         </SelectTrigger>
-                        {/* <SelectContent>
-                          {courseOptions.map((course) => (
-                            <SelectItem key={course.id} value={course.id}>
-                              {course.code} - {course.name}
+                        <SelectContent>
+                          {filters.coursesTaken.length > 0 ? (
+                            filters.coursesTaken.map((course) => {
+                              const isSelectedInOtherFilter = filters.gradeFilters.some(
+                                (f, i) =>
+                                  i !== index &&
+                                  f.course?.subject === course.subject &&
+                                  f.course?.number === course.number &&
+                                  f.course?.suffix === course.suffix
+                              );
+                              return (
+                                <SelectItem
+                                  key={`${course.subject}${course.number}${course.suffix}`}
+                                  value={`${course.subject}${course.number}${course.suffix}`}
+                                  disabled={isSelectedInOtherFilter}
+                                >
+                                  {course.subject} {course.number} - {course.title}
+                                </SelectItem>
+                              );
+                            })
+                          ) : (
+                            <SelectItem value="none" disabled>
+                              No courses selected
                             </SelectItem>
-                          ))}
-                        </SelectContent> */}
+                          )}
+                        </SelectContent>
                       </Select>
                       <Select
                         value={filter.grade || ""}
