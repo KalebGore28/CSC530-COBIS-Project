@@ -12,6 +12,8 @@ import {
 interface SearchInputProps<T> {
 	searchApi: (query: string) => Promise<T[]>;
 	onSelect: (item: T) => void;
+	onRemove: (item: T) => void;
+	selectedItems: T[];
 	placeholder?: string;
 	debounceTime?: number;
 	renderResult: (item: T) => React.ReactNode;
@@ -21,6 +23,8 @@ interface SearchInputProps<T> {
 function SearchInput<T>({
 	searchApi,
 	onSelect,
+	onRemove,
+	selectedItems,
 	placeholder = "Search...",
 	debounceTime = 300,
 	renderResult,
@@ -28,7 +32,6 @@ function SearchInput<T>({
 }: SearchInputProps<T>) {
 	const [query, setQuery] = useState('');
 	const [results, setResults] = useState<T[]>([]);
-	const [selectedItems, setSelectedItems] = useState<T[]>([]);
 
 	const fetchResults = useCallback(
 		debounce((searchQuery: string) => {
@@ -55,30 +58,28 @@ function SearchInput<T>({
 	}, [query, fetchResults]);
 
 	const handleSelect = (item: T) => {
-		setSelectedItems((prevItems) => {
-			const updatedItems = [...prevItems, item];
-			return updatedItems;
-		});
-		onSelect(item);
+		onSelect(item); // Call the parent's onSelect to add the item
+		setQuery('');   // Clear the input
 	};
 
 	const handleRemove = (item: T) => {
-		setSelectedItems((prevItems) => prevItems.filter((i) => i !== item));
+		onRemove(item); // Call the parent's onRemove to remove the item
 	};
 
 	return (
 		<Command className={`rounded-lg border shadow-md md:min-w-[450px] ${className}`}>
-			<CommandInput placeholder={placeholder} onValueChange={(value) => setQuery(value)} value={query} />
+			<CommandInput
+				placeholder={placeholder}
+				onValueChange={(value) => setQuery(value)}
+				value={query}
+			/>
 			<CommandList>
 				<CommandEmpty>No results found.</CommandEmpty>
 				<CommandGroup>
 					{results.map((result, index) => (
 						<CommandItem
 							key={index}
-							onSelect={() => {
-								handleSelect(result);
-								setQuery('');
-							}}
+							onSelect={() => handleSelect(result)}
 						>
 							{renderResult(result)}
 						</CommandItem>
@@ -87,7 +88,7 @@ function SearchInput<T>({
 				{selectedItems.length > 0 && (
 					<CommandGroup heading="Selected">
 						{selectedItems.map((item, index) => (
-							<CommandItem key={index} className='flex justify-between items-center'>
+							<CommandItem key={index} className="flex justify-between items-center">
 								{renderResult(item)}
 								<button
 									onClick={() => handleRemove(item)}

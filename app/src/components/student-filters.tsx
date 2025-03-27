@@ -48,7 +48,7 @@ const fetchMajors = async (query: string): Promise<Program[]> => {
   try {
     const response = await fetch(`/api/search/programs?query=${encodeURIComponent(query)}`, {
       method: 'GET',
-      credentials: 'include', // Include if authentication is required
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -57,17 +57,11 @@ const fetchMajors = async (query: string): Promise<Program[]> => {
       throw new Error('Failed to fetch programs');
     }
     const data: Program[] = await response.json();
-
-    // Filter out discontinued programs
-    const filteredData = data.filter((program) => !program.isDiscontinued);
-
-    // Filter out non-majors
-    const majorData = filteredData.filter((program) => program.isMajor);
-
-    return majorData;
+    const filteredData = data.filter((program) => !program.isDiscontinued && program.isMajor);
+    return filteredData;
   } catch (error) {
     console.error('Error fetching programs:', error);
-    return []; // Return empty array on error to avoid crashing
+    return [];
   }
 };
 
@@ -75,7 +69,7 @@ const fetchMinors = async (query: string): Promise<Program[]> => {
   try {
     const response = await fetch(`/api/search/programs?query=${encodeURIComponent(query)}`, {
       method: 'GET',
-      credentials: 'include', // Include if authentication is required
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
       },
@@ -84,22 +78,15 @@ const fetchMinors = async (query: string): Promise<Program[]> => {
       throw new Error('Failed to fetch programs');
     }
     const data: Program[] = await response.json();
-
-    // Filter out discontinued programs
-    const filteredData = data.filter((program) => !program.isDiscontinued);
-
-    // Filter out non-minors
-    const majorData = filteredData.filter((program) => program.isMinor);
-
-    return majorData;
+    const filteredData = data.filter((program) => !program.isDiscontinued && program.isMinor);
+    return filteredData;
   } catch (error) {
     console.error('Error fetching programs:', error);
-    return []; // Return empty array on error to avoid crashing
+    return [];
   }
 };
 
 const StudentFilters = () => {
-  // Sample data for visualization purposes
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
   const courseOptions: Course[] = [
     { id: "cs101", code: "CS 101", name: "Introduction to Computer Science" },
@@ -113,7 +100,6 @@ const StudentFilters = () => {
   ]
   const gradeOptions = ["A", "B", "C", "D", "F"]
 
-  // State for filters
   const [filters, setFilters] = useState<FilterState>({
     academicLevels: [],
     gpaRange: [0, 4.0],
@@ -124,11 +110,9 @@ const StudentFilters = () => {
     gradeFilters: [{ course: null, grade: null }],
   })
 
-  // State for new course inputs
   const [newCourseTaken, setNewCourseTaken] = useState<string>("")
   const [newCourseNotTaken, setNewCourseNotTaken] = useState<string>("")
 
-  // Handler functions
   const handleAcademicLevelChange = (level: string) => {
     setFilters((prev) => ({
       ...prev,
@@ -138,17 +122,31 @@ const StudentFilters = () => {
     }))
   }
 
-  const handleMajorChange = (major: Program) => {
+  const handleAddMajor = (major: Program) => {
     setFilters((prev) => ({
       ...prev,
-      majors: prev.majors.includes(major) ? prev.majors.filter((m) => m !== major) : [...prev.majors, major],
+      majors: prev.majors.some((m) => m.code === major.code) ? prev.majors : [...prev.majors, major],
     }))
   }
 
-  const handleMinorChange = (minor: Program) => {
+  const handleRemoveMajor = (major: Program) => {
     setFilters((prev) => ({
       ...prev,
-      minors: prev.minors.includes(minor) ? prev.minors.filter((m) => m !== minor) : [...prev.minors, minor],
+      majors: prev.majors.filter((m) => m.code !== major.code),
+    }))
+  }
+
+  const handleAddMinor = (minor: Program) => {
+    setFilters((prev) => ({
+      ...prev,
+      minors: prev.minors.some((m) => m.code === minor.code) ? prev.minors : [...prev.minors, minor],
+    }))
+  }
+
+  const handleRemoveMinor = (minor: Program) => {
+    setFilters((prev) => ({
+      ...prev,
+      minors: prev.minors.filter((m) => m.code !== minor.code),
     }))
   }
 
@@ -198,14 +196,12 @@ const StudentFilters = () => {
   const updateGradeFilter = (index: number, field: "course" | "grade", value: string) => {
     setFilters((prev) => {
       const newGradeFilters = [...prev.gradeFilters]
-
       if (field === "course") {
         const course = courseOptions.find((c) => c.id === value) || null
         newGradeFilters[index] = { ...newGradeFilters[index], course }
       } else {
         newGradeFilters[index] = { ...newGradeFilters[index], grade: value }
       }
-
       return { ...prev, gradeFilters: newGradeFilters }
     })
   }
@@ -265,7 +261,6 @@ const StudentFilters = () => {
                     ))}
                   </div>
                 </div>
-
                 {/* GPA Range */}
                 <div className="space-y-4">
                   <div className="flex justify-between">
@@ -286,27 +281,28 @@ const StudentFilters = () => {
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
                 {/* Majors */}
-
                 <div className="space-y-2">
                   <Label className="text-base">Major</Label>
                   <SearchInput<Program>
                     searchApi={fetchMajors}
-                    onSelect={handleMajorChange}
+                    onSelect={handleAddMajor}
+                    onRemove={handleRemoveMajor}
+                    selectedItems={filters.majors}
                     placeholder="Type to search majors..."
                     renderResult={(program: Program) => `${program.code} - ${program.description}`}
                     className="h-40"
                   />
                 </div>
-
                 {/* Minors */}
                 <div className="space-y-2">
                   <Label className="text-base">Minor</Label>
                   <SearchInput<Program>
                     searchApi={fetchMinors}
-                    onSelect={handleMinorChange}
+                    onSelect={handleAddMinor}
+                    onRemove={handleRemoveMinor}
+                    selectedItems={filters.minors}
                     placeholder="Type to search minors..."
                     renderResult={(program: Program) => `${program.code} - ${program.description}`}
                     className="h-40"
@@ -315,12 +311,10 @@ const StudentFilters = () => {
               </div>
             </AccordionContent>
           </AccordionItem>
-
           <AccordionItem value="item-2">
             <AccordionTrigger>Course History</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
                 {/* Courses Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Taken</Label>
@@ -362,8 +356,6 @@ const StudentFilters = () => {
                     ))}
                   </div>
                 </div>
-
-                {/* Courses Not Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Not Taken</Label>
                   <div className="flex space-x-2">
@@ -405,7 +397,6 @@ const StudentFilters = () => {
                   </div>
                 </div>
               </div>
-
               {/* Grade Filters */}
               <div className="space-y-4 mt-6">
                 <div className="flex justify-between items-center">
@@ -414,7 +405,6 @@ const StudentFilters = () => {
                     <Plus className="h-4 w-4 mr-1" /> Add Filter
                   </Button>
                 </div>
-
                 <div className="space-y-3">
                   {filters.gradeFilters.map((filter, index) => (
                     <div key={index} className="flex items-center gap-2">
@@ -433,7 +423,6 @@ const StudentFilters = () => {
                           ))}
                         </SelectContent>
                       </Select>
-
                       <Select
                         value={filter.grade || ""}
                         onValueChange={(value) => updateGradeFilter(index, "grade", value)}
@@ -449,7 +438,6 @@ const StudentFilters = () => {
                           ))}
                         </SelectContent>
                       </Select>
-
                       {filters.gradeFilters.length > 1 && (
                         <Button
                           variant="ghost"
@@ -467,7 +455,6 @@ const StudentFilters = () => {
             </AccordionContent>
           </AccordionItem>
         </Accordion>
-
         <div className="flex justify-end gap-3 mt-6">
           <Button variant="outline" onClick={resetFilters}>
             Reset Filters
@@ -480,4 +467,3 @@ const StudentFilters = () => {
 }
 
 export default StudentFilters
-

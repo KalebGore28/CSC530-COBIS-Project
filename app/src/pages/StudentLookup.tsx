@@ -62,16 +62,6 @@ const StudentLookup = () => {
 			{/* Student Filters */}
 			<StudentFilters />
 
-			{/* Search Component for Programs */}
-			<div className="mt-4">
-				<h3>Filter by Program</h3>
-				<SearchInput<Program>
-					searchApi={fetchPrograms}
-					onSelect={handleProgramSelect}
-					placeholder="Type to search programs..."
-					renderResult={(program: Program) => `${program.code} - ${program.description}`}
-				/>
-			</div>
 
 			{/* Selected Programs List */}
 			{selectedPrograms.length > 0 && (
