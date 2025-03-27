@@ -39,6 +39,8 @@ router.get('/credit-hours', async (req: Request, res: Response) => {
 				courseSubject: instructorCourses.course_subject,
 				courseNumber: instructorCourses.course_number,
 				courseSuffix: instructorCourses.course_suffix,
+				courseHours: studentCourses.course_hours,
+				totalStudents: sql<number>`COUNT(${studentCourses.mnumber})`,
 				totalCreditHours: sql<number>`COALESCE(SUM(${studentCourses.course_hours}), 0)`
 			})
 			.from(instructorCourses)
