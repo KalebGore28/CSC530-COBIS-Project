@@ -1,5 +1,6 @@
 import { useState } from "react";
 import SearchInput from "@/components/search-input";
+import StudentFilters from "@/components/student-filters";
 import { Card, CardContent } from "@/components/ui/card";
 
 // Define the Program interface
@@ -53,8 +54,9 @@ const StudentLookup = () => {
 	};
 
 	return (
-		<div className="p-5">
-			<h1>Student Lookup</h1>
+		<div className="p-6">
+			{/* Student Filters */}
+			<StudentFilters />
 
 			{/* Search Component for Programs */}
 			<div className="mt-4">
@@ -101,6 +103,7 @@ const StudentLookup = () => {
 					<p>Please select at least one program to filter students.</p>
 				)}
 			</div>
+
 		</div>
 	);
 };

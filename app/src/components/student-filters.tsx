@@ -290,6 +290,7 @@ const StudentFilters = () => {
             <AccordionTrigger>Course History</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                
                 {/* Courses Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Taken</Label>
