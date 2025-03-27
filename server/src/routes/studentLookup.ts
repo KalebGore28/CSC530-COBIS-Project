@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { getDbConnection } from '../db/connection';
-import { students, studentAcademicInfo, studentPrograms } from '../db/schema'; // Import your table schemas
-import { eq, and, inArray, gte, lte, exists } from 'drizzle-orm';
+import { students, studentAcademicInfo, studentPrograms, studentCourses } from '../db/schema';
+import { eq, and, inArray, gte, lte, exists, notExists, or } from 'drizzle-orm';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 
@@ -11,39 +11,70 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 	try {
 		const db = (await getDbConnection()).orm;
 
-		// Extract query parameters
-		const { term, academicLevels, gpaMin, gpaMax, majors, minors } = req.query;
+		// Extract and validate query parameters
+		const { academicLevels, gpaMin, gpaMax, majors, minors, coursesTaken, coursesNotTaken, gradeFilters } = req.query;
 
-		// Validate required term parameter
-		if (!term || typeof term !== 'string') {
-			res.status(400).json({ error: 'Term is required and must be a string' });
-			return;
-		}
+		// Parse query parameters into usable formats
+		const academicLevelsArray = typeof academicLevels === 'string' ? academicLevels.split(',') : [];
+		const gpaMinNum = typeof gpaMin === 'string' ? parseFloat(gpaMin) : undefined;
+		const gpaMaxNum = typeof gpaMax === 'string' ? parseFloat(gpaMax) : undefined;
+		const majorsArray = typeof majors === 'string' ? majors.split(',') : [];
+		const minorsArray = typeof minors === 'string' ? minors.split(',') : [];
+		const coursesTakenArray = typeof coursesTaken === 'string' ? coursesTaken.split(',') : [];
+		const coursesNotTakenArray = typeof coursesNotTaken === 'string' ? coursesNotTaken.split(',') : [];
+		const gradeFiltersArray = typeof gradeFilters === 'string' ? gradeFilters.split(',') : [];
 
-		// Parse parameters with defaults
-		const academicLevelsArray = academicLevels && typeof academicLevels === 'string'
-			? academicLevels.split(',')
-			: [];
-		const gpaMinNum = gpaMin && typeof gpaMin === 'string' ? parseFloat(gpaMin) : undefined;
-		const gpaMaxNum = gpaMax && typeof gpaMax === 'string' ? parseFloat(gpaMax) : undefined;
-		const majorsArray = majors && typeof majors === 'string' ? majors.split(',') : [];
-		const minorsArray = minors && typeof minors === 'string' ? minors.split(',') : [];
+		// Helper to parse course IDs (assuming format: "SUBJ1234S")
+		const parseCourseId = (courseId: string) => {
+			const match = courseId.match(/^([A-Z]+)(\d+)([A-Z]*)$/);
+			if (!match) throw new Error(`Invalid course ID: ${courseId}`);
+			return { subject: match[1], number: match[2], suffix: match[3] || '' };
+		};
 
-		// Build dynamic conditions array
+		const parsedCoursesTaken = coursesTakenArray.map(parseCourseId);
+		const parsedCoursesNotTaken = coursesNotTakenArray.map(parseCourseId);
+		const parsedGradeFilters = gradeFiltersArray.map(filter => {
+			const [courseId, grade] = filter.split(':');
+			const { subject, number, suffix } = parseCourseId(courseId);
+			return { subject, number, suffix, grade };
+		});
+
+		// Initialize base query
+		let studentsQuery = db
+			.select({
+				mnumber: students.mnumber,
+				first_name: students.first_name,
+				last_name: students.last_name,
+			})
+			.from(students)
+			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber));
+
+		// Build single whereClause by accumulating conditions
 		const conditions = [];
 
-		// Filter by academic level if provided
+		// Academic level filter (example logic based on earned hours)
 		if (academicLevelsArray.length > 0) {
-			conditions.push(inArray(studentAcademicInfo.academic_standing, academicLevelsArray));
+			const levelConditions = academicLevelsArray.map(level => {
+				if (level === 'Freshman') return lte(studentAcademicInfo.overall_earned_hours, 29);
+				if (level === 'Sophomore') return and(gte(studentAcademicInfo.overall_earned_hours, 30), lte(studentAcademicInfo.overall_earned_hours, 59));
+				if (level === 'Junior') return and(gte(studentAcademicInfo.overall_earned_hours, 60), lte(studentAcademicInfo.overall_earned_hours, 89));
+				if (level === 'Senior') return gte(studentAcademicInfo.overall_earned_hours, 90);
+				return null;
+			}).filter(Boolean);
+			if (levelConditions.length > 0) conditions.push(...levelConditions);
 		}
 
-		// Filter by GPA range if both min and max are provided
+		// GPA range filter
 		if (gpaMinNum !== undefined && gpaMaxNum !== undefined) {
-			conditions.push(gte(studentAcademicInfo.overall_gpa, gpaMinNum));
-			conditions.push(lte(studentAcademicInfo.overall_gpa, gpaMaxNum));
+			conditions.push(
+				and(
+					gte(studentAcademicInfo.overall_gpa, gpaMinNum),
+					lte(studentAcademicInfo.overall_gpa, gpaMaxNum)
+				)
+			);
 		}
 
-		// Filter by majors if provided
+		// Majors filter
 		if (majorsArray.length > 0) {
 			conditions.push(
 				exists(
@@ -53,7 +84,6 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 						.where(
 							and(
 								eq(studentPrograms.mnumber, students.mnumber),
-								eq(studentPrograms.term, term),
 								eq(studentPrograms.type, 'MAJOR'),
 								inArray(studentPrograms.program, majorsArray)
 							)
@@ -62,7 +92,7 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 			);
 		}
 
-		// Filter by minors if provided
+		// Minors filter
 		if (minorsArray.length > 0) {
 			conditions.push(
 				exists(
@@ -72,7 +102,6 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 						.where(
 							and(
 								eq(studentPrograms.mnumber, students.mnumber),
-								eq(studentPrograms.term, term),
 								eq(studentPrograms.type, 'MINOR'),
 								inArray(studentPrograms.program, minorsArray)
 							)
@@ -81,20 +110,73 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 			);
 		}
 
-		// Construct and execute the query
-		const studentsQuery = db
-			.select({
-				mnumber: students.mnumber,
-				first_name: students.first_name,
-				last_name: students.last_name,
-			})
-			.from(students)
-			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber))
-			.where(and(...conditions));
+		// Courses taken filter
+		parsedCoursesTaken.forEach(course => {
+			conditions.push(
+				exists(
+					db
+						.select()
+						.from(studentCourses)
+						.where(
+							and(
+								eq(studentCourses.mnumber, students.mnumber),
+								eq(studentCourses.course_subject, course.subject),
+								eq(studentCourses.course_number, course.number),
+								eq(studentCourses.course_suffix, course.suffix)
+							)
+						)
+				)
+			);
+		});
 
+		// Courses not taken filter
+		parsedCoursesNotTaken.forEach(course => {
+			conditions.push(
+				notExists(
+					db
+						.select()
+						.from(studentCourses)
+						.where(
+							and(
+								eq(studentCourses.mnumber, students.mnumber),
+								eq(studentCourses.course_subject, course.subject),
+								eq(studentCourses.course_number, course.number),
+								eq(studentCourses.course_suffix, course.suffix)
+							)
+						)
+				)
+			);
+		});
+
+		// Grade filters
+		parsedGradeFilters.forEach(filter => {
+			if (filter.grade) {
+				conditions.push(
+					exists(
+						db
+							.select()
+							.from(studentCourses)
+							.where(
+								and(
+									eq(studentCourses.mnumber, students.mnumber),
+									eq(studentCourses.course_subject, filter.subject),
+									eq(studentCourses.course_number, filter.number),
+									eq(studentCourses.course_suffix, filter.suffix),
+									eq(studentCourses.final_grade, filter.grade)
+								)
+							)
+					)
+				);
+			}
+		});
+
+		// Apply the single whereClause
+		if (conditions.length > 0) {
+			studentsQuery = studentsQuery.where(and(...conditions));
+		}
+
+		// Execute query and return results
 		const result = await studentsQuery;
-
-		// Return the result as JSON
 		res.json(result);
 	} catch (error) {
 		console.error('Error in /api/student-lookup:', error);
@@ -103,48 +185,46 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 });
 
 // Preparing OpenAPI spec
-const termParam = z.string().openapi({ description: 'The term to filter students by', example: '202210', ref: 'student_lookup_term' });
-const academicLevelsParam = z.string().optional().openapi({ description: 'Comma-separated list of academic levels to filter students by', example: 'FR,SO', ref: 'student_lookup_academic_levels' });
-const gpaMinParam = z.string().optional().openapi({ description: 'Minimum overall GPA to filter students by', example: '2.0', ref: 'student_lookup_gpa_min' });
-const gpaMaxParam = z.string().optional().openapi({ description: 'Maximum overall GPA to filter students by', example: '4.0', ref: 'student_lookup_gpa_max' });
-const majorsParam = z.string().optional().openapi({ description: 'Comma-separated list of majors to filter students by', example: 'CS,ENG', ref: 'student_lookup_majors' });
-const minorsParam = z.string().optional().openapi({ description: 'Comma-separated list of minors to filter students by', example: 'MATH,PHYS', ref: 'student_lookup_minors' });
+const academicLevelParam = z.enum(['Freshman', 'Sophomore', 'Junior', 'Senior', 'Graduate']).openapi({ description: 'Academic level', example: 'Freshman', ref: 'academic_level' });
+const gpaRangeParam = z.string().openapi({ description: 'GPA range (min,max)', example: '2.0,4.0', ref: 'gpa_range' });
+const majorsParam = z.string().openapi({ description: 'Majors', example: 'A020', ref: 'majors' });
+const minorsParam = z.string().openapi({ description: 'Minors', example: 'B050', ref: 'minors' });
+const coursesTakenParam = z.string().openapi({ description: 'Courses taken', example: 'ACC200', ref: 'courses_taken' });
+const coursesNotTakenParam = z.string().openapi({ description: 'Courses not taken', example: 'ACC201', ref: 'courses_not_taken' });
+const gradeFiltersParam = z.string().openapi({ description: 'Grade filters', example: 'ACC200:A', ref: 'grade_filters' });
 export const studentLookupSpec = {
 	'/api/student-lookup': {
 		get: {
 			tags: ['Student Lookup'],
-			operationId: 'getStudentLookup',
-			description: 'Get a list of students based on various filters',
+			operationId: 'studentLookup',
+			description: 'Lookup students based on academic criteria',
 			requestParams: {
 				query: z.object({
-					term: termParam,
-					academicLevels: academicLevelsParam,
-					gpaMin: gpaMinParam,
-					gpaMax: gpaMaxParam,
+					academicLevels: academicLevelParam,
+					gpaRange: gpaRangeParam,
 					majors: majorsParam,
 					minors: minorsParam,
+					coursesTaken: coursesTakenParam,
+					coursesNotTaken: coursesNotTakenParam,
+					gradeFilters: gradeFiltersParam,
 				}),
 			},
 			responses: {
-				'200': {
-					description: 'Success',
+				200: {
+					description: 'List of students matching the criteria',
 					content: {
 						'application/json': {
-							schema: z.array(
-								z.object({
-									mnumber: z.string(),
-									first_name: z.string(),
-									last_name: z.string(),
-								})
-							),
+							schema: z.array(z.object({
+								mnumber: z.string(),
+								first_name: z.string(),
+								last_name: z.string(),
+							}))
 						},
 					},
 				},
 			},
 		},
 	},
-};
-
-
+}
 
 export default router;
