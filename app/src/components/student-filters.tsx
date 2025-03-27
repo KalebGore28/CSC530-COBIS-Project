@@ -22,8 +22,8 @@ interface Course {
 interface FilterState {
   academicLevels: string[]
   gpaRange: [number, number]
-  majors: string[]
-  minors: string[]
+  majors: Program[]
+  minors: Program[]
   coursesTaken: Course[]
   coursesNotTaken: Course[]
   gradeFilters: {
@@ -138,14 +138,14 @@ const StudentFilters = () => {
     }))
   }
 
-  const handleMajorChange = (major: string) => {
+  const handleMajorChange = (major: Program) => {
     setFilters((prev) => ({
       ...prev,
       majors: prev.majors.includes(major) ? prev.majors.filter((m) => m !== major) : [...prev.majors, major],
     }))
   }
 
-  const handleMinorChange = (minor: string) => {
+  const handleMinorChange = (minor: Program) => {
     setFilters((prev) => ({
       ...prev,
       minors: prev.minors.includes(minor) ? prev.minors.filter((m) => m !== minor) : [...prev.minors, minor],
@@ -294,7 +294,7 @@ const StudentFilters = () => {
                   <Label className="text-base">Major</Label>
                   <SearchInput<Program>
                     searchApi={fetchMajors}
-                    onSelect={() => {}}
+                    onSelect={handleMajorChange}
                     placeholder="Type to search majors..."
                     renderResult={(program: Program) => `${program.code} - ${program.description}`}
                     className="h-40"
@@ -306,7 +306,7 @@ const StudentFilters = () => {
                   <Label className="text-base">Minor</Label>
                   <SearchInput<Program>
                     searchApi={fetchMinors}
-                    onSelect={() => {}}
+                    onSelect={handleMinorChange}
                     placeholder="Type to search minors..."
                     renderResult={(program: Program) => `${program.code} - ${program.description}`}
                     className="h-40"
