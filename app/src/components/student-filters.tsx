@@ -15,9 +15,14 @@ import SearchInput from "@/components/search-input";
 
 // TypeScript interfaces
 interface Course {
-  id: string
-  code: string
-  name: string
+  subject: string;
+  number: number;
+  suffix: string;
+  title: string;
+  hours: number;
+  fee: number;
+  web_fee: number;
+  last_updated: string;
 }
 interface FilterState {
   academicLevels: string[]
@@ -86,18 +91,29 @@ const fetchMinors = async (query: string): Promise<Program[]> => {
   }
 };
 
+const fetchCourses = async (query: string): Promise<Course[]> => {
+  try {
+    const response = await fetch(`/api/search/courses?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch courses');
+    }
+    const data: Course[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    return [];
+  }
+}
+
 const StudentFilters = () => {
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
-  const courseOptions: Course[] = [
-    { id: "cs101", code: "CS 101", name: "Introduction to Computer Science" },
-    { id: "cs201", code: "CS 201", name: "Data Structures and Algorithms" },
-    { id: "cs301", code: "CS 301", name: "Database Systems" },
-    { id: "cs401", code: "CS 401", name: "Software Engineering" },
-    { id: "math101", code: "MATH 101", name: "Calculus I" },
-    { id: "math201", code: "MATH 201", name: "Linear Algebra" },
-    { id: "eng101", code: "ENG 101", name: "English Composition" },
-    { id: "phy101", code: "PHY 101", name: "Physics I" },
-  ]
+
   const gradeOptions = ["A", "B", "C", "D", "F"]
 
   const [filters, setFilters] = useState<FilterState>({
@@ -157,42 +173,40 @@ const StudentFilters = () => {
     }))
   }
 
-  const addCourseTaken = (courseId: string) => {
-    const course = courseOptions.find((c) => c.id === courseId)
-    if (course && !filters.coursesTaken.some((c) => c.id === courseId)) {
-      setFilters((prev) => ({
-        ...prev,
-        coursesTaken: [...prev.coursesTaken, course],
-      }))
-      setNewCourseTaken("")
-    }
-  }
-
-  const removeCourseTaken = (courseId: string) => {
+  const addCourseTaken = (course: Course) => {
+    // Unique identifier is the course (subject, number, and suffix)
     setFilters((prev) => ({
       ...prev,
-      coursesTaken: prev.coursesTaken.filter((c) => c.id !== courseId),
+      coursesTaken: prev.coursesTaken.some((c) => c.subject === course.subject && c.number === course.number && c.suffix === course.suffix)
+        ? prev.coursesTaken
+        : [...prev.coursesTaken, course],
     }))
   }
 
-  const addCourseNotTaken = (courseId: string) => {
-    const course = courseOptions.find((c) => c.id === courseId)
-    if (course && !filters.coursesNotTaken.some((c) => c.id === courseId)) {
-      setFilters((prev) => ({
-        ...prev,
-        coursesNotTaken: [...prev.coursesNotTaken, course],
-      }))
-      setNewCourseNotTaken("")
-    }
-  }
-
-  const removeCourseNotTaken = (courseId: string) => {
+  const removeCourseTaken = (course: Course) => {
     setFilters((prev) => ({
       ...prev,
-      coursesNotTaken: prev.coursesNotTaken.filter((c) => c.id !== courseId),
+      coursesTaken: prev.coursesTaken.filter((c) => c.subject !== course.subject || c.number !== course.number || c.suffix !== course.suffix),
     }))
   }
 
+  const addCourseNotTaken = (course: Course) => {
+    setFilters((prev) => ({
+      ...prev,
+      coursesNotTaken: prev.coursesNotTaken.some((c) => c.subject === course.subject && c.number === course.number && c.suffix === course.suffix)
+        ? prev.coursesNotTaken
+        : [...prev.coursesNotTaken, course],
+    }))
+  }
+
+  const removeCourseNotTaken = (course: Course) => {
+    setFilters((prev) => ({
+      ...prev,
+      coursesNotTaken: prev.coursesNotTaken.filter((c) => c.subject !== course.subject || c.number !== course.number || c.suffix !== course.suffix),
+    }))
+  }
+
+  // TODO: Redo
   const updateGradeFilter = (index: number, field: "course" | "grade", value: string) => {
     setFilters((prev) => {
       const newGradeFilters = [...prev.gradeFilters]
@@ -315,86 +329,33 @@ const StudentFilters = () => {
             <AccordionTrigger>Course History</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+
                 {/* Courses Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Taken</Label>
-                  <div className="flex space-x-2">
-                    <Select value={newCourseTaken} onValueChange={setNewCourseTaken}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a course" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {courseOptions.map((course) => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.code} - {course.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => addCourseTaken(newCourseTaken)}
-                      disabled={!newCourseTaken}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {filters.coursesTaken.map((course) => (
-                      <Badge key={course.id} variant="default" className="flex items-center gap-1">
-                        {course.code}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4 p-0 ml-1"
-                          onClick={() => removeCourseTaken(course.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
+                  <SearchInput<Course>
+                    searchApi={fetchCourses}
+                    onSelect={addCourseTaken}
+                    onRemove={removeCourseTaken}
+                    selectedItems={filters.coursesTaken}
+                    placeholder="Type to search courses..."
+                    renderResult={(course: Course) => `${course.subject} ${course.number} - ${course.title}`}
+                    className="h-40"
+                  />
                 </div>
+                
+                {/* Courses Not Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Not Taken</Label>
-                  <div className="flex space-x-2">
-                    <Select value={newCourseNotTaken} onValueChange={setNewCourseNotTaken}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select a course" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {courseOptions.map((course) => (
-                          <SelectItem key={course.id} value={course.id}>
-                            {course.code} - {course.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => addCourseNotTaken(newCourseNotTaken)}
-                      disabled={!newCourseNotTaken}
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {filters.coursesNotTaken.map((course) => (
-                      <Badge key={course.id} variant="secondary" className="flex items-center gap-1">
-                        {course.code}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-4 w-4 p-0 ml-1"
-                          onClick={() => removeCourseNotTaken(course.id)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </Badge>
-                    ))}
-                  </div>
+                  <SearchInput<Course>
+                    searchApi={fetchCourses}
+                    onSelect={addCourseNotTaken}
+                    onRemove={removeCourseNotTaken}
+                    selectedItems={filters.coursesNotTaken}
+                    placeholder="Type to search courses..."
+                    renderResult={(course: Course) => `${course.subject} ${course.number} - ${course.title}`}
+                    className="h-40"
+                  />
                 </div>
               </div>
               {/* Grade Filters */}
@@ -415,13 +376,13 @@ const StudentFilters = () => {
                         <SelectTrigger className="flex-1">
                           <SelectValue placeholder="Select course" />
                         </SelectTrigger>
-                        <SelectContent>
+                        {/* <SelectContent>
                           {courseOptions.map((course) => (
                             <SelectItem key={course.id} value={course.id}>
                               {course.code} - {course.name}
                             </SelectItem>
                           ))}
-                        </SelectContent>
+                        </SelectContent> */}
                       </Select>
                       <Select
                         value={filter.grade || ""}
