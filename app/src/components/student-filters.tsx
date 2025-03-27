@@ -23,7 +23,7 @@ interface Course {
   web_fee: number;
   last_updated: string;
 }
-interface FilterState {
+export interface FilterState {
   academicLevels: string[]
   gpaRange: [number, number]
   majors: Program[]
@@ -109,8 +109,11 @@ const fetchCourses = async (query: string): Promise<Course[]> => {
     return [];
   }
 }
+interface StudentFiltersProps {
+  onApplyFilters: (filters: FilterState) => void;
+}
 
-const StudentFilters = () => {
+const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
 
   const gradeOptions = ["A", "B", "C", "D", "F"]
@@ -325,7 +328,7 @@ const StudentFilters = () => {
           <AccordionItem value="item-2">
             <AccordionTrigger>Course History</AccordionTrigger>
             <AccordionContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-6">
 
                 {/* Courses Taken */}
                 <div className="space-y-4">
@@ -336,7 +339,7 @@ const StudentFilters = () => {
                     onRemove={removeCourseTaken}
                     selectedItems={filters.coursesTaken}
                     placeholder="Type to search courses..."
-                    renderResult={(course: Course) => `${course.subject} ${course.number} - ${course.title}`}
+                    renderResult={(course: Course) => `${course.subject}${course.number}${course.suffix || ""} - ${course.title}`}
                     className="h-40"
                   />
                 </div>
@@ -350,7 +353,7 @@ const StudentFilters = () => {
                     onRemove={removeCourseNotTaken}
                     selectedItems={filters.coursesNotTaken}
                     placeholder="Type to search courses..."
-                    renderResult={(course: Course) => `${course.subject} ${course.number} - ${course.title}`}
+                    renderResult={(course: Course) => `${course.subject} ${course.number} ${course.suffix || ""} - ${course.title}`}
                     className="h-40"
                   />
                 </div>
@@ -393,7 +396,7 @@ const StudentFilters = () => {
                                   value={`${course.subject}${course.number}${course.suffix}`}
                                   disabled={isSelectedInOtherFilter}
                                 >
-                                  {course.subject} {course.number} - {course.title}
+                                  {course.subject} {course.number} {course.suffix || ""} - {course.title}
                                 </SelectItem>
                               );
                             })
@@ -440,7 +443,7 @@ const StudentFilters = () => {
           <Button variant="outline" onClick={resetFilters}>
             Reset Filters
           </Button>
-          <Button onClick={() => alert("Filters applied!")}>Apply Filters</Button>
+          <Button onClick={() => onApplyFilters(filters)}>Run Query</Button>
         </div>
       </CardContent>
     </Card>
