@@ -95,7 +95,7 @@ const StudentLookup = () => {
 					<ul>
 						{results.map((student) => (
 							<li key={student.mnumber}>
-								{student.first_name} {student.last_name}
+								{student.first_name} {student.last_name} {student.mnumber}
 							</li>
 						))}
 					</ul>
