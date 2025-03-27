@@ -19,7 +19,9 @@ import importRoutes, { importAPISpecs } from "./routes/imports";
 import userRoute, { userSpecs } from "./routes/user";
 import reportingRoute, { reportingSpecs } from "./routes/reporting";
 import searchRoute, { searchSpecs } from "./routes/search";
+import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 import customQuery from "./routes/customQueries";
+
 
 // Create an OpenAPI document
 const document = createDocument({
@@ -36,6 +38,7 @@ const document = createDocument({
         ...userSpecs,
         ...reportingSpecs,
         ...searchSpecs,
+        ...studentLookupSpec,
     },
 });
 
@@ -63,6 +66,7 @@ app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/reporting", reportingRoute)
 app.use("/api/search", searchRoute)
+app.use("/api", studentLookup)
 app.use('/api/custom-query', customQuery)
 
 // // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
