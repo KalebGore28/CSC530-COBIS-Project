@@ -17,11 +17,11 @@ const router = express.Router();
 router.get('/credit-hours', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
-	const { instructorId, termCode, year } = req.query;
+	const { instructorMNumber, termCode, year } = req.query;
 
 	// Validate query parameters
-	if (!instructorId || !termCode || !year) {
-		res.status(400).json({ error: "instructorId, termCode, and year are required." });
+	if (!instructorMNumber || !termCode || !year) {
+		res.status(400).json({ error: "instructorMNumber, termCode, and year are required." });
 		return;
 	}
 
@@ -54,7 +54,7 @@ router.get('/credit-hours', async (req: Request, res: Response) => {
 			)
 			.where(
 				and(
-					eq(instructorCourses.user_id, instructorId as string),
+					eq(instructorCourses.instructor_mnumber, instructorMNumber as string),
 					eq(instructorCourses.term, termCode as string),
 					eq(instructorCourses.year, yearInt)
 				)
@@ -80,7 +80,7 @@ router.get('/credit-hours', async (req: Request, res: Response) => {
 });
 
 // Preparing OpenAPI spec
-const instructorId = z.string().openapi({ description: 'The instructor ID', example: '1234', ref: 'instructor_id' });
+const instructorMNumberParam = z.string().openapi({ description: 'The instructor MNumber', example: 'M12345678', ref: 'instructor_mnumber' });
 const termCode = z.string().openapi({ description: 'The term code', example: '10', ref: 'term_code' });
 const year = z.string().openapi({ description: 'The year', example: '2023', ref: 'year' });
 const creditHoursSpec = {
@@ -91,7 +91,7 @@ const creditHoursSpec = {
 			description: 'Get credit hours for an instructor',
 			requestParams: {
 				query: z.object({
-					instructorId,
+					instructorMNumber: instructorMNumberParam,
 					termCode,
 					year,
 				}),

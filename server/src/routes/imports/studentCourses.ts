@@ -19,6 +19,7 @@ interface StudentCoursesRow {
 	lastattend: string;
 	midgrade: string;
 	fingrade: string;
+	instmnumber: string;
 }
 
 async function importStudentCourses(
