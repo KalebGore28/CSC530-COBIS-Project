@@ -87,7 +87,7 @@ function SearchInput<T>({
 				{/* Conditionally Render a second group to show selections */}
 				{
 					selectedItems.length > 0 && (
-						<CommandGroup>
+						<CommandGroup heading="Selected">
 							{selectedItems.map((item, index) => (
 								<CommandItem key={index} onSelect={() => handleRemove(item)}>
 									{renderResult(item)}
