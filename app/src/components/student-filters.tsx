@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Badge } from "@/components/ui/badge"
 import { Slider } from "@/components/ui/slider"
+import SearchInput from "@/components/search-input";
 
 // TypeScript interfaces
 interface Course {
@@ -18,7 +19,6 @@ interface Course {
   code: string
   name: string
 }
-
 interface FilterState {
   academicLevels: string[]
   gpaRange: [number, number]
@@ -31,33 +31,76 @@ interface FilterState {
     grade: string | null
   }[]
 }
+interface Program {
+  code: string;
+  description: string;
+  cipCode?: string;
+  isMajor?: boolean;
+  isMinor?: boolean;
+  hasConcentration?: boolean;
+  isDiscontinued?: boolean;
+  isAacsb?: boolean;
+  department?: string;
+  college?: string;
+}
+
+const fetchMajors = async (query: string): Promise<Program[]> => {
+  try {
+    const response = await fetch(`/api/search/programs?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      credentials: 'include', // Include if authentication is required
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch programs');
+    }
+    const data: Program[] = await response.json();
+
+    // Filter out discontinued programs
+    const filteredData = data.filter((program) => !program.isDiscontinued);
+
+    // Filter out non-majors
+    const majorData = filteredData.filter((program) => program.isMajor);
+
+    return majorData;
+  } catch (error) {
+    console.error('Error fetching programs:', error);
+    return []; // Return empty array on error to avoid crashing
+  }
+};
+
+const fetchMinors = async (query: string): Promise<Program[]> => {
+  try {
+    const response = await fetch(`/api/search/programs?query=${encodeURIComponent(query)}`, {
+      method: 'GET',
+      credentials: 'include', // Include if authentication is required
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    if (!response.ok) {
+      throw new Error('Failed to fetch programs');
+    }
+    const data: Program[] = await response.json();
+
+    // Filter out discontinued programs
+    const filteredData = data.filter((program) => !program.isDiscontinued);
+
+    // Filter out non-minors
+    const majorData = filteredData.filter((program) => program.isMinor);
+
+    return majorData;
+  } catch (error) {
+    console.error('Error fetching programs:', error);
+    return []; // Return empty array on error to avoid crashing
+  }
+};
 
 const StudentFilters = () => {
   // Sample data for visualization purposes
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
-  const majorOptions = [
-    "Computer Science",
-    "Cybersecurity & Network Management",
-    "Software Engineering",
-    "Economics",
-    "Finance",
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Psychology",
-  ]
-  const minorOptions = [
-    "Game Development",
-    "Data Analytics",
-    "Finance",
-    "Business Administration",
-    "Marketing",
-    "Communication",
-    "Art",
-    "Music",
-    "Philosophy",
-  ]
   const courseOptions: Course[] = [
     { id: "cs101", code: "CS 101", name: "Introduction to Computer Science" },
     { id: "cs201", code: "CS 201", name: "Data Structures and Algorithms" },
@@ -246,41 +289,28 @@ const StudentFilters = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 {/* Majors */}
+
                 <div className="space-y-2">
                   <Label className="text-base">Major</Label>
-                  <div className="h-40 overflow-y-auto border rounded-md p-2">
-                    {majorOptions.map((major) => (
-                      <div key={major} className="flex items-center space-x-2 py-1">
-                        <Checkbox
-                          id={`major-${major}`}
-                          checked={filters.majors.includes(major)}
-                          onCheckedChange={() => handleMajorChange(major)}
-                        />
-                        <Label htmlFor={`major-${major}`} className="font-normal">
-                          {major}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
+                  <SearchInput<Program>
+                    searchApi={fetchMajors}
+                    onSelect={() => {}}
+                    placeholder="Type to search majors..."
+                    renderResult={(program: Program) => `${program.code} - ${program.description}`}
+                    className="h-40"
+                  />
                 </div>
 
                 {/* Minors */}
                 <div className="space-y-2">
                   <Label className="text-base">Minor</Label>
-                  <div className="h-40 overflow-y-auto border rounded-md p-2">
-                    {minorOptions.map((minor) => (
-                      <div key={minor} className="flex items-center space-x-2 py-1">
-                        <Checkbox
-                          id={`minor-${minor}`}
-                          checked={filters.minors.includes(minor)}
-                          onCheckedChange={() => handleMinorChange(minor)}
-                        />
-                        <Label htmlFor={`minor-${minor}`} className="font-normal">
-                          {minor}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
+                  <SearchInput<Program>
+                    searchApi={fetchMinors}
+                    onSelect={() => {}}
+                    placeholder="Type to search minors..."
+                    renderResult={(program: Program) => `${program.code} - ${program.description}`}
+                    className="h-40"
+                  />
                 </div>
               </div>
             </AccordionContent>
@@ -290,7 +320,7 @@ const StudentFilters = () => {
             <AccordionTrigger>Course History</AccordionTrigger>
             <AccordionContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                
+
                 {/* Courses Taken */}
                 <div className="space-y-4">
                   <Label className="text-base">Courses Taken</Label>

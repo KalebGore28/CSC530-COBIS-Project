@@ -31,7 +31,11 @@ const fetchPrograms = async (query: string): Promise<Program[]> => {
 			throw new Error('Failed to fetch programs');
 		}
 		const data: Program[] = await response.json();
-		return data;
+
+		// Filter out discontinued programs
+		const filteredData = data.filter((program) => !program.isDiscontinued);
+
+		return filteredData;
 	} catch (error) {
 		console.error('Error fetching programs:', error);
 		return []; // Return empty array on error to avoid crashing
@@ -65,7 +69,6 @@ const StudentLookup = () => {
 					searchApi={fetchPrograms}
 					onSelect={handleProgramSelect}
 					placeholder="Type to search programs..."
-					debounceTime={300}
 					renderResult={(program: Program) => `${program.code} - ${program.description}`}
 				/>
 			</div>

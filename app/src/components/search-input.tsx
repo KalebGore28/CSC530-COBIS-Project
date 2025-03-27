@@ -16,6 +16,7 @@ interface SearchInputProps<T> {
 	placeholder?: string;
 	debounceTime?: number;
 	renderResult: (item: T) => React.ReactNode;
+	className?: string;
 }
 function SearchInput<T>({
 	searchApi,
@@ -23,6 +24,7 @@ function SearchInput<T>({
 	placeholder = "Search...",
 	debounceTime = 300,
 	renderResult,
+	className = "",
 }: SearchInputProps<T>) {
 	const [query, setQuery] = useState('');
 	const [results, setResults] = useState<T[]>([]);
@@ -53,13 +55,16 @@ function SearchInput<T>({
 	}, [query, fetchResults]); //fetchResults
 
 	return (
-		<Command className="rounded-lg border shadow-md md:min-w-[450px]">
-			<CommandInput placeholder={placeholder} onValueChange={(value) => setQuery(value)} />
+		<Command className={`rounded-lg border shadow-md md:min-w-[450px] ${className}`}>
+			<CommandInput placeholder={placeholder} onValueChange={(value) => setQuery(value)} value={query} />
 			<CommandList>
 				<CommandEmpty>No results found.</CommandEmpty>
 				<CommandGroup>
 					{results.map((result, index) => (
-						<CommandItem key={index} onSelect={() => onSelect(result)}>
+						<CommandItem key={index} onSelect={() => {
+							setQuery('');
+							return onSelect(result)
+						}}>
 							{renderResult(result)}
 						</CommandItem>
 					))}
