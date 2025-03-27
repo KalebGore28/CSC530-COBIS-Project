@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import debounce from 'lodash.debounce';
-
 import {
 	Command,
 	CommandEmpty,
@@ -8,7 +7,7 @@ import {
 	CommandInput,
 	CommandItem,
 	CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 
 interface SearchInputProps<T> {
 	searchApi: (query: string) => Promise<T[]>;
@@ -18,6 +17,7 @@ interface SearchInputProps<T> {
 	renderResult: (item: T) => React.ReactNode;
 	className?: string;
 }
+
 function SearchInput<T>({
 	searchApi,
 	onSelect,
@@ -46,27 +46,24 @@ function SearchInput<T>({
 		[searchApi, debounceTime]
 	);
 
-	// Fetch results when query changes
 	useEffect(() => {
 		if (query.length === 0) {
 			setResults([]);
 			return;
 		}
 		fetchResults(query);
-	}, [query, fetchResults]); //fetchResults
+	}, [query, fetchResults]);
 
-	// Handle selections
 	const handleSelect = (item: T) => {
-		// get the already selected items and add the new item
-		const newItems = [...selectedItems, item];
-		setSelectedItems(newItems);
+		setSelectedItems((prevItems) => {
+			const updatedItems = [...prevItems, item];
+			return updatedItems;
+		});
 		onSelect(item);
-		console.log('Selected Items:', selectedItems, newItems, item);
 	};
 
-	// Handle removals
 	const handleRemove = (item: T) => {
-		setSelectedItems(selectedItems.filter((i) => i !== item));
+		setSelectedItems((prevItems) => prevItems.filter((i) => i !== item));
 	};
 
 	return (
@@ -76,29 +73,35 @@ function SearchInput<T>({
 				<CommandEmpty>No results found.</CommandEmpty>
 				<CommandGroup>
 					{results.map((result, index) => (
-						<CommandItem key={index} onSelect={() => {
-							handleSelect(result)
-							setQuery('');
-						}}>
+						<CommandItem
+							key={index}
+							onSelect={() => {
+								handleSelect(result);
+								setQuery('');
+							}}
+						>
 							{renderResult(result)}
 						</CommandItem>
 					))}
 				</CommandGroup>
-				{/* Conditionally Render a second group to show selections */}
-				{
-					selectedItems.length > 0 && (
-						<CommandGroup heading="Selected">
-							{selectedItems.map((item, index) => (
-								<CommandItem key={index} onSelect={() => handleRemove(item)}>
-									{renderResult(item)}
-								</CommandItem>
-							))}
-						</CommandGroup>
-					)
-				}
+				{selectedItems.length > 0 && (
+					<CommandGroup heading="Selected">
+						{selectedItems.map((item, index) => (
+							<CommandItem key={index} className='flex justify-between items-center'>
+								{renderResult(item)}
+								<button
+									onClick={() => handleRemove(item)}
+									className="text-red-500 ml-2"
+								>
+									Remove
+								</button>
+							</CommandItem>
+						))}
+					</CommandGroup>
+				)}
 			</CommandList>
 		</Command>
-	)
+	);
 }
 
 export default SearchInput;
