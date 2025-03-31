@@ -1,4 +1,4 @@
-import { sqliteTable, text, int, primaryKey, check, real, foreignKey } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, int, primaryKey, foreignKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 import { terms } from "./terms";
@@ -23,8 +23,8 @@ export const studentCourses = sqliteTable("student_courses", {
 	registration_status: text("registration_status").notNull().references(() => registrationStatus.code),
 	instructional_method: text("instructional_method").notNull().references(() => instructionalMethods.code),
 	last_attendance: text("last_attendance"),
-	midterm_grade: real(),
-	final_grade: real(),
+	midterm_grade: text("midterm_grade"),
+	final_grade: text("final_grade"),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.term, table.year, table.crn] }),
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),
