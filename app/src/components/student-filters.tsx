@@ -113,7 +113,7 @@ interface StudentFiltersProps {
   onApplyFilters: (filters: FilterState) => void;
 }
 
-const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
+export const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
 
   const gradeOptions = ["A", "B", "C", "D", "F"]
@@ -449,5 +449,3 @@ const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
     </Card>
   )
 }
-
-export default StudentFilters
