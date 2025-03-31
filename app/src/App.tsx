@@ -13,7 +13,6 @@ import OnboardingPage from './pages/Onboarding';
 import StudentLookup from './pages/StudentLookup';
 
 import { useSession } from '@/hooks/session-context';
-import { RoleProvider } from './hooks/role-context';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -41,14 +40,7 @@ export const App: React.FC = () => {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <RoleProvider>
-            <Layout />
-          </RoleProvider>
-        }
-      >
+      <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
