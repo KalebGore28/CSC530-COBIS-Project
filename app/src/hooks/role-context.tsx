@@ -39,7 +39,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const { session } = useSession();
 	const [roles, setRoles] = useState<Role[]>([]);
 	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
-	const [routePermissions, setRoutePermissions] = useState<{ [key: string]: string[] }>({
+	const [routePermissions] = useState<{ [key: string]: string[] }>({
 		"/dashboard": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/reports": ["Faculty", "Advisor", "COBIS Admin"],
 		"/reports/students": ["Faculty", "Advisor", "COBIS Admin"],
@@ -67,19 +67,23 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	useEffect(() => {
 		if (session && roles.length > 0) {
 			const savedRoleId = sessionStorage.getItem("selectedRoleId");
-			const roleIdNum = savedRoleId ? Number(savedRoleId) : null;
-			const savedRole = roleIdNum ? roles.find(role => role.id === roleIdNum) : null;
-			setSelectedRole(savedRole || roles[0] || null);
+			if (savedRoleId) {
+				const roleIdNum = Number(savedRoleId);
+				const savedRole = roles.find(role => role.id === roleIdNum);
+				if (savedRole) {
+					setSelectedRole(savedRole); // Restore only if valid
+				}
+			}
 		}
-	}, [session, roles]);
+	}, [session, roles]); // Make sure this runs only when roles are available
+
 
 	useEffect(() => {
-		if (selectedRole) {
+		if (selectedRole && selectedRole.id !== Number(sessionStorage.getItem("selectedRoleId"))) {
 			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString());
-		} else {
-			sessionStorage.removeItem("selectedRoleId");
 		}
 	}, [selectedRole]);
+
 
 	return (
 		<RoleContext.Provider value={{ roles, selectedRole, setSelectedRole, routePermissions }}>
