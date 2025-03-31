@@ -13,7 +13,7 @@ import {
 	students,
 	terms,
 	partOfTerm,
-	users,
+	user,
 } from '../db/schema';
 
 export const allowedTables: Record<string, any> = {
@@ -30,7 +30,7 @@ export const allowedTables: Record<string, any> = {
 	students,
 	terms,
 	part_of_term: partOfTerm,
-	users,
+	user,
 };
 
 const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
@@ -44,13 +44,17 @@ const allowedOperators = ['=', '!=', '>', '<', 'LIKE'];
  *
  * @param queryDef - The JSON query definition from the client.
  * @param orm - The Drizzle ORM instance.
- * @param currentUser - An object representing the current user (with properties: user_id, permissions, currentRole).
+ * @param userId - The current user's ID.
+ * @param permissions - The user's table and column permissions.
+ * @param selectedRole - The user's selected role.
  * @returns A built query that can be executed.
  */
 export async function buildDrizzleQuery(
 	queryDef: any,
 	orm: any,
-	currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
+	userId: string,
+	permissions: { table_name: string; column_name: string }[],
+	selectedRole: { role_id: number; role_name: string }
 ) {
 	// Validate base table.
 	const baseTable = allowedTables[queryDef.table];
@@ -59,7 +63,7 @@ export async function buildDrizzleQuery(
 	}
 
 	// Check table-level permission
-	const tablePermission = currentUser.permissions.some(
+	const tablePermission = permissions.some(
 		(perm) => perm.table_name === queryDef.table
 	);
 	if (!tablePermission) {
@@ -70,7 +74,7 @@ export async function buildDrizzleQuery(
 	for (const col of queryDef.select) {
 		if (!col.includes('.')) {
 			// Unqualified columns from the base table
-			const hasColumnPermission = currentUser.permissions.some(
+			const hasColumnPermission = permissions.some(
 				(perm) =>
 					perm.table_name === queryDef.table &&
 					perm.column_name === col
@@ -81,7 +85,7 @@ export async function buildDrizzleQuery(
 		} else {
 			// Qualified columns like "students.first_name"
 			const [joinTableName, columnName] = col.split('.');
-			const joinPermission = currentUser.permissions.some(
+			const joinPermission = permissions.some(
 				(perm) =>
 					perm.table_name === joinTableName &&
 					perm.column_name === columnName
@@ -117,7 +121,6 @@ export async function buildDrizzleQuery(
 	// Process joins if provided.
 	if (queryDef.joins && Array.isArray(queryDef.joins)) {
 		// Accumulate join definitions by join table.
-		// Instead of expecting .left and .right, we expect an object with multiple columns.
 		const joinMap: Record<string, Array<Record<string, string>>> = {};
 		for (const joinDef of queryDef.joins) {
 			if (!allowedTables[joinDef.table]) {
@@ -173,7 +176,7 @@ export async function buildDrizzleQuery(
 
 	// Build the WHERE clause.
 	// Start with automatic filters.
-	let whereClause: any = automaticFilters(queryDef, baseTable, currentUser); // May be null.
+	let whereClause: any = automaticFilters(queryDef, baseTable, userId, selectedRole); // May be null.
 
 	// Process user-specified filters.
 	if (queryDef.filters && Array.isArray(queryDef.filters)) {
@@ -199,7 +202,6 @@ export async function buildDrizzleQuery(
 				throw new Error("Operator not implemented");
 			}
 			whereClause = whereClause ? and(whereClause, condition) : condition;
-			console.log('[buildDrizzleQuery] Added filter:', filter, '-> condition:', condition);
 		}
 	}
 
@@ -241,12 +243,13 @@ export async function buildDrizzleQuery(
 function automaticFilters(
 	queryDef: any,
 	table: any,
-	currentUser: { user_id: string; permissions: any[]; currentRole: { role_id: number; role_name: string } }
+	userId: string,
+	selectedRole: { role_id: number; role_name: string }
 ) {
 	let whereClause = null;
-	if (queryDef.table === 'instructor_courses' && currentUser.currentRole.role_name === 'faculty') {
+	if (queryDef.table === 'instructor_courses' && selectedRole.role_name === 'faculty') {
 		console.log('[automaticFilters] Faculty role detected: applying filter on user_id');
-		whereClause = eq(table.user_id, currentUser.user_id);
+		whereClause = eq(table.user_id, userId);
 	}
 	return whereClause;
 }

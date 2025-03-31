@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { instructionalMethods } from '../../db/schema';
-import { instructionalMethodsRouter } from '../../routes/imports/instructional_methods';
+import { instructionalMethodsRouter } from '../../routes/imports/instructionalMethods';
 
 describe('Instructional Methods Import Tests', () => {
 	let app: express.Express;

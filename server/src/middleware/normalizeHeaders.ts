@@ -1,8 +1,13 @@
-// import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 
-export function normalizeHeadersMiddleware(req, res, next) {
+/**
+ * Middleware to normalize column headers to lowercase.
+ * Looks for a `mappedData` array in the request body and normalizes the column headers to lowercase.
+ */
+export function normalizeHeadersMiddleware(req: Request, res: Response, next: NextFunction) {
 	if (!req.body.mappedData || !Array.isArray(req.body.mappedData)) {
-		return res.status(400).json({ error: 'Invalid request data: mappedData is required and should be an array.' });
+		res.status(400).json({ error: 'Invalid request data: mappedData is required and should be an array.' });
+		return
 	}
 
 	// Normalize column headers to lowercase
@@ -12,5 +17,5 @@ export function normalizeHeadersMiddleware(req, res, next) {
 		);
 	});
 
-	next(); // Move to the next middleware/route handler
+	next();
 }

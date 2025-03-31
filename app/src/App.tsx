@@ -1,93 +1,60 @@
-import { useState, useEffect } from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom"
-import Layout from "./layout.tsx"
-import Dashboard from "./pages/Dashboard.tsx"
-import LoginPage from "./pages/Login.tsx"
-import Reports from "./pages/Reports.tsx"
-import StudentsReport from "./pages/StudentsReport.tsx"
-import QueryBuilderPage from "./pages/QueryBuilder.tsx"
-import CobisTools from "./pages/CobisTools.tsx"
-import CsvImport from "./pages/CsvImport.tsx"
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import LoginPage from './pages/Login';
+import Layout from './Layout';
+import Reports from './pages/Reports';
+import StudentsReport from './pages/StudentsReport';
+import QueryBuilderPage from './pages/QueryBuilder';
+import CobisTools from './pages/CobisTools';
+import CsvImport from './pages/CsvImport';
+import TestPage from './pages/TestPage';
+import WaitingPage from './pages/Waiting';
+import OnboardingPage from './pages/Onboarding';
+import StudentLookup from './pages/StudentLookup';
 
-function App() {
-	const [user, setUser] = useState<any>(null)
-	const [isLoading, setIsLoading] = useState(true)
+import { useSession } from '@/hooks/session-context';
 
-	useEffect(() => {
-		const checkAuth = async () => {
-			try {
-				const response = await fetch("/api/auth/me", {
-					method: "GET",
-					credentials: "include",
-				})
+export const App: React.FC = () => {
+  const { session, isLoading, refetchSession } = useSession();
 
-				if (response.ok) {
-					const data = await response.json()
-					setUser(data || null)
-				} else {
-					setUser(null)
-				}
-			} catch (error) {
-				console.error("Error checking auth:", error)
-				setUser(null)
-			} finally {
-				setIsLoading(false)
-			}
-		}
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
-		checkAuth()
-	}, [])
+  if (!session) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
 
-	if (isLoading) {
-		return (
-			<ThemeProvider>
-				<div>Loading...</div>
-			</ThemeProvider>
-		)
-	}
+  if (!session.is_enabled) {
+    return <WaitingPage />;
+  }
 
-	return (
-		<ThemeProvider>
-			<BrowserRouter>
-				<Routes>
-					{/* Public Route */}
-					<Route
-						path="/login"
-						element={!user ? <LoginPage /> : <Navigate to="/dashboard" replace />}
-					/>
+  if (!session.mnumber) {
+    return <OnboardingPage refetchSession={refetchSession} />;
+  }
 
-					{/* Protected Routes */}
-					<Route
-						path="/"
-						element={user ? <Layout user={user} /> : <Navigate to="/login" replace />}
-					>
-						<Route index element={<RedirectToDashboard />} />
-						<Route path="dashboard" element={<Dashboard user={user} />} />
-						<Route path="reports" element={<Reports user={user} />}>
-							<Route path="students" element={<StudentsReport user={user} />} />
-						</Route>
-						<Route path="cobis-tools" element={<CobisTools user={user} />}>
-							<Route path="query-builder" element={<QueryBuilderPage />} />
-							<Route path="imports" element={<CsvImport user={user} />} />
-						</Route>
-					</Route>
-
-					{/* Catch-all redirect */}
-					<Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} />} />
-				</Routes>
-			</BrowserRouter>
-		</ThemeProvider>
-	)
-}
-
-function RedirectToDashboard() {
-	const navigate = useNavigate()
-	useEffect(() => {
-		console.log("Redirecting from / to /dashboard")
-		navigate("/dashboard", { replace: true })
-	}, [navigate])
-	return null
-}
-
-export default App
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="student-lookup" element={<StudentLookup />} />
+        <Route path="reports" element={<Reports />}>
+          <Route path="students" element={<StudentsReport />} />
+        </Route>
+        <Route path="cobis-tools" element={<CobisTools />}>
+          <Route path="query-builder" element={<QueryBuilderPage />} />
+          <Route path="imports" element={<CsvImport />} />
+        </Route>
+        <Route path="test-page" element={<TestPage />} />
+      </Route>
+      <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+};

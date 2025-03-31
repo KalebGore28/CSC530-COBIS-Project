@@ -215,294 +215,292 @@ const QueryBuilderPage: React.FC = () => {
 	}
 
 	return (
-		<div className="min-h-screen bg-background py-8">
-			<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-3xl">Custom Query Builder</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{error && (
-							<Alert variant="destructive" className="mb-6">
-								<AlertDescription>{error}</AlertDescription>
-							</Alert>
-						)}
+		<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+			<Card>
+				<CardHeader>
+					<CardTitle className="text-3xl">Custom Query Builder</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{error && (
+						<Alert variant="destructive" className="mb-6">
+							<AlertDescription>{error}</AlertDescription>
+						</Alert>
+					)}
 
-						{/* Table Selector */}
-						<div className="mb-6">
-							<Label htmlFor="table-select" className="mb-2 block">
-								Table
-							</Label>
-							<Select value={selectedTable} onValueChange={setSelectedTable}>
-								<SelectTrigger id="table-select">
-									<SelectValue placeholder="Select table" />
-								</SelectTrigger>
-								<SelectContent>
-									{metadata.map((m) => (
-										<SelectItem key={m.table} value={m.table}>
-											{m.table}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
-						</div>
-
-						{/* Column Selector */}
-						{selectedTable && (
-							<div className="mb-6">
-								<Label htmlFor="column-select" className="mb-2 block">
-									Select Columns
-								</Label>
-								<select
-									id="column-select"
-									multiple
-									className="w-full p-3 border border-input rounded-md focus:ring-2 focus:ring-ring h-40 bg-background text-foreground"
-									value={selectedColumns}
-									onChange={handleColumnChange}
-								>
-									{getAvailableColumns().map((col) => (
-										<option key={col} value={col}>
-											{col}
-										</option>
-									))}
-								</select>
-								<p className="mt-1 text-sm text-muted-foreground">
-									Hold Ctrl (or Cmd) to select multiple columns
-								</p>
-							</div>
-						)}
-
-						{/* Filters Builder */}
-						<div className="mb-6">
-							<h3 className="text-lg font-semibold mb-3">Filters</h3>
-							{filters.map((f, index) => (
-								<div key={index} className="flex items-center space-x-3 mb-3">
-									<Input
-										placeholder="Column"
-										value={f.column}
-										onChange={(e) => {
-											const newFilters = [...filters]
-											newFilters[index].column = e.target.value
-											setFilters(newFilters)
-										}}
-										className="flex-1"
-									/>
-									<Select
-										value={f.operator}
-										onValueChange={(value) => {
-											const newFilters = [...filters]
-											newFilters[index].operator = value
-											setFilters(newFilters)
-										}}
-									>
-										<SelectTrigger className="w-24">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											{allowedOperators.map((op) => (
-												<SelectItem key={op} value={op}>
-													{op}
-												</SelectItem>
-											))}
-										</SelectContent>
-									</Select>
-									<Input
-										placeholder="Value"
-										value={f.value}
-										onChange={(e) => {
-											const newFilters = [...filters]
-											newFilters[index].value = e.target.value
-											setFilters(newFilters)
-										}}
-										className="flex-1"
-									/>
-									<Button
-										variant="destructive"
-										onClick={() => {
-											const newFilters = filters.filter((_, i) => i !== index)
-											setFilters(newFilters)
-										}}
-									>
-										Remove
-									</Button>
-								</div>
-							))}
-							<Button
-								variant="outline"
-								onClick={() => setFilters([...filters, { column: "", operator: "=", value: "" }])}
-							>
-								Add Filter
-							</Button>
-						</div>
-
-						{/* Available Relationships */}
-						{selectedTable && (
-							<div className="mb-6">
-								<Collapsible open={isRelationshipsOpen} onOpenChange={setIsRelationshipsOpen}>
-									<CollapsibleTrigger asChild>
-										<div className="flex items-center justify-between mb-3">
-											<h3 className="text-lg font-semibold">Available Relationships</h3>
-											<Button variant="ghost" size="sm">
-												{isRelationshipsOpen ? <ChevronUp /> : <ChevronDown />}
-											</Button>
-										</div>
-									</CollapsibleTrigger>
-									<CollapsibleContent>
-										{getAvailableRelationships().map((rel, index) => (
-											<Card key={index} className="mb-3">
-												<CardContent className="flex justify-between items-center pt-6">
-													<div>
-														<p>
-															<strong>Join with:</strong> {rel.relatedTable}
-														</p>
-														<div className="text-sm text-muted-foreground mt-1">
-															<strong>On:</strong>
-															<ul className="list-disc pl-5">
-																{Object.entries(rel.on).map(([leftCol, rightCol]) => (
-																	<li key={leftCol}>
-																		{`${leftCol} = ${rel.relatedTable}.${rightCol}`}
-																	</li>
-																))}
-															</ul>
-														</div>
-													</div>
-													<Button onClick={() => handleAddJoin(rel.relatedTable, rel.on)}>
-														Add Join
-													</Button>
-												</CardContent>
-											</Card>
-										))}
-									</CollapsibleContent>
-								</Collapsible>
-							</div>
-						)}
-
-						{/* Selected Joins */}
-						{joins.length > 0 && (
-							<div className="mb-6">
-								<h3 className="text-lg font-semibold mb-3">Selected Joins</h3>
-								{joins.map((join, idx) => (
-									<Card key={idx} className="mb-3">
-										<CardContent className="flex justify-between items-center pt-6">
-											<div>
-												<p>
-													<strong>Table:</strong> {join.table}
-												</p>
-												<div className="text-sm text-muted-foreground mt-1">
-													<strong>On:</strong>
-													<ul className="list-disc pl-5">
-														{Object.entries(join.on).map(([leftCol, rightCol]) => (
-															<li key={leftCol}>
-																{`${leftCol} = ${join.table}.${rightCol}`}
-															</li>
-														))}
-													</ul>
-												</div>
-											</div>
-											<Button
-												variant="destructive"
-												onClick={() => handleRemoveJoin(idx)}
-											>
-												Remove
-											</Button>
-										</CardContent>
-									</Card>
+					{/* Table Selector */}
+					<div className="mb-6">
+						<Label htmlFor="table-select" className="mb-2 block">
+							Table
+						</Label>
+						<Select value={selectedTable} onValueChange={setSelectedTable}>
+							<SelectTrigger id="table-select">
+								<SelectValue placeholder="Select table" />
+							</SelectTrigger>
+							<SelectContent>
+								{metadata.map((m) => (
+									<SelectItem key={m.table} value={m.table}>
+										{m.table}
+									</SelectItem>
 								))}
-							</div>
-						)}
+							</SelectContent>
+						</Select>
+					</div>
 
-						{/* Sorting */}
+					{/* Column Selector */}
+					{selectedTable && (
 						<div className="mb-6">
-							<h3 className="text-lg font-semibold mb-3">Sort</h3>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Label htmlFor="column-select" className="mb-2 block">
+								Select Columns
+							</Label>
+							<select
+								id="column-select"
+								multiple
+								className="w-full p-3 border border-input rounded-md focus:ring-2 focus:ring-ring h-40 bg-background text-foreground"
+								value={selectedColumns}
+								onChange={handleColumnChange}
+							>
+								{getAvailableColumns().map((col) => (
+									<option key={col} value={col}>
+										{col}
+									</option>
+								))}
+							</select>
+							<p className="mt-1 text-sm text-muted-foreground">
+								Hold Ctrl (or Cmd) to select multiple columns
+							</p>
+						</div>
+					)}
+
+					{/* Filters Builder */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold mb-3">Filters</h3>
+						{filters.map((f, index) => (
+							<div key={index} className="flex items-center space-x-3 mb-3">
 								<Input
-									placeholder="Sort Column (e.g., student_courses.mnumber)"
-									value={sort.column}
-									onChange={(e) => setSort({ ...sort, column: e.target.value })}
+									placeholder="Column"
+									value={f.column}
+									onChange={(e) => {
+										const newFilters = [...filters]
+										newFilters[index].column = e.target.value
+										setFilters(newFilters)
+									}}
+									className="flex-1"
 								/>
 								<Select
-									value={sort.direction}
-									onValueChange={(value) => setSort({ ...sort, direction: value as "asc" | "desc" })}
+									value={f.operator}
+									onValueChange={(value) => {
+										const newFilters = [...filters]
+										newFilters[index].operator = value
+										setFilters(newFilters)
+									}}
 								>
-									<SelectTrigger>
+									<SelectTrigger className="w-24">
 										<SelectValue />
 									</SelectTrigger>
 									<SelectContent>
-										<SelectItem value="asc">Ascending</SelectItem>
-										<SelectItem value="desc">Descending</SelectItem>
+										{allowedOperators.map((op) => (
+											<SelectItem key={op} value={op}>
+												{op}
+											</SelectItem>
+										))}
 									</SelectContent>
 								</Select>
+								<Input
+									placeholder="Value"
+									value={f.value}
+									onChange={(e) => {
+										const newFilters = [...filters]
+										newFilters[index].value = e.target.value
+										setFilters(newFilters)
+									}}
+									className="flex-1"
+								/>
+								<Button
+									variant="destructive"
+									onClick={() => {
+										const newFilters = filters.filter((_, i) => i !== index)
+										setFilters(newFilters)
+									}}
+								>
+									Remove
+								</Button>
 							</div>
-						</div>
-
-						{/* Pagination */}
-						<div className="mb-6">
-							<h3 className="text-lg font-semibold mb-3">Pagination</h3>
-							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-								<div>
-									<Label htmlFor="limit">Limit</Label>
-									<Input
-										id="limit"
-										type="number"
-										value={pagination.limit}
-										onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value) })}
-									/>
-								</div>
-								<div>
-									<Label htmlFor="offset">Offset</Label>
-									<Input
-										id="offset"
-										type="number"
-										value={pagination.offset}
-										onChange={(e) => setPagination({ ...pagination, offset: Number(e.target.value) })}
-									/>
-								</div>
-							</div>
-						</div>
-
+						))}
 						<Button
-							className="w-full text-lg"
-							onClick={handleExecuteQuery}
-							disabled={isLoading}
+							variant="outline"
+							onClick={() => setFilters([...filters, { column: "", operator: "=", value: "" }])}
 						>
-							{isLoading ? "Executing..." : "Execute Query"}
+							Add Filter
 						</Button>
+					</div>
 
-						{/* Results */}
-						<div className="mt-8">
-							<h3 className="text-lg font-semibold mb-3">Results</h3>
-							{results.length > 0 ? (
-								<div className="overflow-x-auto">
-									<Table>
-										<TableHeader>
-											<TableRow>
-												{results[0] &&
-													Object.keys(results[0]).map((col) => (
-														<TableHead key={col}>{col}</TableHead>
-													))}
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{results.map((row, idx) => (
-												<TableRow key={idx}>
-													{Object.entries(row).map(([col, value]) => (
-														// @ts-ignore
-														<TableCell key={col}>{value}</TableCell>
-													))}
-												</TableRow>
-											))}
-										</TableBody>
-									</Table>
-								</div>
-							) : (
-								<div className="p-4 text-muted-foreground text-center bg-muted rounded-md">
-									No results
-								</div>
-							)}
+					{/* Available Relationships */}
+					{selectedTable && (
+						<div className="mb-6">
+							<Collapsible open={isRelationshipsOpen} onOpenChange={setIsRelationshipsOpen}>
+								<CollapsibleTrigger asChild>
+									<div className="flex items-center justify-between mb-3">
+										<h3 className="text-lg font-semibold">Available Relationships</h3>
+										<Button variant="ghost" size="sm">
+											{isRelationshipsOpen ? <ChevronUp /> : <ChevronDown />}
+										</Button>
+									</div>
+								</CollapsibleTrigger>
+								<CollapsibleContent>
+									{getAvailableRelationships().map((rel, index) => (
+										<Card key={index} className="mb-3">
+											<CardContent className="flex justify-between items-center pt-6">
+												<div>
+													<p>
+														<strong>Join with:</strong> {rel.relatedTable}
+													</p>
+													<div className="text-sm text-muted-foreground mt-1">
+														<strong>On:</strong>
+														<ul className="list-disc pl-5">
+															{Object.entries(rel.on).map(([leftCol, rightCol]) => (
+																<li key={leftCol}>
+																	{`${leftCol} = ${rel.relatedTable}.${rightCol}`}
+																</li>
+															))}
+														</ul>
+													</div>
+												</div>
+												<Button onClick={() => handleAddJoin(rel.relatedTable, rel.on)}>
+													Add Join
+												</Button>
+											</CardContent>
+										</Card>
+									))}
+								</CollapsibleContent>
+							</Collapsible>
 						</div>
-					</CardContent>
-				</Card>
-			</div>
+					)}
+
+					{/* Selected Joins */}
+					{joins.length > 0 && (
+						<div className="mb-6">
+							<h3 className="text-lg font-semibold mb-3">Selected Joins</h3>
+							{joins.map((join, idx) => (
+								<Card key={idx} className="mb-3">
+									<CardContent className="flex justify-between items-center pt-6">
+										<div>
+											<p>
+												<strong>Table:</strong> {join.table}
+											</p>
+											<div className="text-sm text-muted-foreground mt-1">
+												<strong>On:</strong>
+												<ul className="list-disc pl-5">
+													{Object.entries(join.on).map(([leftCol, rightCol]) => (
+														<li key={leftCol}>
+															{`${leftCol} = ${join.table}.${rightCol}`}
+														</li>
+													))}
+												</ul>
+											</div>
+										</div>
+										<Button
+											variant="destructive"
+											onClick={() => handleRemoveJoin(idx)}
+										>
+											Remove
+										</Button>
+									</CardContent>
+								</Card>
+							))}
+						</div>
+					)}
+
+					{/* Sorting */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold mb-3">Sort</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<Input
+								placeholder="Sort Column (e.g., student_courses.mnumber)"
+								value={sort.column}
+								onChange={(e) => setSort({ ...sort, column: e.target.value })}
+							/>
+							<Select
+								value={sort.direction}
+								onValueChange={(value) => setSort({ ...sort, direction: value as "asc" | "desc" })}
+							>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="asc">Ascending</SelectItem>
+									<SelectItem value="desc">Descending</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+					</div>
+
+					{/* Pagination */}
+					<div className="mb-6">
+						<h3 className="text-lg font-semibold mb-3">Pagination</h3>
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<div>
+								<Label htmlFor="limit">Limit</Label>
+								<Input
+									id="limit"
+									type="number"
+									value={pagination.limit}
+									onChange={(e) => setPagination({ ...pagination, limit: Number(e.target.value) })}
+								/>
+							</div>
+							<div>
+								<Label htmlFor="offset">Offset</Label>
+								<Input
+									id="offset"
+									type="number"
+									value={pagination.offset}
+									onChange={(e) => setPagination({ ...pagination, offset: Number(e.target.value) })}
+								/>
+							</div>
+						</div>
+					</div>
+
+					<Button
+						className="w-full text-lg"
+						onClick={handleExecuteQuery}
+						disabled={isLoading}
+					>
+						{isLoading ? "Executing..." : "Execute Query"}
+					</Button>
+
+					{/* Results */}
+					<div className="mt-8">
+						<h3 className="text-lg font-semibold mb-3">Results</h3>
+						{results.length > 0 ? (
+							<div className="overflow-x-auto">
+								<Table>
+									<TableHeader>
+										<TableRow>
+											{results[0] &&
+												Object.keys(results[0]).map((col) => (
+													<TableHead key={col}>{col}</TableHead>
+												))}
+										</TableRow>
+									</TableHeader>
+									<TableBody>
+										{results.map((row, idx) => (
+											<TableRow key={idx}>
+												{Object.entries(row).map(([col, value]) => (
+													// @ts-ignore
+													<TableCell key={col}>{value}</TableCell>
+												))}
+											</TableRow>
+										))}
+									</TableBody>
+								</Table>
+							</div>
+						) : (
+							<div className="p-4 text-muted-foreground text-center bg-muted rounded-md">
+								No results
+							</div>
+						)}
+					</div>
+				</CardContent>
+			</Card>
 		</div>
 	)
 }

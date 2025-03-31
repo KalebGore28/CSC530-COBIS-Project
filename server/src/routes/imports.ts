@@ -1,9 +1,49 @@
-import express from 'express';
-import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
+import express, { Request, Response, NextFunction } from 'express';
 import { importCSV } from '../utils/importCSV';
 import multer from 'multer';
-import path from 'path';
 import fs from 'fs';
+import 'zod-openapi/extend';
+import { z } from 'zod';
+
+// Import middleware and types
+import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
+import { hasRole } from '../middleware/hasRole';
+import { AuthAndPermissionsRequest } from '../types/requests';
+
+// Import routes
+import academicStandingRouter, { academicStandingSpec } from './imports/academicStanding';
+import admitCodesRouter, { admitCodesSpec } from './imports/admitCodes';
+import collegeCodesRouter, { collegeCodesSpec } from './imports/collegeCodes';
+import collegesRouter, { collegesSpec } from './imports/colleges';
+import coursesRouter, { importCoursesSpec } from './imports/courses';
+import { demographicsRouter } from './imports/demographics';
+import departmentsRouter, { departmentsSpec } from './imports/departments';
+import instructionalMethodsRouter, { instructionalMethodsSpec } from './imports/instructionalMethods';
+import nationsRouter, { importNationsSpec } from './imports/nations';
+import overridesRouter, { importOverridesSpec } from './imports/overrides';
+import partOfTermRouter, { importPartOfTermSpec } from './imports/partOfTerm';
+import previousCollegesRouter, { importPreviousCollegesSpec } from './imports/previousColleges';
+import programsRouter, { importProgramsSpec } from './imports/programs.js';
+import registrationStatusRouter, { importRegistrationStatusSpec } from './imports/registrationStatus';
+import studentCoursesRouter, { importStudentCoursesSpec } from './imports/studentCourses';
+import subjectPrefixesRouter, { importSubjectPrefixesSpec } from './imports/subjectPrefixes';
+import termsRouter, { importTermsSpec } from './imports/terms';
+import testScoresRouter, { importTestScoresSpec } from './imports/testScores';
+
+// Import schemas
+import {
+	academicStanding, admitCodes,
+	collegeCodes, colleges,
+	courses, departments,
+	instructionalMethods, nations,
+	overrides, partOfTerm,
+	previousColleges, programs,
+	registrationStatus, studentCourses,
+	subjectPrefixes,
+	terms, testScores,
+} from '../db/schema';
+
+const COBIS_ADMIN_ROLE_ID = 6;
 
 // Configure multer for file uploads
 const upload = multer({
@@ -17,49 +57,6 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
 
-// Import routes
-import { academicStandingRouter } from './imports/academic_standing';
-import { admitCodesRouter } from './imports/admit_codes';
-import { collegeCodesRouter } from './imports/college_codes';
-import { collegesRouter } from './imports/colleges';
-import { coursesRouter } from './imports/courses';
-import { demographicsRouter } from './imports/demographics';
-import { departmentsRouter } from './imports/departments';
-import { instructionalMethodsRouter } from './imports/instructional_methods';
-import { nationsRouter } from './imports/nations';
-import { overridesRouter } from './imports/overrides';
-import { partOfTermRouter } from './imports/part_of_term';
-import { previousCollegesRouter } from './imports/previous_colleges';
-import { programsRouter } from './imports/programs.js';
-import { registrationStatusRouter } from './imports/registration_status';
-import { studentCoursesRouter } from './imports/student_courses';
-import { studentTypesRouter } from './imports/student_types';
-import { subjectPrefixesRouter } from './imports/subject_prefixes';
-import { termsRouter } from './imports/terms';
-import { testScoresRouter } from './imports/test_scores';
-
-// Import schemas
-import {
-	academicStanding,
-	admitCodes,
-	collegeCodes,
-	colleges,
-	courses,
-	departments,
-	instructionalMethods,
-	nations,
-	overrides,
-	partOfTerm,
-	previousColleges,
-	programs,
-	registrationStatus,
-	studentCourses,
-	studentTypes,
-	subjectPrefixes,
-	terms,
-	testScores,
-} from '../db/schema';
-
 // Utility to extract fields from Drizzle ORM schema
 const getFieldsFromSchema = (schema: any): string[] => {
 	return Object.keys(schema).filter((key) => key !== 'id' && key !== 'createdAt' && key !== 'updatedAt');
@@ -67,13 +64,14 @@ const getFieldsFromSchema = (schema: any): string[] => {
 
 // Map routers to their schemas, endpoints, and fields (if special case)
 const routerSchemaMap = [
-	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic_standing" },
-	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit_codes" },
-	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college_codes" },
+	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic-standing" },
+	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit-codes" },
+	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college-codes" },
 	{ router: collegesRouter, schema: colleges, name: "Colleges", endpoint: "/api/import/colleges" },
 	{ router: coursesRouter, schema: courses, name: "Courses", endpoint: "/api/import/courses" },
 	{
 		router: demographicsRouter,
+		schema: null,
 		name: "Demographics",
 		endpoint: "/api/import/demographics",
 		fields: [
@@ -88,18 +86,17 @@ const routerSchemaMap = [
 		], // Manually define fields for Demographics
 	},
 	{ router: departmentsRouter, schema: departments, name: "Departments", endpoint: "/api/import/departments" },
-	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional_methods" },
+	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional-methods" },
 	{ router: nationsRouter, schema: nations, name: "Nations", endpoint: "/api/import/nations" },
 	{ router: overridesRouter, schema: overrides, name: "Overrides", endpoint: "/api/import/overrides" },
-	{ router: partOfTermRouter, schema: partOfTerm, name: "Part of Term", endpoint: "/api/import/part_of_term" },
-	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous_colleges" },
+	{ router: partOfTermRouter, schema: partOfTerm, name: "Part of Term", endpoint: "/api/import/part-of-term" },
+	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous-colleges" },
 	{ router: programsRouter, schema: programs, name: "Programs", endpoint: "/api/import/programs" },
-	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration_status" },
-	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student_courses" },
-	{ router: studentTypesRouter, schema: studentTypes, name: "Student Types", endpoint: "/api/import/student_types" },
-	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject_prefixes" },
+	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration-status" },
+	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student-courses" },
+	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject-prefixes" },
 	{ router: termsRouter, schema: terms, name: "Terms", endpoint: "/api/import/terms" },
-	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test_scores" },
+	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test-scores" },
 ];
 
 // Generate metadata
@@ -109,46 +106,17 @@ const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) 
 	fields: fields || (schema ? getFieldsFromSchema(schema) : []),
 }));
 
-// Create a router
+/**
+ * Import router for handling all import endpoints.
+ */
 const router = express.Router()
 
-	/**
-	 * @openapi
-	 * /api/import/metadata:
-	 *   get:
-	 *     tags:
-	 *       - Imports
-	 *     summary: Get metadata for all importable tables.
-	 *     description: Returns a list of all tables that can be imported into, including their endpoints and required fields.
-	 *     responses:
-	 *       200:
-	 *         description: Successfully retrieved metadata.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: array
-	 *               items:
-	 *                 type: object
-	 *                 properties:
-	 *                   name:
-	 *                     type: string
-	 *                   endpoint:
-	 *                     type: string
-	 *                   fields:
-	 *                     type: array
-	 *                     items:
-	 *                       type: string
-	 *       500:
-	 *         description: Error retrieving metadata.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 */
-	.get('/metadata', (req, res) => {
+// Attach middleware
+// @ts-ignore
+router.use(hasRole(COBIS_ADMIN_ROLE_ID))
+
+router.get('/metadata',
+	(req: Request, res: Response) => {
 		try {
 			res.json(importMetadata);
 		} catch (error: any) {
@@ -156,63 +124,26 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error retrieving import metadata.' });
 		}
 	})
+const metadataSpec = {
+	'/api/import/metadata': {
+		get: {
+			tags: ['Imports'],
+			operationId: 'getImportMetadata',
+			description: 'Get metadata for all import endpoints',
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': { schema: z.array(z.object({ name: z.string(), endpoint: z.string(), fields: z.array(z.string()) })) },
+					},
+				},
+			},
+		},
+	}
+}
 
-	/**
-	 * @openapi
-	 * /api/import/parse-csv:
-	 *   post:
-	 *     tags:
-	 *       - Imports
-	 *     summary: Parse a CSV file.
-	 *     description: Accepts a CSV file upload, parses it, and returns the headers and data rows.
-	 *     requestBody:
-	 *       required: true
-	 *       content:
-	 *         multipart/form-data:
-	 *           schema:
-	 *             type: object
-	 *             properties:
-	 *               file:
-	 *                 type: string
-	 *                 format: binary
-	 *     responses:
-	 *       200:
-	 *         description: Successfully parsed CSV file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 headers:
-	 *                   type: array
-	 *                   items:
-	 *                     type: string
-	 *                 data:
-	 *                   type: array
-	 *                   items:
-	 *                     type: array
-	 *                     items:
-	 *                       type: string
-	 *       400:
-	 *         description: Invalid file or missing file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 *       500:
-	 *         description: Error parsing CSV file.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 */
-	.post('/parse-csv', upload.single('file'), async (req, res) => {
+router.post('/parse-csv',
+	upload.single('file'), async (req: AuthAndPermissionsRequest, res: any) => {
 		try {
 			if (!req.file) {
 				return res.status(400).json({ error: 'No file uploaded' });
@@ -240,28 +171,93 @@ const router = express.Router()
 			res.status(500).json({ error: 'Error parsing CSV file' });
 		}
 	})
+const parseCSVSpec = {
+	'/api/import/parse-csv': {
+		post: {
+			tags: ['Imports'],
+			operationId: 'parseCSV',
+			description: 'Parse a CSV file and return its contents',
+			requestBody: {
+				content: {
+					'multipart/form-data': {
+						schema: z.object({ file: z.string().openapi({ description: 'CSV file to parse', format: 'binary' }) }),
+					},
+				},
+			},
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								headers: z.array(z.string()),
+								data: z.array(z.array(z.string())),
+							}),
+						},
+					},
+				},
+				'400': {
+					description: '400 Bad Request',
+					content: {
+						'application/json': { schema: z.object({ error: z.string() }) },
+					},
+				},
+				'500': {
+					description: '500 Internal Server Error',
+					content: {
+						'application/json': { schema: z.object({ error: z.string() }) },
+					},
+				},
+			},
+		},
+	},
+}
 
-	// Middleware to normalize column headers to lowercase
-	.use(normalizeHeadersMiddleware)
-	// Routes
-	.use(academicStandingRouter)
-	.use(admitCodesRouter)
-	.use(collegeCodesRouter)
-	.use(collegesRouter)
-	.use(coursesRouter)
-	.use(demographicsRouter)
-	.use(departmentsRouter)
-	.use(instructionalMethodsRouter)
-	.use(nationsRouter)
-	.use(overridesRouter)
-	.use(partOfTermRouter)
-	.use(previousCollegesRouter)
-	.use(programsRouter)
-	.use(registrationStatusRouter)
-	.use(studentCoursesRouter)
-	.use(studentTypesRouter)
-	.use(subjectPrefixesRouter)
-	.use(termsRouter)
-	.use(testScoresRouter);
+// Combine all API specs
+export const importAPISpecs = {
+	...metadataSpec,
+	...parseCSVSpec,
+	...academicStandingSpec,
+	...admitCodesSpec,
+	...collegeCodesSpec,
+	...collegesSpec,
+	...importCoursesSpec,
+
+	...departmentsSpec,
+	...instructionalMethodsSpec,
+	...importNationsSpec,
+	...importOverridesSpec,
+	...importPartOfTermSpec,
+	...importPreviousCollegesSpec,
+	...importProgramsSpec,
+	...importRegistrationStatusSpec,
+	...importStudentCoursesSpec,
+	...importSubjectPrefixesSpec,
+	...importTermsSpec,
+	...importTestScoresSpec,
+}
+
+// Middleware to normalize all column headers to lowercase
+router.use(normalizeHeadersMiddleware)
+
+// Use routers
+router.use(academicStandingRouter)
+router.use(admitCodesRouter)
+router.use(collegeCodesRouter)
+router.use(collegesRouter)
+router.use(coursesRouter)
+router.use(demographicsRouter)
+router.use(departmentsRouter)
+router.use(instructionalMethodsRouter)
+router.use(nationsRouter)
+router.use(overridesRouter)
+router.use(partOfTermRouter)
+router.use(previousCollegesRouter)
+router.use(programsRouter)
+router.use(registrationStatusRouter)
+router.use(studentCoursesRouter)
+router.use(subjectPrefixesRouter)
+router.use(termsRouter)
+router.use(testScoresRouter);
 
 export default router;

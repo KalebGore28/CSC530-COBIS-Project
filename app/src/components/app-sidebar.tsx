@@ -1,24 +1,14 @@
 "use client"
 
-import * as React from "react"
+import { useMemo } from "react";
 import {
-	BookOpen,
 	Compass,
-	LayoutList,
-	Armchair,
-	Settings,
-	Shield,
-	Bot,
-	Frame,
-	Map,
-	PieChart,
-	Settings2,
 	NotepadText,
 	TerminalSquareIcon,
-	LayoutDashboard,
+	ScanSearch,
 } from "lucide-react"
+
 import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
 import { NavUser } from "@/components/nav-user"
 import { RoleSwitcher } from "@/components/role-switcher"
 import {
@@ -26,67 +16,39 @@ import {
 	SidebarContent,
 	SidebarFooter,
 	SidebarHeader,
+	SidebarMenu,
 	SidebarMenuItem,
-	SidebarMenuButton,
-	SidebarRail,
 	useSidebar,
 } from "@/components/ui/sidebar"
+
+import { useNavigate } from "react-router-dom"
+import { Separator } from "./ui/separator"
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
+import { useSession } from "@/hooks/session-context";
+import { useRoleContext } from '@/hooks/role-context';
+
 const data = {
-	roles: [
-		{ id: 1, name: "Faculty", logo: BookOpen },
-		{ id: 2, name: "Advisor", logo: Compass },
-		{ id: 3, name: "Program Coordinator", logo: LayoutList },
-		{ id: 4, name: "Department Chair", logo: Armchair },
-		{ id: 5, name: "Administrator", logo: Settings },
-		{ id: 6, name: "COBIS Admin", logo: Shield },
-	],
 	navMain: [
+		{
+			title: "Dashboard",
+			url: "/dashboard",
+			icon: Compass,
+		},
+		{
+			title: " Student Lookup",
+			url: "/student-lookup",
+			icon: ScanSearch,
+		},
 		{
 			title: "Reports",
 			url: "/reports",
 			icon: NotepadText,
-			isActive: true,
 			items: [
 				{ title: "Student Reports", url: "/reports/students" },
-				// { title: "Course Reports", url: "/reports/courses" },
-				// { title: "Department Reports", url: "/reports/departments" },
 			],
 		},
-		// {
-		// 	title: "Models",
-		// 	url: "/models",
-		// 	icon: Bot,
-		// 	items: [
-		// 		{ title: "Genesis", url: "/models/genesis" },
-		// 		{ title: "Explorer", url: "/models/explorer" },
-		// 		{ title: "Quantum", url: "/models/quantum" },
-		// 	],
-		// },
-		// {
-		// 	title: "Documentation",
-		// 	url: "/documentation",
-		// 	icon: BookOpen,
-		// 	items: [
-		// 		{ title: "Introduction", url: "/documentation/introduction" },
-		// 		{ title: "Get Started", url: "/documentation/get-started" },
-		// 		{ title: "Tutorials", url: "/documentation/tutorials" },
-		// 		{ title: "Changelog", url: "/documentation/changelog" },
-		// 	],
-		// },
-		// {
-		// 	title: "Settings",
-		// 	url: "/settings",
-		// 	icon: Settings2,
-		// 	items: [
-		// 		{ title: "General", url: "/settings/general" },
-		// 		{ title: "Team", url: "/settings/team" },
-		// 		{ title: "Billing", url: "/settings/billing" },
-		// 		{ title: "Limits", url: "/settings/limits" },
-		// 	],
-		// },
 		{
 			title: "COBIS Tools",
 			url: "/cobis-tools",
@@ -94,149 +56,97 @@ const data = {
 			items: [
 				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
-				// { title: "Contact", url: "/cobis-tools/contact" },
 			],
 		},
+		{
+			title: "Test Page",
+			url: "/test-page",
+			icon: TerminalSquareIcon,
+		}
 	],
-	// projects: [
-	// 	{ name: "Design Engineering", url: "/projects/design-engineering", icon: Frame },
-	// 	{ name: "Sales & Marketing", url: "/projects/sales-marketing", icon: PieChart },
-	// 	{ name: "Travel", url: "/projects/travel", icon: Map },
-	// ],
 }
 
-const rolePermissions: {
-	navMain: { [key: number]: string[] },
-	// projects: { [key: number]: string[] }
-} = {
-	navMain: {
-		1: ["Reports", "Documentation"],
-		2: ["Reports"],
-		3: ["Models"],
-		4: ["Settings"],
-		5: ["Settings"],
-		// COBIS Admin has access to all navMain items
-		6: data.navMain.map((item) => item.title),
-	},
-	// projects: {
-	// 	1: ["Design Engineering"],
-	// 	3: ["Design Engineering", "Sales & Marketing"],
-	// 	5: ["Travel"],
-	// 	// COBIS Admin has access to all projects
-	// 	6: data.projects.map((project) => project.name),
-	// },
-}
-
-export function AppSidebar({
-	className,
-	user,
-	redirect,
-	...props
-}: React.ComponentProps<typeof Sidebar> & { user: any; redirect?: (path: string) => void }) {
-	const { open, openMobile, isMobile, toggleSidebar } = useSidebar();
+export function AppSidebar({ ...props }) {
+	const { selectedRole, routePermissions } = useRoleContext();
+	const { open, openMobile, isMobile } = useSidebar();
+	const { session, logout } = useSession();
+	const navigate = useNavigate()
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;
 
-	const userRoleIds = user?.roles?.map((role: { role_id: number }) => role.role_id) || []
-	const filteredRoles = data.roles.filter((role) => userRoleIds.includes(role.id))
-
-	// Initialize selectedRole from sessionStorage or default to first role
-	const [selectedRole, setSelectedRole] = React.useState<{ id: number; name: string; logo: React.ElementType } | null>(() => {
-		const savedRoleId = sessionStorage.getItem("selectedRoleId")
-		const roleIdNum = savedRoleId ? Number(savedRoleId) : null
-		const savedRole = roleIdNum ? filteredRoles.find((role) => role.id === roleIdNum) : null
-		return savedRole || filteredRoles[0] || null
-	})
-
-	// Persist selectedRole to sessionStorage when it changes
-	React.useEffect(() => {
-		if (selectedRole) {
-			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString())
-			console.log("Saved selectedRoleId to sessionStorage:", selectedRole.id)
-		} else {
-			sessionStorage.removeItem("selectedRoleId")
-			console.log("Cleared selectedRoleId from sessionStorage")
-		}
-	}, [selectedRole])
-
-	const filteredData = React.useMemo(() => {
+	const filteredNavMain = useMemo(() => {
 		if (!selectedRole) {
-			return {
-				navMain: data.navMain,
-				// projects: data.projects,
-			}
+			return []; // No role selected, so no items to show
 		}
+		return data.navMain
+			.map((item) => {
+				// Handle items with sub-items (e.g., "Reports", "COBIS Tools")
+				if (item.items) {
+					const filteredSubItems = item.items.filter((subItem) => {
+						const allowedRoles = routePermissions[subItem.url] || [];
+						return allowedRoles.includes(selectedRole.name);
+					});
+					// Include the main item if its url is allowed or if it has accessible sub-items
+					const mainAllowed = routePermissions[item.url]?.includes(selectedRole.name) || false;
+					if (filteredSubItems.length > 0 || mainAllowed) {
+						return { ...item, items: filteredSubItems };
+					}
+					return null;
+				} else {
+					// Handle items without sub-items (e.g., "Dashboard")
+					const allowedRoles = routePermissions[item.url] || [];
+					if (allowedRoles.includes(selectedRole.name)) {
+						return item;
+					}
+					return null;
+				}
+			})
+			.filter((item) => item !== null);
+	}, [selectedRole, routePermissions]);
 
-		const navMain = data.navMain.filter((item) =>
-			rolePermissions.navMain[selectedRole.id]?.includes(item.title)
-		)
-		// const projects = data.projects.filter((project) =>
-		// 	rolePermissions.projects[selectedRole.id]?.includes(project.name)
-		// )
-
-		return {
-			navMain,
-			// projects
-		}
-	}, [selectedRole])
-
-	const handleRoleChange = (role: { id: number; name: string; logo: React.ElementType } | null) => {
-		console.log("Role changed to:", role)
-		setSelectedRole(role)
-	}
 
 	return (
-		<Sidebar collapsible="icon" className={className} {...props}>
+		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
-				<SidebarMenuItem>
-					<div
-						className="cursor-pointer"
-						onClick={() => redirect && redirect("/dashboard")}
-					>
-						<img
-							src={isExpanded ? logo : logoIcon}
-							className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-9 my-2"}
-							alt="Murray Logo"
-						/>
-					</div>
-				</SidebarMenuItem>
-				<span
-					className={
-						isExpanded
-							? "text-white text-sm font-semibold text-center text-nowrap"
-							: "hidden text-nowrap"
-					}
-				>
-					COBIS Tool v0.0.1
-				</span>
-				<div className="border-t border-white" />
-				<RoleSwitcher
-					roles={filteredRoles}
-					selectedRole={selectedRole}
-					onRoleChange={handleRoleChange}
-				/>
-				<SidebarMenuItem>
-					<SidebarMenuButton
-						onClick={() => {
-							toggleSidebar(); // Toggle sidebar state
-							redirect && redirect("/dashboard");
-						}}
-						tooltip="Dashboard"
-						className="w-full justify-start"
-					>
-						<LayoutDashboard className="mr-2" />
-						<span className={isExpanded ? "block" : "hidden"}>Dashboard</span>
-					</SidebarMenuButton>
-				</SidebarMenuItem>
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<div
+							className="cursor-pointer"
+							onClick={() => {
+								navigate("/dashboard")
+							}}
+						>
+							<img
+								src={isExpanded ? logo : logoIcon}
+								className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-10 my-2"}
+								alt="Murray Logo"
+							/>
+						</div>
+					</SidebarMenuItem>
+					<SidebarMenuItem>
+						<span
+							className={
+								isExpanded
+									? "text-white text-sm font-semibold text-center text-nowrap"
+									: "hidden text-nowrap"
+							}
+						>
+							COBIS Tool v0.5.0
+						</span>
+					</SidebarMenuItem>
+					<Separator className="my-2" />
+					<SidebarMenuItem>
+						<RoleSwitcher />
+					</SidebarMenuItem>
+				</SidebarMenu>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={filteredData.navMain} redirect={redirect} />
+				<NavMain items={filteredNavMain} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser user={user.info} />
+				<NavUser session={session} onLogout={logout} />
 			</SidebarFooter>
-			<SidebarRail />
 		</Sidebar>
-	);
+	)
 }

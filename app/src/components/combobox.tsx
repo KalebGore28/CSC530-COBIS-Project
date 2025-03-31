@@ -24,7 +24,7 @@ const frameworks = [
 	{ value: "astro", label: "Astro" },
 ]
 
-export function ComboboxDemo({ collapsed = false }) {
+export function Combobox({ collapsed = false }) {
 	const [open, setOpen] = React.useState(false)
 	const [value, setValue] = React.useState("")
 

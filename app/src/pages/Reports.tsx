@@ -8,15 +8,17 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import { useSession } from "@/hooks/session-context"
 
-export default function Reports({ user }: { user: any }) {
+export default function Reports() {
+	const { session } = useSession()
 	const location = useLocation()
 
 	// Check if we're on the base /reports route or a nested route
 	const isBaseRoute = location.pathname === "/reports"
 
 	return (
-		<div>
+		<div className="p-6">
 			{/* Show overview if on /reports, otherwise show nested route */}
 			{isBaseRoute ? (
 				<>
@@ -25,7 +27,7 @@ export default function Reports({ user }: { user: any }) {
 							Reports Dashboard
 						</h2>
 						<p className="text-muted-foreground text-center mt-2">
-							Generate and view reports, {user.info.first_name}.
+							Generate and view reports, {session?.user.name}.
 						</p>
 					</header>
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -44,24 +46,28 @@ export default function Reports({ user }: { user: any }) {
 						</Card>
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-center">Course Reports</CardTitle>
+								<CardTitle className="text-center">Placeholder</CardTitle>
 								<CardDescription className="text-center">
-									Analyze course enrollment and performance.
+									Placeholder description for a future tool.
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="flex justify-center">
-								<Button variant="default">View Courses</Button>
+								<Button variant="default" disabled>
+									Coming Soon
+								</Button>
 							</CardContent>
 						</Card>
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-center">Department Reports</CardTitle>
+								<CardTitle className="text-center">Placeholder</CardTitle>
 								<CardDescription className="text-center">
-									Summarize department-level metrics.
+									Placeholder description for a future tool.
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="flex justify-center">
-								<Button variant="default">View Departments</Button>
+								<Button variant="default" disabled>
+									Coming Soon
+								</Button>
 							</CardContent>
 						</Card>
 					</div>

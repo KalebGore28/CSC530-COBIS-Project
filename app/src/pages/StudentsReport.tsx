@@ -1,11 +1,15 @@
-export default function StudentsReport({ user }: { user: any }) {
+import { useSession } from "@/hooks/session-context"
+
+
+export default function StudentsReport() {
+	const { session } = useSession()
 	return (
 		<div className="p-6">
 			<h2 className="text-3xl font-bold text-center text-foreground">
 				Student Reports
 			</h2>
 			<p className="text-muted-foreground text-center mt-2">
-				Viewing student data for {user.info.first_name}.
+				Viewing student data for {session?.user.name}.
 			</p>
 			<div className="mt-6">
 				<ul className="list-disc pl-6 text-foreground">

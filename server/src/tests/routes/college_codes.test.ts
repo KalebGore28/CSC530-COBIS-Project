@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { collegeCodes } from '../../db/schema';
-import { collegeCodesRouter } from '../../routes/imports/college_codes';
+import { collegeCodesRouter } from '../../routes/imports/collegeCodes';
 
 describe('College Codes Import Tests', () => {
 	let app: express.Express;

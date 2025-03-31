@@ -1,6 +1,8 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { terms } from '../../db/models/terms';
+import 'zod-openapi/extend';
+import { z } from 'zod';
 
 interface TermRow {
 	code: string;
@@ -21,81 +23,71 @@ async function importTerms(
 	);
 }
 
-export const termsRouter = express.Router()
+/**
+ * Import terms data
+ * @param mappedData - The terms data to import
+ * @param fileName - The name of the file being imported
+ * @param importedBy - The user importing the data
+ * @returns `message`, `totalRecords`, and `errors`
+ */
+const router = express.Router()
+router.post('/terms', async (req: Request, res: Response) => {
+	try {
+		const { mappedData, fileName, importedBy } = req.body;
+		const result = await importTerms(mappedData, fileName, importedBy);
+		res.json({
+			message: 'Terms imported successfully.',
+			totalRecords: result.totalRecords,
+			errors: result.errorDetails
+		});
+		/* v8 ignore next 4 */
+	} catch (error: any) {
+		console.error(`Error importing terms data: ${error.message}`);
+		res.status(500).json({ error: 'Error importing terms data.' });
+	}
+});
 
-	/**
-	 * @openapi
-	 * /api/import/terms:
-	 *   post:
-	 *     tags:
-	 *       - Imports
-	 *     summary: Import terms data.
-	 *     description: >
-	 *       Imports term data from a CSV file. Each term must include a code and a description.
-	 *       For each row, if a term with the provided code exists, it is updated; otherwise, a new row is inserted.
-	 *     requestBody:
-	 *       required: true
-	 *       content:
-	 *         application/json:
-	 *           schema:
-	 *             type: object
-	 *             properties:
-	 *               mappedData:
-	 *                 type: array
-	 *                 items:
-	 *                   type: object
-	 *                   properties:
-	 *                     code:
-	 *                       type: string
-	 *                     description:
-	 *                       type: string
-	 *               fileName:
-	 *                 type: string
-	 *               importedBy:
-	 *                 type: string
-	 *     responses:
-	 *       200:
-	 *         description: Terms imported successfully.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 message:
-	 *                   type: string
-	 *                 totalRecords:
-	 *                   type: integer
-	 *                 errors:
-	 *                   type: array
-	 *                   items:
-	 *                     type: object
-	 *                     properties:
-	 *                       row:
-	 *                         type: object
-	 *                       error:
-	 *                         type: string
-	 *       500:
-	 *         description: Error importing terms data.
-	 *         content:
-	 *           application/json:
-	 *             schema:
-	 *               type: object
-	 *               properties:
-	 *                 error:
-	 *                   type: string
-	 */
-	.post('/terms', async (req, res) => {
-		try {
-			const { mappedData, fileName, importedBy } = req.body;
-			const result = await importTerms(mappedData, fileName, importedBy);
-			res.json({
-				message: 'Terms imported successfully.',
-				totalRecords: result.totalRecords,
-				errors: result.errorDetails
-			});
-			/* v8 ignore next 4 */
-		} catch (error: any) {
-			console.error(`Error importing terms data: ${error.message}`);
-			res.status(500).json({ error: 'Error importing terms data.' });
-		}
-	});
+// Preparing OpenAPI spec
+const mappedData = z.array(z.object({
+	code: z.string().openapi({ description: 'The term code', example: '10', ref: 'terms_code' }),
+	description: z.string().openapi({ description: 'The term description', example: 'Spring TERM', ref: 'terms_description' }),
+})).openapi({ description: 'The terms data to import', ref: 'terms_mapped_data' });
+const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'terms.csv', ref: 'terms_filename' });
+const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'terms_imported_by' });
+
+export const importTermsSpec = {
+	'/api/import/terms': {
+		post: {
+			tags: ['Imports'],
+			operationId: 'import_terms',
+			description: 'Import terms data',
+			requestBody: {
+				content: {
+					'application/json': {
+						schema: z.object({
+							mappedData,
+							fileName,
+							importedBy,
+						}),
+					},
+				},
+			},
+			responses: {
+				200: {
+					description: 'Terms imported successfully',
+					content: {
+						'application/json': {
+							schema: z.object({
+								message: z.string(),
+								totalRecords: z.number(),
+								errors: z.array(z.string()),
+							}),
+						},
+					},
+				},
+			},
+		},
+	},
+};
+
+export default router;

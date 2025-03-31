@@ -28,10 +28,10 @@ import * as studentTypes from './models/student_types';
 import * as students from './models/students';
 import * as subjectPrefixes from './models/subject_prefixes';
 import * as terms from './models/terms';
-import * as test_scores from './models/test_scores';
+import * as testScores from './models/test_scores';
 import * as userPermissions from './models/user_permissions';
 import * as userRoles from './models/user_roles';
-import * as users from './models/users';
+import * as betterAuth from './models/betterAuth';
 
 export * from './models/academic_standing';
 export * from './models/admit_codes';
@@ -64,7 +64,7 @@ export * from './models/terms';
 export * from './models/test_scores';
 export * from './models/user_permissions';
 export * from './models/user_roles';
-export * from './models/users';
+export * from './models/betterAuth';
 
 export const schema = {
 	academicStanding,
@@ -95,8 +95,8 @@ export const schema = {
 	students,
 	subjectPrefixes,
 	terms,
-	test_scores,
+	testScores,
 	userPermissions,
 	userRoles,
-	users,
+	betterAuth,
 };

@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { academicStanding } from '../../db/schema';
-import { academicStandingRouter } from '../../routes/imports/academic_standing';
+import { academicStandingRouter } from '../../routes/imports/academicStanding';
 
 describe('Academic Standing Import Tests', () => {
 	let app: express.Express;

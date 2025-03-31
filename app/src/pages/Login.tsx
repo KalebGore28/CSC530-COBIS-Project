@@ -1,6 +1,5 @@
 import { Wrench } from "lucide-react"
 import primaryLogo from "../assets/primary_white.png"
-
 import { LoginForm } from "@/components/login-form"
 
 export default function LoginPage() {

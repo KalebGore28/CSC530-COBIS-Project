@@ -3,7 +3,11 @@ import dotenv from 'dotenv';
 // Load .env from src/ in dev, but allow override in production
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? undefined : 'src/.env' });
 
+/**
+ * Configuration object for the server
+ */
 export const config = {
+  frontend_origin: process.env.FRONTEND_ORIGIN as string,
   sessionSecret: process.env.SESSION_SECRET as string,
   jwtSecret: process.env.JWT_SECRET as string,
   db: {
