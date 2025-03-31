@@ -23,9 +23,10 @@ import {
 
 import { useNavigate } from "react-router-dom"
 import { Separator } from "./ui/separator"
-import { Session } from "../App"
 import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
+
+import { useSession } from "@/hooks/session-context";
 
 const data = {
 	navMain: [
@@ -67,16 +68,15 @@ const data = {
 }
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-	session: Session | null;
-	onLogout: () => void;
 	selectedRole: { id: number; name: string; logo: React.ElementType } | null;
 	onRoleChange: (role: { id: number; name: string; logo: React.ElementType } | null) => void;
 	roles: { id: number; name: string; logo: React.ElementType }[];
-	routePermissions: { [key: string]: number[] };
+	routePermissions: { [key: string]: string[] };
 }
 
-export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, roles, routePermissions, ...props }: AppSidebarProps) {
+export function AppSidebar({ onRoleChange, selectedRole, roles, routePermissions, ...props }: AppSidebarProps) {
 	const { open, openMobile, isMobile } = useSidebar();
+	const { session, logout } = useSession();
 	const navigate = useNavigate()
 
 	// Derive isExpanded from open and openMobile
@@ -92,10 +92,10 @@ export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, role
 				if (item.items) {
 					const filteredSubItems = item.items.filter((subItem) => {
 						const allowedRoles = routePermissions[subItem.url] || [];
-						return allowedRoles.includes(selectedRole.id);
+						return allowedRoles.includes(selectedRole.name);
 					});
 					// Include the main item if its url is allowed or if it has accessible sub-items
-					const mainAllowed = routePermissions[item.url]?.includes(selectedRole.id) || false;
+					const mainAllowed = routePermissions[item.url]?.includes(selectedRole.name) || false;
 					if (filteredSubItems.length > 0 || mainAllowed) {
 						return { ...item, items: filteredSubItems };
 					}
@@ -103,7 +103,7 @@ export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, role
 				} else {
 					// Handle items without sub-items (e.g., "Dashboard")
 					const allowedRoles = routePermissions[item.url] || [];
-					if (allowedRoles.includes(selectedRole.id)) {
+					if (allowedRoles.includes(selectedRole.name)) {
 						return item;
 					}
 					return null;
@@ -156,7 +156,7 @@ export function AppSidebar({ session, onLogout, onRoleChange, selectedRole, role
 				<NavMain items={filteredNavMain} />
 			</SidebarContent>
 			<SidebarFooter>
-				<NavUser session={session} onLogout={onLogout} />
+				<NavUser session={session} onLogout={logout} />
 			</SidebarFooter>
 		</Sidebar>
 	)

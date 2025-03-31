@@ -1,139 +1,69 @@
-import { useState, useEffect } from 'react';
-import { ThemeProvider } from "@/components/theme-provider";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { UnsavedChangesProvider } from './components/UnsavedChangesContext';
+import Dashboard from './pages/Dashboard';
+import LoginPage from './pages/Login';
+import Layout from './Layout';
+import Reports from './pages/Reports';
+import StudentsReport from './pages/StudentsReport';
+import QueryBuilderPage from './pages/QueryBuilder';
+import CobisTools from './pages/CobisTools';
+import CsvImport from './pages/CsvImport';
+import TestPage from './pages/TestPage';
+import WaitingPage from './pages/Waiting';
+import OnboardingPage from './pages/Onboarding';
+import StudentLookup from './pages/StudentLookup';
 
-// Import Pages
-import Dashboard from "./pages/Dashboard.tsx";
-import LoginPage from "./pages/Login.tsx";
-import Layout from "./Layout.tsx";
-import Reports from "./pages/Reports.tsx";
-import StudentsReport from "./pages/StudentsReport.tsx";
-import QueryBuilderPage from "./pages/QueryBuilder.tsx";
-import CobisTools from "./pages/CobisTools.tsx";
-import CsvImport from "./pages/CsvImport.tsx";
-import TestPage from './pages/TestPage.tsx';
-import WaitingPage from './pages/Waiting.tsx';
-import OnboardingPage from './pages/Onboarding.tsx';
-import StudentLookup from './pages/StudentLookup.tsx';
+import { useSession } from '@/hooks/session-context';
+import { RoleProvider } from './hooks/role-context';
 
-// Import UnsavedChangesProvider
-import { UnsavedChangesProvider } from "./components/UnsavedChangesContext";
-
-// Define TypeScript interfaces for the session and user
-export interface Session {
-  session: {
-    id: string;
-    expiresAt: string;
-    token: string;
-    createdAt: string;
-    updatedAt: string;
-    ipAddress: string;
-    userAgent: string;
-    userId: string;
-  };
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    emailVerified: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    image?: string | undefined;
-  };
-  roles?: { role_id: number; role_name: string }[];
-  permissions?: { table_name: string; column_name: string }[];
-  mnumber: string | null;
-  is_enabled: boolean;
-}
-
-function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    handleSession();
-  }, []);
-
-  const handleSession = async () => {
-    try {
-      const response = await fetch("/api/user/me", {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const sessionData: Session = await response.json();
-      setSession(sessionData);
-    } catch (err) {
-      console.error("Failed to fetch session:", err);
-      setSession(null);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    setSession(null);
-  };
-
-  // Function to refetch session, passed to OnboardingPage
-  const refetchSession = async () => {
-    console.log("Refetching session...");
-    await handleSession();
-  };
+export const App: React.FC = () => {
+  const { session, isLoading, refetchSession } = useSession();
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
+  if (!session) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  if (!session.is_enabled) {
+    return <WaitingPage />;
+  }
+
+  if (!session.mnumber) {
+    return <OnboardingPage refetchSession={refetchSession} />;
+  }
+
   return (
-    <ThemeProvider>
-      <BrowserRouter>
-        {!session ? (
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
-        ) : !session.is_enabled ? (
-          <WaitingPage />
-
-        ) : !session.mnumber ? (
-          <OnboardingPage refetchSession={refetchSession} />
-        ) : (
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <UnsavedChangesProvider>
-                  <Layout session={session} onLogout={handleLogout} />
-                </UnsavedChangesProvider>
-              }
-            >
-              <Route index element={<Navigate to="dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard session={session} />} />
-              <Route path="student-lookup" element={<StudentLookup />} />
-              <Route path="reports" element={<Reports session={session} />}>
-                <Route path="students" element={<StudentsReport session={session} />} />
-              </Route>
-              <Route path="cobis-tools" element={<CobisTools session={session} />}>
-                <Route path="query-builder" element={<QueryBuilderPage />} />
-                <Route path="imports" element={<CsvImport session={session} />} />
-              </Route>
-              <Route path="test-page" element={<TestPage />} />
-            </Route>
-            <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
-          </Routes>
-        )}
-      </BrowserRouter>
-    </ThemeProvider>
+    <Routes>
+      <Route
+        path="/"
+        element={
+          <RoleProvider>
+            <Layout />
+          </RoleProvider>
+        }
+      >
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<Dashboard />} />
+        <Route path="student-lookup" element={<StudentLookup />} />
+        <Route path="reports" element={<Reports />}>
+          <Route path="students" element={<StudentsReport />} />
+        </Route>
+        <Route path="cobis-tools" element={<CobisTools />}>
+          <Route path="query-builder" element={<QueryBuilderPage />} />
+          <Route path="imports" element={<CsvImport />} />
+        </Route>
+        <Route path="test-page" element={<TestPage />} />
+      </Route>
+      <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
-}
-
-export default App;
+};

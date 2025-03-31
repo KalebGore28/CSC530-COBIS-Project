@@ -23,8 +23,7 @@ import {
 	TableRow,
 } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-
-import { Session } from "../App"
+import { useSession } from "@/hooks/session-context"
 
 // Define table configuration type
 interface TableConfig {
@@ -33,11 +32,9 @@ interface TableConfig {
 	fields: string[]
 }
 
-interface CsvImportProps {
-	session: Session | null
-}
 
-export default function CsvImport({ session }: CsvImportProps) {
+export default function CsvImport() {
+	const { session } = useSession()
 	const [tables, setTables] = useState<TableConfig[]>([])
 	const [selectedTable, setSelectedTable] = useState<string>("")
 	const [csvFile, setCsvFile] = useState<File | null>(null)
@@ -307,7 +304,7 @@ export default function CsvImport({ session }: CsvImportProps) {
 										<p>Inserted: {result.inserted}</p>
 										<p>Updated: {result.updated}</p>
 										<p>Skipped: {result.skipped}</p>
-										{result.skipped > 0 && result.skippedDetails && (
+										{(result.skipped ?? 0) > 0 && result.skippedDetails && (
 											<div className="mt-2">
 												<p>Skipped rows summary:</p>
 												<ul className="list-disc pl-5">

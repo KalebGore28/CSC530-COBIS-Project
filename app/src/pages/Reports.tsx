@@ -8,14 +8,10 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import { useSession } from "@/hooks/session-context"
 
-import { Session } from "../App"
-
-interface ReportsProps {
-	session: Session | null
-}
-
-export default function Reports({ session }: ReportsProps) {
+export default function Reports() {
+	const { session } = useSession()
 	const location = useLocation()
 
 	// Check if we're on the base /reports route or a nested route

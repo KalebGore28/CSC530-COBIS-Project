@@ -1,10 +1,8 @@
-import { Session } from "../App"
+import { useSession } from "@/hooks/session-context"
 
-interface StudentsReportProps {
-	session: Session | null
-}
 
-export default function StudentsReport({ session }: StudentsReportProps) {
+export default function StudentsReport() {
+	const { session } = useSession()
 	return (
 		<div className="p-6">
 			<h2 className="text-3xl font-bold text-center text-foreground">

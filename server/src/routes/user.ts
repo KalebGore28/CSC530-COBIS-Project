@@ -33,8 +33,8 @@ router.get("/me", async (req: Request, res: Response) => {
 			.then((results) => results[0]);
 
 		// Attach properties to the session object
-		session.roles = (req as AuthAndPermissionsRequest).roles;
-		session.permissions = (req as AuthAndPermissionsRequest).permissions;
+		session.roles = (req as AuthAndPermissionsRequest).roles || [];
+		session.permissions = (req as AuthAndPermissionsRequest).permissions || [];
 		session.mnumber = userData?.mnumber || null;
 		session.is_enabled = userData?.is_enabled || false;
 	}

@@ -1,14 +1,10 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
+import { useSession } from "@/hooks/session-context"
 
-import { Session } from "../App"
-
-interface DashboardProps {
-	session: Session | null;
-}
-
-export default function Dashboard({ session }: DashboardProps) {
+export default function Dashboard() {
+	const { session } = useSession();
 	return (
 		<div className="p-6">
 			<header className="mb-12">

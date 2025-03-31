@@ -1,14 +1,10 @@
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useSession } from "@/hooks/session-context"
 
-import { Session } from "../App"
-
-interface CobisToolsProps {
-	session: Session | null
-}
-
-export default function CobisTools({ session }: CobisToolsProps) {
+export default function CobisTools() {
+	const { session } = useSession()
 	const location = useLocation()
 
 	return (
