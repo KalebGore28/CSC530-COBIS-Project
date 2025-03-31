@@ -7,7 +7,8 @@ import {
 	studentCourses,
 	students,
 	studentPrograms,
-	studentAcademicInfo
+	studentAcademicInfo,
+	programs,
 } from "../../db/schema";
 
 import 'zod-openapi/extend';
@@ -19,8 +20,6 @@ import { z } from 'zod';
  * The rosters should include a list of students, their majors, and the grades received. Additionally,
  * the system should allow reporting on class-wide statistics, such as overall class GPA.
  */
-
-
 
 const router = express.Router();
 // @ts-ignore
@@ -43,14 +42,9 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 		return;
 	}
 
-	// instructor couses are found in the instructorCourses table.
-	// students can be found by the relationship between instructorCourses and studentCourses,
-	// then students can be found by the relationship between studentCourses and students.
-	// students majors can be found by the relationship between students and studentPrograms.
-	// individual students GPAs can be found by the relationship between students and studentAcademicInfo.
-
 	try {
-		const result = await db
+		// First, get all the course information and student basic data
+		const courseStudents = await db
 			.select({
 				courseSubject: instructorCourses.course_subject,
 				courseNumber: instructorCourses.course_number,
@@ -58,7 +52,6 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 				mnumber: students.mnumber,
 				first_name: students.first_name,
 				last_name: students.last_name,
-				major: studentPrograms.program,
 				final_grade: studentCourses.final_grade,
 				gpa: studentAcademicInfo.overall_gpa,
 			})
@@ -74,7 +67,6 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 				)
 			)
 			.innerJoin(students, eq(studentCourses.mnumber, students.mnumber))
-			.innerJoin(studentPrograms, eq(students.mnumber, studentPrograms.mnumber))
 			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber))
 			.where(
 				and(
@@ -84,40 +76,78 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 				)
 			);
 
-		// Calculate the overall class GPA
-		const roster = result;
-
-		// Separate the classes by course subject, number, and suffix, and calculate the overall class GPA
-		const classes = roster.reduce((acc: Record<string, { courseSubject: string; courseNumber: string; courseSuffix: string; students: any[]; overallGPA?: number }>, student) => {
-			const classKey = `${student.courseSubject}${student.courseNumber}${student.courseSuffix}`;
-			if (!acc[classKey]) {
-				acc[classKey] = {
-					courseSubject: student.courseSubject,
-					courseNumber: student.courseNumber,
-					courseSuffix: student.courseSuffix,
-					students: []
-				};
-			}
-			acc[classKey].students.push({
+		// Create a map to store unique students and their details
+		const studentMap = new Map();
+		courseStudents.forEach(student => {
+			const key = `${student.courseSubject}${student.courseNumber}${student.courseSuffix}-${student.mnumber}`;
+			studentMap.set(key, {
+				courseSubject: student.courseSubject,
+				courseNumber: student.courseNumber,
+				courseSuffix: student.courseSuffix,
 				mnumber: student.mnumber,
 				first_name: student.first_name,
 				last_name: student.last_name,
-				major: student.major,
 				final_grade: student.final_grade,
 				gpa: student.gpa,
+				majors: [] // Will be populated with majors
 			});
-			return acc;
-		}, {});
-
-		// Calculate the overall GPA for each class
-		Object.values(classes).forEach(cls => {
-			const totalGPA = cls.students.reduce((sum, student) => sum + student.gpa, 0);
-			cls.overallGPA = cls.students.length > 0 ? totalGPA / cls.students.length : 0;
 		});
 
+		// Get all student majors
+		const studentMnumbers = courseStudents.map(student => student.mnumber);
+		const studentMajors = await db
+			.select({
+				mnumber: studentPrograms.mnumber,
+				program_name: programs.description,
+			})
+			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(sql`${studentPrograms.mnumber} IN ${studentMnumbers}`);
 
-		res.json({ classes });
-		return;
+		// Add majors to the student data
+		studentMajors.forEach(majorData => {
+			courseStudents.forEach(student => {
+				if (student.mnumber === majorData.mnumber) {
+					const key = `${student.courseSubject}${student.courseNumber}${student.courseSuffix}-${student.mnumber}`;
+					const studentData = studentMap.get(key);
+					if (studentData && !studentData.majors.includes(majorData.program_name)) {
+						studentData.majors.push(majorData.program_name);
+					}
+				}
+			});
+		});
+
+		// Group students by class
+		const classMap: Record<string, any> = {};
+		studentMap.forEach(student => {
+			const classKey = `${student.courseSubject}${student.courseNumber}${student.courseSuffix}`;
+			if (!classMap[classKey]) {
+				classMap[classKey] = {
+					courseSubject: student.courseSubject,
+					courseNumber: student.courseNumber,
+					courseSuffix: student.courseSuffix,
+					students: [],
+					overallGPA: 0
+				};
+			}
+
+			classMap[classKey].students.push({
+				mnumber: student.mnumber,
+				first_name: student.first_name,
+				last_name: student.last_name,
+				majors: student.majors, // Now includes all majors as an array
+				final_grade: student.final_grade,
+				gpa: student.gpa
+			});
+		});
+
+		// Calculate the overall GPA for each class
+		Object.values(classMap).forEach((cls: any) => {
+			const totalGPA = cls.students.reduce((sum: number, student: any) => sum + (student.gpa || 0), 0);
+			cls.overallGPA = cls.students.length > 0 ? parseFloat((totalGPA / cls.students.length).toFixed(2)) : 0;
+		});
+
+		res.json({ classes: Object.values(classMap) });
 	} catch (error) {
 		console.error("Error fetching class roster:", error);
 		res.status(500).json({ error: "Internal server error" });
@@ -146,21 +176,45 @@ export const classRosterSpec = {
 					description: 'Class roster data',
 					content: {
 						'application/json': {
-							schema: z.array(z.object({
-								courseSubject: z.string(),
-								courseNumber: z.string(),
-								courseSuffix: z.string(),
-								mnumber: z.string(),
-								first_name: z.string(),
-								last_name: z.string(),
-								major: z.string(),
-								final_grade: z.number().nullable(),
-								gpa: z.number().nullable(),
-								overall_class_gpa: z.number()
-							}))
+							schema: z.object({
+								classes: z.array(z.object({
+									courseSubject: z.string(),
+									courseNumber: z.string(),
+									courseSuffix: z.string(),
+									students: z.array(z.object({
+										mnumber: z.string(),
+										first_name: z.string(),
+										last_name: z.string(),
+										majors: z.array(z.string()), // Now an array of majors
+										final_grade: z.number().nullable(),
+										gpa: z.number().nullable()
+									})),
+									overallGPA: z.number()
+								}))
+							})
 						}
 					},
 				},
+				400: {
+					description: 'Bad request - missing parameters',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				},
+				500: {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
 			},
 		},
 	},
