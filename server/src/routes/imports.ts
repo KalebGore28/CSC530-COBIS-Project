@@ -97,9 +97,9 @@ const routerSchemaMap = [
 		name: "Student/Instructor Courses",
 		endpoint: "/api/import/courses",
 		fields: [
-			"mnumber", "term", "year", "partofterm", "crn", "crsesubj", "crsenumb", "section",
+			"mnumber", "term", "partofterm", "crn", "crsesubj", "crsenumb", "section",
 			"crhrs", "levlcode", "rstscode", "insmcode", "lastattend", "midgrade", "fingrade",
-			"instmnumber", "instlastnm", "instfirstnm"
+			"instmnumber"
 		], // Manually define fields for Student/Instructor Courses
 	},
 	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject-prefixes" },

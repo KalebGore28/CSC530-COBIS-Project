@@ -202,7 +202,77 @@ export default function CsvImport() {
 		setSelectedTable("")
 	}
 
-	// Handle file upload and parse via backend with auto-mapping
+	// Enhanced column auto-mapping function
+	const autoMapColumns = (
+		headers: string[],
+		fields: string[],
+		existingMapping: Record<string, string> = {}
+	): Record<string, string> => {
+		const newMapping: Record<string, string> = { ...existingMapping };
+
+		// First pass: exact matches (case-insensitive)
+		fields.forEach((field) => {
+			// Skip if already mapped correctly
+			if (newMapping[field] && headers.includes(newMapping[field])) {
+				return;
+			}
+
+			// Try exact match
+			const exactMatch = headers.find(
+				(header) => header.toLowerCase() === field.toLowerCase()
+			);
+
+			if (exactMatch) {
+				newMapping[field] = exactMatch;
+				return;
+			}
+
+			// Try matching by removing spaces and underscores
+			const normalizedField = field.toLowerCase().replace(/[\s_-]/g, '');
+			const normalizedMatch = headers.find(
+				(header) => header.toLowerCase().replace(/[\s_-]/g, '') === normalizedField
+			);
+
+			if (normalizedMatch) {
+				newMapping[field] = normalizedMatch;
+				return;
+			}
+
+			// Try substring matching (if header contains the field as a substring)
+			const substringMatch = headers.find(
+				(header) => header.toLowerCase().includes(field.toLowerCase())
+			);
+
+			if (substringMatch) {
+				newMapping[field] = substringMatch;
+				return;
+			}
+
+			// Try to match field tokens with header tokens
+			const fieldTokens = field.toLowerCase().split(/[\s_-]/);
+			const headerWithMostMatches = headers.reduce(
+				(best, current) => {
+					const currentTokens = current.toLowerCase().split(/[\s_-]/);
+					const matches = fieldTokens.filter(token =>
+						currentTokens.some(headerToken => headerToken.includes(token) || token.includes(headerToken))
+					).length;
+
+					return matches > best.matches ? { header: current, matches } : best;
+				},
+				{ header: "", matches: 0 }
+			);
+
+			if (headerWithMostMatches.matches > 0) {
+				newMapping[field] = headerWithMostMatches.header;
+				return;
+			}
+		});
+
+		return newMapping;
+	};
+
+
+	// In your handleFileChange function, replace the existing auto-mapping logic:
 	const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0]
 		if (file) {
@@ -226,19 +296,55 @@ export default function CsvImport() {
 				setPendingErrors([])
 				setFixedData([])
 
-				// Auto-map columns based on case-insensitive exact match
+				// Attempt to automatically suggest table if not already selected
+				if (!selectedTable && csvFile) {
+					const fileName = csvFile.name
+					for (const pattern of filePatterns) {
+						if (pattern.pattern.test(fileName)) {
+							// Find matching table by type
+							const matchingTable = tables.find(t => t.name.toLowerCase().includes(pattern.tableType))
+							if (matchingTable) {
+								setSelectedTable(matchingTable.name)
+								setSelectedCategory(matchingTable.category)
+								break;
+							}
+						}
+					}
+				}
+
+				// Auto-map columns with enhanced logic
 				const tableConfig = tables.find((t) => t.name === selectedTable)
 				if (tableConfig) {
-					const newMapping: Record<string, string> = {}
-					tableConfig.fields.forEach((field) => {
-						const matchedHeader = headers.find((header: string) =>
-							header.toLowerCase() === field.toLowerCase()
-						)
-						newMapping[field] = matchedHeader || "" // Empty if no match
-					})
+					const newMapping = autoMapColumns(headers, tableConfig.fields)
 					setColumnMapping(newMapping)
 				} else {
-					setColumnMapping({}) // Reset if no table selected
+					// If no table selected yet, try to match columns against all known tables
+					// to help identify which table this CSV might be for
+					let bestTableMatch = { tableName: "", matchCount: 0 };
+
+					for (const table of tables) {
+						const testMapping = autoMapColumns(headers, table.fields);
+						const matchCount = Object.values(testMapping).filter(val => val).length;
+
+						if (matchCount > bestTableMatch.matchCount) {
+							bestTableMatch = { tableName: table.name, matchCount };
+						}
+					}
+
+					// If we found a good match and it has more than 3 matching columns, suggest that table
+					if (bestTableMatch.matchCount >= 3 && bestTableMatch.tableName) {
+						const suggestedTable = tables.find(t => t.name === bestTableMatch.tableName);
+						if (suggestedTable) {
+							setSelectedTable(suggestedTable.name);
+							setSelectedCategory(suggestedTable.category);
+
+							// Now map columns for the suggested table
+							const newMapping = autoMapColumns(headers, suggestedTable.fields);
+							setColumnMapping(newMapping);
+						}
+					} else {
+						setColumnMapping({});
+					}
 				}
 			} catch (error: any) {
 				setResult({ message: error.message || "Error parsing CSV file" })
