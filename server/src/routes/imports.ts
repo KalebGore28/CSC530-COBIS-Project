@@ -43,8 +43,6 @@ import {
 	terms, testScores,
 } from '../db/schema';
 
-const COBIS_ADMIN_ROLE_ID = 6;
-
 // Configure multer for file uploads
 const upload = multer({
 	dest: 'uploads/',
@@ -113,8 +111,7 @@ const router = express.Router()
 
 // Attach middleware
 // @ts-ignore
-router.use(hasRole(COBIS_ADMIN_ROLE_ID))
-
+router.use(hasRole('cobis_administrator'));
 router.get('/metadata',
 	(req: Request, res: Response) => {
 		try {
