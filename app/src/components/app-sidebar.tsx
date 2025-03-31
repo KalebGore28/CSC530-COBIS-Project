@@ -27,6 +27,7 @@ import logo from "../assets/primary_white.png"
 import logoIcon from "../assets/primary-icon.png"
 
 import { useSession } from "@/hooks/session-context";
+import { useRoleContext } from '@/hooks/role-context';
 
 const data = {
 	navMain: [
@@ -67,14 +68,9 @@ const data = {
 	],
 }
 
-interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
-	selectedRole: { id: number; name: string; logo: React.ElementType } | null;
-	onRoleChange: (role: { id: number; name: string; logo: React.ElementType } | null) => void;
-	roles: { id: number; name: string; logo: React.ElementType }[];
-	routePermissions: { [key: string]: string[] };
-}
 
-export function AppSidebar({ onRoleChange, selectedRole, roles, routePermissions, ...props }: AppSidebarProps) {
+export function AppSidebar({ ...props }) {
+	const { selectedRole, setSelectedRole, roles, routePermissions } = useRoleContext();
 	const { open, openMobile, isMobile } = useSidebar();
 	const { session, logout } = useSession();
 	const navigate = useNavigate()
@@ -139,7 +135,7 @@ export function AppSidebar({ onRoleChange, selectedRole, roles, routePermissions
 									: "hidden text-nowrap"
 							}
 						>
-							COBIS Tool v0.0.1
+							COBIS Tool v0.5.0
 						</span>
 					</SidebarMenuItem>
 					<Separator className="my-2" />
@@ -147,7 +143,7 @@ export function AppSidebar({ onRoleChange, selectedRole, roles, routePermissions
 						<RoleSwitcher
 							roles={roles}
 							selectedRole={selectedRole}
-							onRoleChange={onRoleChange}
+							onRoleChange={setSelectedRole}
 						/>
 					</SidebarMenuItem>
 				</SidebarMenu>
