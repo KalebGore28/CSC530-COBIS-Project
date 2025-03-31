@@ -51,18 +51,16 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 
 	useEffect(() => {
-		if (session) {
-			const fetchedRoles: Role[] = session.roles.map((role: { role_id: number; role_name: string }) => {
-				const displayName = roleNameMap[role.role_name] || role.role_name; // Fallback to original if not mapped
-				return {
-					id: role.role_id,
-					name: displayName,
-					logo: getLogoForRole(displayName),
-				};
-			});
+		if (session?.roles?.length && roles.length === 0) {
+			const fetchedRoles: Role[] = session.roles.map((role: { role_id: number; role_name: string }) => ({
+				id: role.role_id,
+				name: roleNameMap[role.role_name] || role.role_name,
+				logo: getLogoForRole(role.role_name),
+			}));
 			setRoles(fetchedRoles);
 		}
-	}, [session]);
+	}, [session]); // Only update roles when session.roles become available
+
 
 	useEffect(() => {
 		if (session && roles.length > 0) {
@@ -82,7 +80,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		if (selectedRole && selectedRole.id !== Number(sessionStorage.getItem("selectedRoleId"))) {
 			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString());
 		}
-	}, [selectedRole]);
+	}, [selectedRole]); // Update sessionStorage whenever selectedRole changes
 
 
 	return (
