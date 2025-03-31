@@ -155,7 +155,7 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 });
 
 // Preparing OpenAPI spec
-const instructorMNumberSpec = z.string().openapi({ description: 'Instructor MNumber', example: '123456789', ref: 'class_roster_instructor_mnumber' });
+const instructorMNumberSpec = z.string().openapi({ description: 'Instructor MNumber', example: 'M12345678', ref: 'class_roster_instructor_mnumber' });
 const termCodeSpec = z.string().openapi({ description: 'Term Code', example: '10', ref: 'class_roster_term_code' });
 const yearSpec = z.string().openapi({ description: 'Year', example: '2023', ref: 'class_roster_year' });
 export const classRosterSpec = {
