@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { ChevronsUpDown } from "lucide-react"
 import {
 	DropdownMenu,
@@ -22,7 +23,14 @@ export function RoleSwitcher() {
 	const { roles, selectedRole, setSelectedRole } = useRoleContext()
 	const { isMobile } = useSidebar()
 
-	// Use selectedRole directly; default to first role if null
+	// Initialize selectedRole when component mounts if it's not set yet
+	useEffect(() => {
+		if (!selectedRole && roles.length > 0) {
+			setSelectedRole(roles[0])
+		}
+	}, [selectedRole, roles, setSelectedRole])
+
+	// Use selectedRole directly; fallback to first role just for rendering
 	const currentRole = selectedRole || roles[0] || null
 
 	if (!currentRole) {
