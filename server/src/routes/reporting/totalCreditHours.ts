@@ -87,9 +87,9 @@ router.get('/total-credit-hours', async (req: Request, res: Response) => {
 });
 
 // Preparing OpenAPI spec
-const instructorMNumberParam = z.string().openapi({ description: 'The instructor MNumber', example: 'M12345678', ref: 'instructor_mnumber' });
+const instructorMNumberParam = z.string().openapi({ description: 'The instructor MNumber', example: 'M000000100', ref: 'instructor_mnumber' });
 const termCode = z.string().openapi({ description: 'The term code', example: '10', ref: 'term_code' });
-const year = z.string().openapi({ description: 'The year', example: '2023', ref: 'year' });
+const year = z.string().openapi({ description: 'The year', example: '2024', ref: 'year' });
 export const creditHoursSpec = {
 	'/api/reporting/total-credit-hours': {
 		get: {
