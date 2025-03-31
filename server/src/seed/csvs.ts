@@ -6,7 +6,7 @@ import academicStandingRouter from '../routes/imports/academicStanding';
 import admitCodesRouter from '../routes/imports/admitCodes';
 import collegeCodesRouter from '../routes/imports/collegeCodes';
 import collegesRouter from '../routes/imports/colleges';
-import coursesRouter from '../routes/imports/courses';
+import coursesRouter from '../routes/imports/courseCatalog';
 import { demographicsRouter } from '../routes/imports/demographics';
 import departmentsRouter from '../routes/imports/departments';
 import instructionalMethodsRouter from '../routes/imports/instructionalMethods';
@@ -16,7 +16,7 @@ import partOfTermRouter from '../routes/imports/partOfTerm';
 import previousCollegesRouter from '../routes/imports/previousColleges';
 import programsRouter from '../routes/imports/programs';
 import registrationStatusRouter from '../routes/imports/registrationStatus';
-import studentCoursesRouter from '../routes/imports/studentCourses';
+import studentCoursesRouter from '../routes/imports/courses';
 import subjectPrefixesRouter from '../routes/imports/subjectPrefixes';
 import termsRouter from '../routes/imports/terms';
 import testScoresRouter from '../routes/imports/testScores';
@@ -37,7 +37,7 @@ export const seedDatabase = async () => {
 	const admitCodesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/admit_codes.csv'));
 	const collegeCodesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/college_codes.csv'));
 	const collegesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/colleges.csv'));
-	const coursesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/course_titles.csv'));
+	const coursesCatalogCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/course_titles.csv'));
 	const demographicsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/demographics_sample.csv'));
 	const departmentsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/departments.csv'));
 	const instructionalMethodsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/instructional_methods.csv'));
@@ -47,7 +47,7 @@ export const seedDatabase = async () => {
 	const previousCollegesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/previous_colleges_sample.csv'));
 	const programsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/major_minor.csv'));
 	const registrationStatusCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/registration_status.csv'));
-	const studentCoursesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/courses_sample.csv'));
+	const coursesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/courses_sample.csv'));
 	const subjectPrefixesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/subject_prefixes.csv'));
 	const termsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/terms.csv'));
 	const testScoresCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/test_scores_sample.csv'));
@@ -116,10 +116,10 @@ export const seedDatabase = async () => {
 			importedBy: 'seed script',
 		});
 
-	const coursesResponse = await request(app)
-		.post('/api/import/courses')
+	const courseCatalogResponse = await request(app)
+		.post('/api/import/course-catalog')
 		.send({
-			mappedData: coursesCSV,
+			mappedData: coursesCatalogCSV,
 			fileName: 'course-titles.csv',
 			importedBy: 'seed script',
 		});
@@ -188,37 +188,37 @@ export const seedDatabase = async () => {
 			importedBy: 'seed script',
 		});
 
-	const studentCoursesResponse = await request(app)
-		.post('/api/import/student-courses')
+	const coursesResponse = await request(app)
+		.post('/api/import/courses')
 		.send({
-			mappedData: studentCoursesCSV,
+			mappedData: coursesCSV,
 			fileName: 'courses-sample.csv',
 			importedBy: 'seed script',
 		});
 
-	const testScoresResponse = await request(app)
-		.post('/api/import/test-scores')
-		.send({
-			mappedData: testScoresCSV,
-			fileName: 'test-scores-sample.csv',
-			importedBy: 'seed script',
-		});
+	// const testScoresResponse = await request(app)
+	// 	.post('/api/import/test-scores')
+	// 	.send({
+	// 		mappedData: testScoresCSV,
+	// 		fileName: 'test-scores-sample.csv',
+	// 		importedBy: 'seed script',
+	// 	});
 
-	const overridesResponse = await request(app)
-		.post('/api/import/overrides')
-		.send({
-			mappedData: overridesCSV,
-			fileName: 'overrides-sample.csv',
-			importedBy: 'seed script',
-		});
+	// const overridesResponse = await request(app)
+	// 	.post('/api/import/overrides')
+	// 	.send({
+	// 		mappedData: overridesCSV,
+	// 		fileName: 'overrides-sample.csv',
+	// 		importedBy: 'seed script',
+	// 	});
 
-	const previousCollegesResponse = await request(app)
-		.post('/api/import/previous-colleges')
-		.send({
-			mappedData: previousCollegesCSV,
-			fileName: 'previous-colleges-sample.csv',
-			importedBy: 'seed script',
-		});
+	// const previousCollegesResponse = await request(app)
+	// 	.post('/api/import/previous-colleges')
+	// 	.send({
+	// 		mappedData: previousCollegesCSV,
+	// 		fileName: 'previous-colleges-sample.csv',
+	// 		importedBy: 'seed script',
+	// 	});
 
 	// Check if any of the responses have failed status codes
 	if (
@@ -227,7 +227,7 @@ export const seedDatabase = async () => {
 		admitCodesResponse.status !== 200 ||
 		collegeCodesResponse.status !== 200 ||
 		collegesResponse.status !== 200 ||
-		coursesResponse.status !== 200 ||
+		courseCatalogResponse.status !== 200 ||
 		departmentsResponse.status !== 200 ||
 		instructionalMethodsResponse.status !== 200 ||
 		programsResponse.status !== 200 ||
@@ -236,10 +236,10 @@ export const seedDatabase = async () => {
 		registrationStatusResponse.status !== 200 ||
 		subjectPrefixesResponse.status !== 200 ||
 		demographicsResponse.status !== 200 ||
-		studentCoursesResponse.status !== 200 ||
-		testScoresResponse.status !== 200 ||
-		overridesResponse.status !== 200 ||
-		previousCollegesResponse.status !== 200
+		coursesResponse.status !== 200 //||
+		// testScoresResponse.status !== 200 ||
+		// overridesResponse.status !== 200 ||
+		// previousCollegesResponse.status !== 200
 	) {
 		throw new Error('Failed to seed database.');
 	}

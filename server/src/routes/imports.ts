@@ -15,7 +15,7 @@ import academicStandingRouter, { academicStandingSpec } from './imports/academic
 import admitCodesRouter, { admitCodesSpec } from './imports/admitCodes';
 import collegeCodesRouter, { collegeCodesSpec } from './imports/collegeCodes';
 import collegesRouter, { collegesSpec } from './imports/colleges';
-import coursesRouter, { importCoursesSpec } from './imports/courses';
+import courseCatalogRouter, { importCoursesSpec } from './imports/courseCatalog';
 import { demographicsRouter } from './imports/demographics';
 import departmentsRouter, { departmentsSpec } from './imports/departments';
 import instructionalMethodsRouter, { instructionalMethodsSpec } from './imports/instructionalMethods';
@@ -25,7 +25,7 @@ import partOfTermRouter, { importPartOfTermSpec } from './imports/partOfTerm';
 import previousCollegesRouter, { importPreviousCollegesSpec } from './imports/previousColleges';
 import programsRouter, { importProgramsSpec } from './imports/programs.js';
 import registrationStatusRouter, { importRegistrationStatusSpec } from './imports/registrationStatus';
-import studentCoursesRouter, { importStudentCoursesSpec } from './imports/studentCourses';
+import coursesRouter, { importStudentCoursesSpec } from './imports/courses';
 import subjectPrefixesRouter, { importSubjectPrefixesSpec } from './imports/subjectPrefixes';
 import termsRouter, { importTermsSpec } from './imports/terms';
 import testScoresRouter, { importTestScoresSpec } from './imports/testScores';
@@ -66,7 +66,7 @@ const routerSchemaMap = [
 	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit-codes" },
 	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college-codes" },
 	{ router: collegesRouter, schema: colleges, name: "Colleges", endpoint: "/api/import/colleges" },
-	{ router: coursesRouter, schema: courses, name: "Courses", endpoint: "/api/import/courses" },
+	{ router: courseCatalogRouter, schema: courses, name: "Courses", endpoint: "/api/import/course-catalog" },
 	{
 		router: demographicsRouter,
 		schema: null,
@@ -91,7 +91,17 @@ const routerSchemaMap = [
 	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous-colleges" },
 	{ router: programsRouter, schema: programs, name: "Programs", endpoint: "/api/import/programs" },
 	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration-status" },
-	{ router: studentCoursesRouter, schema: studentCourses, name: "Student Courses", endpoint: "/api/import/student-courses" },
+	{ 
+		router: coursesRouter,
+		schema: null,
+		name: "Student/Instructor Courses",
+		endpoint: "/api/import/courses",
+		fields: [
+			"mnumber", "term", "year", "partofterm", "crn", "crsesubj", "crsenumb", "section",
+			"crhrs", "levlcode", "rstscode", "insmcode", "lastattend", "midgrade", "fingrade",
+			"instmnumber", "instlastnm", "instfirstnm"
+		], // Manually define fields for Student/Instructor Courses
+	},
 	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject-prefixes" },
 	{ router: termsRouter, schema: terms, name: "Terms", endpoint: "/api/import/terms" },
 	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test-scores" },
@@ -242,7 +252,7 @@ router.use(academicStandingRouter)
 router.use(admitCodesRouter)
 router.use(collegeCodesRouter)
 router.use(collegesRouter)
-router.use(coursesRouter)
+router.use(courseCatalogRouter)
 router.use(demographicsRouter)
 router.use(departmentsRouter)
 router.use(instructionalMethodsRouter)
@@ -252,7 +262,7 @@ router.use(partOfTermRouter)
 router.use(previousCollegesRouter)
 router.use(programsRouter)
 router.use(registrationStatusRouter)
-router.use(studentCoursesRouter)
+router.use(coursesRouter)
 router.use(subjectPrefixesRouter)
 router.use(termsRouter)
 router.use(testScoresRouter);

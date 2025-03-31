@@ -24,7 +24,6 @@ import * as studentAddresses from './models/student_addresses';
 import * as studentAdvisors from './models/student_advisors';
 import * as studentCourses from './models/student_courses';
 import * as studentPrograms from './models/student_programs';
-import * as studentTypes from './models/student_types';
 import * as students from './models/students';
 import * as subjectPrefixes from './models/subject_prefixes';
 import * as terms from './models/terms';
@@ -57,7 +56,6 @@ export * from './models/student_addresses';
 export * from './models/student_advisors';
 export * from './models/student_courses';
 export * from './models/student_programs';
-export * from './models/student_types';
 export * from './models/students';
 export * from './models/subject_prefixes';
 export * from './models/terms';
@@ -91,7 +89,6 @@ export const schema = {
 	studentAdvisors,
 	studentCourses,
 	studentPrograms,
-	studentTypes,
 	students,
 	subjectPrefixes,
 	terms,

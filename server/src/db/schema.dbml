@@ -85,13 +85,14 @@ table instructor_courses {
   instructor_mnumber text [not null]
   term text [not null]
   year integer [not null]
+  crn text [not null]
   course_subject text [not null]
   course_number text [not null]
   course_suffix text [not null, default: '']
   role text [not null, default: 'Instructor']
 
   indexes {
-    (instructor_mnumber, term, year, course_subject, course_number, course_suffix) [pk]
+    (instructor_mnumber, term, crn) [pk]
     
   }
 }
@@ -255,8 +256,8 @@ table student_courses {
   registration_status text [not null]
   instructional_method text [not null]
   last_attendance text
-  midterm_grade real
-  final_grade real
+  midterm_grade text
+  final_grade text
 
   indexes {
     (mnumber, term, year, crn) [pk]
@@ -280,12 +281,6 @@ table student_programs {
     
     
   }
-}
-
-table student_types {
-  code text [pk, not null]
-  description text [not null]
-  next_student_type text [not null]
 }
 
 table students {
@@ -447,8 +442,6 @@ ref: student_programs.program > programs.code
 ref: student_programs.department > departments.code
 
 ref: student_programs.college > colleges.code
-
-ref: student_types.next_student_type - student_types.code
 
 ref: subject_prefixes.college > colleges.code
 

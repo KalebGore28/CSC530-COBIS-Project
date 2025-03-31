@@ -50,14 +50,6 @@ router.post('/test-scores', async (req: Request, res: Response) => {
 			};
 		});
 
-		const columnTypes = {
-			mnumber: 'nvarchar',
-			code: 'nvarchar',
-			description: 'nvarchar',
-			score: 'decimal',
-			date: 'datetime',
-		};
-
 		const result = await importTestScores(transformedData, fileName, importedBy);
 		res.json({
 			message: 'Test scores imported successfully.',

@@ -2,6 +2,29 @@ import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import { eq, and } from "drizzle-orm";
 import { getDbConnection } from '../db/connection';
 
+/**
+ * Import data into a table.
+ * This function handles the import of data into a specified table.
+ * It checks for existing records based on the Composite/Primary key, and either inserts new records or updates existing ones.
+ * It also handles error logging and provides detailed results.
+ * Most of the database tables were designed in a way that supports historical data by using Composite/Primary Keys. Exceptions would be lookup tables.
+ * As long as the primary key is unique, the database will not allow duplicate entries.
+ * @param table - The table to import data into.
+ * @param primaryKey - The primary key or composite key of the table.
+ * @param mappedData - The data to import, in the form of an array of objects.
+ * @param fileName - The name of the file being imported.
+ * @param importedBy - The user who is importing the data.
+ * @returns An object containing the results of the import operation, including counts of inserted, updated, skipped, and failed records.
+ * @throws Error if the data is invalid or if there are issues during the import process.
+ * @example
+ * const result = await importData(
+ *   table,
+ *   ['mnumber', 'code', 'date'],
+ *   mappedData,
+ *   'test_scores.csv',
+ *   'admin'
+ * );
+ */
 export async function importData<T extends Record<string, any>>(
 	table: AnySQLiteTable,
 	primaryKey: string | string[],
@@ -95,6 +118,13 @@ export async function importData<T extends Record<string, any>>(
 			} catch (error: any) {
 				errorDetails.push({ row, error: error.message });
 			}
+		}
+	}
+	// Log error details
+	if (errorDetails.length > 0) {
+		//iterate over errorDetails and log them
+		for (const errorDetail of errorDetails) {
+			console.log(`Error importing row: ${JSON.stringify(errorDetail.row)} - Error: ${errorDetail.error}`);
 		}
 	}
 

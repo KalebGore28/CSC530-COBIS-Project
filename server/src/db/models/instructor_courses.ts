@@ -6,15 +6,16 @@ import { courses } from "./courses";
 import { terms } from "./terms";
 
 export const instructorCourses = sqliteTable("instructor_courses", {
-	instructor_mnumber: text("instructor_mnumber").notNull().references(() => user.mnumber),
+	instructor_mnumber: text("instructor_mnumber").notNull(),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
+	crn: text("crn").notNull(),
 	course_subject: text("course_subject").notNull(),
 	course_number: text("course_number").notNull(),
 	course_suffix: text("course_suffix").notNull().default(""),
 	role: text("role").notNull().default("Instructor"),
 }, (table) => [
-	primaryKey({ columns: [table.instructor_mnumber, table.term, table.year, table.course_subject, table.course_number, table.course_suffix] }),
+	primaryKey({ columns: [table.instructor_mnumber, table.term, table.crn] }),
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),
 ]);
 

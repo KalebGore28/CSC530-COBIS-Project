@@ -6,7 +6,7 @@ import request from 'supertest';
 import { describe, beforeEach, test, expect } from 'vitest';
 import { resetDbConnection, getDbConnection } from '../../db/connection';
 import { courses } from '../../db/schema';
-import { coursesRouter } from '../../routes/imports/courses';
+import { coursesRouter } from '../../routes/imports/courseCatalog';
 
 describe('Courses Import Tests', () => {
 	let app: express.Express;
@@ -56,7 +56,7 @@ describe('Courses Import Tests', () => {
 		const mappedData = [
 			{ course: 'ACC', crsetitle: 'Accounting', crhrs: '3', course_fee: '100', web_fee: '50' },
 			{ course: 'BIO100', crsetitle: 'Biology', crhrs: '4', course_fee: '150', web_fee: '75' },
-			{ course: 'CSC300', crsetitle: 'Computer Science', crhrs: null, course_fee: null, web_fee: null },			
+			{ course: 'CSC300', crsetitle: 'Computer Science', crhrs: null, course_fee: null, web_fee: null },
 		];
 
 		// Simulate a POST request to the import endpoint.
