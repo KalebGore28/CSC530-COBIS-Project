@@ -31,15 +31,14 @@ router.get('/total-credit-hours', async (req: Request, res: Response) => {
 	}
 
 	try {
-		// Query to get per-course details and credit hours generated
+		// Query to get per-course details
 		const result = await db
 			.select({
 				courseSubject: instructorCourses.course_subject,
 				courseNumber: instructorCourses.course_number,
 				courseSuffix: instructorCourses.course_suffix,
-				courseHours: studentCourses.course_hours,
-				totalStudents: sql<number>`COUNT(${studentCourses.mnumber})`,
-				totalCreditHours: sql<number>`COALESCE(SUM(${studentCourses.course_hours}), 0)`
+				courseHours: sql<number>`MAX(${studentCourses.course_hours})`, // Use MAX to get a single value
+				totalStudents: sql<number>`COUNT(DISTINCT ${studentCourses.mnumber})`
 			})
 			.from(instructorCourses)
 			.leftJoin(
@@ -65,12 +64,20 @@ router.get('/total-credit-hours', async (req: Request, res: Response) => {
 				instructorCourses.course_suffix
 			);
 
-		// Calculate the overall total credit hours
-		const courses = result;
-		const totalCreditHours = courses.reduce((acc, course) => acc + course.totalCreditHours, 0);
+		// Calculate the course-specific credit hours and overall total
+		const courses = result.map(course => ({
+			...course,
+			// Calculate correct totalCreditHours as courseHours * totalStudents
+			totalCreditHours: (course.courseHours || 0) * course.totalStudents
+		}));
+
+		const totalCreditHours = courses.reduce((sum, course) => sum + Number(course.totalCreditHours), 0);
 
 		// Return the response with course list and total
-		res.json({ courses, totalCreditHours });
+		res.json({
+			courses,
+			totalCreditHours
+		});
 		return;
 	} catch (error) {
 		console.error("Error fetching credit hours:", error);
