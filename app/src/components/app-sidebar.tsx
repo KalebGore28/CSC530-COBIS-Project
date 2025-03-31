@@ -47,8 +47,6 @@ const data = {
 			icon: NotepadText,
 			items: [
 				{ title: "Student Reports", url: "/reports/students" },
-				// { title: "Course Reports", url: "/reports/courses" },
-				// { title: "Department Reports", url: "/reports/departments" },
 			],
 		},
 		{
@@ -68,9 +66,8 @@ const data = {
 	],
 }
 
-
 export function AppSidebar({ ...props }) {
-	const { selectedRole, setSelectedRole, roles, routePermissions } = useRoleContext();
+	const { selectedRole, routePermissions } = useRoleContext();
 	const { open, openMobile, isMobile } = useSidebar();
 	const { session, logout } = useSession();
 	const navigate = useNavigate()
@@ -140,11 +137,7 @@ export function AppSidebar({ ...props }) {
 					</SidebarMenuItem>
 					<Separator className="my-2" />
 					<SidebarMenuItem>
-						<RoleSwitcher
-							roles={roles}
-							selectedRole={selectedRole}
-							onRoleChange={setSelectedRole}
-						/>
+						<RoleSwitcher />
 					</SidebarMenuItem>
 				</SidebarMenu>
 			</SidebarHeader>

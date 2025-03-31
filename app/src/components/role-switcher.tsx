@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { ChevronsUpDown } from "lucide-react"
 import {
 	DropdownMenu,
@@ -17,15 +16,10 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar"
 
-export function RoleSwitcher({
-	roles,
-	selectedRole,
-	onRoleChange,
-}: {
-	roles: { id: number; name: string; logo: React.ElementType }[]
-	selectedRole?: { id: number; name: string; logo: React.ElementType } | null
-	onRoleChange?: (role: { id: number; name: string; logo: React.ElementType } | null) => void
-}) {
+import { useRoleContext } from "@/hooks/role-context"
+
+export function RoleSwitcher() {
+	const { roles, selectedRole, setSelectedRole } = useRoleContext()
 	const { isMobile } = useSidebar()
 
 	// Use selectedRole directly; default to first role if null
@@ -33,12 +27,6 @@ export function RoleSwitcher({
 
 	if (!currentRole) {
 		return null
-	}
-
-	const handleRoleSelect = (role: { id: number; name: string; logo: React.ElementType }) => {
-		if (onRoleChange) {
-			onRoleChange(role)
-		}
 	}
 
 	return (
@@ -72,7 +60,7 @@ export function RoleSwitcher({
 						{roles.map((role, index) => (
 							<DropdownMenuItem
 								key={role.id}
-								onClick={() => handleRoleSelect(role)}
+								onClick={() => setSelectedRole(role)}
 								className="gap-2 p-2"
 							>
 								<div className="flex size-6 items-center justify-center rounded-sm border">
