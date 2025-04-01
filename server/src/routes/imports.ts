@@ -73,7 +73,9 @@ router.post('/process',
 
 			// If not found and tableId is provided, try to find mapping for lookup table
 			if (!fileMapping && tableId) {
-				fileMapping = findMappingsForLookupTable(headers, tableId);
+				fileMapping = findMappingsForLookupTable(headers, tableId); //<--broken
+				console.log(headers);
+				console.log('File mapping for lookup table:', fileMapping);
 				category = 'lookup';
 			}
 
@@ -133,6 +135,7 @@ router.post('/process',
 						fileName,
 						importedBy
 					);
+					console.log(`Import result for ${destination.tableName}:`, importResult);
 
 					results.push({
 						tableName: destination.tableName,

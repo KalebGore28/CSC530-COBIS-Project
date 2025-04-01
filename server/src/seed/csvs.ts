@@ -23,56 +23,52 @@ export const seedDatabase = async () => {
 		.use('/api/import',importRouter);
 
 	// Define lookup tables that need explicit tableId
-	// const lookupTables = [
-	// 	{
-	// 		filePath: './data/csvs/academic_standing.csv',
-	// 		tableId: 'academic-standing'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/admit_codes.csv',
-	// 		tableId: 'admit-codes'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/college_codes.csv',
-	// 		tableId: 'college-codes'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/colleges.csv',
-	// 		tableId: 'colleges'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/departments.csv',
-	// 		tableId: 'departments'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/instructional_methods.csv',
-	// 		tableId: 'instructional-methods'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/nations.csv',
-	// 		tableId: 'nations'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/part_of_term.csv',
-	// 		tableId: 'part-of-term'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/major_minor.csv',
-	// 		tableId: 'programs'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/registration_status.csv',
-	// 		tableId: 'registration-status'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/subject_prefixes.csv',
-	// 		tableId: 'subject-prefixes'
-	// 	},
-	// 	{
-	// 		filePath: './data/csvs/terms.csv',
-	// 		tableId: 'terms'
-	// 	}
-	// ];
+	const lookupTables = [
+		// {
+		// 	filePath: './data/csvs/academic_standing.csv',
+		// 	tableId: 'academic-standing'
+		// },
+		// {
+		// 	filePath: './data/csvs/admit_codes.csv',
+		// 	tableId: 'admit-codes'
+		// },
+		// {
+		// 	filePath: './data/csvs/college_codes.csv',
+		// 	tableId: 'college-codes'
+		// },
+		// {
+		// 	filePath: './data/csvs/colleges.csv',
+		// 	tableId: 'colleges'
+		// },
+		{
+			filePath: './data/csvs/departments.csv',
+			tableId: 'departments'
+		},
+		// {
+		// 	filePath: './data/csvs/instructional_methods.csv',
+		// 	tableId: 'instructional-methods'
+		// },
+		// {
+		// 	filePath: './data/csvs/nations.csv',
+		// 	tableId: 'nations'
+		// },
+		// {
+		// 	filePath: './data/csvs/part_of_term.csv',
+		// 	tableId: 'part-of-term'
+		// },
+		// {
+		// 	filePath: './data/csvs/major_minor.csv',
+		// 	tableId: 'programs'
+		// },
+		// {
+		// 	filePath: './data/csvs/registration_status.csv',
+		// 	tableId: 'registration-status'
+		// },
+		// {
+		// 	filePath: './data/csvs/terms.csv',
+		// 	tableId: 'terms'
+		// }
+	];
 
 	// Define data tables (with specific filename patterns)
 	const dataTables = [
@@ -93,42 +89,42 @@ export const seedDatabase = async () => {
 	const responses = [];
 
 	// Process lookup tables
-	// console.log('Importing lookup tables...');
-	// for (const table of lookupTables) {
-	// 	try {
-	// 		console.log(`Importing ${path.basename(table.filePath)}...`);
+	console.log('Importing lookup tables...');
+	for (const table of lookupTables) {
+		try {
+			console.log(`Importing ${path.basename(table.filePath)}...`);
 
-	// 		//log full path of the file
-	// 		console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
+			//log full path of the file
+			console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
 
-	// 		const response = await request(app)
-	// 			.post('/api/import/process')
-	// 			.field('importedBy', 'seed script')
-	// 			.field('tableId', table.tableId)  // Required for lookup tables
-	// 			.attach('file', table.filePath);
+			const response = await request(app)
+				.post('/api/import/process')
+				.field('importedBy', 'seed script')
+				.field('tableId', table.tableId)  // Required for lookup tables
+				.attach('file', path.resolve(__dirname, table.filePath));
 
-	// 		responses.push({
-	// 			file: path.basename(table.filePath),
-	// 			status: response.status,
-	// 			success: response.body.success,
-	// 			error: response.status !== 200 ? response.body.error : undefined
-	// 		});
+			responses.push({
+				file: path.basename(table.filePath),
+				status: response.status,
+				success: response.body.success,
+				error: response.status !== 200 ? response.body.error : undefined
+			});
 
-	// 		if (response.status !== 200) {
-	// 			console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
-	// 		} else {
-	// 			console.log(`Successfully imported ${path.basename(table.filePath)}`);
-	// 		}
-	// 	} catch (error: any) {
-	// 		console.error(`Error importing ${path.basename(table.filePath)}:`, error);
-	// 		responses.push({
-	// 			file: path.basename(table.filePath),
-	// 			status: 500,
-	// 			success: false,
-	// 			error: error.message
-	// 		});
-	// 	}
-	// }
+			if (response.status !== 200) {
+				console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
+			} else {
+				console.log(`Successfully imported ${path.basename(table.filePath)}`);
+			}
+		} catch (error: any) {
+			console.error(`Error importing ${path.basename(table.filePath)}:`, error);
+			responses.push({
+				file: path.basename(table.filePath),
+				status: 500,
+				success: false,
+				error: error.message
+			});
+		}
+	}
 
 	// Process data tables
 	console.log('\nImporting data tables...');

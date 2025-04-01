@@ -446,11 +446,11 @@ export const csvFileMappings: CsvFileMapping[] = [
 
 	// Lookup tables - with less strict filename requirements but expected columns
 	{
-		filePatterns: [/academic.+standing|standing.+academic/i], // More flexible pattern
+		filePatterns: [/academic.+standing|standing.+academic/i],
 		description: "Academic standing codes",
 		category: "lookup",
-		requiresTableDesignation: true, // This lookup table requires explicit designation
-		expectedColumns: ["code", "description"], // These columns must exist
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
 		destinations: [
 			{
 				tableName: "Academic Standing",
@@ -464,10 +464,11 @@ export const csvFileMappings: CsvFileMapping[] = [
 		]
 	},
 	{
-		filePatterns: [/admit.+code|code.+admit/i], // More flexible pattern
+		filePatterns: [/admit.+code|code.+admit/i],
 		description: "Admit type codes",
 		category: "lookup",
-		expectedColumns: ["code", "description"], // These columns must exist
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
 		destinations: [
 			{
 				tableName: "Admit Codes",
@@ -480,7 +481,116 @@ export const csvFileMappings: CsvFileMapping[] = [
 			}
 		]
 	},
-	// Add more file mappings here as needed
+	{
+		filePatterns: [/college.+code|code.+college/i],
+		description: "College codes",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "College Codes",
+				tableId: "college-codes",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/colleges/i],
+		description: "Colleges data",
+		category: "lookup",
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Colleges",
+				tableId: "colleges",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/departments/i],
+		description: "Departments data",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description", "prefixes", "canvas_id", "college"],
+		destinations: [
+			{
+				tableName: "Departments",
+				tableId: "departments",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" },
+					{ csvColumn: "prefixes", dbColumn: "prefixes", transform: (value) => value === 'NULL' ? null : value },
+					{ csvColumn: "canvas_id", dbColumn: "canvas_id", transform: (value) => value === 'NULL' ? null : value },
+					{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
+				]
+			}
+		]
+	},
+	// {
+	// 	filePatterns: [/nations/i],
+	// 	description: "Nations data",
+	// 	category: "lookup",
+	// 	requiresTableDesignation: true,
+	// 	expectedColumns: ["code", "description"],
+	// 	destinations: [
+	// 		{
+	// 			tableName: "Nations",
+	// 			tableId: "nations",
+	// 			primaryKeys: ["code"],
+	// 			columnMappings: [
+	// 				{ csvColumn: "code", dbColumn: "code" },
+	// 				{ csvColumn: "description", dbColumn: "description" }
+	// 			]
+	// 		}
+	// 	]
+	// },
+	// {
+	// 	filePatterns: [/part.+term|term.+part/i],
+	// 	description: "Part of term data",
+	// 	category: "lookup",
+	// 	requiresTableDesignation: true,
+	// 	expectedColumns: ["code", "description"],
+	// 	destinations: [
+	// 		{
+	// 			tableName: "Part of Term",
+	// 			tableId: "part-of-term",
+	// 			primaryKeys: ["code"],
+	// 			columnMappings: [
+	// 				{ csvColumn: "code", dbColumn: "code" },
+	// 				{ csvColumn: "description", dbColumn: "description" }
+	// 			]
+	// 		}
+	// 	]
+	// },
+	// {
+	// 	filePatterns: [/major.+minor|minor.+major/i],
+	// 	description: "Major/Minor programs data",
+	// 	category: "lookup",
+	// 	requiresTableDesignation: true,
+	// 	expectedColumns: ["code", "description"],
+	// 	destinations: [
+	// 		{
+	// 			tableName: "Programs",
+	// 			tableId: "programs",
+	// 			primaryKeys: ["code"],
+	// 			columnMappings: [
+	// 				{ csvColumn: "code", dbColumn: "code" },
+	// 				{ csvColumn: "description", dbColumn: "description" }
+	// 			]
+	// 		}
+	// 	]
+	// },
 ];
 
 /**
