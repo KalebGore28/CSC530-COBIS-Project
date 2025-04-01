@@ -57,7 +57,7 @@ CREATE TABLE `instructional_methods` (
 );
 --> statement-breakpoint
 CREATE TABLE `instructor_courses` (
-	`instructor_mnumber` text NOT NULL,
+	`mnumber` text NOT NULL,
 	`term` text NOT NULL,
 	`year` integer NOT NULL,
 	`crn` text NOT NULL,
@@ -65,7 +65,7 @@ CREATE TABLE `instructor_courses` (
 	`course_number` text NOT NULL,
 	`course_suffix` text DEFAULT '' NOT NULL,
 	`role` text DEFAULT 'Instructor' NOT NULL,
-	PRIMARY KEY(`instructor_mnumber`, `term`, `crn`),
+	PRIMARY KEY(`mnumber`, `term`, `crn`),
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
@@ -204,7 +204,7 @@ CREATE TABLE `student_courses` (
 	`crn` text NOT NULL,
 	`course_subject` text NOT NULL,
 	`course_number` text NOT NULL,
-	`course_suffix` text NOT NULL,
+	`course_suffix` text DEFAULT '' NOT NULL,
 	`course_section` text NOT NULL,
 	`course_hours` integer NOT NULL,
 	`course_level` text NOT NULL,

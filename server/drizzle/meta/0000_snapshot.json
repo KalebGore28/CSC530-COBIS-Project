@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "72bf48a1-b085-4fde-bc67-2a86a32c7085",
+  "id": "f70f1423-a1e3-4b54-b406-cb0f036609da",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -347,8 +347,8 @@
     "instructor_courses": {
       "name": "instructor_courses",
       "columns": {
-        "instructor_mnumber": {
-          "name": "instructor_mnumber",
+        "mnumber": {
+          "name": "mnumber",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -440,13 +440,13 @@
         }
       },
       "compositePrimaryKeys": {
-        "instructor_courses_instructor_mnumber_term_crn_pk": {
+        "instructor_courses_mnumber_term_crn_pk": {
           "columns": [
-            "instructor_mnumber",
+            "mnumber",
             "term",
             "crn"
           ],
-          "name": "instructor_courses_instructor_mnumber_term_crn_pk"
+          "name": "instructor_courses_mnumber_term_crn_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1390,7 +1390,8 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "''"
         },
         "course_section": {
           "name": "course_section",

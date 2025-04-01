@@ -74,7 +74,7 @@ table instructional_methods {
 }
 
 table instructor_courses {
-  instructor_mnumber text [not null]
+  mnumber text [not null]
   term text [not null]
   year integer [not null]
   crn text [not null]
@@ -84,7 +84,7 @@ table instructor_courses {
   role text [not null, default: 'Instructor']
 
   indexes {
-    (instructor_mnumber, term, crn) [pk]
+    (mnumber, term, crn) [pk]
     
   }
 }
@@ -237,7 +237,7 @@ table student_courses {
   crn text [not null]
   course_subject text [not null]
   course_number text [not null]
-  course_suffix text [not null]
+  course_suffix text [not null, default: '']
   course_section text [not null]
   course_hours integer [not null]
   course_level text [not null]
@@ -356,7 +356,7 @@ ref: departments.code > user.department
 
 ref: imports.imported_by > user.id
 
-ref: instructor_courses.instructor_mnumber > user.mnumber
+ref: instructor_courses.mnumber > user.mnumber
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
