@@ -336,7 +336,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "crn", dbColumn: "crn" },
 					{ csvColumn: "subj", dbColumn: "course_subject" },
 					{ csvColumn: "crsenumb", dbColumn: "course_number" },
@@ -362,13 +362,14 @@ export const csvFileMappings: CsvFileMapping[] = [
 				primaryKeys: ["subject", "number", "suffix"],
 				schemaRef: schema.courses,
 				columnMappings: [
-					{ csvColumn: "subject", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
-					{ csvColumn: "number", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
-					{ csvColumn: "suffix", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
-					{ csvColumn: "title", dbColumn: "title" },
-					{ csvColumn: "description", dbColumn: "description" },
-					{ csvColumn: "credits", dbColumn: "credits", transform: (value) => Number(value) },
-					{ csvColumn: "prerequisites", dbColumn: "prerequisites" }
+					{ csvColumn: "course", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
+					{ csvColumn: "course", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
+					{ csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
+					{ csvColumn: "crsetitle", dbColumn: "title" },
+					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
+					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => Number(value) },
+					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => Number(value) },
+					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => new Date(value) }
 				]
 			}
 		]
