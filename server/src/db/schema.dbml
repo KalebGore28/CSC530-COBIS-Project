@@ -257,7 +257,6 @@ table student_programs {
   mnumber text [not null]
   term text [not null]
   year integer [not null]
-  study text [not null]
   type text [not null]
   level text [not null]
   program text [not null]
@@ -286,16 +285,6 @@ table students {
   residency_description text [not null]
   age integer [not null]
   cell_phone text [not null]
-}
-
-table subject_prefixes {
-  college text [not null]
-  department text [not null]
-  prefix text [not null]
-
-  indexes {
-    (college, department, prefix) [pk]
-  }
 }
 
 table terms {
@@ -428,10 +417,6 @@ ref: student_programs.program > programs.code
 ref: student_programs.department > departments.code
 
 ref: student_programs.college > colleges.code
-
-ref: subject_prefixes.college > colleges.code
-
-ref: subject_prefixes.department > departments.code
 
 ref: test_scores.mnumber > students.mnumber
 

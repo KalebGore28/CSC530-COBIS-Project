@@ -3,10 +3,10 @@ import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
 import { overrides } from "./overrides";
-import { previousColleges } from "./previous_colleges";
-import { studentAddresses } from "./student_addresses";
+import { previousColleges } from "./previous-colleges";
+import { studentAddresses } from "./student-addresses";
 import { studentAdvisors } from "./student-advisors";
-import { studentCourses } from "./student_courses";
+import { studentCourses } from "./student-courses";
 import { studentPrograms } from "./student-programs";
 import { testScores } from "./test_scores";
 

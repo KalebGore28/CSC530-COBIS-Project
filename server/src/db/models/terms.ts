@@ -2,10 +2,10 @@ import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
-import { instructorCourses } from "./instructor_courses";
+import { instructorCourses } from "./instructor-courses";
 import { overrides } from "./overrides";
 import { studentAdvisors } from "./student-advisors";
-import { studentCourses } from "./student_courses";
+import { studentCourses } from "./student-courses";
 import { studentPrograms } from "./student-programs";
 
 export const terms = sqliteTable("terms", {

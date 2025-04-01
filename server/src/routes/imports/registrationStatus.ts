@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
-import { registrationStatus } from '../../db/models/registration_status';
+import { registrationStatus } from '../../db/models/registration-status';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 

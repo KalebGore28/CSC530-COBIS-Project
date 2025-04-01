@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
 import { convertDateDDMMYYYY } from '../../utils/convertDates';
-import { previousColleges } from '../../db/models/previous_colleges';
+import { previousColleges } from '../../db/models/previous-colleges';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 

@@ -1,7 +1,7 @@
 import { sqliteTable, text, primaryKey } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { rolePermissions } from "./role_permissions";
+import { rolePermissions } from "./role-permissions";
 import { userPermissions } from "./user_permissions";
 
 export const permissions = sqliteTable("permissions", {

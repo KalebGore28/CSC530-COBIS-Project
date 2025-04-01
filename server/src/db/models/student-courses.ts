@@ -3,10 +3,10 @@ import { relations } from "drizzle-orm";
 
 import { terms } from "./terms";
 import { students } from "./students";
-import { partOfTerm } from "./part_of_term";
+import { partOfTerm } from "./part-of-term";
 import { courses } from "./courses";
-import { instructionalMethods } from "./instructional_methods";
-import { registrationStatus } from "./registration_status";
+import { instructionalMethods } from "./instructional-methods";
+import { registrationStatus } from "./registration-status";
 
 export const studentCourses = sqliteTable("student_courses", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),

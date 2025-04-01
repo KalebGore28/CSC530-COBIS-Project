@@ -2,7 +2,7 @@ import { sqliteTable, text, integer, } from "drizzle-orm/sqlite-core";
 import { sql, relations } from "drizzle-orm";
 
 import { imports } from "./imports";
-import { instructorCourses } from "./instructor_courses";
+import { instructorCourses } from "./instructor-courses";
 import { userPermissions } from "./user_permissions";
 import { userRoles } from "./user_roles";
 import { departments } from "./departments";

@@ -1,7 +1,7 @@
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { studentAddresses } from "./student_addresses";
+import { studentAddresses } from "./student-addresses";
 
 export const nations = sqliteTable("nations", {
 	code: text("code").primaryKey(),

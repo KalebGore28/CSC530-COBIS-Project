@@ -4,7 +4,6 @@ import { relations } from "drizzle-orm";
 import { colleges } from "./colleges";
 import { programs } from "./programs";
 import { studentPrograms } from "./student-programs";
-import { subjectPrefixes } from "./subject_prefixes";
 import { user } from "./betterAuth";
 
 export const departments = sqliteTable("departments", {
@@ -19,7 +18,6 @@ export const departments = sqliteTable("departments", {
 export const departmentsRelations = relations(departments, ({ one, many }) => ({
 	programs: many(programs),
 	studentPrograms: many(studentPrograms),
-	subjectPrefixes: many(subjectPrefixes),
 	college: one(colleges, {
 		fields: [departments.college],
 		references: [colleges.code],

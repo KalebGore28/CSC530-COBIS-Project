@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
-import { partOfTerm } from '../../db/models/part_of_term';
+import { partOfTerm } from '../../db/models/part-of-term';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 

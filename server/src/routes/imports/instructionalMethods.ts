@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import { importData } from '../../utils/importData';
-import { instructionalMethods } from '../../db/models/instructional_methods';
+import { instructionalMethods } from '../../db/models/instructional-methods';
 import 'zod-openapi/extend';
 import { z } from 'zod';
 
