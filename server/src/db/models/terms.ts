@@ -1,12 +1,12 @@
 import { sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { studentAcademicInfo } from "./student_academic_info";
+import { studentAcademicInfo } from "./student-academic-info";
 import { instructorCourses } from "./instructor_courses";
 import { overrides } from "./overrides";
-import { studentAdvisors } from "./student_advisors";
+import { studentAdvisors } from "./student-advisors";
 import { studentCourses } from "./student_courses";
-import { studentPrograms } from "./student_programs";
+import { studentPrograms } from "./student-programs";
 
 export const terms = sqliteTable("terms", {
 	code: text().primaryKey(),

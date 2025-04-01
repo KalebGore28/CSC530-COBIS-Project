@@ -11,14 +11,13 @@ export const studentPrograms = sqliteTable("student_programs", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	study: text("study").notNull(),
 	type: text("type").notNull(),
 	level: text("level").notNull(),
 	program: text("program").notNull().references(() => programs.code),
 	department: text("department").notNull().references(() => departments.code),
 	college: text("college").notNull().references(() => colleges.code),
 }, (table) => [
-	primaryKey({ columns: [table.mnumber, table.term, table.year, table.type, table.program] }),
+	primaryKey({ columns: [table.mnumber, table.type, table.program] }),
 	check("program_type", sql`${table.type} IN ('MAJOR', 'MINOR')`),
 	check("program_level", sql`${table.level} IN ('UG', 'GR', 'PB')`),
 ]);

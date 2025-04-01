@@ -24,14 +24,6 @@ table admit_codes {
   description text [not null]
 }
 
-table advisors {
-  id text [pk, not null]
-  first_name text [not null]
-  last_name text [not null]
-  middle_name text [not null]
-  suffix text [not null]
-}
-
 table college_codes {
   code text [pk, not null]
   description text [not null]
@@ -194,7 +186,7 @@ table session {
 }
 
 table student_academic_info {
-  mnumber text [not null]
+  mnumber text [pk, not null]
   admit_term text [not null]
   admit_year integer [not null]
   admit_code text [not null]
@@ -207,10 +199,6 @@ table student_academic_info {
   overall_earned_hours real [not null]
   overall_quality_points real [not null]
   overall_gpa real [not null]
-
-  indexes {
-    (mnumber, admit_term, admit_year) [pk]
-  }
 }
 
 table student_addresses {
@@ -231,13 +219,13 @@ table student_addresses {
 }
 
 table student_advisors {
-  mnumber text [not null]
+  student_mnumber text [not null]
   term text [not null]
   year integer [not null]
-  advisor_id text [not null]
+  advisor_mnumber text [not null]
 
   indexes {
-    (mnumber, term, year, advisor_id) [pk]
+    (student_mnumber, term, year, advisor_mnumber) [pk]
   }
 }
 
@@ -277,7 +265,7 @@ table student_programs {
   college text [not null]
 
   indexes {
-    (mnumber, term, year, type, program) [pk]
+    (mnumber, type, program) [pk]
     
     
   }
@@ -415,11 +403,9 @@ ref: student_addresses.mnumber > students.mnumber
 
 ref: student_addresses.nation_code > nations.code
 
-ref: student_advisors.mnumber > students.mnumber
+ref: student_advisors.student_mnumber > students.mnumber
 
 ref: student_advisors.term > terms.code
-
-ref: student_advisors.advisor_id > advisors.id
 
 ref: student_courses.mnumber > students.mnumber
 

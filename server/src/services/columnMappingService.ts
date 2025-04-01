@@ -1,6 +1,11 @@
 // src/services/columnMappingService.ts
+//
+// A comprehensive service for mapping CSV data to database tables
+// Supports both data tables (with strict file naming patterns) and
+// lookup tables (with more flexible naming but requiring explicit designation)
 
 import { convertDateMMDDYYYY } from "../utils/convertDates";
+import { parseTermCode } from "../utils/convertTermCode";
 
 /**
  * Interface for column mapping
@@ -26,9 +31,11 @@ export interface DestinationTable {
  * Interface for CSV file mapping configuration
  */
 export interface CsvFileMapping {
-	filePatterns: RegExp[];  // Patterns to match filenames
+	filePatterns: RegExp[];  // Patterns to match filenames (required for data tables, optional for lookup tables)
 	description?: string;
 	category: "lookup" | "data";
+	requiresTableDesignation?: boolean; // If true, table must be explicitly specified for lookup tables
+	expectedColumns?: string[]; // Expected column headers for lookup tables 
 	destinations: DestinationTable[];  // Multiple destination tables for a single CSV
 }
 
@@ -83,24 +90,61 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "racedesc", dbColumn: "race_description" },
 					{ csvColumn: "residcode", dbColumn: "residency_code" },
 					{ csvColumn: "residdesc", dbColumn: "residency_description" },
-					{ csvColumn: "age", dbColumn: "age" },
+					{ csvColumn: "age", dbColumn: "age", transform: (value) => Number(value) },
 					{ csvColumn: "cellphone", dbColumn: "cell_phone" }
+				]
+			},
+			{
+				tableName: "Student Addresses",
+				tableId: "student-addresses",
+				primaryKeys: ["mnumber", "type"],
+				columnMappings: [
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "type", dbColumn: "type" },
+					{ csvColumn: "street1", dbColumn: "street1" },
+					{ csvColumn: "street2", dbColumn: "street2" },
+					{ csvColumn: "city", dbColumn: "city" },
+					{ csvColumn: "state", dbColumn: "state" },
+					{ csvColumn: "zip", dbColumn: "zip" },
+					{ csvColumn: "nation_code", dbColumn: "nation_code" },
+					{ csvColumn: "phone", dbColumn: "phone" }
+				]
+			},
+			{
+				tableName: "Student Academic Info",
+				tableId: "student-academic-info",
+				primaryKeys: ["mnumber"],
+				columnMappings: [
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "admit_term", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "admit_year", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "admit_code", dbColumn: "admit_code" },
+					{ csvColumn: "standing", dbColumn: "academic_standing" },
+					{ csvColumn: "msu_attempted_hours", dbColumn: "msu_attempted_hours", transform: (value) => Number(value) },
+					{ csvColumn: "msu_earned_hours", dbColumn: "msu_earned_hours", transform: (value) => Number(value) },
+					{ csvColumn: "msu_quality_points", dbColumn: "msu_quality_points", transform: (value) => Number(value) },
+					{ csvColumn: "msu_gpa", dbColumn: "msu_gpa", transform: (value) => Number(value) },
+					{ csvColumn: "overall_attempted_hours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
+					{ csvColumn: "overall_earned_hours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
+					{ csvColumn: "overall_quality_points", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
+					{ csvColumn: "overall_gpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
 				]
 			},
 			{
 				tableName: "Student Programs",
 				tableId: "student-programs",
-				primaryKeys: ["studentId", "programCode"],
+				primaryKeys: ["mnumber", "type", "program"],
 				columnMappings: [
-					{ csvColumn: "mnumber", dbColumn: "studentId" },
-					{ csvColumn: "program", dbColumn: "programCode" },
-					{ csvColumn: "levl", dbColumn: "level" },
-					{ csvColumn: "major1", dbColumn: "primaryMajor" },
-					{ csvColumn: "major1dept", dbColumn: "primaryMajorDept" },
-					{ csvColumn: "major1coll", dbColumn: "primaryMajorCollege" },
-					{ csvColumn: "major2", dbColumn: "secondaryMajor" },
-					{ csvColumn: "major2dept", dbColumn: "secondaryMajorDept" },
-					{ csvColumn: "major2coll", dbColumn: "secondaryMajorCollege" }
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "type", dbColumn: "type" },
+					{ csvColumn: "level", dbColumn: "level" },
+					{ csvColumn: "program", dbColumn: "program" },
+					{ csvColumn: "department", dbColumn: "department" },
+					{ csvColumn: "college", dbColumn: "college" }
 				]
 			},
 			{
@@ -108,12 +152,10 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableId: "student-advisors",
 				primaryKeys: ["studentId", "advisorId"],
 				columnMappings: [
-					{ csvColumn: "mnumber", dbColumn: "studentId" },
-					{ csvColumn: "advnumb", dbColumn: "advisorId" },
-					{ csvColumn: "advfname", dbColumn: "advisorFirstName" },
-					{ csvColumn: "advlname", dbColumn: "advisorLastName" },
-					{ csvColumn: "advmname", dbColumn: "advisorMiddleName" },
-					{ csvColumn: "advsuffix", dbColumn: "advisorSuffix" }
+					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "advnumb", dbColumn: "advisor_mnumber" },
 				]
 			}
 		]
@@ -153,11 +195,13 @@ export const csvFileMappings: CsvFileMapping[] = [
 		]
 	},
 
-	// Add lookup tables from original filePatternMap
+	// Lookup tables - with less strict filename requirements but expected columns
 	{
-		filePatterns: [/reg_cuba_academic_standing_\d+_\d+\.csv$/i],
+		filePatterns: [/academic.+standing|standing.+academic/i], // More flexible pattern
 		description: "Academic standing codes",
 		category: "lookup",
+		requiresTableDesignation: true, // This lookup table requires explicit designation
+		expectedColumns: ["code", "description"], // These columns must exist
 		destinations: [
 			{
 				tableName: "Academic Standing",
@@ -171,13 +215,61 @@ export const csvFileMappings: CsvFileMapping[] = [
 		]
 	},
 	{
-		filePatterns: [/reg_cuba_admit_codes_\d+_\d+\.csv$/i],
+		filePatterns: [/admit.+code|code.+admit/i], // More flexible pattern
 		description: "Admit type codes",
 		category: "lookup",
+		expectedColumns: ["code", "description"], // These columns must exist
 		destinations: [
 			{
 				tableName: "Admit Codes",
 				tableId: "admit-codes",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	
+	// Generic lookup table mapping for standard code/description pairs
+	{
+		filePatterns: [], // No specific file pattern - rely on column detection
+		description: "Generic lookup table",
+		category: "lookup",
+		requiresTableDesignation: true, // Must specify which table this is
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "College Codes",
+				tableId: "college-codes",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			},
+			{
+				tableName: "Departments",
+				tableId: "departments",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			},
+			{
+				tableName: "Instructional Methods",
+				tableId: "instructional-methods",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			},
+			{
+				tableName: "Registration Status",
+				tableId: "registration-status",
 				primaryKeys: ["code"],
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
@@ -190,16 +282,71 @@ export const csvFileMappings: CsvFileMapping[] = [
 ];
 
 /**
- * Find all mappings for a filename
+ * Find mappings for a filename (for data tables)
  */
 export const findMappingsForFilename = (fileName: string): CsvFileMapping | null => {
+	// First look for data tables with file patterns
 	for (const mapping of csvFileMappings) {
-		for (const pattern of mapping.filePatterns) {
-			if (pattern.test(fileName)) {
-				return mapping;
+		if (mapping.category === "data") {
+			for (const pattern of mapping.filePatterns) {
+				if (pattern.test(fileName)) {
+					return mapping;
+				}
 			}
 		}
 	}
+	return null;
+};
+
+/**
+ * Find mappings for lookup tables based on column headers
+ * @param headers CSV column headers
+ * @param tableId Optional explicit table ID for lookup tables that require designation
+ */
+export const findMappingsForLookupTable = (
+	headers: string[],
+	tableId?: string
+): CsvFileMapping | null => {
+	// Convert headers to lowercase for case-insensitive comparison
+	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+
+	for (const mapping of csvFileMappings) {
+		if (mapping.category === "lookup") {
+			// If table designation is required and tableId is provided, match by tableId
+			if (mapping.requiresTableDesignation && tableId) {
+				const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
+				if (matchingDestination) {
+					return mapping;
+				}
+				continue;
+			}
+
+			// If table has expected columns, check if all required columns are present
+			if (mapping.expectedColumns && mapping.expectedColumns.length > 0) {
+				const missingColumns = mapping.expectedColumns.filter(
+					col => !normalizedHeaders.includes(col.toLowerCase().trim())
+				);
+
+				// All expected columns are present
+				if (missingColumns.length === 0) {
+					return mapping;
+				}
+			} else {
+				// Fallback to checking if the required columns for any destination are present
+				for (const destination of mapping.destinations) {
+					const requiredColumns = destination.columnMappings.map(c => c.csvColumn.toLowerCase().trim());
+					const missingColumns = requiredColumns.filter(
+						col => !normalizedHeaders.includes(col)
+					);
+
+					if (missingColumns.length === 0) {
+						return mapping;
+					}
+				}
+			}
+		}
+	}
+
 	return null;
 };
 
@@ -302,6 +449,8 @@ export const getImportMetadata = (includeColumnMappings = false) => {
 		filePatterns: mapping.filePatterns.map(pattern => pattern.toString()),
 		description: mapping.description || '',
 		category: mapping.category,
+		requiresTableDesignation: mapping.requiresTableDesignation || false,
+		expectedColumns: mapping.expectedColumns || [],
 		destinations: mapping.destinations.map(destination => ({
 			tableName: destination.tableName,
 			tableId: destination.tableId,
@@ -364,6 +513,7 @@ export const suggestPossiblePatterns = (filename: string): string[] => {
 	const lowerFilename = filename.toLowerCase();
 	const suggestions = [];
 
+	// For data tables (strict naming conventions)
 	if (lowerFilename.includes('test') && lowerFilename.includes('score')) {
 		suggestions.push('Try: reg_cuba_test_scores_YYYY_MM.csv');
 	}
@@ -377,17 +527,107 @@ export const suggestPossiblePatterns = (filename: string): string[] => {
 		suggestions.push('Try: YYYYMM_REG_CUBA_Courses_Grade_Time_Extract_YYYYMMDD.csv');
 	}
 
+	// For lookup tables (more flexible naming)
 	if (lowerFilename.includes('academic') && lowerFilename.includes('stand')) {
-		suggestions.push('Try: reg_cuba_academic_standing_YYYY_MM.csv');
+		suggestions.push('For lookup tables: Please specify the table type when uploading');
+		suggestions.push('Ensure columns include at least: "code" and "description"');
 	}
 
-	if (lowerFilename.includes('admit')) {
-		suggestions.push('Try: reg_cuba_admit_codes_YYYY_MM.csv');
+	if (lowerFilename.includes('admit') || lowerFilename.includes('code')) {
+		suggestions.push('For lookup tables: Please specify the table type when uploading');
+		suggestions.push('Ensure columns include at least: "code" and "description"');
 	}
 
 	if (suggestions.length === 0) {
-		suggestions.push('Check the naming convention and ensure it matches one of the expected patterns');
+		suggestions.push('For data tables: Check the naming convention follows the expected pattern');
+		suggestions.push('For lookup tables: Specify the table type when uploading');
 	}
 
 	return suggestions;
+};
+
+/**
+ * Check if headers match the minimum required columns for a table
+ * @param headers The CSV headers to check
+ * @param tableId The specific table ID to check against
+ */
+export const validateHeadersForTable = (headers: string[], tableId: string): {
+	valid: boolean;
+	missingColumns: string[];
+	tableInfo?: DestinationTable;
+} => {
+	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+	const destinationTable = getDestinationByTableId(tableId);
+
+	if (!destinationTable) {
+		return {
+			valid: false,
+			missingColumns: [],
+		};
+	}
+
+	const requiredColumns = destinationTable.columnMappings.map(c =>
+		c.csvColumn.toLowerCase().trim()
+	);
+
+	const missingColumns = requiredColumns.filter(
+		col => !normalizedHeaders.includes(col)
+	);
+
+	return {
+		valid: missingColumns.length === 0,
+		missingColumns,
+		tableInfo: destinationTable
+	};
+};
+
+/**
+ * Detect which table a CSV most likely matches based on its headers
+ * Useful for lookup tables without strict naming patterns
+ */
+export const detectTableFromHeaders = (headers: string[]): {
+	possibleTables: { tableId: string, tableName: string, matchPercentage: number }[];
+	suggestedTableId: string | null;
+} => {
+	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+	const result: { tableId: string, tableName: string, matchPercentage: number }[] = [];
+
+	// Check all destination tables
+	for (const mapping of csvFileMappings) {
+		for (const destination of mapping.destinations) {
+			const requiredColumns = destination.columnMappings.map(c =>
+				c.csvColumn.toLowerCase().trim()
+			);
+
+			const matchingColumns = requiredColumns.filter(
+				col => normalizedHeaders.includes(col)
+			);
+
+			const matchPercentage = (matchingColumns.length / requiredColumns.length) * 100;
+
+			// Only include if it's a reasonable match (at least 50%)
+			if (matchPercentage >= 50) {
+				result.push({
+					tableId: destination.tableId,
+					tableName: destination.tableName,
+					matchPercentage
+				});
+			}
+		}
+	}
+
+	// Sort by match percentage (highest first)
+	result.sort((a, b) => b.matchPercentage - a.matchPercentage);
+
+	// Consider it a definitive match if > 90% match and significantly better than second place
+	const suggestedTableId = result.length > 0 &&
+		result[0].matchPercentage > 90 &&
+		(result.length === 1 || (result[0].matchPercentage - result[1].matchPercentage > 20))
+		? result[0].tableId
+		: null;
+
+	return {
+		possibleTables: result,
+		suggestedTableId
+	};
 };

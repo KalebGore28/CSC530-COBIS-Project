@@ -3,7 +3,7 @@ import { relations } from "drizzle-orm";
 
 import { colleges } from "./colleges";
 import { programs } from "./programs";
-import { studentPrograms } from "./student_programs";
+import { studentPrograms } from "./student-programs";
 import { subjectPrefixes } from "./subject_prefixes";
 import { user } from "./betterAuth";
 

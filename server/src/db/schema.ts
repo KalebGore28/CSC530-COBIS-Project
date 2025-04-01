@@ -1,8 +1,7 @@
 // src/db/schema.ts
 
-import * as academicStanding from './models/academic_standing';
-import * as admitCodes from './models/admit_codes';
-import * as advisors from './models/advisors';
+import * as academicStanding from './models/academic-standing';
+import * as admitCodes from './models/admit-codes';
 import * as collegeCodes from './models/college_codes';
 import * as colleges from './models/colleges';
 import * as courses from './models/courses';
@@ -19,11 +18,11 @@ import * as programs from './models/programs';
 import * as registrationStatus from './models/registration_status';
 import * as rolePermissions from './models/role_permissions';
 import * as roles from './models/roles';
-import * as studentAcademicInfo from './models/student_academic_info';
+import * as studentAcademicInfo from './models/student-academic-info';
 import * as studentAddresses from './models/student_addresses';
-import * as studentAdvisors from './models/student_advisors';
+import * as studentAdvisors from './models/student-advisors';
 import * as studentCourses from './models/student_courses';
-import * as studentPrograms from './models/student_programs';
+import * as studentPrograms from './models/student-programs';
 import * as students from './models/students';
 import * as subjectPrefixes from './models/subject_prefixes';
 import * as terms from './models/terms';
@@ -32,9 +31,8 @@ import * as userPermissions from './models/user_permissions';
 import * as userRoles from './models/user_roles';
 import * as betterAuth from './models/betterAuth';
 
-export * from './models/academic_standing';
-export * from './models/admit_codes';
-export * from './models/advisors';
+export * from './models/academic-standing';
+export * from './models/admit-codes';
 export * from './models/college_codes';
 export * from './models/colleges';
 export * from './models/courses';
@@ -51,11 +49,11 @@ export * from './models/programs';
 export * from './models/registration_status';
 export * from './models/role_permissions';
 export * from './models/roles';
-export * from './models/student_academic_info';
+export * from './models/student-academic-info';
 export * from './models/student_addresses';
-export * from './models/student_advisors';
+export * from './models/student-advisors';
 export * from './models/student_courses';
-export * from './models/student_programs';
+export * from './models/student-programs';
 export * from './models/students';
 export * from './models/subject_prefixes';
 export * from './models/terms';
@@ -67,7 +65,6 @@ export * from './models/betterAuth';
 export const schema = {
 	academicStanding,
 	admitCodes,
-	advisors,
 	collegeCodes,
 	colleges,
 	courses,

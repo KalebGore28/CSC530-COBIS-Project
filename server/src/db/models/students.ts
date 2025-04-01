@@ -1,13 +1,13 @@
 import { sqliteTable, text, int } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { studentAcademicInfo } from "./student_academic_info";
+import { studentAcademicInfo } from "./student-academic-info";
 import { overrides } from "./overrides";
 import { previousColleges } from "./previous_colleges";
 import { studentAddresses } from "./student_addresses";
-import { studentAdvisors } from "./student_advisors";
+import { studentAdvisors } from "./student-advisors";
 import { studentCourses } from "./student_courses";
-import { studentPrograms } from "./student_programs";
+import { studentPrograms } from "./student-programs";
 import { testScores } from "./test_scores";
 
 export const students = sqliteTable("students", {
