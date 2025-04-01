@@ -436,7 +436,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
 					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
 					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date() : new Date(value) } // Notice different date format according to Data Dictionary File.
+					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
 				]
 			}
 		]
@@ -537,60 +537,124 @@ export const csvFileMappings: CsvFileMapping[] = [
 			}
 		]
 	},
-	// {
-	// 	filePatterns: [/nations/i],
-	// 	description: "Nations data",
-	// 	category: "lookup",
-	// 	requiresTableDesignation: true,
-	// 	expectedColumns: ["code", "description"],
-	// 	destinations: [
-	// 		{
-	// 			tableName: "Nations",
-	// 			tableId: "nations",
-	// 			primaryKeys: ["code"],
-	// 			columnMappings: [
-	// 				{ csvColumn: "code", dbColumn: "code" },
-	// 				{ csvColumn: "description", dbColumn: "description" }
-	// 			]
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	filePatterns: [/part.+term|term.+part/i],
-	// 	description: "Part of term data",
-	// 	category: "lookup",
-	// 	requiresTableDesignation: true,
-	// 	expectedColumns: ["code", "description"],
-	// 	destinations: [
-	// 		{
-	// 			tableName: "Part of Term",
-	// 			tableId: "part-of-term",
-	// 			primaryKeys: ["code"],
-	// 			columnMappings: [
-	// 				{ csvColumn: "code", dbColumn: "code" },
-	// 				{ csvColumn: "description", dbColumn: "description" }
-	// 			]
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	filePatterns: [/major.+minor|minor.+major/i],
-	// 	description: "Major/Minor programs data",
-	// 	category: "lookup",
-	// 	requiresTableDesignation: true,
-	// 	expectedColumns: ["code", "description"],
-	// 	destinations: [
-	// 		{
-	// 			tableName: "Programs",
-	// 			tableId: "programs",
-	// 			primaryKeys: ["code"],
-	// 			columnMappings: [
-	// 				{ csvColumn: "code", dbColumn: "code" },
-	// 				{ csvColumn: "description", dbColumn: "description" }
-	// 			]
-	// 		}
-	// 	]
-	// },
+	{
+		filePatterns: [/instructional.+method|method.+instructional/i],
+		description: "Instructional method codes",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Instructional Methods",
+				tableId: "instructional-methods",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/nations/i],
+		description: "Nations data",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Nations",
+				tableId: "nations",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/part.+term|term.+part/i],
+		description: "Part of term data",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Part of Term",
+				tableId: "part-of-term",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/major.+minor|minor.+major/i],
+		description: "Major/Minor programs data",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description", "cip_code", "is_major", "is_minor", "has_concentration", "is_discontinued", "is_aacsb", "department", "college", "added_on"],
+		destinations: [
+			{
+				tableName: "Programs",
+				tableId: "programs",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" },
+					{ csvColumn: "cip_code", dbColumn: "cip_code" },
+					{ csvColumn: "is_major", dbColumn: "is_major", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "is_minor", dbColumn: "is_minor", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "has_concentration", dbColumn: "has_concentration", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "is_discontinued", dbColumn: "is_discontinued", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
+					{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
+					{ csvColumn: "added_on", dbColumn: "added_on", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Default to now if not provided
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/registration.+status|status.+registration/i],
+		description: "Registration status codes",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Registration Status",
+				tableId: "registration-status",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+	},
+	{
+		filePatterns: [/terms/i],
+		description: "Terms data",
+		category: "lookup",
+		requiresTableDesignation: true,
+		expectedColumns: ["code", "description"],
+		destinations: [
+			{
+				tableName: "Terms",
+				tableId: "terms",
+				primaryKeys: ["code"],
+				columnMappings: [
+					{ csvColumn: "code", dbColumn: "code" },
+					{ csvColumn: "description", dbColumn: "description" }
+				]
+			}
+		]
+
+	},
 ];
 
 /**

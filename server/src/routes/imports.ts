@@ -133,7 +133,6 @@ router.post('/process',
 						fileName,
 						importedBy
 					);
-					console.log(`Import result for ${destination.tableName}:`, importResult);
 
 					results.push({
 						tableName: destination.tableName,
@@ -151,7 +150,6 @@ router.post('/process',
 					});
 				} catch (error: any) {
 					console.error(`Error importing to ${destination.tableName}:`, error);
-
 					errors.push(`Error importing to ${destination.tableName}: ${error.message}`);
 
 					results.push({

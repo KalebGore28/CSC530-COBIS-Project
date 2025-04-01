@@ -44,30 +44,30 @@ export const seedDatabase = async () => {
 			filePath: './data/csvs/departments.csv',
 			tableId: 'departments'
 		},
-		// {
-		// 	filePath: './data/csvs/instructional_methods.csv',
-		// 	tableId: 'instructional-methods'
-		// },
-		// {
-		// 	filePath: './data/csvs/nations.csv',
-		// 	tableId: 'nations'
-		// },
-		// {
-		// 	filePath: './data/csvs/part_of_term.csv',
-		// 	tableId: 'part-of-term'
-		// },
-		// {
-		// 	filePath: './data/csvs/major_minor.csv',
-		// 	tableId: 'programs'
-		// },
-		// {
-		// 	filePath: './data/csvs/registration_status.csv',
-		// 	tableId: 'registration-status'
-		// },
-		// {
-		// 	filePath: './data/csvs/terms.csv',
-		// 	tableId: 'terms'
-		// }
+		{
+			filePath: './data/csvs/instructional_methods.csv',
+			tableId: 'instructional-methods'
+		},
+		{
+			filePath: './data/csvs/nations.csv',
+			tableId: 'nations'
+		},
+		{
+			filePath: './data/csvs/part_of_term.csv',
+			tableId: 'part-of-term'
+		},
+		{
+			filePath: './data/csvs/major_minor.csv',
+			tableId: 'programs'
+		},
+		{
+			filePath: './data/csvs/registration_status.csv',
+			tableId: 'registration-status'
+		},
+		{
+			filePath: './data/csvs/terms.csv',
+			tableId: 'terms'
+		}
 	];
 
 	// Define data tables (with specific filename patterns)
