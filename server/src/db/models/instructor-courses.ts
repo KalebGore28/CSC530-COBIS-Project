@@ -6,7 +6,7 @@ import { courses } from "./courses";
 import { terms } from "./terms";
 
 export const instructorCourses = sqliteTable("instructor_courses", {
-	instructor_mnumber: text("instructor_mnumber").notNull(),
+	mnumber: text("mnumber").notNull(),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	crn: text("crn").notNull(),
@@ -15,14 +15,14 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 	course_suffix: text("course_suffix").notNull().default(""),
 	role: text("role").notNull().default("Instructor"),
 }, (table) => [
-	primaryKey({ columns: [table.instructor_mnumber, table.term, table.crn] }),
+	primaryKey({ columns: [table.mnumber, table.term, table.crn] }),
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),
 ]);
 
 // Define relationships for DBML generation
 export const instructorCoursesRelations = relations(instructorCourses, ({ one }) => ({
 	instructor: one(user, {
-		fields: [instructorCourses.instructor_mnumber],
+		fields: [instructorCourses.mnumber],
 		references: [user.mnumber],
 	}),
 	course: one(courses, {

@@ -1,11 +1,14 @@
 // src/services/columnMappingService.ts
-//
+
+import * as schema from "../db/schema"; // Import your database schema types here
+
 // A comprehensive service for mapping CSV data to database tables
 // Supports both data tables (with strict file naming patterns) and
 // lookup tables (with more flexible naming but requiring explicit designation)
 
-import { convertDateMMDDYYYY } from "../utils/convertDates";
+import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convertDates";
 import { parseTermCode } from "../utils/convertTermCode";
+import { parseCourseCode } from "../utils/convertCourseCode";
 
 /**
  * Interface for column mapping
@@ -153,6 +156,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Students",
 				tableId: "students",
 				primaryKeys: ["mnumber"],
+				schemaRef: schema.students,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "firstname", dbColumn: "first_name" },
@@ -174,6 +178,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Student Addresses",
 				tableId: "student-addresses",
 				primaryKeys: ["mnumber", "type"],
+				schemaRef: schema.studentAddresses,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
@@ -192,6 +197,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Student Academic Info",
 				tableId: "student-academic-info",
 				primaryKeys: ["mnumber"],
+				schemaRef: schema.studentAcademicInfo,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "admit_term", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
@@ -212,6 +218,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Student Programs",
 				tableId: "student-programs",
 				primaryKeys: ["mnumber", "type", "program"],
+				schemaRef: schema.studentPrograms,
 				// We're using a row expander instead of direct column mappings for this table
 				columnMappings: [
 					// These mappings are used for validation, but the actual transformation happens in rowExpander
@@ -230,6 +237,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Student Advisors",
 				tableId: "student-advisors",
 				primaryKeys: ["student_mnumber", "advisor_mnumber"],
+				schemaRef: schema.studentAdvisors,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
@@ -252,27 +260,121 @@ export const csvFileMappings: CsvFileMapping[] = [
 			{
 				tableName: "Student Courses",
 				tableId: "student-courses",
-				primaryKeys: ["studentId", "termCode", "crn"],
+				primaryKeys: ["mnumber", "term", "year", "crn"],
+				schemaRef: schema.studentCourses,
 				columnMappings: [
-					{ csvColumn: "mnumber", dbColumn: "studentId" },
-					{ csvColumn: "term", dbColumn: "termCode" },
-					{ csvColumn: "partofterm", dbColumn: "partOfTerm" },
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "partofterm", dbColumn: "part_of_term" },
 					{ csvColumn: "crn", dbColumn: "crn" },
-					{ csvColumn: "crsesubj", dbColumn: "subject" },
-					{ csvColumn: "crsenumb", dbColumn: "courseNumber" },
+					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
+					{ csvColumn: "crsenumb", dbColumn: "course_number" },
+					// For some reason the courses_during_term file doesn't have a suffix column
+					{ csvColumn: "section", dbColumn: "course_section" },
+					{ csvColumn: "crhrs", dbColumn: "course_hours", transform: (value) => Number(value) },
+					{ csvColumn: "levlcode", dbColumn: "course_level" },
+					{ csvColumn: "rstscode", dbColumn: "registration_status" },
+					{ csvColumn: "insmcode", dbColumn: "instructional_method" },
+					{ csvColumn: "lastattend", dbColumn: "last_attendance", transform: (value) => value ? convertDateMMDDYYYY(value) : null },
+					{ csvColumn: "midgrade", dbColumn: "midterm_grade" },
+					{ csvColumn: "fingrade", dbColumn: "final_grade" },
+				]
+			},
+			{
+				tableName: "Instructor Courses",
+				tableId: "instructor-courses",
+				primaryKeys: ["mnumber", "term", "year", "crn"],
+				schemaRef: schema.instructorCourses,
+				columnMappings: [
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "crn", dbColumn: "crn" },
+					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
+					{ csvColumn: "crsenumb", dbColumn: "course_number" },
 					{ csvColumn: "section", dbColumn: "section" },
-					{ csvColumn: "crhrs", dbColumn: "creditHours", transform: (value) => Number(value) },
-					{ csvColumn: "levlcode", dbColumn: "levelCode" },
-					{ csvColumn: "rstscode", dbColumn: "registrationStatus" },
-					{ csvColumn: "insmcode", dbColumn: "instructionalMethod" },
-					{ csvColumn: "lastattend", dbColumn: "lastAttendance", transform: (value) => value ? convertDateMMDDYYYY(value) : null },
-					{ csvColumn: "midgrade", dbColumn: "midtermGrade" },
-					{ csvColumn: "fingrade", dbColumn: "finalGrade" },
-					{ csvColumn: "instmnumber", dbColumn: "instructorId" }
+				]
+
+			}
+		]
+	},
+
+	// Previous Colleges CSV
+	{
+		filePatterns: [/reg_cuba_previous_colleges_\d+_\d+\.csv$/i],
+		description: "Previous colleges attended",
+		category: "data",
+		destinations: [
+			{
+				tableName: "Previous Colleges",
+				tableId: "previous-colleges",
+				primaryKeys: ["mnumber", "college_code"],
+				schemaRef: schema.previousColleges,
+				columnMappings: [
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "collegecode", dbColumn: "college_code" },
+					{ csvColumn: "collegedesc", dbColumn: "college_description" },
+					{ csvColumn: "degree", dbColumn: "degree" },
+					{ csvColumn: "degreedate", dbColumn: "date", transform: (value) => convertDateDDMMYYYY(value) } // Notice different date format according to Data Dictionary File.
 				]
 			}
 		]
 	},
+
+	// Overrides CSV
+	{
+		filePatterns: [/reg_cuba_overrides_\d+_\d+\.csv$/i],
+		description: "Overrides data",
+		category: "data",
+		destinations: [
+			{
+				tableName: "Overrides",
+				tableId: "overrides",
+				primaryKeys: ["mnumber", "term", "year", "crn"],
+				schemaRef: schema.overrides,
+				columnMappings: [
+					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "crn", dbColumn: "crn" },
+					{ csvColumn: "subj", dbColumn: "course_subject" },
+					{ csvColumn: "crsenumb", dbColumn: "course_number" },
+					// Again the suffix column is not present in the overrides file
+					{ csvColumn: "section", dbColumn: "course_section" },
+					{ csvColumn: "override", dbColumn: "override_type" },
+					{ csvColumn: "userid", dbColumn: "granted_by" },
+					{ csvColumn: "activitydate", dbColumn: "override_date", transform: (value) => convertDateDDMMYYYY(value) } // Notice different date format according to Data Dictionary File.
+				]
+			}
+		]
+	},
+
+	// Courses Catalog CSV example file name: reg_cuba_catalog_202510_20250117.csv
+	{
+		filePatterns: [/reg_cuba_catalog_\d+_\d+\.csv$/i],
+		description: "Courses catalog data",
+		category: "data",
+		destinations: [
+			{
+				tableName: "Courses Catalog",
+				tableId: "courses-catalog",
+				primaryKeys: ["subject", "number", "suffix"],
+				schemaRef: schema.courses,
+				columnMappings: [
+					{ csvColumn: "subject", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
+					{ csvColumn: "number", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
+					{ csvColumn: "suffix", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
+					{ csvColumn: "title", dbColumn: "title" },
+					{ csvColumn: "description", dbColumn: "description" },
+					{ csvColumn: "credits", dbColumn: "credits", transform: (value) => Number(value) },
+					{ csvColumn: "prerequisites", dbColumn: "prerequisites" }
+				]
+			}
+		]
+	},
+
+
 
 	// Lookup tables - with less strict filename requirements but expected columns
 	{
@@ -310,53 +412,6 @@ export const csvFileMappings: CsvFileMapping[] = [
 			}
 		]
 	},
-
-	// Generic lookup table mapping for standard code/description pairs
-	{
-		filePatterns: [], // No specific file pattern - rely on column detection
-		description: "Generic lookup table",
-		category: "lookup",
-		requiresTableDesignation: true, // Must specify which table this is
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "College Codes",
-				tableId: "college-codes",
-				primaryKeys: ["code"],
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			},
-			{
-				tableName: "Departments",
-				tableId: "departments",
-				primaryKeys: ["code"],
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			},
-			{
-				tableName: "Instructional Methods",
-				tableId: "instructional-methods",
-				primaryKeys: ["code"],
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			},
-			{
-				tableName: "Registration Status",
-				tableId: "registration-status",
-				primaryKeys: ["code"],
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
-	}
 	// Add more file mappings here as needed
 ];
 
@@ -381,6 +436,7 @@ export const findMappingsForFilename = (fileName: string): CsvFileMapping | null
  * Find mappings for lookup tables based on column headers
  * @param headers CSV column headers
  * @param tableId Optional explicit table ID for lookup tables that require designation
+ * @return Mappings for the lookup table if found, otherwise null
  */
 export const findMappingsForLookupTable = (
 	headers: string[],

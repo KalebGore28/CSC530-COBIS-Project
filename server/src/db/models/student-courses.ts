@@ -16,7 +16,7 @@ export const studentCourses = sqliteTable("student_courses", {
 	crn: text("crn").notNull(),
 	course_subject: text("course_subject").notNull(),
 	course_number: text("course_number").notNull(),
-	course_suffix: text("course_suffix").notNull(),
+	course_suffix: text("course_suffix").notNull().default(""),
 	course_section: text("course_section").notNull(),
 	course_hours: int("course_hours").notNull(),
 	course_level: text("course_level").notNull(),
