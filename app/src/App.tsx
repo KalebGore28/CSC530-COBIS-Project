@@ -6,7 +6,7 @@ import Reports from './pages/Reports';
 import StudentsReport from './pages/StudentsReport';
 import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
-import CsvImport from './pages/CsvImport';
+import { CsvImport } from './pages/CsvImport';
 import TestPage from './pages/TestPage';
 import WaitingPage from './pages/Waiting';
 import OnboardingPage from './pages/Onboarding';

@@ -30,18 +30,8 @@ import subjectPrefixesRouter, { importSubjectPrefixesSpec } from './imports/subj
 import termsRouter, { importTermsSpec } from './imports/terms';
 import testScoresRouter, { importTestScoresSpec } from './imports/testScores';
 
-// Import schemas
-import {
-	academicStanding, admitCodes,
-	collegeCodes, colleges,
-	courses, departments,
-	instructionalMethods, nations,
-	overrides, partOfTerm,
-	previousColleges, programs,
-	registrationStatus, studentCourses,
-	subjectPrefixes,
-	terms, testScores,
-} from '../db/schema';
+// Import metadata service
+import { generateImportMetadata } from '../services/columnMappingService';
 
 // Configure multer for file uploads
 const upload = multer({
@@ -55,64 +45,8 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
 
-// Utility to extract fields from Drizzle ORM schema
-const getFieldsFromSchema = (schema: any): string[] => {
-	return Object.keys(schema).filter((key) => key !== 'id' && key !== 'createdAt' && key !== 'updatedAt');
-};
-
-// Map routers to their schemas, endpoints, and fields (if special case)
-const routerSchemaMap = [
-	{ router: academicStandingRouter, schema: academicStanding, name: "Academic Standing", endpoint: "/api/import/academic-standing" },
-	{ router: admitCodesRouter, schema: admitCodes, name: "Admit Codes", endpoint: "/api/import/admit-codes" },
-	{ router: collegeCodesRouter, schema: collegeCodes, name: "College Codes", endpoint: "/api/import/college-codes" },
-	{ router: collegesRouter, schema: colleges, name: "Colleges", endpoint: "/api/import/colleges" },
-	{ router: courseCatalogRouter, schema: courses, name: "Courses", endpoint: "/api/import/course-catalog" },
-	{
-		router: demographicsRouter,
-		schema: null,
-		name: "Demographics",
-		endpoint: "/api/import/demographics",
-		fields: [
-			"mnumber", "firstname", "lastname", "middlename", "suffix", "gender", "birthdate", "citizen",
-			"race", "racedesc", "residcode", "residdesc", "age", "cellphone", "homestreet1", "homestreet2",
-			"homecity", "homestate", "homezip", "homenation", "homephone", "locstreet1", "locstreet2",
-			"loccity", "locstate", "loczip", "locnation", "locphone", "admitterm", "admitcode", "acadstanding",
-			"msuatthours", "msuearnhours", "msuqp", "msugpa", "overatthours", "overearnhours", "overqp",
-			"overgpa", "program", "levl", "major1", "major1dept", "major1coll", "major2", "major2dept",
-			"major2coll", "minor1", "minor1dept", "minor2", "minor2dept",
-			"advnumb", "advfname", "advlname", "advmname", "advsuffix",
-		], // Manually define fields for Demographics
-	},
-	{ router: departmentsRouter, schema: departments, name: "Departments", endpoint: "/api/import/departments" },
-	{ router: instructionalMethodsRouter, schema: instructionalMethods, name: "Instructional Methods", endpoint: "/api/import/instructional-methods" },
-	{ router: nationsRouter, schema: nations, name: "Nations", endpoint: "/api/import/nations" },
-	{ router: overridesRouter, schema: overrides, name: "Overrides", endpoint: "/api/import/overrides" },
-	{ router: partOfTermRouter, schema: partOfTerm, name: "Part of Term", endpoint: "/api/import/part-of-term" },
-	{ router: previousCollegesRouter, schema: previousColleges, name: "Previous Colleges", endpoint: "/api/import/previous-colleges" },
-	{ router: programsRouter, schema: programs, name: "Programs", endpoint: "/api/import/programs" },
-	{ router: registrationStatusRouter, schema: registrationStatus, name: "Registration Status", endpoint: "/api/import/registration-status" },
-	{ 
-		router: coursesRouter,
-		schema: null,
-		name: "Student/Instructor Courses",
-		endpoint: "/api/import/courses",
-		fields: [
-			"mnumber", "term", "partofterm", "crn", "crsesubj", "crsenumb", "section",
-			"crhrs", "levlcode", "rstscode", "insmcode", "lastattend", "midgrade", "fingrade",
-			"instmnumber"
-		], // Manually define fields for Student/Instructor Courses
-	},
-	{ router: subjectPrefixesRouter, schema: subjectPrefixes, name: "Subject Prefixes", endpoint: "/api/import/subject-prefixes" },
-	{ router: termsRouter, schema: terms, name: "Terms", endpoint: "/api/import/terms" },
-	{ router: testScoresRouter, schema: testScores, name: "Test Scores", endpoint: "/api/import/test-scores" },
-];
-
-// Generate metadata
-const importMetadata = routerSchemaMap.map(({ schema, name, endpoint, fields }) => ({
-	name,
-	endpoint,
-	fields: fields || (schema ? getFieldsFromSchema(schema) : []),
-}));
+// Generate metadata using the service
+const importMetadata = generateImportMetadata();
 
 /**
  * Import router for handling all import endpoints.
@@ -141,16 +75,24 @@ const metadataSpec = {
 				'200': {
 					description: '200 OK',
 					content: {
-						'application/json': { schema: z.array(z.object({ name: z.string(), endpoint: z.string(), fields: z.array(z.string()) })) },
+						'application/json': {
+							schema: z.array(z.object({
+								name: z.string(),
+								endpoint: z.string(),
+								fields: z.array(z.string()),
+								category: z.enum(['lookup', 'data']),
+								description: z.string().optional(),
+							}))
+						},
 					},
 				},
 			},
 		},
 	}
 }
-
 router.post('/parse-csv',
-	upload.single('file'), async (req: AuthAndPermissionsRequest, res: any) => {
+	upload.single('file'),
+	async (req: AuthAndPermissionsRequest, res: any) => {
 		try {
 			if (!req.file) {
 				return res.status(400).json({ error: 'No file uploaded' });
