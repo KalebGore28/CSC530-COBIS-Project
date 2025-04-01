@@ -267,18 +267,18 @@ export const csvFileMappings: CsvFileMapping[] = [
 				schemaRef: schema.studentAcademicInfo,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "admit_term", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "admit_year", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "admit_code", dbColumn: "admit_code" },
-					{ csvColumn: "standing", dbColumn: "academic_standing" },
-					{ csvColumn: "msu_attempted_hours", dbColumn: "msu_attempted_hours", transform: (value) => Number(value) },
-					{ csvColumn: "msu_earned_hours", dbColumn: "msu_earned_hours", transform: (value) => Number(value) },
-					{ csvColumn: "msu_quality_points", dbColumn: "msu_quality_points", transform: (value) => Number(value) },
-					{ csvColumn: "msu_gpa", dbColumn: "msu_gpa", transform: (value) => Number(value) },
-					{ csvColumn: "overall_attempted_hours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
-					{ csvColumn: "overall_earned_hours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
-					{ csvColumn: "overall_quality_points", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
-					{ csvColumn: "overall_gpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
+					{ csvColumn: "admitterm", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "admitterm", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "admitcode", dbColumn: "admit_code" },
+					{ csvColumn: "acadstanding", dbColumn: "academic_standing" },
+					{ csvColumn: "msuatthours", dbColumn: "msu_attempted_hours", transform: (value) => Number(value) },
+					{ csvColumn: "msuearnhours", dbColumn: "msu_earned_hours", transform: (value) => Number(value) },
+					{ csvColumn: "msuqp", dbColumn: "msu_quality_points", transform: (value) => Number(value) },
+					{ csvColumn: "msugpa", dbColumn: "msu_gpa", transform: (value) => Number(value) },
+					{ csvColumn: "overatthours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
+					{ csvColumn: "overearnhours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
+					{ csvColumn: "overqp", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
+					{ csvColumn: "overgpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
 				]
 			},
 			{
