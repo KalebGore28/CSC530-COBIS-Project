@@ -2184,8 +2184,6 @@ ID,COURSE,CRSETITLE,CRHRS,course_fee,web_fee,lastChanged
 2183,ECO190,Consumer Economics,3,NULL,NULL,NULL
 2184,TSM617,Advanced Systems Planning,3,NULL,NULL,NULL
 2185,COM630,Sem in Interpersonal Com,3,NULL,NULL,NULL
-2186,JMC685,Specialized Mass Communication,1,NULL,NULL,NULL
-2187,JMC685,Specialized Mass Communication,2,NULL,NULL,NULL
 2188,JMC685,Specialized Mass Communication,3,NULL,NULL,NULL
 2189,JMC615,History of Media/Mass Com,3,NULL,NULL,NULL
 2190,ECO386,Intl Experience in Economics,3,NULL,NULL,NULL
@@ -2320,7 +2318,6 @@ ID,COURSE,CRSETITLE,CRHRS,course_fee,web_fee,lastChanged
 2319,TSM134,Intro to Telecom Sys Mgmt,2,NULL,NULL,NULL
 2320,ECO617,Capstone in Econ Development,3,NULL,NULL,NULL
 2321,ECO313,History of Economic Thought,3,NULL,NULL,NULL
-2322,CIS299,Special Topics in Computer App,1,NULL,NULL,NULL
 2323,IOE696,Teamwork and the Management of Technology,3,NULL,NULL,NULL
 2324,IOE619,Industrial Energy Management,3,NULL,NULL,NULL
 2325,HDL631,Educational Data Mgmt Techniqu,3,NULL,NULL,NULL

@@ -3,7 +3,7 @@
  */
 export interface ParsedTermCode {
 	year: number;
-	term: number;
+	term: string;
 	valid: boolean;
   }
   
@@ -16,7 +16,7 @@ export interface ParsedTermCode {
 	// Default result for invalid input
 	const invalidResult: ParsedTermCode = {
 	  year: 0,
-	  term: 0,
+	  term: '0',
 	  valid: false
 	};
   
@@ -37,7 +37,7 @@ export interface ParsedTermCode {
 	
 	// Convert captured groups to numbers
 	const year = parseInt(match[1], 10);
-	const term = parseInt(match[2], 10);
+	const term = match[2];
 	
 	return {
 	  year,
