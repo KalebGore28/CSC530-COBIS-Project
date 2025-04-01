@@ -1,20 +1,38 @@
-// CsvImport.tsx - Updated main component with simplified approach
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { useSession } from "@/hooks/session-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2 } from "lucide-react";
 
 // Import types
-import { TableConfig, ImportResult, ImportError } from "../types/csv-import-types";
+import {
+  TableConfig,
+  ImportResult,
+  ImportError,
+  FilePattern,
+  ColumnValidationResult
+} from "../types/csv-import-types";
 
 // Import service functions
 import {
   fetchTables,
+  fetchFilePatterns,
   parseCSV,
-  importData,
+  validateColumns,
+  importCSV,
   retryImport,
   addMissingValue
 } from "../utils/csv-import-service";
+
+// Import utility functions
+import {
+  isDataFile,
+  detectTableFromFilename,
+  autoMapColumns,
+  buildMappingFromValidation,
+  mapCsvDataToFields
+} from "../utils/csv-import-utils";
 
 // Import components
 import { TableSelector } from "../components/csv-import/table-selector";
@@ -24,17 +42,17 @@ import { CsvPreview } from "../components/csv-import/csv-preview";
 import { ImportResultDisplay } from "../components/csv-import/import-result";
 import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
-// Import utilities
-import { autoMapColumns, detectTableFromFilename, filePatterns } from "../utils/csv-import-utils";
-
 export const CsvImport: React.FC = () => {
   const { session } = useSession();
 
-  // State for tables
+  // State for tables and patterns
   const [tables, setTables] = useState<TableConfig[]>([]);
+  const [filePatterns, setFilePatterns] = useState<FilePattern[]>([]);
+  const [lookupTables, setLookupTables] = useState<TableConfig[]>([]);
+  const [dataTables, setDataTables] = useState<TableConfig[]>([]);
 
   // Selection state
-  const [selectedTable, setSelectedTable] = useState<string>("");
+  const [selectedTable, setSelectedTable] = useState<TableConfig | null>(null);
   const [isDataTable, setIsDataTable] = useState<boolean>(false);
 
   // CSV state
@@ -42,10 +60,12 @@ export const CsvImport: React.FC = () => {
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
+  const [validationResult, setValidationResult] = useState<ColumnValidationResult | null>(null);
 
   // Process state
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   // Error fixing state
   const [pendingErrors, setPendingErrors] = useState<ImportError[]>([]);
@@ -53,18 +73,34 @@ export const CsvImport: React.FC = () => {
   const [fixedData, setFixedData] = useState<Record<string, string>[]>([]);
   const [isFixMode, setIsFixMode] = useState(false);
 
-  // Fetch table metadata on mount
+  // Fetch metadata on mount
   useEffect(() => {
-    loadTableMetadata();
+    loadMetadata();
   }, []);
 
-  const loadTableMetadata = async () => {
+  // Load tables and patterns metadata
+  const loadMetadata = async () => {
     try {
-      const data = await fetchTables();
-      console.log("Fetched table metadata:", data);
-      setTables(data);
+      setIsLoading(true);
+      setError(null);
+
+      // Fetch tables
+      const tablesData = await fetchTables();
+      setTables(tablesData);
+
+      // Separate tables by category
+      setLookupTables(tablesData.filter(t => t.category === 'lookup'));
+      setDataTables(tablesData.filter(t => t.category === 'data'));
+
+      // Fetch file patterns
+      const patterns = await fetchFilePatterns();
+      setFilePatterns(patterns);
+
+      setIsLoading(false);
     } catch (error: any) {
-      setResult({ message: error.message || "Error fetching table metadata" });
+      console.error("Error loading metadata:", error);
+      setError(error.message || "Error loading metadata");
+      setIsLoading(false);
     }
   };
 
@@ -74,6 +110,7 @@ export const CsvImport: React.FC = () => {
     if (!file) return;
 
     console.log("File changed:", file.name);
+    setError(null);
 
     // Reset all state
     setCsvHeaders([]);
@@ -83,14 +120,17 @@ export const CsvImport: React.FC = () => {
     setPendingErrors([]);
     setFixedData([]);
     setIsFixMode(false);
-    setSelectedTable("");
+    setSelectedTable(null);
+    setValidationResult(null);
     setIsDataTable(false);
 
     // Set the new file
     setCsvFile(file);
 
     try {
-      // Parse the CSV file
+      setIsLoading(true);
+
+      // Parse the CSV file client-side
       const { headers, data } = await parseCSV(file);
       console.log("Parsed CSV headers:", headers);
 
@@ -98,38 +138,60 @@ export const CsvImport: React.FC = () => {
       setCsvHeaders(headers);
       setCsvData(data);
 
-      // Check if this is a data file by looking at the file patterns
-      const isDataFile = filePatterns.some(pattern => pattern.pattern.test(file.name));
-      console.log("Is data file:", isDataFile);
+      if (headers.length === 0 || data.length === 0) {
+        throw new Error("CSV file appears to be empty or invalid");
+      }
 
-      if (isDataFile) {
-        // Only try to auto-detect for data files
-        const detectedTable = detectTableFromFilename(file.name, tables);
+      // Check if this is a data file by looking at the file patterns
+      const dataFileCheck = isDataFile(file.name, filePatterns);
+      console.log("Is data file:", dataFileCheck);
+      setIsDataTable(dataFileCheck);
+
+      if (dataFileCheck) {
+        // Try to detect the table from the filename
+        const detectedTable = detectTableFromFilename(file.name, filePatterns, tables);
         console.log("Detected table from filename:", detectedTable);
-        setIsDataTable(true);
 
         if (detectedTable) {
-          console.log("Auto-selected data table:", detectedTable.tableName);
-          setSelectedTable(detectedTable.tableName);
+          setSelectedTable(detectedTable);
 
-          // Map columns with exact matching only
-          const tableConfig = tables.find(t => t.name === detectedTable.tableName);
-          if (tableConfig) {
-            const newMapping = autoMapColumns(headers, tableConfig.fields);
-            console.log("Auto-mapped columns:", newMapping);
-            setColumnMapping(newMapping);
-          }
+          // Validate columns
+          await validateTableColumns(detectedTable.tableId, headers);
         } else {
           console.log("No matching data table for this file pattern");
         }
       } else {
         // For lookup tables, user must select manually
-        setIsDataTable(false);
         console.log("This appears to be a lookup file - manual table selection required");
       }
+
+      setIsLoading(false);
     } catch (error: any) {
       console.error("Error processing CSV file:", error);
-      setResult({ message: error.message || "Error parsing CSV file" });
+      setError(error.message || "Error parsing CSV file");
+      setCsvFile(null);
+      setIsLoading(false);
+    }
+  };
+
+  // Validate columns for the selected table
+  const validateTableColumns = async (tableId: string, headers: string[]) => {
+    try {
+      const validation = await validateColumns(tableId, headers);
+      console.log("Column validation result:", validation);
+
+      setValidationResult(validation);
+
+      // Apply suggested mapping if available
+      if (validation.suggestedMapping) {
+        setColumnMapping(validation.suggestedMapping);
+      }
+
+      return validation;
+    } catch (error: any) {
+      console.error("Error validating columns:", error);
+      setError(error.message || "Error validating columns");
+      return null;
     }
   };
 
@@ -143,22 +205,23 @@ export const CsvImport: React.FC = () => {
     setIsFixMode(false);
     setPendingErrors([]);
     setFixedData([]);
-    setSelectedTable("");
+    setSelectedTable(null);
+    setValidationResult(null);
     setIsDataTable(false);
+    setError(null);
   };
 
   // Handle table selection change
-  const handleTableSelect = (tableName: string) => {
-    const selectedTableConfig = tables.find(t => t.name === tableName);
-    if (!selectedTableConfig) return;
+  const handleTableSelect = async (tableId: string) => {
+    const selected = tables.find(t => t.tableId === tableId);
+    if (!selected) return;
 
-    setSelectedTable(tableName);
+    setSelectedTable(selected);
+    setError(null);
 
-    // Auto-map columns for the selected table using exact matching only
+    // If we have CSV headers, validate the columns
     if (csvHeaders.length > 0) {
-      const newMapping = autoMapColumns(csvHeaders, selectedTableConfig.fields);
-      console.log("Mapping for manually selected table:", newMapping);
-      setColumnMapping(newMapping);
+      await validateTableColumns(selected.tableId, csvHeaders);
     }
   };
 
@@ -168,49 +231,51 @@ export const CsvImport: React.FC = () => {
   };
 
   // Check if all required fields are mapped
-  const allFieldsMapped = () => {
+  const allRequiredFieldsMapped = (): boolean => {
     if (!selectedTable) return false;
 
-    const tableConfig = tables.find(t => t.name === selectedTable);
-    if (!tableConfig) return false;
+    // Get all primary key fields
+    const requiredFields = selectedTable.fields
+      .filter(field => field.isPrimaryKey)
+      .map(field => field.name);
 
-    return tableConfig.fields.every(field => !!columnMapping[field]);
+    // Make sure each required field has a mapping that is not undefined
+    return requiredFields.every(field => 
+      columnMapping[field] !== undefined && 
+      columnMapping[field] !== "");
   };
 
   // Handle import submission
   const handleImport = async () => {
     if (!selectedTable || !csvFile || !csvData.length) {
-      setResult({ message: "Please select a table and upload a CSV file." });
+      setError("Please select a table and upload a CSV file.");
       return;
     }
 
-    const tableConfig = tables.find(t => t.name === selectedTable);
-    if (!tableConfig) return;
-
-    // Check if all fields are mapped
-    if (!allFieldsMapped()) {
-      setResult({ message: "Please map all required fields before importing." });
+    // Check if required fields are mapped
+    if (!allRequiredFieldsMapped()) {
+      setError("Please map all required fields before importing.");
       return;
     }
 
-    // Map CSV data to the expected format
-    const mappedData = csvData.map((row) => {
-      const rowData: Record<string, string> = {};
-      tableConfig.fields.forEach((field) => {
-        const csvColumn = columnMapping[field];
-        const columnIndex = csvHeaders.indexOf(csvColumn);
-        rowData[field] = columnIndex >= 0 ? row[columnIndex] || "" : "";
-      });
-      return rowData;
-    });
+    setError(null);
+    setResult(null);
+
+    // Map CSV data to table fields
+    const mappedData = mapCsvDataToFields(
+      csvData,
+      csvHeaders,
+      columnMapping,
+      selectedTable.fields.map(f => f.name)
+    );
 
     setIsLoading(true);
     try {
-      const data = await importData(
-        tableConfig,
+      const data = await importCSV(
+        csvFile,
+        selectedTable.tableId,
         mappedData,
-        csvFile.name,
-        session?.user.email || session?.user.name || ''
+        session?.user?.email || session?.user?.name || 'system'
       );
 
       // Handle errors that might need fixing
@@ -229,7 +294,7 @@ export const CsvImport: React.FC = () => {
 
       setResult(data);
     } catch (error: any) {
-      setResult({ message: error.message || "Error importing data" });
+      setError(error.message || "Error importing data");
     } finally {
       setIsLoading(false);
     }
@@ -243,6 +308,9 @@ export const CsvImport: React.FC = () => {
     if (!currentError.dependencyInfo) return;
 
     try {
+      setIsLoading(true);
+      setError(null);
+      
       await addMissingValue(
         currentError.dependencyInfo.tableName,
         formData
@@ -254,9 +322,18 @@ export const CsvImport: React.FC = () => {
       // Move to next error
       if (currentErrorIndex < pendingErrors.length - 1) {
         setCurrentErrorIndex(prev => prev + 1);
+      } else {
+        // If we're at the last error, prompt to retry import
+        setResult(prev => ({
+          ...prev!,
+          message: `Fixed ${fixedData.length + 1} issues. Ready to retry import.`
+        }));
       }
+      
+      setIsLoading(false);
     } catch (error: any) {
-      setResult({ message: error.message || "Error adding lookup value" });
+      setError(error.message || "Error adding lookup value");
+      setIsLoading(false);
     }
   };
 
@@ -264,16 +341,15 @@ export const CsvImport: React.FC = () => {
   const handleRetryImport = async () => {
     if (fixedData.length === 0 || !selectedTable) return;
 
-    const tableConfig = tables.find(t => t.name === selectedTable);
-    if (!tableConfig) return;
-
     setIsLoading(true);
+    setError(null);
+    
     try {
       const data = await retryImport(
-        tableConfig.endpoint,
+        selectedTable.tableId,
         fixedData,
         csvFile?.name,
-        session?.user.email || session?.user.name || ''
+        session?.user?.email || session?.user?.name || 'system'
       );
 
       // Update result with new information
@@ -288,6 +364,7 @@ export const CsvImport: React.FC = () => {
           skippedDetails: [...(prev.skippedDetails || []), ...(data.skippedDetails || [])],
           failed: (prev.failed || 0) - fixedData.length + (data.failed || 0),
           errorDetails: data.errorDetails || [],
+          message: `Successfully processed ${data.inserted || 0} records from fixed data.`
         };
       });
 
@@ -296,7 +373,7 @@ export const CsvImport: React.FC = () => {
       setPendingErrors([]);
       setFixedData([]);
     } catch (error: any) {
-      setResult({ message: error.message || "Error importing fixed data" });
+      setError(error.message || "Error importing fixed data");
     } finally {
       setIsLoading(false);
     }
@@ -317,9 +394,6 @@ export const CsvImport: React.FC = () => {
     }
   };
 
-  // Get the selected table config
-  const selectedTableConfig = tables.find(t => t.name === selectedTable);
-
   return (
     <div className="p-6 flex-1 flex justify-center">
       <Card className="w-full max-w-full md:max-w-6xl flex flex-col">
@@ -330,6 +404,19 @@ export const CsvImport: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto px-6">
+          {error && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+          
+          {isLoading && (
+            <div className="flex justify-center items-center p-6">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <span className="ml-2">Processing...</span>
+            </div>
+          )}
+          
           {isFixMode ? (
             <ErrorFixingMode
               errors={pendingErrors}
@@ -351,8 +438,8 @@ export const CsvImport: React.FC = () => {
 
               {csvFile && (
                 <TableSelector
-                  tables={tables}
-                  selectedTable={selectedTable}
+                  tables={isDataTable ? dataTables : lookupTables}
+                  selectedTable={selectedTable?.tableId || ""}
                   onTableChange={handleTableSelect}
                   csvFile={csvFile}
                   isDataTable={isDataTable}
@@ -361,10 +448,11 @@ export const CsvImport: React.FC = () => {
 
               {selectedTable && csvHeaders.length > 0 && (
                 <ColumnMapper
-                  tableFields={selectedTableConfig?.fields || []}
+                  tableFields={selectedTable.fields}
                   csvHeaders={csvHeaders}
                   mapping={columnMapping}
                   onMapChange={handleColumnMap}
+                  validationResult={validationResult}
                 />
               )}
 
@@ -378,8 +466,8 @@ export const CsvImport: React.FC = () => {
 
               <Button
                 onClick={handleImport}
-                disabled={isLoading || !selectedTable || !csvFile || !allFieldsMapped()}
-                className="w-full"
+                disabled={isLoading || !selectedTable || !csvFile || !allRequiredFieldsMapped()}
+                className="w-full mt-4"
               >
                 {isLoading ? "Importing..." : "Import CSV"}
               </Button>

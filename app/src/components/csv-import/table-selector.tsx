@@ -1,6 +1,4 @@
-// UpdatedTableSelector.tsx - Simplified table selection UI
 import React from "react";
-import { TableConfig } from "../../types/csv-import-types";
 import {
   Select,
   SelectContent,
@@ -8,12 +6,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { TableConfig } from "../../types/csv-import-types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Database, Table2 } from "lucide-react";
 
 interface TableSelectorProps {
   tables: TableConfig[];
   selectedTable: string;
-  onTableChange: (tableName: string) => void;
+  onTableChange: (tableId: string) => void;
   csvFile: File | null;
   isDataTable: boolean;
 }
@@ -23,61 +23,71 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
   selectedTable,
   onTableChange,
   csvFile,
-  isDataTable
+  isDataTable,
 }) => {
-  // Separate tables by category
-  const dataTables = tables;
+  if (!tables.length) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <AlertTitle>No tables available</AlertTitle>
+        <AlertDescription>
+          No {isDataTable ? "data" : "lookup"} tables are configured for import.
+          Please contact your administrator.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
-  // Show different UI based on whether it's a data table or lookup table
   return (
     <div className="mb-6">
-      {isDataTable ? (
-        <>
-          <label className="block mb-2 text-sm font-medium">Data Table</label>
-          {selectedTable ? (
-            <Alert className="bg-green-50 border-green-200">
-              <AlertDescription>
-                <p className="text-green-800">
-                  <strong>Auto-selected table:</strong> {selectedTable}
-                </p>
-                <p className="text-sm text-green-700 mt-1">
-                  This table was automatically selected based on the file name pattern.
-                </p>
-              </AlertDescription>
-            </Alert>
-          ) : (
-            <Alert variant="destructive">
-              <AlertDescription>
-                <p>No matching data table found for this file.</p>
-                <p className="text-sm mt-1">
-                  This file doesn't match any of the expected patterns for data import.
-                </p>
-              </AlertDescription>
-            </Alert>
-          )}
-        </>
-      ) : (
-        <>
-          <label className="block mb-2 text-sm font-medium">Select Lookup Table</label>
-          <Select value={selectedTable} onValueChange={onTableChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a lookup table" />
-            </SelectTrigger>
-            <SelectContent>
-              {dataTables.map((table) => (
-                <SelectItem key={table.name} value={table.name}>
-                  {table.name}
-                  {table.description && ` - ${table.description}`}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {!selectedTable && csvFile && (
-            <p className="text-sm text-amber-600 mt-1">
-              Please select a lookup table to continue.
-            </p>
-          )}
-        </>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-lg font-semibold">Select Destination Table</h3>
+        {isDataTable && selectedTable && (
+          <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
+            <Database className="h-3 w-3 mr-1" /> Data Table
+          </div>
+        )}
+        {!isDataTable && (
+          <div className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded-md border border-amber-200 flex items-center">
+            <Table2 className="h-3 w-3 mr-1" /> Lookup Table
+          </div>
+        )}
+      </div>
+
+      {isDataTable && csvFile && selectedTable && (
+        <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+          <AlertTitle className="text-blue-800 flex items-center">
+            <Database className="h-4 w-4 mr-2" /> Detected Table
+          </AlertTitle>
+          <AlertDescription className="text-blue-700">
+            Based on the filename <strong>"{csvFile.name}"</strong>, we've automatically
+            selected the <strong>{tables.find(t => t.tableId === selectedTable)?.tableName}</strong> table.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      <Select
+        value={selectedTable}
+        onValueChange={onTableChange}
+      >
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select a destination table" />
+        </SelectTrigger>
+        <SelectContent>
+          {/* Removed empty value item */}
+          {tables
+            .sort((a, b) => a.tableName.localeCompare(b.tableName))
+            .map((table) => (
+              <SelectItem key={table.tableId} value={table.tableId}>
+                {table.tableName}
+              </SelectItem>
+            ))}
+        </SelectContent>
+      </Select>
+
+      {selectedTable && (
+        <div className="mt-2 text-sm text-muted-foreground">
+          {tables.find(t => t.tableId === selectedTable)?.fields.length || 0} fields available
+        </div>
       )}
     </div>
   );
