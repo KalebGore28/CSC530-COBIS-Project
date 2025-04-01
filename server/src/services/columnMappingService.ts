@@ -118,6 +118,62 @@ export const expandStudentPrograms = (row: Record<string, any>): Record<string, 
 	return results;
 };
 
+// Function that expands a single demographic row into multiple address rows
+export const expandStudentAddresses = (row: Record<string, any>): Record<string, any>[] => {
+	const results: Record<string, any>[] = [];
+	const { year, term, valid } = parseTermCode(row.term || '');
+
+	if (!valid || !row.mnumber) {
+		return results; // Skip invalid rows
+	}
+
+	// Add home address if present
+	if (row.homestreet1 || row.homecity || row.homestate || row.homezip) {
+		results.push({
+			mnumber: row.mnumber,
+			term: term,
+			year: year,
+			type: 'HOME',
+			street1: row.homestreet1 || '',
+			street2: row.homestreet2 || '',
+			city: row.homecity || '',
+			state: row.homestate || '',
+			zip: row.homezip || '',
+			nation_code: row.homenation || 'USA',
+			phone: row.homephone || ''
+		});
+	}
+
+	// Add local address if present and different from home address
+	if (row.locstreet1 || row.loccity || row.locstate || row.loczip) {
+		// Check if local address is actually different from home address
+		const isSameAsHome =
+			row.locstreet1 === row.homestreet1 &&
+			row.locstreet2 === row.homestreet2 &&
+			row.loccity === row.homecity &&
+			row.locstate === row.homestate &&
+			row.loczip === row.homezip;
+
+		if (!isSameAsHome) {
+			results.push({
+				mnumber: row.mnumber,
+				term: term,
+				year: year,
+				type: 'LOCAL',
+				street1: row.locstreet1 || '',
+				street2: row.locstreet2 || '',
+				city: row.loccity || '',
+				state: row.locstate || '',
+				zip: row.loczip || '',
+				nation_code: row.locnation || 'USA',
+				phone: row.locphone || ''
+			});
+		}
+	}
+
+	return results;
+};
+
 /**
  * Complete mapping configuration for all CSV files
  */
@@ -179,19 +235,30 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableId: "student-addresses",
 				primaryKeys: ["mnumber", "type"],
 				schemaRef: schema.studentAddresses,
+				// These mappings are used for validation, but the actual transformation happens in rowExpander
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "type", dbColumn: "type" },
-					{ csvColumn: "street1", dbColumn: "street1" },
-					{ csvColumn: "street2", dbColumn: "street2" },
-					{ csvColumn: "city", dbColumn: "city" },
-					{ csvColumn: "state", dbColumn: "state" },
-					{ csvColumn: "zip", dbColumn: "zip" },
-					{ csvColumn: "nation_code", dbColumn: "nation_code" },
-					{ csvColumn: "phone", dbColumn: "phone" }
-				]
+					// Include both home and local address fields for validation
+					{ csvColumn: "homestreet1", dbColumn: "street1" },
+					{ csvColumn: "homestreet2", dbColumn: "street2" },
+					{ csvColumn: "homecity", dbColumn: "city" },
+					{ csvColumn: "homestate", dbColumn: "state" },
+					{ csvColumn: "homezip", dbColumn: "zip" },
+					{ csvColumn: "homenation", dbColumn: "nation_code" },
+					{ csvColumn: "homephone", dbColumn: "phone" },
+					{ csvColumn: "locstreet1", dbColumn: "street1" },
+					{ csvColumn: "locstreet2", dbColumn: "street2" },
+					{ csvColumn: "loccity", dbColumn: "city" },
+					{ csvColumn: "locstate", dbColumn: "state" },
+					{ csvColumn: "loczip", dbColumn: "zip" },
+					{ csvColumn: "locnation", dbColumn: "nation_code" },
+					{ csvColumn: "locphone", dbColumn: "phone" }
+				],
+				// Use the row expander to create separate records for home and local addresses
+				rowExpander: expandStudentAddresses
 			},
 			{
 				tableName: "Student Academic Info",

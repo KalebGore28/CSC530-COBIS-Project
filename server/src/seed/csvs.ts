@@ -79,9 +79,9 @@ export const seedDatabase = async () => {
 		{
 			filePath: './data/csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
 		},
-		{
-			filePath: './data/csvs/prototype/reg_cuba_demographic_202510_20250117.csv',
-		},
+		// {
+		// 	filePath: './data/csvs/prototype/reg_cuba_demographic_202510_20250117.csv',
+		// },
 		// {
 		// 	filePath: './data/csvs/prototype/reg_cuba_courses_during_term_202510_20250117.csv',
 		// },
