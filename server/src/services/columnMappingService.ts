@@ -367,9 +367,9 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
 					{ csvColumn: "crsetitle", dbColumn: "title" },
 					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
-					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => Number(value) },
-					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => Number(value) },
-					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => new Date(value) }
+					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date() : new Date(value) } // Notice different date format according to Data Dictionary File.
 				]
 			}
 		]
