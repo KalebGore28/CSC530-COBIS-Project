@@ -167,7 +167,7 @@ const getSampleDataForFile = (fileName: string): Record<string, any>[] => {
 			term: '202310',
 			crn: '12345',
 			subj: 'CSE',
-			crsenumb: '4283',
+			crsenumb: '283',
 			section: '01',
 			override: 'PREREQ',
 			userid: 'jsmith',
