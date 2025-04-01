@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import { csvFileMappings, getAllDestinationTables } from '../../services/columnMappingService';
 
-const router = express.Router();
 
 /**
  * Get all available import tables with their metadata
@@ -9,7 +8,8 @@ const router = express.Router();
  * @group Imports - CSV data import operations
  * @returns {object} 200 - List of available tables for import
  * @returns {Error} 500 - Server error
- */
+*/
+const router = express.Router();
 router.get('/tables', async (req: Request, res: Response) => {
   try {
     // Get all destination tables

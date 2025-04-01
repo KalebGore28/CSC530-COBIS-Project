@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import { getDestinationByTableId } from '../../services/columnMappingService';
 
-const router = express.Router();
 
 interface ValidateColumnsRequest {
 	tableId: string;
@@ -17,7 +16,8 @@ interface ValidateColumnsRequest {
  * @returns {object} 200 - Validation results with mapping suggestions
  * @returns {Error} 400 - Missing parameters or table not found
  * @returns {Error} 500 - Server error
- */
+*/
+const router = express.Router();
 router.post('/validate-columns', async (req: Request, res: Response) => {
 	try {
 		const { tableId, csvHeaders } = req.body as ValidateColumnsRequest;

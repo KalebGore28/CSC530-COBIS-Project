@@ -2,7 +2,6 @@
 import express, { Request, Response } from 'express';
 import { csvFileMappings } from '../../services/columnMappingService';
 
-const router = express.Router();
 
 /**
  * Get available file patterns for data tables
@@ -10,7 +9,8 @@ const router = express.Router();
  * @group Imports - CSV data import operations
  * @returns {object} 200 - List of file patterns that match data tables
  * @returns {Error} 500 - Server error
- */
+*/
+const router = express.Router();
 router.get('/patterns', async (req: Request, res: Response) => {
 	try {
 		// Extract only data table patterns (not lookup tables)

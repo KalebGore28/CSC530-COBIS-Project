@@ -26,7 +26,6 @@ const upload = multer({
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
 
-const router = express.Router();
 
 /**
  * Unified import process endpoint
@@ -38,7 +37,8 @@ const router = express.Router();
  * @returns {object} 200 - Import results by table
  * @returns {Error} 400 - Invalid file or missing parameters
  * @returns {Error} 500 - Server error
- */
+*/
+const router = express.Router();
 router.post('/process',
 	upload.single('file'),
 	async (req: Request, res: Response) => {
