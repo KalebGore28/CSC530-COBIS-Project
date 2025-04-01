@@ -215,12 +215,13 @@ export const csvFileMappings: CsvFileMapping[] = [
 				// We're using a row expander instead of direct column mappings for this table
 				columnMappings: [
 					// These mappings are used for validation, but the actual transformation happens in rowExpander
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term" },
-					{ csvColumn: "levl", dbColumn: "level" },
-					{ csvColumn: "major1", dbColumn: "program" },
-					{ csvColumn: "major1dept", dbColumn: "department" },
-					{ csvColumn: "major1coll", dbColumn: "college" }
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "type", dbColumn: "type" },
+					{ csvColumn: "level", dbColumn: "level" },
+					{ csvColumn: "program", dbColumn: "program" },
+					{ csvColumn: "department", dbColumn: "department" },
+					{ csvColumn: "college", dbColumn: "college" },
 				],
 				// This is the key addition - a function that transforms one CSV row into multiple DB rows
 				rowExpander: expandStudentPrograms
