@@ -17,15 +17,15 @@ import * as schema from '../db/schema';
 const upload = multer({
 	dest: 'uploads/',
 	fileFilter: (req, file, cb) => {
-	  // Check if file extension is .csv (case insensitive)
-	  if (path.extname(file.originalname).toLowerCase() !== '.csv') {
-		return cb(new Error('Only CSV files are allowed'));
-	  }
-	  // Accept the file regardless of mime type as long as extension is .csv
-	  cb(null, true);
+		// Check if file extension is .csv (case insensitive)
+		if (path.extname(file.originalname).toLowerCase() !== '.csv') {
+			return cb(new Error('Only CSV files are allowed'));
+		}
+		// Accept the file regardless of mime type as long as extension is .csv
+		cb(null, true);
 	},
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
-  });
+});
 
 const router = express.Router();
 
