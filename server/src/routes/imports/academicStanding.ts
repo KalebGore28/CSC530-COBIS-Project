@@ -1,93 +1,291 @@
 import express, { Request, Response } from 'express';
-import { importData } from '../../utils/importData';
-import { academicStanding } from '../../db/schema';
-import 'zod-openapi/extend';
+import multer from 'multer';
+import fs from 'fs';
+import path from 'path';
 import { z } from 'zod';
+import 'zod-openapi/extend';
+import { importData } from '../../utils/importData';
+import { importCSV } from '../../utils/importCSV';
+import {
+	findMappingsForFilename,
+	findMappingsForLookupTable,
+	mapCsvDataToDbData,
+	getDestinationByTableId
+} from '../../services/columnMappingService';
+import * as schema from '../../db/schema';
 
-interface AcademicStandingRow {
-	code: string;
-	description: string;
-}
-
-async function importAcademicStanding(
-	mappedData: AcademicStandingRow[],
-	fileName: string,
-	importedBy: string
-) {
-	return importData(
-		academicStanding,    // table definition
-		"code",              // primary key field (or use ['code'] for a composite key)
-		mappedData,
-		fileName,
-		importedBy
-	);
-}
-
-/**
- * Import academic standing data
- * @param mappedData - The academic standing data to import
- * @param fileName - The name of the file being imported
- * @param importedBy - The user importing the data
- * @returns `message`, `totalRecords`, and `errors`
- */
-const router = express.Router()
-router.post('/academic-standing', async (req: Request, res: Response) => {
-	try {
-		const { mappedData, fileName, importedBy } = req.body;
-		const result = await importAcademicStanding(mappedData, fileName, importedBy);
-		res.json({
-			message: 'Academic standing imported successfully.',
-			totalRecords: result.totalRecords,
-			errors: result.errorDetails,
-		});
-		/* v8 ignore next 4 */
-	} catch (error: any) {
-		console.error(`Error importing academic standing data: ${error.message}`);
-		res.status(500).json({ error: 'Error importing academic standing data.' });
-	}
+// Configure multer for file uploads
+const upload = multer({
+	dest: 'uploads/',
+	fileFilter: (req, file, cb) => {
+		if (file.mimetype !== 'text/csv') {
+			return cb(new Error('Only CSV files are allowed'));
+		}
+		cb(null, true);
+	},
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
 });
 
-// Preparing OpenAPI spec
-const mappedData = z.array(z.object({
-	code: z.string().openapi({ description: 'The academic standing code', example: 'GS', ref: 'academic_standing_code' }),
-	description: z.string().openapi({ description: 'The academic standing description', example: 'Good Standing', ref: 'academic_standing_description' }),
-})).openapi({ description: 'The academic standing data to import', ref: 'academic_standing_mapped_data' });
-const fileName = z.string().openapi({ description: 'Name of the file being imported', example: 'courses.csv', ref: 'academic_standing_filename' });
-const importedBy = z.string().openapi({ description: 'User importing the data', example: 'admin', ref: 'academic_standing_imported_by' });
+const router = express.Router();
 
-export const academicStandingSpec = {
-	'/api/import/academic-standing': {
+/**
+ * Unified import process endpoint
+ * @route POST /api/import/process
+ * @group Imports - CSV data import operations
+ * @param {file} file.formData.required - CSV file to import
+ * @param {string} tableId.formData - Table ID for lookup tables
+ * @param {string} importedBy.formData.required - User who is importing the data
+ * @returns {object} 200 - Import results by table
+ * @returns {Error} 400 - Invalid file or missing parameters
+ * @returns {Error} 500 - Server error
+ */
+router.post('/process',
+	upload.single('file'),
+	async (req: Request, res: Response) => {
+		try {
+			// Check if file was uploaded
+			if (!req.file) {
+				res.status(400).json({ error: 'No file uploaded' });
+				return;
+			}
+
+			const fileName = req.file.originalname;
+			const filePath = req.file.path;
+			const importedBy = req.body.importedBy || 'system';
+			const tableId = req.body.tableId; // Optional for lookup tables
+
+			// Parse the CSV file
+			const csvData = await importCSV(filePath);
+
+			if (!csvData || csvData.length === 0) {
+				fs.unlinkSync(filePath);
+				res.status(400).json({ error: 'Empty or invalid CSV file' });
+				return;
+			}
+
+			// Get CSV headers
+			const headers = Object.keys(csvData[0]);
+
+			// Try to find mapping by filename (for data tables)
+			let fileMapping = findMappingsForFilename(fileName);
+			let category = 'data';
+
+			// If not found and tableId is provided, try to find mapping for lookup table
+			if (!fileMapping && tableId) {
+				fileMapping = findMappingsForLookupTable(headers, tableId);
+				category = 'lookup';
+			}
+
+			// If still no mapping found
+			if (!fileMapping) {
+				fs.unlinkSync(filePath);
+				res.status(400).json({
+					error: 'No mapping found for this file',
+					category: tableId ? 'lookup' : 'data',
+					fileName,
+					tableId: tableId || null
+				});
+				return;
+			}
+
+			// Process each destination
+			const results = [];
+			const errors = [];
+
+			for (const destination of fileMapping.destinations) {
+				// For lookup tables, only process the requested table
+				if (category === 'lookup' && tableId && destination.tableId !== tableId) {
+					continue;
+				}
+
+				try {
+					// Map CSV data to DB format (handles row expansion automatically)
+					const mappedData = mapCsvDataToDbData(csvData, destination);
+
+					if (mappedData.length === 0) {
+						results.push({
+							tableName: destination.tableName,
+							tableId: destination.tableId,
+							success: true,
+							message: 'No relevant data found for this table',
+							totalRecords: 0,
+							inserted: 0,
+							updated: 0,
+							skipped: 0,
+							failed: 0
+						});
+						continue;
+					}
+
+					// Get the schema reference and primary keys
+					const tableSchema = destination.schemaRef || getSchemaReference(destination.tableId);
+
+					if (!tableSchema) {
+						throw new Error(`Schema not found for table: ${destination.tableName}`);
+					}
+
+					// Import the data
+					const importResult = await importData(
+						tableSchema,
+						destination.primaryKeys,
+						mappedData,
+						fileName,
+						importedBy
+					);
+
+					results.push({
+						tableName: destination.tableName,
+						tableId: destination.tableId,
+						success: importResult.failed === 0,
+						message: `Processed ${importResult.totalRecords} records`,
+						totalRecords: importResult.totalRecords,
+						inserted: importResult.inserted,
+						updated: importResult.updated,
+						skipped: importResult.skipped,
+						failed: importResult.failed,
+						errorDetails: importResult.errorDetails.length > 0
+							? importResult.errorDetails.map(e => e.error)
+							: undefined
+					});
+				} catch (error: any) {
+					console.error(`Error importing to ${destination.tableName}:`, error);
+
+					errors.push(`Error importing to ${destination.tableName}: ${error.message}`);
+
+					results.push({
+						tableName: destination.tableName,
+						tableId: destination.tableId,
+						success: false,
+						message: error.message,
+						totalRecords: 0,
+						inserted: 0,
+						updated: 0,
+						skipped: 0,
+						failed: 0
+					});
+				}
+			}
+
+			// Clean up the uploaded file
+			fs.unlinkSync(filePath);
+
+			// Return the results
+			res.json({
+				fileName,
+				category,
+				mappingDescription: fileMapping.description,
+				results,
+				errors: errors.length > 0 ? errors : undefined,
+				success: results.some(r => r.success),
+				timestamp: new Date().toISOString()
+			});
+		} catch (error: any) {
+			// Clean up the file if it exists
+			if (req.file?.path && fs.existsSync(req.file.path)) {
+				fs.unlinkSync(req.file.path);
+			}
+
+			console.error(`Error in import process:`, error);
+			res.status(500).json({
+				error: 'Error processing import',
+				message: error.message
+			});
+		}
+	}
+);
+
+/**
+ * Helper function to get schema reference by table ID
+ */
+function getSchemaReference(tableId: string): any {
+	// Convert tableId (kebab-case) to schema property name (camelCase)
+	const schemaName = tableId
+		.split('-')
+		.map((part, index) =>
+			index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
+		)
+		.join('');
+
+	return (schema as any)[schemaName];
+}
+
+// Zod schemas for OpenAPI documentation
+const ImportResultSchema = z.object({
+	tableName: z.string(),
+	tableId: z.string(),
+	success: z.boolean(),
+	message: z.string(),
+	totalRecords: z.number(),
+	inserted: z.number(),
+	updated: z.number(),
+	skipped: z.number(),
+	failed: z.number(),
+	errorDetails: z.array(z.string()).optional()
+}).openapi({ description: 'Import result for a table' });
+
+const ImportResponseSchema = z.object({
+	fileName: z.string(),
+	category: z.union([z.literal('data'), z.literal('lookup')]),
+	mappingDescription: z.string(),
+	results: z.array(ImportResultSchema),
+	errors: z.array(z.string()).optional(),
+	success: z.boolean(),
+	timestamp: z.string().datetime()
+}).openapi({ description: 'CSV import process response' });
+
+export const importProcessSpec = {
+	'/api/import/process': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'import_academic_standing',
-			description: 'Import academic standing data',
+			operationId: 'import_process_csv',
+			description: 'Process and import a CSV file',
 			requestBody: {
 				content: {
-					'application/json': {
+					'multipart/form-data': {
 						schema: z.object({
-							mappedData,
-							fileName,
-							importedBy,
-						}),
-					},
-				},
+							file: z.any().openapi({ type: 'string', format: 'binary', description: 'CSV file to import' }),
+							tableId: z.string().optional().openapi({ description: 'Table ID for lookup tables' }),
+							importedBy: z.string().openapi({ description: 'User importing the data', example: 'admin' })
+						})
+					}
+				}
 			},
 			responses: {
 				'200': {
-					description: '200 OK',
+					description: 'Import processed successfully',
+					content: {
+						'application/json': {
+							schema: ImportResponseSchema
+						}
+					}
+				},
+				'400': {
+					description: 'Invalid request',
 					content: {
 						'application/json': {
 							schema: z.object({
-								message: z.string(),
-								totalRecords: z.number(),
-								errors: z.array(z.string()),
-							}),
-						},
-					},
+								error: z.string(),
+								category: z.string().optional(),
+								fileName: z.string().optional(),
+								tableId: z.string().nullable().optional()
+							})
+						}
+					}
 				},
-			},
-		},
-	},
-}
+				'500': {
+					description: 'Server error',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string(),
+								message: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
+	}
+};
 
 export default router;

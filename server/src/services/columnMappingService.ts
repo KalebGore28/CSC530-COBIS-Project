@@ -265,7 +265,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "partofterm", dbColumn: "part_of_term" },
 					{ csvColumn: "crn", dbColumn: "crn" },
 					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
@@ -289,7 +289,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "crn", dbColumn: "crn" },
 					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
 					{ csvColumn: "crsenumb", dbColumn: "course_number" },

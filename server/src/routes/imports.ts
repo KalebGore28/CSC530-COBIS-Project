@@ -1,212 +1,272 @@
-import express, { Request, Response, NextFunction } from 'express';
-import { importCSV } from '../utils/importCSV';
+import express, { Request, Response } from 'express';
 import multer from 'multer';
 import fs from 'fs';
-import 'zod-openapi/extend';
+import path from 'path';
 import { z } from 'zod';
-
-// Import middleware and types
-import { normalizeHeadersMiddleware } from '../middleware/normalizeHeaders';
-import { hasRole } from '../middleware/hasRole';
-import { AuthAndPermissionsRequest } from '../types/requests';
-
-// Import routes
-import academicStandingRouter, { academicStandingSpec } from './imports/academicStanding';
-import admitCodesRouter, { admitCodesSpec } from './imports/admitCodes';
-import collegeCodesRouter, { collegeCodesSpec } from './imports/collegeCodes';
-import collegesRouter, { collegesSpec } from './imports/colleges';
-import courseCatalogRouter, { importCoursesSpec } from './imports/courseCatalog';
-import { demographicsRouter } from './imports/demographics';
-import departmentsRouter, { departmentsSpec } from './imports/departments';
-import instructionalMethodsRouter, { instructionalMethodsSpec } from './imports/instructionalMethods';
-import nationsRouter, { importNationsSpec } from './imports/nations';
-import overridesRouter, { importOverridesSpec } from './imports/overrides';
-import partOfTermRouter, { importPartOfTermSpec } from './imports/partOfTerm';
-import previousCollegesRouter, { importPreviousCollegesSpec } from './imports/previousColleges';
-import programsRouter, { importProgramsSpec } from './imports/programs.js';
-import registrationStatusRouter, { importRegistrationStatusSpec } from './imports/registrationStatus';
-import coursesRouter, { importStudentCoursesSpec } from './imports/courses';
-import subjectPrefixesRouter, { importSubjectPrefixesSpec } from './imports/subjectPrefixes';
-import termsRouter, { importTermsSpec } from './imports/terms';
-import testScoresRouter, { importTestScoresSpec } from './imports/testScores';
-
-// Import metadata service
-import { generateImportMetadata } from '../services/columnMappingService';
+import 'zod-openapi/extend';
+import { importData } from '../utils/importData';
+import { importCSV } from '../utils/importCSV';
+import {
+	findMappingsForFilename,
+	findMappingsForLookupTable,
+	mapCsvDataToDbData,
+} from '../services/columnMappingService';
+import * as schema from '../db/schema';
 
 // Configure multer for file uploads
 const upload = multer({
 	dest: 'uploads/',
 	fileFilter: (req, file, cb) => {
-		if (file.mimetype !== 'text/csv') {
-			return cb(new Error('Only CSV files are allowed'));
-		}
-		cb(null, true);
+	  // Check if file extension is .csv (case insensitive)
+	  if (path.extname(file.originalname).toLowerCase() !== '.csv') {
+		return cb(new Error('Only CSV files are allowed'));
+	  }
+	  // Accept the file regardless of mime type as long as extension is .csv
+	  cb(null, true);
 	},
 	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
-});
+  });
 
-// Generate metadata using the service
-const importMetadata = generateImportMetadata();
+const router = express.Router();
 
 /**
- * Import router for handling all import endpoints.
+ * Unified import process endpoint
+ * @route POST /api/import/process
+ * @group Imports - CSV data import operations
+ * @param {file} file.formData.required - CSV file to import
+ * @param {string} tableId.formData - Table ID for lookup tables
+ * @param {string} importedBy.formData.required - User who is importing the data
+ * @returns {object} 200 - Import results by table
+ * @returns {Error} 400 - Invalid file or missing parameters
+ * @returns {Error} 500 - Server error
  */
-const router = express.Router()
-
-// Attach middleware
-// @ts-ignore
-router.use(hasRole('cobis_administrator'));
-router.get('/metadata',
-	(req: Request, res: Response) => {
-		try {
-			res.json(importMetadata);
-		} catch (error: any) {
-			console.error(`Error retrieving import metadata: ${error.message}`);
-			res.status(500).json({ error: 'Error retrieving import metadata.' });
-		}
-	})
-const metadataSpec = {
-	'/api/import/metadata': {
-		get: {
-			tags: ['Imports'],
-			operationId: 'getImportMetadata',
-			description: 'Get metadata for all import endpoints',
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								name: z.string(),
-								endpoint: z.string(),
-								fields: z.array(z.string()),
-								category: z.enum(['lookup', 'data']),
-								description: z.string().optional(),
-							}))
-						},
-					},
-				},
-			},
-		},
-	}
-}
-router.post('/parse-csv',
+router.post('/process',
 	upload.single('file'),
-	async (req: AuthAndPermissionsRequest, res: any) => {
+	async (req: Request, res: Response) => {
 		try {
+			// Check if file was uploaded
 			if (!req.file) {
-				return res.status(400).json({ error: 'No file uploaded' });
+				res.status(400).json({ error: 'No file uploaded' });
+				return;
 			}
 
-			const parsedData = await importCSV(req.file.path);
-			if (!parsedData || parsedData.length === 0) {
-				return res.status(400).json({ error: 'Empty or invalid CSV file' });
+			const fileName = req.file.originalname;
+			const filePath = req.file.path;
+			const importedBy = req.body.importedBy || 'system';
+			const tableId = req.body.tableId; // Optional for lookup tables
+
+			// Parse the CSV file
+			const csvData = await importCSV(filePath);
+
+			if (!csvData || csvData.length === 0) {
+				fs.unlinkSync(filePath);
+				res.status(400).json({ error: 'Empty or invalid CSV file' });
+				return;
 			}
 
-			const headers = Object.keys(parsedData[0]);
-			const data = parsedData.map(row => headers.map(header => row[header] || ''));
+			// Get CSV headers
+			const headers = Object.keys(csvData[0]);
 
-			fs.unlinkSync(req.file.path);
+			// Try to find mapping by filename (for data tables)
+			let fileMapping = findMappingsForFilename(fileName);
+			let category = 'data';
 
+			// If not found and tableId is provided, try to find mapping for lookup table
+			if (!fileMapping && tableId) {
+				fileMapping = findMappingsForLookupTable(headers, tableId);
+				category = 'lookup';
+			}
+
+			// If still no mapping found
+			if (!fileMapping) {
+				fs.unlinkSync(filePath);
+				res.status(400).json({
+					error: 'No mapping found for this file',
+					category: tableId ? 'lookup' : 'data',
+					fileName,
+					tableId: tableId || null
+				});
+				return;
+			}
+
+			// Process each destination
+			const results = [];
+			const errors = [];
+
+			for (const destination of fileMapping.destinations) {
+				// For lookup tables, only process the requested table
+				if (category === 'lookup' && tableId && destination.tableId !== tableId) {
+					continue;
+				}
+
+				try {
+					// Map CSV data to DB format (handles row expansion automatically)
+					const mappedData = mapCsvDataToDbData(csvData, destination);
+
+					if (mappedData.length === 0) {
+						results.push({
+							tableName: destination.tableName,
+							tableId: destination.tableId,
+							success: true,
+							message: 'No relevant data found for this table',
+							totalRecords: 0,
+							inserted: 0,
+							updated: 0,
+							skipped: 0,
+							failed: 0
+						});
+						continue;
+					}
+
+					// Get the schema reference and primary keys
+					const tableSchema = destination.schemaRef || getSchemaReference(destination.tableId);
+
+					if (!tableSchema) {
+						throw new Error(`Schema not found for table: ${destination.tableName}`);
+					}
+
+					// Import the data
+					const importResult = await importData(
+						tableSchema,
+						destination.primaryKeys,
+						mappedData,
+						fileName,
+						importedBy
+					);
+
+					results.push({
+						tableName: destination.tableName,
+						tableId: destination.tableId,
+						success: importResult.failed === 0,
+						message: `Processed ${importResult.totalRecords} records`,
+						totalRecords: importResult.totalRecords,
+						inserted: importResult.inserted,
+						updated: importResult.updated,
+						skipped: importResult.skipped,
+						failed: importResult.failed,
+						errorDetails: importResult.errorDetails.length > 0
+							? importResult.errorDetails.map(e => e.error)
+							: undefined
+					});
+				} catch (error: any) {
+					console.error(`Error importing to ${destination.tableName}:`, error);
+
+					errors.push(`Error importing to ${destination.tableName}: ${error.message}`);
+
+					results.push({
+						tableName: destination.tableName,
+						tableId: destination.tableId,
+						success: false,
+						message: error.message,
+						totalRecords: 0,
+						inserted: 0,
+						updated: 0,
+						skipped: 0,
+						failed: 0
+					});
+				}
+			}
+
+			// Clean up the uploaded file
+			fs.unlinkSync(filePath);
+
+			// Return the results
 			res.json({
-				headers,
-				data,
+				fileName,
+				category,
+				mappingDescription: fileMapping.description,
+				results,
+				errors: errors.length > 0 ? errors : undefined,
+				success: results.some(r => r.success),
+				timestamp: new Date().toISOString()
 			});
 		} catch (error: any) {
-			if (req.file?.path) {
+			// Clean up the file if it exists
+			if (req.file?.path && fs.existsSync(req.file.path)) {
 				fs.unlinkSync(req.file.path);
 			}
-			console.error(`Error parsing CSV: ${error.message}`);
-			res.status(500).json({ error: 'Error parsing CSV file' });
+
+			console.error(`Error in import process:`, error);
+			res.status(500).json({
+				error: 'Error processing import',
+				message: error.message
+			});
 		}
-	})
-const parseCSVSpec = {
-	'/api/import/parse-csv': {
+	}
+);
+
+/**
+ * Helper function to get schema reference by table ID
+ */
+function getSchemaReference(tableId: string): any {
+	// Convert tableId (kebab-case) to schema property name (camelCase)
+	const schemaName = tableId
+		.split('-')
+		.map((part, index) =>
+			index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
+		)
+		.join('');
+
+	return (schema as any)[schemaName];
+}
+
+// Zod schemas for OpenAPI documentation
+const ImportResultSchema = z.object({
+	tableName: z.string(),
+	tableId: z.string(),
+	success: z.boolean(),
+	message: z.string(),
+	totalRecords: z.number(),
+	inserted: z.number(),
+	updated: z.number(),
+	skipped: z.number(),
+	failed: z.number(),
+	errorDetails: z.array(z.string()).optional()
+}).openapi({ description: 'Import result for a table' });
+
+const ImportResponseSchema = z.object({
+	fileName: z.string(),
+	category: z.union([z.literal('data'), z.literal('lookup')]),
+	mappingDescription: z.string(),
+	results: z.array(ImportResultSchema),
+	errors: z.array(z.string()).optional(),
+	success: z.boolean(),
+	timestamp: z.string().datetime()
+}).openapi({ description: 'CSV import process response' });
+
+const importProcessSpec = {
+	'/api/import/process': {
 		post: {
 			tags: ['Imports'],
-			operationId: 'parseCSV',
-			description: 'Parse a CSV file and return its contents',
+			operationId: 'import_process_csv',
+			description: 'Process and import a CSV file',
 			requestBody: {
 				content: {
 					'multipart/form-data': {
-						schema: z.object({ file: z.string().openapi({ description: 'CSV file to parse', format: 'binary' }) }),
-					},
-				},
+						schema: z.object({
+							file: z.any().openapi({ type: 'string', format: 'binary', description: 'CSV file to import' }),
+							tableId: z.string().optional().openapi({ description: 'Table ID for lookup tables' }),
+							importedBy: z.string().openapi({ description: 'User importing the data', example: 'admin' })
+						})
+					}
+				}
 			},
 			responses: {
 				'200': {
-					description: '200 OK',
+					description: 'Import processed successfully',
 					content: {
 						'application/json': {
-							schema: z.object({
-								headers: z.array(z.string()),
-								data: z.array(z.array(z.string())),
-							}),
-						},
-					},
+							schema: ImportResponseSchema
+						}
+					}
 				},
-				'400': {
-					description: '400 Bad Request',
-					content: {
-						'application/json': { schema: z.object({ error: z.string() }) },
-					},
-				},
-				'500': {
-					description: '500 Internal Server Error',
-					content: {
-						'application/json': { schema: z.object({ error: z.string() }) },
-					},
-				},
-			},
-		},
-	},
-}
+			}
+		}
+	}
+};
 
-// Combine all API specs
 export const importAPISpecs = {
-	...metadataSpec,
-	...parseCSVSpec,
-	...academicStandingSpec,
-	...admitCodesSpec,
-	...collegeCodesSpec,
-	...collegesSpec,
-	...importCoursesSpec,
-
-	...departmentsSpec,
-	...instructionalMethodsSpec,
-	...importNationsSpec,
-	...importOverridesSpec,
-	...importPartOfTermSpec,
-	...importPreviousCollegesSpec,
-	...importProgramsSpec,
-	...importRegistrationStatusSpec,
-	...importStudentCoursesSpec,
-	...importSubjectPrefixesSpec,
-	...importTermsSpec,
-	...importTestScoresSpec,
-}
-
-// Middleware to normalize all column headers to lowercase
-router.use(normalizeHeadersMiddleware)
-
-// Use routers
-router.use(academicStandingRouter)
-router.use(admitCodesRouter)
-router.use(collegeCodesRouter)
-router.use(collegesRouter)
-router.use(courseCatalogRouter)
-router.use(demographicsRouter)
-router.use(departmentsRouter)
-router.use(instructionalMethodsRouter)
-router.use(nationsRouter)
-router.use(overridesRouter)
-router.use(partOfTermRouter)
-router.use(previousCollegesRouter)
-router.use(programsRouter)
-router.use(registrationStatusRouter)
-router.use(coursesRouter)
-router.use(subjectPrefixesRouter)
-router.use(termsRouter)
-router.use(testScoresRouter);
+	...importProcessSpec
+};
 
 export default router;
