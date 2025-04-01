@@ -611,57 +611,30 @@ export const findMappingsForFilename = (fileName: string): CsvFileMapping | null
 };
 
 /**
- * Find mappings for lookup tables based on column headers
- * @param headers CSV column headers
- * @param tableId Optional explicit table ID for lookup tables that require designation
+ * Find mappings for lookup tables based on tableId (for lookup tables)
+ * @param tableId Table ID to match
  * @return Mappings for the lookup table if found, otherwise null
  */
 export const findMappingsForLookupTable = (
-	headers: string[],
-	tableId?: string
-): CsvFileMapping | null => {
-	// Convert headers to lowercase for case-insensitive comparison
-	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
-
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "lookup") {
-			// If table designation is required and tableId is provided, match by tableId
-			if (mapping.requiresTableDesignation && tableId) {
-				const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
-				if (matchingDestination) {
-					return mapping;
-				}
-				continue;
-			}
-
-			// If table has expected columns, check if all required columns are present
-			if (mapping.expectedColumns && mapping.expectedColumns.length > 0) {
-				const missingColumns = mapping.expectedColumns.filter(
-					col => !normalizedHeaders.includes(col.toLowerCase().trim())
-				);
-
-				// All expected columns are present
-				if (missingColumns.length === 0) {
-					return mapping;
-				}
-			} else {
-				// Fallback to checking if the required columns for any destination are present
-				for (const destination of mapping.destinations) {
-					const requiredColumns = destination.columnMappings.map(c => c.csvColumn.toLowerCase().trim());
-					const missingColumns = requiredColumns.filter(
-						col => !normalizedHeaders.includes(col)
-					);
-
-					if (missingColumns.length === 0) {
-						return mapping;
-					}
-				}
-			}
-		}
+	tableId: string
+  ): CsvFileMapping | null => {
+	// If no tableId provided, we can't find a lookup table
+	if (!tableId) {
+	  return null;
 	}
-
+  
+	// Simply find the mapping that has a destination with the matching tableId
+	for (const mapping of csvFileMappings) {
+	  if (mapping.category === "lookup") {
+		const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
+		if (matchingDestination) {
+		  return mapping;
+		}
+	  }
+	}
+  
 	return null;
-};
+  };
 
 /**
  * Process a CSV row for a specific destination table
@@ -724,37 +697,6 @@ export const getAllFileMappings = (): CsvFileMapping[] => {
 };
 
 /**
- * Get mapping by table name
- */
-export const getMappingsForTableName = (tableName: string): DestinationTable[] => {
-	const result: DestinationTable[] = [];
-
-	for (const fileMapping of csvFileMappings) {
-		for (const destination of fileMapping.destinations) {
-			if (destination.tableName === tableName) {
-				result.push(destination);
-			}
-		}
-	}
-
-	return result;
-};
-
-/**
- * Get mapping by table ID
- */
-export const getDestinationByTableId = (tableId: string): DestinationTable | null => {
-	for (const fileMapping of csvFileMappings) {
-		for (const destination of fileMapping.destinations) {
-			if (destination.tableId === tableId) {
-				return destination;
-			}
-		}
-	}
-	return null;
-};
-
-/**
  * Get all destination tables across all file mappings
  */
 export const getAllDestinationTables = (): DestinationTable[] => {
@@ -797,166 +739,3 @@ export const getImportMetadata = (includeColumnMappings = false) => {
 	}));
 };
 
-/**
- * Generate helpful example filenames for each pattern
- */
-export const generatePatternExamples = (): Record<string, string[]> => {
-	const examples: Record<string, string[]> = {};
-
-	getAllFileMappings().forEach(mapping => {
-		mapping.filePatterns.forEach(pattern => {
-			const patternStr = pattern.toString();
-
-			// Clean up the RegExp string for display
-			const cleanPattern = patternStr
-				.replace(/^\//g, '')
-				.replace(/\/i$/g, '')
-				.replace(/\\d\+/g, '2023')
-				.replace(/\\\./g, '.')
-				.replace(/\\\//g, '/');
-
-			// Generate an example based on the pattern
-			let example = cleanPattern;
-
-			// For the common patterns in your system
-			if (cleanPattern.includes('reg_cuba_test_scores')) {
-				example = 'reg_cuba_test_scores_2023_04.csv';
-			} else if (cleanPattern.includes('reg_cuba_demographic')) {
-				example = 'reg_cuba_demographic_2023_04.csv';
-			} else if (cleanPattern.includes('REG_CUBA_Courses_Grade_Time_Extract')) {
-				example = '202304_REG_CUBA_Courses_Grade_Time_Extract_20230615.csv';
-			}
-
-			examples[patternStr] = [example];
-		});
-	});
-
-	return examples;
-};
-
-/**
- * Suggest possible patterns for a filename that doesn't match
- */
-export const suggestPossiblePatterns = (filename: string): string[] => {
-	// Extract key parts from the filename
-	const lowerFilename = filename.toLowerCase();
-	const suggestions = [];
-
-	// For data tables (strict naming conventions)
-	if (lowerFilename.includes('test') && lowerFilename.includes('score')) {
-		suggestions.push('Try: reg_cuba_test_scores_YYYY_MM.csv');
-	}
-
-	if (lowerFilename.includes('demo') || lowerFilename.includes('student')) {
-		suggestions.push('Try: reg_cuba_demographic_YYYY_MM.csv');
-	}
-
-	if (lowerFilename.includes('course')) {
-		suggestions.push('Try: reg_cuba_courses_during_term_YYYY_MM.csv');
-		suggestions.push('Try: YYYYMM_REG_CUBA_Courses_Grade_Time_Extract_YYYYMMDD.csv');
-	}
-
-	// For lookup tables (more flexible naming)
-	if (lowerFilename.includes('academic') && lowerFilename.includes('stand')) {
-		suggestions.push('For lookup tables: Please specify the table type when uploading');
-		suggestions.push('Ensure columns include at least: "code" and "description"');
-	}
-
-	if (lowerFilename.includes('admit') || lowerFilename.includes('code')) {
-		suggestions.push('For lookup tables: Please specify the table type when uploading');
-		suggestions.push('Ensure columns include at least: "code" and "description"');
-	}
-
-	if (suggestions.length === 0) {
-		suggestions.push('For data tables: Check the naming convention follows the expected pattern');
-		suggestions.push('For lookup tables: Specify the table type when uploading');
-	}
-
-	return suggestions;
-};
-
-/**
- * Check if headers match the minimum required columns for a table
- * @param headers The CSV headers to check
- * @param tableId The specific table ID to check against
- */
-export const validateHeadersForTable = (headers: string[], tableId: string): {
-	valid: boolean;
-	missingColumns: string[];
-	tableInfo?: DestinationTable;
-} => {
-	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
-	const destinationTable = getDestinationByTableId(tableId);
-
-	if (!destinationTable) {
-		return {
-			valid: false,
-			missingColumns: [],
-		};
-	}
-
-	const requiredColumns = destinationTable.columnMappings.map(c =>
-		c.csvColumn.toLowerCase().trim()
-	);
-
-	const missingColumns = requiredColumns.filter(
-		col => !normalizedHeaders.includes(col)
-	);
-
-	return {
-		valid: missingColumns.length === 0,
-		missingColumns,
-		tableInfo: destinationTable
-	};
-};
-
-/**
- * Detect which table a CSV most likely matches based on its headers
- * Useful for lookup tables without strict naming patterns
- */
-export const detectTableFromHeaders = (headers: string[]): {
-	possibleTables: { tableId: string, tableName: string, matchPercentage: number }[];
-	suggestedTableId: string | null;
-} => {
-	const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
-	const result: { tableId: string, tableName: string, matchPercentage: number }[] = [];
-
-	// Check all destination tables
-	for (const mapping of csvFileMappings) {
-		for (const destination of mapping.destinations) {
-			const requiredColumns = destination.columnMappings.map(c =>
-				c.csvColumn.toLowerCase().trim()
-			);
-
-			const matchingColumns = requiredColumns.filter(
-				col => normalizedHeaders.includes(col)
-			);
-
-			const matchPercentage = (matchingColumns.length / requiredColumns.length) * 100;
-
-			// Only include if it's a reasonable match (at least 50%)
-			if (matchPercentage >= 50) {
-				result.push({
-					tableId: destination.tableId,
-					tableName: destination.tableName,
-					matchPercentage
-				});
-			}
-		}
-	}
-
-	// Sort by match percentage (highest first)
-	result.sort((a, b) => b.matchPercentage - a.matchPercentage);
-
-	// Consider it a definitive match if > 90% match and significantly better than second place
-	const suggestedTableId = result.length > 0 &&
-		result[0].matchPercentage > 90 &&
-		(result.length === 1 || (result[0].matchPercentage - result[1].matchPercentage > 20))
-		? result[0].tableId
-		: null;
-
-	return {
-		possibleTables: result,
-		suggestedTableId
-	};
-};

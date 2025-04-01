@@ -24,22 +24,22 @@ export const seedDatabase = async () => {
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
-		// {
-		// 	filePath: './data/csvs/academic_standing.csv',
-		// 	tableId: 'academic-standing'
-		// },
-		// {
-		// 	filePath: './data/csvs/admit_codes.csv',
-		// 	tableId: 'admit-codes'
-		// },
-		// {
-		// 	filePath: './data/csvs/college_codes.csv',
-		// 	tableId: 'college-codes'
-		// },
-		// {
-		// 	filePath: './data/csvs/colleges.csv',
-		// 	tableId: 'colleges'
-		// },
+		{
+			filePath: './data/csvs/academic_standing.csv',
+			tableId: 'academic-standing'
+		},
+		{
+			filePath: './data/csvs/admit_codes.csv',
+			tableId: 'admit-codes'
+		},
+		{
+			filePath: './data/csvs/college_codes.csv',
+			tableId: 'college-codes'
+		},
+		{
+			filePath: './data/csvs/colleges.csv',
+			tableId: 'colleges'
+		},
 		{
 			filePath: './data/csvs/departments.csv',
 			tableId: 'departments'

@@ -73,9 +73,7 @@ router.post('/process',
 
 			// If not found and tableId is provided, try to find mapping for lookup table
 			if (!fileMapping && tableId) {
-				fileMapping = findMappingsForLookupTable(headers, tableId); //<--broken
-				console.log(headers);
-				console.log('File mapping for lookup table:', fileMapping);
+				fileMapping = findMappingsForLookupTable(tableId);
 				category = 'lookup';
 			}
 
