@@ -15,7 +15,7 @@ import { authenticateUser } from './middleware/authenticateUser';
 import { getRolesPermissions } from './middleware/getRolesPermissions';
 
 // Import routes and API specs for OpenAPI Generation
-import importRoutes, { importAPISpecs } from "./routes/imports";
+import importRoutes, { importRoutesAPISpecs } from "./routes/imports";
 import userRoute, { userSpecs } from "./routes/user";
 import reportingRoute, { reportingSpecs } from "./routes/reporting";
 import searchRoute, { searchSpecs } from "./routes/search";
@@ -34,7 +34,7 @@ const document = createDocument({
         { name: 'Imports', description: 'Importing data' },
     ],
     paths: {
-        ...importAPISpecs,
+        ...importRoutesAPISpecs,
         ...userSpecs,
         ...reportingSpecs,
         ...searchSpecs,

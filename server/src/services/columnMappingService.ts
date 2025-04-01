@@ -658,6 +658,20 @@ export const csvFileMappings: CsvFileMapping[] = [
 ];
 
 /**
+ * Get mapping by table ID
+ */
+export const getDestinationByTableId = (tableId: string): DestinationTable | null => {
+	for (const fileMapping of csvFileMappings) {
+		for (const destination of fileMapping.destinations) {
+			if (destination.tableId === tableId) {
+				return destination;
+			}
+		}
+	}
+	return null;
+};
+
+/**
  * Find mappings for a filename (for data tables)
  */
 export const findMappingsForFilename = (fileName: string): CsvFileMapping | null => {
@@ -681,24 +695,24 @@ export const findMappingsForFilename = (fileName: string): CsvFileMapping | null
  */
 export const findMappingsForLookupTable = (
 	tableId: string
-  ): CsvFileMapping | null => {
+): CsvFileMapping | null => {
 	// If no tableId provided, we can't find a lookup table
 	if (!tableId) {
-	  return null;
+		return null;
 	}
-  
+
 	// Simply find the mapping that has a destination with the matching tableId
 	for (const mapping of csvFileMappings) {
-	  if (mapping.category === "lookup") {
-		const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
-		if (matchingDestination) {
-		  return mapping;
+		if (mapping.category === "lookup") {
+			const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
+			if (matchingDestination) {
+				return mapping;
+			}
 		}
-	  }
 	}
-  
+
 	return null;
-  };
+};
 
 /**
  * Process a CSV row for a specific destination table
