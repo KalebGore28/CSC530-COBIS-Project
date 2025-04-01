@@ -17,6 +17,11 @@ export interface ColumnMapping {
 }
 
 /**
+ * Function that transforms one CSV row into multiple DB rows
+ */
+export type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
+
+/**
  * Interface for destination table configuration
  */
 export interface DestinationTable {
@@ -25,6 +30,7 @@ export interface DestinationTable {
 	primaryKeys: string[]; // Primary key fields for this table
 	schemaRef?: any;      // Reference to the Drizzle schema if directly available
 	columnMappings: ColumnMapping[];  // Explicit column mappings
+	rowExpander?: RowExpanderFunction;  // Optional function to expand one row into many
 }
 
 /**
@@ -38,6 +44,76 @@ export interface CsvFileMapping {
 	expectedColumns?: string[]; // Expected column headers for lookup tables 
 	destinations: DestinationTable[];  // Multiple destination tables for a single CSV
 }
+
+// Function that expands a single demographic row into multiple student program rows
+export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
+	const results: Record<string, any>[] = [];
+	const { year, term, valid } = parseTermCode(row.term || '');
+
+	if (!valid || !row.mnumber) {
+		return results; // Skip invalid rows
+	}
+
+	const level = row.levl || 'UG'; // Default level if not provided
+
+	// Add Major 1 if present
+	if (row.major1) {
+		results.push({
+			mnumber: row.mnumber,
+			term: term,
+			year: year,
+			type: 'MAJOR',
+			level: level,
+			program: row.major1,
+			department: row.major1dept || '',
+			college: row.major1coll || ''
+		});
+	}
+
+	// Add Major 2 if present
+	if (row.major2) {
+		results.push({
+			mnumber: row.mnumber,
+			term: term,
+			year: year,
+			type: 'MAJOR',
+			level: level,
+			program: row.major2,
+			department: row.major2dept || '',
+			college: row.major2coll || ''
+		});
+	}
+
+	// Add Minor 1 if present
+	if (row.minor1) {
+		results.push({
+			mnumber: row.mnumber,
+			term: term,
+			year: year,
+			type: 'MINOR',
+			level: level,
+			program: row.minor1,
+			department: row.minor1dept || '',
+			college: '' // Minors may not have college assignments
+		});
+	}
+
+	// Add Minor 2 if present
+	if (row.minor2) {
+		results.push({
+			mnumber: row.mnumber,
+			term: term,
+			year: year,
+			type: 'MINOR',
+			level: level,
+			program: row.minor2,
+			department: row.minor2dept || '',
+			college: '' // Minors may not have college assignments
+		});
+	}
+
+	return results;
+};
 
 /**
  * Complete mapping configuration for all CSV files
@@ -101,7 +177,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "type", dbColumn: "type" },
 					{ csvColumn: "street1", dbColumn: "street1" },
 					{ csvColumn: "street2", dbColumn: "street2" },
@@ -136,25 +212,27 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Student Programs",
 				tableId: "student-programs",
 				primaryKeys: ["mnumber", "type", "program"],
+				// We're using a row expander instead of direct column mappings for this table
 				columnMappings: [
+					// These mappings are used for validation, but the actual transformation happens in rowExpander
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "type", dbColumn: "type" },
-					{ csvColumn: "level", dbColumn: "level" },
-					{ csvColumn: "program", dbColumn: "program" },
-					{ csvColumn: "department", dbColumn: "department" },
-					{ csvColumn: "college", dbColumn: "college" }
-				]
+					{ csvColumn: "term", dbColumn: "term" },
+					{ csvColumn: "levl", dbColumn: "level" },
+					{ csvColumn: "major1", dbColumn: "program" },
+					{ csvColumn: "major1dept", dbColumn: "department" },
+					{ csvColumn: "major1coll", dbColumn: "college" }
+				],
+				// This is the key addition - a function that transforms one CSV row into multiple DB rows
+				rowExpander: expandStudentPrograms
 			},
 			{
 				tableName: "Student Advisors",
 				tableId: "student-advisors",
-				primaryKeys: ["studentId", "advisorId"],
+				primaryKeys: ["student_mnumber", "advisor_mnumber"],
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "year", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "advnumb", dbColumn: "advisor_mnumber" },
 				]
 			}
@@ -231,7 +309,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 			}
 		]
 	},
-	
+
 	// Generic lookup table mapping for standard code/description pairs
 	{
 		filePatterns: [], // No specific file pattern - rely on column detection
@@ -379,11 +457,26 @@ export const mapCsvRowToDbRow = (
 
 /**
  * Process multiple CSV rows for a specific destination table
+ * Now supports row expansion for one-to-many transformations
  */
 export const mapCsvDataToDbData = (
 	rows: Record<string, any>[],
 	destinationTable: DestinationTable
 ): Record<string, any>[] => {
+	// If we have a row expander function, use it
+	if (destinationTable.rowExpander) {
+		// Apply the row expander to each CSV row and flatten the results
+		return rows.flatMap(row => {
+			try {
+				return destinationTable.rowExpander!(row);
+			} catch (error) {
+				console.warn(`Error expanding row for ${destinationTable.tableName}:`, error);
+				return []; // Skip this row if expansion fails
+			}
+		});
+	}
+
+	// Otherwise, use the standard mapping approach
 	return rows.map(row => mapCsvRowToDbRow(row, destinationTable))
 		.filter(row => Object.keys(row).length > 0);
 };
@@ -456,6 +549,7 @@ export const getImportMetadata = (includeColumnMappings = false) => {
 			tableId: destination.tableId,
 			primaryKeys: destination.primaryKeys,
 			columnCount: destination.columnMappings.length,
+			usesRowExpander: !!destination.rowExpander,
 			// Only include column mapping details if explicitly requested
 			columnMappings: includeColumnMappings
 				? destination.columnMappings.map(col => ({
