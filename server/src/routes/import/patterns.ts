@@ -9,6 +9,7 @@ const router = express.Router();
  * @route GET /api/import/patterns
  * @group Imports - CSV data import operations
  * @returns {object} 200 - List of file patterns that match data tables
+ * @returns {Error} 500 - Server error
  */
 router.get('/patterns', async (req: Request, res: Response) => {
 	try {

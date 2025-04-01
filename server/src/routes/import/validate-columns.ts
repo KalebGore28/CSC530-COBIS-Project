@@ -1,4 +1,3 @@
-// File: src/routes/validateColumns.ts
 import express, { Request, Response } from 'express';
 import { getDestinationByTableId } from '../../services/columnMappingService';
 

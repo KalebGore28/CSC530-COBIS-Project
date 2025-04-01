@@ -8,6 +8,7 @@ const router = express.Router();
  * @route GET /api/import/tables
  * @group Imports - CSV data import operations
  * @returns {object} 200 - List of available tables for import
+ * @returns {Error} 500 - Server error
  */
 router.get('/tables', async (req: Request, res: Response) => {
   try {

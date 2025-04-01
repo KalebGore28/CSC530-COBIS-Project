@@ -2,8 +2,7 @@ import express, { Request, Response } from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
-import { z } from 'zod';
-import 'zod-openapi/extend';
+
 import { importData } from '../../utils/importData';
 import { importCSV } from '../../utils/importCSV';
 import {
@@ -208,64 +207,5 @@ function getSchemaReference(tableId: string): any {
 
 	return (schema as any)[schemaName];
 }
-
-// Zod schemas for OpenAPI documentation
-const ImportResultSchema = z.object({
-	tableName: z.string(),
-	tableId: z.string(),
-	success: z.boolean(),
-	message: z.string(),
-	totalRecords: z.number(),
-	inserted: z.number(),
-	updated: z.number(),
-	skipped: z.number(),
-	failed: z.number(),
-	errorDetails: z.array(z.string()).optional()
-}).openapi({ description: 'Import result for a table' });
-
-const ImportResponseSchema = z.object({
-	fileName: z.string(),
-	category: z.union([z.literal('data'), z.literal('lookup')]),
-	mappingDescription: z.string(),
-	results: z.array(ImportResultSchema),
-	errors: z.array(z.string()).optional(),
-	success: z.boolean(),
-	timestamp: z.string().datetime()
-}).openapi({ description: 'CSV import process response' });
-
-const importProcessSpec = {
-	'/api/import/process': {
-		post: {
-			tags: ['Imports'],
-			operationId: 'import_process_csv',
-			description: 'Process and import a CSV file',
-			requestBody: {
-				content: {
-					'multipart/form-data': {
-						schema: z.object({
-							file: z.any().openapi({ type: 'string', format: 'binary', description: 'CSV file to import' }),
-							tableId: z.string().optional().openapi({ description: 'Table ID for lookup tables' }),
-							importedBy: z.string().openapi({ description: 'User importing the data', example: 'admin' })
-						})
-					}
-				}
-			},
-			responses: {
-				'200': {
-					description: 'Import processed successfully',
-					content: {
-						'application/json': {
-							schema: ImportResponseSchema
-						}
-					}
-				},
-			}
-		}
-	}
-};
-
-export const importAPISpecs = {
-	...importProcessSpec
-};
 
 export default router;
