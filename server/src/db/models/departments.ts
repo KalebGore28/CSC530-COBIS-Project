@@ -9,8 +9,6 @@ import { user } from "./betterAuth";
 export const departments = sqliteTable("departments", {
 	code: text("code").primaryKey(),
 	description: text("description").notNull(),
-	prefixes: text("prefixes"),
-	canvas_id: text("canvas_id"),
 	college: text("college").notNull().default("0").references(() => colleges.code),
 });
 

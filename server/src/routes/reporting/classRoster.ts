@@ -70,7 +70,7 @@ router.get('/class-roster', async (req: Request, res: Response) => {
 			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber))
 			.where(
 				and(
-					eq(instructorCourses.instructor_mnumber, instructorMNumber as string),
+					eq(instructorCourses.mnumber, instructorMNumber as string),
 					eq(instructorCourses.term, termCode as string),
 					eq(instructorCourses.year, yearInt)
 				)

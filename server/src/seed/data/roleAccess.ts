@@ -18,8 +18,6 @@ export const roleAccessDefinitions = {
         departments: [
             'code',
             'description',
-            'prefixes',
-            'canvas_id',
             'college'
         ],
         instructor_courses: [

@@ -45,6 +45,7 @@ router.get('/student-lookup', async (req: Request, res: Response) => {
 				mnumber: students.mnumber,
 				first_name: students.first_name,
 				last_name: students.last_name,
+				email: students.email,
 			})
 			.from(students)
 			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber));

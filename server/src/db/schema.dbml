@@ -52,8 +52,6 @@ table courses {
 table departments {
   code text [pk, not null]
   description text [not null]
-  prefixes text
-  canvas_id text
   college text [not null, default: '0']
 }
 
@@ -87,6 +85,12 @@ table instructor_courses {
     (mnumber, term, crn) [pk]
     
   }
+}
+
+table instructors {
+  mnumber text [pk, not null]
+  first_name text [not null]
+  last_name text [not null]
 }
 
 table nations {
@@ -285,6 +289,7 @@ table students {
   residency_description text [not null]
   age integer [not null]
   cell_phone text [not null]
+  email text [not null]
 }
 
 table terms {

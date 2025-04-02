@@ -227,7 +227,8 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "residcode", dbColumn: "residency_code" },
 					{ csvColumn: "residdesc", dbColumn: "residency_description" },
 					{ csvColumn: "age", dbColumn: "age", transform: (value) => Number(value) },
-					{ csvColumn: "cellphone", dbColumn: "cell_phone" }
+					{ csvColumn: "cellphone", dbColumn: "cell_phone" },
+					{ csvColumn: "msuemail", dbColumn: "email" }
 				]
 			},
 			{
@@ -354,7 +355,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				primaryKeys: ["mnumber", "term", "year", "crn"],
 				schemaRef: schema.instructorCourses,
 				columnMappings: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "crn", dbColumn: "crn" },
@@ -363,6 +364,22 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "section", dbColumn: "section" },
 				]
 
+			},
+			{
+				/**
+				 * This table exists solely to be as a fallback for instructor names.
+				 * Why: If an instructor has not signed in to the system before, their name will not be in the
+				 * user table. This table is used to store instructor names for those instructors.
+				 */
+				tableName: "Instructors",
+				tableId: "instructors",
+				primaryKeys: ["mnumber"],
+				schemaRef: schema.instructors,
+				columnMappings: [
+					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
+					{ csvColumn: "instfirstnm", dbColumn: "first_name" },
+					{ csvColumn: "instlastnm", dbColumn: "last_name" }
+				]
 			}
 		]
 	},
@@ -530,8 +547,6 @@ export const csvFileMappings: CsvFileMapping[] = [
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" },
-					{ csvColumn: "prefixes", dbColumn: "prefixes", transform: (value) => value === 'NULL' ? null : value },
-					{ csvColumn: "canvas_id", dbColumn: "canvas_id", transform: (value) => value === 'NULL' ? null : value },
 					{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
 				]
 			}

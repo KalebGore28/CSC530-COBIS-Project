@@ -25,6 +25,7 @@ export const students = sqliteTable("students", {
 	residency_description: text("residency_description").notNull(),
 	age: int("age").notNull(),
 	cell_phone: text("cell_phone").notNull(),
+	email: text("email").notNull(),
 });
 
 export const studentsRelations = relations(students, ({ many }) => ({

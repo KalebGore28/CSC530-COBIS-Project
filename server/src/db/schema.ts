@@ -9,6 +9,7 @@ import * as departments from './models/departments';
 import * as imports from './models/imports';
 import * as instructionalMethods from './models/instructional-methods';
 import * as instructorCourses from './models/instructor-courses';
+import * as instructors from './models/instructors';
 import * as nations from './models/nations';
 import * as overrides from './models/overrides';
 import * as partOfTerm from './models/part-of-term';
@@ -39,6 +40,7 @@ export * from './models/departments';
 export * from './models/imports';
 export * from './models/instructional-methods';
 export * from './models/instructor-courses';
+export * from './models/instructors';
 export * from './models/nations';
 export * from './models/overrides';
 export * from './models/part-of-term';
@@ -70,6 +72,7 @@ export const schema = {
 	imports,
 	instructionalMethods,
 	instructorCourses,
+	instructors,
 	nations,
 	overrides,
 	partOfTerm,

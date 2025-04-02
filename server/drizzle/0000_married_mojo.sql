@@ -33,8 +33,6 @@ CREATE TABLE `courses` (
 CREATE TABLE `departments` (
 	`code` text PRIMARY KEY NOT NULL,
 	`description` text NOT NULL,
-	`prefixes` text,
-	`canvas_id` text,
 	`college` text DEFAULT '0' NOT NULL,
 	FOREIGN KEY (`college`) REFERENCES `colleges`(`code`) ON UPDATE no action ON DELETE no action
 );
@@ -57,11 +55,7 @@ CREATE TABLE `instructional_methods` (
 );
 --> statement-breakpoint
 CREATE TABLE `instructor_courses` (
-<<<<<<<< HEAD:server/drizzle/0000_nosy_squadron_sinister.sql
 	`mnumber` text NOT NULL,
-========
-	`instructor_mnumber` text NOT NULL,
->>>>>>>> main:server/drizzle/0000_nice_maelstrom.sql
 	`term` text NOT NULL,
 	`year` integer NOT NULL,
 	`crn` text NOT NULL,
@@ -69,14 +63,15 @@ CREATE TABLE `instructor_courses` (
 	`course_number` text NOT NULL,
 	`course_suffix` text DEFAULT '' NOT NULL,
 	`role` text DEFAULT 'Instructor' NOT NULL,
-<<<<<<<< HEAD:server/drizzle/0000_nosy_squadron_sinister.sql
 	PRIMARY KEY(`mnumber`, `term`, `crn`),
-========
-	PRIMARY KEY(`instructor_mnumber`, `term`, `year`, `course_subject`, `course_number`, `course_suffix`),
-	FOREIGN KEY (`instructor_mnumber`) REFERENCES `user`(`mnumber`) ON UPDATE no action ON DELETE no action,
->>>>>>>> main:server/drizzle/0000_nice_maelstrom.sql
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
+);
+--> statement-breakpoint
+CREATE TABLE `instructors` (
+	`mnumber` text PRIMARY KEY NOT NULL,
+	`first_name` text NOT NULL,
+	`last_name` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `nations` (
@@ -264,7 +259,8 @@ CREATE TABLE `students` (
 	`residency_code` text NOT NULL,
 	`residency_description` text NOT NULL,
 	`age` integer NOT NULL,
-	`cell_phone` text NOT NULL
+	`cell_phone` text NOT NULL,
+	`email` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `terms` (

@@ -23,6 +23,8 @@ export interface AuthenticatedRequest extends Request {
 		image?: string | null | undefined;
 		createdAt: Date;
 		updatedAt: Date;
+		department: string | null;
+		college: string | null;
 	};
 }
 

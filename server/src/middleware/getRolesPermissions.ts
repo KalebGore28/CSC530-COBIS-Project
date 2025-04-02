@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest, AuthAndPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
 import { eq, and } from 'drizzle-orm';
-import { roles, permissions, userRoles, userPermissions, rolePermissions } from '../db/schema';
+import { roles, permissions, userRoles, userPermissions, rolePermissions, user } from '../db/schema';
 
 
 /**
@@ -84,9 +84,23 @@ export const getRolesPermissions = async (
 
 		const allPermissions = Array.from(permissionMap.values());
 
+		// get user department and college
+		const userInfo = await orm
+			.select({
+				department: user.department,
+				college: user.college,
+			})
+			.from(user)
+			.where(eq(user.id, userId))
+			.execute();
+
+		console.log('User Info:', userInfo);
+
 		// Attach to request
 		(req as AuthAndPermissionsRequest).permissions = allPermissions;
 		(req as AuthAndPermissionsRequest).roles = allUserRoles;
+		(req as AuthAndPermissionsRequest).user.department = userInfo[0].department;
+		(req as AuthAndPermissionsRequest).user.college = userInfo[0].college;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);
