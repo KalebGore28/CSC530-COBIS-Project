@@ -347,11 +347,25 @@ export const instructorRouterSpec = {
 			description: 'Get class roster for a specific course taught by an instructor',
 			parameters: [
 				{
-					name: 'crn',
+					name: 'subject',
 					in: 'query',
 					required: true,
-					schema: z.number(),
-					description: 'Course Reference Number (CRN)'
+					schema: z.string(),
+					description: 'Course subject code (e.g., CSC, MTH)'
+				},
+				{
+					name: 'number',
+					in: 'query',
+					required: true,
+					schema: z.string(),
+					description: 'Course number (e.g., 101, 330)'
+				},
+				{
+					name: 'suffix',
+					in: 'query',
+					required: false,
+					schema: z.string().optional(),
+					description: 'Course suffix (optional)'
 				},
 				{
 					name: 'term',
@@ -375,8 +389,10 @@ export const instructorRouterSpec = {
 						'application/json': {
 							schema: z.object({
 								course: z.object({
-									crn: z.number(),
 									courseId: z.string(),
+									courseSubject: z.string(),
+									courseNumber: z.string(),
+									courseSuffix: z.string(),
 									courseTitle: z.string(),
 									termCode: z.string(),
 									termName: z.string(),
@@ -388,11 +404,20 @@ export const instructorRouterSpec = {
 									mnumber: z.string(),
 									name: z.string(),
 									firstName: z.string(),
+									middleName: z.string(),
 									lastName: z.string(),
+									suffix: z.string(),
 									email: z.string().optional(),
 									major: z.string(),
+									department: z.string(),
+									college: z.string(),
 									creditHours: z.number(),
-									grade: z.string()
+									finalGrade: z.string(),
+									midtermGrade: z.string(),
+									registrationStatus: z.string(),
+									lastAttendance: z.string().optional(),
+									overallGpa: z.number(),
+									earnedHours: z.number()
 								})),
 								stats: z.object({
 									totalStudents: z.number(),
@@ -437,6 +462,7 @@ export const instructorRouterSpec = {
 			}
 		}
 	}
+
 };
 
 export default router;

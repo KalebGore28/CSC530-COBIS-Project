@@ -220,18 +220,20 @@ export class InstructorController {
 	static async getClassRoster(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
-			const { crn, term, year } = req.query;
+			const { subject, number, suffix, term, year } = req.query;
 
 			// Validate required parameters
-			if (!crn || !term || !year) {
+			if (!subject || !number || !term || !year) {
 				res.status(400).json({
-					error: 'Missing required parameters. Please provide crn, term, and year.'
+					error: 'Missing required parameters. Please provide subject, number, term, and year.'
 				});
 				return;
 			}
 
 			// Parse and validate parameters
-			const crnStr = crn as string;
+			const courseSubject = subject as string;
+			const courseNumber = number as string;
+			const courseSuffix = (suffix as string) || ''; // Default to empty string if not provided
 			const termCode = term as string;
 			const yearNum = parseInt(year as string);
 
@@ -249,7 +251,9 @@ export class InstructorController {
 			// Get class roster
 			const classRoster = await InstructorsService.getClassRoster(
 				mnumber,
-				crnStr,
+				courseSubject,
+				courseNumber,
+				courseSuffix,
 				termCode,
 				yearNum
 			);

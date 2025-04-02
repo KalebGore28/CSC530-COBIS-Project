@@ -528,12 +528,15 @@ export class InstructorsService {
 		};
 	}
 
+
 	/**
- * Get class roster for a specific course taught by an instructor
- */
+	 * Get class roster for a specific course taught by an instructor
+	 */
 	static async getClassRoster(
 		mnumber: string,
-		crn: string, // Updated to string to match schema
+		courseSubject: string,
+		courseNumber: string,
+		courseSuffix: string,
 		termCode: string,
 		year: number
 	) {
@@ -546,7 +549,9 @@ export class InstructorsService {
 			.where(
 				and(
 					eq(instructorCourses.mnumber, mnumber),
-					eq(instructorCourses.crn, crn),
+					eq(instructorCourses.course_subject, courseSubject),
+					eq(instructorCourses.course_number, courseNumber),
+					eq(instructorCourses.course_suffix, courseSuffix),
 					eq(instructorCourses.term, termCode),
 					eq(instructorCourses.year, year)
 				)
@@ -571,7 +576,9 @@ export class InstructorsService {
 				and(
 					eq(instructorCourses.course_subject, studentCourses.course_subject),
 					eq(instructorCourses.course_number, studentCourses.course_number),
-					eq(instructorCourses.course_suffix, studentCourses.course_suffix)
+					eq(instructorCourses.course_suffix, studentCourses.course_suffix),
+					eq(instructorCourses.term, studentCourses.term),
+					eq(instructorCourses.year, studentCourses.year)
 				)
 			)
 			.leftJoin(
@@ -585,7 +592,9 @@ export class InstructorsService {
 			.where(
 				and(
 					eq(instructorCourses.mnumber, mnumber),
-					eq(instructorCourses.crn, crn),
+					eq(instructorCourses.course_subject, courseSubject),
+					eq(instructorCourses.course_number, courseNumber),
+					eq(instructorCourses.course_suffix, courseSuffix),
 					eq(instructorCourses.term, termCode),
 					eq(instructorCourses.year, year)
 				)
@@ -623,13 +632,16 @@ export class InstructorsService {
 			.leftJoin(studentAcademicInfo, eq(studentCourses.mnumber, studentAcademicInfo.mnumber))
 			.where(
 				and(
-					eq(studentCourses.crn, crn),
+					eq(studentCourses.course_subject, courseSubject),
+					eq(studentCourses.course_number, courseNumber),
+					eq(studentCourses.course_suffix, courseSuffix),
 					eq(studentCourses.term, termCode),
 					eq(studentCourses.year, year)
 				)
 			)
 			.orderBy(students.last_name, students.first_name);
 
+		// Rest of the method remains the same...
 		// Get student majors (separate query since we need to handle multiple programs per student)
 		const studentIds = studentsRaw.map(student => student.mnumber);
 
@@ -736,7 +748,7 @@ export class InstructorsService {
 		});
 
 		// Format course ID
-		const courseId = `${courseDetails[0].courseSubject}${courseDetails[0].courseNumber}${courseDetails[0].courseSuffix || ''}`;
+		const courseId = `${courseSubject}${courseNumber}${courseSuffix || ''}`;
 
 		// Determine term name
 		const termName = this.termNameMap[termCode] || 'UNKNOWN';
@@ -744,8 +756,10 @@ export class InstructorsService {
 		// Format the final response
 		return {
 			course: {
-				crn,
 				courseId,
+				courseSubject,
+				courseNumber,
+				courseSuffix,
 				courseTitle: courseDetails[0].courseTitle || 'UNKNOWN',
 				termCode,
 				termName,
@@ -762,5 +776,6 @@ export class InstructorsService {
 			}
 		};
 	}
+
 
 }
