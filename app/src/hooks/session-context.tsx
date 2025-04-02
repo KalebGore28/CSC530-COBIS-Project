@@ -20,11 +20,11 @@ export interface Session {
     createdAt: Date;
     updatedAt: Date;
     image?: string | undefined;
-    department?: string;
-		college?: string;
   };
   roles: { role_id: number; role_name: string }[] | [];
   permissions: { table_name: string; column_name: string }[] | [];
+  department: string | null;
+  college: string | null;
   mnumber: string | null;
   is_enabled: boolean;
 }

@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import { csvFileMappings, getAllDestinationTables } from '../../services/columnMappingService';
 
-
 /**
  * Get all available import tables with their metadata
  * @route GET /api/import/tables

@@ -23,8 +23,6 @@ export interface AuthenticatedRequest extends Request {
 		image?: string | null | undefined;
 		createdAt: Date;
 		updatedAt: Date;
-		department: string | null;
-		college: string | null;
 	};
 }
 
@@ -35,4 +33,8 @@ export interface AuthenticatedRequest extends Request {
 export interface AuthAndPermissionsRequest extends AuthenticatedRequest {
 	permissions: { table_name: string; column_name: string }[];
 	roles: { role_id: number; role_name: string }[];
+	department: string | null;
+	college: string | null;
+	mnumber: string | null;
+	is_enabled: boolean;
 }

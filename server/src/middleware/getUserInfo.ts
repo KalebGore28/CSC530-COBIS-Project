@@ -2,7 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest, AuthAndPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
 import { eq, and } from 'drizzle-orm';
-import { roles, permissions, userRoles, userPermissions, rolePermissions, user } from '../db/schema';
+import {
+	roles,
+	permissions,
+	userRoles,
+	userPermissions,
+	rolePermissions,
+	user,
+	instructors,
+} from '../db/schema';
 
 
 /**
@@ -10,23 +18,37 @@ import { roles, permissions, userRoles, userPermissions, rolePermissions, user }
  * Permissions are attached as an array of objects with table_name and column_name properties.
  * Roles are attached as an array of objects with role_id and role_name properties.
  */
-export const getRolesPermissions = async (
+export const getUserInfo = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 	minLevel: number = 1
 ) => {
 	try {
+		// Get the database connection
+		const db = (await getDbConnection()).orm;
+
 		const userId = (req as AuthenticatedRequest).user.id;
 		if (!userId) {
 			res.status(401).json({ error: 'Unauthorized: User not authenticated' });
 			return;
 		}
 
-		const { orm } = await getDbConnection();
+		// 1. Get user information
+		const userData = await db
+			.select({
+				mnumber: user.mnumber,
+				is_enabled: user.isEnabled,
+			})
+			.from(user)
+			.where(eq(user.id, userId))
+			.execute();
 
-		// 1. Get permissions from roles
-		const rolePermissionsResult = await orm
+		const userMnumber = userData[0]?.mnumber;
+		const userIsEnabled = userData[0]?.is_enabled;
+
+		// 2. Get permissions from roles
+		const rolePermissionsResult = await db
 			.select({
 				table_name: permissions.table_name,
 				column_name: permissions.column_name,
@@ -43,8 +65,8 @@ export const getRolesPermissions = async (
 			.where(eq(userRoles.user_id, userId))
 			.execute();
 
-		// 2. Get direct user permissions
-		const directPermissionsResult = await orm
+		// 3. Get direct user permissions
+		const directPermissionsResult = await db
 			.select({
 				table_name: permissions.table_name,
 				column_name: permissions.column_name,
@@ -60,8 +82,8 @@ export const getRolesPermissions = async (
 			.where(eq(userPermissions.user_id, userId))
 			.execute();
 
-		// 3. Get user roles and their names
-		const allUserRoles = await orm
+		// 4. Get user roles and their names
+		const allUserRoles = await db
 			.select({
 				role_id: userRoles.role_id,
 				role_name: roles.name,
@@ -71,7 +93,7 @@ export const getRolesPermissions = async (
 			.where(eq(userRoles.user_id, userId))
 			.execute();
 
-		// 4. Combine permissions, ensuring no duplicates
+		// 5. Combine permissions, ensuring no duplicates
 		const permissionMap = new Map<string, { table_name: string; column_name: string }>();
 		rolePermissionsResult.forEach((perm: any) => {
 			const key = `${perm.table_name}.${perm.column_name}`;
@@ -84,23 +106,26 @@ export const getRolesPermissions = async (
 
 		const allPermissions = Array.from(permissionMap.values());
 
-		// get user department and college
-		const userInfo = await orm
+		// get user department and college by using their mnumber and getting it from the instructors table
+		const userInfo = await db
 			.select({
-				department: user.department,
-				college: user.college,
+				department: instructors.department,
+				college: instructors.college,
 			})
-			.from(user)
-			.where(eq(user.id, userId))
+			.from(instructors)
+			.where(eq(instructors.mnumber, userData[0]?.mnumber ?? ''))
 			.execute();
 
-		console.log('User Info:', userInfo);
+		const departmentCode = userInfo[0]?.department;
+		const collegeCode = userInfo[0]?.college;
 
 		// Attach to request
 		(req as AuthAndPermissionsRequest).permissions = allPermissions;
 		(req as AuthAndPermissionsRequest).roles = allUserRoles;
-		(req as AuthAndPermissionsRequest).user.department = userInfo[0].department;
-		(req as AuthAndPermissionsRequest).user.college = userInfo[0].college;
+		(req as AuthAndPermissionsRequest).department = departmentCode;
+		(req as AuthAndPermissionsRequest).college = collegeCode;
+		(req as AuthAndPermissionsRequest).mnumber = userMnumber;
+		(req as AuthAndPermissionsRequest).is_enabled = userIsEnabled;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);

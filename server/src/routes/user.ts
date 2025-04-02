@@ -10,33 +10,23 @@ import { user } from "../db/schema";
 import { eq } from "drizzle-orm";
 import { AuthAndPermissionsRequest } from "../types/requests";
 
-import { authenticateUser } from "../middleware/authenticateUser";
-import { getRolesPermissions } from "../middleware/getRolesPermissions";
 
 const router = express.Router();
-router.use(authenticateUser);
-router.use(getRolesPermissions);
+
 router.get("/me", async (req: Request, res: Response) => {
 	const db = (await getDbConnection()).orm;
 	const session = await auth.api.getSession({
 		headers: fromNodeHeaders(req.headers),
 	});
 	if (session) {
-		// Fetch the user data from the database using the session's user ID
-		const userData = await db
-			.select({
-				mnumber: user.mnumber,
-				is_enabled: user.isEnabled,
-			})
-			.from(user)
-			.where(eq(user.id, session.user.id))
-			.then((results) => results[0]);
 
 		// Attach properties to the session object
 		session.roles = (req as AuthAndPermissionsRequest).roles || [];
 		session.permissions = (req as AuthAndPermissionsRequest).permissions || [];
-		session.mnumber = userData?.mnumber || null;
-		session.is_enabled = userData?.is_enabled || false;
+		session.department = (req as AuthAndPermissionsRequest).department || null;
+		session.college = (req as AuthAndPermissionsRequest).college || null;
+		session.mnumber = (req as AuthAndPermissionsRequest).mnumber || null;
+		session.isEnabled = (req as AuthAndPermissionsRequest).isEnabled || null;
 	}
 	res.json(session);
 	return;

@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import { getDestinationByTableId } from '../../services/columnMappingService';
 
-
 interface ValidateColumnsRequest {
 	tableId: string;
 	csvHeaders: string[];

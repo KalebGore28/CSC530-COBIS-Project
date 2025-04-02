@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express from 'express';
 import totalCreditHours, { creditHoursSpec } from './reporting/totalCreditHours';
 import studentCourseRequirements, { studentCourseRequirementSpec } from './reporting/studentCourseRequirements';
 import classRoster, { classRosterSpec } from './reporting/classRoster';

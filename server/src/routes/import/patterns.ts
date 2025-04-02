@@ -1,4 +1,3 @@
-// File: src/routes/import/patterns.ts
 import express, { Request, Response } from 'express';
 import { csvFileMappings } from '../../services/columnMappingService';
 

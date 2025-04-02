@@ -12,7 +12,7 @@ import { createDocument } from 'zod-openapi';
 
 // Middleware
 import { authenticateUser } from './middleware/authenticateUser';
-import { getRolesPermissions } from './middleware/getRolesPermissions';
+import { getUserInfo } from './middleware/getUserInfo';
 
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importRoutesAPISpecs } from "./routes/imports";
@@ -21,6 +21,7 @@ import reportingRoute, { reportingSpecs } from "./routes/reporting";
 import searchRoute, { searchSpecs } from "./routes/search";
 import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 import customQuery from "./routes/customQueries";
+import instructorRouter from "./routes/instructor";
 
 
 // Create an OpenAPI document
@@ -61,13 +62,14 @@ app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 app.use(authenticateUser)
-app.use(getRolesPermissions)
+app.use(getUserInfo)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/reporting", reportingRoute)
 app.use("/api/search", searchRoute)
 app.use("/api", studentLookup)
 app.use('/api/custom-query', customQuery)
+app.use("/api/instructor", instructorRouter)
 
 // // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
 // const appDir = typeof __dirname === 'undefined' ? path.resolve() : __dirname;
