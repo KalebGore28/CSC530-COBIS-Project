@@ -11,8 +11,8 @@ interface FileUploadProps {
   disabled?: boolean;
 }
 
-export const FileUpload: React.FC<FileUploadProps> = ({ 
-  onFileChange, 
+export const FileUpload: React.FC<FileUploadProps> = ({
+  onFileChange,
   onClearFile,
   file,
   disabled = false
@@ -30,25 +30,25 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   return (
     <div className="mb-6">
       <label className="block mb-2 text-sm font-medium">Upload CSV File</label>
-      
+
       {!file ? (
         // File selection UI when no file is selected
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-          <Input 
+          <Input
             ref={fileInputRef}
-            type="file" 
-            accept=".csv" 
+            type="file"
+            accept=".csv"
             onChange={onFileChange}
             className="hidden" // Hide the actual input
             disabled={disabled}
           />
-          
+
           <div className="flex flex-col items-center gap-2">
             <Upload className="h-8 w-8 text-gray-400" />
             <p className="text-sm text-gray-600">Drag and drop a CSV file, or</p>
-            <Button 
+            <Button
               type="button"
-              variant="outline" 
+              variant="outline"
               onClick={handleClickChangeFile}
               disabled={disabled}
             >
@@ -68,7 +68,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               </p>
             </div>
           </div>
-          
+
           <div className="flex gap-2">
             <Button
               type="button"
@@ -80,7 +80,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             >
               Change File
             </Button>
-            
+
             <Button
               type="button"
               variant="outline"
@@ -92,12 +92,12 @@ export const FileUpload: React.FC<FileUploadProps> = ({
               <X className="h-4 w-4" /> Clear
             </Button>
           </div>
-          
+
           {/* Hidden input for changing file */}
-          <Input 
+          <Input
             ref={fileInputRef}
-            type="file" 
-            accept=".csv" 
+            type="file"
+            accept=".csv"
             onChange={onFileChange}
             className="hidden"
             disabled={disabled}

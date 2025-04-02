@@ -39,8 +39,8 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-semibold">Select Destination Table</h3>
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium">Select Destination Table</h3>
         {isDataTable && selectedTable && (
           <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
             <Database className="h-3 w-3 mr-1" /> Data Table

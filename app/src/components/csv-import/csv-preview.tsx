@@ -44,7 +44,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
           <TableHeader>
             <TableRow>
               <TableHead className="w-12">#</TableHead>
-              {headers.map((header, index) => (
+              {headers.map((header, index) => ( // <-- issue here
                 <TableHead key={index}>{header}</TableHead>
               ))}
             </TableRow>
