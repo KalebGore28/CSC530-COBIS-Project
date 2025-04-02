@@ -3,6 +3,19 @@ import { z } from 'zod';
 import 'zod-openapi/extend';
 import { InstructorController } from '../controllers/instructor-controller';
 
+/**
+ * Instructor routes
+ * @module routes/instructor
+ * @requires express
+ * @requires zod
+ * @requires zod-openapi/extend
+ * @requires ../controllers/instructor-controller
+ * @description This module defines the routes for instructor-related endpoints.
+ * It includes routes for fetching basic instructor information, current teaching status,
+ * teaching summary, course details, and term summaries.
+ * The routes are protected by access control checks.
+ * The OpenAPI specification for these routes is also defined in this module.
+ */
 const router = express.Router();
 
 // Basic instructor information
