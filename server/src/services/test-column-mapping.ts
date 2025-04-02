@@ -3,7 +3,7 @@ import {
 	findMappingsForFilename,
 	mapCsvRowToDbRow,
 	mapCsvDataToDbData
-} from './columnMappingService';
+} from './column-mapping-service';
 
 // Test various file imports
 const testImports = () => {

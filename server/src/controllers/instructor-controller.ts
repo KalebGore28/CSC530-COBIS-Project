@@ -165,4 +165,52 @@ export class InstructorController {
 			return
 		}
 	}
+
+	/**
+	 * Get credit hours data for an instructor
+	 */
+	static async getCreditHoursData(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const { term, year, startYear, endYear } = req.query;
+
+			if (!(await InstructorsService.instructorExists(mnumber))) {
+				res.status(404).json({ error: 'Instructor not found' });
+				return;
+			}
+
+			// Parse query parameters
+			const termCode = term as string | undefined;
+			const yearNum = year ? parseInt(year as string) : undefined;
+			const startYearNum = startYear ? parseInt(startYear as string) : undefined;
+			const endYearNum = endYear ? parseInt(endYear as string) : undefined;
+
+			// Validate year parameters if provided
+			if (year && isNaN(yearNum as number)) {
+				res.status(400).json({ error: 'Invalid year parameter' });
+				return;
+			}
+
+			if ((startYear && isNaN(startYearNum as number)) || (endYear && isNaN(endYearNum as number))) {
+				res.status(400).json({ error: 'Invalid year range parameters' });
+				return;
+			}
+
+			// Get credit hours data
+			const creditHoursData = await InstructorsService.getCreditHoursData(
+				mnumber,
+				termCode,
+				yearNum,
+				startYearNum,
+				endYearNum
+			);
+
+			res.json(creditHoursData);
+			return;
+		} catch (error) {
+			console.error('Error fetching credit hours data:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
 }

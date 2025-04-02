@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { getDestinationByTableId } from '../../services/columnMappingService';
+import { getDestinationByTableId } from '../../services/column-mapping-service';
 
 interface ValidateColumnsRequest {
 	tableId: string;

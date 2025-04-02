@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { csvFileMappings, getAllDestinationTables } from '../../services/columnMappingService';
+import { csvFileMappings, getAllDestinationTables } from '../../services/column-mapping-service';
 
 /**
  * Get all available import tables with their metadata
@@ -13,14 +13,14 @@ router.get('/tables', async (req: Request, res: Response) => {
   try {
     // Get all destination tables
     const allTables = getAllDestinationTables();
-    
+
     // Transform into a more frontend-friendly format
     const tables = allTables.map(table => {
       // Find the parent mapping to determine if data or lookup table
-      const parentMapping = csvFileMappings.find(mapping => 
+      const parentMapping = csvFileMappings.find(mapping =>
         mapping.destinations.some(dest => dest.tableId === table.tableId)
       );
-      
+
       return {
         tableName: table.tableName,
         tableId: table.tableId,
@@ -42,7 +42,7 @@ router.get('/tables', async (req: Request, res: Response) => {
     // Split into data tables and lookup tables for convenience
     const dataTables = tables.filter(t => t.category === 'data');
     const lookupTables = tables.filter(t => t.category === 'lookup');
-    
+
     res.json({
       tables,
       dataTables,
@@ -51,9 +51,9 @@ router.get('/tables', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Error fetching import tables:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       error: 'Error fetching import tables',
-      message: error.message 
+      message: error.message
     });
   }
 });

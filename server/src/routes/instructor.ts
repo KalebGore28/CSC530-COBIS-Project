@@ -48,6 +48,12 @@ router.get('/:mnumber/terms',
 	InstructorController.getTermSummaries
 );
 
+// Credit hours data
+router.get('/:mnumber/credit-hours',
+	InstructorController.checkAccess,
+	InstructorController.getCreditHoursData
+);
+
 // OpenAPI Specification
 export const instructorRouterSpec = {
 	'/api/instructor/{mnumber}': {
@@ -119,7 +125,6 @@ export const instructorRouterSpec = {
 			}
 		}
 	},
-
 	'/api/instructor/{mnumber}/teaching-summary': {
 		get: {
 			tags: ['Instructor'],
@@ -216,6 +221,103 @@ export const instructorRouterSpec = {
 								studentCount: z.number(),
 								creditHoursDelivered: z.number()
 							}))
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/instructor/{mnumber}/credit-hours': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorCreditHours',
+			description: 'Get credit hours data for an instructor with optional term/year filtering',
+			parameters: [
+				{
+					name: 'term',
+					in: 'query',
+					required: false,
+					schema: z.string().optional(),
+					description: 'Filter by term code'
+				},
+				{
+					name: 'year',
+					in: 'query',
+					required: false,
+					schema: z.number().optional(),
+					description: 'Filter by academic year'
+				},
+				{
+					name: 'startYear',
+					in: 'query',
+					required: false,
+					schema: z.number().optional(),
+					description: 'Start year for multi-year analysis'
+				},
+				{
+					name: 'endYear',
+					in: 'query',
+					required: false,
+					schema: z.number().optional(),
+					description: 'End year for multi-year analysis'
+				}
+			],
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								overallStats: z.object({
+									totalCoursesTaught: z.number(),
+									totalCreditHoursGenerated: z.number(),
+									averageCreditHoursPerTerm: z.number(),
+									maxCreditHoursInTerm: z.number()
+								}),
+								termSummaries: z.array(z.object({
+									term: z.string(),
+									termCode: z.string(),
+									year: z.number(),
+									courseCount: z.number(),
+									totalStudents: z.number(),
+									totalCreditHours: z.number()
+								})),
+								courseDetails: z.array(z.object({
+									term: z.string(),
+									termCode: z.string(),
+									year: z.number(),
+									crn: z.number(),
+									courseId: z.string(),
+									courseTitle: z.string(),
+									creditHours: z.number(),
+									studentCount: z.number(),
+									totalCreditHours: z.number()
+								})),
+								topCreditGeneratingCourses: z.array(z.object({
+									course: z.string(),
+									creditHours: z.number()
+								}))
+							})
+						}
+					}
+				},
+				'400': {
+					description: 'Bad Request - Invalid parameters',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
 						}
 					}
 				},

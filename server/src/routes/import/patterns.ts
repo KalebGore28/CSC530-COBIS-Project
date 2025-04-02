@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import { csvFileMappings } from '../../services/columnMappingService';
+import { csvFileMappings } from '../../services/column-mapping-service';
 
 
 /**

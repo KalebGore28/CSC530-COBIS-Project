@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, max, count, sum } from 'drizzle-orm';
+import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
 	instructors,
@@ -363,5 +363,165 @@ export class InstructorsService {
 			studentCount: term.studentCount || 0,
 			creditHoursDelivered: Number(term.creditHoursDelivered || 0)
 		}));
+	}
+
+	/**
+	 * Get credit hours data for an instructor
+	 * Filters data by term and/or year if provided
+	 */
+	static async getCreditHoursData(
+		mnumber: string,
+		termCode?: string,
+		year?: number,
+		startYear?: number,
+		endYear?: number
+	) {
+		const db = (await getDbConnection()).orm;
+
+		// Base query conditions - explicitly type the array
+		const conditions: SQL<unknown>[] = [eq(instructorCourses.mnumber, mnumber)];
+
+		// Add filters if provided
+		if (termCode) {
+			conditions.push(eq(instructorCourses.term, termCode));
+		}
+
+		if (year !== undefined) {
+			conditions.push(eq(instructorCourses.year, year));
+		} else if (startYear !== undefined && endYear !== undefined) {
+			// Create year range condition without directly pushing to conditions
+			const yearRangeCondition = and(
+				gte(instructorCourses.year, startYear),
+				lte(instructorCourses.year, endYear)
+			);
+			if (yearRangeCondition !== undefined) {
+				conditions.push(yearRangeCondition);
+			}
+		}
+
+		// Get detailed course credit hour data
+		const courseDetailQuery = await db
+			.select({
+				term: instructorCourses.term,
+				year: instructorCourses.year,
+				crn: instructorCourses.crn,
+				courseSubject: instructorCourses.course_subject,
+				courseNumber: instructorCourses.course_number,
+				courseSuffix: instructorCourses.course_suffix,
+				courseTitle: courses.title,
+				creditHours: studentCourses.course_hours,
+				studentCount: count(), // Fixed: removed parameter
+			})
+			.from(instructorCourses)
+			.leftJoin(
+				courses,
+				and(
+					eq(instructorCourses.course_subject, courses.subject),
+					eq(instructorCourses.course_number, courses.number),
+					eq(instructorCourses.course_suffix, courses.suffix)
+				)
+			)
+			.leftJoin(
+				studentCourses,
+				and(
+					eq(instructorCourses.crn, studentCourses.crn),
+					eq(instructorCourses.term, studentCourses.term),
+					eq(instructorCourses.year, studentCourses.year)
+				)
+			)
+			.where(and(...conditions))
+			.groupBy(
+				instructorCourses.term,
+				instructorCourses.year,
+				instructorCourses.crn,
+				instructorCourses.course_subject,
+				instructorCourses.course_number,
+				instructorCourses.course_suffix,
+				courses.title,
+				studentCourses.course_hours
+			)
+			.orderBy(desc(instructorCourses.year), desc(instructorCourses.term));
+
+		// Get term summaries
+		const termSummaryQuery = await db
+			.select({
+				term: instructorCourses.term,
+				year: instructorCourses.year,
+				courseCount: sql`COUNT(DISTINCT ${instructorCourses.crn})`,
+				totalStudents: count(), // Fixed: removed parameter
+				totalCreditHours: sum(studentCourses.course_hours) // Fixed: simplified calculation
+			})
+			.from(instructorCourses)
+			.leftJoin(
+				studentCourses,
+				and(
+					eq(instructorCourses.crn, studentCourses.crn),
+					eq(instructorCourses.term, studentCourses.term),
+					eq(instructorCourses.year, studentCourses.year)
+				)
+			)
+			.where(and(...conditions))
+			.groupBy(instructorCourses.term, instructorCourses.year)
+			.orderBy(desc(instructorCourses.year), desc(instructorCourses.term));
+
+		// Transform course details for response
+		const courseDetails = courseDetailQuery.map(course => {
+			const termName = this.termNameMap[course.term] || 'UNKNOWN';
+			const totalCreditHours = (course.creditHours || 0) * (course.studentCount || 0);
+
+			return {
+				term: termName,
+				termCode: course.term,
+				year: course.year,
+				crn: course.crn,
+				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,
+				courseTitle: course.courseTitle || 'UNKNOWN',
+				creditHours: course.creditHours || 0,
+				studentCount: course.studentCount || 0,
+				totalCreditHours: totalCreditHours
+			};
+		});
+
+		// Transform term summaries for response
+		const termSummaries = termSummaryQuery.map(term => ({
+			term: this.termNameMap[term.term] || 'UNKNOWN',
+			termCode: term.term,
+			year: term.year,
+			courseCount: term.courseCount || 0,
+			totalStudents: term.totalStudents || 0,
+			totalCreditHours: Number(term.totalCreditHours || 0)
+		}));
+
+		// Calculate overall statistics
+		const overallStats = {
+			totalCoursesTaught: courseDetails.length,
+			totalCreditHoursGenerated: termSummaries.reduce((sum, term) => sum + term.totalCreditHours, 0),
+			averageCreditHoursPerTerm: termSummaries.length > 0
+				? Math.round((termSummaries.reduce((sum, term) => sum + term.totalCreditHours, 0) / termSummaries.length) * 10) / 10
+				: 0,
+			maxCreditHoursInTerm: termSummaries.length > 0
+				? Math.max(...termSummaries.map(term => term.totalCreditHours))
+				: 0
+		};
+
+		// Prepare most credit-generating courses
+		const courseCreditMap = new Map();
+		courseDetails.forEach(course => {
+			const key = `${course.courseId}: ${course.courseTitle}`;
+			const current = courseCreditMap.get(key) || 0;
+			courseCreditMap.set(key, current + course.totalCreditHours);
+		});
+
+		const topCreditGeneratingCourses = Array.from(courseCreditMap.entries())
+			.map(([course, credits]) => ({ course, creditHours: credits }))
+			.sort((a, b) => b.creditHours - a.creditHours)
+			.slice(0, 5);
+
+		return {
+			overallStats,
+			termSummaries,
+			courseDetails,
+			topCreditGeneratingCourses
+		};
 	}
 }

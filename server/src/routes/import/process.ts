@@ -9,7 +9,7 @@ import {
 	findMappingsForFilename,
 	findMappingsForLookupTable,
 	mapCsvDataToDbData,
-} from '../../services/columnMappingService';
+} from '../../services/column-mapping-service';
 import * as schema from '../../db/schema';
 
 // Configure multer for file uploads
