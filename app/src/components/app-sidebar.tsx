@@ -6,6 +6,7 @@ import {
 	NotepadText,
 	TerminalSquareIcon,
 	ScanSearch,
+	FileSearch2,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -40,6 +41,11 @@ const data = {
 			title: " Student Lookup",
 			url: "/student-lookup",
 			icon: ScanSearch,
+		},
+		{
+			title: " Professor Lookup",
+			url: "/professor-stats",
+			icon: FileSearch2,
 		},
 		{
 			title: "Reports",

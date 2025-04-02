@@ -57,7 +57,11 @@ CREATE TABLE `instructional_methods` (
 );
 --> statement-breakpoint
 CREATE TABLE `instructor_courses` (
+<<<<<<<< HEAD:server/drizzle/0000_nosy_squadron_sinister.sql
 	`mnumber` text NOT NULL,
+========
+	`instructor_mnumber` text NOT NULL,
+>>>>>>>> main:server/drizzle/0000_nice_maelstrom.sql
 	`term` text NOT NULL,
 	`year` integer NOT NULL,
 	`crn` text NOT NULL,
@@ -65,7 +69,12 @@ CREATE TABLE `instructor_courses` (
 	`course_number` text NOT NULL,
 	`course_suffix` text DEFAULT '' NOT NULL,
 	`role` text DEFAULT 'Instructor' NOT NULL,
+<<<<<<<< HEAD:server/drizzle/0000_nosy_squadron_sinister.sql
 	PRIMARY KEY(`mnumber`, `term`, `crn`),
+========
+	PRIMARY KEY(`instructor_mnumber`, `term`, `year`, `course_subject`, `course_number`, `course_suffix`),
+	FOREIGN KEY (`instructor_mnumber`) REFERENCES `user`(`mnumber`) ON UPDATE no action ON DELETE no action,
+>>>>>>>> main:server/drizzle/0000_nice_maelstrom.sql
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
