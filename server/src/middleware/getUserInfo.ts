@@ -22,7 +22,6 @@ export const getUserInfo = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
-	minLevel: number = 1
 ) => {
 	try {
 		// Get the database connection
@@ -125,7 +124,7 @@ export const getUserInfo = async (
 		(req as AuthAndPermissionsRequest).department = departmentCode;
 		(req as AuthAndPermissionsRequest).college = collegeCode;
 		(req as AuthAndPermissionsRequest).mnumber = userMnumber;
-		(req as AuthAndPermissionsRequest).is_enabled = userIsEnabled;
+		(req as AuthAndPermissionsRequest).isEnabled = userIsEnabled;
 		next();
 	} catch (error: any) {
 		console.error('Error attaching user permissions:', error);

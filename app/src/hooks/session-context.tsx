@@ -26,7 +26,7 @@ export interface Session {
   department: string | null;
   college: string | null;
   mnumber: string | null;
-  is_enabled: boolean;
+  isEnabled: boolean;
 }
 
 // Define the context type

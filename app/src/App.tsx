@@ -31,7 +31,7 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!session.is_enabled) {
+  if (!session.isEnabled) {
     return <WaitingPage />;
   }
 
