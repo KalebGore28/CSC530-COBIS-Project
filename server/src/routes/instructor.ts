@@ -462,7 +462,6 @@ export const instructorRouterSpec = {
 			}
 		}
 	}
-
 };
 
 export default router;
