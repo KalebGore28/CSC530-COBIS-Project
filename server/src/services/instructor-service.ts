@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL } from 'drizzle-orm';
+import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL, inArray } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
 	instructors,
@@ -7,7 +7,10 @@ import {
 	studentCourses,
 	courses,
 	departments,
-	colleges
+	colleges,
+	students,
+	studentPrograms,
+	studentAcademicInfo
 } from '../db/schema';
 
 /**
@@ -524,4 +527,240 @@ export class InstructorsService {
 			topCreditGeneratingCourses
 		};
 	}
+
+	/**
+ * Get class roster for a specific course taught by an instructor
+ */
+	static async getClassRoster(
+		mnumber: string,
+		crn: string, // Updated to string to match schema
+		termCode: string,
+		year: number
+	) {
+		const db = (await getDbConnection()).orm;
+
+		// First verify that the instructor taught this course
+		const taughtCourse = await db
+			.select({ count: count() })
+			.from(instructorCourses)
+			.where(
+				and(
+					eq(instructorCourses.mnumber, mnumber),
+					eq(instructorCourses.crn, crn),
+					eq(instructorCourses.term, termCode),
+					eq(instructorCourses.year, year)
+				)
+			);
+
+		if (!taughtCourse[0] || taughtCourse[0].count === 0) {
+			return null; // Instructor did not teach this course
+		}
+
+		// Get course details
+		const courseDetails = await db
+			.select({
+				courseSubject: instructorCourses.course_subject,
+				courseNumber: instructorCourses.course_number,
+				courseSuffix: instructorCourses.course_suffix,
+				courseTitle: courses.title,
+				crn: instructorCourses.crn,
+				creditHours: studentCourses.course_hours
+			})
+			.from(instructorCourses)
+			.leftJoin(studentCourses,
+				and(
+					eq(instructorCourses.course_subject, studentCourses.course_subject),
+					eq(instructorCourses.course_number, studentCourses.course_number),
+					eq(instructorCourses.course_suffix, studentCourses.course_suffix)
+				)
+			)
+			.leftJoin(
+				courses,
+				and(
+					eq(instructorCourses.course_subject, courses.subject),
+					eq(instructorCourses.course_number, courses.number),
+					eq(instructorCourses.course_suffix, courses.suffix)
+				)
+			)
+			.where(
+				and(
+					eq(instructorCourses.mnumber, mnumber),
+					eq(instructorCourses.crn, crn),
+					eq(instructorCourses.term, termCode),
+					eq(instructorCourses.year, year)
+				)
+			)
+			.limit(1);
+
+		if (courseDetails.length === 0) {
+			return null; // Course not found
+		}
+
+		// Get student information including academic details
+		const studentsRaw = await db
+			.select({
+				// Student base info
+				mnumber: studentCourses.mnumber,
+				firstName: students.first_name,
+				middleName: students.middle_name,
+				lastName: students.last_name,
+				suffix: students.suffix,
+				email: students.email,
+
+				// Course-specific info
+				creditHours: studentCourses.course_hours,
+				finalGrade: studentCourses.final_grade,
+				midtermGrade: studentCourses.midterm_grade,
+				registrationStatus: studentCourses.registration_status,
+				lastAttendance: studentCourses.last_attendance,
+
+				// Academic info
+				overallGpa: studentAcademicInfo.overall_gpa,
+				earnedHours: studentAcademicInfo.overall_earned_hours
+			})
+			.from(studentCourses)
+			.leftJoin(students, eq(studentCourses.mnumber, students.mnumber))
+			.leftJoin(studentAcademicInfo, eq(studentCourses.mnumber, studentAcademicInfo.mnumber))
+			.where(
+				and(
+					eq(studentCourses.crn, crn),
+					eq(studentCourses.term, termCode),
+					eq(studentCourses.year, year)
+				)
+			)
+			.orderBy(students.last_name, students.first_name);
+
+		// Get student majors (separate query since we need to handle multiple programs per student)
+		const studentIds = studentsRaw.map(student => student.mnumber);
+
+		// Get the latest major for each student
+		const studentMajorsRaw = await db
+			.select({
+				mnumber: studentPrograms.mnumber,
+				program: studentPrograms.program,
+				department: departments.description,
+				college: colleges.description,
+				term: studentPrograms.term,
+				year: studentPrograms.year
+			})
+			.from(studentPrograms)
+			.leftJoin(departments, eq(studentPrograms.department, departments.code))
+			.leftJoin(colleges, eq(studentPrograms.college, colleges.code))
+			.where(
+				and(
+					inArray(studentPrograms.mnumber, studentIds),
+					eq(studentPrograms.type, 'MAJOR')
+				)
+			)
+			.orderBy(desc(studentPrograms.year), desc(studentPrograms.term));
+
+		// Create a map of student majors (using only the most recent major for each student)
+		const studentMajorMap = new Map();
+		studentMajorsRaw.forEach(majorInfo => {
+			if (!studentMajorMap.has(majorInfo.mnumber)) {
+				studentMajorMap.set(majorInfo.mnumber, {
+					major: majorInfo.program,
+					department: majorInfo.department,
+					college: majorInfo.college
+				});
+			}
+		});
+
+		// Process student list with majors
+		const studentList = studentsRaw.map(student => {
+			const majorInfo = studentMajorMap.get(student.mnumber) || {
+				major: 'Undeclared',
+				department: 'Undeclared',
+				college: 'Undeclared'
+			};
+
+			// Format name with suffix if present
+			const formattedName = student.suffix
+				? `${student.firstName} ${student.lastName}, ${student.suffix}`
+				: `${student.firstName} ${student.lastName}`;
+
+			return {
+				mnumber: student.mnumber,
+				name: formattedName,
+				firstName: student.firstName,
+				middleName: student.middleName,
+				lastName: student.lastName,
+				suffix: student.suffix,
+				email: student.email,
+				major: majorInfo.major,
+				department: majorInfo.department,
+				college: majorInfo.college,
+				creditHours: student.creditHours || 0,
+				finalGrade: student.finalGrade || 'N/A',
+				midtermGrade: student.midtermGrade || 'N/A',
+				registrationStatus: student.registrationStatus,
+				lastAttendance: student.lastAttendance,
+				overallGpa: student.overallGpa || 0,
+				earnedHours: student.earnedHours || 0
+			};
+		});
+
+		// Calculate class statistics
+		// Grade to GPA conversion
+		const gradeToGpa = {
+			'A': 4.0, 'A-': 3.7,
+			'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+			'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+			'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+			'F': 0.0
+		};
+
+		// Filter out non-graded students for GPA calculation
+		const gradedStudents = studentList.filter(
+			student => student.finalGrade && student.finalGrade in gradeToGpa
+		);
+
+		const totalStudents = studentList.length;
+		const totalGraded = gradedStudents.length;
+
+		// Calculate overall GPA
+		const totalGpaPoints = gradedStudents.reduce((sum, student) => {
+			const gpa = gradeToGpa[student.finalGrade as keyof typeof gradeToGpa] || 0;
+			return sum + gpa;
+		}, 0);
+
+		const overallGpa = totalGraded > 0
+			? Math.round((totalGpaPoints / totalGraded) * 100) / 100
+			: 0;
+
+		// Calculate grade distribution
+		const gradeDistribution: Record<string, number> = {};
+		gradedStudents.forEach(student => {
+			const grade = student.finalGrade;
+			gradeDistribution[grade] = (gradeDistribution[grade] || 0) + 1;
+		});
+
+		// Format course ID
+		const courseId = `${courseDetails[0].courseSubject}${courseDetails[0].courseNumber}${courseDetails[0].courseSuffix || ''}`;
+
+		// Determine term name
+		const termName = this.termNameMap[termCode] || 'UNKNOWN';
+
+		// Format the final response
+		return {
+			course: {
+				crn,
+				courseId,
+				courseTitle: courseDetails[0].courseTitle || 'UNKNOWN',
+				termCode,
+				termName,
+				year,
+				creditHours: courseDetails[0].creditHours || 0,
+				fullTerm: `${termName} ${year}`
+			},
+			roster: studentList,
+			stats: {
+				totalStudents,
+				totalGraded,
+				overallGpa,
+				gradeDistribution
+			}
+		};
+	}
+
 }

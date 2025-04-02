@@ -213,4 +213,61 @@ export class InstructorController {
 			return;
 		}
 	}
+
+	/**
+	 * Get class roster for a specific course
+	 */
+	static async getClassRoster(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const { crn, term, year } = req.query;
+
+			// Validate required parameters
+			if (!crn || !term || !year) {
+				res.status(400).json({
+					error: 'Missing required parameters. Please provide crn, term, and year.'
+				});
+				return;
+			}
+
+			// Parse and validate parameters
+			const crnStr = crn as string;
+			const termCode = term as string;
+			const yearNum = parseInt(year as string);
+
+			if (isNaN(yearNum)) {
+				res.status(400).json({ error: 'Invalid parameters. Year must be a number.' });
+				return;
+			}
+
+			// Check if instructor exists
+			if (!(await InstructorsService.instructorExists(mnumber))) {
+				res.status(404).json({ error: 'Instructor not found' });
+				return;
+			}
+
+			// Get class roster
+			const classRoster = await InstructorsService.getClassRoster(
+				mnumber,
+				crnStr,
+				termCode,
+				yearNum
+			);
+
+			if (!classRoster) {
+				res.status(404).json({
+					error: 'Class not found or not taught by this instructor'
+				});
+				return;
+			}
+
+			res.json(classRoster);
+			return;
+		} catch (error) {
+			console.error('Error fetching class roster:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
+
 }

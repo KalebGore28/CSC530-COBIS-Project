@@ -54,6 +54,12 @@ router.get('/:mnumber/credit-hours',
 	InstructorController.getCreditHoursData
 );
 
+// Class Roster
+router.get('/:mnumber/class-roster',
+	InstructorController.checkAccess,
+	InstructorController.getClassRoster
+)
+
 // OpenAPI Specification
 export const instructorRouterSpec = {
 	'/api/instructor/{mnumber}': {
@@ -323,6 +329,103 @@ export const instructorRouterSpec = {
 				},
 				'403': {
 					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/instructor/{mnumber}/class-roster': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getClassRoster',
+			description: 'Get class roster for a specific course taught by an instructor',
+			parameters: [
+				{
+					name: 'crn',
+					in: 'query',
+					required: true,
+					schema: z.number(),
+					description: 'Course Reference Number (CRN)'
+				},
+				{
+					name: 'term',
+					in: 'query',
+					required: true,
+					schema: z.string(),
+					description: 'Term code (e.g., 10 for Spring, 80 for Fall)'
+				},
+				{
+					name: 'year',
+					in: 'query',
+					required: true,
+					schema: z.number(),
+					description: 'Academic year'
+				}
+			],
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								course: z.object({
+									crn: z.number(),
+									courseId: z.string(),
+									courseTitle: z.string(),
+									termCode: z.string(),
+									termName: z.string(),
+									year: z.number(),
+									creditHours: z.number(),
+									fullTerm: z.string()
+								}),
+								roster: z.array(z.object({
+									mnumber: z.string(),
+									name: z.string(),
+									firstName: z.string(),
+									lastName: z.string(),
+									email: z.string().optional(),
+									major: z.string(),
+									creditHours: z.number(),
+									grade: z.string()
+								})),
+								stats: z.object({
+									totalStudents: z.number(),
+									totalGraded: z.number(),
+									overallGpa: z.number(),
+									gradeDistribution: z.record(z.string(), z.number())
+								})
+							})
+						}
+					}
+				},
+				'400': {
+					description: 'Bad Request - Missing or invalid parameters',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'Not Found - Instructor or class not found',
 					content: {
 						'application/json': {
 							schema: z.object({
