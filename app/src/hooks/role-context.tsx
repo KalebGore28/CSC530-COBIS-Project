@@ -93,12 +93,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Helper to map display names to logos
 const getLogoForRole = (displayName: string): React.ElementType => {
 	const logoMap: { [key: string]: React.ElementType } = {
-		"Faculty": BookOpen,
-		"Advisor": Compass,
-		"Program Coordinator": LayoutList,
-		"Department Chair": Armchair,
-		"Administrator": Settings,
-		"COBIS Admin": Shield,
+		"faculty": BookOpen,
+		"advisor": Compass,
+		"program_coordinator": LayoutList,
+		"department_chair": Armchair,
+		"administrator": Settings,
+		"cobis_administrator": Shield,
 	};
 	return logoMap[displayName] || Shield; // Default to Shield if unknown
 };
