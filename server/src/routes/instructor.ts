@@ -62,14 +62,15 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 			.from(instructorCourses)
 			.where(eq(instructorCourses.year, maxYear));
 
-		const currentTermCode = currentTermCodeData[0]?.maxTerm || '80'; // Default to Fall if not found
+		const currentTermCode = currentTermCodeData[0]?.maxTerm || '9999';
 
 		// Map term code to name
 		const termNameMap: Record<string, string> = {
 			'10': 'SPRING',
 			'50': 'SUMMER',
 			'80': 'FALL',
-			'90': 'WINTER'
+			'90': 'WINTER',
+			'9999': 'UNKNOWN'
 		};
 
 		const currentTerm = termNameMap[currentTermCode] || 'UNKNOWN';
@@ -137,7 +138,7 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 
 		const mostTaughtCourses = mostTaughtCoursesRaw.map(course => ({
 			courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,
-			courseTitle: course.courseTitle || 'Unknown',
+			courseTitle: course.courseTitle || 'UNKNOWN',
 			timesTaught: course.count
 		}));
 
@@ -233,7 +234,7 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 				termCode: course.term,
 				year: course.year,
 				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,
-				courseTitle: course.courseTitle || 'Unknown',
+				courseTitle: course.courseTitle || 'UNKNOWN',
 				courseSubject: course.courseSubject,
 				courseNumber: course.courseNumber,
 				courseSuffix: course.courseSuffix,
