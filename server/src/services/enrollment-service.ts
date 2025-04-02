@@ -1,4 +1,4 @@
-import { eq, and, count, SQL, inArray, sql, like, or } from 'drizzle-orm';
+import { eq, and, count, SQL, inArray, sql, like, or, gte, lt, not } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
 	programs,
@@ -388,5 +388,160 @@ export class EnrollmentService {
 			.where(and(...conditions));
 
 		return Number(result[0]?.count || 0);
+	}
+
+	/**
+ * Get enrollment trends for programs over multiple terms/years
+ */
+	static async getProgramEnrollmentTrends(params: {
+		departmentCode: string;
+		programCode?: string;
+		yearsBack?: number;
+		includeCurrentTerm?: boolean;
+	}) {
+		const { departmentCode, programCode, yearsBack = 5, includeCurrentTerm = true } = params;
+		const db = (await getDbConnection()).orm;
+
+		// Get the current term and year
+		const currentDate = new Date();
+		const currentYear = currentDate.getFullYear();
+
+		// Determine current term based on the date
+		const currentMonth = currentDate.getMonth() + 1;
+		let currentTermCode = '80'; // Default to Fall
+
+		if (currentMonth >= 1 && currentMonth <= 4) {
+			currentTermCode = '10'; // Spring: Jan-Apr
+		} else if (currentMonth >= 5 && currentMonth <= 7) {
+			currentTermCode = '50'; // Summer: May-Jul
+		} else if (currentMonth >= 8 && currentMonth <= 12) {
+			currentTermCode = '80'; // Fall: Aug-Dec
+		}
+
+		// Calculate the start year (current year - yearsBack)
+		const startYear = currentYear - yearsBack;
+
+		// Define our term sequence for sorting
+		const termSequence = ['10', '50', '80', '90']; // Spring, Summer, Fall, Winter
+
+		// Build conditions for query
+		const conditions: SQL[] = [eq(studentPrograms.department, departmentCode)];
+
+		// Condition for program if specified
+		if (programCode) {
+			conditions.push(eq(studentPrograms.program, programCode));
+		}
+
+		// Condition for year range
+		conditions.push(gte(studentPrograms.year, startYear));
+
+		// If we don't want the current term, exclude it
+		if (!includeCurrentTerm) {
+			conditions.push(
+				sql`(${studentPrograms.year} < ${currentYear} OR (${studentPrograms.year} = ${currentYear} AND ${studentPrograms.term} != ${currentTermCode}))`
+			);
+		}
+
+		// Get enrollment data grouped by term, year, and program
+		const enrollmentData = await db
+			.select({
+				term: studentPrograms.term,
+				year: studentPrograms.year,
+				program: studentPrograms.program,
+				programDescription: programs.description,
+				enrollment: count(),
+				distinctStudents: sql<number>`COUNT(DISTINCT ${studentPrograms.mnumber})`
+			})
+			.from(studentPrograms)
+			.leftJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(and(...conditions))
+			.groupBy(studentPrograms.term, studentPrograms.year, studentPrograms.program)
+			.orderBy(studentPrograms.year, sql`CASE 
+		WHEN ${studentPrograms.term} = '10' THEN 1 
+		WHEN ${studentPrograms.term} = '50' THEN 2 
+		WHEN ${studentPrograms.term} = '80' THEN 3 
+		WHEN ${studentPrograms.term} = '90' THEN 4 
+		ELSE 5 END`);
+
+		// Get term descriptions for reference
+		const termDescriptions = await db
+			.select({
+				code: terms.code,
+				description: terms.description
+			})
+			.from(terms)
+			.where(inArray(terms.code, termSequence));
+
+		// Create a term description lookup
+		const termLookup: Record<string, string> = {};
+		termDescriptions.forEach(term => {
+			termLookup[term.code] = term.description;
+		});
+
+		// Group the data by program
+		const programGroups: Record<string, any> = {};
+
+		enrollmentData.forEach(entry => {
+			if (!programGroups[entry.program]) {
+				programGroups[entry.program] = {
+					programCode: entry.program,
+					programDescription: entry.programDescription,
+					terms: []
+				};
+			}
+
+			// Calculate the display sort order
+			const termSortOrder = termSequence.indexOf(entry.term);
+
+			programGroups[entry.program].terms.push({
+				term: entry.term,
+				termDescription: termLookup[entry.term] || `Term ${entry.term}`,
+				year: entry.year,
+				displayTerm: `${termLookup[entry.term] || `Term ${entry.term}`} ${entry.year}`,
+				sortOrder: (entry.year * 10) + termSortOrder,
+				enrollment: Number(entry.enrollment),
+				distinctStudents: Number(entry.distinctStudents)
+			});
+		});
+
+		// Sort terms chronologically within each program
+		Object.keys(programGroups).forEach(programCode => {
+			programGroups[programCode].terms.sort((a: { sortOrder: number; }, b: { sortOrder: number; }) => a.sortOrder - b.sortOrder);
+
+			// Calculate enrollment changes
+			const terms = programGroups[programCode].terms;
+			if (terms.length > 1) {
+				for (let i = 1; i < terms.length; i++) {
+					const prevEnrollment = terms[i - 1].enrollment;
+					const currentEnrollment = terms[i].enrollment;
+
+					if (prevEnrollment > 0) {
+						terms[i].changeFromPrevious = {
+							absolute: currentEnrollment - prevEnrollment,
+							percentage: parseFloat((((currentEnrollment - prevEnrollment) / prevEnrollment) * 100).toFixed(1))
+						};
+					} else {
+						terms[i].changeFromPrevious = {
+							absolute: currentEnrollment,
+							percentage: null // Can't calculate percentage change from zero
+						};
+					}
+				}
+			}
+		});
+
+		// Format the response
+		return {
+			department: departmentCode,
+			requestedProgram: programCode || null,
+			yearsIncluded: yearsBack,
+			includesCurrentTerm: includeCurrentTerm,
+			currentTerm: {
+				term: currentTermCode,
+				termDescription: termLookup[currentTermCode] || `Term ${currentTermCode}`,
+				year: currentYear
+			},
+			programs: Object.values(programGroups)
+		};
 	}
 }
