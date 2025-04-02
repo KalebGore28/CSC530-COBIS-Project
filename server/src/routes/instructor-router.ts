@@ -60,8 +60,50 @@ router.get('/:mnumber/class-roster',
 	InstructorController.getClassRoster
 )
 
+// Get instructors
+router.get('/', InstructorController.getInstructors);
+
+
 // OpenAPI Specification
 export const instructorRouterSpec = {
+	'/api/instructor': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructors',
+			description: 'Get instructors - department chairs can only see instructors in their department',
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.array(z.object({
+								mnumber: z.string(),
+								name: z.string(),
+								firstName: z.string(),
+								lastName: z.string(),
+								department: z.string(),
+								departmentCode: z.string(),
+								college: z.string(),
+								collegeCode: z.string(),
+								email: z.string().optional(),
+								image: z.string().optional()
+							}))
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
+	},
 	'/api/instructor/{mnumber}': {
 		get: {
 			tags: ['Instructor'],

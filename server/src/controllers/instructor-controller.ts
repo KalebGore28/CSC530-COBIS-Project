@@ -15,10 +15,7 @@ export class InstructorController {
 
 		try {
 			// Check if user has necessary roles
-			const isAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) =>
-				['cobis_administrator'].includes(role.role_name)
-			);
-
+			const isAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) => role.role_name === 'cobis_administrator');
 			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) => role.role_name === 'department_chair');
 
 			// Admins can access all instructors
@@ -273,5 +270,48 @@ export class InstructorController {
 			return;
 		}
 	}
+
+	/**
+	 * Get instructors - department chairs can only see instructors in their department
+	 */
+	static async getInstructors(req: Request, res: Response) {
+		try {
+			const authReq = req as AuthAndPermissionsRequest;
+
+			// Check permissions
+			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+
+			// For department chairs, filter by their department
+			// For admins, no filter (return all instructors)
+			// For others, return forbidden
+			let departmentCode: string | undefined;
+
+			if (isDeptChair && !isAdmin) {
+				// Department chairs can only see instructors in their department
+				departmentCode = authReq.department || undefined;
+
+				if (!departmentCode) {
+					res.status(400).json({ error: 'Department chair has no associated department' });
+					return;
+				}
+			} else if (!isAdmin) {
+				// Regular users cannot access this endpoint
+				res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
+				return;
+			}
+
+			// Get instructors (filtered by department for chairs, all for admins)
+			const instructors = await InstructorsService.getInstructors(departmentCode);
+
+			res.json(instructors);
+			return;
+		} catch (error) {
+			console.error('Error fetching instructors:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
+
 
 }

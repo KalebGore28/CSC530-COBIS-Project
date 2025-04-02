@@ -777,5 +777,58 @@ export class InstructorsService {
 		};
 	}
 
+	/**
+	 * Get instructors by department
+	 * If no department is specified, returns all instructors (admin only)
+	 */
+	static async getInstructors(departmentCode?: string) {
+		const db = (await getDbConnection()).orm;
+
+		// Base query
+		let query = db
+			.select({
+				mnumber: instructors.mnumber,
+				firstName: instructors.first_name,
+				lastName: instructors.last_name,
+				department: departments.description,
+				departmentCode: departments.code,
+				college: colleges.description,
+				collegeCode: colleges.code,
+				email: user.email,
+				image: user.image
+			})
+			.from(instructors)
+			.leftJoin(user, eq(instructors.mnumber, user.mnumber))
+			.leftJoin(departments, eq(instructors.department, departments.code))
+			.leftJoin(colleges, eq(instructors.college, colleges.code));
+
+		// Filter by department if provided
+		if (departmentCode) {
+			query.where(eq(instructors.department, departmentCode));
+		}
+
+		// Execute query and order results
+		const instructorsList = await query.orderBy(
+			departments.description,
+			instructors.last_name,
+			instructors.first_name
+		);
+
+		// Map results to standardized format
+		return instructorsList.map(instructor => ({
+			mnumber: instructor.mnumber,
+			name: `${instructor.firstName} ${instructor.lastName}`,
+			firstName: instructor.firstName,
+			lastName: instructor.lastName,
+			department: instructor.department,
+			departmentCode: instructor.departmentCode,
+			college: instructor.college,
+			collegeCode: instructor.collegeCode,
+			email: instructor.email,
+			image: instructor.image
+		}));
+	}
+
+
 
 }
