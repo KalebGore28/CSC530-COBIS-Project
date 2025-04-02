@@ -21,7 +21,7 @@ import reportingRoute, { reportingSpecs } from "./routes/reporting";
 import searchRoute, { searchSpecs } from "./routes/search";
 import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 import customQuery from "./routes/customQueries";
-import instructorRouter from "./routes/instructor";
+import instructorRouter, { instructorRouterSpec } from "./routes/instructor";
 
 
 // Create an OpenAPI document
@@ -40,6 +40,7 @@ const document = createDocument({
         ...reportingSpecs,
         ...searchSpecs,
         ...studentLookupSpec,
+        ...instructorRouterSpec,
     },
 });
 

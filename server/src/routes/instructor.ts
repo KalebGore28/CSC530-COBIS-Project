@@ -11,6 +11,8 @@ import {
 	departments,
 	colleges
 } from '../db/schema';
+import 'zod-openapi/extend';
+import { z } from 'zod';
 
 const router = express.Router();
 router.get('/:mnumber', async (req: Request, res: Response) => {
@@ -18,7 +20,6 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 
 	try {
 		const { mnumber } = req.params;
-		console.log('Fetching instructor data for mnumber:', mnumber);
 
 		// 1. Get basic instructor information
 		const instructorInfo = await db
@@ -100,10 +101,11 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 		// Get unique courses taught count
 		const uniqueCoursesTaught = await db
 			.select({
-				count: count(sql`DISTINCT ${instructorCourses.course_subject}, ${instructorCourses.course_number}, ${instructorCourses.course_suffix}`)
+				count: sql`COUNT(DISTINCT ${instructorCourses.course_subject} || ${instructorCourses.course_number} || ${instructorCourses.course_suffix})`
 			})
 			.from(instructorCourses)
 			.where(eq(instructorCourses.mnumber, mnumber));
+
 
 		// 5. Get most taught courses
 		const mostTaughtCoursesRaw = await db
@@ -143,8 +145,7 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 		// We need to join instructorCourses and studentCourses on crn, term, and year
 		const studentMetrics = await db
 			.select({
-				totalStudents: count(),
-				avgClassSize: avg(sql`count(${studentCourses.mnumber})`),
+				totalStudents: count(studentCourses.mnumber),
 				totalCreditHours: sum(studentCourses.course_hours)
 			})
 			.from(instructorCourses)
@@ -156,8 +157,32 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 					eq(instructorCourses.year, studentCourses.year)
 				)
 			)
+			.where(eq(instructorCourses.mnumber, mnumber));
+
+		// Calculate average class size separately
+		const classesWithSizes = await db
+			.select({
+				crn: instructorCourses.crn,
+				term: instructorCourses.term,
+				year: instructorCourses.year,
+				studentCount: count(studentCourses.mnumber)
+			})
+			.from(instructorCourses)
+			.innerJoin(
+				studentCourses,
+				and(
+					eq(instructorCourses.crn, studentCourses.crn),
+					eq(instructorCourses.term, studentCourses.term),
+					eq(instructorCourses.year, studentCourses.year)
+				)
+			)
 			.where(eq(instructorCourses.mnumber, mnumber))
-			.groupBy(instructorCourses.mnumber);
+			.groupBy(instructorCourses.crn, instructorCourses.term, instructorCourses.year);
+
+		// Calculate average class size
+		const avgClassSize = classesWithSizes.length > 0
+			? classesWithSizes.reduce((sum, cls) => sum + cls.studentCount, 0) / classesWithSizes.length
+			: 0;
 
 		// 7. Get course details with student counts
 		const courseDetailsQuery = await db
@@ -198,7 +223,6 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 				instructorCourses.course_suffix,
 				courses.title,
 				instructorCourses.crn,
-				studentCourses.course_hours
 			)
 			.orderBy(desc(instructorCourses.year), desc(instructorCourses.term));
 
@@ -225,9 +249,9 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 			.select({
 				term: instructorCourses.term,
 				year: instructorCourses.year,
-				courseCount: count(sql`DISTINCT ${instructorCourses.crn}`),
+				courseCount: sql`COUNT(DISTINCT ${instructorCourses.crn})`,
 				studentCount: count(studentCourses.mnumber),
-				creditHoursDelivered: sum(sql`${studentCourses.course_hours}`)
+				creditHoursDelivered: sum(studentCourses.course_hours)
 			})
 			.from(instructorCourses)
 			.leftJoin(
@@ -248,8 +272,9 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 			year: term.year,
 			courseCount: term.courseCount,
 			studentCount: term.studentCount || 0,
-			creditHoursDelivered: term.creditHoursDelivered || 0
+			creditHoursDelivered: Number(term.creditHoursDelivered || 0)
 		}));
+
 
 		// 9. Assemble the final response
 		const response = {
@@ -274,8 +299,8 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 				totalCoursesTaught: totalCoursesTaught[0]?.count || 0,
 				uniqueCoursesTaught: uniqueCoursesTaught[0]?.count || 0,
 				totalStudentsTaught: studentMetrics[0]?.totalStudents || 0,
-				totalCreditHoursDelivered: studentMetrics[0]?.totalCreditHours || 0,
-				averageClassSize: Math.round((parseFloat(studentMetrics[0]?.avgClassSize || '0')) * 10) / 10,
+				totalCreditHoursDelivered: Number(studentMetrics[0]?.totalCreditHours || 0),
+				averageClassSize: Math.round(avgClassSize * 10) / 10,
 				mostTaughtCourses
 			},
 			courseDetails,
@@ -290,5 +315,77 @@ router.get('/:mnumber', async (req: Request, res: Response) => {
 		return
 	}
 });
+
+// OpenAPI Specification
+export const instructorRouterSpec = {
+	'/api/instructor/{mnumber}': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructor',
+			description: 'Get instructor information and teaching summary',
+			responses: {
+				'200': {
+					description: '200 OK',
+					content: {
+						'application/json': {
+							schema: z.object({
+								instructor: z.object({
+									mnumber: z.string(),
+									name: z.string(),
+									firstName: z.string(),
+									lastName: z.string(),
+									department: z.string(),
+									college: z.string(),
+									email: z.string().optional(),
+									image: z.string().optional()
+								}),
+								currentStatus: z.object({
+									currentTerm: z.string(),
+									currentTermCode: z.string(),
+									currentYear: z.number(),
+									isCurrentlyTeaching: z.boolean(),
+									currentCourseCount: z.number()
+								}),
+								teachingSummary: z.object({
+									totalCoursesTaught: z.number(),
+									uniqueCoursesTaught: z.number(),
+									totalStudentsTaught: z.number(),
+									totalCreditHoursDelivered: z.number(),
+									averageClassSize: z.number(),
+									mostTaughtCourses: z.array(z.object({
+										courseId: z.string(),
+										courseTitle: z.string().optional(),
+										timesTaught: z.number()
+									}))
+								}),
+								courseDetails: z.array(z.object({
+									term: z.string(),
+									termCode: z.string(),
+									year: z.number(),
+									courseId: z.string(),
+									courseTitle: z.string().optional(),
+									courseSubject: z.string(),
+									courseNumber: z.string(),
+									courseSuffix: z.string().optional(),
+									crn: z.number().optional(),
+									creditHours: z.number().optional(),
+									studentCount: z.number().optional()
+								})),
+								termSummaries: z.array(z.object({
+									termCode: z.string(),
+									termName: z.string().optional(),
+									year: z.number().optional(),
+									courseCount: z.number().optional(),
+									studentCount: z.number().optional()
+								}))
+							})
+						}
+					}
+				}
+
+			},
+		}
+	}
+}
 
 export default router;
