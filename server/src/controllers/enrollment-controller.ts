@@ -105,7 +105,6 @@ export class EnrollmentController {
 	 */
 	static async getProgramStudents(req: Request, res: Response) {
 		try {
-			console.log('getProgramStudents called');
 			const authReq = req as AuthAndPermissionsRequest;
 			const { programCode } = req.params;
 			const term = req.query.term as string;
