@@ -59,6 +59,16 @@ export const instructorRouterSpec = {
 							})
 						}
 					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
 				}
 			}
 		}
@@ -82,10 +92,21 @@ export const instructorRouterSpec = {
 							})
 						}
 					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
 				}
 			}
 		}
 	},
+
 	'/api/instructor/{mnumber}/teaching-summary': {
 		get: {
 			tags: ['Instructor'],
@@ -110,9 +131,19 @@ export const instructorRouterSpec = {
 							})
 						}
 					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
 				}
 			}
-		}
+		},
 	},
 	'/api/instructor/{mnumber}/courses': {
 		get: {
@@ -140,6 +171,16 @@ export const instructorRouterSpec = {
 							}))
 						}
 					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
 				}
 			}
 		}
@@ -162,6 +203,16 @@ export const instructorRouterSpec = {
 								studentCount: z.number(),
 								creditHoursDelivered: z.number()
 							}))
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
 						}
 					}
 				}
