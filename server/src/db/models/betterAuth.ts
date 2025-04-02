@@ -5,8 +5,6 @@ import { imports } from "./imports";
 import { instructorCourses } from "./instructor-courses";
 import { userPermissions } from "./user_permissions";
 import { userRoles } from "./user_roles";
-import { departments } from "./departments";
-import { colleges } from "./colleges";
 
 export const user = sqliteTable("user", {
 	id: text("id").primaryKey(), // Needed for BetterAuth
@@ -14,8 +12,6 @@ export const user = sqliteTable("user", {
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
 	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull(),
-	college: text('college').references(() => colleges.code),
-	department: text('department').references(() => departments.code),
 	image: text('image'),
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
@@ -28,8 +24,6 @@ export const usersRelations = relations(user, ({ many }) => ({
 	instructor_courses: many(instructorCourses),
 	user_permissions: many(userPermissions),
 	user_roles: many(userRoles),
-	departments: many(departments),
-	colleges: many(colleges),
 }));
 
 export const session = sqliteTable("session", {

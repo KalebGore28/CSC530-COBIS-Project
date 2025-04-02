@@ -71,7 +71,11 @@ CREATE TABLE `instructor_courses` (
 CREATE TABLE `instructors` (
 	`mnumber` text PRIMARY KEY NOT NULL,
 	`first_name` text NOT NULL,
-	`last_name` text NOT NULL
+	`last_name` text NOT NULL,
+	`college` text,
+	`department` text,
+	FOREIGN KEY (`college`) REFERENCES `colleges`(`code`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`department`) REFERENCES `departments`(`code`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `nations` (
@@ -331,15 +335,11 @@ CREATE TABLE `user` (
 	`name` text NOT NULL,
 	`email` text NOT NULL,
 	`email_verified` integer NOT NULL,
-	`college` text,
-	`department` text,
 	`image` text,
 	`created_at` integer NOT NULL,
 	`updated_at` integer NOT NULL,
 	`is_enabled` integer DEFAULT false NOT NULL,
-	`last_login` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	FOREIGN KEY (`college`) REFERENCES `colleges`(`code`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`department`) REFERENCES `departments`(`code`) ON UPDATE no action ON DELETE no action
+	`last_login` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `user_mnumber_unique` ON `user` (`mnumber`);--> statement-breakpoint

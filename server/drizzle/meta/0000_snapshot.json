@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ea79c6b0-4a12-4e59-8497-227e1c9fb69a",
+  "id": "5b716f10-1ab4-460a-a98b-88be7bc97b48",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -461,10 +461,51 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "college": {
+          "name": "college",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "department": {
+          "name": "department",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "instructors_college_colleges_code_fk": {
+          "name": "instructors_college_colleges_code_fk",
+          "tableFrom": "instructors",
+          "tableTo": "colleges",
+          "columnsFrom": [
+            "college"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "instructors_department_departments_code_fk": {
+          "name": "instructors_department_departments_code_fk",
+          "tableFrom": "instructors",
+          "tableTo": "departments",
+          "columnsFrom": [
+            "department"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
@@ -2292,20 +2333,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "image": {
           "name": "image",
           "type": "text",
@@ -2360,34 +2387,7 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "user_college_colleges_code_fk": {
-          "name": "user_college_colleges_code_fk",
-          "tableFrom": "user",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "user_department_departments_code_fk": {
-          "name": "user_department_departments_code_fk",
-          "tableFrom": "user",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
