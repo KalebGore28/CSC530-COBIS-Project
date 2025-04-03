@@ -6,6 +6,8 @@ import { EnrollmentService } from '../services/enrollment-service';
  * Controller for enrollment-related endpoints
  */
 export class EnrollmentController {
+	// --- PROGRAM ENROLLMENT ---
+
 	/**
 	 * Middleware to check if user can access enrollment data
 	 */
@@ -176,9 +178,9 @@ export class EnrollmentController {
 	}
 
 	/**
- * Get program enrollment trends over multiple terms/years
- * Shows enrollment changes over time for better analysis
- */
+	 * Get program enrollment trends over multiple terms/years
+	 * Shows enrollment changes over time for better analysis
+	 */
 	static async getProgramEnrollmentTrends(req: Request, res: Response) {
 		try {
 			const authReq = req as AuthAndPermissionsRequest;
@@ -244,4 +246,7 @@ export class EnrollmentController {
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
+
+	// --- COURSE ENROLLMENT ---
+
 }

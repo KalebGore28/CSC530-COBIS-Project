@@ -1,6 +1,6 @@
-MNUMBER    ,TESTCODE ,TESTDESC                              ,TESTSCORE ,TESTDATE
-M123456789 ,ACT      ,ACT Composite                         ,       28 ,03152023
-M234567890 ,SAT      ,SAT Verbal                            ,      640 ,11202022
-M345678901 ,GRE      ,GRE Quantitative                      ,      160 ,06052021
-M456789012 ,TOEFL    ,Test of English as a Foreign Language ,       95 ,09012020
-M567890123 ,GMAT     ,Graduate Management Admission Test    ,      700 ,01082024
+MNUMBER,TESTCODE,TESTDESC,TESTSCORE,TESTDATE
+M123456789,ACT,ACT Composite,28,03152023
+M234567890,SAT,SAT Verbal,640,11202022
+M345678901,GRE,GRE Quantitative,160,06052021
+M456789012,TOEFL,Test of English as a Foreign Language,95,09012020
+M567890123,GMAT,Graduate Management Admission Test,700,01082024

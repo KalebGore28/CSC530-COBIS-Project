@@ -6,13 +6,17 @@ import {
 	departments,
 	terms,
 	students,
-	studentAcademicInfo
+	studentAcademicInfo,
+	studentCourses,
+	courses,
 } from '../db/schema';
 
 /**
  * Service to handle enrollment data operations
  */
 export class EnrollmentService {
+	// --- PROGRAM ENROLLMENT METHODS ---
+
 	/**
 	 * Get program-level enrollment data
 	 */
@@ -391,8 +395,8 @@ export class EnrollmentService {
 	}
 
 	/**
- * Get enrollment trends for programs over multiple terms/years
- */
+	 * Get enrollment trends for programs over multiple terms/years
+	 */
 	static async getProgramEnrollmentTrends(params: {
 		departmentCode: string;
 		programCode?: string;
@@ -544,4 +548,8 @@ export class EnrollmentService {
 			programs: Object.values(programGroups)
 		};
 	}
+
+	// --- COURSE ENROLLMENT METHODS ---
+
+  
 }
