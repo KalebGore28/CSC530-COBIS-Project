@@ -91,6 +91,8 @@ table instructors {
   mnumber text [pk, not null]
   first_name text [not null]
   last_name text [not null]
+  college text
+  department text
 }
 
 table nations {
@@ -190,7 +192,9 @@ table session {
 }
 
 table student_academic_info {
-  mnumber text [pk, not null]
+  mnumber text [not null]
+  term text [not null]
+  year integer [not null]
   admit_term text [not null]
   admit_year integer [not null]
   admit_code text [not null]
@@ -203,6 +207,10 @@ table student_academic_info {
   overall_earned_hours real [not null]
   overall_quality_points real [not null]
   overall_gpa real [not null]
+
+  indexes {
+    (mnumber, term, year) [pk]
+  }
 }
 
 table student_addresses {
@@ -315,8 +323,6 @@ table user {
   name text [not null]
   email text [not null, unique]
   email_verified integer [not null]
-  college text
-  department text
   image text
   created_at integer [not null]
   updated_at integer [not null]
@@ -353,11 +359,7 @@ table verification {
   updated_at integer
 }
 
-ref: colleges.code > user.college
-
 ref: departments.college > colleges.code
-
-ref: departments.code > user.department
 
 ref: imports.imported_by > user.id
 

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "5b716f10-1ab4-460a-a98b-88be7bc97b48",
+  "id": "6e3a7eb5-c32a-4e00-a48b-a55049163dfd",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -1055,7 +1055,21 @@
         "mnumber": {
           "name": "mnumber",
           "type": "text",
-          "primaryKey": true,
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "term": {
+          "name": "term",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -1159,6 +1173,19 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
+        "student_academic_info_term_terms_code_fk": {
+          "name": "student_academic_info_term_terms_code_fk",
+          "tableFrom": "student_academic_info",
+          "tableTo": "terms",
+          "columnsFrom": [
+            "term"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "student_academic_info_admit_term_terms_code_fk": {
           "name": "student_academic_info_admit_term_terms_code_fk",
           "tableFrom": "student_academic_info",
@@ -1199,7 +1226,16 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {},
+      "compositePrimaryKeys": {
+        "student_academic_info_mnumber_term_year_pk": {
+          "columns": [
+            "mnumber",
+            "term",
+            "year"
+          ],
+          "name": "student_academic_info_mnumber_term_year_pk"
+        }
+      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },

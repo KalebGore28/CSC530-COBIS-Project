@@ -159,7 +159,9 @@ CREATE TABLE `roles` (
 );
 --> statement-breakpoint
 CREATE TABLE `student_academic_info` (
-	`mnumber` text PRIMARY KEY NOT NULL,
+	`mnumber` text NOT NULL,
+	`term` text NOT NULL,
+	`year` integer NOT NULL,
 	`admit_term` text NOT NULL,
 	`admit_year` integer NOT NULL,
 	`admit_code` text NOT NULL,
@@ -172,7 +174,9 @@ CREATE TABLE `student_academic_info` (
 	`overall_earned_hours` real NOT NULL,
 	`overall_quality_points` real NOT NULL,
 	`overall_gpa` real NOT NULL,
+	PRIMARY KEY(`mnumber`, `term`, `year`),
 	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`admit_term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`admit_code`) REFERENCES `admit_codes`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`academic_standing`) REFERENCES `academic_standing`(`code`) ON UPDATE no action ON DELETE no action

@@ -268,6 +268,8 @@ export const csvFileMappings: CsvFileMapping[] = [
 				schemaRef: schema.studentAcademicInfo,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
+					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "admitterm", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "admitterm", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
 					{ csvColumn: "admitcode", dbColumn: "admit_code" },

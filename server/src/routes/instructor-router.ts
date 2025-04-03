@@ -5,7 +5,7 @@ import { InstructorController } from '../controllers/instructor-controller';
 
 /**
  * Instructor routes
- * @module routes/instructor
+ * @module routes/instructor-router
  * @requires express
  * @requires zod
  * @requires zod-openapi/extend
@@ -17,6 +17,12 @@ import { InstructorController } from '../controllers/instructor-controller';
  * The OpenAPI specification for these routes is also defined in this module.
  */
 const router = express.Router();
+
+// Get instructors
+router.get('/', 
+	InstructorController.checkAccess,
+	InstructorController.getInstructors
+);
 
 // Basic instructor information
 router.get('/:mnumber',
@@ -59,9 +65,6 @@ router.get('/:mnumber/class-roster',
 	InstructorController.checkAccess,
 	InstructorController.getClassRoster
 )
-
-// Get instructors
-router.get('/', InstructorController.getInstructors);
 
 
 // OpenAPI Specification
