@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "6e3a7eb5-c32a-4e00-a48b-a55049163dfd",
+  "id": "42f11f18-ecbf-4145-be4f-4d43187a8677",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -438,8 +438,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "instructors": {
-      "name": "instructors",
+    "faculty": {
+      "name": "faculty",
       "columns": {
         "mnumber": {
           "name": "mnumber",
@@ -479,9 +479,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "instructors_college_colleges_code_fk": {
-          "name": "instructors_college_colleges_code_fk",
-          "tableFrom": "instructors",
+        "faculty_college_colleges_code_fk": {
+          "name": "faculty_college_colleges_code_fk",
+          "tableFrom": "faculty",
           "tableTo": "colleges",
           "columnsFrom": [
             "college"
@@ -492,9 +492,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "instructors_department_departments_code_fk": {
-          "name": "instructors_department_departments_code_fk",
-          "tableFrom": "instructors",
+        "faculty_department_departments_code_fk": {
+          "name": "faculty_department_departments_code_fk",
+          "tableFrom": "faculty",
           "tableTo": "departments",
           "columnsFrom": [
             "department"
@@ -1687,20 +1687,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "college": {
-          "name": "college",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
         }
       },
       "indexes": {},
@@ -1737,32 +1723,6 @@
           "tableTo": "programs",
           "columnsFrom": [
             "program"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "student_programs_department_departments_code_fk": {
-          "name": "student_programs_department_departments_code_fk",
-          "tableFrom": "student_programs",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "student_programs_college_colleges_code_fk": {
-          "name": "student_programs_college_colleges_code_fk",
-          "tableFrom": "student_programs",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
           ],
           "columnsTo": [
             "code"

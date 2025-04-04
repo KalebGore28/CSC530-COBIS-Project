@@ -68,7 +68,7 @@ CREATE TABLE `instructor_courses` (
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-CREATE TABLE `instructors` (
+CREATE TABLE `faculty` (
 	`mnumber` text PRIMARY KEY NOT NULL,
 	`first_name` text NOT NULL,
 	`last_name` text NOT NULL,
@@ -241,14 +241,10 @@ CREATE TABLE `student_programs` (
 	`type` text NOT NULL,
 	`level` text NOT NULL,
 	`program` text NOT NULL,
-	`department` text NOT NULL,
-	`college` text NOT NULL,
 	PRIMARY KEY(`mnumber`, `type`, `program`),
 	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`program`) REFERENCES `programs`(`code`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`department`) REFERENCES `departments`(`code`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`college`) REFERENCES `colleges`(`code`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "program_type" CHECK("student_programs"."type" IN ('MAJOR', 'MINOR')),
 	CONSTRAINT "program_level" CHECK("student_programs"."level" IN ('UG', 'GR', 'PB'))
 );

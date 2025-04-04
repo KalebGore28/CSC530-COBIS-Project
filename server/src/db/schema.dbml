@@ -55,6 +55,14 @@ table departments {
   college text [not null, default: '0']
 }
 
+table faculty {
+  mnumber text [pk, not null]
+  first_name text [not null]
+  last_name text [not null]
+  college text
+  department text
+}
+
 table imports {
   id integer [pk, not null]
   entity_type text [not null]
@@ -85,14 +93,6 @@ table instructor_courses {
     (mnumber, term, crn) [pk]
     
   }
-}
-
-table instructors {
-  mnumber text [pk, not null]
-  first_name text [not null]
-  last_name text [not null]
-  college text
-  department text
 }
 
 table nations {
@@ -272,8 +272,6 @@ table student_programs {
   type text [not null]
   level text [not null]
   program text [not null]
-  department text [not null]
-  college text [not null]
 
   indexes {
     (mnumber, type, program) [pk]
@@ -420,10 +418,6 @@ ref: student_programs.mnumber > students.mnumber
 ref: student_programs.term > terms.code
 
 ref: student_programs.program > programs.code
-
-ref: student_programs.department > departments.code
-
-ref: student_programs.college > colleges.code
 
 ref: test_scores.mnumber > students.mnumber
 

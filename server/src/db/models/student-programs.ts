@@ -4,8 +4,6 @@ import { sql, relations } from "drizzle-orm";
 import { students } from "./students";
 import { terms } from "./terms";
 import { programs } from "./programs";
-import { departments } from "./departments";
-import { colleges } from "./colleges";
 
 export const studentPrograms = sqliteTable("student_programs", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber),
@@ -14,8 +12,6 @@ export const studentPrograms = sqliteTable("student_programs", {
 	type: text("type").notNull(),
 	level: text("level").notNull(),
 	program: text("program").notNull().references(() => programs.code),
-	department: text("department").notNull().references(() => departments.code),
-	college: text("college").notNull().references(() => colleges.code),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.type, table.program] }),
 	check("program_type", sql`${table.type} IN ('MAJOR', 'MINOR')`),
@@ -35,13 +31,5 @@ export const studentProgramRelations = relations(studentPrograms, ({ one }) => (
 	program: one(programs, { // Student programs have a program
 		fields: [studentPrograms.program],
 		references: [programs.code],
-	}),
-	department: one(departments, { // Student programs have a department
-		fields: [studentPrograms.department],
-		references: [departments.code],
-	}),
-	college: one(colleges, { // Student programs have a college
-		fields: [studentPrograms.college],
-		references: [colleges.code],
 	}),
 }));

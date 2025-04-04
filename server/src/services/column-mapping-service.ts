@@ -297,8 +297,6 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "type", dbColumn: "type" },
 					{ csvColumn: "level", dbColumn: "level" },
 					{ csvColumn: "program", dbColumn: "program" },
-					{ csvColumn: "department", dbColumn: "department" },
-					{ csvColumn: "college", dbColumn: "college" },
 				],
 				// This is the key addition - a function that transforms one CSV row into multiple DB rows
 				rowExpander: expandStudentPrograms
@@ -369,14 +367,14 @@ export const csvFileMappings: CsvFileMapping[] = [
 			},
 			{
 				/**
-				 * This table exists solely to be as a fallback for instructor names.
+				 * This table exists solely to be as a fallback for instructor/faculty names.
 				 * Why: If an instructor has not signed in to the system before, their name will not be in the
 				 * user table. This table is used to store instructor names for those instructors.
 				 */
 				tableName: "Instructors",
 				tableId: "instructors",
 				primaryKeys: ["mnumber"],
-				schemaRef: schema.instructors,
+				schemaRef: schema.faculty,
 				columnMappings: [
 					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
 					{ csvColumn: "instfirstnm", dbColumn: "first_name" },
