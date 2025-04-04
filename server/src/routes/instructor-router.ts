@@ -2,6 +2,7 @@ import express from 'express';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 import { InstructorController } from '../controllers/instructor-controller';
+import { checkInstructorAccess } from '../middleware/check-instructor-access';
 
 /**
  * Instructor routes
@@ -10,6 +11,7 @@ import { InstructorController } from '../controllers/instructor-controller';
  * @requires zod
  * @requires zod-openapi/extend
  * @requires ../controllers/instructor-controller
+ * @requires ../middleware/check-instructor-access
  * @description This module defines the routes for instructor-related endpoints.
  * It includes routes for fetching basic instructor information, current teaching status,
  * teaching summary, course details, and term summaries.
@@ -19,52 +21,51 @@ import { InstructorController } from '../controllers/instructor-controller';
 const router = express.Router();
 
 // Get instructors
-router.get('/', 
-	InstructorController.checkAccess,
+router.get('/',
 	InstructorController.getInstructors
 );
 
 // Basic instructor information
 router.get('/:mnumber',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getBasicInfo
 );
 
 // Current teaching status
 router.get('/:mnumber/current-status',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getCurrentStatus
 );
 
 // Teaching summary
 router.get('/:mnumber/teaching-summary',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getTeachingSummary
 );
 
 // Course details
 router.get('/:mnumber/courses',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getCourseDetails
 );
 
 // Term summaries
 router.get('/:mnumber/terms',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getTermSummaries
 );
 
 // Credit hours data
 router.get('/:mnumber/credit-hours',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getCreditHoursData
 );
 
 // Class Roster
 router.get('/:mnumber/class-roster',
-	InstructorController.checkAccess,
+	checkInstructorAccess,
 	InstructorController.getClassRoster
-)
+);
 
 
 // OpenAPI Specification

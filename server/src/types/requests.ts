@@ -1,5 +1,6 @@
 import { Request } from "express";
-import { AccessService } from '../services/access-service';
+import { AccessService } from '../services/student-access-service';
+import { InstructorAccessService } from '../services/instructor-access-service';
 
 /**
  * Interface for authenticated requests.
@@ -39,4 +40,5 @@ export interface AuthAndPermissionsRequest extends AuthenticatedRequest {
 	mnumber: string | null;
 	isEnabled: boolean;
 	accessService?: AccessService;
+	instructorAccessService?: InstructorAccessService;
 }

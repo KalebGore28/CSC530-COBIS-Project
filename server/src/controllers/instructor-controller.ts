@@ -1,52 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { InstructorsService } from '../services/instructor-service';
+import { InstructorAccessService } from '../services/instructor-access-service';
 
 /**
  * Controller for instructor-related endpoints
  */
 export class InstructorController {
-	/**
-	 * Middleware to check if user can access instructor data
-	 */
-	static async checkAccess(req: Request, res: Response, next: NextFunction) {
-		const authReq = req as AuthAndPermissionsRequest;
-		const { mnumber } = req.params;
-
-		try {
-			// Check if user has necessary roles
-			const isAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) => role.role_name === 'cobis_administrator');
-			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) => role.role_name === 'department_chair');
-
-			// Admins can access all instructors
-			if (isAdmin) {
-				next();
-				return;
-			}
-
-			// Department chairs can access instructors in their department
-			if (isDeptChair && authReq.department) {
-				const instructorDept = await InstructorsService.getInstructorDepartment(mnumber);
-
-				if (instructorDept && instructorDept === authReq.department) {
-					return next();
-				}
-			}
-
-			// Users can access their own data
-			if (authReq.mnumber === mnumber) {
-				return next();
-			}
-
-			// If none of the conditions are met, deny access
-			res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
-			return;
-		} catch (error) {
-			console.error('Error in permission middleware:', error);
-			res.status(500).json({ error: 'Internal server error' });
-			return;
-		}
-	}
+	// The checkAccess middleware has been replaced by the checkInstructorAccess middleware
+	// See middleware/check-instructor-access.ts for the implementation
 
 	/**
 	 * Get basic instructor information
@@ -277,6 +239,7 @@ export class InstructorController {
 	static async getInstructors(req: Request, res: Response) {
 		try {
 			const authReq = req as AuthAndPermissionsRequest;
+			const accessService = new InstructorAccessService();
 
 			// Check permissions
 			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
@@ -312,6 +275,4 @@ export class InstructorController {
 			return;
 		}
 	}
-
-
 }

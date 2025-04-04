@@ -9,7 +9,7 @@ import {
 	instructionalMethods
 } from '../db/schema';
 import { AuthAndPermissionsRequest } from '../types/requests';
-import { AccessService } from './access-service';
+import { AccessService } from './student-access-service';
 
 export class StudentEnrollmentService {
 	/**

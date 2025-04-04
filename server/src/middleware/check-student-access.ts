@@ -1,6 +1,5 @@
-// src/middleware/check-student-access.ts
 import { Request, Response, NextFunction } from 'express';
-import { AccessService } from '../services/access-service';
+import { AccessService } from '../services/student-access-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
 
 export const checkStudentAccess = async (
