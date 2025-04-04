@@ -9,7 +9,7 @@ import {
 	userPermissions,
 	rolePermissions,
 	user,
-	instructors,
+	faculty,
 } from '../db/schema';
 
 
@@ -108,11 +108,11 @@ export const getUserInfo = async (
 		// get user department and college by using their mnumber and getting it from the instructors table
 		const userInfo = await db
 			.select({
-				department: instructors.department,
-				college: instructors.college,
+				department: faculty.department,
+				college: faculty.college,
 			})
-			.from(instructors)
-			.where(eq(instructors.mnumber, userData[0]?.mnumber ?? ''))
+			.from(faculty)
+			.where(eq(faculty.mnumber, userData[0]?.mnumber ?? ''))
 			.execute();
 
 		const departmentCode = userInfo[0]?.department;

@@ -4,7 +4,8 @@ import {
 	instructorCourses,
 	studentCourses,
 	studentPrograms,
-	programs
+	programs,
+	studentAdvisors // Added for advisor checks
 } from '../db/schema';
 import { AuthAndPermissionsRequest } from '../types/requests';
 
@@ -41,6 +42,12 @@ export class AccessService {
 			if (hasTaught) return true;
 		}
 
+		// Advisors can access students they advise
+		if (user.roles.some(r => r.role_name === 'advisor') && user.mnumber) {
+			const isAdvisee = await this.isStudentAdvisee(user.mnumber, studentMnumber);
+			if (isAdvisee) return true;
+		}
+
 		// Administrators can access students in their college's programs
 		if (user.roles.some(r => r.role_name === 'administrator') && user.college) {
 			const isInCollege = await this.isStudentInCollege(studentMnumber, user.college);
@@ -66,42 +73,73 @@ export class AccessService {
 		if (user.roles.some(r => r.role_name === 'faculty') && user.mnumber) {
 			// Faculty can only see courses up to the last term they taught the student
 			filters.push(sql`
-        (student_courses.year < (
-          SELECT MAX(ic2.year) 
-          FROM instructor_courses ic2 
-          JOIN student_courses sc2 ON 
-            ic2.crn = sc2.crn AND 
-            ic2.term = sc2.term AND 
-            ic2.year = sc2.year
-          WHERE 
-            ic2.mnumber = ${user.mnumber} AND 
-            sc2.mnumber = ${studentMnumber}
-        )
-        OR 
-        (student_courses.year = (
-          SELECT MAX(ic3.year) 
-          FROM instructor_courses ic3 
-          JOIN student_courses sc3 ON 
-            ic3.crn = sc3.crn AND 
-            ic3.term = sc3.term AND 
-            ic3.year = sc3.year
-          WHERE 
-            ic3.mnumber = ${user.mnumber} AND 
-            sc3.mnumber = ${studentMnumber}
-        ) AND
-        student_courses.term <= (
-          SELECT MAX(ic4.term) 
-          FROM instructor_courses ic4 
-          JOIN student_courses sc4 ON 
-            ic4.crn = sc4.crn AND 
-            ic4.term = sc4.term AND 
-            ic4.year = sc4.year
-          WHERE 
-            ic4.mnumber = ${user.mnumber} AND 
-            sc4.mnumber = ${studentMnumber} AND
-            ic4.year = student_courses.year
-        )))
-      `);
+				(student_courses.year < (
+					SELECT MAX(ic2.year) 
+					FROM instructor_courses ic2 
+					JOIN student_courses sc2 ON 
+						ic2.crn = sc2.crn AND 
+						ic2.term = sc2.term AND 
+						ic2.year = sc2.year
+					WHERE 
+						ic2.mnumber = ${user.mnumber} AND 
+						sc2.mnumber = ${studentMnumber}
+				)
+				OR 
+				(student_courses.year = (
+					SELECT MAX(ic3.year) 
+					FROM instructor_courses ic3 
+					JOIN student_courses sc3 ON 
+						ic3.crn = sc3.crn AND 
+						ic3.term = sc3.term AND 
+						ic3.year = sc3.year
+					WHERE 
+						ic3.mnumber = ${user.mnumber} AND 
+						sc3.mnumber = ${studentMnumber}
+				) AND
+				student_courses.term <= (
+					SELECT MAX(ic4.term) 
+					FROM instructor_courses ic4 
+					JOIN student_courses sc4 ON 
+						ic4.crn = sc4.crn AND 
+						ic4.term = sc4.term AND 
+						ic4.year = sc4.year
+					WHERE 
+						ic4.mnumber = ${user.mnumber} AND 
+						sc4.mnumber = ${studentMnumber} AND
+						ic4.year = student_courses.year
+				)))
+			`);
+		}
+
+		// Advisor temporal access restriction
+		// Similar to faculty, advisors can only see courses up to the most recent term 
+		// where they were the student's advisor
+		if (user.roles.some(r => r.role_name === 'advisor') && user.mnumber) {
+			filters.push(sql`
+				(student_courses.year < (
+					SELECT MAX(sa.year) 
+					FROM student_advisors sa
+					WHERE 
+						sa.advisor_mnumber = ${user.mnumber} AND 
+						sa.student_mnumber = ${studentMnumber}
+				)
+				OR 
+				(student_courses.year = (
+					SELECT MAX(sa.year) 
+					FROM student_advisors sa
+					WHERE 
+						sa.advisor_mnumber = ${user.mnumber} AND 
+						sa.student_mnumber = ${studentMnumber}
+				) AND
+				student_courses.term <= (
+					SELECT MAX(sa.term) 
+					FROM student_advisors sa
+					WHERE 
+						sa.advisor_mnumber = ${user.mnumber} AND 
+						sa.student_mnumber = ${studentMnumber} AND
+						sa.year = student_courses.year
+				)))
+			`);
 		}
 
 		return filters;
@@ -163,6 +201,26 @@ export class AccessService {
 				and(
 					eq(instructorCourses.mnumber, instructorMnumber),
 					eq(studentCourses.mnumber, studentMnumber)
+				)
+			);
+
+		return result[0]?.count > 0;
+	}
+
+	/**
+	 * Check if a student is advised by a specific advisor
+	 */
+	private async isStudentAdvisee(advisorMnumber: string, studentMnumber: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		// Check if there's an advising relationship 
+		const result = await db
+			.select({ count: count() })
+			.from(studentAdvisors)
+			.where(
+				and(
+					eq(studentAdvisors.advisor_mnumber, advisorMnumber),
+					eq(studentAdvisors.student_mnumber, studentMnumber)
 				)
 			);
 

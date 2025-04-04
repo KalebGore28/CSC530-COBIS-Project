@@ -551,5 +551,5 @@ export class EnrollmentService {
 
 	// --- COURSE ENROLLMENT METHODS ---
 
-  
+
 }

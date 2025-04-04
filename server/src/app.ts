@@ -17,13 +17,13 @@ import { getUserInfo } from './middleware/getUserInfo';
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importRoutesAPISpecs } from "./routes/imports";
 import userRoute, { userSpecs } from "./routes/user";
-import reportingRoute, { reportingSpecs } from "./routes/reporting";
-import searchRoute, { searchSpecs } from "./routes/search";
-import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
-import customQuery from "./routes/customQueries";
-import instructorRouter, { instructorRouterSpec } from "./routes/instructor-router";
-import enrollmentRouter, { enrollmentRouterSpec } from "./routes/enrollment-router";
-import studentRouter, { studentRouterSpec } from "./routes/student-router";
+// import reportingRoute, { reportingSpecs } from "./routes/reporting";
+// import searchRoute, { searchSpecs } from "./routes/search";
+// import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
+// import customQuery from "./routes/customQueries";
+// import instructorRouter, { instructorRouterSpec } from "./routes/instructor-router";
+// import enrollmentRouter, { enrollmentRouterSpec } from "./routes/enrollment-router";
+// import studentRouter, { studentRouterSpec } from "./routes/student-router";
 import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 
@@ -40,12 +40,12 @@ const document = createDocument({
     paths: {
         ...importRoutesAPISpecs,
         ...userSpecs,
-        ...reportingSpecs,
-        ...searchSpecs,
-        ...studentLookupSpec,
-        ...instructorRouterSpec,
-        ...enrollmentRouterSpec,
-        ...studentRouterSpec,
+        // ...reportingSpecs,
+        // ...searchSpecs,
+        // ...studentLookupSpec,
+        // ...instructorRouterSpec,
+        // ...enrollmentRouterSpec,
+        // ...studentRouterSpec,
     },
 });
 
@@ -71,12 +71,12 @@ app.use(authenticateUser)
 app.use(getUserInfo)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
-app.use("/api/reporting", reportingRoute)
-app.use("/api/search", searchRoute)
-app.use("/api", studentLookup)
-app.use('/api/custom-query', customQuery)
-app.use("/api/instructor", instructorRouter)
-app.use("/api/enrollment", enrollmentRouter)
+// app.use("/api/reporting", reportingRoute)
+// app.use("/api/search", searchRoute)
+// app.use("/api", studentLookup)
+// app.use('/api/custom-query', customQuery)
+// app.use("/api/instructor", instructorRouter)
+// app.use("/api/enrollment", enrollmentRouter)
 // app.use("/api/students", studentRouter)
 app.use('/api/students', studentEnrollmentRouter);
 

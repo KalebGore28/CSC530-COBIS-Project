@@ -1,7 +1,7 @@
 import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL, inArray } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
-	instructors,
+	faculty,
 	user,
 	instructorCourses,
 	studentCourses,
@@ -34,19 +34,19 @@ export class InstructorsService {
 
 		const instructorInfo = await db
 			.select({
-				mnumber: instructors.mnumber,
-				firstName: instructors.first_name,
-				lastName: instructors.last_name,
+				mnumber: faculty.mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
 				department: departments.description,
 				college: colleges.description,
 				email: user.email,
 				image: user.image
 			})
-			.from(instructors)
-			.leftJoin(user, eq(instructors.mnumber, user.mnumber))
-			.leftJoin(departments, eq(instructors.department, departments.code))
-			.leftJoin(colleges, eq(instructors.college, colleges.code))
-			.where(eq(instructors.mnumber, mnumber))
+			.from(faculty)
+			.leftJoin(user, eq(faculty.mnumber, user.mnumber))
+			.leftJoin(departments, eq(faculty.department, departments.code))
+			.leftJoin(colleges, eq(faculty.college, colleges.code))
+			.where(eq(faculty.mnumber, mnumber))
 			.limit(1);
 
 		if (instructorInfo.length === 0) {
@@ -102,8 +102,8 @@ export class InstructorsService {
 
 		const result = await db
 			.select({ count: count() })
-			.from(instructors)
-			.where(eq(instructors.mnumber, mnumber));
+			.from(faculty)
+			.where(eq(faculty.mnumber, mnumber));
 
 		return result[0]?.count > 0;
 	}
@@ -115,9 +115,9 @@ export class InstructorsService {
 		const db = (await getDbConnection()).orm;
 
 		const result = await db
-			.select({ department: instructors.department })
-			.from(instructors)
-			.where(eq(instructors.mnumber, mnumber))
+			.select({ department: faculty.department })
+			.from(faculty)
+			.where(eq(faculty.mnumber, mnumber))
 			.limit(1);
 
 		return result.length > 0 ? result[0].department : null;
@@ -787,9 +787,9 @@ export class InstructorsService {
 		// Base query
 		let query = db
 			.select({
-				mnumber: instructors.mnumber,
-				firstName: instructors.first_name,
-				lastName: instructors.last_name,
+				mnumber: faculty.mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
 				department: departments.description,
 				departmentCode: departments.code,
 				college: colleges.description,
@@ -797,21 +797,21 @@ export class InstructorsService {
 				email: user.email,
 				image: user.image
 			})
-			.from(instructors)
-			.leftJoin(user, eq(instructors.mnumber, user.mnumber))
-			.leftJoin(departments, eq(instructors.department, departments.code))
-			.leftJoin(colleges, eq(instructors.college, colleges.code));
+			.from(faculty)
+			.leftJoin(user, eq(faculty.mnumber, user.mnumber))
+			.leftJoin(departments, eq(faculty.department, departments.code))
+			.leftJoin(colleges, eq(faculty.college, colleges.code));
 
 		// Filter by department if provided
 		if (departmentCode) {
-			query.where(eq(instructors.department, departmentCode));
+			query.where(eq(faculty.department, departmentCode));
 		}
 
 		// Execute query and order results
 		const instructorsList = await query.orderBy(
 			departments.description,
-			instructors.last_name,
-			instructors.first_name
+			faculty.last_name,
+			faculty.first_name
 		);
 
 		// Map results to standardized format
