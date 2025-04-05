@@ -19,7 +19,7 @@ const ProfessorPage: React.FC = () => {
 								</p>
 							</div>
 							<ProfessorTeachingInfo />
-							<ProfessorTeachingInfoStatic />
+							{/* <ProfessorTeachingInfoStatic /> */}
 						</div>
 					</main>
 				</div>
