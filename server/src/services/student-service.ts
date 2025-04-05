@@ -252,46 +252,6 @@ export class StudentService {
 	}
 
 	/**
-	 * Check if a student is in a specific department
-	 */
-	static async isStudentInDepartment(mnumber: string, departmentCode: string): Promise<boolean> {
-		const db = (await getDbConnection()).orm;
-
-		// Query needs to join studentPrograms with programs to check department
-		const result = await db
-			.select({ count: count() })
-			.from(studentPrograms)
-			.innerJoin(programs, eq(studentPrograms.program, programs.code))
-			.where(
-				and(
-					eq(studentPrograms.mnumber, mnumber),
-					eq(programs.department, departmentCode)
-				)
-			);
-
-		return Number(result[0]?.count || 0) > 0;
-	}
-
-	/**
-	 * Check if a student is advised by a specific instructor
-	 */
-	static async isAdvisee(studentMnumber: string, advisorMnumber: string): Promise<boolean> {
-		const db = (await getDbConnection()).orm;
-
-		const result = await db
-			.select({ count: count() })
-			.from(studentAdvisors)
-			.where(
-				and(
-					eq(studentAdvisors.student_mnumber, studentMnumber),
-					eq(studentAdvisors.advisor_mnumber, advisorMnumber)
-				)
-			);
-
-		return Number(result[0]?.count || 0) > 0;
-	}
-
-	/**
 	 * Get detailed information for a specific student
 	 */
 	static async getStudentInfo(mnumber: string) {
@@ -426,5 +386,45 @@ export class StudentService {
 				year: a.year
 			}))
 		};
+	}
+
+	/**
+	 * Check if a student is in a specific department
+	 */
+	static async isStudentInDepartment(mnumber: string, departmentCode: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		// Query needs to join studentPrograms with programs to check department
+		const result = await db
+			.select({ count: count() })
+			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(
+				and(
+					eq(studentPrograms.mnumber, mnumber),
+					eq(programs.department, departmentCode)
+				)
+			);
+
+		return Number(result[0]?.count || 0) > 0;
+	}
+
+	/**
+	 * Check if a student is advised by a specific instructor
+	 */
+	static async isAdvisee(studentMnumber: string, advisorMnumber: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		const result = await db
+			.select({ count: count() })
+			.from(studentAdvisors)
+			.where(
+				and(
+					eq(studentAdvisors.student_mnumber, studentMnumber),
+					eq(studentAdvisors.advisor_mnumber, advisorMnumber)
+				)
+			);
+
+		return Number(result[0]?.count || 0) > 0;
 	}
 }
