@@ -130,6 +130,10 @@ const CurrentStatus = z.object({
 			description: 'Current term and year',
 			example: 'FALL'
 		}),
+		currentTermCode: z.string().openapi({
+			description: 'Current term code',
+			example: '80'
+		}),
 		currentYear: z.number().openapi({
 			description: 'Current year',
 			example: 2023

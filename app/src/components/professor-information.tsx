@@ -207,7 +207,7 @@ const ProfessorTeachingInfo = () => {
       setCurrentStatus(currentStatusRes)
 
       // Now fetch the rest using the current status to filter courses
-      const currentTerm = currentStatusRes.currentStatus.currentTerm
+      const currentTerm = currentStatusRes.currentStatus.currentTermCode
       const currentYear = currentStatusRes.currentStatus.currentYear
 
       // Fetch remaining data
@@ -228,6 +228,7 @@ const ProfessorTeachingInfo = () => {
 
       // Debug logs to understand the data
       console.log("Current Status Response:", currentStatusRes)
+      console.log("Current term and year:", currentTerm, currentYear)
       console.log("Course Details Response with filtering:", courseDetailsRes)
 
       setTeachingSummary(teachingSummaryRes)

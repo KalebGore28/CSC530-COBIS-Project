@@ -143,6 +143,7 @@ export class InstructorsService {
 
 		return {
 			currentTerm: currentTerm,
+			currentTermCode: currentTermCode,
 			currentYear: maxYear,
 			isCurrentlyTeaching,
 			currentCourseCount: currentCourseCount[0]?.count || 0
