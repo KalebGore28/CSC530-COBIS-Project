@@ -32,6 +32,7 @@ import { StudentAPISpecs } from "./specs/student-specs";
 import { EnrollmentAPISpecs } from "./specs/enrollment-specs";
 import { SearchAPISpecs } from "./specs/search-specs";
 import { ReportingAPISpecs } from "./specs/reporting-specs";
+import { UserAPISpecs } from "./specs/user-specs";
 
 // Create an OpenAPI document
 const document = createDocument({
@@ -49,6 +50,7 @@ const document = createDocument({
         ...EnrollmentAPISpecs,
         ...SearchAPISpecs,
         ...ReportingAPISpecs,
+        ...UserAPISpecs,
         // ...importRoutesAPISpecs,
         // ...userSpecs,
         // ...reportingSpecs,
