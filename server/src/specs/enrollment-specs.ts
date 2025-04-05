@@ -645,6 +645,150 @@ const FacultyMemberEnrollmentResponse = z.object({
 	})
 });
 
+// Query parameters for faculty member enrollment trends
+const FacultyMemberTrendsQuerySchema = z.object({
+	yearsBack: z.string().optional().openapi({
+		description: 'Number of years to look back',
+		example: '5'
+	}),
+	includeCurrentTerm: z.string().optional().openapi({
+		description: 'Whether to include the current term',
+		example: 'true'
+	})
+});
+
+// Faculty member enrollment trends response schema
+const FacultyMemberEnrollmentTrendsResponse = z.object({
+	faculty: z.object({
+		mnumber: z.string().openapi({
+			description: 'Faculty M-number',
+			example: 'M12345678'
+		}),
+		firstName: z.string().openapi({
+			description: 'Faculty first name',
+			example: 'Jane'
+		}),
+		lastName: z.string().openapi({
+			description: 'Faculty last name',
+			example: 'Smith'
+		}),
+		department: z.string().openapi({
+			description: 'Department code',
+			example: 'CSC'
+		}),
+		departmentDescription: z.string().openapi({
+			description: 'Department description',
+			example: 'Computer Science'
+		})
+	}).openapi({
+		description: 'Faculty information'
+	}),
+	startYear: z.number().openapi({
+		description: 'Start year for the trend data',
+		example: 2018
+	}),
+	endYear: z.number().openapi({
+		description: 'End year for the trend data',
+		example: 2023
+	}),
+	includesCurrentTerm: z.boolean().openapi({
+		description: 'Whether the current term is included',
+		example: true
+	}),
+	currentTerm: z.object({
+		term: z.string().openapi({
+			description: 'Current term code',
+			example: '10'
+		}),
+		termDescription: z.string().openapi({
+			description: 'Current term description',
+			example: 'Spring'
+		}),
+		year: z.number().openapi({
+			description: 'Current year',
+			example: 2023
+		})
+	}).openapi({
+		description: 'Current term information'
+	}),
+	trendData: z.array(
+		z.object({
+			term: z.string().openapi({
+				description: 'Term code',
+				example: '10'
+			}),
+			termDescription: z.string().openapi({
+				description: 'Term description',
+				example: 'Spring'
+			}),
+			year: z.number().openapi({
+				description: 'Year',
+				example: 2023
+			}),
+			displayTerm: z.string().openapi({
+				description: 'Display term',
+				example: 'Spring 2023'
+			}),
+			courseCount: z.number().openapi({
+				description: 'Number of courses taught in this term',
+				example: 3
+			}),
+			studentCount: z.number().openapi({
+				description: 'Total number of students taught in this term',
+				example: 75
+			}),
+			courseCountChange: z.object({
+				absolute: z.number().openapi({
+					description: 'Absolute change in course count from previous term',
+					example: 1
+				}),
+				percentage: z.number().nullable().openapi({
+					description: 'Percentage change in course count from previous term',
+					example: 33.3
+				})
+			}).optional().openapi({
+				description: 'Course count change'
+			}),
+			studentCountChange: z.object({
+				absolute: z.number().openapi({
+					description: 'Absolute change in student count from previous term',
+					example: 15
+				}),
+				percentage: z.number().nullable().openapi({
+					description: 'Percentage change in student count from previous term',
+					example: 20
+				})
+			}).optional().openapi({
+				description: 'Student count change'
+			}),
+			courses: z.array(
+				z.object({
+					courseId: z.string().openapi({
+						description: 'Course ID',
+						example: 'CSC 430'
+					}),
+					courseTitle: z.string().openapi({
+						description: 'Course title',
+						example: 'Database Management Systems'
+					}),
+					crn: z.string().openapi({
+						description: 'Course registration number',
+						example: '12345'
+					}),
+					enrollmentCount: z.number().openapi({
+						description: 'Number of students enrolled',
+						example: 30
+					})
+				})
+			).openapi({
+				description: 'Courses taught in this term'
+			})
+		})
+	).openapi({
+		description: 'Term-by-term enrollment trend data'
+	})
+});
+
 export const EnrollmentAPISpecs = {
 	'/api/enrollment/programs': {
 		get: {
@@ -773,6 +917,48 @@ export const EnrollmentAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/enrollment/faculty/{mnumber}/trends': {
+		get: {
+			tags: ['Enrollment'],
+			operationId: 'getFacultyMemberEnrollmentTrends',
+			summary: 'Get faculty member enrollment trends',
+			description: 'Retrieve teaching load and enrollment trend data for a specific faculty member over time. Shows how course count, student count, and specific courses taught have changed across terms. Faculty users can only access their own data. Department chairs can access data for faculty in their department. Administrators and COBIS admins can access all faculty data.',
+			requestParams: {
+				path: FacultyMemberParamsSchema,
+				query: FacultyMemberTrendsQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with faculty member enrollment trend data',
+					content: {
+						'application/json': {
+							schema: FacultyMemberEnrollmentTrendsResponse
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied due to insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'Faculty member not found',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
 	}
 };
 
@@ -789,5 +975,7 @@ export const EnrollmentSpecs = {
 	FacultyEnrollmentResponse,
 	FacultyMemberParamsSchema,
 	FacultyMemberEnrollmentQuerySchema,
-	FacultyMemberEnrollmentResponse
+	FacultyMemberEnrollmentResponse,
+	FacultyMemberTrendsQuerySchema,
+	FacultyMemberEnrollmentTrendsResponse
 }; 

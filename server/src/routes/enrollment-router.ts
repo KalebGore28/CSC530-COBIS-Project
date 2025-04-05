@@ -46,4 +46,10 @@ router.get('/faculty/:mnumber',
 	EnrollmentController.getFacultyMemberEnrollment
 );
 
+// Faculty member enrollment trends over time
+router.get('/faculty/:mnumber/trends',
+	EnrollmentController.checkEnrollmentAccess,
+	EnrollmentController.getFacultyMemberEnrollmentTrends
+);
+
 export default router;

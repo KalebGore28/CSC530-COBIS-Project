@@ -369,4 +369,69 @@ export class EnrollmentController {
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
+
+	/**
+	 * Get faculty member enrollment trends over multiple terms/years
+	 * Shows teaching load changes over time for better analysis
+	 */
+	static async getFacultyMemberEnrollmentTrends(req: Request, res: Response) {
+		try {
+			const authReq = req as AuthAndPermissionsRequest;
+			const { mnumber } = req.params;
+			const yearsBack = req.query.yearsBack ? parseInt(req.query.yearsBack as string) : 5; // Default to 5 years
+			const includeCurrentTerm = req.query.includeCurrentTerm === 'true';
+
+			// Check if user has necessary roles
+			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+			const isAdministrator = authReq.roles.some(role => role.role_name === 'administrator');
+			const isFaculty = authReq.roles.some(role => role.role_name === 'faculty');
+
+			// Faculty can only view their own data
+			if (isFaculty && !isAdmin && !isDeptChair && !isAdministrator) {
+				if (authReq.mnumber !== mnumber) {
+					res.status(403).json({ error: 'Access denied. You can only view your own enrollment data.' });
+					return;
+				}
+			}
+
+			// Get faculty info to verify department for chairs
+			const facultyData = await EnrollmentService.getFacultyMemberEnrollment({
+				mnumber,
+				term: undefined,
+				year: undefined
+			});
+
+			if (!facultyData) {
+				res.status(404).json({ error: 'Faculty not found' });
+				return;
+			}
+
+			// Department chairs can only view faculty in their department
+			if (isDeptChair && !isAdmin) {
+				const departmentCode = authReq.department || '';
+				if (facultyData.faculty.department !== departmentCode) {
+					res.status(403).json({ error: 'Access denied. Faculty member is not in your department.' });
+					return;
+				}
+			}
+
+			// Get the trend data
+			const trendsData = await EnrollmentService.getFacultyMemberEnrollmentTrends({
+				mnumber,
+				yearsBack,
+				includeCurrentTerm
+			});
+
+			if (!trendsData) {
+				res.status(404).json({ error: 'Faculty not found or no data available' });
+				return;
+			}
+
+			res.json(trendsData);
+		} catch (error) {
+			console.error('Error fetching faculty member enrollment trends:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	}
 }

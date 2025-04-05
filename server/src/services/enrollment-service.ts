@@ -909,4 +909,246 @@ export class EnrollmentService {
 			}
 		};
 	}
+
+	/**
+	 * Get enrollment trends for a specific faculty member over multiple terms/years
+	 */
+	static async getFacultyMemberEnrollmentTrends(params: {
+		mnumber: string;
+		yearsBack?: number;
+		includeCurrentTerm?: boolean;
+	}) {
+		const { mnumber, yearsBack = 5, includeCurrentTerm = true } = params;
+		const db = (await getDbConnection()).orm;
+
+		// Get faculty info
+		const facultyInfo = await db
+			.select({
+				mnumber: faculty.mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
+				department: faculty.department,
+				departmentDescription: departments.description
+			})
+			.from(faculty)
+			.leftJoin(departments, eq(faculty.department, departments.code))
+			.where(eq(faculty.mnumber, mnumber))
+			.limit(1);
+
+		if (facultyInfo.length === 0) {
+			return null; // Faculty not found
+		}
+
+		// Get the current term and year
+		const currentDate = new Date();
+		const currentYear = currentDate.getFullYear();
+
+		// Determine current term based on the date
+		const currentMonth = currentDate.getMonth() + 1;
+		let currentTermCode = '80'; // Default to Fall
+
+		if (currentMonth >= 1 && currentMonth <= 4) {
+			currentTermCode = '10'; // Spring: Jan-Apr
+		} else if (currentMonth >= 5 && currentMonth <= 7) {
+			currentTermCode = '50'; // Summer: May-Jul
+		} else if (currentMonth >= 8 && currentMonth <= 12) {
+			currentTermCode = '80'; // Fall: Aug-Dec
+		}
+
+		// Calculate the start year (current year - yearsBack)
+		const startYear = currentYear - yearsBack;
+
+		// Define our term sequence for sorting
+		const termSequence = ['10', '50', '80', '90']; // Spring, Summer, Fall, Winter
+
+		// Build base conditions
+		const conditions: SQL[] = [];
+
+		// Condition for year range
+		conditions.push(gte(instructorCourses.year, startYear));
+
+		// If we don't want the current term, exclude it
+		if (!includeCurrentTerm) {
+			conditions.push(
+				sql`(${instructorCourses.year} < ${currentYear} OR (${instructorCourses.year} = ${currentYear} AND ${instructorCourses.term} != ${currentTermCode}))`
+			);
+		}
+
+		// Faculty filter
+		conditions.push(eq(instructorCourses.mnumber, mnumber));
+
+		// Get term descriptions for reference
+		const termDescriptions = await db
+			.select({
+				code: terms.code,
+				description: terms.description
+			})
+			.from(terms)
+			.where(inArray(terms.code, termSequence));
+
+		// Create a term description lookup
+		const termLookup: Record<string, string> = {};
+		termDescriptions.forEach(term => {
+			termLookup[term.code] = term.description;
+		});
+
+		// Get course counts per term
+		const courseCounts = await db
+			.select({
+				term: instructorCourses.term,
+				year: instructorCourses.year,
+				courseCount: count()
+			})
+			.from(instructorCourses)
+			.where(and(...conditions))
+			.groupBy(instructorCourses.term, instructorCourses.year)
+			.orderBy(instructorCourses.year, instructorCourses.term);
+
+		// Format course counts with term descriptions
+		const formattedCourseCounts = courseCounts.map(item => {
+			const termSortOrder = termSequence.indexOf(item.term);
+			return {
+				term: item.term,
+				termDescription: termLookup[item.term] || `Term ${item.term}`,
+				year: item.year,
+				displayTerm: `${termLookup[item.term] || `Term ${item.term}`} ${item.year}`,
+				sortOrder: (item.year * 10) + termSortOrder,
+				courseCount: Number(item.courseCount),
+				studentCount: 0, // Will fill this in next
+				courses: [] // Will fill this in next
+			};
+		});
+
+		// Get course details and student counts per term
+		const termDataMap: Record<string, any> = {};
+		formattedCourseCounts.forEach(item => {
+			const key = `${item.term}-${item.year}`;
+			termDataMap[key] = item;
+		});
+
+		// Build a term-year combo array for the queries
+		const termYearCombos = formattedCourseCounts.map(item => ({
+			term: item.term,
+			year: item.year
+		}));
+
+		// Get course details with enrollment for each term
+		for (const termYear of termYearCombos) {
+			const { term, year } = termYear;
+			const key = `${term}-${year}`;
+
+			// Get courses for this faculty in this term/year
+			const facultyCourses = await db
+				.select({
+					crn: instructorCourses.crn,
+					courseSubject: instructorCourses.course_subject,
+					courseNumber: instructorCourses.course_number,
+					courseSuffix: instructorCourses.course_suffix,
+					title: courses.title
+				})
+				.from(instructorCourses)
+				.leftJoin(
+					courses,
+					and(
+						eq(instructorCourses.course_subject, courses.subject),
+						eq(instructorCourses.course_number, courses.number),
+						eq(instructorCourses.course_suffix, courses.suffix)
+					)
+				)
+				.where(
+					and(
+						eq(instructorCourses.mnumber, mnumber),
+						eq(instructorCourses.term, term),
+						eq(instructorCourses.year, year)
+					)
+				);
+
+			let totalStudentCount = 0;
+			const courseData = [];
+
+			// For each course, get student count
+			for (const course of facultyCourses) {
+				const studentCount = await db
+					.select({
+						count: count()
+					})
+					.from(studentCourses)
+					.where(
+						and(
+							eq(studentCourses.crn, course.crn),
+							eq(studentCourses.term, term),
+							eq(studentCourses.year, year)
+						)
+					);
+
+				const enrollmentCount = Number(studentCount[0]?.count || 0);
+				totalStudentCount += enrollmentCount;
+
+				courseData.push({
+					courseId: `${course.courseSubject} ${course.courseNumber}${course.courseSuffix || ''}`,
+					courseTitle: course.title || 'Unknown Course',
+					crn: course.crn,
+					enrollmentCount
+				});
+			}
+
+			// Update the term data with student count and courses
+			if (termDataMap[key]) {
+				termDataMap[key].studentCount = totalStudentCount;
+				termDataMap[key].courses = courseData;
+			}
+		}
+
+		// Sort terms chronologically
+		const sortedTerms = Object.values(termDataMap).sort(
+			(a: any, b: any) => a.sortOrder - b.sortOrder
+		);
+
+		// Calculate changes between terms
+		if (sortedTerms.length > 1) {
+			for (let i = 1; i < sortedTerms.length; i++) {
+				const prevTerm = sortedTerms[i - 1];
+				const currentTerm = sortedTerms[i];
+
+				// Course count change
+				if (prevTerm.courseCount > 0) {
+					currentTerm.courseCountChange = {
+						absolute: currentTerm.courseCount - prevTerm.courseCount,
+						percentage: prevTerm.courseCount > 0
+							? parseFloat((((currentTerm.courseCount - prevTerm.courseCount) / prevTerm.courseCount) * 100).toFixed(1))
+							: null
+					};
+				}
+
+				// Student count change
+				if (prevTerm.studentCount > 0) {
+					currentTerm.studentCountChange = {
+						absolute: currentTerm.studentCount - prevTerm.studentCount,
+						percentage: prevTerm.studentCount > 0
+							? parseFloat((((currentTerm.studentCount - prevTerm.studentCount) / prevTerm.studentCount) * 100).toFixed(1))
+							: null
+					};
+				}
+			}
+		}
+
+		return {
+			faculty: {
+				mnumber: facultyInfo[0].mnumber,
+				firstName: facultyInfo[0].firstName,
+				lastName: facultyInfo[0].lastName,
+				department: facultyInfo[0].department,
+				departmentDescription: facultyInfo[0].departmentDescription
+			},
+			startYear,
+			endYear: currentYear,
+			includesCurrentTerm: includeCurrentTerm,
+			currentTerm: {
+				term: currentTermCode,
+				termDescription: termLookup[currentTermCode] || `Term ${currentTermCode}`,
+				year: currentYear
+			},
+			trendData: sortedTerms
+		};
+	}
 }
