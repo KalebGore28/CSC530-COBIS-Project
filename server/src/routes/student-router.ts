@@ -14,7 +14,7 @@ const router = express.Router();
 
 // Get students
 router.get('/',
-	StudentController.checkAccess,
+	// GetStudents uniquely handle filtering out data the user shouldn't see.
 	StudentController.getStudents
 )
 
