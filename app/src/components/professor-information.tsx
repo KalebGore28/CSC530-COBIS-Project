@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { ChevronDown, ChevronRight, Users, BookOpen, Calendar, ClipboardList } from "lucide-react"
+import { ChevronDown, ChevronRight, Users, BookOpen, Calendar } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -226,11 +226,6 @@ const ProfessorTeachingInfo = () => {
         })
       ])
 
-      // Debug logs to understand the data
-      console.log("Current Status Response:", currentStatusRes)
-      console.log("Current term and year:", currentTerm, currentYear)
-      console.log("Course Details Response with filtering:", courseDetailsRes)
-
       setTeachingSummary(teachingSummaryRes)
       setCourseDetails(courseDetailsRes)
       setTermSummaries(termSummariesRes)
@@ -450,8 +445,6 @@ const ProfessorTeachingInfo = () => {
                                     {currentStatus && currentStatus.currentStatus.isCurrentlyTeaching ? (
                                       <>
                                         <div>No current courses to display</div>
-                                        <div className="text-xs mt-2">Debug: Teaching: {currentStatus.currentStatus.isCurrentlyTeaching ? 'Yes' : 'No'}, Course Count: {currentStatus.currentStatus.currentCourseCount}</div>
-                                        <div className="text-xs">Has Course Details: {courseDetails ? 'Yes' : 'No'}</div>
                                         {courseDetails && (
                                           <div className="text-xs">
                                             Total Courses: {courseDetails.courseDetails?.length || 0}
