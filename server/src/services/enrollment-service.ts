@@ -11,6 +11,7 @@ import {
 	courses,
 	faculty,
 	instructorCourses,
+	registrationStatus,
 } from '../db/schema';
 
 /**
@@ -749,6 +750,162 @@ export class EnrollmentService {
 				facultyCount,
 				totalCourses,
 				totalStudents
+			}
+		};
+	}
+
+	/**
+	 * Get enrollment data for a single faculty member
+	 */
+	static async getFacultyMemberEnrollment(params: {
+		mnumber: string;
+		term?: string;
+		year?: number;
+	}) {
+		const { mnumber, term, year } = params;
+		const db = (await getDbConnection()).orm;
+
+		// Get faculty info
+		const facultyInfo = await db
+			.select({
+				mnumber: faculty.mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
+				department: faculty.department,
+				departmentDescription: departments.description
+			})
+			.from(faculty)
+			.leftJoin(departments, eq(faculty.department, departments.code))
+			.where(eq(faculty.mnumber, mnumber))
+			.limit(1);
+
+		if (facultyInfo.length === 0) {
+			return null; // Faculty not found
+		}
+
+		// If no term/year provided, get the most recent
+		let currentTerm = term;
+		let currentYear = year;
+
+		if (!currentTerm || !currentYear) {
+			const latestTermInfo = await db
+				.select({
+					maxTerm: sql<string>`MAX(${instructorCourses.term})`,
+					maxYear: sql<number>`MAX(${instructorCourses.year})`
+				})
+				.from(instructorCourses)
+				.where(eq(instructorCourses.mnumber, mnumber));
+
+			currentTerm = latestTermInfo[0]?.maxTerm || '10';
+			currentYear = latestTermInfo[0]?.maxYear || new Date().getFullYear();
+		}
+
+		// Get term info
+		const termInfo = await db
+			.select({
+				code: terms.code,
+				description: terms.description
+			})
+			.from(terms)
+			.where(eq(terms.code, currentTerm))
+			.limit(1);
+
+		// Get courses taught by this instructor in the specified term/year
+		const instructorCoursesList = await db
+			.select({
+				courseSubject: instructorCourses.course_subject,
+				courseNumber: instructorCourses.course_number,
+				courseSuffix: instructorCourses.course_suffix,
+				crn: instructorCourses.crn,
+				courseTitle: courses.title,
+				section: sql<string>`''` // We need to find a way to get section from somewhere
+			})
+			.from(instructorCourses)
+			.leftJoin(
+				courses,
+				and(
+					eq(instructorCourses.course_subject, courses.subject),
+					eq(instructorCourses.course_number, courses.number),
+					eq(instructorCourses.course_suffix, courses.suffix)
+				)
+			)
+			.where(
+				and(
+					eq(instructorCourses.mnumber, mnumber),
+					eq(instructorCourses.term, currentTerm),
+					eq(instructorCourses.year, currentYear)
+				)
+			);
+
+		// For each course, get enrollment count and details
+		const coursesWithEnrollment = [];
+		let totalStudentCount = 0;
+
+		for (const course of instructorCoursesList) {
+			// Get students enrolled in this course
+			const enrolledStudents = await db
+				.select({
+					mnumber: studentCourses.mnumber,
+					firstName: students.first_name,
+					lastName: students.last_name,
+					email: students.email,
+					section: studentCourses.course_section,
+					status: registrationStatus.description
+				})
+				.from(studentCourses)
+				.innerJoin(students, eq(studentCourses.mnumber, students.mnumber))
+				.leftJoin(registrationStatus, eq(studentCourses.registration_status, registrationStatus.code))
+				.where(
+					and(
+						eq(studentCourses.crn, course.crn),
+						eq(studentCourses.term, currentTerm),
+						eq(studentCourses.year, currentYear)
+					)
+				)
+				.orderBy(students.last_name, students.first_name);
+
+			const enrollmentCount = enrolledStudents.length;
+			totalStudentCount += enrollmentCount;
+
+			// Get section from student_courses as a fallback
+			let section = course.section;
+			if (!section && enrolledStudents.length > 0) {
+				section = enrolledStudents[0].section;
+			}
+
+			coursesWithEnrollment.push({
+				courseId: `${course.courseSubject} ${course.courseNumber}${course.courseSuffix || ''}`,
+				courseTitle: course.courseTitle || 'Unknown Course',
+				crn: course.crn,
+				section,
+				enrollmentCount,
+				students: enrolledStudents.map(student => ({
+					mnumber: student.mnumber,
+					firstName: student.firstName,
+					lastName: student.lastName,
+					email: student.email,
+					status: student.status
+				}))
+			});
+		}
+
+		return {
+			faculty: {
+				mnumber: facultyInfo[0].mnumber,
+				firstName: facultyInfo[0].firstName,
+				lastName: facultyInfo[0].lastName,
+				department: facultyInfo[0].department,
+				departmentDescription: facultyInfo[0].departmentDescription
+			},
+			term: {
+				code: currentTerm,
+				description: termInfo[0]?.description || currentTerm === '10' ? 'Spring' : currentTerm === '50' ? 'Summer' : 'Fall'
+			},
+			year: currentYear,
+			courses: coursesWithEnrollment,
+			totals: {
+				courseCount: instructorCoursesList.length,
+				studentCount: totalStudentCount
 			}
 		};
 	}

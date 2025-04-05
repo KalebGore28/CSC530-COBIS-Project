@@ -306,4 +306,67 @@ export class EnrollmentController {
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
+
+	/**
+	 * Get enrollment data for a specific faculty member
+	 */
+	static async getFacultyMemberEnrollment(req: Request, res: Response) {
+		try {
+			const authReq = req as AuthAndPermissionsRequest;
+			const { mnumber } = req.params;
+			const term = req.query.term as string;
+			const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+
+			// Check if user has necessary roles
+			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+			const isAdministrator = authReq.roles.some(role => role.role_name === 'administrator');
+			const isFaculty = authReq.roles.some(role => role.role_name === 'faculty');
+
+			// Faculty can only view their own data
+			if (isFaculty && !isAdmin && !isDeptChair && !isAdministrator) {
+				if (authReq.mnumber !== mnumber) {
+					res.status(403).json({ error: 'Access denied. You can only view your own enrollment data.' });
+					return;
+				}
+			}
+
+			// Department chairs can only view faculty in their department
+			if (isDeptChair && !isAdmin) {
+				const departmentCode = authReq.department || '';
+				if (!departmentCode) {
+					res.status(400).json({ error: 'Department chair has no associated department' });
+					return;
+				}
+
+				// Check if faculty belongs to chair's department (will be validated in service layer)
+			}
+
+			// Get the faculty enrollment data
+			const facultyData = await EnrollmentService.getFacultyMemberEnrollment({
+				mnumber,
+				term,
+				year
+			});
+
+			if (!facultyData) {
+				res.status(404).json({ error: 'Faculty not found' });
+				return;
+			}
+
+			// For department chairs, check if faculty is in their department
+			if (isDeptChair && !isAdmin) {
+				const departmentCode = authReq.department || '';
+				if (facultyData.faculty.department !== departmentCode) {
+					res.status(403).json({ error: 'Access denied. Faculty member is not in your department.' });
+					return;
+				}
+			}
+
+			res.json(facultyData);
+		} catch (error) {
+			console.error('Error fetching faculty member enrollment data:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	}
 }

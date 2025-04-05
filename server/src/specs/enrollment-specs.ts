@@ -25,8 +25,8 @@ const ProgramEnrollmentQuerySchema = z.object({
 	})
 });
 
-// Query parameters for program students listing
-const ProgramStudentsQuerySchema = z.object({
+// Query parameters for program enrollment details listing
+const ProgramEnrollmentDetailsQuerySchema = z.object({
 	department: z.string().openapi({
 		description: 'Department code',
 		example: 'CSC'
@@ -73,10 +73,10 @@ const ProgramTrendsQuerySchema = z.object({
 	})
 });
 
-// Path parameters for program students
-const ProgramStudentsParamsSchema = z.object({
+// Path parameters for program enrollment details
+const ProgramEnrollmentDetailsParamsSchema = z.object({
 	programCode: z.string().openapi({
-		description: 'Program code to get students for',
+		description: 'Program code to get enrollment details for',
 		example: 'CSBS'
 	})
 });
@@ -183,8 +183,8 @@ const ProgramEnrollmentResponse = z.object({
 	})
 });
 
-// Program students response schema
-const ProgramStudentsResponse = z.object({
+// Program enrollment details response schema
+const ProgramEnrollmentDetailsResponse = z.object({
 	program: z.object({
 		code: z.string().openapi({
 			description: 'Program code',
@@ -513,6 +513,134 @@ const FacultyEnrollmentResponse = z.object({
 	})
 });
 
+// Path parameters for faculty member
+const FacultyMemberParamsSchema = z.object({
+	mnumber: z.string().openapi({
+		description: 'Faculty M-number',
+		example: 'M12345678'
+	})
+});
+
+// Query parameters for faculty member enrollment
+const FacultyMemberEnrollmentQuerySchema = z.object({
+	term: z.string().optional().openapi({
+		description: 'Term code to filter enrollment by',
+		example: '10'
+	}),
+	year: z.string().optional().openapi({
+		description: 'Year to filter enrollment by',
+		example: '2023'
+	})
+});
+
+// Faculty member enrollment response schema
+const FacultyMemberEnrollmentResponse = z.object({
+	faculty: z.object({
+		mnumber: z.string().openapi({
+			description: 'Faculty M-number',
+			example: 'M12345678'
+		}),
+		firstName: z.string().openapi({
+			description: 'Faculty first name',
+			example: 'Jane'
+		}),
+		lastName: z.string().openapi({
+			description: 'Faculty last name',
+			example: 'Smith'
+		}),
+		department: z.string().openapi({
+			description: 'Department code',
+			example: 'CSC'
+		}),
+		departmentDescription: z.string().openapi({
+			description: 'Department description',
+			example: 'Computer Science'
+		})
+	}).openapi({
+		description: 'Faculty information'
+	}),
+	term: z.object({
+		code: z.string().openapi({
+			description: 'Term code',
+			example: '10'
+		}),
+		description: z.string().openapi({
+			description: 'Term description',
+			example: 'Spring 2023'
+		})
+	}).openapi({
+		description: 'Term information'
+	}),
+	year: z.number().openapi({
+		description: 'Year',
+		example: 2023
+	}),
+	courses: z.array(
+		z.object({
+			courseId: z.string().openapi({
+				description: 'Course ID',
+				example: 'CSC 430'
+			}),
+			courseTitle: z.string().openapi({
+				description: 'Course title',
+				example: 'Database Management Systems'
+			}),
+			crn: z.string().openapi({
+				description: 'Course registration number',
+				example: '12345'
+			}),
+			section: z.string().openapi({
+				description: 'Course section',
+				example: '01'
+			}),
+			enrollmentCount: z.number().openapi({
+				description: 'Number of students enrolled',
+				example: 30
+			}),
+			students: z.array(
+				z.object({
+					mnumber: z.string().openapi({
+						description: 'Student M-number',
+						example: 'M12345678'
+					}),
+					firstName: z.string().openapi({
+						description: 'Student first name',
+						example: 'John'
+					}),
+					lastName: z.string().openapi({
+						description: 'Student last name',
+						example: 'Smith'
+					}),
+					email: z.string().openapi({
+						description: 'Student email',
+						example: 'john.smith@example.edu'
+					}),
+					status: z.string().optional().openapi({
+						description: 'Registration status',
+						example: 'Registered'
+					})
+				})
+			).openapi({
+				description: 'Students enrolled in the course'
+			})
+		})
+	).openapi({
+		description: 'Courses taught by the faculty member'
+	}),
+	totals: z.object({
+		courseCount: z.number().openapi({
+			description: 'Total number of courses',
+			example: 3
+		}),
+		studentCount: z.number().openapi({
+			description: 'Total number of students',
+			example: 75
+		})
+	}).openapi({
+		description: 'Faculty totals'
+	})
+});
+
 export const EnrollmentAPISpecs = {
 	'/api/enrollment/programs': {
 		get: {
@@ -535,22 +663,22 @@ export const EnrollmentAPISpecs = {
 			}
 		}
 	},
-	'/api/enrollment/programs/{programCode}/students': {
+	'/api/enrollment/programs/{programCode}': {
 		get: {
 			tags: ['Enrollment'],
-			operationId: 'getProgramStudents',
-			summary: 'Get students in a program',
-			description: 'Retrieve a list of students enrolled in a specific program. Access restricted to authorized users only.',
+			operationId: 'getProgramEnrollmentDetails',
+			summary: 'Get program enrollment details',
+			description: 'Retrieve detailed enrollment data for a specific program, including student information, academic statistics, and program metadata. Access restricted to authorized users only.',
 			requestParams: {
-				path: ProgramStudentsParamsSchema,
-				query: ProgramStudentsQuerySchema
+				path: ProgramEnrollmentDetailsParamsSchema,
+				query: ProgramEnrollmentDetailsQuerySchema
 			},
 			responses: {
 				'200': {
-					description: 'Successful response with program students data',
+					description: 'Successful response with program enrollment data',
 					content: {
 						'application/json': {
-							schema: ProgramStudentsResponse
+							schema: ProgramEnrollmentDetailsResponse
 						}
 					}
 				}
@@ -598,17 +726,62 @@ export const EnrollmentAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/enrollment/faculty/{mnumber}': {
+		get: {
+			tags: ['Enrollment'],
+			operationId: 'getFacultyMemberEnrollment',
+			summary: 'Get individual faculty member enrollment data',
+			description: 'Retrieve detailed enrollment data for a specific faculty member, including course-level information and student lists. Faculty users can only access their own data. Department chairs can access data for faculty in their department. Administrators and COBIS admins can access all faculty data.',
+			requestParams: {
+				path: FacultyMemberParamsSchema,
+				query: FacultyMemberEnrollmentQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with faculty member enrollment data',
+					content: {
+						'application/json': {
+							schema: FacultyMemberEnrollmentResponse
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied due to insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'Faculty member not found',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
 	}
 };
 
 export const EnrollmentSpecs = {
 	ProgramEnrollmentQuerySchema,
-	ProgramStudentsQuerySchema,
+	ProgramEnrollmentDetailsQuerySchema,
 	ProgramTrendsQuerySchema,
-	ProgramStudentsParamsSchema,
+	ProgramEnrollmentDetailsParamsSchema,
 	ProgramEnrollmentResponse,
-	ProgramStudentsResponse,
+	ProgramEnrollmentDetailsResponse,
 	ProgramEnrollmentTrendsResponse,
 	FacultyEnrollmentQuerySchema,
-	FacultyEnrollmentResponse
+	FacultyEnrollmentResponse,
+	FacultyMemberParamsSchema,
+	FacultyMemberEnrollmentQuerySchema,
+	FacultyMemberEnrollmentResponse
 }; 
