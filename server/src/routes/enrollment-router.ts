@@ -1,7 +1,7 @@
 import express from 'express';
 import { z } from 'zod';
 import 'zod-openapi/extend';
-import { EnrollmentController } from '../controllers/enrollment-controller';
+import { EnrollmentController } from '../controllers/student-enrollment-controller';
 
 /**
  * Enrollment routes

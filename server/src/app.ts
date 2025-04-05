@@ -17,14 +17,14 @@ import { getUserInfo } from './middleware/get-user-info';
 // Import Routes
 import importRoutes from "./routes/imports";
 import userRoute from "./routes/user";
+import instructorRouter from "./routes/instructor-router";
+import studentRouter from "./routes/student-router";
 // import reportingRoute, { reportingSpecs } from "./routes/reporting";
 // import searchRoute, { searchSpecs } from "./routes/search";
 // import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 // import customQuery from "./routes/customQueries";
 // import enrollmentRouter, { enrollmentRouterSpec } from "./routes/enrollment-router";
-// import studentRouter, { studentRouterSpec } from "./routes/student-router";
-import instructorRouter from "./routes/instructor-router";
-import studentEnrollmentRouter from './routes/student-enrollment-router';
+// import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 // Import OpenAPI specs
 import { instructorApiSpec } from "./specs/instructor-specs";
@@ -74,14 +74,14 @@ app.use(authenticateUser)
 app.use(getUserInfo)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
+app.use("/api/instructor", instructorRouter)
+app.use("/api/student", studentRouter)
 // app.use("/api/reporting", reportingRoute)
 // app.use("/api/search", searchRoute)
 // app.use("/api", studentLookup)
 // app.use('/api/custom-query', customQuery)
 // app.use("/api/enrollment", enrollmentRouter)
-// app.use("/api/students", studentRouter)
-app.use("/api/instructor", instructorRouter)
-app.use('/api/students', studentEnrollmentRouter);
+// app.use('/api/students', studentEnrollmentRouter);
 
 
 // // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
