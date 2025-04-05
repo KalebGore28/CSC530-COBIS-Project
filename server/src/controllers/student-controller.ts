@@ -91,21 +91,71 @@ export class StudentController {
 			const yearNum = year ? parseInt(year as string) : undefined;
 
 			// Determine filter criteria based on user's role
-			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isCobisAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
 			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
 			const isAdvisor = authReq.roles.some(role => role.role_name === 'advisor');
+			const isFaculty = authReq.roles.some(role => role.role_name === 'faculty');
+			const isAdministrator = authReq.roles.some(role => role.role_name === 'administrator');
 
+			// Determine what filters to apply based on roles and parameters
 			let filterDepartment = department as string;
 			let advisorMnumber: string | undefined = undefined;
+			let includeAdvisees = false;
 
-			// For department chairs, restrict to their department if no specific department is requested
-			if (isDeptChair && !isAdmin && !department) {
-				filterDepartment = authReq.department || '';
+			// COBIS Admins have full access with no filters (unless they specify filters)
+			if (isCobisAdmin) {
+				// No additional filters needed - use whatever was provided in the request
+			}
+			// Department chairs can see students in their department
+			else if (isDeptChair) {
+				// If no specific department is requested, use the chair's department
+				if (!department) {
+					filterDepartment = authReq.department || '';
+				}
+
+				// Additionally, if the chair is also an advisor, they should be able to see their advisees
+				if (isFaculty || isAdvisor) {
+					includeAdvisees = true;
+					advisorMnumber = authReq.mnumber;
+				}
+			}
+			// Faculty, advisors, or administrators can see their advisees
+			else if (isFaculty || isAdvisor || isAdministrator) {
+				advisorMnumber = authReq.mnumber || undefined;
 			}
 
-			// For advisors, restrict to their advisees
-			if (isAdvisor && !isAdmin && !isDeptChair) {
-				advisorMnumber = authReq.mnumber || undefined;
+			// If the user is both a department chair and has advisees,
+			// we need to make a special service call to handle the union of results
+			if (includeAdvisees && filterDepartment) {
+				// Get department students
+				const deptStudents = await StudentService.getStudents({
+					department: filterDepartment,
+					program: program as string,
+					term: term as string,
+					year: yearNum,
+					search: search as string,
+					isCobisAdmin,
+					page: pageNum,
+					limit: limitNum
+				});
+
+				// Get advisee students
+				const adviseeStudents = await StudentService.getStudents({
+					advisorMnumber,
+					program: program as string,
+					term: term as string,
+					year: yearNum,
+					search: search as string,
+					isCobisAdmin,
+					page: pageNum,
+					limit: limitNum
+				});
+
+				// Combine results (simple approach - can be improved with actual pagination)
+				const combinedStudents = this.mergeStudentResults(deptStudents, adviseeStudents);
+
+				res.json(combinedStudents);
+				return;
 			}
 
 			// Get students with appropriate filters
@@ -116,6 +166,7 @@ export class StudentController {
 				year: yearNum,
 				search: search as string,
 				advisorMnumber,
+				isCobisAdmin,
 				page: pageNum,
 				limit: limitNum
 			});
@@ -125,6 +176,41 @@ export class StudentController {
 			console.error('Error fetching students:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
+	}
+
+	/**
+	 * Helper function to merge student results while removing duplicates
+	 * Simplifies pagination by taking the first set's pagination info
+	 */
+	private static mergeStudentResults(results1: any, results2: any): any {
+		// Create a map to efficiently remove duplicates
+		const studentMap = new Map();
+
+		// Add students from first result set
+		results1.students.forEach((student: any) => {
+			studentMap.set(student.mnumber, student);
+		});
+
+		// Add students from second result set (will overwrite duplicates)
+		results2.students.forEach((student: any) => {
+			if (!studentMap.has(student.mnumber)) {
+				studentMap.set(student.mnumber, student);
+			}
+		});
+
+		// Convert map back to array
+		const mergedStudents = Array.from(studentMap.values());
+
+		// Return merged result with pagination info from first result
+		// (This is a simplified approach - ideally pagination would be recalculated)
+		return {
+			students: mergedStudents,
+			pagination: {
+				...results1.pagination,
+				totalItems: mergedStudents.length,
+				totalPages: Math.ceil(mergedStudents.length / results1.pagination.limit)
+			}
+		};
 	}
 
 	/**
