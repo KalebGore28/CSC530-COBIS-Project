@@ -11,8 +11,8 @@ import TestPage from './pages/TestPage';
 import WaitingPage from './pages/Waiting';
 import OnboardingPage from './pages/Onboarding';
 import StudentLookup from './pages/StudentLookup';
-import ProfessorTeachingInfo from './components/professor-information';
 
+import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
 
 export const App: React.FC = () => {
@@ -53,7 +53,7 @@ export const App: React.FC = () => {
           <Route path="imports" element={<CsvImport />} />
         </Route>
         <Route path="test-page" element={<TestPage />} />
-        <Route path="/professor-stats" element={<ProfessorTeachingInfo />} />
+        <Route path="/professor-stats" element={<ProfessorPage />} />
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
