@@ -15,7 +15,7 @@ import { authenticateUser } from './middleware/authenticate-user';
 import { getUserInfo } from './middleware/get-user-info';
 
 // Import Routes
-import importRoutes, { importAPISpecs } from "./routes/imports";
+import importRoutes from "./routes/import-router";
 import userRoute from "./routes/user-router";
 import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
@@ -34,7 +34,7 @@ import { SearchAPISpecs } from "./specs/search-specs";
 import { ReportingAPISpecs } from "./specs/reporting-specs";
 import { UserAPISpecs } from "./specs/user-specs";
 import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
-
+import { ImportAPISpecs } from "./specs/import-specs";
 // Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
@@ -53,7 +53,7 @@ const document = createDocument({
         ...ReportingAPISpecs,
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
-        ...importAPISpecs,
+        ...ImportAPISpecs,
         // ...userSpecs,
         // ...reportingSpecs,
         // ...studentLookupSpec,

@@ -199,7 +199,7 @@ export class ImportService {
 			.map(mapping => ({
 				filePatterns: mapping.filePatterns,
 				description: mapping.description,
-				examples: mapping.examples || [],
+				examples: 'examples' in mapping ? mapping.examples : [],
 				destinations: mapping.destinations.map(d => ({
 					tableName: d.tableName,
 					tableId: d.tableId
