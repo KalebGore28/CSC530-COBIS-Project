@@ -54,11 +54,6 @@ const document = createDocument({
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
         ...ImportAPISpecs,
-        // ...userSpecs,
-        // ...reportingSpecs,
-        // ...studentLookupSpec,
-        // ...enrollmentRouterSpec,
-        // ...studentRouterSpec,
     },
 });
 
@@ -70,9 +65,9 @@ const app = express()
 app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } }))
 app.use(
     cors({
-        origin: config.frontend_origin, // Replace with your frontend's origin
-        methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed HTTP methods
-        credentials: true, // Allow credentials (cookies, authorization headers, etc.)
+        origin: config.frontend_origin,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true,
     })
 )
 app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
