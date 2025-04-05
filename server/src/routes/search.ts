@@ -14,8 +14,6 @@ import {
 	registrationStatus,
 	terms,
 } from '../db/schema';
-import 'zod-openapi/extend';
-import { z } from 'zod';
 
 const router = express.Router();
 
@@ -61,36 +59,6 @@ router.get('/academic-standings', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const academicStandingsQuery = z.string().openapi({ description: 'The search query', example: 'GS', ref: 'academic_standing_search_query' });
-const academicStandingSearchSpec = {
-	'/api/search/academic-standings': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_academic_standings',
-			description: 'Search for academic standings',
-			requestParams: {
-				query: z.object({
-					query: academicStandingsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-};
-
 router.get('/admit-codes', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -132,36 +100,6 @@ router.get('/admit-codes', async (req: Request, res: Response) => {
 		return;
 	}
 });
-
-// Preparing OpenAPI spec
-const admitCodesQuery = z.string().openapi({ description: 'The search query', example: 'CD', ref: 'admit_code_search_query' });
-const admitCodeSearchSpec = {
-	'/api/search/admit-codes': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_admit_codes',
-			description: 'Search for admit codes',
-			requestParams: {
-				query: z.object({
-					query: admitCodesQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 router.get('/colleges', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
@@ -205,36 +143,6 @@ router.get('/colleges', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const collegesQuery = z.string().openapi({ description: 'The search query', example: 'BP', ref: 'college_search_query' });
-const collegeSearchSpec = {
-	'/api/search/colleges': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_colleges',
-			description: 'Search for colleges',
-			requestParams: {
-				query: z.object({
-					query: collegesQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								name: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
 router.get('/college-codes', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -276,36 +184,6 @@ router.get('/college-codes', async (req: Request, res: Response) => {
 		return;
 	}
 })
-
-// Preparing OpenAPI spec
-const collegeCodesQuery = z.string().openapi({ description: 'The search query', example: '0003', ref: 'college_code_search_query' });
-const collegeCodeSearchSpec = {
-	'/api/search/college-codes': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_college_codes',
-			description: 'Search for college codes',
-			requestParams: {
-				query: z.object({
-					query: collegeCodesQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								name: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 router.get('/courses', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
@@ -351,39 +229,6 @@ router.get('/courses', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const coursesQuery = z.string().openapi({ description: 'The search query', example: 'CSC101', ref: 'course_search_query' });
-const courseSearchSpec = {
-	'/api/search/courses': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_courses',
-			description: 'Search for courses',
-			requestParams: {
-				query: z.object({
-					query: coursesQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								subject: z.string(),
-								number: z.string(),
-								suffix: z.string(),
-								title: z.string(),
-							})),
-						},
-					},
-				},
-
-			}
-		},
-	},
-};
-
 router.get('/departments', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -425,36 +270,6 @@ router.get('/departments', async (req: Request, res: Response) => {
 		return;
 	}
 });
-
-// Preparing OpenAPI spec
-const departmentsQuery = z.string().openapi({ description: 'The search query', example: 'BP', ref: 'department_search_query' });
-const departmentSearchSpec = {
-	'/api/search/departments': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_departments',
-			description: 'Search for departments',
-			requestParams: {
-				query: z.object({
-					query: departmentsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								name: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-};
 
 router.get('/nations', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
@@ -498,36 +313,6 @@ router.get('/nations', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const nationsQuery = z.string().openapi({ description: 'The search query', example: '55913', ref: 'nation_search_query' });
-const nationSearchSpec = {
-	'/api/search/nations': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_nations',
-			description: 'Search for nations',
-			requestParams: {
-				query: z.object({
-					query: nationsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								name: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
 router.get('/part-of-terms', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -569,36 +354,6 @@ router.get('/part-of-terms', async (req: Request, res: Response) => {
 		return;
 	}
 });
-
-// Preparing OpenAPI spec
-const partOfTermsQuery = z.string().openapi({ description: 'The search query', example: '1', ref: 'part_of_term_search_query' });
-const partOfTermSearchSpec = {
-	'/api/search/part-of-terms': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_part_of_terms',
-			description: 'Search for part of terms',
-			requestParams: {
-				query: z.object({
-					query: partOfTermsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 router.get('/programs', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
@@ -651,36 +406,6 @@ router.get('/programs', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const programsQuery = z.string().openapi({ description: 'The search query', example: 'C110', ref: 'program_search_query' });
-const programSearchSpec = {
-	'/api/search/programs': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_programs',
-			description: 'Search for programs',
-			requestParams: {
-				query: z.object({
-					query: programsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
 router.get('/registration-statuses', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
 	const db = dbConnectionInstance.orm;
@@ -722,36 +447,6 @@ router.get('/registration-statuses', async (req: Request, res: Response) => {
 		return;
 	}
 });
-
-// Preparing OpenAPI spec
-const registrationStatusesQuery = z.string().openapi({ description: 'The search query', example: 'R', ref: 'registration_status_search_query' });
-const registrationStatusSearchSpec = {
-	'/api/search/registration-statuses': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_registration_statuses',
-			description: 'Search for registration statuses',
-			requestParams: {
-				query: z.object({
-					query: registrationStatusesQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
 
 router.get('/terms', async (req: Request, res: Response) => {
 	const dbConnectionInstance = await getDbConnection();
@@ -795,48 +490,5 @@ router.get('/terms', async (req: Request, res: Response) => {
 	}
 });
 
-// Preparing OpenAPI spec
-const termsQuery = z.string().openapi({ description: 'The search query', example: '10', ref: 'term_search_query' });
-const termSearchSpec = {
-	'/api/search/terms': {
-		get: {
-			tags: ['Search'],
-			operationId: 'search_terms',
-			description: 'Search for terms',
-			requestParams: {
-				query: z.object({
-					query: termsQuery,
-				}),
-			},
-			responses: {
-				'200': {
-					description: '200 OK',
-					content: {
-						'application/json': {
-							schema: z.array(z.object({
-								code: z.string(),
-								description: z.string(),
-							})),
-						},
-					},
-				},
-			},
-		},
-	},
-}
-
-export const searchSpecs = {
-	...academicStandingSearchSpec,
-	...admitCodeSearchSpec,
-	...collegeSearchSpec,
-	...collegeCodeSearchSpec,
-	...courseSearchSpec,
-	...departmentSearchSpec,
-	...nationSearchSpec,
-	...partOfTermSearchSpec,
-	...programSearchSpec,
-	...registrationStatusSearchSpec,
-	...termSearchSpec,
-}
 
 export default router;
