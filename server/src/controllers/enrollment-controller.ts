@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
-import { EnrollmentService } from '../services/student-enrollment-service';
+import { EnrollmentService } from '../services/enrollment-service';
 
 /**
  * Controller for enrollment-related endpoints
