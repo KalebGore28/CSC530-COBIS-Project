@@ -143,135 +143,203 @@ const GetStudentsResponse = z.object({
 
 // Student information response schema
 const GetStudentResponse = z.object({
-	mnumber: z.string().openapi({
-		description: 'Unique student identifier',
-		example: 'M123456'
-	}),
-	firstName: z.string().openapi({
-		description: 'Student first name',
-		example: 'John'
-	}),
-	lastName: z.string().openapi({
-		description: 'Student last name',
-		example: 'Smith'
-	}),
-	email: z.string().email().openapi({
-		description: 'Student email address',
-		example: 'john.smith@example.edu'
-	}),
-	phone: z.string().nullable().openapi({
-		description: 'Student phone number',
-		example: '555-123-4567'
-	}),
-	dateOfBirth: z.string().nullable().openapi({
-		description: 'Student date of birth',
-		example: '1999-05-15'
-	}),
-	gender: z.string().nullable().openapi({
-		description: 'Student gender',
-		example: 'M'
-	}),
-	address: z.object({
-		line1: z.string().nullable().openapi({
-			description: 'Address line 1',
-			example: '123 University Ave'
+	studentInfo: z.object({
+		mnumber: z.string().openapi({
+			description: 'Unique student identifier',
+			example: 'M234567890'
 		}),
-		line2: z.string().nullable().openapi({
-			description: 'Address line 2',
-			example: 'Apt 456'
+		firstName: z.string().openapi({
+			description: 'Student first name',
+			example: 'Emily'
 		}),
-		city: z.string().nullable().openapi({
-			description: 'City',
-			example: 'College Town'
+		middleName: z.string().nullable().openapi({
+			description: 'Student middle name',
+			example: 'Rose'
 		}),
-		state: z.string().nullable().openapi({
-			description: 'State code',
-			example: 'KY'
+		lastName: z.string().openapi({
+			description: 'Student last name',
+			example: 'Johnson'
 		}),
-		zip: z.string().nullable().openapi({
-			description: 'ZIP/Postal code',
-			example: '40506'
+		suffix: z.string().nullable().openapi({
+			description: 'Name suffix',
+			example: ''
 		}),
-		country: z.string().nullable().openapi({
-			description: 'Country',
-			example: 'USA'
+		gender: z.string().nullable().openapi({
+			description: 'Student gender',
+			example: 'F'
+		}),
+		birthdate: z.string().nullable().openapi({
+			description: 'Student birthdate',
+			example: '0512-20-00'
+		}),
+		email: z.string().nullable().openapi({
+			description: 'Student email address',
+			example: 'ejohnson@murraystate.edu'
+		}),
+		cellPhone: z.string().nullable().openapi({
+			description: 'Student cell phone number',
+			example: '8595559876'
+		}),
+		age: z.number().nullable().openapi({
+			description: 'Student age',
+			example: 24
+		}),
+		race: z.string().nullable().openapi({
+			description: 'Student race description',
+			example: 'White'
+		}),
+		citizenship: z.string().nullable().openapi({
+			description: 'Citizenship status',
+			example: 'Y'
+		}),
+		residency: z.string().nullable().openapi({
+			description: 'Residency description',
+			example: 'Resident'
+		})
+	}).openapi({
+		description: 'Basic student information'
+	}),
+	academicInfo: z.object({
+		msuGpa: z.number().nullable().openapi({
+			description: 'MSU GPA',
+			example: 3.67
+		}),
+		overallGpa: z.number().nullable().openapi({
+			description: 'Overall GPA',
+			example: 3.67
+		}),
+		msuAttemptedHours: z.number().nullable().openapi({
+			description: 'Total attempted credit hours at MSU',
+			example: 75
+		}),
+		msuEarnedHours: z.number().nullable().openapi({
+			description: 'Total earned credit hours at MSU',
+			example: 72
+		}),
+		overallAttemptedHours: z.number().nullable().openapi({
+			description: 'Overall attempted credit hours',
+			example: 75
+		}),
+		overallEarnedHours: z.number().nullable().openapi({
+			description: 'Overall earned credit hours',
+			example: 72
+		}),
+		academicStanding: z.string().nullable().openapi({
+			description: 'Academic standing code',
+			example: 'GS'
+		}),
+		academicStandingDescription: z.string().nullable().openapi({
+			description: 'Academic standing description',
+			example: 'Good Standing'
+		}),
+		admitTerm: z.string().nullable().openapi({
+			description: 'Term code when admitted',
+			example: '10'
+		}),
+		admitYear: z.number().nullable().openapi({
+			description: 'Year when admitted',
+			example: 2021
+		}),
+		admitCode: z.string().nullable().openapi({
+			description: 'Admit code',
+			example: 'GM'
+		}),
+		admitTermDescription: z.string().nullable().openapi({
+			description: 'Admit term description',
+			example: 'Spring TERM'
 		})
 	}).nullable().openapi({
-		description: 'Student address information'
+		description: 'Student academic information'
 	}),
-	programs: z.array(
+	programs: z.object({
+		majors: z.array(
+			z.object({
+				code: z.string().openapi({
+					description: 'Program code',
+					example: 'N010'
+				}),
+				description: z.string().openapi({
+					description: 'Program description',
+					example: 'Nursing'
+				}),
+				department: z.string().openapi({
+					description: 'Department description',
+					example: 'Undeclared'
+				}),
+				college: z.string().openapi({
+					description: 'College description',
+					example: 'UNASSIGNED'
+				}),
+				level: z.string().openapi({
+					description: 'Program level (UG/GR/PB)',
+					example: 'UG'
+				}),
+				term: z.string().openapi({
+					description: 'Term code',
+					example: '10'
+				}),
+				year: z.number().openapi({
+					description: 'Academic year',
+					example: 2025
+				})
+			})
+		).openapi({
+			description: 'List of student majors'
+		}),
+		minors: z.array(
+			z.object({
+				code: z.string().openapi({
+					description: 'Program code',
+					example: 'C030'
+				}),
+				description: z.string().openapi({
+					description: 'Program description',
+					example: 'Chemistry'
+				}),
+				department: z.string().openapi({
+					description: 'Department description',
+					example: 'Department of Chemistry'
+				}),
+				college: z.string().openapi({
+					description: 'College description',
+					example: 'College of Science'
+				}),
+				level: z.string().openapi({
+					description: 'Program level (UG/GR/PB)',
+					example: 'UG'
+				}),
+				term: z.string().openapi({
+					description: 'Term code',
+					example: '10'
+				}),
+				year: z.number().openapi({
+					description: 'Academic year',
+					example: 2025
+				})
+			})
+		).openapi({
+			description: 'List of student minors'
+		})
+	}).openapi({
+		description: 'Student program information'
+	}),
+	advisors: z.array(
 		z.object({
-			programCode: z.string().openapi({
-				description: 'Program code',
-				example: 'CSBS'
-			}),
-			programDescription: z.string().openapi({
-				description: 'Program description',
-				example: 'Computer Science, BS'
-			}),
-			departmentCode: z.string().openapi({
-				description: 'Department code',
-				example: 'CSC'
-			}),
-			departmentDescription: z.string().openapi({
-				description: 'Department description',
-				example: 'Computer Science'
-			}),
-			collegeCode: z.string().openapi({
-				description: 'College code',
-				example: 'AS'
-			}),
-			collegeDescription: z.string().openapi({
-				description: 'College description',
-				example: 'College of Arts & Sciences'
-			}),
-			type: z.string().openapi({
-				description: 'Program type (MAJOR/MINOR)',
-				example: 'MAJOR'
+			mnumber: z.string().openapi({
+				description: 'Advisor M-number',
+				example: 'M000000100'
 			}),
 			term: z.string().openapi({
 				description: 'Term code',
 				example: '10'
 			}),
 			year: z.number().openapi({
-				description: 'Year',
-				example: 2023
-			}),
-			termDescription: z.string().openapi({
-				description: 'Term description',
-				example: 'Spring 2023'
+				description: 'Academic year',
+				example: 2025
 			})
 		})
 	).openapi({
-		description: 'List of student programs',
-	}),
-	academicInfo: z.object({
-		overallGpa: z.number().nullable().openapi({
-			description: 'Overall GPA',
-			example: 3.75
-		}),
-		msuGpa: z.number().nullable().openapi({
-			description: 'MSU GPA',
-			example: 3.8
-		}),
-		earnedHours: z.number().nullable().openapi({
-			description: 'Total earned credit hours',
-			example: 90
-		}),
-		academicStanding: z.string().nullable().openapi({
-			description: 'Academic standing code',
-			example: 'GS'
-		}),
-		standingDescription: z.string().nullable().openapi({
-			description: 'Academic standing description',
-			example: 'Good Standing'
-		}),
-		classification: z.string().nullable().openapi({
-			description: 'Student classification',
-			example: 'Junior'
-		})
-	}).nullable().openapi({
-		description: 'Student academic information'
+		description: 'List of student advisors'
 	})
 });
 
