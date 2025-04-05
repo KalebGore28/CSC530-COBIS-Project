@@ -44,8 +44,8 @@ router.get('/:mnumber/academic-summary',
 
 // Advisor information
 router.get('/:mnumber/advisors',
-	// StudentController.checkAccess,
-	// StudentController.getAdvisors
+	StudentController.checkAccess,
+	StudentController.getStudentAdvisors
 );
 
 // Get student's GPA trend over terms

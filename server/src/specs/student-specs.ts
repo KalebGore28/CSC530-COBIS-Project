@@ -492,6 +492,18 @@ const AdvisorsResponse = z.object({
 			phone: z.string().nullable().openapi({
 				description: 'Advisor phone',
 				example: '555-987-6543'
+			}),
+			term: z.string().openapi({
+				description: 'Term code when assigned as advisor',
+				example: '10'
+			}),
+			year: z.number().openapi({
+				description: 'Year when assigned as advisor',
+				example: 2023
+			}),
+			termDescription: z.string().openapi({
+				description: 'Term description',
+				example: 'Spring 2023'
 			})
 		})
 	).openapi({
@@ -867,6 +879,27 @@ export const StudentAPISpecs = {
 									})
 								}).nullable()
 							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/student/{mnumber}/advisors': {
+		get: {
+			tags: ['Student'],
+			operationId: 'getStudentAdvisors',
+			summary: 'Get student advisors',
+			description: 'Retrieve a list of advisors for a specific student with their contact information. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with student advisor data',
+					content: {
+						'application/json': {
+							schema: AdvisorsResponse
 						}
 					}
 				}

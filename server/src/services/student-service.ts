@@ -9,7 +9,8 @@ import {
 	colleges,
 	studentAdvisors,
 	academicStanding,
-	terms
+	terms,
+	faculty
 } from '../db/schema';
 
 /**
@@ -374,6 +375,60 @@ export class StudentService {
 				year: academicInfo[0].admitYear,
 				code: academicInfo[0].admitCode
 			}
+		};
+	}
+
+	/**
+	 * Get student advisors with details
+	 */
+	static async getStudentAdvisors(mnumber: string) {
+		const db = (await getDbConnection()).orm;
+
+		// Check if student exists
+		const studentExists = await db
+			.select({ count: count() })
+			.from(students)
+			.where(eq(students.mnumber, mnumber));
+
+		if (Number(studentExists[0]?.count || 0) === 0) {
+			return null;
+		}
+
+		// Get advisors with their details
+		const advisors = await db
+			.select({
+				mnumber: studentAdvisors.advisor_mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
+				email: sql<string>`faculty.mnumber || '@murraystate.edu'`,
+				department: departments.description,
+				office: sql<string | null>`null`,
+				phone: sql<string | null>`null`,
+				term: studentAdvisors.term,
+				year: studentAdvisors.year,
+				termDescription: terms.description
+			})
+			.from(studentAdvisors)
+			.leftJoin(faculty, eq(studentAdvisors.advisor_mnumber, faculty.mnumber))
+			.leftJoin(departments, eq(faculty.department, departments.code))
+			.leftJoin(terms, eq(studentAdvisors.term, terms.code))
+			.where(eq(studentAdvisors.student_mnumber, mnumber))
+			.orderBy(desc(studentAdvisors.year), desc(studentAdvisors.term));
+
+		return {
+			mnumber,
+			advisors: advisors.map(advisor => ({
+				mnumber: advisor.mnumber,
+				firstName: advisor.firstName || 'Unknown',
+				lastName: advisor.lastName || 'Unknown',
+				email: advisor.email || `${advisor.mnumber}@murraystate.edu`,
+				department: advisor.department || 'Unknown',
+				office: advisor.office,
+				phone: advisor.phone,
+				term: advisor.term,
+				year: advisor.year,
+				termDescription: advisor.termDescription || ''
+			}))
 		};
 	}
 }

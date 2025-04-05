@@ -150,4 +150,26 @@ export class StudentController {
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
+
+	/**
+	 * Get student advisors
+	 */
+	static async getStudentAdvisors(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const advisors = await StudentService.getStudentAdvisors(mnumber);
+
+			if (!advisors) {
+				res.status(404).json({ error: "Student not found" });
+				return;
+			}
+
+			res.json(advisors);
+			return;
+		} catch (error) {
+			console.error("Error getting student advisors:", error);
+			res.status(500).json({ error: "Failed to retrieve student advisors" });
+			return;
+		}
+	}
 }
