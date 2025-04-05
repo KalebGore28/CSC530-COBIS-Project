@@ -59,10 +59,6 @@ const ProgramTrendsQuerySchema = z.object({
 		description: 'Department code',
 		example: 'CSC'
 	}),
-	programCode: z.string().optional().openapi({
-		description: 'Program code to filter trends by',
-		example: 'CSBS'
-	}),
 	yearsBack: z.string().optional().openapi({
 		description: 'Number of years to look back',
 		example: '5'
@@ -77,6 +73,14 @@ const ProgramTrendsQuerySchema = z.object({
 const ProgramEnrollmentDetailsParamsSchema = z.object({
 	programCode: z.string().openapi({
 		description: 'Program code to get enrollment details for',
+		example: 'CSBS'
+	})
+});
+
+// Path parameters for program enrollment trends
+const ProgramTrendsParamsSchema = z.object({
+	programCode: z.string().openapi({
+		description: 'Program code to get enrollment trends for',
 		example: 'CSBS'
 	})
 });
@@ -685,13 +689,14 @@ export const EnrollmentAPISpecs = {
 			}
 		}
 	},
-	'/api/enrollment/programs/trends': {
+	'/api/enrollment/programs/{programCode}/trends': {
 		get: {
 			tags: ['Enrollment'],
 			operationId: 'getProgramEnrollmentTrends',
 			summary: 'Get program enrollment trends',
-			description: 'Retrieve enrollment trend data for programs over time. Access restricted to authorized users only.',
+			description: 'Retrieve enrollment trend data for a specific program over time. Access restricted to authorized users only.',
 			requestParams: {
+				path: ProgramTrendsParamsSchema,
 				query: ProgramTrendsQuerySchema
 			},
 			responses: {
@@ -775,6 +780,7 @@ export const EnrollmentSpecs = {
 	ProgramEnrollmentQuerySchema,
 	ProgramEnrollmentDetailsQuerySchema,
 	ProgramTrendsQuerySchema,
+	ProgramTrendsParamsSchema,
 	ProgramEnrollmentDetailsParamsSchema,
 	ProgramEnrollmentResponse,
 	ProgramEnrollmentDetailsResponse,

@@ -184,7 +184,7 @@ export class EnrollmentController {
 	static async getProgramEnrollmentTrends(req: Request, res: Response) {
 		try {
 			const authReq = req as AuthAndPermissionsRequest;
-			const programCode = req.query.program as string;
+			const programCode = req.params.programCode;
 			const yearsBack = req.query.yearsBack ? parseInt(req.query.yearsBack as string) : 5; // Default to 5 years
 			const includeCurrentTerm = req.query.includeCurrentTerm === 'true';
 
@@ -222,7 +222,7 @@ export class EnrollmentController {
 				return;
 			}
 
-			// If a specific program is requested, verify it belongs to the department
+			// Verify the program belongs to the department
 			if (programCode) {
 				const isProgramInDepartment = await EnrollmentService.isProgramInDepartment(programCode, departmentCode);
 

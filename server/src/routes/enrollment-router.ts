@@ -21,16 +21,17 @@ router.get('/programs',
 	EnrollmentController.getProgramEnrollment
 );
 
-// Program enrollment trends over time
-router.get('/programs/trends',
-	EnrollmentController.checkEnrollmentAccess,
-	EnrollmentController.getProgramEnrollmentTrends
-);
 
 // Student-level details for a specific program
 router.get('/programs/:programCode',
 	EnrollmentController.checkEnrollmentAccess,
 	EnrollmentController.getProgramStudents
+);
+
+// Program enrollment trends over time for a specific program
+router.get('/programs/:programCode/trends',
+	EnrollmentController.checkEnrollmentAccess,
+	EnrollmentController.getProgramEnrollmentTrends
 );
 
 // Faculty-level enrollment data
