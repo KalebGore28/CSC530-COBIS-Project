@@ -236,8 +236,6 @@ const ProfessorTeachingInfo = () => {
         return res.json()
       })
 
-      console.log("All Courses Response:", allCoursesRes)
-
       // Store all historical courses for the history tab
       setAllCourses(allCoursesRes)
 
@@ -364,43 +362,31 @@ const ProfessorTeachingInfo = () => {
                               )}
 
                               {currentStatus && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                  <Card>
-                                    <CardHeader className="p-4">
-                                      <CardTitle className="text-sm">Current Term</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-0 p-4">
-                                      <div className="text-2xl font-bold">
-                                        {currentStatus.currentStatus.currentTerm} {currentStatus.currentStatus.currentYear}
-                                      </div>
-                                    </CardContent>
-                                  </Card>
+                                <div className="grid grid-cols-3 gap-2">
+                                  <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                    <span className="text-xs text-muted-foreground">Current Term</span>
+                                    <span className="font-semibold">
+                                      {currentStatus.currentStatus.currentTerm} {currentStatus.currentStatus.currentYear}
+                                    </span>
+                                  </div>
 
-                                  <Card>
-                                    <CardHeader className="p-4">
-                                      <CardTitle className="text-sm">Teaching Status</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-0 p-4">
-                                      <div className="text-2xl font-bold">
-                                        {currentStatus.currentStatus.isCurrentlyTeaching ? (
-                                          <span className="text-green-600">Active</span>
-                                        ) : (
-                                          <span className="text-amber-600">Inactive</span>
-                                        )}
-                                      </div>
-                                    </CardContent>
-                                  </Card>
+                                  <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                    <span className="text-xs text-muted-foreground">Teaching Status</span>
+                                    <span className="font-semibold">
+                                      {currentStatus.currentStatus.isCurrentlyTeaching ? (
+                                        <span className="text-green-600">Active</span>
+                                      ) : (
+                                        <span className="text-amber-600">Inactive</span>
+                                      )}
+                                    </span>
+                                  </div>
 
-                                  <Card>
-                                    <CardHeader className="p-4">
-                                      <CardTitle className="text-sm">Current Courses</CardTitle>
-                                    </CardHeader>
-                                    <CardContent className="pt-0 p-4">
-                                      <div className="text-2xl font-bold">
-                                        {currentStatus.currentStatus.currentCourseCount}
-                                      </div>
-                                    </CardContent>
-                                  </Card>
+                                  <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                    <span className="text-xs text-muted-foreground">Current Courses</span>
+                                    <span className="font-semibold">
+                                      {currentStatus.currentStatus.currentCourseCount}
+                                    </span>
+                                  </div>
                                 </div>
                               )}
 
@@ -463,48 +449,36 @@ const ProfessorTeachingInfo = () => {
                             <TabsContent value="summary" className="space-y-4">
                               {teachingSummary && teachingSummary.teachingSummary ? (
                                 <>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <Card>
-                                      <CardHeader className="p-4">
-                                        <CardTitle className="text-sm">Total Courses Taught</CardTitle>
-                                      </CardHeader>
-                                      <CardContent className="pt-0 p-4">
-                                        <div className="text-2xl font-bold">
-                                          {teachingSummary.teachingSummary.totalCoursesTaught}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                          {teachingSummary.teachingSummary.uniqueCoursesTaught} unique courses
-                                        </div>
-                                      </CardContent>
-                                    </Card>
+                                  <div className="grid grid-cols-3 gap-2">
+                                    <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                      <span className="text-xs text-muted-foreground">Total Courses</span>
+                                      <span className="font-semibold">
+                                        {teachingSummary.teachingSummary.totalCoursesTaught}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {teachingSummary.teachingSummary.uniqueCoursesTaught} unique
+                                      </span>
+                                    </div>
 
-                                    <Card>
-                                      <CardHeader className="p-4">
-                                        <CardTitle className="text-sm">Total Students</CardTitle>
-                                      </CardHeader>
-                                      <CardContent className="pt-0 p-4">
-                                        <div className="text-2xl font-bold">
-                                          {teachingSummary.teachingSummary.totalStudentsTaught}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                          Avg. {teachingSummary.teachingSummary.averageClassSize} per class
-                                        </div>
-                                      </CardContent>
-                                    </Card>
+                                    <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                      <span className="text-xs text-muted-foreground">Total Students</span>
+                                      <span className="font-semibold">
+                                        {teachingSummary.teachingSummary.totalStudentsTaught}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        Avg. {teachingSummary.teachingSummary.averageClassSize}/class
+                                      </span>
+                                    </div>
 
-                                    <Card>
-                                      <CardHeader className="p-4">
-                                        <CardTitle className="text-sm">Credit Hours</CardTitle>
-                                      </CardHeader>
-                                      <CardContent className="pt-0 p-4">
-                                        <div className="text-2xl font-bold">
-                                          {teachingSummary.teachingSummary.totalCreditHoursDelivered}
-                                        </div>
-                                        <div className="text-sm text-muted-foreground">
-                                          Total student credit hours
-                                        </div>
-                                      </CardContent>
-                                    </Card>
+                                    <div className="flex flex-col bg-muted/10 rounded-md p-2 border text-center">
+                                      <span className="text-xs text-muted-foreground">Credit Hours</span>
+                                      <span className="font-semibold">
+                                        {teachingSummary.teachingSummary.totalCreditHoursDelivered}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        Total
+                                      </span>
+                                    </div>
                                   </div>
 
                                   <h4 className="font-medium mt-4">Most Taught Courses</h4>
