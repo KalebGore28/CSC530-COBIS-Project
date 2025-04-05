@@ -51,13 +51,25 @@ const CurrentStatusSchema = z.object({
 		example: 'M123456'
 	}),
 	currentStatus: z.object({
-		currentTermCode: z.string().openapi({
+		currentTerm: z.string().openapi({
 			description: 'Current term and year',
 			example: 'FALL 2023'
+		}),
+		currentTermCode: z.string().openapi({
+			description: 'Current term code',
+			example: '10'
 		}),
 		currentYear: z.number().openapi({
 			description: 'Current year',
 			example: 2023
+		}),
+		isCurrentlyTeaching: z.boolean().openapi({
+			description: 'Indicates if the instructor is currently teaching',
+			example: true
+		}),
+		currentCourseCount: z.number().openapi({
+			description: 'Number of courses the instructor is currently teaching',
+			example: 2
 		}),
 	})
 });
