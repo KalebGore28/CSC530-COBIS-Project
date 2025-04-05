@@ -16,7 +16,7 @@ import { getUserInfo } from './middleware/get-user-info';
 
 // Import Routes
 import importRoutes from "./routes/imports";
-import userRoute from "./routes/user";
+import userRoute from "./routes/user-router";
 import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
 import enrollmentRouter from "./routes/enrollment-router";
