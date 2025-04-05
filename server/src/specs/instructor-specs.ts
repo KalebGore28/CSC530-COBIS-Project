@@ -1,8 +1,5 @@
-import { max } from 'drizzle-orm';
-import { request } from 'http';
 import { z } from 'zod';
 import 'zod-openapi/extend';
-import { registrationStatus } from '../db/schema';
 
 const MnumberRequestParamsSchema = z.object({
 	mnumber: z.string().openapi({
@@ -635,7 +632,7 @@ export const instructorApiSpec = {
 			summary: 'Get teaching summary',
 			description: 'Retrieve the teaching summary for a specific instructor by their mnumber. Access restricted to authorized users only.',
 			requestParams: {
-				mnumber: MnumberRequestParamsSchema
+				path: MnumberRequestParamsSchema
 			},
 			responses: {
 				'200': {
@@ -680,7 +677,7 @@ export const instructorApiSpec = {
 			summary: 'Get course details',
 			description: 'Retrieve course details for a specific instructor by their mnumber. Access restricted to authorized users only.',
 			requestParams: {
-				mnumber: MnumberRequestParamsSchema
+				path: MnumberRequestParamsSchema
 			},
 			responses: {
 				'200': {
@@ -725,7 +722,7 @@ export const instructorApiSpec = {
 			summary: 'Get term summaries',
 			description: 'Retrieve term summaries for a specific instructor by their mnumber. Access restricted to authorized users only.',
 			requestParams: {
-				mnumber: MnumberRequestParamsSchema
+				path: MnumberRequestParamsSchema
 			},
 			responses: {
 				'200': {
