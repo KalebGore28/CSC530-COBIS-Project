@@ -126,40 +126,6 @@ export class StudentController {
 				advisorMnumber = authReq.mnumber ? authReq.mnumber : undefined;
 			}
 
-			// If the user is both a department chair and has advisees,
-			// we need to make a special service call to handle the union of results
-			if (includeAdvisees && filterDepartment) {
-				// Get department students
-				const deptStudents = await StudentService.getStudents({
-					department: filterDepartment,
-					program: program as string,
-					term: term as string,
-					year: yearNum,
-					search: search as string,
-					isCobisAdmin,
-					page: pageNum,
-					limit: limitNum
-				});
-
-				// Get advisee students
-				const adviseeStudents = await StudentService.getStudents({
-					advisorMnumber,
-					program: program as string,
-					term: term as string,
-					year: yearNum,
-					search: search as string,
-					isCobisAdmin,
-					page: pageNum,
-					limit: limitNum
-				});
-
-				// Combine results (simple approach - can be improved with actual pagination)
-				const combinedStudents = this.mergeStudentResults(deptStudents, adviseeStudents);
-
-				res.json(combinedStudents);
-				return;
-			}
-
 			// Get students with appropriate filters
 			const students = await StudentService.getStudents({
 				department: filterDepartment,
@@ -178,41 +144,6 @@ export class StudentController {
 			console.error('Error fetching students:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
-	}
-
-	/**
-	 * Helper function to merge student results while removing duplicates
-	 * Simplifies pagination by taking the first set's pagination info
-	 */
-	private static mergeStudentResults(results1: any, results2: any): any {
-		// Create a map to efficiently remove duplicates
-		const studentMap = new Map();
-
-		// Add students from first result set
-		results1.students.forEach((student: any) => {
-			studentMap.set(student.mnumber, student);
-		});
-
-		// Add students from second result set (will overwrite duplicates)
-		results2.students.forEach((student: any) => {
-			if (!studentMap.has(student.mnumber)) {
-				studentMap.set(student.mnumber, student);
-			}
-		});
-
-		// Convert map back to array
-		const mergedStudents = Array.from(studentMap.values());
-
-		// Return merged result with pagination info from first result
-		// (This is a simplified approach - ideally pagination would be recalculated)
-		return {
-			students: mergedStudents,
-			pagination: {
-				...results1.pagination,
-				totalItems: mergedStudents.length,
-				totalPages: Math.ceil(mergedStudents.length / results1.pagination.limit)
-			}
-		};
 	}
 
 	/**
