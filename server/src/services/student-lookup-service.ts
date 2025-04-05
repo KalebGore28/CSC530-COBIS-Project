@@ -1,4 +1,4 @@
-import { and, eq, exists, gte, inArray, lte, notExists, or } from 'drizzle-orm';
+import { and, eq, exists, gte, inArray, lte, notExists, or, SQL } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import { studentAcademicInfo, studentCourses, studentPrograms, students } from '../db/schema';
 
@@ -72,26 +72,34 @@ export class StudentLookupService {
 			.from(students)
 			.innerJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber));
 
-		// Build single whereClause by accumulating conditions
-		const conditions = [];
+		// Build conditions
+		let whereCondition: SQL<unknown> | undefined = undefined;
+		const conditions: SQL<unknown>[] = [];
 
 		// Academic level filter with OR condition for multiple levels
 		if (filters.academicLevels && filters.academicLevels.length > 0) {
-			const levelConditions = filters.academicLevels.map(level => {
+			const levelConditions: SQL<unknown>[] = [];
+
+			filters.academicLevels.forEach(level => {
 				if (level === 'Freshman') {
-					return lte(studentAcademicInfo.overall_earned_hours, 29);
+					levelConditions.push(lte(studentAcademicInfo.overall_earned_hours, 29) as SQL<unknown>);
 				} else if (level === 'Sophomore') {
-					return and(gte(studentAcademicInfo.overall_earned_hours, 30), lte(studentAcademicInfo.overall_earned_hours, 59));
+					levelConditions.push(and(
+						gte(studentAcademicInfo.overall_earned_hours, 30),
+						lte(studentAcademicInfo.overall_earned_hours, 59)
+					) as SQL<unknown>);
 				} else if (level === 'Junior') {
-					return and(gte(studentAcademicInfo.overall_earned_hours, 60), lte(studentAcademicInfo.overall_earned_hours, 89));
+					levelConditions.push(and(
+						gte(studentAcademicInfo.overall_earned_hours, 60),
+						lte(studentAcademicInfo.overall_earned_hours, 89)
+					) as SQL<unknown>);
 				} else if (level === 'Senior') {
-					return gte(studentAcademicInfo.overall_earned_hours, 90);
+					levelConditions.push(gte(studentAcademicInfo.overall_earned_hours, 90) as SQL<unknown>);
 				}
-				return null;
-			}).filter(Boolean);
+			});
 
 			if (levelConditions.length > 0) {
-				conditions.push(or(...levelConditions));
+				conditions.push(or(...levelConditions) as SQL<unknown>);
 			}
 		}
 
@@ -101,7 +109,7 @@ export class StudentLookupService {
 				and(
 					gte(studentAcademicInfo.overall_gpa, filters.gpaMin),
 					lte(studentAcademicInfo.overall_gpa, filters.gpaMax)
-				)
+				) as SQL<unknown>
 			);
 		}
 
@@ -117,9 +125,9 @@ export class StudentLookupService {
 								eq(studentPrograms.mnumber, students.mnumber),
 								eq(studentPrograms.type, 'MAJOR'),
 								inArray(studentPrograms.program, filters.majors)
-							)
+							) as SQL<unknown>
 						)
-				)
+				) as SQL<unknown>
 			);
 		}
 
@@ -135,14 +143,14 @@ export class StudentLookupService {
 								eq(studentPrograms.mnumber, students.mnumber),
 								eq(studentPrograms.type, 'MINOR'),
 								inArray(studentPrograms.program, filters.minors)
-							)
+							) as SQL<unknown>
 						)
-				)
+				) as SQL<unknown>
 			);
 		}
 
 		// Courses taken filter
-		if (filters.coursesTaken) {
+		if (filters.coursesTaken && filters.coursesTaken.length > 0) {
 			filters.coursesTaken.forEach(course => {
 				conditions.push(
 					exists(
@@ -155,15 +163,15 @@ export class StudentLookupService {
 									eq(studentCourses.course_subject, course.subject),
 									eq(studentCourses.course_number, course.number),
 									eq(studentCourses.course_suffix, course.suffix)
-								)
+								) as SQL<unknown>
 							)
-					)
+					) as SQL<unknown>
 				);
 			});
 		}
 
 		// Courses not taken filter
-		if (filters.coursesNotTaken) {
+		if (filters.coursesNotTaken && filters.coursesNotTaken.length > 0) {
 			filters.coursesNotTaken.forEach(course => {
 				conditions.push(
 					notExists(
@@ -176,15 +184,15 @@ export class StudentLookupService {
 									eq(studentCourses.course_subject, course.subject),
 									eq(studentCourses.course_number, course.number),
 									eq(studentCourses.course_suffix, course.suffix)
-								)
+								) as SQL<unknown>
 							)
-					)
+					) as SQL<unknown>
 				);
 			});
 		}
 
 		// Grade filters
-		if (filters.gradeFilters) {
+		if (filters.gradeFilters && filters.gradeFilters.length > 0) {
 			filters.gradeFilters.forEach(filter => {
 				if (filter.grade) {
 					conditions.push(
@@ -199,17 +207,19 @@ export class StudentLookupService {
 										eq(studentCourses.course_number, filter.number),
 										eq(studentCourses.course_suffix, filter.suffix),
 										eq(studentCourses.final_grade, filter.grade)
-									)
+									) as SQL<unknown>
 								)
-						)
+						) as SQL<unknown>
 					);
 				}
 			});
 		}
 
-		// Apply the single whereClause
+		// Apply the where clause only if we have conditions
 		if (conditions.length > 0) {
-			studentsQuery = studentsQuery.where(and(...conditions));
+			whereCondition = and(...conditions) as SQL<unknown>;
+			const updatedQuery = studentsQuery.where(whereCondition);
+			return await updatedQuery;
 		}
 
 		// Execute query and return results
