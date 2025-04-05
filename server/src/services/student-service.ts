@@ -27,6 +27,7 @@ export class StudentService {
 		year?: number;
 		search?: string;
 		advisorMnumber?: string;
+		isCobisAdmin?: boolean;
 		page: number;
 		limit: number;
 	}): Promise<any> {
@@ -37,12 +38,27 @@ export class StudentService {
 			year,
 			search,
 			advisorMnumber,
+			isCobisAdmin = false,
 			page = 1,
 			limit = 20
 		} = params;
 
 		const db = (await getDbConnection()).orm;
 		const offset = (page - 1) * limit;
+
+		// Implement fail-closed approach: require specific filters unless user is COBIS admin
+		// If not a COBIS admin, and no department or advisor filter, return empty result
+		if (!isCobisAdmin && !department && !advisorMnumber) {
+			return {
+				students: [],
+				pagination: {
+					page,
+					limit,
+					totalItems: 0,
+					totalPages: 0
+				}
+			};
+		}
 
 		// Build conditions for filtering
 		let studentConditions: SQL[] = [];
