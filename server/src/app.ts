@@ -3,7 +3,7 @@ import cors from "cors";
 import { config } from "./utils/config";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
-import { restrictGoogleCallback } from "./middleware/restrictGoogleCallback";
+import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 
 // Open API
 import { apiReference } from '@scalar/express-api-reference'
@@ -12,7 +12,7 @@ import { createDocument } from 'zod-openapi';
 
 // Middleware
 import { authenticateUser } from './middleware/authenticate-user';
-import { getUserInfo } from './middleware/getUserInfo';
+import { getUserInfo } from './middleware/get-user-info';
 
 // Import routes and API specs for OpenAPI Generation
 import importRoutes, { importRoutesAPISpecs } from "./routes/imports";

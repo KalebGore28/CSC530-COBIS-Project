@@ -6,7 +6,7 @@ import {
 	students,
 	studentPrograms
 } from "../../db/schema";
-import { hasRole } from '../../middleware/hasRole';
+import { hasRole } from '../../middleware/has-role';
 
 import 'zod-openapi/extend';
 import { z } from 'zod';
