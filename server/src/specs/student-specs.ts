@@ -369,10 +369,6 @@ const EnrollmentStatusResponse = z.object({
 		description: 'Current enrollment status',
 		example: 'Enrolled'
 	}),
-	registrationHold: z.boolean().openapi({
-		description: 'Whether student has a registration hold',
-		example: false
-	}),
 	totalEnrolledCredits: z.number().openapi({
 		description: 'Total credits enrolled in current term',
 		example: 15
@@ -391,6 +387,10 @@ const EnrollmentStatusResponse = z.object({
 				description: 'Course registration number',
 				example: '12345'
 			}),
+			section: z.string().openapi({
+				description: 'Course section',
+				example: '01'
+			}),
 			credits: z.number().openapi({
 				description: 'Credit hours',
 				example: 3
@@ -398,6 +398,10 @@ const EnrollmentStatusResponse = z.object({
 			instructorName: z.string().nullable().openapi({
 				description: 'Instructor name',
 				example: 'Dr. Jane Doe'
+			}),
+			registrationStatus: z.string().openapi({
+				description: 'Registration status',
+				example: 'Registered'
 			})
 		})
 	).openapi({
