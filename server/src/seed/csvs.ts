@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import importRouter from '../routes/imports';
+import importRouter from '../routes/import-router';
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
