@@ -116,6 +116,28 @@ const CurrentStatusSchema = z.object({
 	})
 });
 
+// Error response schemas
+const Error403ResponseSchema = z.object({
+	error: z.string().openapi({
+		description: 'Error message',
+		example: 'Access denied. Insufficient permissions to view this instructor data.'
+	})
+})
+
+const Error404ResponseSchema = z.object({
+	error: z.string().openapi({
+		description: 'Error message',
+		example: 'Instructor not found'
+	})
+})
+
+const Error500ResponseSchema = z.object({
+	error: z.string().openapi({
+		description: 'Error message',
+		example: 'Internal server error'
+	})
+})
+
 export const instructorApiSpec = {
 	'/api/instructor': {
 		get: {
@@ -129,6 +151,19 @@ export const instructorApiSpec = {
 					content: {
 						'application/json': {
 							schema: GetInstructorsSchema
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string().openapi({
+									description: 'Error message',
+									example: 'Access denied. Insufficient permissions.'
+								})
+							})
 						}
 					}
 				},
@@ -154,15 +189,10 @@ export const instructorApiSpec = {
 					}
 				},
 				'403': {
-					description: 'Forbidden - Insufficient permissions to view instructor data',
+					description: 'Access denied',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Forbidden - Insufficient permissions to view instructor data'
-								})
-							})
+							schema: Error403ResponseSchema
 						}
 					}
 				},
@@ -170,12 +200,7 @@ export const instructorApiSpec = {
 					description: 'Instructor not found',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Instructor not found'
-								})
-							})
+							schema: Error404ResponseSchema
 						}
 					}
 				},
@@ -183,12 +208,7 @@ export const instructorApiSpec = {
 					description: 'Internal server error',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Internal server error'
-								})
-							})
+							schema: Error500ResponseSchema
 						}
 					}
 				}
@@ -217,15 +237,10 @@ export const instructorApiSpec = {
 					}
 				},
 				'403': {
-					description: 'Access denied. Insufficient permissions to view this instructor data.',
+					description: 'Access denied',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Access denied. Insufficient permissions to view this instructor data.'
-								})
-							})
+							schema: Error403ResponseSchema
 						}
 					}
 				},
@@ -233,12 +248,7 @@ export const instructorApiSpec = {
 					description: 'Instructor not found',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Instructor not found'
-								})
-							})
+							schema: Error404ResponseSchema
 						}
 					}
 				},
@@ -246,12 +256,7 @@ export const instructorApiSpec = {
 					description: 'Internal server error',
 					content: {
 						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Internal server error'
-								})
-							})
+							schema: Error500ResponseSchema
 						}
 					}
 				}
