@@ -614,28 +614,6 @@ const EnrollmentHistoryResponse = z.object({
 });
 
 export const StudentAPISpecs = {
-	'/api/student': {
-		get: {
-			tags: ['Student'],
-			operationId: 'getStudents',
-			summary: 'Get students',
-			description: 'Retrieve a list of students. Access restricted to authorized users only.',
-			requestParams: {
-				query: GetStudentsQuerySchema
-			},
-			responses: {
-				'200': {
-					description: 'Successful response with student data',
-					content: {
-						'application/json': {
-							schema: GetStudentsResponse
-						}
-					}
-				}
-			}
-
-		}
-	},
 	'/api/student/{mnumber}': {
 		get: {
 			tags: ['Student'],

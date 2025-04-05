@@ -12,12 +12,6 @@ import { StudentController } from '../controllers/student-controller';
  */
 const router = express.Router();
 
-// Get students
-router.get('/',
-	// GetStudents uniquely handle filtering out data the user shouldn't see.
-	StudentController.getStudents
-)
-
 // Basic student information
 router.get('/:mnumber',
 	StudentController.checkAccess,
