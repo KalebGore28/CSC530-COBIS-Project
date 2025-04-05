@@ -16,43 +16,6 @@ import {
  * Service to handle student data operations
  */
 export class StudentService {
-	/**
-	 * Check if a student is in a specific department
-	 */
-	static async isStudentInDepartment(mnumber: string, departmentCode: string): Promise<boolean> {
-		const db = (await getDbConnection()).orm;
-
-		const result = await db
-			.select({ count: count() })
-			.from(studentPrograms)
-			.where(
-				and(
-					eq(studentPrograms.mnumber, mnumber),
-					eq(studentPrograms.department, departmentCode)
-				)
-			);
-
-		return Number(result[0]?.count || 0) > 0;
-	}
-
-	/**
-	 * Check if a student is advised by a specific instructor
-	 */
-	static async isAdvisee(studentMnumber: string, advisorMnumber: string): Promise<boolean> {
-		const db = (await getDbConnection()).orm;
-
-		const result = await db
-			.select({ count: count() })
-			.from(studentAdvisors)
-			.where(
-				and(
-					eq(studentAdvisors.student_mnumber, studentMnumber),
-					eq(studentAdvisors.advisor_mnumber, advisorMnumber)
-				)
-			);
-
-		return Number(result[0]?.count || 0) > 0;
-	}
 
 	/**
 	 * Get students with pagination and filtering
@@ -81,41 +44,52 @@ export class StudentService {
 		const db = (await getDbConnection()).orm;
 		const offset = (page - 1) * limit;
 
-		// Build conditions
-		const conditions: SQL[] = [];
-
-		// Department filter
-		if (department) {
-			conditions.push(eq(studentPrograms.department, department));
-		}
+		// Build conditions for filtering
+		let studentConditions: SQL[] = [];
+		let programConditions: SQL[] = [];
 
 		// Program filter
 		if (program) {
-			conditions.push(eq(studentPrograms.program, program));
+			programConditions.push(eq(studentPrograms.program, program));
+		}
+
+		// Department filter - now through programs table
+		if (department) {
+			programConditions.push(eq(programs.department, department));
 		}
 
 		// Term/year filter
 		if (term) {
-			conditions.push(eq(studentPrograms.term, term));
+			programConditions.push(eq(studentPrograms.term, term));
 		}
 
 		if (year) {
-			conditions.push(eq(studentPrograms.year, year));
+			programConditions.push(eq(studentPrograms.year, year));
+		}
+
+		// Search filter
+		if (search && search.trim()) {
+			const searchValue = `%${search.trim()}%`;
+
+			// Create a definite condition with explicit SQL
+			studentConditions.push(
+				sql`(${students.first_name} LIKE ${searchValue} OR 
+		   ${students.last_name} LIKE ${searchValue} OR 
+		   ${students.mnumber} LIKE ${searchValue} OR 
+		   ${students.email} LIKE ${searchValue})`
+			);
 		}
 
 		// Advisor filter
-		let advisorStudents: string[] = [];
 		if (advisorMnumber) {
 			const adviseeResults = await db
 				.select({ studentMnumber: studentAdvisors.student_mnumber })
 				.from(studentAdvisors)
 				.where(eq(studentAdvisors.advisor_mnumber, advisorMnumber));
 
-			advisorStudents = adviseeResults.map(r => r.studentMnumber);
+			const advisorStudents = adviseeResults.map(r => r.studentMnumber);
 
-			if (advisorStudents.length > 0) {
-				conditions.push(inArray(students.mnumber, advisorStudents));
-			} else {
+			if (advisorStudents.length === 0) {
 				// If advisor has no advisees, return empty result
 				return {
 					students: [],
@@ -127,18 +101,36 @@ export class StudentService {
 					}
 				};
 			}
+
+			studentConditions.push(inArray(students.mnumber, advisorStudents));
 		}
 
-		// Search filter
-		if (search) {
-			conditions.push(
-				or(
-					like(students.first_name, `%${search}%`),
-					like(students.last_name, `%${search}%`),
-					like(students.mnumber, `%${search}%`),
-					like(students.email, `%${search}%`)
-				)
-			);
+		// Determine which students to include based on program filters
+		let filteredStudentMnumbers: string[] = [];
+		if (programConditions.length > 0) {
+			const programFilteredStudents = await db
+				.select({ mnumber: studentPrograms.mnumber })
+				.from(studentPrograms)
+				.innerJoin(programs, eq(studentPrograms.program, programs.code))
+				.where(and(...programConditions))
+				.groupBy(studentPrograms.mnumber);
+
+			filteredStudentMnumbers = programFilteredStudents.map(s => s.mnumber);
+
+			if (filteredStudentMnumbers.length === 0) {
+				// No students match program criteria
+				return {
+					students: [],
+					pagination: {
+						page,
+						limit,
+						totalItems: 0,
+						totalPages: 0
+					}
+				};
+			}
+
+			studentConditions.push(inArray(students.mnumber, filteredStudentMnumbers));
 		}
 
 		// Get total count for pagination
@@ -146,17 +138,9 @@ export class StudentService {
 			.select({ count: count() })
 			.from(students);
 
-		// Join tables if needed for filtering
-		if (department || program || term || year) {
-			countQuery.leftJoin(
-				studentPrograms,
-				eq(students.mnumber, studentPrograms.mnumber)
-			);
-		}
-
-		// Apply conditions
-		if (conditions.length > 0) {
-			countQuery.where(and(...conditions));
+		// Apply student conditions to count query
+		if (studentConditions.length > 0) {
+			countQuery.where(and(...studentConditions));
 		}
 
 		const totalCount = await countQuery;
@@ -185,17 +169,9 @@ export class StudentService {
 				eq(studentAcademicInfo.academic_standing, academicStanding.code)
 			);
 
-		// Join tables if needed for filtering
-		if (department || program || term || year) {
-			query.leftJoin(
-				studentPrograms,
-				eq(students.mnumber, studentPrograms.mnumber)
-			);
-		}
-
 		// Apply conditions
-		if (conditions.length > 0) {
-			query.where(and(...conditions));
+		if (studentConditions.length > 0) {
+			query.where(and(...studentConditions));
 		}
 
 		// Apply pagination and ordering
@@ -204,24 +180,24 @@ export class StudentService {
 			.limit(limit)
 			.offset(offset);
 
-		// Get major/program for each student
+		// Get student mnumbers for program lookup
 		const studentMnumbers = studentResults.map(s => s.mnumber);
 
 		// Get current programs for these students
 		const studentProgramsData = await db
 			.select({
 				mnumber: studentPrograms.mnumber,
-				programCode: studentPrograms.program,
+				programCode: programs.code,
 				programDescription: programs.description,
-				departmentCode: studentPrograms.department,
+				departmentCode: departments.code,
 				departmentDescription: departments.description,
 				type: studentPrograms.type,
 				term: studentPrograms.term,
 				year: studentPrograms.year
 			})
 			.from(studentPrograms)
-			.leftJoin(programs, eq(studentPrograms.program, programs.code))
-			.leftJoin(departments, eq(studentPrograms.department, departments.code))
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.innerJoin(departments, eq(programs.department, departments.code))
 			.where(
 				and(
 					inArray(studentPrograms.mnumber, studentMnumbers),
@@ -237,7 +213,7 @@ export class StudentService {
 			}
 			acc[curr.mnumber].push(curr);
 			return acc;
-		}, {} as Record<string, typeof studentProgramsData>);
+		}, {} as Record<string, any[]>);
 
 		// Format the final student list with their primary major
 		const formattedStudents = studentResults.map(student => {
@@ -273,6 +249,46 @@ export class StudentService {
 				totalPages
 			}
 		};
+	}
+
+	/**
+	 * Check if a student is in a specific department
+	 */
+	static async isStudentInDepartment(mnumber: string, departmentCode: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		// Query needs to join studentPrograms with programs to check department
+		const result = await db
+			.select({ count: count() })
+			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(
+				and(
+					eq(studentPrograms.mnumber, mnumber),
+					eq(programs.department, departmentCode)
+				)
+			);
+
+		return Number(result[0]?.count || 0) > 0;
+	}
+
+	/**
+	 * Check if a student is advised by a specific instructor
+	 */
+	static async isAdvisee(studentMnumber: string, advisorMnumber: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		const result = await db
+			.select({ count: count() })
+			.from(studentAdvisors)
+			.where(
+				and(
+					eq(studentAdvisors.student_mnumber, studentMnumber),
+					eq(studentAdvisors.advisor_mnumber, advisorMnumber)
+				)
+			);
+
+		return Number(result[0]?.count || 0) > 0;
 	}
 
 	/**
@@ -348,17 +364,17 @@ export class StudentService {
 				level: studentPrograms.level,
 				program: studentPrograms.program,
 				programDescription: programs.description,
-				department: studentPrograms.department,
+				department: departments.code,
 				departmentDescription: departments.description,
-				college: studentPrograms.college,
+				college: colleges.code,
 				collegeDescription: colleges.description,
 				term: studentPrograms.term,
 				year: studentPrograms.year
 			})
 			.from(studentPrograms)
-			.leftJoin(programs, eq(studentPrograms.program, programs.code))
-			.leftJoin(departments, eq(studentPrograms.department, departments.code))
-			.leftJoin(colleges, eq(studentPrograms.college, colleges.code))
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.leftJoin(departments, eq(programs.department, departments.code))
+			.leftJoin(colleges, eq(programs.college, colleges.code))
 			.where(eq(studentPrograms.mnumber, mnumber))
 			.orderBy(desc(studentPrograms.year), desc(studentPrograms.term), studentPrograms.type);
 

@@ -85,6 +85,11 @@ export class StudentController {
 				limit = '20'
 			} = req.query;
 
+			// Convert parameters to appropriate types
+			const pageNum = parseInt(page as string) || 1;
+			const limitNum = parseInt(limit as string) || 20;
+			const yearNum = year ? parseInt(year as string) : undefined;
+
 			// Determine filter criteria based on user's role
 			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
 			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
@@ -100,7 +105,7 @@ export class StudentController {
 
 			// For advisors, restrict to their advisees
 			if (isAdvisor && !isAdmin && !isDeptChair) {
-				advisorMnumber = authReq.mnumber;
+				advisorMnumber = authReq.mnumber || undefined;
 			}
 
 			// Get students with appropriate filters
@@ -108,11 +113,11 @@ export class StudentController {
 				department: filterDepartment,
 				program: program as string,
 				term: term as string,
-				year: year ? parseInt(year as string) : undefined,
+				year: yearNum,
 				search: search as string,
 				advisorMnumber,
-				page: parseInt(page as string),
-				limit: parseInt(limit as string)
+				page: pageNum,
+				limit: limitNum
 			});
 
 			res.json(students);
