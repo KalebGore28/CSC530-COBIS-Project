@@ -30,6 +30,7 @@ import searchRoute from "./routes/search";
 import { InstructorAPISpecs } from "./specs/instructor-specs";
 import { StudentAPISpecs } from "./specs/student-specs";
 import { EnrollmentAPISpecs } from "./specs/enrollment-specs";
+import { SearchAPISpecs } from "./specs/search-specs";
 
 // Create an OpenAPI document
 const document = createDocument({
@@ -45,6 +46,7 @@ const document = createDocument({
         ...InstructorAPISpecs,
         ...StudentAPISpecs,
         ...EnrollmentAPISpecs,
+        ...SearchAPISpecs,
         // ...importRoutesAPISpecs,
         // ...userSpecs,
         // ...reportingSpecs,
@@ -80,8 +82,8 @@ app.use("/api/import", importRoutes)
 app.use("/api/instructor", instructorRouter)
 app.use("/api/student", studentRouter)
 app.use("/api/enrollment", enrollmentRouter)
+app.use("/api/search", searchRoute)
 // app.use("/api/reporting", reportingRoute)
-// app.use("/api/search", searchRoute)
 // app.use("/api", studentLookup)
 // app.use('/api/custom-query', customQuery)
 // app.use('/api/students', studentEnrollmentRouter);
