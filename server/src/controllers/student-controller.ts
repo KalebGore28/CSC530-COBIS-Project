@@ -116,7 +116,8 @@ export class StudentController {
 				// Additionally, if the chair is also an advisor, they should be able to see their advisees
 				if (isFaculty || isAdvisor) {
 					includeAdvisees = true;
-					advisorMnumber = authReq.mnumber;
+					// Ensure we don't pass null
+					advisorMnumber = authReq.mnumber ? authReq.mnumber : undefined;
 				}
 			}
 			// Faculty, advisors, or administrators can see their advisees
