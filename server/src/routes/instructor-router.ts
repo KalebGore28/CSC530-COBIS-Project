@@ -53,12 +53,6 @@ router.get('/:mnumber/terms',
 	InstructorController.getTermSummaries
 );
 
-// Credit hours data
-router.get('/:mnumber/credit-hours',
-	checkInstructorAccess,
-	InstructorController.getCreditHoursData
-);
-
 // Class Roster
 router.get('/:mnumber/class-roster',
 	checkInstructorAccess,

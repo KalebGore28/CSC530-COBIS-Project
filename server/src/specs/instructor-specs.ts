@@ -1,4 +1,4 @@
-import { get } from 'http';
+import { max } from 'drizzle-orm';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -59,34 +59,36 @@ const InstructorBasicInfoSchema = z.object({
 		description: 'Unique instructor identifier',
 		example: 'M123456'
 	}),
-	name: z.string().openapi({
-		description: 'Full name of the instructor',
-		example: 'John Doe'
-	}),
-	firstName: z.string().openapi({
-		description: 'Instructor first name',
-		example: 'John'
-	}),
-	lastName: z.string().openapi({
-		description: 'Instructor last name',
-		example: 'Doe'
-	}),
-	department: z.string().openapi({
-		description: 'Full name of the department',
-		example: 'Computer Science'
-	}),
-	college: z.string().openapi({
-		description: 'Full name of the college',
-		example: 'College of Engineering'
-	}),
-	email: z.string().email().optional().openapi({
-		description: 'Instructor email address',
-		example: 'john.doe@university.edu'
-	}),
-	image: z.string().url().optional().openapi({
-		description: 'URL to instructor profile image',
-		example: 'https://university.edu/images/john-doe.jpg'
-	}),
+	instructorInfo: z.object({
+		name: z.string().openapi({
+			description: 'Full name of the instructor',
+			example: 'John Doe'
+		}),
+		firstName: z.string().openapi({
+			description: 'Instructor first name',
+			example: 'John'
+		}),
+		lastName: z.string().openapi({
+			description: 'Instructor last name',
+			example: 'Doe'
+		}),
+		department: z.string().openapi({
+			description: 'Full name of the department',
+			example: 'Computer Science'
+		}),
+		college: z.string().openapi({
+			description: 'Full name of the college',
+			example: 'College of Engineering'
+		}),
+		email: z.string().email().optional().openapi({
+			description: 'Instructor email address',
+			example: 'john.doe@university.edu'
+		}),
+		image: z.string().url().optional().openapi({
+			description: 'URL to instructor profile image',
+			example: 'https://university.edu/images/john-doe.jpg'
+		}),
+	})
 });
 const CurrentStatusSchema = z.object({
 	mnumber: z.string().openapi({
@@ -96,11 +98,7 @@ const CurrentStatusSchema = z.object({
 	currentStatus: z.object({
 		currentTerm: z.string().openapi({
 			description: 'Current term and year',
-			example: 'FALL 2023'
-		}),
-		currentTermCode: z.string().openapi({
-			description: 'Current term code',
-			example: '10'
+			example: 'FALL'
 		}),
 		currentYear: z.number().openapi({
 			description: 'Current year',
@@ -173,6 +171,120 @@ const TeachingSummarySchema = z.object({
 			]
 		}),
 	})
+})
+const GetCourseDetails = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique instructor identifier',
+		example: 'M123456'
+	}),
+	courseDetails: z.array(
+		z.object({
+			term: z.string().openapi({
+				description: 'Term and year when the course was taught',
+				example: 'FALL'
+			}),
+			year: z.number().openapi({
+				description: 'Year when the course was taught',
+				example: 2023
+			}),
+			courseId: z.string().openapi({
+				description: 'Unique course identifier',
+				example: 'CS101'
+			}),
+			courseTitle: z.string().openapi({
+				description: 'Title of the course',
+				example: 'Introduction to Computer Science'
+			}),
+			courseSubject: z.string().openapi({
+				description: 'Course subject code',
+				example: 'CS'
+			}),
+			courseNumber: z.string().openapi({
+				description: 'Course number',
+				example: '101'
+			}),
+			courseSuffix: z.string().optional().openapi({
+				description: 'Course suffix (if applicable)',
+				example: 'A'
+			}),
+			crn: z.string().openapi({
+				description: 'Course Registration Number',
+				example: '12345'
+			}),
+			creditHours: z.number().openapi({
+				description: 'Number of credit hours for the course',
+				example: 3
+			}),
+			studentCount: z.number().openapi({
+				description: 'Number of students enrolled in the course',
+				example: 30
+			}),
+			totalCreditHours: z.number().openapi({
+				description: 'Total credit hours for the course',
+				example: 90
+			}),
+		})
+	).openapi({
+		description: 'List of courses taught by the instructor',
+		example: [
+			{
+				term: 'FALL',
+				year: 2023,
+				courseId: 'CS101',
+				courseTitle: 'Introduction to Computer Science',
+				courseSubject: 'CS',
+				courseNumber: '101',
+				courseSuffix: 'A',
+				crn: '12345',
+				creditHours: 3,
+				studentCount: 30,
+				totalCreditHours: 90
+			},
+			{
+				term: 'SPRING',
+				year: 2024,
+				courseId: 'CS102',
+				courseTitle: 'Data Structures',
+				courseSubject: 'CS',
+				courseNumber: '102',
+				courseSuffix: '',
+				crn: '67890',
+				creditHours: 4,
+				studentCount: 25,
+				totalCreditHours: 100
+			}
+		]
+	})
+});
+const GetTermSummaries = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique instructor identifier',
+		example: 'M123456'
+	}),
+	termSummaries: z.array(
+		z.object({
+			term: z.string().openapi({
+				description: 'Term and year when the course was taught',
+				example: 'FALL'
+			}),
+			year: z.number().openapi({
+				description: 'Year when the course was taught',
+				example: 2023
+			}),
+			courseCount: z.number().openapi({
+				description: 'Number of courses taught in the term',
+				example: 3
+			}),
+			studentCount: z.number().openapi({
+				description: 'Number of students enrolled in the courses',
+				example: 90
+			}),
+			creditHoursDelivered: z.number().openapi({
+				description: 'Total credit hours delivered in the term',
+				example: 90
+			}),
+		})
+	)
 })
 
 
@@ -362,5 +474,95 @@ export const instructorApiSpec = {
 				}
 			},
 		}
-	}
+	},
+	'/api/instructor/{mnumber}/courses': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorCourseDetails',
+			summary: 'Get course details',
+			description: 'Retrieve course details for a specific instructor by their mnumber. Access restricted to authorized users only.',
+			requestParams: {
+				mnumber: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with course details',
+					content: {
+						'application/json': {
+							schema: GetCourseDetails
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: Error403ResponseSchema
+						}
+					}
+				},
+				'404': {
+					description: 'Instructor not found',
+					content: {
+						'application/json': {
+							schema: Error404ResponseSchema
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: Error500ResponseSchema
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/instructor/{mnumber}/terms': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorTermSummaries',
+			summary: 'Get term summaries',
+			description: 'Retrieve term summaries for a specific instructor by their mnumber. Access restricted to authorized users only.',
+			requestParams: {
+				mnumber: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with term summaries',
+					content: {
+						'application/json': {
+							schema: GetTermSummaries
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: Error403ResponseSchema
+						}
+					}
+				},
+				'404': {
+					description: 'Instructor not found',
+					content: {
+						'application/json': {
+							schema: Error404ResponseSchema
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: Error500ResponseSchema
+						}
+					}
+				}
+			}
+		}
+	},
 };
