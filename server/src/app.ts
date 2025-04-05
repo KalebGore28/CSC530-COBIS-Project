@@ -27,8 +27,8 @@ import enrollmentRouter from "./routes/enrollment-router";
 // import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 // Import OpenAPI specs
-import { instructorApiSpec } from "./specs/instructor-specs";
-
+import { InstructorAPISpecs } from "./specs/instructor-specs";
+import { StudentAPISpecs } from "./specs/student-specs";
 
 // Create an OpenAPI document
 const document = createDocument({
@@ -41,7 +41,8 @@ const document = createDocument({
         { name: 'Imports', description: 'Importing data' },
     ],
     paths: {
-        ...instructorApiSpec,
+        ...InstructorAPISpecs,
+        ...StudentAPISpecs,
         // ...importRoutesAPISpecs,
         // ...userSpecs,
         // ...reportingSpecs,

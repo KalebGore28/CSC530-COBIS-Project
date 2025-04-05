@@ -503,7 +503,7 @@ const Error500ResponseSchema = z.object({
 	})
 })
 
-export const instructorApiSpec = {
+export const InstructorAPISpecs = {
 	'/api/instructor': {
 		get: {
 			tags: ['Instructor'],
