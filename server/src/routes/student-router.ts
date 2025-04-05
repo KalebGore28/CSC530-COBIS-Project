@@ -1,6 +1,4 @@
 import express from 'express';
-import { z } from 'zod';
-import 'zod-openapi/extend';
 import { StudentController } from '../controllers/student-controller';
 
 /**

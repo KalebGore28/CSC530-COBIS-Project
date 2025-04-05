@@ -5,7 +5,7 @@ import { EnrollmentService } from '../services/student-enrollment-service';
 /**
  * Controller for enrollment-related endpoints
  */
-export class StudentEnrollmentController {
+export class EnrollmentController {
 	// --- PROGRAM ENROLLMENT ---
 
 	/**

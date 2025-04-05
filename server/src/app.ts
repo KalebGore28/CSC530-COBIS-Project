@@ -19,11 +19,11 @@ import importRoutes from "./routes/imports";
 import userRoute from "./routes/user";
 import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
+import enrollmentRouter from "./routes/enrollment-router";
 // import reportingRoute, { reportingSpecs } from "./routes/reporting";
 // import searchRoute, { searchSpecs } from "./routes/search";
 // import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 // import customQuery from "./routes/customQueries";
-// import enrollmentRouter, { enrollmentRouterSpec } from "./routes/enrollment-router";
 // import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 // Import OpenAPI specs
@@ -76,11 +76,11 @@ app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/instructor", instructorRouter)
 app.use("/api/student", studentRouter)
+app.use("/api/enrollment", enrollmentRouter)
 // app.use("/api/reporting", reportingRoute)
 // app.use("/api/search", searchRoute)
 // app.use("/api", studentLookup)
 // app.use('/api/custom-query', customQuery)
-// app.use("/api/enrollment", enrollmentRouter)
 // app.use('/api/students', studentEnrollmentRouter);
 
 
