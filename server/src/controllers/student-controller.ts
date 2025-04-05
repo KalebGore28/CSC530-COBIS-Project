@@ -194,4 +194,41 @@ export class StudentController {
 			return;
 		}
 	}
+
+	/**
+	 * Get courses a student has taken
+	 */
+	static async getStudentCourses(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const { term, year, onlyCompleted, onlyPassing } = req.query;
+
+			// Parse filter options
+			const options: {
+				term?: string;
+				year?: number;
+				onlyCompleted?: boolean;
+				onlyPassing?: boolean;
+			} = {};
+
+			if (term) options.term = term as string;
+			if (year) options.year = parseInt(year as string);
+			if (onlyCompleted) options.onlyCompleted = onlyCompleted === 'true';
+			if (onlyPassing) options.onlyPassing = onlyPassing === 'true';
+
+			const coursesData = await StudentService.getStudentCourses(mnumber, options);
+
+			if (!coursesData) {
+				res.status(404).json({ error: "Student not found" });
+				return;
+			}
+
+			res.json(coursesData);
+			return;
+		} catch (error) {
+			console.error("Error getting student courses:", error);
+			res.status(500).json({ error: "Failed to retrieve student courses" });
+			return;
+		}
+	}
 }

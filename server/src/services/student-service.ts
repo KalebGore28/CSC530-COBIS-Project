@@ -1,4 +1,4 @@
-import { eq, and, or, like, count, SQL, inArray, desc, sql } from 'drizzle-orm';
+import { eq, and, or, like, count, SQL, inArray, desc, sql, isNotNull } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
 	students,
@@ -547,6 +547,98 @@ export class StudentService {
 			enrollmentStatus: formattedCourses.length > 0 ? "Enrolled" : "Not Enrolled",
 			totalEnrolledCredits: totalCredits,
 			enrolledCourses: formattedCourses
+		};
+	}
+
+	/**
+	 * Get all courses a student has taken
+	 * @param mnumber Student ID
+	 * @param options Optional filtering options
+	 * @returns List of courses and status
+	 */
+	static async getStudentCourses(mnumber: string, options?: {
+		term?: string;
+		year?: number;
+		onlyCompleted?: boolean;
+		onlyPassing?: boolean;
+	}) {
+		const dbConnectionInstance = await getDbConnection();
+		const db = dbConnectionInstance.orm;
+
+		// Build conditions
+		const conditions: SQL<unknown>[] = [eq(studentCourses.mnumber, mnumber)];
+
+		// Apply optional filters
+		if (options?.term) {
+			conditions.push(eq(studentCourses.term, options.term));
+		}
+
+		if (options?.year) {
+			conditions.push(eq(studentCourses.year, options.year));
+		}
+
+		// Filter for completed courses (has a final grade)
+		if (options?.onlyCompleted) {
+			conditions.push(isNotNull(studentCourses.final_grade));
+		}
+
+		// Filter for passing grades (A, B, C, D, P)
+		// Note: This is a simplified version, you may want to customize based on your grading system
+		if (options?.onlyPassing) {
+			conditions.push(inArray(studentCourses.final_grade, ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'P']));
+		}
+
+		// Create the WHERE condition by combining all filters with AND
+		const whereCondition = and(...conditions);
+
+		// Execute query with the combined condition
+		const courseData = await db.select({
+			term: studentCourses.term,
+			year: studentCourses.year,
+			subject: studentCourses.course_subject,
+			number: studentCourses.course_number,
+			suffix: studentCourses.course_suffix,
+			section: studentCourses.course_section,
+			crn: studentCourses.crn,
+			hours: studentCourses.course_hours,
+			finalGrade: studentCourses.final_grade,
+			registrationStatus: studentCourses.registration_status,
+			courseTitle: courses.title,
+			termDescription: terms.description,
+		})
+			.from(studentCourses)
+			.leftJoin(courses, and(
+				eq(studentCourses.course_subject, courses.subject),
+				eq(studentCourses.course_number, courses.number),
+				eq(studentCourses.course_suffix, courses.suffix)
+			))
+			.leftJoin(terms, eq(studentCourses.term, terms.code))
+			.where(whereCondition)
+			.orderBy(desc(studentCourses.year), desc(studentCourses.term));
+
+		// Format the data
+		return {
+			mnumber,
+			courses: courseData.map(course => {
+				// Determine if course is completed and passing
+				const isCompleted = course.finalGrade !== null;
+				const isPassing = isCompleted && ['A', 'A-', 'B+', 'B', 'B-', 'C+', 'C', 'C-', 'D+', 'D', 'P'].includes(course.finalGrade || '');
+
+				return {
+					term: course.term,
+					termDescription: course.termDescription,
+					year: course.year,
+					courseId: `${course.subject}${course.number}${course.suffix}`,
+					courseTitle: course.courseTitle,
+					section: course.section,
+					crn: course.crn,
+					creditHours: course.hours,
+					finalGrade: course.finalGrade,
+					registrationStatus: course.registrationStatus,
+					isCompleted,
+					isPassing
+				};
+			})
 		};
 	}
 }

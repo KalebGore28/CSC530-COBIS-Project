@@ -793,6 +793,88 @@ const StudentProgramsResponse = z.object({
 	})
 });
 
+// Student courses query schema
+const StudentCoursesQuerySchema = z.object({
+	term: z.string().optional().openapi({
+		description: 'Filter by term code',
+		example: '10'
+	}),
+	year: z.string().optional().openapi({
+		description: 'Filter by year',
+		example: '2023'
+	}),
+	onlyCompleted: z.string().optional().openapi({
+		description: 'Filter to only include completed courses with final grades',
+		example: 'true'
+	}),
+	onlyPassing: z.string().optional().openapi({
+		description: 'Filter to only include courses with passing grades',
+		example: 'true'
+	})
+});
+
+// Student courses response schema
+const StudentCoursesResponse = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique student identifier',
+		example: 'M123456'
+	}),
+	courses: z.array(
+		z.object({
+			term: z.string().openapi({
+				description: 'Term code',
+				example: '10'
+			}),
+			termDescription: z.string().nullable().openapi({
+				description: 'Term description',
+				example: 'Spring 2023'
+			}),
+			year: z.number().openapi({
+				description: 'Academic year',
+				example: 2023
+			}),
+			courseId: z.string().openapi({
+				description: 'Course identifier',
+				example: 'CSC530'
+			}),
+			courseTitle: z.string().nullable().openapi({
+				description: 'Course title',
+				example: 'Software Engineering'
+			}),
+			section: z.string().openapi({
+				description: 'Course section',
+				example: '01'
+			}),
+			crn: z.string().openapi({
+				description: 'Course registration number',
+				example: '12345'
+			}),
+			creditHours: z.number().openapi({
+				description: 'Credit hours',
+				example: 3
+			}),
+			finalGrade: z.string().nullable().openapi({
+				description: 'Final grade received',
+				example: 'A'
+			}),
+			registrationStatus: z.string().openapi({
+				description: 'Registration status',
+				example: 'RE'
+			}),
+			isCompleted: z.boolean().openapi({
+				description: 'Whether the course has a final grade',
+				example: true
+			}),
+			isPassing: z.boolean().openapi({
+				description: 'Whether the course has a passing grade',
+				example: true
+			})
+		})
+	).openapi({
+		description: 'List of courses the student has taken'
+	})
+});
+
 export const StudentAPISpecs = {
 	'/api/student/{mnumber}': {
 		get: {
@@ -889,6 +971,28 @@ export const StudentAPISpecs = {
 			}
 		}
 	},
+	'/api/student/{mnumber}/courses': {
+		get: {
+			tags: ['Student'],
+			operationId: 'getStudentCourses',
+			summary: 'Get student course history',
+			description: 'Retrieve a list of courses taken by a specific student, including completion and passing status. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema,
+				query: StudentCoursesQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with student course data',
+					content: {
+						'application/json': {
+							schema: StudentCoursesResponse
+						}
+					}
+				}
+			}
+		}
+	},
 	'/api/student/{mnumber}/advisors': {
 		get: {
 			tags: ['Student'],
@@ -944,5 +1048,7 @@ export const StudentSpecs = {
 	AdvisorsResponse,
 	GpaTrendResponse,
 	PerformanceMetricsResponse,
-	EnrollmentHistoryResponse
+	EnrollmentHistoryResponse,
+	StudentCoursesQuerySchema,
+	StudentCoursesResponse
 };

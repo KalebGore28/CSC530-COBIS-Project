@@ -30,6 +30,12 @@ router.get('/:mnumber/academic-info',
 	StudentController.getStudentAcademicInfo
 )
 
+// Get student courses
+router.get('/:mnumber/courses',
+	StudentController.checkAccess,
+	StudentController.getStudentCourses
+)
+
 // Academic summary (GPA, credits earned, etc.)
 router.get('/:mnumber/academic-summary',
 	// StudentController.checkAccess,
