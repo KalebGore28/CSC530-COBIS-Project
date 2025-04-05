@@ -193,4 +193,187 @@ export class StudentService {
 
 		return Number(result[0]?.count || 0) > 0;
 	}
+
+	/**
+	 * Get student programs (majors and minors)
+	 */
+	static async getStudentPrograms(mnumber: string) {
+		const db = (await getDbConnection()).orm;
+
+		// Check if student exists
+		const studentExists = await db
+			.select({ count: count() })
+			.from(students)
+			.where(eq(students.mnumber, mnumber));
+
+		if (Number(studentExists[0]?.count || 0) === 0) {
+			return null;
+		}
+
+		// Get all majors
+		const majorsQuery = await db
+			.select({
+				code: programs.code,
+				description: programs.description,
+				department: departments.description,
+				departmentCode: departments.code,
+				college: colleges.description,
+				collegeCode: colleges.code,
+				level: studentPrograms.level,
+				term: studentPrograms.term,
+				year: studentPrograms.year
+			})
+			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.innerJoin(departments, eq(programs.department, departments.code))
+			.innerJoin(colleges, eq(departments.college, colleges.code))
+			.where(
+				and(
+					eq(studentPrograms.mnumber, mnumber),
+					eq(studentPrograms.type, 'MAJOR')
+				)
+			)
+			.orderBy(desc(studentPrograms.year), desc(studentPrograms.term));
+
+		// Get all minors
+		const minorsQuery = await db
+			.select({
+				code: programs.code,
+				description: programs.description,
+				department: departments.description,
+				departmentCode: departments.code,
+				college: colleges.description,
+				collegeCode: colleges.code,
+				level: studentPrograms.level,
+				term: studentPrograms.term,
+				year: studentPrograms.year
+			})
+			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.innerJoin(departments, eq(programs.department, departments.code))
+			.innerJoin(colleges, eq(departments.college, colleges.code))
+			.where(
+				and(
+					eq(studentPrograms.mnumber, mnumber),
+					eq(studentPrograms.type, 'MINOR')
+				)
+			)
+			.orderBy(desc(studentPrograms.year), desc(studentPrograms.term));
+
+		return {
+			majors: majorsQuery,
+			minors: minorsQuery
+		};
+	}
+
+	/**
+	 * Get student academic information
+	 */
+	static async getStudentAcademicInfo(mnumber: string) {
+		const db = (await getDbConnection()).orm;
+
+		// Check if student exists
+		const studentExists = await db
+			.select({ count: count() })
+			.from(students)
+			.where(eq(students.mnumber, mnumber));
+
+		if (Number(studentExists[0]?.count || 0) === 0) {
+			return null;
+		}
+
+		// Get academic information
+		const academicInfo = await db
+			.select({
+				msuGpa: studentAcademicInfo.msu_gpa,
+				overallGpa: studentAcademicInfo.overall_gpa,
+				msuAttemptedHours: studentAcademicInfo.msu_attempted_hours,
+				msuEarnedHours: studentAcademicInfo.msu_earned_hours,
+				overallAttemptedHours: studentAcademicInfo.overall_attempted_hours,
+				overallEarnedHours: studentAcademicInfo.overall_earned_hours,
+				academicStanding: studentAcademicInfo.academic_standing,
+				academicStandingDescription: academicStanding.description,
+				admitTerm: studentAcademicInfo.admit_term,
+				admitYear: studentAcademicInfo.admit_year,
+				admitCode: studentAcademicInfo.admit_code
+			})
+			.from(studentAcademicInfo)
+			.leftJoin(
+				academicStanding,
+				eq(studentAcademicInfo.academic_standing, academicStanding.code)
+			)
+			.where(eq(studentAcademicInfo.mnumber, mnumber))
+			.limit(1);
+
+		if (academicInfo.length === 0) {
+			return {
+				exists: false,
+				message: "Student has no academic record"
+			};
+		}
+
+		// Get admit term description
+		let admitTermDescription = '';
+		if (academicInfo[0].admitTerm) {
+			const termInfo = await db
+				.select({ description: terms.description })
+				.from(terms)
+				.where(eq(terms.code, academicInfo[0].admitTerm))
+				.limit(1);
+
+			admitTermDescription = termInfo[0]?.description || '';
+		}
+
+		// Determine classification based on earned hours
+		let classificationCode = "";
+		let classificationDescription = "";
+
+		const earnedHours = academicInfo[0].overallEarnedHours || 0;
+
+		if (earnedHours < 30) {
+			classificationCode = "FR";
+			classificationDescription = "Freshman";
+		} else if (earnedHours < 60) {
+			classificationCode = "SO";
+			classificationDescription = "Sophomore";
+		} else if (earnedHours < 90) {
+			classificationCode = "JR";
+			classificationDescription = "Junior";
+		} else {
+			classificationCode = "SR";
+			classificationDescription = "Senior";
+		}
+
+		// Format and return the academic information
+		return {
+			gpa: {
+				overall: academicInfo[0].overallGpa,
+				msu: academicInfo[0].msuGpa
+			},
+			credits: {
+				overall: {
+					attempted: academicInfo[0].overallAttemptedHours,
+					earned: academicInfo[0].overallEarnedHours
+				},
+				msu: {
+					attempted: academicInfo[0].msuAttemptedHours,
+					earned: academicInfo[0].msuEarnedHours
+				}
+			},
+			academicStanding: {
+				code: academicInfo[0].academicStanding,
+				description: academicInfo[0].academicStandingDescription
+			},
+			classification: {
+				code: classificationCode,
+				description: classificationDescription
+			},
+			admitInfo: {
+				term: academicInfo[0].admitTerm,
+				termDescription: admitTermDescription,
+				year: academicInfo[0].admitYear,
+				code: academicInfo[0].admitCode
+			}
+		};
+	}
 }

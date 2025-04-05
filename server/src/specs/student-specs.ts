@@ -681,6 +681,102 @@ const EnrollmentHistoryResponse = z.object({
 	})
 });
 
+// Schema for student programs response
+const StudentProgramsResponse = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique student identifier',
+		example: 'M123456'
+	}),
+	programs: z.object({
+		majors: z.array(
+			z.object({
+				code: z.string().openapi({
+					description: 'Program code',
+					example: 'CSBS'
+				}),
+				description: z.string().openapi({
+					description: 'Program description',
+					example: 'Computer Science, BS'
+				}),
+				department: z.string().openapi({
+					description: 'Department description',
+					example: 'Computer Science'
+				}),
+				departmentCode: z.string().openapi({
+					description: 'Department code',
+					example: 'CSC'
+				}),
+				college: z.string().openapi({
+					description: 'College description',
+					example: 'College of Science'
+				}),
+				collegeCode: z.string().openapi({
+					description: 'College code',
+					example: 'SCI'
+				}),
+				level: z.string().openapi({
+					description: 'Program level (UG/GR/PB)',
+					example: 'UG'
+				}),
+				term: z.string().openapi({
+					description: 'Term code',
+					example: '10'
+				}),
+				year: z.number().openapi({
+					description: 'Academic year',
+					example: 2023
+				})
+			})
+		).openapi({
+			description: 'List of student majors'
+		}),
+		minors: z.array(
+			z.object({
+				code: z.string().openapi({
+					description: 'Program code',
+					example: 'MATH'
+				}),
+				description: z.string().openapi({
+					description: 'Program description',
+					example: 'Mathematics'
+				}),
+				department: z.string().openapi({
+					description: 'Department description',
+					example: 'Department of Mathematics'
+				}),
+				departmentCode: z.string().openapi({
+					description: 'Department code',
+					example: 'MATH'
+				}),
+				college: z.string().openapi({
+					description: 'College description',
+					example: 'College of Science'
+				}),
+				collegeCode: z.string().openapi({
+					description: 'College code',
+					example: 'SCI'
+				}),
+				level: z.string().openapi({
+					description: 'Program level (UG/GR/PB)',
+					example: 'UG'
+				}),
+				term: z.string().openapi({
+					description: 'Term code',
+					example: '10'
+				}),
+				year: z.number().openapi({
+					description: 'Academic year',
+					example: 2023
+				})
+			})
+		).openapi({
+			description: 'List of student minors'
+		})
+	}).openapi({
+		description: 'Student program information'
+	})
+});
+
 export const StudentAPISpecs = {
 	'/api/student/{mnumber}': {
 		get: {
@@ -701,7 +797,94 @@ export const StudentAPISpecs = {
 					}
 				}
 			}
-
+		}
+	},
+	'/api/student/{mnumber}/programs': {
+		get: {
+			tags: ['Student'],
+			operationId: 'getStudentPrograms',
+			summary: 'Get student programs',
+			description: 'Retrieve a list of majors and minors for a specific student. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with student program data',
+					content: {
+						'application/json': {
+							schema: StudentProgramsResponse
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/student/{mnumber}/academic-info': {
+		get: {
+			tags: ['Student'],
+			operationId: 'getStudentAcademicInfo',
+			summary: 'Get student academic information',
+			description: 'Retrieve academic information for a specific student including GPA, credits, and classification. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with student academic information',
+					content: {
+						'application/json': {
+							schema: z.object({
+								mnumber: z.string(),
+								academicInfo: z.object({
+									gpa: z.object({
+										overall: z.number().nullable(),
+										msu: z.number().nullable()
+									}),
+									credits: z.object({
+										overall: z.object({
+											attempted: z.number().nullable(),
+											earned: z.number().nullable()
+										}),
+										msu: z.object({
+											attempted: z.number().nullable(),
+											earned: z.number().nullable()
+										})
+									}),
+									academicStanding: z.object({
+										code: z.string().nullable(),
+										description: z.string().nullable()
+									}),
+									classification: z.object({
+										code: z.string(),
+										description: z.string()
+									}),
+									admitInfo: z.object({
+										term: z.string().nullable(),
+										termDescription: z.string().nullable(),
+										year: z.number().nullable(),
+										code: z.string().nullable()
+									})
+								}).nullable()
+							})
+						}
+					}
+				}
+			}
 		}
 	}
+};
+
+export const StudentSpecs = {
+	MnumberRequestParamsSchema,
+	GetStudentsQuerySchema,
+	GetStudentsResponse,
+	GetStudentResponse,
+	StudentProgramsResponse,
+	EnrollmentStatusResponse,
+	AcademicSummaryResponse,
+	AdvisorsResponse,
+	GpaTrendResponse,
+	PerformanceMetricsResponse,
+	EnrollmentHistoryResponse
 };

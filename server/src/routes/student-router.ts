@@ -18,6 +18,18 @@ router.get('/:mnumber',
 	StudentController.getStudent
 )
 
+// Get student programs (majors and minors)
+router.get('/:mnumber/programs',
+	StudentController.checkAccess,
+	StudentController.getStudentPrograms
+)
+
+// Get student academic information
+router.get('/:mnumber/academic-info',
+	StudentController.checkAccess,
+	StudentController.getStudentAcademicInfo
+)
+
 // Current enrollment status
 router.get('/:mnumber/enrollment-status',
 	// StudentController.checkAccess,

@@ -63,7 +63,7 @@ export class StudentController {
 				// Currently, this is not implemented in the system
 				if (isAdministrator && authReq.department) {
 					console.error('Administrator access check for student-controller.ts not implemented yet');
-					}
+				}
 			} else {
 				// For list endpoints (no specific mnumber) - access control will be handled in the controller
 				if (isDeptChair || isProgramCoordinator || isFaculty || isAdvisor || isAdministrator) {
@@ -99,6 +99,54 @@ export class StudentController {
 			res.json(studentInfo);
 		} catch (error) {
 			console.error('Error fetching student data:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	}
+
+	/**
+	 * Get programs (majors and minors) for a specific student
+	 */
+	static async getStudentPrograms(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+
+			const programData = await StudentService.getStudentPrograms(mnumber);
+
+			if (!programData) {
+				res.status(404).json({ error: 'Student not found' });
+				return;
+			}
+
+			res.json({
+				mnumber,
+				programs: programData
+			});
+		} catch (error) {
+			console.error('Error fetching student program data:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	}
+
+	/**
+	 * Get academic information for a specific student
+	 */
+	static async getStudentAcademicInfo(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+
+			const academicData = await StudentService.getStudentAcademicInfo(mnumber);
+
+			if (!academicData) {
+				res.status(404).json({ error: 'Student not found' });
+				return;
+			}
+
+			res.json({
+				mnumber,
+				academicInfo: academicData
+			});
+		} catch (error) {
+			console.error('Error fetching student academic data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
