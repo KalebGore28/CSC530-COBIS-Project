@@ -31,15 +31,15 @@ export default function Dashboard() {
 				</Card>
 				<Card>
 					<CardHeader>
-						<CardTitle className="text-center">Placeholder</CardTitle>
+						<CardTitle className="text-center">Faculty Information</CardTitle>
 						<CardDescription className="text-center">
-							Placeholder description for a future tool.
+							View teaching loads, course enrollment, and student counts for faculty in your department.
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="flex justify-center">
-						<Button variant="default" disabled>
-							Coming Soon
-						</Button>
+						<Link to="/professor-stats">
+							<Button variant="default">View Faculty</Button>
+						</Link>
 					</CardContent>
 				</Card>
 				<Card>

@@ -327,6 +327,32 @@ const ProfessorTeachingInfo = () => {
 
                             {/* Current Term Tab */}
                             <TabsContent value="current" className="space-y-4">
+                              {/* Basic Info Card */}
+                              {basicInfo && basicInfo.instructorInfo && (
+                                <div className="bg-white rounded-lg border shadow-sm p-4 mb-4">
+                                  <div className="flex items-start gap-4">
+                                    <div className="flex-1">
+                                      <h3 className="text-xl font-semibold mb-1">{basicInfo.instructorInfo.name}</h3>
+                                      <div className="text-sm text-muted-foreground">
+                                        {basicInfo.instructorInfo.department} • {basicInfo.instructorInfo.college}
+                                      </div>
+                                      {basicInfo.instructorInfo.email && (
+                                        <div className="text-sm mt-2">
+                                          <a href={`mailto:${basicInfo.instructorInfo.email}`} className="text-primary hover:underline">
+                                            {basicInfo.instructorInfo.email}
+                                          </a>
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                                        Faculty
+                                      </Badge>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
                               {currentStatus && (
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                   <Card>
@@ -346,7 +372,11 @@ const ProfessorTeachingInfo = () => {
                                     </CardHeader>
                                     <CardContent className="pt-0 p-4">
                                       <div className="text-2xl font-bold">
-                                        {currentStatus.currentStatus.isCurrentlyTeaching ? 'Active' : 'Inactive'}
+                                        {currentStatus.currentStatus.isCurrentlyTeaching ? (
+                                          <span className="text-green-600">Active</span>
+                                        ) : (
+                                          <span className="text-amber-600">Inactive</span>
+                                        )}
                                       </div>
                                     </CardContent>
                                   </Card>
@@ -400,7 +430,9 @@ const ProfessorTeachingInfo = () => {
                                 </div>
                               ) : (
                                 <div className="text-center py-4 text-muted-foreground">
-                                  No current courses to display
+                                  {currentStatus && currentStatus.currentStatus.isCurrentlyTeaching ?
+                                    "No current courses to display" :
+                                    "Professor is not teaching any courses this term"}
                                 </div>
                               )}
                             </TabsContent>
