@@ -481,11 +481,11 @@ export class EnrollmentService {
 			)
 			.groupBy(studentPrograms.term, studentPrograms.year, studentPrograms.program)
 			.orderBy(studentPrograms.year, sql`CASE 
-	WHEN ${studentPrograms.term} = '10' THEN 1 
-	WHEN ${studentPrograms.term} = '50' THEN 2 
-	WHEN ${studentPrograms.term} = '80' THEN 3 
-	WHEN ${studentPrograms.term} = '90' THEN 4 
-	ELSE 5 END`);
+		WHEN ${studentPrograms.term} = '10' THEN 1 
+		WHEN ${studentPrograms.term} = '50' THEN 2 
+		WHEN ${studentPrograms.term} = '80' THEN 3 
+		WHEN ${studentPrograms.term} = '90' THEN 4 
+		ELSE 5 END`);
 
 		// Get term descriptions for reference
 		const termDescriptions = await db

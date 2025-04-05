@@ -1,12 +1,22 @@
 import express from 'express';
-import studentCourseRequirements, { studentCourseRequirementSpec } from './reporting/studentCourseRequirements';
+import { ReportingController } from '../controllers/reporting-controller';
+import { ReportingAPISpecs } from '../specs/reporting-specs';
 
-
+/**
+ * Reporting routes
+ * @module routes/reporting
+ * @requires express
+ * @requires ../controllers/reporting-controller
+ * @description This module defines the routes for reporting operations.
+ */
 const router = express.Router();
-router.use(studentCourseRequirements);
 
-export const reportingSpecs = {
-	...studentCourseRequirementSpec,
-}
+// Student course requirement endpoint
+router.get('/student-course-requirement',
+	...ReportingController.checkAccess,
+	ReportingController.getStudentCourseRequirement
+);
+
+export const reportingSpecs = ReportingAPISpecs;
 
 export default router;
