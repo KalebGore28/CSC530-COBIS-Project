@@ -110,9 +110,10 @@ export class EnrollmentService {
 				count: count()
 			})
 			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
 			.where(
 				and(
-					eq(studentPrograms.department, departmentCode),
+					eq(programs.department, departmentCode),
 					...(term ? [eq(studentPrograms.term, term)] : []),
 					...(year ? [eq(studentPrograms.year, year)] : []),
 					...(programType ? [eq(studentPrograms.type, programType)] : [])
@@ -174,6 +175,7 @@ export class EnrollmentService {
 	/**
 	 * Get student-level details for a specific program
 	 */
+	// TODO: fix
 	static async getProgramStudents(params: {
 		programCode: string;
 		departmentCode: string;
@@ -366,7 +368,7 @@ export class EnrollmentService {
 	): Promise<number> {
 		const db = (await getDbConnection()).orm;
 
-		const conditions: SQL[] = [eq(studentPrograms.department, departmentCode)];
+		const conditions: SQL[] = [eq(programs.department, departmentCode)];
 
 		if (term) {
 			conditions.push(eq(studentPrograms.term, term));
@@ -389,6 +391,7 @@ export class EnrollmentService {
 				count: sql<number>`COUNT(DISTINCT ${studentPrograms.mnumber})`
 			})
 			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
 			.where(and(...conditions));
 
 		return Number(result[0]?.count || 0);
@@ -397,6 +400,7 @@ export class EnrollmentService {
 	/**
 	 * Get enrollment trends for programs over multiple terms/years
 	 */
+	// TODO: fix
 	static async getProgramEnrollmentTrends(params: {
 		departmentCode: string;
 		programCode?: string;
