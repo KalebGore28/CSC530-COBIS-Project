@@ -19,44 +19,57 @@ export class StudentController {
 				role.role_name === 'cobis_administrator');
 			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'department_chair');
-			const isAdvisor = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+			const isFaculty = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'faculty');
+			const isAdvisor = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'advisor');
+			const isProgramCoordinator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'program_coordinator');
+			const isAdministrator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'administrator');
 
-			// Admins can access all students
+			// COBIS Administrators can access all students
 			if (isAdmin) {
 				next();
 				return;
 			}
 
-			// Department chairs can access students in their department's programs
-			if (isDeptChair && authReq.department) {
-				if (mnumber) {
-					const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
-					if (isStudentInDepartment) {
-						return next();
-					}
-				} else {
-					// For listing all students, department filtering is applied in the getStudents method
-					return next();
-				}
-			}
-
-			// Advisors can access their advisees
-			if (isAdvisor && authReq.mnumber) {
-				if (mnumber) {
-					const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
-					if (isAdvisee) {
-						return next();
-					}
-				} else {
-					// For listing all students, advisee filtering is applied in the getStudents method
-					return next();
-				}
-			}
-
 			// Users can access their own data
 			if (authReq.mnumber === mnumber) {
-				return next();
+				next();
+				return;
+			}
+
+			if (mnumber) {
+				// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
+				if ((isFaculty || isAdvisor || isDeptChair) && authReq.mnumber) {
+					const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
+					if (isAdvisee) {
+						next();
+						return;
+					}
+				}
+
+				// Department chairs can access students in their department
+				if ((isDeptChair) && authReq.department) {
+					const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
+					if (isStudentInDepartment) {
+						next();
+						return;
+					}
+				}
+
+				// For administrators who have a department association
+				// Currently, this is not implemented in the system
+				if (isAdministrator && authReq.department) {
+					console.error('Administrator access check for student-controller.ts not implemented yet');
+					}
+			} else {
+				// For list endpoints (no specific mnumber) - access control will be handled in the controller
+				if (isDeptChair || isProgramCoordinator || isFaculty || isAdvisor || isAdministrator) {
+					next();
+					return;
+				}
 			}
 
 			// If none of the conditions are met, deny access
