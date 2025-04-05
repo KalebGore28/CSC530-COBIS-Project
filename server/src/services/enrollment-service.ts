@@ -175,7 +175,7 @@ export class EnrollmentService {
 	/**
 	 * Get student-level details for a specific program
 	 */
-	// TODO: fix
+	// TODO: fix studentPrograms.department which is not in the schema
 	static async getProgramStudents(params: {
 		programCode: string;
 		departmentCode: string;
@@ -400,7 +400,7 @@ export class EnrollmentService {
 	/**
 	 * Get enrollment trends for programs over multiple terms/years
 	 */
-	// TODO: fix
+	// TODO: fix studentPrograms.department which is not in the schema
 	static async getProgramEnrollmentTrends(params: {
 		departmentCode: string;
 		programCode?: string;
