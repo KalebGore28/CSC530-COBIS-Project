@@ -14,17 +14,20 @@ import { createDocument } from 'zod-openapi';
 import { authenticateUser } from './middleware/authenticate-user';
 import { getUserInfo } from './middleware/get-user-info';
 
-// Import routes and API specs for OpenAPI Generation
-import importRoutes, { importRoutesAPISpecs } from "./routes/imports";
-import userRoute, { userSpecs } from "./routes/user";
+// Import Routes
+import importRoutes from "./routes/imports";
+import userRoute from "./routes/user";
 // import reportingRoute, { reportingSpecs } from "./routes/reporting";
 // import searchRoute, { searchSpecs } from "./routes/search";
 // import studentLookup, { studentLookupSpec } from "./routes/studentLookup";
 // import customQuery from "./routes/customQueries";
 // import enrollmentRouter, { enrollmentRouterSpec } from "./routes/enrollment-router";
 // import studentRouter, { studentRouterSpec } from "./routes/student-router";
-import instructorRouter, { instructorRouterSpec } from "./routes/instructor-router";
+import instructorRouter from "./routes/instructor-router";
 import studentEnrollmentRouter from './routes/student-enrollment-router';
+
+// Import OpenAPI specs
+import { instructorApiSpec } from "./specs/instructor-specs";
 
 
 // Create an OpenAPI document
@@ -38,12 +41,12 @@ const document = createDocument({
         { name: 'Imports', description: 'Importing data' },
     ],
     paths: {
-        ...importRoutesAPISpecs,
-        ...userSpecs,
+        ...instructorApiSpec,
+        // ...importRoutesAPISpecs,
+        // ...userSpecs,
         // ...reportingSpecs,
         // ...searchSpecs,
         // ...studentLookupSpec,
-        ...instructorRouterSpec,
         // ...enrollmentRouterSpec,
         // ...studentRouterSpec,
     },
