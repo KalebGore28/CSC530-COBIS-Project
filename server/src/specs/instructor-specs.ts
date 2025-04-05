@@ -1,3 +1,4 @@
+import { get } from 'http';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -115,6 +116,65 @@ const CurrentStatusSchema = z.object({
 		}),
 	})
 });
+const TeachingSummarySchema = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique instructor identifier',
+		example: 'M123456'
+	}),
+	teachingSummary: z.object({
+		totalCoursesTaught: z.number().openapi({
+			description: 'Total number of courses taught by the instructor',
+			example: 10
+		}),
+		uniqueCoursesTaught: z.number().openapi({
+			description: 'Number of unique courses taught by the instructor',
+			example: 5
+		}),
+		totalStudentsTaught: z.number().openapi({
+			description: 'Total number of students taught by the instructor',
+			example: 200
+		}),
+		totalCreditHoursDelivered: z.number().openapi({
+			description: 'Total credit hours delivered by the instructor',
+			example: 30
+		}),
+		averageClassSize: z.number().openapi({
+			description: 'Average class size for the instructor',
+			example: 20
+		}),
+		mostTaughtCourses: z.array(
+			z.object({
+				courseId: z.string().openapi({
+					description: 'Unique course identifier',
+					example: 'CS101'
+				}),
+				courseTitle: z.string().openapi({
+					description: 'Title of the course',
+					example: 'Introduction to Computer Science'
+				}),
+				timesTaught: z.number().openapi({
+					description: 'Number of times the course has been taught by the instructor',
+					example: 5
+				}),
+			})
+		).openapi({
+			description: 'List of most taught courses by the instructor',
+			example: [
+				{
+					courseId: 'CS101',
+					courseTitle: 'Introduction to Computer Science',
+					timesTaught: 5
+				},
+				{
+					courseId: 'CS102',
+					courseTitle: 'Data Structures',
+					timesTaught: 4
+				}
+			]
+		}),
+	})
+})
+
 
 // Error response schemas
 const Error403ResponseSchema = z.object({
@@ -123,14 +183,12 @@ const Error403ResponseSchema = z.object({
 		example: 'Access denied. Insufficient permissions to view this instructor data.'
 	})
 })
-
 const Error404ResponseSchema = z.object({
 	error: z.string().openapi({
 		description: 'Error message',
 		example: 'Instructor not found'
 	})
 })
-
 const Error500ResponseSchema = z.object({
 	error: z.string().openapi({
 		description: 'Error message',
@@ -212,10 +270,7 @@ export const instructorApiSpec = {
 						}
 					}
 				}
-			},
-			security: [{
-				bearerAuth: []
-			}]
+			}
 		}
 	},
 	'/api/instructor/{mnumber}/current-status': {
@@ -260,10 +315,52 @@ export const instructorApiSpec = {
 						}
 					}
 				}
+			}
+		}
+	},
+	'/api/instructor/{mnumber}/teaching-summary': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorTeachingSummary',
+			summary: 'Get teaching summary',
+			description: 'Retrieve the teaching summary for a specific instructor by their mnumber. Access restricted to authorized users only.',
+			requestParams: {
+				mnumber: MnumberRequestParamsSchema
 			},
-			security: [{
-				bearerAuth: []
-			}]
+			responses: {
+				'200': {
+					description: 'Successful response with teaching summary information',
+					content: {
+						'application/json': {
+							schema: TeachingSummarySchema
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: Error403ResponseSchema
+						}
+					}
+				},
+				'404': {
+					description: 'Instructor not found',
+					content: {
+						'application/json': {
+							schema: Error404ResponseSchema
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: Error500ResponseSchema
+						}
+					}
+				}
+			},
 		}
 	}
 };

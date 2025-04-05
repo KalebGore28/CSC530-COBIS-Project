@@ -112,7 +112,7 @@ export class InstructorController {
 
 			const teachingSummary = await InstructorsService.getTeachingSummary(mnumber);
 
-			res.json(teachingSummary);
+			res.json({mnumber, teachingSummary});
 			return;
 		} catch (error) {
 			console.error('Error fetching teaching summary:', error);
