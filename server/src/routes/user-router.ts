@@ -1,6 +1,5 @@
 import express from 'express';
 import { UserController } from '../controllers/user-controller';
-import { UserAPISpecs } from '../specs/user-specs';
 
 /**
  * User routes
@@ -16,7 +15,5 @@ router.get('/me', UserController.getCurrentUser);
 
 // Update user's M-number
 router.post('/update-mnumber', UserController.updateMnumber);
-
-export const userSpecs = UserAPISpecs;
 
 export default router; 
