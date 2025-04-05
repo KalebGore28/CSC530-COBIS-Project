@@ -65,40 +65,27 @@ interface TeachingSummary {
   }
 }
 
+// Update CourseDetails interface to match the actual API structure
+interface Course {
+  termName: string
+  termCode: string
+  year: number
+  courseId: string
+  courseTitle: string
+  courseSubject: string
+  courseNumber: string
+  courseSuffix: string
+  crn: string
+  section?: string
+  creditHours: number
+  studentCount: number
+  totalCreditHours?: number
+  instructionalMethod?: string
+}
+
 interface CourseDetails {
   mnumber: string
-  courseDetails: {
-    currentCourses: Array<{
-      courseId: string
-      courseTitle: string
-      courseSubject: string
-      courseNumber: string
-      courseSuffix: string
-      section: string
-      crn: string
-      termCode: string
-      termName: string
-      year: number
-      creditHours: number
-      studentCount: number
-      instructionalMethod: string
-    }>
-    historicalCourses: Array<{
-      courseId: string
-      courseTitle: string
-      courseSubject: string
-      courseNumber: string
-      courseSuffix: string
-      section: string
-      crn: string
-      termCode: string
-      termName: string
-      year: number
-      creditHours: number
-      studentCount: number
-      instructionalMethod: string
-    }>
-  }
+  courseDetails: Course[]
 }
 
 interface TermSummary {
@@ -137,6 +124,7 @@ const ProfessorTeachingInfo = () => {
   const [teachingSummary, setTeachingSummary] = useState<TeachingSummary | null>(null)
   const [courseDetails, setCourseDetails] = useState<CourseDetails | null>(null)
   const [termSummaries, setTermSummaries] = useState<TermSummaries | null>(null)
+  const [allCourses, setAllCourses] = useState<CourseDetails | null>(null)
 
   // Load instructors on component mount
   useEffect(() => {
@@ -202,8 +190,8 @@ const ProfessorTeachingInfo = () => {
     setInstructorDetailsLoading(true)
 
     try {
-      // Fetch all instructor data in parallel
-      const [basicInfoRes, currentStatusRes, teachingSummaryRes, courseDetailsRes, termSummariesRes] = await Promise.all([
+      // First fetch basic info and current status
+      const [basicInfoRes, currentStatusRes] = await Promise.all([
         fetch(`/api/instructor/${professorId}`).then(res => {
           if (!res.ok) throw new Error(`Error fetching instructor basic info: ${res.status}`)
           return res.json()
@@ -211,12 +199,24 @@ const ProfessorTeachingInfo = () => {
         fetch(`/api/instructor/${professorId}/current-status`).then(res => {
           if (!res.ok) throw new Error(`Error fetching current status: ${res.status}`)
           return res.json()
-        }),
+        })
+      ])
+
+      // Set the initial data
+      setBasicInfo(basicInfoRes)
+      setCurrentStatus(currentStatusRes)
+
+      // Now fetch the rest using the current status to filter courses
+      const currentTerm = currentStatusRes.currentStatus.currentTerm
+      const currentYear = currentStatusRes.currentStatus.currentYear
+
+      // Fetch remaining data
+      const [teachingSummaryRes, courseDetailsRes, termSummariesRes] = await Promise.all([
         fetch(`/api/instructor/${professorId}/teaching-summary`).then(res => {
           if (!res.ok) throw new Error(`Error fetching teaching summary: ${res.status}`)
           return res.json()
         }),
-        fetch(`/api/instructor/${professorId}/courses`).then(res => {
+        fetch(`/api/instructor/${professorId}/courses?term=${currentTerm}&year=${currentYear}`).then(res => {
           if (!res.ok) throw new Error(`Error fetching course details: ${res.status}`)
           return res.json()
         }),
@@ -226,11 +226,25 @@ const ProfessorTeachingInfo = () => {
         })
       ])
 
-      setBasicInfo(basicInfoRes)
-      setCurrentStatus(currentStatusRes)
+      // Debug logs to understand the data
+      console.log("Current Status Response:", currentStatusRes)
+      console.log("Course Details Response with filtering:", courseDetailsRes)
+
       setTeachingSummary(teachingSummaryRes)
       setCourseDetails(courseDetailsRes)
       setTermSummaries(termSummariesRes)
+
+      // Also fetch all courses for historical view
+      const allCoursesRes = await fetch(`/api/instructor/${professorId}/courses`).then(res => {
+        if (!res.ok) throw new Error(`Error fetching all course details: ${res.status}`)
+        return res.json()
+      })
+
+      console.log("All Courses Response:", allCoursesRes)
+
+      // Store all historical courses for the history tab
+      setAllCourses(allCoursesRes)
+
     } catch (error) {
       console.error("Error fetching instructor details:", error)
       // Reset loading state but keep expanded to show error message
@@ -394,47 +408,61 @@ const ProfessorTeachingInfo = () => {
                                 </div>
                               )}
 
-                              {courseDetails && courseDetails.courseDetails && courseDetails.courseDetails.currentCourses &&
-                                courseDetails.courseDetails.currentCourses.length > 0 ? (
-                                <div className="space-y-4">
-                                  <h4 className="font-medium">Current Courses</h4>
-                                  <div className="space-y-3">
-                                    {courseDetails.courseDetails.currentCourses.map((course, index) => (
-                                      <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-md">
-                                        <div>
-                                          <div className="font-medium">
-                                            {course.courseId}: {course.courseTitle}
+                              {/* Current Courses Section */}
+                              {(() => {
+                                const currentCourses = courseDetails?.courseDetails || [];
+                                return currentCourses.length > 0 ? (
+                                  <div className="space-y-4">
+                                    <h4 className="font-medium">Current Courses ({currentCourses.length})</h4>
+                                    <div className="space-y-3">
+                                      {currentCourses.map((course, index) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-md">
+                                          <div>
+                                            <div className="font-medium">
+                                              {course.courseId}: {course.courseTitle}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground">
+                                              CRN {course.crn}
+                                            </div>
                                           </div>
-                                          <div className="text-sm text-muted-foreground">
-                                            Section {course.section} • CRN {course.crn}
+                                          <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-1.5 text-sm">
+                                              <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                              <span>{course.creditHours} Credit Hours</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-sm">
+                                              <Users className="h-4 w-4 text-muted-foreground" />
+                                              <span>{course.studentCount} Students</span>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center justify-end">
+                                            <Badge>
+                                              {course.totalCreditHours || (course.creditHours * course.studentCount)} Credit Hours Total
+                                            </Badge>
                                           </div>
                                         </div>
-                                        <div className="flex flex-col gap-1">
-                                          <div className="flex items-center gap-1.5 text-sm">
-                                            <BookOpen className="h-4 w-4 text-muted-foreground" />
-                                            <span>{course.creditHours} Credit Hours</span>
-                                          </div>
-                                          <div className="flex items-center gap-1.5 text-sm">
-                                            <Users className="h-4 w-4 text-muted-foreground" />
-                                            <span>{course.studentCount} Students</span>
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center justify-end">
-                                          <Badge>
-                                            {course.creditHours * course.studentCount} Credit Hours Total
-                                          </Badge>
-                                        </div>
-                                      </div>
-                                    ))}
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="text-center py-4 text-muted-foreground">
-                                  {currentStatus && currentStatus.currentStatus.isCurrentlyTeaching ?
-                                    "No current courses to display" :
-                                    "Professor is not teaching any courses this term"}
-                                </div>
-                              )}
+                                ) : (
+                                  <div className="text-center py-4 text-muted-foreground">
+                                    {currentStatus && currentStatus.currentStatus.isCurrentlyTeaching ? (
+                                      <>
+                                        <div>No current courses to display</div>
+                                        <div className="text-xs mt-2">Debug: Teaching: {currentStatus.currentStatus.isCurrentlyTeaching ? 'Yes' : 'No'}, Course Count: {currentStatus.currentStatus.currentCourseCount}</div>
+                                        <div className="text-xs">Has Course Details: {courseDetails ? 'Yes' : 'No'}</div>
+                                        {courseDetails && (
+                                          <div className="text-xs">
+                                            Total Courses: {courseDetails.courseDetails?.length || 0}
+                                          </div>
+                                        )}
+                                      </>
+                                    ) : (
+                                      "Professor is not teaching any courses this term"
+                                    )}
+                                  </div>
+                                )
+                              })()}
                             </TabsContent>
 
                             {/* Teaching Summary Tab */}
@@ -538,42 +566,55 @@ const ProfessorTeachingInfo = () => {
                                 </div>
                               )}
 
-                              {courseDetails && courseDetails.courseDetails &&
-                                courseDetails.courseDetails.historicalCourses &&
-                                courseDetails.courseDetails.historicalCourses.length > 0 ? (
-                                <div className="space-y-4 mt-6">
-                                  <h4 className="font-medium">Historical Courses</h4>
-                                  <div className="space-y-3">
-                                    {courseDetails.courseDetails.historicalCourses.map((course, index) => (
-                                      <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-md">
-                                        <div>
-                                          <div className="font-medium">
-                                            {course.courseId}: {course.courseTitle}
+                              {/* Historical Courses Section in Teaching History Tab */}
+                              {(() => {
+                                // Use allCourses for historical data if available, otherwise fall back to courseDetails
+                                const allCoursesList = allCourses?.courseDetails || [];
+                                const currentCourseIds = (courseDetails?.courseDetails || [])
+                                  .map(course => `${course.courseId}-${course.termCode}-${course.year}-${course.crn}`)
+                                  .filter(Boolean);
+
+                                // Filter out current courses from all courses to get historical ones
+                                const historicalCourses = allCoursesList.filter(course => {
+                                  const courseIdentifier = `${course.courseId}-${course.termCode}-${course.year}-${course.crn}`;
+                                  return !currentCourseIds.includes(courseIdentifier);
+                                });
+
+                                return historicalCourses.length > 0 ? (
+                                  <div className="space-y-4 mt-6">
+                                    <h4 className="font-medium">Historical Courses ({historicalCourses.length})</h4>
+                                    <div className="space-y-3">
+                                      {historicalCourses.map((course, index) => (
+                                        <div key={index} className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 border rounded-md">
+                                          <div>
+                                            <div className="font-medium">
+                                              {course.courseId}: {course.courseTitle}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground">
+                                              {course.termName} {course.year} • CRN {course.crn}
+                                            </div>
                                           </div>
-                                          <div className="text-sm text-muted-foreground">
-                                            {course.termName} {course.year} • Section {course.section}
+                                          <div className="flex flex-col gap-1">
+                                            <div className="flex items-center gap-1.5 text-sm">
+                                              <BookOpen className="h-4 w-4 text-muted-foreground" />
+                                              <span>{course.creditHours} Credit Hours</span>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 text-sm">
+                                              <Users className="h-4 w-4 text-muted-foreground" />
+                                              <span>{course.studentCount} Students</span>
+                                            </div>
+                                          </div>
+                                          <div className="flex items-center justify-end">
+                                            <Badge>
+                                              {course.totalCreditHours || (course.creditHours * course.studentCount)} Credit Hours Total
+                                            </Badge>
                                           </div>
                                         </div>
-                                        <div className="flex flex-col gap-1">
-                                          <div className="flex items-center gap-1.5 text-sm">
-                                            <BookOpen className="h-4 w-4 text-muted-foreground" />
-                                            <span>{course.creditHours} Credit Hours</span>
-                                          </div>
-                                          <div className="flex items-center gap-1.5 text-sm">
-                                            <Users className="h-4 w-4 text-muted-foreground" />
-                                            <span>{course.studentCount} Students</span>
-                                          </div>
-                                        </div>
-                                        <div className="flex items-center justify-end">
-                                          <Badge>
-                                            {course.creditHours * course.studentCount} Credit Hours Total
-                                          </Badge>
-                                        </div>
-                                      </div>
-                                    ))}
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                              ) : null}
+                                ) : null
+                              })()}
                             </TabsContent>
                           </Tabs>
                         )}

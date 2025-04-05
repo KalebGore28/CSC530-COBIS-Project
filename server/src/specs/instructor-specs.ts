@@ -202,6 +202,19 @@ const TeachingSummary = z.object({
 		}),
 	})
 })
+
+// Define query parameters for course details endpoint
+const CourseDetailsQuerySchema = z.object({
+	term: z.string().optional().openapi({
+		description: 'Filter by term code',
+		example: '10'
+	}),
+	year: z.number().optional().openapi({
+		description: 'Filter by academic year',
+		example: 2024
+	})
+});
+
 const GetCourseDetails = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
@@ -675,9 +688,10 @@ export const InstructorAPISpecs = {
 			tags: ['Instructor'],
 			operationId: 'getInstructorCourseDetails',
 			summary: 'Get course details',
-			description: 'Retrieve course details for a specific instructor by their mnumber. Access restricted to authorized users only.',
+			description: 'Retrieve course details for a specific instructor by their mnumber. Optionally filter by term and year. Access restricted to authorized users only.',
 			requestParams: {
-				path: MnumberRequestParamsSchema
+				path: MnumberRequestParamsSchema,
+				query: CourseDetailsQuerySchema
 			},
 			responses: {
 				'200': {

@@ -258,11 +258,20 @@ export class InstructorsService {
 
 	/**
 	 * Get course details
+	 * @param mnumber Instructor M number
+	 * @param options Optional filtering parameters (term, year)
 	 */
-	static async getCourseDetails(mnumber: string) {
+	static async getCourseDetails(
+		mnumber: string,
+		options?: {
+			term?: string;
+			year?: number;
+		}
+	) {
 		const db = (await getDbConnection()).orm;
 
-		const courseDetailsQuery = await db
+		// Start building the query
+		let query = db
 			.select({
 				term: instructorCourses.term,
 				year: instructorCourses.year,
@@ -271,6 +280,7 @@ export class InstructorsService {
 				courseSuffix: instructorCourses.course_suffix,
 				courseTitle: courses.title,
 				crn: instructorCourses.crn,
+				section: studentCourses.course_section,
 				creditHours: studentCourses.course_hours,
 				studentCount: count(studentCourses.mnumber),
 			})
@@ -290,8 +300,26 @@ export class InstructorsService {
 					eq(instructorCourses.term, studentCourses.term),
 					eq(instructorCourses.year, studentCourses.year)
 				)
-			)
-			.where(eq(instructorCourses.mnumber, mnumber))
+			);
+
+		// Build the where conditions
+		const conditions = [eq(instructorCourses.mnumber, mnumber)];
+
+		// Add term filter if provided
+		if (options?.term) {
+			conditions.push(eq(instructorCourses.term, options.term));
+		}
+
+		// Add year filter if provided
+		if (options?.year) {
+			conditions.push(eq(instructorCourses.year, options.year));
+		}
+
+		// Apply all conditions
+		const filteredQuery = query.where(and(...conditions));
+
+		// Complete the query with grouping and ordering
+		const courseDetailsQuery = await filteredQuery
 			.groupBy(
 				instructorCourses.term,
 				instructorCourses.year,

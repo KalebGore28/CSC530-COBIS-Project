@@ -128,13 +128,21 @@ export class InstructorController {
 	static async getCourseDetails(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
+			const { term, year } = req.query;
+
+			// Validate and parse query parameters
+			const options: { term?: string; year?: number } = {};
+			if (term) options.term = term as string;
+			if (year && !isNaN(parseInt(year as string))) {
+				options.year = parseInt(year as string);
+			}
 
 			if (!(await InstructorsService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const courseDetails = await InstructorsService.getCourseDetails(mnumber);
+			const courseDetails = await InstructorsService.getCourseDetails(mnumber, options);
 
 			res.json({ mnumber, courseDetails });
 			return;
