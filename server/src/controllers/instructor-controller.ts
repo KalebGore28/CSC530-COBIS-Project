@@ -7,8 +7,50 @@ import { InstructorAccessService } from '../services/instructor-access-service';
  * Controller for instructor-related endpoints
  */
 export class InstructorController {
-	// The checkAccess middleware has been replaced by the checkInstructorAccess middleware
 	// See middleware/check-instructor-access.ts for the implementation
+
+	/**
+	 * Get instructors - department chairs can only see instructors in their department
+	 */
+	static async getInstructors(req: Request, res: Response) {
+		try {
+			const authReq = req as AuthAndPermissionsRequest;
+			const accessService = new InstructorAccessService();
+
+			// Check permissions
+			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+
+			// For department chairs, filter by their department
+			// For admins, no filter (return all instructors)
+			// For others, return forbidden
+			let departmentCode: string | undefined;
+
+			if (isDeptChair && !isAdmin) {
+				// Department chairs can only see instructors in their department
+				departmentCode = authReq.department || undefined;
+
+				if (!departmentCode) {
+					res.status(400).json({ error: 'Department chair has no associated department' });
+					return;
+				}
+			} else if (!isAdmin) {
+				// Regular users cannot access this endpoint
+				res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
+				return;
+			}
+
+			// Get instructors (filtered by department for chairs, all for admins)
+			const instructors = await InstructorsService.getInstructors(departmentCode);
+
+			res.json(instructors);
+			return;
+		} catch (error) {
+			console.error('Error fetching instructors:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
 
 	/**
 	 * Get basic instructor information
@@ -228,49 +270,6 @@ export class InstructorController {
 			return;
 		} catch (error) {
 			console.error('Error fetching class roster:', error);
-			res.status(500).json({ error: 'Internal server error' });
-			return;
-		}
-	}
-
-	/**
-	 * Get instructors - department chairs can only see instructors in their department
-	 */
-	static async getInstructors(req: Request, res: Response) {
-		try {
-			const authReq = req as AuthAndPermissionsRequest;
-			const accessService = new InstructorAccessService();
-
-			// Check permissions
-			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
-			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
-
-			// For department chairs, filter by their department
-			// For admins, no filter (return all instructors)
-			// For others, return forbidden
-			let departmentCode: string | undefined;
-
-			if (isDeptChair && !isAdmin) {
-				// Department chairs can only see instructors in their department
-				departmentCode = authReq.department || undefined;
-
-				if (!departmentCode) {
-					res.status(400).json({ error: 'Department chair has no associated department' });
-					return;
-				}
-			} else if (!isAdmin) {
-				// Regular users cannot access this endpoint
-				res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
-				return;
-			}
-
-			// Get instructors (filtered by department for chairs, all for admins)
-			const instructors = await InstructorsService.getInstructors(departmentCode);
-
-			res.json(instructors);
-			return;
-		} catch (error) {
-			console.error('Error fetching instructors:', error);
 			res.status(500).json({ error: 'Internal server error' });
 			return;
 		}

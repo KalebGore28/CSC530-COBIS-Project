@@ -9,6 +9,50 @@ const MnumberRequestParamsSchema = z.object({
 });
 
 // Endpoint-specific schemas
+const GetInstructorsSchema = z.array(
+	z.object({
+		mnumber: z.string().openapi({
+			description: 'Unique instructor identifier',
+			example: 'M123456'
+		}),
+		name: z.string().openapi({
+			description: 'Full name of the instructor',
+			example: 'John Doe'
+		}),
+		firstName: z.string().openapi({
+			description: 'Instructor first name',
+			example: 'John'
+		}),
+		lastName: z.string().openapi({
+			description: 'Instructor last name',
+			example: 'Doe'
+		}),
+		department: z.string().openapi({
+			description: 'Full name of the department',
+			example: 'Computer Science'
+		}),
+		departmentCode: z.string().openapi({
+			description: 'Department code',
+			example: 'CS'
+		}),
+		college: z.string().openapi({
+			description: 'Full name of the college',
+			example: 'College of Engineering'
+		}),
+		collegeCode: z.string().openapi({
+			description: 'College code',
+			example: 'ENG'
+		}),
+		email: z.string().email().optional().openapi({
+			description: 'Instructor email address',
+			example: 'johndoe@example.com'
+		}),
+		image: z.string().url().optional().openapi({
+			description: 'URL to instructor profile image',
+			example: 'https://example.com/images/johndoe.jpg'
+		}),
+	})
+)
 const InstructorBasicInfoSchema = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
@@ -43,8 +87,6 @@ const InstructorBasicInfoSchema = z.object({
 		example: 'https://university.edu/images/john-doe.jpg'
 	}),
 });
-
-// Example current status schema (assuming it might be different)
 const CurrentStatusSchema = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
@@ -75,6 +117,24 @@ const CurrentStatusSchema = z.object({
 });
 
 export const instructorApiSpec = {
+	'/api/instructor': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructors',
+			summary: 'Get instructors',
+			description: 'Retrieve a list of instructors. Access restricted to authorized users only.',
+			responses: {
+				'200': {
+					description: 'Successful response with instructor data',
+					content: {
+						'application/json': {
+							schema: GetInstructorsSchema
+						}
+					}
+				},
+			},
+		}
+	},
 	'/api/instructor/{mnumber}': {
 		get: {
 			tags: ['Instructor'],
