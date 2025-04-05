@@ -11,7 +11,9 @@ import {
 	students,
 	studentPrograms,
 	studentAcademicInfo,
-	programs
+	programs,
+	registrationStatus,
+	instructionalMethods
 } from '../db/schema';
 
 /**
@@ -449,7 +451,8 @@ export class InstructorsService {
 				creditHours: studentCourses.course_hours,
 				finalGrade: studentCourses.final_grade,
 				midtermGrade: studentCourses.midterm_grade,
-				registrationStatus: studentCourses.registration_status,
+				registrationStatus: registrationStatus.description,
+				instructionalMethod: instructionalMethods.description,
 				lastAttendance: studentCourses.last_attendance,
 
 				// Academic info
@@ -457,6 +460,8 @@ export class InstructorsService {
 				earnedHours: studentAcademicInfo.overall_earned_hours
 			})
 			.from(studentCourses)
+			.leftJoin(instructionalMethods, eq(studentCourses.instructional_method, instructionalMethods.code))
+			.leftJoin(registrationStatus, eq(studentCourses.registration_status, registrationStatus.code))
 			.leftJoin(students, eq(studentCourses.mnumber, students.mnumber))
 			.leftJoin(studentAcademicInfo, eq(studentCourses.mnumber, studentAcademicInfo.mnumber))
 			.where(
@@ -529,15 +534,13 @@ export class InstructorsService {
 				suffix: student.suffix,
 				email: student.email,
 				major: majorInfo.major,
-				department: majorInfo.department,
-				college: majorInfo.college,
-				creditHours: student.creditHours || 0,
 				finalGrade: student.finalGrade || 'N/A',
 				midtermGrade: student.midtermGrade || 'N/A',
 				registrationStatus: student.registrationStatus,
+				instructionalMethod: student.instructionalMethod,
 				lastAttendance: student.lastAttendance,
 				overallGpa: student.overallGpa || 0,
-				earnedHours: student.earnedHours || 0
+				overallEarnedHours: student.earnedHours || 0
 			};
 		});
 

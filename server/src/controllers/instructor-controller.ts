@@ -218,7 +218,7 @@ export class InstructorController {
 				return;
 			}
 
-			res.json(classRoster);
+			res.json({ mnumber, classRoster });
 			return;
 		} catch (error) {
 			console.error('Error fetching class roster:', error);

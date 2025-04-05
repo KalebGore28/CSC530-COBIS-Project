@@ -2,6 +2,7 @@ import { max } from 'drizzle-orm';
 import { request } from 'http';
 import { z } from 'zod';
 import 'zod-openapi/extend';
+import { registrationStatus } from '../db/schema';
 
 const MnumberRequestParamsSchema = z.object({
 	mnumber: z.string().openapi({
@@ -338,7 +339,152 @@ const GetTermSummaries = z.object({
 		})
 	)
 })
-const GetClassRoster = z.object({})
+const GetClassRoster = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique instructor identifier',
+		example: 'M123456'
+	}),
+	classRoster: z.object({
+		course: z.object({
+			courseId: z.string().openapi({
+				description: 'Unique course identifier',
+				example: 'CS101'
+			}),
+			courseSubject: z.string().openapi({
+				description: 'Course subject code',
+				example: 'CSC'
+			}),
+			courseNumber: z.string().openapi({
+				description: 'Course number',
+				example: '101'
+			}),
+			courseSuffix: z.string().optional().openapi({
+				description: 'Course suffix (if applicable)',
+				example: 'A'
+			}),
+			courseTitle: z.string().openapi({
+				description: 'Title of the course',
+				example: 'Introduction to Computer Science'
+			}),
+			termCode: z.string().openapi({
+				description: 'Term code',
+				example: '10'
+			}),
+			termName: z.string().openapi({
+				description: 'Term and year when the course was taught',
+				example: 'FALL'
+			}),
+			year: z.number().openapi({
+				description: 'Year when the course was taught',
+				example: 2023
+			}),
+			creditHours: z.number().openapi({
+				description: 'Number of credit hours for the course',
+				example: 3
+			}),
+		}),
+		roster: z.array(
+			z.object({
+				mnumber: z.string().openapi({
+					description: 'Unique student identifier',
+					example: 'M123456'
+				}),
+				name: z.string().openapi({
+					description: 'Full name of the student',
+					example: 'Jane Smith'
+				}),
+				firstName: z.string().openapi({
+					description: 'Student first name',
+					example: 'Jane'
+				}),
+				middleName: z.string().optional().openapi({
+					description: 'Student middle name',
+					example: 'A'
+				}),
+				lastName: z.string().openapi({
+					description: 'Student last name',
+					example: 'Smith'
+				}),
+				suffix: z.string().optional().openapi({
+					description: 'Student suffix (if applicable)',
+					example: 'Jr.'
+				}),
+				email: z.string().email().optional().openapi({
+					description: 'Student email address',
+					example: 'janesmith@example.com'
+				}),
+				major: z.string().openapi({
+					description: 'Student major',
+					example: 'A010'
+				}),
+				finalGrade: z.string().optional().openapi({
+					description: 'Final grade received in the course',
+					example: 'A'
+				}),
+				midtermGrade: z.string().optional().openapi({
+					description: 'Midterm grade received in the course',
+					example: 'B'
+				}),
+				registrationStatus: z.string().openapi({
+					description: 'Registration status of the student',
+					example: 'Registered'
+				}),
+				instructionalMethods: z.string().openapi({
+					description: 'Instructional methods used in the course',
+					example: 'Traditional Classroom'
+				}),
+				lastAttendance: z.string().optional().openapi({
+					description: 'Date of last attendance',
+					example: '2023-10-01'
+				}),
+				overallGpa: z.number().openapi({
+					description: 'Overall GPA of the student',
+					example: 3.8
+				}),
+				overallEarnedHours: z.number().openapi({
+					description: 'Total earned hours for the student',
+					example: 60
+				}),
+			})
+		),
+		stats: z.object({
+			totalStudents: z.number().openapi({
+				description: 'Total number of students in the class',
+				example: 30
+			}),
+			totalGraded: z.number().openapi({
+				description: 'Total number of students graded',
+				example: 25
+			}),
+			overallGpa: z.number().openapi({
+				description: 'Overall GPA of the class',
+				example: 3.5
+			}),
+			gradeDistribution: z.object({
+				A: z.number().openapi({
+					description: 'Number of students with grade A',
+					example: 10
+				}),
+				B: z.number().openapi({
+					description: 'Number of students with grade B',
+					example: 8
+				}),
+				C: z.number().openapi({
+					description: 'Number of students with grade C',
+					example: 5
+				}),
+				D: z.number().openapi({
+					description: 'Number of students with grade D',
+					example: 2
+				}),
+				F: z.number().openapi({
+					description: 'Number of students with grade F',
+					example: 5
+				}),
+			})
+		})
+	})
+})
 
 // Error response schemas
 const Error403ResponseSchema = z.object({
