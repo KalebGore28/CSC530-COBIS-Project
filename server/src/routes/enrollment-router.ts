@@ -33,4 +33,10 @@ router.get('/programs/trends',
 	EnrollmentController.getProgramEnrollmentTrends
 );
 
+// Faculty-level enrollment data
+router.get('/faculty',
+	EnrollmentController.checkEnrollmentAccess,
+	EnrollmentController.getFacultyEnrollment
+);
+
 export default router;

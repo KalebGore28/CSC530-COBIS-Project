@@ -249,4 +249,61 @@ export class EnrollmentController {
 
 	// --- COURSE ENROLLMENT ---
 
+	/**
+	 * Get faculty-level enrollment data
+	 * Shows enrollment counts by instructor
+	 */
+	static async getFacultyEnrollment(req: Request, res: Response) {
+		try {
+			const authReq = req as AuthAndPermissionsRequest;
+			const term = req.query.term as string;
+			const year = req.query.year ? parseInt(req.query.year as string) : undefined;
+
+			// Get requested department (if any)
+			let departmentCode = req.query.department as string;
+
+			// Check if user has necessary roles
+			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+			const isAdministrator = authReq.roles.some(role => role.role_name === 'administrator');
+
+			// For department chairs, restrict to their department
+			if (isDeptChair && !isAdmin) {
+				departmentCode = authReq.department || '';
+
+				if (!departmentCode) {
+					res.status(400).json({ error: 'Department chair has no associated department' });
+					return;
+				}
+			}
+
+			// For administrators who are not admins or chairs, also restrict to their department
+			if (isAdministrator && !isAdmin && !isDeptChair) {
+				departmentCode = authReq.department || '';
+
+				if (!departmentCode) {
+					res.status(400).json({ error: 'Administrator has no associated department' });
+					return;
+				}
+			}
+
+			// Admins without a specified department should get an error
+			if (isAdmin && !departmentCode) {
+				res.status(400).json({ error: 'Department parameter is required' });
+				return;
+			}
+
+			// Get the faculty enrollment data with appropriate filters
+			const facultyData = await EnrollmentService.getFacultyEnrollment({
+				departmentCode,
+				term,
+				year
+			});
+
+			res.json(facultyData);
+		} catch (error) {
+			console.error('Error fetching faculty enrollment data:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	}
 }

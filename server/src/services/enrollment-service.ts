@@ -9,6 +9,8 @@ import {
 	studentAcademicInfo,
 	studentCourses,
 	courses,
+	faculty,
+	instructorCourses,
 } from '../db/schema';
 
 /**
@@ -568,5 +570,186 @@ export class EnrollmentService {
 
 	// --- COURSE ENROLLMENT METHODS ---
 
+	// --- FACULTY ENROLLMENT METHODS ---
 
+	/**
+	 * Get faculty-level enrollment data for a department
+	 */
+	static async getFacultyEnrollment(params: {
+		departmentCode: string;
+		term?: string;
+		year?: number;
+	}) {
+		const { departmentCode, term, year } = params;
+		const db = (await getDbConnection()).orm;
+
+		// Get department info
+		const departmentInfo = await db
+			.select({
+				code: departments.code,
+				description: departments.description
+			})
+			.from(departments)
+			.where(eq(departments.code, departmentCode))
+			.limit(1);
+
+		// Get term info if provided
+		let termInfo = null;
+		if (term) {
+			termInfo = await db
+				.select({
+					code: terms.code,
+					description: terms.description
+				})
+				.from(terms)
+				.where(eq(terms.code, term))
+				.limit(1);
+		}
+
+		// If no term/year provided, get the most recent
+		let currentTerm = term;
+		let currentYear = year;
+
+		if (!currentTerm || !currentYear) {
+			const latestTermInfo = await db
+				.select({
+					maxTerm: sql<string>`MAX(${instructorCourses.term})`,
+					maxYear: sql<number>`MAX(${instructorCourses.year})`
+				})
+				.from(instructorCourses);
+
+			currentTerm = latestTermInfo[0]?.maxTerm || '10';
+			currentYear = latestTermInfo[0]?.maxYear || new Date().getFullYear();
+		}
+
+		// Get all faculty in the department
+		const facultyData = await db
+			.select({
+				mnumber: faculty.mnumber,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name
+			})
+			.from(faculty)
+			.where(eq(faculty.department, departmentCode))
+			.orderBy(faculty.last_name, faculty.first_name);
+
+		// For each faculty member, get their courses and enrollment
+		const facultyWithCourses = [];
+
+		for (const instructor of facultyData) {
+			// Get courses taught by this instructor in the specified term/year
+			const instructorCoursesList = await db
+				.select({
+					courseSubject: instructorCourses.course_subject,
+					courseNumber: instructorCourses.course_number,
+					courseSuffix: instructorCourses.course_suffix,
+					crn: instructorCourses.crn,
+					courseTitle: courses.title,
+					section: sql<string>`''` // We need to find a way to get section from somewhere
+				})
+				.from(instructorCourses)
+				.leftJoin(
+					courses,
+					and(
+						eq(instructorCourses.course_subject, courses.subject),
+						eq(instructorCourses.course_number, courses.number),
+						eq(instructorCourses.course_suffix, courses.suffix)
+					)
+				)
+				.where(
+					and(
+						eq(instructorCourses.mnumber, instructor.mnumber),
+						eq(instructorCourses.term, currentTerm),
+						eq(instructorCourses.year, currentYear)
+					)
+				);
+
+			// For each course, get enrollment count
+			const coursesWithEnrollment = [];
+			let totalStudentCount = 0;
+
+			for (const course of instructorCoursesList) {
+				// Count students enrolled in this course
+				const enrollmentData = await db
+					.select({
+						count: count()
+					})
+					.from(studentCourses)
+					.where(
+						and(
+							eq(studentCourses.crn, course.crn),
+							eq(studentCourses.term, currentTerm),
+							eq(studentCourses.year, currentYear)
+						)
+					);
+
+				const enrollmentCount = Number(enrollmentData[0]?.count || 0);
+				totalStudentCount += enrollmentCount;
+
+				// Get section from student_courses as a fallback
+				let section = course.section;
+				if (!section) {
+					const sectionData = await db
+						.select({
+							section: studentCourses.course_section
+						})
+						.from(studentCourses)
+						.where(
+							and(
+								eq(studentCourses.crn, course.crn),
+								eq(studentCourses.term, currentTerm),
+								eq(studentCourses.year, currentYear)
+							)
+						)
+						.limit(1);
+
+					section = sectionData[0]?.section || '';
+				}
+
+				coursesWithEnrollment.push({
+					courseId: `${course.courseSubject} ${course.courseNumber}${course.courseSuffix || ''}`,
+					courseTitle: course.courseTitle || 'Unknown Course',
+					crn: course.crn,
+					section,
+					enrollmentCount
+				});
+			}
+
+			facultyWithCourses.push({
+				mnumber: instructor.mnumber,
+				firstName: instructor.firstName,
+				lastName: instructor.lastName,
+				courseCount: instructorCoursesList.length,
+				studentCount: totalStudentCount,
+				courses: coursesWithEnrollment
+			});
+		}
+
+		// Calculate totals
+		const facultyCount = facultyWithCourses.length;
+		const totalCourses = facultyWithCourses.reduce((total, faculty) => total + faculty.courseCount, 0);
+		const totalStudents = facultyWithCourses.reduce((total, faculty) => total + faculty.studentCount, 0);
+
+		return {
+			department: departmentInfo.length > 0
+				? {
+					code: departmentInfo[0].code,
+					description: departmentInfo[0].description
+				}
+				: { code: departmentCode, description: 'Unknown Department' },
+			term: termInfo && termInfo.length > 0
+				? {
+					code: termInfo[0].code,
+					description: termInfo[0].description
+				}
+				: { code: currentTerm, description: currentTerm === '10' ? 'Spring' : currentTerm === '50' ? 'Summer' : 'Fall' },
+			year: currentYear,
+			faculty: facultyWithCourses,
+			totals: {
+				facultyCount,
+				totalCourses,
+				totalStudents
+			}
+		};
+	}
 }

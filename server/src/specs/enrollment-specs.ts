@@ -397,6 +397,122 @@ const ProgramEnrollmentTrendsResponse = z.object({
 	})
 });
 
+// Query parameters for faculty enrollment
+const FacultyEnrollmentQuerySchema = z.object({
+	department: z.string().openapi({
+		description: 'Department code',
+		example: 'CSC'
+	}),
+	term: z.string().optional().openapi({
+		description: 'Term code to filter enrollment by',
+		example: '10'
+	}),
+	year: z.string().optional().openapi({
+		description: 'Year to filter enrollment by',
+		example: '2023'
+	})
+});
+
+// Faculty enrollment response schema
+const FacultyEnrollmentResponse = z.object({
+	department: z.object({
+		code: z.string().openapi({
+			description: 'Department code',
+			example: 'CSC'
+		}),
+		description: z.string().openapi({
+			description: 'Department description',
+			example: 'Computer Science'
+		})
+	}).openapi({
+		description: 'Department information'
+	}),
+	term: z.object({
+		code: z.string().openapi({
+			description: 'Term code',
+			example: '10'
+		}),
+		description: z.string().openapi({
+			description: 'Term description',
+			example: 'Spring 2023'
+		})
+	}).openapi({
+		description: 'Term information'
+	}),
+	year: z.number().openapi({
+		description: 'Year',
+		example: 2023
+	}),
+	faculty: z.array(
+		z.object({
+			mnumber: z.string().openapi({
+				description: 'Faculty M-number',
+				example: 'M12345678'
+			}),
+			firstName: z.string().openapi({
+				description: 'Faculty first name',
+				example: 'Jane'
+			}),
+			lastName: z.string().openapi({
+				description: 'Faculty last name',
+				example: 'Smith'
+			}),
+			courseCount: z.number().openapi({
+				description: 'Number of courses taught',
+				example: 3
+			}),
+			studentCount: z.number().openapi({
+				description: 'Total number of students taught',
+				example: 75
+			}),
+			courses: z.array(
+				z.object({
+					courseId: z.string().openapi({
+						description: 'Course ID',
+						example: 'CSC 430'
+					}),
+					courseTitle: z.string().openapi({
+						description: 'Course title',
+						example: 'Database Management Systems'
+					}),
+					crn: z.string().openapi({
+						description: 'Course registration number',
+						example: '12345'
+					}),
+					section: z.string().openapi({
+						description: 'Course section',
+						example: '01'
+					}),
+					enrollmentCount: z.number().openapi({
+						description: 'Number of students enrolled',
+						example: 30
+					})
+				})
+			).openapi({
+				description: 'Courses taught by the faculty member'
+			})
+		})
+	).openapi({
+		description: 'List of faculty with enrollment data'
+	}),
+	totals: z.object({
+		facultyCount: z.number().openapi({
+			description: 'Total number of faculty',
+			example: 2
+		}),
+		totalCourses: z.number().openapi({
+			description: 'Total number of courses',
+			example: 5
+		}),
+		totalStudents: z.number().openapi({
+			description: 'Total number of students',
+			example: 135
+		})
+	}).openapi({
+		description: 'Department totals'
+	})
+});
+
 export const EnrollmentAPISpecs = {
 	'/api/enrollment/programs': {
 		get: {
@@ -461,6 +577,27 @@ export const EnrollmentAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/enrollment/faculty': {
+		get: {
+			tags: ['Enrollment'],
+			operationId: 'getFacultyEnrollment',
+			summary: 'Get faculty enrollment data',
+			description: 'Retrieve enrollment data by faculty member in a department, showing courses taught and student counts. Access restricted to authorized users only.',
+			requestParams: {
+				query: FacultyEnrollmentQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with faculty enrollment data',
+					content: {
+						'application/json': {
+							schema: FacultyEnrollmentResponse
+						}
+					}
+				}
+			}
+		}
 	}
 };
 
@@ -471,5 +608,7 @@ export const EnrollmentSpecs = {
 	ProgramStudentsParamsSchema,
 	ProgramEnrollmentResponse,
 	ProgramStudentsResponse,
-	ProgramEnrollmentTrendsResponse
+	ProgramEnrollmentTrendsResponse,
+	FacultyEnrollmentQuerySchema,
+	FacultyEnrollmentResponse
 }; 
