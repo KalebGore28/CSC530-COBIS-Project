@@ -175,7 +175,6 @@ export class EnrollmentService {
 	/**
 	 * Get student-level details for a specific program
 	 */
-	// TODO: fix studentPrograms.department which is not in the schema
 	static async getProgramStudents(params: {
 		programCode: string;
 		departmentCode: string;
@@ -191,11 +190,31 @@ export class EnrollmentService {
 		// Calculate offset for pagination
 		const offset = (page - 1) * limit;
 
-		// Build conditions
-		const conditions: SQL[] = [
-			eq(studentPrograms.program, programCode),
-			eq(studentPrograms.department, departmentCode)
-		];
+		// Get program info and validate department
+		const programInfo = await db
+			.select({
+				code: programs.code,
+				description: programs.description,
+				isMajor: programs.is_major,
+				isMinor: programs.is_minor,
+				hasConcentration: programs.has_concentration,
+				department: programs.department
+			})
+			.from(programs)
+			.where(eq(programs.code, programCode))
+			.limit(1);
+
+		if (programInfo.length === 0) {
+			throw new Error(`Program not found: ${programCode}`);
+		}
+
+		// Verify the program belongs to the requested department
+		if (programInfo[0].department !== departmentCode) {
+			throw new Error(`Program ${programCode} does not belong to department ${departmentCode}`);
+		}
+
+		// Build conditions for student programs
+		const conditions: SQL[] = [eq(studentPrograms.program, programCode)];
 
 		if (term) {
 			conditions.push(eq(studentPrograms.term, term));
@@ -209,30 +228,14 @@ export class EnrollmentService {
 			conditions.push(eq(studentPrograms.level, level));
 		}
 
-		// Get program info
-		const programInfo = await db
-			.select({
-				code: programs.code,
-				description: programs.description,
-				isMajor: programs.is_major,
-				isMinor: programs.is_minor,
-				hasConcentration: programs.has_concentration
-			})
-			.from(programs)
-			.where(eq(programs.code, programCode))
-			.limit(1);
-
-		if (programInfo.length === 0) {
-			throw new Error(`Program not found: ${programCode}`);
-		}
-
 		// Get total count for pagination
 		const totalCountResult = await db
 			.select({
 				count: count()
 			})
 			.from(studentPrograms)
-			.where(and(...conditions));
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(and(...conditions, eq(programs.department, departmentCode)));
 
 		const totalCount = Number(totalCountResult[0]?.count || 0);
 		const totalPages = Math.ceil(totalCount / limit);
@@ -254,12 +257,13 @@ export class EnrollmentService {
 				earned_hours: studentAcademicInfo.overall_earned_hours
 			})
 			.from(studentPrograms)
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
 			.innerJoin(students, eq(studentPrograms.mnumber, students.mnumber))
 			.leftJoin(
 				studentAcademicInfo,
 				eq(studentPrograms.mnumber, studentAcademicInfo.mnumber)
 			)
-			.where(and(...conditions))
+			.where(and(...conditions, eq(programs.department, departmentCode)))
 			.orderBy(students.last_name, students.first_name)
 			.limit(limit)
 			.offset(offset);
@@ -368,7 +372,7 @@ export class EnrollmentService {
 	): Promise<number> {
 		const db = (await getDbConnection()).orm;
 
-		const conditions: SQL[] = [eq(programs.department, departmentCode)];
+		const conditions: SQL[] = [];
 
 		if (term) {
 			conditions.push(eq(studentPrograms.term, term));
@@ -392,7 +396,7 @@ export class EnrollmentService {
 			})
 			.from(studentPrograms)
 			.innerJoin(programs, eq(studentPrograms.program, programs.code))
-			.where(and(...conditions));
+			.where(and(...conditions, eq(programs.department, departmentCode)));
 
 		return Number(result[0]?.count || 0);
 	}
@@ -400,7 +404,6 @@ export class EnrollmentService {
 	/**
 	 * Get enrollment trends for programs over multiple terms/years
 	 */
-	// TODO: fix studentPrograms.department which is not in the schema
 	static async getProgramEnrollmentTrends(params: {
 		departmentCode: string;
 		programCode?: string;
@@ -432,13 +435,8 @@ export class EnrollmentService {
 		// Define our term sequence for sorting
 		const termSequence = ['10', '50', '80', '90']; // Spring, Summer, Fall, Winter
 
-		// Build conditions for query
-		const conditions: SQL[] = [eq(studentPrograms.department, departmentCode)];
-
-		// Condition for program if specified
-		if (programCode) {
-			conditions.push(eq(studentPrograms.program, programCode));
-		}
+		// Build base conditions
+		const conditions: SQL[] = [];
 
 		// Condition for year range
 		conditions.push(gte(studentPrograms.year, startYear));
@@ -448,6 +446,15 @@ export class EnrollmentService {
 			conditions.push(
 				sql`(${studentPrograms.year} < ${currentYear} OR (${studentPrograms.year} = ${currentYear} AND ${studentPrograms.term} != ${currentTermCode}))`
 			);
+		}
+
+		// Department filter for programs table
+		const departmentFilter = eq(programs.department, departmentCode);
+
+		// Program filter if specified
+		let programFilter: SQL | undefined;
+		if (programCode) {
+			programFilter = eq(studentPrograms.program, programCode);
 		}
 
 		// Get enrollment data grouped by term, year, and program
@@ -461,15 +468,21 @@ export class EnrollmentService {
 				distinctStudents: sql<number>`COUNT(DISTINCT ${studentPrograms.mnumber})`
 			})
 			.from(studentPrograms)
-			.leftJoin(programs, eq(studentPrograms.program, programs.code))
-			.where(and(...conditions))
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.where(
+				and(
+					...conditions,
+					departmentFilter,
+					...(programFilter ? [programFilter] : [])
+				)
+			)
 			.groupBy(studentPrograms.term, studentPrograms.year, studentPrograms.program)
 			.orderBy(studentPrograms.year, sql`CASE 
-		WHEN ${studentPrograms.term} = '10' THEN 1 
-		WHEN ${studentPrograms.term} = '50' THEN 2 
-		WHEN ${studentPrograms.term} = '80' THEN 3 
-		WHEN ${studentPrograms.term} = '90' THEN 4 
-		ELSE 5 END`);
+	WHEN ${studentPrograms.term} = '10' THEN 1 
+	WHEN ${studentPrograms.term} = '50' THEN 2 
+	WHEN ${studentPrograms.term} = '80' THEN 3 
+	WHEN ${studentPrograms.term} = '90' THEN 4 
+	ELSE 5 END`);
 
 		// Get term descriptions for reference
 		const termDescriptions = await db
