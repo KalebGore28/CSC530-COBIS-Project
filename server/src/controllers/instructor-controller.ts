@@ -47,7 +47,7 @@ export class InstructorController {
 
 			const currentStatus = await InstructorsService.getCurrentStatus(mnumber);
 
-			res.json(currentStatus);
+			res.json({ mnumber, currentStatus });
 			return;
 		} catch (error) {
 			console.error('Error fetching current status:', error);
