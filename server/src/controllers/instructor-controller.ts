@@ -45,6 +45,7 @@ export class InstructorController {
 
 			res.json(instructors);
 			return;
+			/* v8 ignore next 5 */
 		} catch (error) {
 			console.error('Error fetching instructors:', error);
 			res.status(500).json({ error: 'Internal server error' });

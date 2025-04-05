@@ -1,21 +1,21 @@
-// src/tests/routes/instructor-teaching-summary.test.ts
+// src/tests/routes/instructor-current-status.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
-import { InstructorController } from '../../controllers/instructor-controller';
+import { InstructorController } from '../../../controllers/instructor-controller';
 
 // Mock the services
-vi.mock('../../services/instructor-service', () => ({
+vi.mock('../../../services/instructor-service', () => ({
 	InstructorsService: {
-		getTeachingSummary: vi.fn(),
+		getCurrentStatus: vi.fn(),
 		instructorExists: vi.fn()
 	}
 }));
 
 // Import the mocked service
-import { InstructorsService } from '../../services/instructor-service';
+import { InstructorsService } from '../../../services/instructor-service';
 
-describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', () => {
+describe('Instructor Router - GET /api/instructor/:mnumber/current-status', () => {
 	let app: express.Application;
 
 	// Setup the basic Express app with mocked middleware
@@ -29,7 +29,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		};
 
 		// Mock authentication and permissions middleware
-		app.use((req: Request, res: Response, next: NextFunction) => {
+		app.use((req, res, next) => {
 			(req as any).roles = userRoles;
 			(req as any).department = userDept || null;
 			(req as any).mnumber = userMnumber || null;
@@ -38,7 +38,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		});
 
 		// Setup the route with simulated check access middleware and controller
-		app.get('/api/instructor/:mnumber/teaching-summary', async (req: Request, res: Response, next: NextFunction) => {
+		app.get('/api/instructor/:mnumber/current-status', async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				// Simulate checkInstructorAccess middleware
 				const canAccess = await (req as any).accessService.canAccessInstructor(req, req.params.mnumber);
@@ -50,7 +50,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 			} catch (error) {
 				res.status(500).json({ error: 'Internal server error during access check' });
 			}
-		}, InstructorController.getTeachingSummary);
+		}, InstructorController.getCurrentStatus);
 
 		return mockAccessService; // Return the mock service for test configuration
 	}
@@ -60,138 +60,71 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		vi.resetAllMocks();
 	});
 
-	it('should return teaching summary when admin has access', async () => {
+	it('should return current status when admin has access', async () => {
 		// Setup app with admin user and get the mock service
 		const mockAccessService = setupApp([{ role_name: 'cobis_administrator', role_id: 1 }]);
 
-		// Mock teaching summary data
-		const mockSummary = {
-			totalCoursesTaught: 25,
-			uniqueCoursesTaught: 8,
-			totalStudentsTaught: 750,
-			totalCreditHoursDelivered: 2250,
-			averageClassSize: 30,
-			mostTaughtCourses: [
-				{
-					courseId: 'CSC101',
-					courseTitle: 'Introduction to Programming',
-					timesTaught: 5
-				},
-				{
-					courseId: 'CSC201',
-					courseTitle: 'Data Structures',
-					timesTaught: 4
-				}
-			]
+		// Mock current status data
+		const mockStatus = {
+			currentTerm: 'FALL',
+			currentYear: 2025,
+			isCurrentlyTeaching: true,
+			currentCourseCount: 3
 		};
 
 		// Setup the mocks
 		mockAccessService.canAccessInstructor.mockResolvedValue(true);
 		(InstructorsService.instructorExists as any).mockResolvedValue(true);
-		(InstructorsService.getTeachingSummary as any).mockResolvedValue(mockSummary);
+		(InstructorsService.getCurrentStatus as any).mockResolvedValue(mockStatus);
 
 		// Make the request
-		const response = await request(app).get('/api/instructor/M12345678/teaching-summary');
+		const response = await request(app).get('/api/instructor/M12345678/current-status');
 
 		// Assertions
 		expect(response.status).toBe(200);
-		expect(response.body).toEqual({ mnumber: 'M12345678', teachingSummary: mockSummary });
+		expect(response.body).toEqual({ mnumber: 'M12345678', currentStatus: mockStatus });
 		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
 		expect(InstructorsService.instructorExists).toHaveBeenCalledWith('M12345678');
-		expect(InstructorsService.getTeachingSummary).toHaveBeenCalledWith('M12345678');
+		expect(InstructorsService.getCurrentStatus).toHaveBeenCalledWith('M12345678');
 	});
 
-	it('should return teaching summary when department chair has access', async () => {
+	it('should return current status when department chair has access', async () => {
 		// Setup app with department chair user
 		const mockAccessService = setupApp([{ role_name: 'department_chair', role_id: 2 }], 'CSCI');
 
-		// Mock teaching summary data
-		const mockSummary = {
-			totalCoursesTaught: 25,
-			uniqueCoursesTaught: 8,
-			totalStudentsTaught: 750,
-			totalCreditHoursDelivered: 2250,
-			averageClassSize: 30,
-			mostTaughtCourses: [
-				{
-					courseId: 'CSC101',
-					courseTitle: 'Introduction to Programming',
-					timesTaught: 5
-				},
-				{
-					courseId: 'CSC201',
-					courseTitle: 'Data Structures',
-					timesTaught: 4
-				}
-			]
+		// Mock current status data
+		const mockStatus = {
+			currentTerm: 'FALL',
+			currentYear: 2025,
+			isCurrentlyTeaching: true,
+			currentCourseCount: 3
 		};
 
 		// Setup the mocks
 		mockAccessService.canAccessInstructor.mockResolvedValue(true);
 		(InstructorsService.instructorExists as any).mockResolvedValue(true);
-		(InstructorsService.getTeachingSummary as any).mockResolvedValue(mockSummary);
+		(InstructorsService.getCurrentStatus as any).mockResolvedValue(mockStatus);
 
 		// Make the request
-		const response = await request(app).get('/api/instructor/M12345678/teaching-summary');
+		const response = await request(app).get('/api/instructor/M12345678/current-status');
 
 		// Assertions
 		expect(response.status).toBe(200);
-		expect(response.body).toEqual({ mnumber: 'M12345678', teachingSummary: mockSummary });
+		expect(response.body).toEqual({ mnumber: 'M12345678', currentStatus: mockStatus });
 		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
 		expect(InstructorsService.instructorExists).toHaveBeenCalledWith('M12345678');
-		expect(InstructorsService.getTeachingSummary).toHaveBeenCalledWith('M12345678');
-	});
-
-	it('should return teaching summary when the instructor accesses their own data', async () => {
-		// Setup app with the instructor accessing their own data
-		const mockAccessService = setupApp([{ role_name: 'faculty', role_id: 3 }], undefined, 'M12345678');
-
-		// Mock teaching summary data
-		const mockSummary = {
-			totalCoursesTaught: 25,
-			uniqueCoursesTaught: 8,
-			totalStudentsTaught: 750,
-			totalCreditHoursDelivered: 2250,
-			averageClassSize: 30,
-			mostTaughtCourses: [
-				{
-					courseId: 'CSC101',
-					courseTitle: 'Introduction to Programming',
-					timesTaught: 5
-				},
-				{
-					courseId: 'CSC201',
-					courseTitle: 'Data Structures',
-					timesTaught: 4
-				}
-			]
-		};
-
-		// Setup the mocks
-		mockAccessService.canAccessInstructor.mockResolvedValue(true);
-		(InstructorsService.instructorExists as any).mockResolvedValue(true);
-		(InstructorsService.getTeachingSummary as any).mockResolvedValue(mockSummary);
-
-		// Make the request
-		const response = await request(app).get('/api/instructor/M12345678/teaching-summary');
-
-		// Assertions
-		expect(response.status).toBe(200);
-		expect(response.body).toEqual({ mnumber: 'M12345678', teachingSummary: mockSummary });
-		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
-		expect(InstructorsService.instructorExists).toHaveBeenCalledWith('M12345678');
-		expect(InstructorsService.getTeachingSummary).toHaveBeenCalledWith('M12345678');
+		expect(InstructorsService.getCurrentStatus).toHaveBeenCalledWith('M12345678');
 	});
 
 	it('should return 403 when user does not have access', async () => {
-		// Setup app with regular faculty user trying to access another instructor's data
-		const mockAccessService = setupApp([{ role_name: 'faculty', role_id: 3 }], undefined, 'M87654321');
+		// Setup app with regular faculty user
+		const mockAccessService = setupApp([{ role_name: 'faculty', role_id: 3 }]);
 
 		// Setup the mocks
 		mockAccessService.canAccessInstructor.mockResolvedValue(false);
 
 		// Make the request
-		const response = await request(app).get('/api/instructor/M12345678/teaching-summary');
+		const response = await request(app).get('/api/instructor/M12345678/current-status');
 
 		// Assertions
 		expect(response.status).toBe(403);
@@ -199,7 +132,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		expect(response.body.error).toContain('Access denied');
 		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
 		expect(InstructorsService.instructorExists).not.toHaveBeenCalled();
-		expect(InstructorsService.getTeachingSummary).not.toHaveBeenCalled();
+		expect(InstructorsService.getCurrentStatus).not.toHaveBeenCalled();
 	});
 
 	it('should return 404 when instructor does not exist', async () => {
@@ -211,7 +144,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		(InstructorsService.instructorExists as any).mockResolvedValue(false);
 
 		// Make the request
-		const response = await request(app).get('/api/instructor/M99999999/teaching-summary');
+		const response = await request(app).get('/api/instructor/M99999999/current-status');
 
 		// Assertions
 		expect(response.status).toBe(404);
@@ -219,7 +152,7 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		expect(response.body.error).toContain('Instructor not found');
 		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
 		expect(InstructorsService.instructorExists).toHaveBeenCalledWith('M99999999');
-		expect(InstructorsService.getTeachingSummary).not.toHaveBeenCalled();
+		expect(InstructorsService.getCurrentStatus).not.toHaveBeenCalled();
 	});
 
 	it('should return 500 when service throws an error', async () => {
@@ -229,10 +162,10 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		// Setup the mocks
 		mockAccessService.canAccessInstructor.mockResolvedValue(true);
 		(InstructorsService.instructorExists as any).mockResolvedValue(true);
-		(InstructorsService.getTeachingSummary as any).mockRejectedValue(new Error('Database error'));
+		(InstructorsService.getCurrentStatus as any).mockRejectedValue(new Error('Database error'));
 
 		// Make the request
-		const response = await request(app).get('/api/instructor/M12345678/teaching-summary');
+		const response = await request(app).get('/api/instructor/M12345678/current-status');
 
 		// Assertions
 		expect(response.status).toBe(500);
@@ -240,6 +173,6 @@ describe('Instructor Router - GET /api/instructor/:mnumber/teaching-summary', ()
 		expect(response.body.error).toContain('Internal server error');
 		expect(mockAccessService.canAccessInstructor).toHaveBeenCalled();
 		expect(InstructorsService.instructorExists).toHaveBeenCalledWith('M12345678');
-		expect(InstructorsService.getTeachingSummary).toHaveBeenCalledWith('M12345678');
+		expect(InstructorsService.getCurrentStatus).toHaveBeenCalledWith('M12345678');
 	});
 });

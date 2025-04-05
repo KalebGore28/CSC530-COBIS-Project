@@ -2,10 +2,10 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
-import { InstructorController } from '../../controllers/instructor-controller';
+import { InstructorController } from '../../../controllers/instructor-controller';
 
 // Mock the services
-vi.mock('../../services/instructor-service', () => ({
+vi.mock('../../../services/instructor-service', () => ({
 	InstructorsService: {
 		getBasicInfo: vi.fn(),
 		instructorExists: vi.fn()
@@ -13,7 +13,7 @@ vi.mock('../../services/instructor-service', () => ({
 }));
 
 // Import the mocked services
-import { InstructorsService } from '../../services/instructor-service';
+import { InstructorsService } from '../../../services/instructor-service';
 
 describe('Instructor Router - GET /api/instructor/:mnumber', () => {
 	let app: express.Application;

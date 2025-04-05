@@ -2,17 +2,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import request from 'supertest';
 import express from 'express';
-import { InstructorController } from '../../controllers/instructor-controller';
+import { InstructorController } from '../../../controllers/instructor-controller';
 
 // Mock the InstructorsService
-vi.mock('../../services/instructor-service', () => ({
+vi.mock('../../../services/instructor-service', () => ({
 	InstructorsService: {
 		getInstructors: vi.fn()
 	}
 }));
 
 // Import the mocked service
-import { InstructorsService } from '../../services/instructor-service';
+import { InstructorsService } from '../../../services/instructor-service';
 
 describe('Instructor Router - GET /api/instructors', () => {
 	let app: express.Application;
@@ -124,6 +124,23 @@ describe('Instructor Router - GET /api/instructors', () => {
 		// Assertions
 		expect(response.status).toBe(403);
 		expect(response.body).toHaveProperty('error');
+		expect(InstructorsService.getInstructors).not.toHaveBeenCalled();
+	});
+
+	it('should return 400 when department chair has no associated department', async () => {
+		// Setup app with department chair user but NO department
+		setupApp([{ role_name: 'department_chair', role_id: 2 }]);
+
+		// Setup the mock
+		(InstructorsService.getInstructors as any).mockResolvedValue([]);
+
+		// Make the request
+		const response = await request(app).get('/api/instructors');
+
+		// Assertions
+		expect(response.status).toBe(400);
+		expect(response.body).toHaveProperty('error');
+		expect(response.body.error).toContain('Department chair has no associated department');
 		expect(InstructorsService.getInstructors).not.toHaveBeenCalled();
 	});
 });
