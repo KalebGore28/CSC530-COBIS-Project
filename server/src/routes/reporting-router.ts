@@ -13,7 +13,7 @@ const router = express.Router();
 
 // Student course requirement endpoint
 router.get('/student-course-requirement',
-	...ReportingController.checkAccess,
+	ReportingController.checkAccess,
 	ReportingController.getStudentCourseRequirement
 );
 
