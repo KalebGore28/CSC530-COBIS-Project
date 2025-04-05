@@ -10,7 +10,7 @@ const MnumberRequestParamsSchema = z.object({
 });
 
 // Query parameters for student listing
-const StudentsQuerySchema = z.object({
+const GetStudentsQuerySchema = z.object({
 	department: z.string().optional().openapi({
 		description: 'Department code to filter students by',
 		example: 'CSC'
@@ -620,6 +620,9 @@ export const StudentAPISpecs = {
 			operationId: 'getStudents',
 			summary: 'Get students',
 			description: 'Retrieve a list of students. Access restricted to authorized users only.',
+			requestParams: {
+				query: GetStudentsQuerySchema
+			},
 			responses: {
 				'200': {
 					description: 'Successful response with student data',
