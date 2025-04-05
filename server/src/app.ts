@@ -47,13 +47,6 @@ const document = createDocument({
         ...StudentAPISpecs,
         ...EnrollmentAPISpecs,
         ...SearchAPISpecs,
-        // ...importRoutesAPISpecs,
-        // ...userSpecs,
-        // ...reportingSpecs,
-        // ...searchSpecs,
-        // ...studentLookupSpec,
-        // ...enrollmentRouterSpec,
-        // ...studentRouterSpec,
     },
 });
 
@@ -86,7 +79,6 @@ app.use("/api/search", searchRoute)
 // app.use("/api/reporting", reportingRoute)
 // app.use("/api", studentLookup)
 // app.use('/api/custom-query', customQuery)
-// app.use('/api/students', studentEnrollmentRouter);
 
 
 // // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
