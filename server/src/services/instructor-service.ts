@@ -10,7 +10,8 @@ import {
 	colleges,
 	students,
 	studentPrograms,
-	studentAcademicInfo
+	studentAcademicInfo,
+	programs
 } from '../db/schema';
 
 /**
@@ -37,8 +38,10 @@ export class InstructorsService {
 				mnumber: faculty.mnumber,
 				firstName: faculty.first_name,
 				lastName: faculty.last_name,
-				department: departments.description,
+				department: departments.code,
+				departmentDescription: departments.description,
 				college: colleges.description,
+				collegeCode: colleges.code,
 				email: user.email,
 				image: user.image
 			})
@@ -60,8 +63,10 @@ export class InstructorsService {
 			name: `${instructor.firstName} ${instructor.lastName}`,
 			firstName: instructor.firstName,
 			lastName: instructor.lastName,
-			department: instructor.department,
+			department: instructor.departmentDescription,
+			departmentCode: instructor.department,
 			college: instructor.college,
+			collegeCode: instructor.collegeCode,
 			email: instructor.email,
 			image: instructor.image
 		};
@@ -300,7 +305,8 @@ export class InstructorsService {
 		return courseDetailsQuery.map(course => {
 			const termName = this.termNameMap[course.term] || 'UNKNOWN';
 			return {
-				term: termName,
+				termName: termName,
+				termCode: course.term,
 				year: course.year,
 				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,
 				courseTitle: course.courseTitle || 'UNKNOWN',
@@ -343,7 +349,8 @@ export class InstructorsService {
 			.orderBy(desc(instructorCourses.year), desc(instructorCourses.term));
 
 		return termSummariesRaw.map(term => ({
-			term: this.termNameMap[term.term] || 'UNKNOWN',
+			termCode: term.term,
+			termName: this.termNameMap[term.term] || 'UNKNOWN',
 			year: term.year,
 			courseCount: term.courseCount,
 			studentCount: term.studentCount || 0,
@@ -477,8 +484,9 @@ export class InstructorsService {
 				year: studentPrograms.year
 			})
 			.from(studentPrograms)
-			.leftJoin(departments, eq(studentPrograms.department, departments.code))
-			.leftJoin(colleges, eq(studentPrograms.college, colleges.code))
+			.innerJoin(programs, eq(studentPrograms.program, programs.code))
+			.leftJoin(departments, eq(programs.department, departments.code))
+			.leftJoin(colleges, eq(programs.college, colleges.code))
 			.where(
 				and(
 					inArray(studentPrograms.mnumber, studentIds),
@@ -585,8 +593,7 @@ export class InstructorsService {
 				termCode,
 				termName,
 				year,
-				creditHours: courseDetails[0].creditHours || 0,
-				fullTerm: `${termName} ${year}`
+				creditHours: courseDetails[0].creditHours || 0
 			},
 			roster: studentList,
 			stats: {

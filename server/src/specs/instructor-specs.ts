@@ -1,4 +1,5 @@
 import { max } from 'drizzle-orm';
+import { request } from 'http';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -9,8 +10,31 @@ const MnumberRequestParamsSchema = z.object({
 	})
 });
 
+const RosterQuerySchema = z.object({
+	subject: z.string().openapi({
+		description: 'Course subject code',
+		example: 'CSC'
+	}),
+	number: z.string().openapi({
+		description: 'Course number',
+		example: '101'
+	}),
+	suffix: z.string().optional().openapi({
+		description: 'Course suffix (if applicable)',
+		example: 'A'
+	}),
+	term: z.string().openapi({
+		description: 'Term when the course was taught',
+		example: '10'
+	}),
+	year: z.string().openapi({
+		description: 'Year when the course was taught',
+		example: '2023'
+	}),
+})
+
 // Endpoint-specific schemas
-const GetInstructorsSchema = z.array(
+const GetInstructors = z.array(
 	z.object({
 		mnumber: z.string().openapi({
 			description: 'Unique instructor identifier',
@@ -54,7 +78,7 @@ const GetInstructorsSchema = z.array(
 		}),
 	})
 )
-const InstructorBasicInfoSchema = z.object({
+const InstructorBasicInfo = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
 		example: 'M123456'
@@ -76,9 +100,17 @@ const InstructorBasicInfoSchema = z.object({
 			description: 'Full name of the department',
 			example: 'Computer Science'
 		}),
+		departmentCode: z.string().openapi({
+			description: 'Department code',
+			example: 'CSC'
+		}),
 		college: z.string().openapi({
 			description: 'Full name of the college',
 			example: 'College of Engineering'
+		}),
+		collegeCode: z.string().openapi({
+			description: 'College code',
+			example: 'ENG'
 		}),
 		email: z.string().email().optional().openapi({
 			description: 'Instructor email address',
@@ -90,7 +122,7 @@ const InstructorBasicInfoSchema = z.object({
 		}),
 	})
 });
-const CurrentStatusSchema = z.object({
+const CurrentStatus = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
 		example: 'M123456'
@@ -114,7 +146,7 @@ const CurrentStatusSchema = z.object({
 		}),
 	})
 });
-const TeachingSummarySchema = z.object({
+const TeachingSummary = z.object({
 	mnumber: z.string().openapi({
 		description: 'Unique instructor identifier',
 		example: 'M123456'
@@ -179,9 +211,13 @@ const GetCourseDetails = z.object({
 	}),
 	courseDetails: z.array(
 		z.object({
-			term: z.string().openapi({
+			termName: z.string().openapi({
 				description: 'Term and year when the course was taught',
 				example: 'FALL'
+			}),
+			termCode: z.string().openapi({
+				description: 'Term code',
+				example: '10'
 			}),
 			year: z.number().openapi({
 				description: 'Year when the course was taught',
@@ -228,7 +264,8 @@ const GetCourseDetails = z.object({
 		description: 'List of courses taught by the instructor',
 		example: [
 			{
-				term: 'FALL',
+				termName: 'FALL',
+				termCode: '80',
 				year: 2023,
 				courseId: 'CS101',
 				courseTitle: 'Introduction to Computer Science',
@@ -241,7 +278,8 @@ const GetCourseDetails = z.object({
 				totalCreditHours: 90
 			},
 			{
-				term: 'SPRING',
+				termName: 'SPRING',
+				termCode: '50',
 				year: 2024,
 				courseId: 'CS102',
 				courseTitle: 'Data Structures',
@@ -263,7 +301,11 @@ const GetTermSummaries = z.object({
 	}),
 	termSummaries: z.array(
 		z.object({
-			term: z.string().openapi({
+			termCode: z.string().openapi({
+				description: 'Term code',
+				example: '10'
+			}),
+			termName: z.string().openapi({
 				description: 'Term and year when the course was taught',
 				example: 'FALL'
 			}),
@@ -283,10 +325,20 @@ const GetTermSummaries = z.object({
 				description: 'Total credit hours delivered in the term',
 				example: 90
 			}),
+		}).openapi({
+			description: 'List of term summaries for the instructor',
+			example: {
+				termCode: '80',
+				termName: 'FALL',
+				year: 2023,
+				courseCount: 3,
+				studentCount: 90,
+				creditHoursDelivered: 90
+			}
 		})
 	)
 })
-
+const GetClassRoster = z.object({})
 
 // Error response schemas
 const Error403ResponseSchema = z.object({
@@ -320,7 +372,7 @@ export const instructorApiSpec = {
 					description: 'Successful response with instructor data',
 					content: {
 						'application/json': {
-							schema: GetInstructorsSchema
+							schema: GetInstructors
 						}
 					}
 				},
@@ -354,7 +406,7 @@ export const instructorApiSpec = {
 					description: 'Successful response with instructor information',
 					content: {
 						'application/json': {
-							schema: InstructorBasicInfoSchema
+							schema: InstructorBasicInfo
 						}
 					}
 				},
@@ -399,7 +451,7 @@ export const instructorApiSpec = {
 					description: 'Successful response with current status information',
 					content: {
 						'application/json': {
-							schema: CurrentStatusSchema
+							schema: CurrentStatus
 						}
 					}
 				},
@@ -444,7 +496,7 @@ export const instructorApiSpec = {
 					description: 'Successful response with teaching summary information',
 					content: {
 						'application/json': {
-							schema: TeachingSummarySchema
+							schema: TeachingSummary
 						}
 					}
 				},
@@ -565,4 +617,50 @@ export const instructorApiSpec = {
 			}
 		}
 	},
+	'/api/instructor/{mnumber}/class-roster': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorClassRoster',
+			summary: 'Get class roster for a specific course',
+			description: 'Retrieve the class roster for a specific course taught by an instructor. Access restricted to authorized users only.',
+			requestParams: {
+				mnumber: MnumberRequestParamsSchema,
+				query: RosterQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with class roster information',
+					content: {
+						'application/json': {
+							schema: GetClassRoster
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: Error403ResponseSchema
+						}
+					}
+				},
+				'404': {
+					description: 'Instructor not found',
+					content: {
+						'application/json': {
+							schema: Error404ResponseSchema
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: Error500ResponseSchema
+						}
+					}
+				}
+			}
+		}
+	}
 };
