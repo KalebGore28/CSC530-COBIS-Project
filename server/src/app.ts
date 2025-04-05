@@ -15,7 +15,7 @@ import { authenticateUser } from './middleware/authenticate-user';
 import { getUserInfo } from './middleware/get-user-info';
 
 // Import Routes
-import importRoutes from "./routes/imports";
+import importRoutes, { importAPISpecs } from "./routes/imports";
 import userRoute from "./routes/user-router";
 import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
@@ -53,7 +53,7 @@ const document = createDocument({
         ...ReportingAPISpecs,
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
-        // ...importRoutesAPISpecs,
+        ...importAPISpecs,
         // ...userSpecs,
         // ...reportingSpecs,
         // ...studentLookupSpec,
