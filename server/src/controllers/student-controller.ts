@@ -172,4 +172,26 @@ export class StudentController {
 			return;
 		}
 	}
+
+	/**
+	 * Get student's current enrollment status
+	 */
+	static async getEnrollmentStatus(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const enrollmentStatus = await StudentService.getStudentEnrollmentStatus(mnumber);
+
+			if (!enrollmentStatus) {
+				res.status(404).json({ error: "Student not found" });
+				return;
+			}
+
+			res.json(enrollmentStatus);
+			return;
+		} catch (error) {
+			console.error("Error getting student enrollment status:", error);
+			res.status(500).json({ error: "Failed to retrieve student enrollment status" });
+			return;
+		}
+	}
 }

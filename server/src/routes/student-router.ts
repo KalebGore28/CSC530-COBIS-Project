@@ -30,12 +30,6 @@ router.get('/:mnumber/academic-info',
 	StudentController.getStudentAcademicInfo
 )
 
-// Current enrollment status
-router.get('/:mnumber/enrollment-status',
-	// StudentController.checkAccess,
-	// StudentController.getEnrollmentStatus
-);
-
 // Academic summary (GPA, credits earned, etc.)
 router.get('/:mnumber/academic-summary',
 	// StudentController.checkAccess,
@@ -60,5 +54,10 @@ router.get('/performance-metrics',
 	// StudentController.getPerformanceMetrics
 );
 
+// Current enrollment status
+router.get('/:mnumber/enrollment-status',
+	StudentController.checkAccess,
+	StudentController.getEnrollmentStatus
+);
 
 export default router;

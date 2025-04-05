@@ -10,7 +10,11 @@ import {
 	studentAdvisors,
 	academicStanding,
 	terms,
-	faculty
+	faculty,
+	studentCourses,
+	courses,
+	registrationStatus,
+	instructorCourses
 } from '../db/schema';
 
 /**
@@ -429,6 +433,120 @@ export class StudentService {
 				year: advisor.year,
 				termDescription: advisor.termDescription || ''
 			}))
+		};
+	}
+
+	/**
+	 * Get student's current enrollment status
+	 */
+	static async getStudentEnrollmentStatus(mnumber: string) {
+		const db = (await getDbConnection()).orm;
+
+		// Check if student exists
+		const studentExists = await db
+			.select({ count: count() })
+			.from(students)
+			.where(eq(students.mnumber, mnumber));
+
+		if (Number(studentExists[0]?.count || 0) === 0) {
+			return null;
+		}
+
+		// Find the current term and year by getting the maximum values from student_courses
+		const currentTermInfo = await db
+			.select({
+				maxTerm: sql<string>`MAX(${studentCourses.term})`,
+				maxYear: sql<number>`MAX(${studentCourses.year})`
+			})
+			.from(studentCourses);
+
+		if (!currentTermInfo[0]?.maxTerm || !currentTermInfo[0]?.maxYear) {
+			return {
+				mnumber,
+				enrollmentStatus: "Unknown",
+				totalEnrolledCredits: 0,
+				enrolledCourses: []
+			};
+		}
+
+		const currentTerm = currentTermInfo[0].maxTerm;
+		const currentYear = currentTermInfo[0].maxYear;
+
+		// Get the term description
+		const termInfo = await db
+			.select({
+				description: terms.description
+			})
+			.from(terms)
+			.where(eq(terms.code, currentTerm))
+			.limit(1);
+
+		const termDescription = termInfo[0]?.description || '';
+
+		// Get enrolled courses for the current term
+		const enrolledCourses = await db
+			.select({
+				courseSubject: studentCourses.course_subject,
+				courseNumber: studentCourses.course_number,
+				courseSuffix: studentCourses.course_suffix,
+				crn: studentCourses.crn,
+				courseHours: studentCourses.course_hours,
+				section: studentCourses.course_section,
+				registrationStatus: registrationStatus.description,
+				courseTitle: courses.title,
+				instructorMnumber: instructorCourses.mnumber,
+				instructorFirstName: faculty.first_name,
+				instructorLastName: faculty.last_name
+			})
+			.from(studentCourses)
+			.leftJoin(courses, and(
+				eq(studentCourses.course_subject, courses.subject),
+				eq(studentCourses.course_number, courses.number),
+				eq(studentCourses.course_suffix, courses.suffix)
+			))
+			.leftJoin(registrationStatus, eq(studentCourses.registration_status, registrationStatus.code))
+			.leftJoin(instructorCourses, and(
+				eq(studentCourses.crn, instructorCourses.crn),
+				eq(studentCourses.term, instructorCourses.term),
+				eq(studentCourses.year, instructorCourses.year)
+			))
+			.leftJoin(faculty, eq(instructorCourses.mnumber, faculty.mnumber))
+			.where(and(
+				eq(studentCourses.mnumber, mnumber),
+				eq(studentCourses.term, currentTerm),
+				eq(studentCourses.year, currentYear)
+			));
+
+		// Calculate total enrolled credits
+		const totalCredits = enrolledCourses.reduce((total, course) => total + course.courseHours, 0);
+
+		// Format the enrolled courses
+		const formattedCourses = enrolledCourses.map(course => {
+			const instructorName = course.instructorFirstName && course.instructorLastName
+				? `${course.instructorFirstName} ${course.instructorLastName}`
+				: null;
+
+			return {
+				courseId: `${course.courseSubject} ${course.courseNumber}${course.courseSuffix}`,
+				courseTitle: course.courseTitle,
+				crn: course.crn,
+				section: course.section,
+				credits: course.courseHours,
+				instructorName,
+				registrationStatus: course.registrationStatus
+			};
+		});
+
+		return {
+			mnumber,
+			currentTerm: {
+				code: currentTerm,
+				description: termDescription,
+				year: currentYear
+			},
+			enrollmentStatus: formattedCourses.length > 0 ? "Enrolled" : "Not Enrolled",
+			totalEnrolledCredits: totalCredits,
+			enrolledCourses: formattedCourses
 		};
 	}
 }

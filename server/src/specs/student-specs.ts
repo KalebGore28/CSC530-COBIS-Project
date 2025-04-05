@@ -905,6 +905,27 @@ export const StudentAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/student/{mnumber}/enrollment-status': {
+		get: {
+			tags: ['Student'],
+			operationId: 'getEnrollmentStatus',
+			summary: 'Get student enrollment status',
+			description: 'Retrieve current enrollment status for a specific student including courses enrolled in the latest term. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with student enrollment data',
+					content: {
+						'application/json': {
+							schema: EnrollmentStatusResponse
+						}
+					}
+				}
+			}
+		}
 	}
 };
 
