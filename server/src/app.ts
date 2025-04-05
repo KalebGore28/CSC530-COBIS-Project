@@ -11,7 +11,7 @@ import 'zod-openapi/extend';
 import { createDocument } from 'zod-openapi';
 
 // Middleware
-import { authenticateUser } from './middleware/authenticateUser';
+import { authenticateUser } from './middleware/authenticate-user';
 import { getUserInfo } from './middleware/getUserInfo';
 
 // Import routes and API specs for OpenAPI Generation
