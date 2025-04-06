@@ -147,7 +147,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                 {headers.map((header, index) => (
                   <TableHead
                     key={index}
-                    className="font-medium min-w-[120px] max-w-[200px]"
+                    className="font-medium"
                   >
                     <div className="truncate" title={header}>
                       {header}
