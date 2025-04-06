@@ -457,11 +457,45 @@ export const CsvImport: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-bold mb-4 pb-2 border-b">CSV Preview Component</h3>
-              <CsvPreview
-                headers={mockCsvHeaders}
-                data={mockCsvData}
-                maxRows={5}
-              />
+
+              <div className="space-y-8">
+                {/* Normal Data Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Standard CSV Data</h4>
+                  <CsvPreview
+                    headers={mockCsvHeaders}
+                    data={mockCsvData}
+                    maxRows={5}
+                  />
+                </div>
+
+                {/* Data with Missing Values */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">CSV Data with Missing Values</h4>
+                  <CsvPreview
+                    headers={mockCsvHeaders}
+                    data={[
+                      ["STU001", "John", "Doe", "john.doe@example.com", "", "2000-01-01"],
+                      ["STU002", "Jane", "Smith", "", "555-5678", "2001-02-02"],
+                      ["STU003", "", "Johnson", "bob.johnson@example.com", "555-9012", "1999-03-03"],
+                      ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", ""],
+                      ["", "Anonymous", "User", "anonymous@example.com", "555-7890", "2001-05-05"],
+                    ]}
+                    maxRows={5}
+                    highlightMissingValues={true}
+                  />
+                </div>
+
+                {/* Empty Data Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">No Data Available</h4>
+                  <CsvPreview
+                    headers={[]}
+                    data={[]}
+                    maxRows={5}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
