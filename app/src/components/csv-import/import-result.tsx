@@ -1,51 +1,17 @@
 // ImportResult.tsx - For displaying import results
 import React from "react";
-import { ImportResult, ImportError } from "../../types/csv-import-types";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ImportResult } from "../../types/csv-import-types";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from "@/components/ui/accordion";
-import { PaginatedTable } from "@/components/paginated-table";
+import { FileCheck } from "lucide-react";
 
 interface ImportResultDisplayProps {
   result: ImportResult;
-  onFixForeignKeyErrors: () => void;
 }
 
 export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
-  result,
-  onFixForeignKeyErrors
+  result
 }) => {
   if (!result) return null;
-
-  console.log("Import result:", result);
-
-  // Check if we have foreign key errors
-  const hasForeignKeyErrors = result.errorDetails?.some(err => err.errorType === "foreign_key") || false;
-
-  // Format error data for the table
-  const formatErrorsForTable = (errors: ImportError[]) => {
-    return errors.map(err => ({
-      errorType: err.errorType,
-      error: err.error,
-      details: err.dependencyInfo
-        ? `Missing value in "${err.dependencyInfo.tableName}"`
-        : ''
-    }));
-  };
-
-  // If we have error details, prepare them for display
-  const errorTableData = result.errorDetails ? formatErrorsForTable(result.errorDetails) : [];
-  const errorColumns = [
-    { key: 'errorType', label: 'Type' },
-    { key: 'error', label: 'Error' },
-    { key: 'details', label: 'Details' }
-  ];
 
   // Ensure numeric values have defaults
   const totalRecords = result.totalRecords ?? 0;
@@ -54,101 +20,49 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
   const skipped = result.skipped ?? 0;
   const failed = result.failed ?? 0;
 
-  // For an error message with no data
-  if (result.message && !totalRecords && !result.success) {
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>
-          <p>{result.message}</p>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
-  // For an informational message with no data
-  if (result.message && !totalRecords && result.success) {
-    return (
-      <Alert>
-        <AlertDescription>
-          <p>{result.message}</p>
-        </AlertDescription>
-      </Alert>
-    );
-  }
-
   return (
-    <div className="mt-6">
-      <Alert
-        variant={failed > 0 ? "destructive" : "default"}
-      >
-        <AlertDescription>
-          {failed > 0 ? (
-            <p className="font-semibold mb-2">Data import completed with errors.</p>
-          ) : (
-            <p className="font-semibold mb-2">Data imported successfully.</p>
-          )}
-          <div className="grid grid-cols-2 gap-2 mb-4">
-            <div>Total Records: <span className="font-medium">{totalRecords}</span></div>
-            <div>Inserted: <span className="font-medium">{inserted}</span></div>
-            <div>Updated: <span className="font-medium">{updated}</span></div>
-            <div>Skipped: <span className="font-medium">{skipped}</span></div>
-            {failed > 0 && (
-              <div>Failed: <span className="font-medium text-red-500">{failed}</span></div>
-            )}
+    <div className="mb-6 w-full">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium">Import Result</h3>
+        <div className="px-2 py-1 bg-green-50 text-green-700 text-xs rounded-md border border-green-200 flex items-center">
+          <FileCheck className="h-3 w-3 mr-1" /> Successfully Imported
+        </div>
+      </div>
+
+      <div className="border rounded-md p-4 w-full bg-white">
+        <div className="flex items-center flex-wrap">
+          <div className="flex items-center mr-6">
+            <FileCheck className="h-5 w-5 text-green-600 mr-2 flex-shrink-0" />
+            <p className="text-slate-700 my-0 font-medium">
+              Data imported successfully.
+            </p>
           </div>
 
-          {/* Skipped records accordion */}
-          {skipped > 0 && result.skippedDetails && result.skippedDetails.length > 0 && (
-            <Accordion type="single" collapsible className="mt-4">
-              <AccordionItem value="skipped">
-                <AccordionTrigger>Skipped rows ({skipped})</AccordionTrigger>
-                <AccordionContent>
-                  <div className="mt-2">
-                    {Object.entries(
-                      result.skippedDetails.reduce((acc, detail) => {
-                        acc[detail.reason] = (acc[detail.reason] || 0) + 1;
-                        return acc;
-                      }, {} as Record<string, number>)
-                    ).map(([reason, count]) => (
-                      <div key={reason} className="flex justify-between py-1">
-                        <span>{reason}:</span>
-                        <Badge variant="outline">{count}</Badge>
-                      </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-
-          {/* Error records accordion */}
-          {failed > 0 && result.errorDetails && result.errorDetails.length > 0 && (
-            <Accordion type="single" collapsible className="mt-4">
-              <AccordionItem value="errors">
-                <AccordionTrigger>Errors ({failed})</AccordionTrigger>
-                <AccordionContent>
-                  <div className="space-y-3">
-                    {hasForeignKeyErrors && (
-                      <Button
-                        onClick={onFixForeignKeyErrors}
-                        className="w-full mb-4"
-                      >
-                        Fix Foreign Key Errors
-                      </Button>
-                    )}
-
-                    <PaginatedTable
-                      data={errorTableData}
-                      columns={errorColumns}
-                      rowsPerPage={5}
-                    />
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
-          )}
-        </AlertDescription>
-      </Alert>
+          <div className="flex flex-wrap gap-2">
+            <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 px-3 py-1 rounded-md font-normal">
+              {totalRecords} total records
+            </Badge>
+            <Badge className="bg-green-50 text-green-600 hover:bg-green-100 px-3 py-1 rounded-md font-normal">
+              {inserted} inserted
+            </Badge>
+            {updated > 0 && (
+              <Badge className="bg-purple-50 text-purple-600 hover:bg-purple-100 px-3 py-1 rounded-md font-normal">
+                {updated} updated
+              </Badge>
+            )}
+            {skipped > 0 && (
+              <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-100 px-3 py-1 rounded-md font-normal">
+                {skipped} skipped
+              </Badge>
+            )}
+            {failed > 0 && (
+              <Badge className="bg-red-50 text-red-600 hover:bg-red-100 px-3 py-1 rounded-md font-normal">
+                {failed} failed
+              </Badge>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
