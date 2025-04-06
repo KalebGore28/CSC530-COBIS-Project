@@ -30,28 +30,9 @@ interface BaseDestination {
 	tableId: string;
 	primaryKeys: string[];
 	columnMappings: ColumnMapping[];
-	schemaRef: AnySQLiteTable; // For the backend, reference to schema
-	rowExpander?: RowExpanderFunction;  // Optional function to expand one row into many
+	schemaRef: AnySQLiteTable;
+	rowExpander?: RowExpanderFunction;
 }
-
-/**
- * Interface for data destinations
- */
-interface DataDestination extends BaseDestination {
-	category: "data";
-}
-
-/**
- * Interface for lookup destinations
- */
-interface LookupDestination extends BaseDestination {
-	category: "lookup";
-}
-
-/**
- * Union type for all destinations
- */
-type Destination = DataDestination | LookupDestination;
 
 /**
  * Base interface for all CSV mappings
@@ -66,8 +47,8 @@ interface BaseCsvMapping {
  */
 interface DataCsvMapping extends BaseCsvMapping {
 	category: "data";
-	filePatterns: RegExp[]; // Note: Using RegExp for backend
-	destinations: Destination[];
+	filePatterns: RegExp[];
+	destinations: BaseDestination[];
 }
 
 /**
@@ -75,8 +56,8 @@ interface DataCsvMapping extends BaseCsvMapping {
  */
 interface LookupCsvMapping extends BaseCsvMapping {
 	category: "lookup";
-	filePatterns?: RegExp[]; // Optional for lookup tables
-	destination: LookupDestination;
+	filePatterns?: RegExp[];
+	destination: BaseDestination;
 }
 
 /**
@@ -498,224 +479,183 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 
 
-	// Lookup tables - with less strict filename requirements but expected columns
+	// Lookup tables
 	{
 		filePatterns: [/academic.+standing|standing.+academic/i],
 		description: "Academic standing codes",
 		category: "lookup",
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Academic Standing",
-				tableId: "academic-standing",
-				primaryKeys: ["code"],
-				schemaRef: schema.academicStanding,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Academic Standing",
+			tableId: "academic-standing",
+			primaryKeys: ["code"],
+			schemaRef: schema.academicStanding,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/admit.+code|code.+admit/i],
 		description: "Admit type codes",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Admit Codes",
-				tableId: "admit-codes",
-				primaryKeys: ["code"],
-				schemaRef: schema.admitCodes,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Admit Codes",
+			tableId: "admit-codes",
+			primaryKeys: ["code"],
+			schemaRef: schema.admitCodes,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/college.+code|code.+college/i],
 		description: "College codes",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "College Codes",
-				tableId: "college-codes",
-				primaryKeys: ["code"],
-				schemaRef: schema.collegeCodes,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "College Codes",
+			tableId: "college-codes",
+			primaryKeys: ["code"],
+			schemaRef: schema.collegeCodes,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/colleges/i],
 		description: "Colleges data",
 		category: "lookup",
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Colleges",
-				tableId: "colleges",
-				primaryKeys: ["code"],
-				schemaRef: schema.colleges,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Colleges",
+			tableId: "colleges",
+			primaryKeys: ["code"],
+			schemaRef: schema.colleges,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
+
 	},
 	{
 		filePatterns: [/departments/i],
 		description: "Departments data",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description", "prefixes", "canvas_id", "college"],
-		destinations: [
-			{
-				tableName: "Departments",
-				tableId: "departments",
-				primaryKeys: ["code"],
-				schemaRef: schema.departments,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" },
-					{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
-				]
-			}
-		]
+		destination: {
+			tableName: "Departments",
+			tableId: "departments",
+			primaryKeys: ["code"],
+			schemaRef: schema.departments,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" },
+				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
+			]
+		}
+
 	},
 	{
 		filePatterns: [/instructional.+method|method.+instructional/i],
 		description: "Instructional method codes",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Instructional Methods",
-				tableId: "instructional-methods",
-				primaryKeys: ["code"],
-				schemaRef: schema.instructionalMethods,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Instructional Methods",
+			tableId: "instructional-methods",
+			primaryKeys: ["code"],
+			schemaRef: schema.instructionalMethods,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/nations/i],
 		description: "Nations data",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Nations",
-				tableId: "nations",
-				primaryKeys: ["code"],
-				schemaRef: schema.nations,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Nations",
+			tableId: "nations",
+			primaryKeys: ["code"],
+			schemaRef: schema.nations,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/part.+term|term.+part/i],
 		description: "Part of term data",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Part of Term",
-				tableId: "part-of-term",
-				primaryKeys: ["code"],
-				schemaRef: schema.partOfTerm,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Part of Term",
+			tableId: "part-of-term",
+			primaryKeys: ["code"],
+			schemaRef: schema.partOfTerm,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/major.+minor|minor.+major/i],
 		description: "Major/Minor programs data",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description", "cip_code", "is_major", "is_minor", "has_concentration", "is_discontinued", "is_aacsb", "department", "college", "added_on"],
-		destinations: [
-			{
-				tableName: "Programs",
-				tableId: "programs",
-				primaryKeys: ["code"],
-				schemaRef: schema.programs,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" },
-					{ csvColumn: "cip_code", dbColumn: "cip_code" },
-					{ csvColumn: "is_major", dbColumn: "is_major", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "is_minor", dbColumn: "is_minor", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "has_concentration", dbColumn: "has_concentration", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "is_discontinued", dbColumn: "is_discontinued", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
-					{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
-					{ csvColumn: "added_on", dbColumn: "added_on", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Default to now if not provided
-				]
-			}
-		]
+		destination: {
+			tableName: "Programs",
+			tableId: "programs",
+			primaryKeys: ["code"],
+			schemaRef: schema.programs,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" },
+				{ csvColumn: "cip_code", dbColumn: "cip_code" },
+				{ csvColumn: "is_major", dbColumn: "is_major", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+				{ csvColumn: "is_minor", dbColumn: "is_minor", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+				{ csvColumn: "has_concentration", dbColumn: "has_concentration", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+				{ csvColumn: "is_discontinued", dbColumn: "is_discontinued", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+				{ csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+				{ csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
+				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
+				{ csvColumn: "added_on", dbColumn: "added_on", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Default to now if not provided
+			]
+		}
 	},
 	{
 		filePatterns: [/registration.+status|status.+registration/i],
 		description: "Registration status codes",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Registration Status",
-				tableId: "registration-status",
-				primaryKeys: ["code"],
-				schemaRef: schema.registrationStatus,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
+		destination: {
+			tableName: "Registration Status",
+			tableId: "registration-status",
+			primaryKeys: ["code"],
+			schemaRef: schema.registrationStatus,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 	{
 		filePatterns: [/terms/i],
 		description: "Terms data",
 		category: "lookup",
-		requiresTableDesignation: true,
-		expectedColumns: ["code", "description"],
-		destinations: [
-			{
-				tableName: "Terms",
-				tableId: "terms",
-				primaryKeys: ["code"],
-				schemaRef: schema.terms,
-				columnMappings: [
-					{ csvColumn: "code", dbColumn: "code" },
-					{ csvColumn: "description", dbColumn: "description" }
-				]
-			}
-		]
-
+		destination: {
+			tableName: "Terms",
+			tableId: "terms",
+			primaryKeys: ["code"],
+			schemaRef: schema.terms,
+			columnMappings: [
+				{ csvColumn: "code", dbColumn: "code" },
+				{ csvColumn: "description", dbColumn: "description" }
+			]
+		}
 	},
 ];
 
