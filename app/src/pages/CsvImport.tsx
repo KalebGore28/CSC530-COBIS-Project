@@ -148,7 +148,7 @@ export const CsvImport: React.FC = () => {
   ];
 
   return (
-		<div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
       <Card>
         <CardHeader>
           <CardTitle className="text-3xl">CSV Import</CardTitle>
@@ -255,12 +255,52 @@ export const CsvImport: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-bold mb-4 pb-2 border-b">File Upload Component</h3>
-              <FileUpload
-                onFileChange={(e) => console.log("File changed")}
-                onClearFile={() => console.log("File cleared")}
-                file={new File([""], "students.csv")}
-                disabled={false}
-              />
+
+              <div className="space-y-8">
+                {/* Default state - with file */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">With Valid File</h4>
+                  <FileUpload
+                    onFileChange={(e) => console.log("File changed")}
+                    onClearFile={() => console.log("File cleared")}
+                    file={new File([""], "students.csv", { type: "text/csv", lastModified: Date.now() })}
+                    disabled={false}
+                  />
+                </div>
+
+                {/* No file selected state */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">No File Selected</h4>
+                  <FileUpload
+                    onFileChange={(e) => console.log("File changed")}
+                    onClearFile={() => console.log("File cleared")}
+                    file={null}
+                    disabled={false}
+                  />
+                </div>
+
+                {/* Invalid file state */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">With Invalid File</h4>
+                  <FileUpload
+                    onFileChange={(e) => console.log("File changed")}
+                    onClearFile={() => console.log("File cleared")}
+                    file={new File([""], "document.pdf", { type: "application/pdf", lastModified: Date.now() })}
+                    disabled={false}
+                  />
+                </div>
+
+                {/* Disabled state */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Disabled State</h4>
+                  <FileUpload
+                    onFileChange={(e) => console.log("File changed")}
+                    onClearFile={() => console.log("File cleared")}
+                    file={null}
+                    disabled={true}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
