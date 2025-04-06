@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 // Import types
 import { TableConfig, ImportError } from "../types/csv-import-types";
@@ -489,15 +490,296 @@ export const CsvImport: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-bold mb-4 pb-2 border-b">Error Fixing Mode Component</h3>
-              <ErrorFixingMode
-                errors={mockImportErrors}
-                currentErrorIndex={0}
-                onPreviousError={() => console.log("Previous error")}
-                onNextError={() => console.log("Next error")}
-                onFixedData={(data) => console.log("Fixed data:", data)}
-                onRetryImport={() => console.log("Retry import")}
-                fixedRowsCount={1}
-              />
+
+              <div className="space-y-8">
+                {/* Example 1: Multiple references of the same type */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Missing Department References</h4>
+                  <ErrorFixingMode
+                    errors={[
+                      {
+                        row: {
+                          "studentId": "STU006",
+                          "firstName": "Alex",
+                          "lastName": "Garcia",
+                          "email": "alex.garcia@example.com",
+                          "departmentId": "DEP001"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP001"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "studentId": "STU007",
+                          "firstName": "Sarah",
+                          "lastName": "Johnson",
+                          "email": "sarah.johnson@example.com",
+                          "departmentId": "DEP001"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP001"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "studentId": "STU008",
+                          "firstName": "Michael",
+                          "lastName": "Brown",
+                          "email": "michael.brown@example.com",
+                          "departmentId": "DEP001"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP001"
+                          }
+                        }
+                      }
+                    ]}
+                    currentErrorIndex={0}
+                    onPreviousError={() => console.log("Previous error")}
+                    onNextError={() => console.log("Next error")}
+                    onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
+                    onRetryImport={() => console.log("Retry import")}
+                    fixedRowsCount={0}
+                  />
+                </div>
+
+                {/* Example 2: Multiple different references */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Mixed Reference Types</h4>
+                  <ErrorFixingMode
+                    errors={[
+                      {
+                        row: {
+                          "studentId": "STU009",
+                          "firstName": "Emily",
+                          "lastName": "Davis",
+                          "email": "emily.davis@example.com",
+                          "departmentId": "DEP002"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP002"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "studentId": "STU010",
+                          "firstName": "Brian",
+                          "lastName": "Wilson",
+                          "email": "brian.wilson@example.com",
+                          "majorId": "MAJ001"
+                        },
+                        error: "Foreign key constraint violation on majorId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Majors",
+                          columns: ["majorId", "majorName", "departmentId"],
+                          values: {
+                            "majorId": "MAJ001",
+                            "departmentId": "DEP002"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "studentId": "STU011",
+                          "firstName": "Jessica",
+                          "lastName": "Taylor",
+                          "email": "jessica.taylor@example.com",
+                          "campusId": "CAM001"
+                        },
+                        error: "Foreign key constraint violation on campusId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Campuses",
+                          columns: ["campusId", "campusName", "location"],
+                          values: {
+                            "campusId": "CAM001"
+                          }
+                        }
+                      }
+                    ]}
+                    currentErrorIndex={0}
+                    onPreviousError={() => console.log("Previous error")}
+                    onNextError={() => console.log("Next error")}
+                    onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
+                    onRetryImport={() => console.log("Retry import")}
+                    fixedRowsCount={0}
+                  />
+                </div>
+
+                {/* Example 3: Partially fixed references */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Partially Fixed References</h4>
+                  <ErrorFixingMode
+                    errors={[
+                      {
+                        row: {
+                          "courseId": "CRS001",
+                          "courseName": "Introduction to Computer Science",
+                          "departmentId": "DEP003"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP003"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "courseId": "CRS002",
+                          "courseName": "Database Systems",
+                          "departmentId": "DEP003"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP003"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "courseId": "CRS003",
+                          "courseName": "Web Development",
+                          "departmentId": "DEP004"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP004"
+                          }
+                        }
+                      }
+                    ]}
+                    currentErrorIndex={0}
+                    onPreviousError={() => console.log("Previous error")}
+                    onNextError={() => console.log("Next error")}
+                    onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
+                    onRetryImport={() => console.log("Retry import")}
+                    fixedRowsCount={1} // Show that one reference has been fixed
+                  />
+                </div>
+
+                {/* Example 4: All references fixed */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">All References Fixed (Ready to Retry)</h4>
+                  <ErrorFixingMode
+                    errors={[
+                      {
+                        row: {
+                          "facultyId": "FAC001",
+                          "firstName": "Robert",
+                          "lastName": "Smith",
+                          "departmentId": "DEP005"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP005"
+                          }
+                        }
+                      },
+                      {
+                        row: {
+                          "facultyId": "FAC002",
+                          "firstName": "Jennifer",
+                          "lastName": "Miller",
+                          "departmentId": "DEP006"
+                        },
+                        error: "Foreign key constraint violation on departmentId",
+                        errorType: "foreign_key",
+                        dependencyInfo: {
+                          tableName: "Departments",
+                          columns: ["departmentId", "departmentName"],
+                          values: {
+                            "departmentId": "DEP006"
+                          }
+                        }
+                      }
+                    ]}
+                    currentErrorIndex={0}
+                    onPreviousError={() => console.log("Previous error")}
+                    onNextError={() => console.log("Next error")}
+                    onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
+                    onRetryImport={() => console.log("Retry import")}
+                    fixedRowsCount={2} // Show that all references are fixed
+                  />
+                </div>
+
+                {/* Example 5: Large number of rows with few references */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Many Rows, Few References</h4>
+                  <Alert className="mb-3">
+                    <AlertDescription>
+                      This example shows how the component would handle a scenario where 1,000+ rows have the same missing reference.
+                      The component would group them and only require fixing each unique reference once.
+                    </AlertDescription>
+                  </Alert>
+                  <ErrorFixingMode
+                    errors={Array(5).fill(null).map((_, idx) => ({
+                      row: {
+                        "enrollmentId": `ENR${(1000 + idx).toString().padStart(3, '0')}`,
+                        "studentId": `STU${(1000 + idx).toString().padStart(3, '0')}`,
+                        "courseId": "CRS999",
+                        "termId": "TERM001",
+                        "status": "Active"
+                      },
+                      error: "Foreign key constraint violation on termId",
+                      errorType: "foreign_key",
+                      dependencyInfo: {
+                        tableName: "Terms",
+                        columns: ["termId", "termName", "startDate", "endDate"],
+                        values: {
+                          "termId": "TERM001"
+                        }
+                      }
+                    }))}
+                    currentErrorIndex={0}
+                    onPreviousError={() => console.log("Previous error")}
+                    onNextError={() => console.log("Next error")}
+                    onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
+                    onRetryImport={() => console.log("Retry import")}
+                    fixedRowsCount={0}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
