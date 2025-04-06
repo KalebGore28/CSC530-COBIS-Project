@@ -74,7 +74,6 @@ export class ImportController {
 		try {
 			const importInfo = ImportService.getImportInfo();
 			res.json(importInfo);
-			return;
 		} catch (error: any) {
 			console.error('Error fetching import information:', error);
 			res.status(500).json({

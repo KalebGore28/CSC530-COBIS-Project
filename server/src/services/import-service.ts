@@ -7,9 +7,10 @@ import {
 	findMappingsForLookupTable,
 	mapCsvDataToDbData,
 	getImportInfo,
+	DataCsvMapping,
+	LookupCsvMapping,
+	CSVFileMapping
 } from '../services/column-mapping-service';
-
-import { LookupCsvMapping, DataCsvMapping } from '../services/column-mapping-service';
 
 /**
  * Service for handling data import operations
@@ -40,7 +41,7 @@ export class ImportService {
 		const headers = Object.keys(csvData[0]);
 
 		// Try to find mapping by filename (for data tables)
-		let fileMapping: LookupCsvMapping | DataCsvMapping | null = findMappingsForFilename(fileName);
+		let fileMapping: CSVFileMapping | null = findMappingsForFilename(fileName);
 		let category = 'data';
 
 		// If not found and tableId is provided, try to find mapping for lookup table
@@ -59,9 +60,9 @@ export class ImportService {
 		const errors = [];
 
 		// Handle both data and lookup mappings
-		const destinations = category === 'data'
-			? (fileMapping as any).destinations
-			: [(fileMapping as any).destination];
+		const destinations = fileMapping.category === 'data'
+			? (fileMapping as DataCsvMapping).destinations
+			: [(fileMapping as LookupCsvMapping).destination];
 
 		for (const destination of destinations) {
 			// For lookup tables, only process the requested table
@@ -154,11 +155,10 @@ export class ImportService {
 	 */
 	static getImportInfo() {
 		// Use the method from column-mapping-service to ensure consistency
-		const { tables, filePatterns, stats } = getImportInfo();
+		const { csvMappings, stats } = getImportInfo();
 
 		return {
-			tables,
-			filePatterns,
+			csvMappings,
 			stats
 		};
 	}

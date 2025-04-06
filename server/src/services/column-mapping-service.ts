@@ -63,7 +63,7 @@ export interface LookupCsvMapping extends BaseCsvMapping {
 /**
  * Union type for all CSV mappings
  */
-type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
+export type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
 
 // Function that expands a single demographic row into multiple student program rows
 export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
@@ -775,39 +775,37 @@ export const getAllDestinationTables = (): DestinationTable[] => {
  */
 export const getImportInfo = () => {
 	return {
-		tables: getAllDestinationTables().map(destination => ({
-			tableName: destination.tableName,
-			tableId: destination.tableId,
-			primaryKeys: destination.primaryKeys,
-			columns: destination.columnMappings.map(col => ({
-				name: col.dbColumn,
-				csvColumn: col.csvColumn,
-				isPrimaryKey: destination.primaryKeys.includes(col.dbColumn),
-				isRequired: destination.primaryKeys.includes(col.dbColumn),
-				hasTransform: !!col.transform
-			})),
-			hasRowExpander: !!destination.rowExpander
-		})),
-
-		filePatterns: csvFileMappings.map(mapping => {
+		csvMappings: csvFileMappings.map(mapping => {
 			const destinations = mapping.category === "data"
 				? mapping.destinations
 				: [mapping.destination];
 
+			// Convert RegExp patterns to string format
+			const patternStrings = (mapping.filePatterns || [])
+				.map(pattern => pattern.toString());
+
 			return {
-				pattern: mapping.filePatterns?.[0].toString() || "",
+				filePatterns: patternStrings,
 				description: mapping.description,
 				category: mapping.category,
-				multiTable: mapping.category === "data" && mapping.destinations.length > 1,
 				destinations: destinations.map(dest => ({
 					tableName: dest.tableName,
-					tableId: dest.tableId
+					tableId: dest.tableId,
+					category: mapping.category,
+					primaryKeys: dest.primaryKeys,
+					columnMappings: dest.columnMappings.map(col => ({
+						csvColumn: col.csvColumn,
+						dbColumn: col.dbColumn,
+						isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
+						hasTransform: !!col.transform
+					})),
+					hasRowExpander: !!dest.rowExpander
 				}))
 			};
 		}),
 
 		stats: {
-			tableCount: getAllDestinationTables().length,
+			csvMappingCount: csvFileMappings.length,
 			dataTableCount: csvFileMappings.filter(m => m.category === "data").length,
 			lookupTableCount: csvFileMappings.filter(m => m.category === "lookup").length
 		}

@@ -1,0 +1,56 @@
+{
+	"csvMappings": [
+		{
+			"filePatterns": [
+				"/reg_cuba_test_scores_\\d+_\\d+\\.csv$/i"
+			],
+			"description": "Test scores data",
+			"category": "data",
+			"destinations": [
+				{
+					"tableName": "Test Scores",
+					"tableId": "test-scores",
+					"category": "data",
+					"primaryKeys": [
+						"mnumber",
+						"code",
+						"date"
+					],
+					"columnMappings": [
+						{
+							"csvColumn": "mnumber",
+							"dbColumn": "mnumber",
+							"isPrimaryKey": true,
+							"hasTransform": false
+						},
+						{
+							"csvColumn": "testcode",
+							"dbColumn": "code",
+							"isPrimaryKey": true,
+							"hasTransform": false
+						},
+						{
+							"csvColumn": "testdesc",
+							"dbColumn": "description",
+							"isPrimaryKey": false,
+							"hasTransform": false
+						},
+						{
+							"csvColumn": "testscore",
+							"dbColumn": "score",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
+							"csvColumn": "testdate",
+							"dbColumn": "date",
+							"isPrimaryKey": true,
+							"hasTransform": true
+						}
+					],
+					"hasRowExpander": false
+				}
+			]
+		}
+	]
+}
