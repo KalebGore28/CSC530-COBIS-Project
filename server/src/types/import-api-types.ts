@@ -40,38 +40,6 @@ export interface FilePattern {
 }
 
 /**
- * API request for POST /api/import/validate-columns
- */
-export interface ValidateColumnsRequest {
-	tableId: string;
-	csvHeaders: string[];
-}
-
-/**
- * API response from POST /api/import/validate-columns
- */
-export interface ValidateColumnsResponse {
-	isValid: boolean;
-	tableId: string;
-	tableName: string;
-	exactMatches: Record<string, string>;
-	suggestedMatches: Record<string, {
-		csvColumn: string;
-		similarity: number;
-	}>;
-	unmatchedColumns: string[];
-	missingRequiredColumns: string[];
-	expectedColumns: {
-		dbColumn: string;
-		csvColumn: string;
-		isPrimaryKey: boolean;
-		hasTransform: boolean;
-	}[];
-	csvHeaders: string[];
-	suggestedMapping: Record<string, string>;
-}
-
-/**
  * Type definitions for the import process API
  */
 export interface ImportProcessRequest {
