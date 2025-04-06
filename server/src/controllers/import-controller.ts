@@ -90,6 +90,7 @@ export class ImportController {
 	static async getImportPatterns(req: Request, res: Response) {
 		try {
 			const patterns = ImportService.getImportPatterns();
+			console.log(patterns);
 			res.json(patterns);
 			return;
 		} catch (error: any) {

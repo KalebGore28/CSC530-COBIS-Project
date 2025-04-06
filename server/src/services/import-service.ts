@@ -197,7 +197,8 @@ export class ImportService {
 		const dataPatterns = csvFileMappings
 			.filter(mapping => mapping.category === 'data')
 			.map(mapping => ({
-				filePatterns: mapping.filePatterns,
+				// Convert RegExp patterns to strings for the API response
+				filePatterns: mapping.filePatterns.map(pattern => pattern.toString().replace(/^\/|\/[gimuy]*$/g, '')),
 				description: mapping.description,
 				examples: 'examples' in mapping ? mapping.examples : [],
 				destinations: mapping.destinations.map(d => ({
@@ -205,6 +206,7 @@ export class ImportService {
 					tableId: d.tableId
 				}))
 			}));
+		console.log(dataPatterns);
 
 		return {
 			patterns: dataPatterns,
