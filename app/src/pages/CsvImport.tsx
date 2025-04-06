@@ -148,13 +148,8 @@ export const CsvImport: React.FC = () => {
   ];
 
   return (
-<<<<<<< HEAD
-    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-      <Card>
-=======
     <div className="p-6 flex-1 flex justify-center">
       <Card className="w-full max-w-full md:max-w-6xl flex flex-col">
->>>>>>> parent of 92f5aa1 (Update CsvImport.tsx)
         <CardHeader>
           <CardTitle className="text-3xl">CSV Import</CardTitle>
           <CardDescription>
