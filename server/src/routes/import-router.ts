@@ -1,6 +1,5 @@
 import express from 'express';
 import multer from 'multer';
-import path from 'path';
 import { ImportController } from '../controllers/import-controller';
 
 /**
@@ -13,38 +12,40 @@ import { ImportController } from '../controllers/import-controller';
 const router = express.Router();
 
 // Configure multer for file uploads
+const storage = multer.diskStorage({
+	destination: function (req, file, cb) {
+		cb(null, '/tmp/'); // Store uploads in /tmp directory
+	},
+	filename: function (req, file, cb) {
+		// Use a timestamp to make filenames unique
+		const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+		cb(null, uniqueSuffix + '-' + file.originalname);
+	}
+});
+
 const upload = multer({
-	dest: 'uploads/',
-	fileFilter: (req, file, cb) => {
-		// Check if file extension is .csv (case insensitive)
-		if (path.extname(file.originalname).toLowerCase() !== '.csv') {
-			return cb(new Error('Only CSV files are allowed'));
+	storage: storage,
+	fileFilter: function (req, file, cb) {
+		// Only accept CSV files
+		if (file.mimetype !== 'text/csv' && !file.originalname.endsWith('.csv')) {
+			return cb(new Error('Only CSV files are accepted'));
 		}
-		// Accept the file regardless of mime type as long as extension is .csv
 		cb(null, true);
 	},
-	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+	limits: {
+		fileSize: 10 * 1024 * 1024 // 10MB max file size
+	}
 });
 
 // Process and import a CSV file
 router.post('/process',
-	upload.single('file'),
+	upload.single('file'), // File should be uploaded as 'file'
 	ImportController.processImport
 );
 
-// Get available import tables with metadata
-router.get('/tables',
-	ImportController.getImportTables
-);
-
-// Get available file patterns for data tables
-router.get('/patterns',
-	ImportController.getImportPatterns
-);
-
-// Validate CSV headers against expected columns
-router.post('/validate-columns',
-	ImportController.validateCsvColumns
+// Get all import information (tables and file patterns)
+router.get('/info',
+	ImportController.getImportInfo
 );
 
 export default router; 

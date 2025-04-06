@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import * as schema from '../db/schema';
 import { importData } from '../utils/importData';
 import { importCSV } from '../utils/importCSV';
@@ -144,61 +142,51 @@ export class ImportService {
 	}
 
 	/**
-	 * Get all available import tables with their metadata
-	 * @returns List of all tables, data tables, and lookup tables
+	 * Get all import information including tables and file patterns
+	 * @returns Comprehensive import information
 	 */
-	static getImportTables() {
+	static getImportInfo() {
 		// Get all destination tables
 		const allTables = getAllDestinationTables();
 
-		// Transform into a more frontend-friendly format
+		// Transform into the new simplified format
 		const tables = allTables.map(table => {
-			// Find the parent mapping to determine if data or lookup table
-			const parentMapping = csvFileMappings.find(mapping =>
+			// Find the parent mapping to determine which file patterns can map to this table
+			const parentMappings = csvFileMappings.filter(mapping =>
 				mapping.destinations.some(dest => dest.tableId === table.tableId)
 			);
 
+			// Get matching patterns for this table
+			const matchingPatterns = parentMappings.map(mapping =>
+				mapping.filePatterns[0].toString().replace(/^\/|\/[gimuy]*$/g, '')
+			);
+
+			// Build table info
 			return {
 				tableName: table.tableName,
 				tableId: table.tableId,
-				category: parentMapping?.category || 'unknown',
+				category: parentMappings[0]?.category || 'unknown',
 				primaryKeys: table.primaryKeys,
 				// Convert column mappings to a list of field information
-				fields: table.columnMappings.map(col => ({
-					dbColumn: col.dbColumn,
+				columns: table.columnMappings.map(col => ({
+					name: col.dbColumn,
 					csvColumn: col.csvColumn,
-					hasTransform: !!col.transform,
-					// Is this a primary key field?
-					isPrimaryKey: table.primaryKeys.includes(col.dbColumn)
+					isPrimaryKey: table.primaryKeys.includes(col.dbColumn),
+					isRequired: table.primaryKeys.includes(col.dbColumn), // Primary keys are required
+					hasTransform: !!col.transform
 				})),
 				// Does this table use a row expander for one-to-many?
-				hasRowExpander: !!table.rowExpander
+				hasRowExpander: !!table.rowExpander,
+				// Patterns that can map to this table
+				matchingPatterns
 			};
 		});
 
-		// Split into data tables and lookup tables for convenience
-		const dataTables = tables.filter(t => t.category === 'data');
-		const lookupTables = tables.filter(t => t.category === 'lookup');
-
-		return {
-			tables,
-			dataTables,
-			lookupTables,
-			count: tables.length
-		};
-	}
-
-	/**
-	 * Get available file patterns for data tables
-	 * @returns List of file patterns
-	 */
-	static getImportPatterns() {
-		// Filter to only show data mappings (not lookup tables)
-		const dataPatterns = csvFileMappings
-			.filter(mapping => mapping.category === 'data')
+		// Transform file patterns
+		const filePatterns = csvFileMappings
+			.filter(mapping => mapping.category === 'data') // Only include data mappings
 			.map(mapping => ({
-				// Convert RegExp patterns to strings for the API response
-				filePatterns: mapping.filePatterns.map(pattern => pattern.toString().replace(/^\/|\/[gimuy]*$/g, '')),
+				pattern: mapping.filePatterns[0].toString().replace(/^\/|\/[gimuy]*$/g, ''),
 				description: mapping.description,
 				examples: 'examples' in mapping ? mapping.examples : [],
 				destinations: mapping.destinations.map(d => ({
@@ -206,11 +194,20 @@ export class ImportService {
 					tableId: d.tableId
 				}))
 			}));
-		console.log(dataPatterns);
 
+		// Calculate stats
+		const dataTableCount = tables.filter(t => t.category === 'data').length;
+		const lookupTableCount = tables.filter(t => t.category === 'lookup').length;
+
+		// Return the complete import info
 		return {
-			patterns: dataPatterns,
-			count: dataPatterns.length
+			tables,
+			filePatterns,
+			stats: {
+				tableCount: tables.length,
+				dataTableCount,
+				lookupTableCount
+			}
 		};
 	}
 

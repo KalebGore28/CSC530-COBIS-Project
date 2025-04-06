@@ -68,63 +68,17 @@ export class ImportController {
 	}
 
 	/**
-	 * Get all available import tables with their metadata
+	 * Get all import information including tables and file patterns
 	 */
-	static async getImportTables(req: Request, res: Response) {
+	static async getImportInfo(req: Request, res: Response) {
 		try {
-			const tables = ImportService.getImportTables();
-			res.json(tables);
+			const importInfo = ImportService.getImportInfo();
+			res.json(importInfo);
 			return;
 		} catch (error: any) {
-			console.error('Error fetching import tables:', error);
+			console.error('Error fetching import information:', error);
 			res.status(500).json({
-				error: 'Error fetching import tables',
-				message: error.message
-			});
-		}
-	}
-
-	/**
-	 * Get available file patterns for data tables
-	 */
-	static async getImportPatterns(req: Request, res: Response) {
-		try {
-			const patterns = ImportService.getImportPatterns();
-			console.log(patterns);
-			res.json(patterns);
-			return;
-		} catch (error: any) {
-			console.error('Error fetching import patterns:', error);
-			res.status(500).json({
-				error: 'Error fetching import patterns',
-				message: error.message
-			});
-		}
-	}
-
-	/**
-	 * Validate CSV headers against expected columns for a table
-	 */
-	static async validateCsvColumns(req: Request, res: Response) {
-		try {
-			const { tableId, csvHeaders } = req.body;
-
-			// Validate request parameters
-			if (!tableId || !csvHeaders || !Array.isArray(csvHeaders)) {
-				res.status(400).json({
-					error: 'Missing or invalid parameters',
-					message: 'Both tableId and csvHeaders array are required'
-				});
-				return;
-			}
-
-			const validationResults = ImportService.validateCsvColumns(tableId, csvHeaders);
-			res.json(validationResults);
-			return;
-		} catch (error: any) {
-			console.error('Error validating CSV columns:', error);
-			res.status(500).json({
-				error: 'Error validating CSV columns',
+				error: 'Error fetching import information',
 				message: error.message
 			});
 		}

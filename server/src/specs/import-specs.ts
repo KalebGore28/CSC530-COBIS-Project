@@ -74,21 +74,26 @@ const ImportProcessResponseSchema = z.object({
 	}),
 });
 
-const ImportTableFieldSchema = z.object({
+// Schema for the table column in ImportInfoResponse
+const ImportTableColumnSchema = z.object({
 	name: z.string().openapi({
 		description: 'Database column name'
 	}),
 	csvColumn: z.string().openapi({
 		description: 'CSV column name that maps to this database column'
 	}),
-	hasTransform: z.boolean().openapi({
-		description: 'Whether this field has a transform function'
-	}),
 	isPrimaryKey: z.boolean().openapi({
 		description: 'Whether this field is part of the primary key'
 	}),
+	isRequired: z.boolean().openapi({
+		description: 'Whether this field is required for import'
+	}),
+	hasTransform: z.boolean().openapi({
+		description: 'Whether this field has a transform function'
+	}),
 });
 
+// Schema for the table in ImportInfoResponse
 const ImportTableSchema = z.object({
 	tableName: z.string().openapi({
 		description: 'Name of the table'
@@ -102,33 +107,18 @@ const ImportTableSchema = z.object({
 	primaryKeys: z.array(z.string()).openapi({
 		description: 'List of column names that make up the primary key'
 	}),
-	fields: z.array(ImportTableFieldSchema).openapi({
+	columns: z.array(ImportTableColumnSchema).openapi({
 		description: 'Column mapping information for this table'
 	}),
 	hasRowExpander: z.boolean().openapi({
 		description: 'Whether this table uses a row expander for one-to-many relationships'
 	}),
+	matchingPatterns: z.array(z.string()).openapi({
+		description: 'Patterns that can map to this table'
+	})
 });
 
-const ImportTablesResponseSchema = z.object({
-	tables: z.array(ImportTableSchema).openapi({
-		description: 'All available tables for import'
-	}),
-	dataTables: z.array(ImportTableSchema.extend({
-		category: z.literal('data')
-	})).openapi({
-		description: 'Subset of tables categorized as data tables'
-	}),
-	lookupTables: z.array(ImportTableSchema.extend({
-		category: z.literal('lookup')
-	})).openapi({
-		description: 'Subset of tables categorized as lookup tables'
-	}),
-	count: z.number().int().openapi({
-		description: 'Total number of tables available'
-	}),
-});
-
+// Schema for file pattern destinations
 const ImportPatternDestinationSchema = z.object({
 	tableName: z.string().openapi({
 		description: 'Name of the destination table'
@@ -138,82 +128,46 @@ const ImportPatternDestinationSchema = z.object({
 	}),
 });
 
-const ImportPatternSchema = z.object({
-	filePatterns: z.array(z.string()).openapi({
-		description: 'Regular expression patterns for matching filenames'
+// Schema for file patterns in ImportInfoResponse
+const FilePatternSchema = z.object({
+	pattern: z.string().openapi({
+		description: 'Regular expression pattern for matching filenames'
 	}),
 	description: z.string().openapi({
 		description: 'Description of the data import pattern'
 	}),
 	examples: z.array(z.string()).openapi({
-		description: 'Example filenames that match the patterns'
+		description: 'Example filenames that match the pattern'
 	}),
 	destinations: z.array(ImportPatternDestinationSchema).openapi({
 		description: 'Destination tables for the imported data'
 	}),
 });
 
-const ImportPatternsResponseSchema = z.object({
-	patterns: z.array(ImportPatternSchema).openapi({
-		description: 'Available file patterns for data tables'
+// Schema for stats in ImportInfoResponse
+const ImportStatsSchema = z.object({
+	tableCount: z.number().int().openapi({
+		description: 'Total number of tables available'
 	}),
-	count: z.number().int().openapi({
-		description: 'Total number of patterns available'
+	dataTableCount: z.number().int().openapi({
+		description: 'Number of data tables available'
 	}),
+	lookupTableCount: z.number().int().openapi({
+		description: 'Number of lookup tables available'
+	})
 });
 
-const ValidateColumnsRequestSchema = z.object({
-	tableId: z.string().openapi({
-		description: 'ID of the table to validate against'
+// Combined schema for the new import info endpoint
+const ImportInfoResponseSchema = z.object({
+	tables: z.array(ImportTableSchema).openapi({
+		description: 'All available tables for import'
 	}),
-	csvHeaders: z.array(z.string()).openapi({
-		description: 'Array of CSV column headers'
+	filePatterns: z.array(FilePatternSchema).openapi({
+		description: 'File patterns for automatic table detection'
 	}),
-});
-
-const MappingSuggestionSchema = z.object({
-	csvHeader: z.string().openapi({
-		description: 'CSV header'
-	}),
-	suggestedDbColumn: z.string().nullable().openapi({
-		description: 'Suggested database column for this CSV header'
-	}),
-	suggestedCsvColumn: z.string().optional().openapi({
-		description: 'Suggested CSV column name that would match a database column'
-	}),
-	confidence: z.enum(['high', 'medium', 'low']).openapi({
-		description: 'Confidence level of the suggestion'
-	}),
-});
-
-const ValidateColumnsResponseSchema = z.object({
-	tableId: z.string().openapi({
-		description: 'ID of the table validated against'
-	}),
-	tableName: z.string().openapi({
-		description: 'Name of the table validated against'
-	}),
-	matchingColumns: z.array(z.string()).openapi({
-		description: 'CSV headers that match expected columns'
-	}),
-	missingColumns: z.array(z.string()).openapi({
-		description: 'Expected columns that are missing from the CSV'
-	}),
-	extraColumns: z.array(z.string()).openapi({
-		description: 'CSV headers that don\'t match any expected column'
-	}),
-	matchPercentage: z.number().openapi({
-		description: 'Percentage of expected columns that match CSV headers'
-	}),
-	isValidForImport: z.boolean().openapi({
-		description: 'Whether the CSV is valid for import'
-	}),
-	mappingSuggestions: z.array(MappingSuggestionSchema).openapi({
-		description: 'Suggestions for mapping CSV headers to database columns'
-	}),
-	recommendedAction: z.enum(['proceed', 'proceed_with_caution', 'review_mapping']).openapi({
-		description: 'Recommended action based on validation results'
-	}),
+	stats: ImportStatsSchema.openapi({
+		description: 'Statistics about available tables'
+	})
 });
 
 // Schemas for import-related API endpoints
@@ -280,112 +234,23 @@ export const ImportAPISpecs = {
 			}
 		}
 	},
-	'/api/import/patterns': {
+	'/api/import/info': {
 		get: {
 			tags: ['Imports'],
-			operationId: 'get_import_patterns',
-			summary: 'Get available import file patterns',
-			description: 'Get available file patterns for data tables',
+			operationId: 'get_import_info',
+			summary: 'Get comprehensive import information',
+			description: 'Get all available tables, file patterns, and metadata needed for CSV imports',
 			responses: {
 				'200': {
-					description: 'List of file patterns that match data tables',
+					description: 'Complete import information including tables and file patterns',
 					content: {
 						'application/json': {
-							schema: ImportPatternsResponseSchema
+							schema: ImportInfoResponseSchema
 						}
 					}
 				},
 				'500': {
-					description: 'Server error during pattern retrieval',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error type'
-								}),
-								message: z.string().openapi({
-									description: 'Detailed error message'
-								})
-							})
-						}
-					}
-				}
-			}
-		}
-	},
-	'/api/import/tables': {
-		get: {
-			tags: ['Imports'],
-			operationId: 'get_import_tables',
-			summary: 'Get available import tables',
-			description: 'Get all available import tables with their metadata',
-			responses: {
-				'200': {
-					description: 'List of available tables for import',
-					content: {
-						'application/json': {
-							schema: ImportTablesResponseSchema
-						}
-					}
-				},
-				'500': {
-					description: 'Server error during table retrieval',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error type'
-								}),
-								message: z.string().openapi({
-									description: 'Detailed error message'
-								})
-							})
-						}
-					}
-				}
-			}
-		}
-	},
-	'/api/import/validate-columns': {
-		post: {
-			tags: ['Imports'],
-			operationId: 'validate_csv_columns',
-			summary: 'Validate CSV headers against table schema',
-			description: 'Validate CSV headers against expected columns for a table',
-			requestBody: {
-				required: true,
-				content: {
-					'application/json': {
-						schema: ValidateColumnsRequestSchema
-					}
-				}
-			},
-			responses: {
-				'200': {
-					description: 'Validation results with mapping suggestions',
-					content: {
-						'application/json': {
-							schema: ValidateColumnsResponseSchema
-						}
-					}
-				},
-				'400': {
-					description: 'Bad request - Missing or invalid parameters',
-					content: {
-						'application/json': {
-							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error type'
-								}),
-								message: z.string().openapi({
-									description: 'Detailed error message'
-								})
-							})
-						}
-					}
-				},
-				'500': {
-					description: 'Server error during validation',
+					description: 'Server error during import information retrieval',
 					content: {
 						'application/json': {
 							schema: z.object({
@@ -410,12 +275,9 @@ export const ImportSpecs = {
 	ImportProcessResponseSchema,
 	ImportResultSchema,
 	ImportTableSchema,
-	ImportTableFieldSchema,
-	ImportTablesResponseSchema,
-	ImportPatternSchema,
+	ImportTableColumnSchema,
+	FilePatternSchema,
 	ImportPatternDestinationSchema,
-	ImportPatternsResponseSchema,
-	ValidateColumnsRequestSchema,
-	ValidateColumnsResponseSchema,
-	MappingSuggestionSchema
+	ImportInfoResponseSchema,
+	ImportStatsSchema
 }; 

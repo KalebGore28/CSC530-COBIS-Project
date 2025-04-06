@@ -1,29 +1,14 @@
 /**
- * API response from GET /api/import/patterns
+ * API response from GET /api/import/info
  */
-export interface ImportPatternResponse {
-	patterns: ImportPattern[];
-	count: number;
-}
-
-export interface ImportPattern {
-	filePatterns: string[];
-	description: string;
-	example: string;
-	destinations: {
-		tableName: string;
-		tableId: string;
-	}[];
-}
-
-/**
- * API response from GET /api/import/tables
- */
-export interface ImportTablesResponse {
+export interface ImportInfoResponse {
 	tables: ImportTable[];
-	dataTables: ImportTable[];
-	lookupTables: ImportTable[];
-	count: number;
+	filePatterns: FilePattern[];
+	stats: {
+		tableCount: number;
+		dataTableCount: number;
+		lookupTableCount: number;
+	};
 }
 
 export interface ImportTable {
@@ -31,15 +16,27 @@ export interface ImportTable {
 	tableId: string;
 	category: 'data' | 'lookup' | 'unknown';
 	primaryKeys: string[];
-	fields: ImportTableField[];
+	columns: ImportTableColumn[];
 	hasRowExpander: boolean;
+	matchingPatterns: string[];
 }
 
-export interface ImportTableField {
+export interface ImportTableColumn {
 	name: string;
 	csvColumn: string;
-	hasTransform: boolean;
 	isPrimaryKey: boolean;
+	isRequired: boolean;
+	hasTransform: boolean;
+}
+
+export interface FilePattern {
+	pattern: string;
+	description: string;
+	examples: string[];
+	destinations: {
+		tableId: string;
+		tableName: string;
+	}[];
 }
 
 /**
@@ -75,8 +72,7 @@ export interface ValidateColumnsResponse {
 }
 
 /**
- * Type definitions for the existing import process API
- * (These should be adjusted to match your actual implementation)
+ * Type definitions for the import process API
  */
 export interface ImportProcessRequest {
 	file: File;
