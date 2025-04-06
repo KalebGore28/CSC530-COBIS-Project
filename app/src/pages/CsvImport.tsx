@@ -465,7 +465,7 @@ export const CsvImport: React.FC = () => {
                   <CsvPreview
                     headers={mockCsvHeaders}
                     data={mockCsvData}
-                    maxRows={5}
+                    maxRows={2}
                   />
                 </div>
 
@@ -481,7 +481,7 @@ export const CsvImport: React.FC = () => {
                       ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "NULL"],
                       ["", "Anonymous", "User", "anonymous@example.com", "555-7890", "2001-05-05"],
                     ]}
-                    maxRows={5}
+                    maxRows={2}
                     highlightSpecialValues={true}
                   />
                 </div>
