@@ -33,7 +33,6 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   csvHeaders,
   mapping,
   onMapChange,
-  validationResult
 }) => {
   // Count all unmapped columns (all columns are required)
   const unmappedColumns = tableFields
@@ -44,7 +43,6 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
   // Count mapped columns
   const mappedColumnsCount = Object.values(mapping).filter(Boolean).length;
-  const allFieldsMapped = mappedColumnsCount === tableFields.length;
 
   // Determine if we have a composite key
   const primaryKeyCount = useMemo(() => {
@@ -89,7 +87,6 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
           <TableBody>
             {tableFields.map((column) => {
               const hasMapping = mapping[column.name] !== undefined && mapping[column.name] !== "";
-              const isRequired = column.isPrimaryKey || column.isRequired;
               const isMapped = hasMapping;
 
               return (
