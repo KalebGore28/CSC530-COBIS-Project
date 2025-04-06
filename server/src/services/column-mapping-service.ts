@@ -659,14 +659,20 @@ export const csvFileMappings: CSVFileMapping[] = [
 	},
 ];
 
+// Type alias for any destination table
+type DestinationTable = BaseDestination;
+
 /**
  * Get mapping by table ID
  */
 export const getDestinationByTableId = (tableId: string): DestinationTable | null => {
-	for (const fileMapping of csvFileMappings) {
-		for (const destination of fileMapping.destinations) {
-			if (destination.tableId === tableId) {
-				return destination;
+	for (const mapping of csvFileMappings) {
+		if (mapping.category === "data") {
+			const found = mapping.destinations.find(d => d.tableId === tableId);
+			if (found) return found;
+		} else {
+			if (mapping.destination.tableId === tableId) {
+				return mapping.destination;
 			}
 		}
 	}
@@ -676,8 +682,7 @@ export const getDestinationByTableId = (tableId: string): DestinationTable | nul
 /**
  * Find mappings for a filename (for data tables)
  */
-export const findMappingsForFilename = (fileName: string): CsvFileMapping | null => {
-	// First look for data tables with file patterns
+export const findMappingsForFilename = (fileName: string): DataCsvMapping | null => {
 	for (const mapping of csvFileMappings) {
 		if (mapping.category === "data") {
 			for (const pattern of mapping.filePatterns) {
@@ -691,28 +696,16 @@ export const findMappingsForFilename = (fileName: string): CsvFileMapping | null
 };
 
 /**
- * Find mappings for lookup tables based on tableId (for lookup tables)
- * @param tableId Table ID to match
- * @return Mappings for the lookup table if found, otherwise null
+ * Find mapping for a lookup table by ID
  */
-export const findMappingsForLookupTable = (
-	tableId: string
-): CsvFileMapping | null => {
-	// If no tableId provided, we can't find a lookup table
-	if (!tableId) {
-		return null;
-	}
+export const findMappingsForLookupTable = (tableId: string): LookupCsvMapping | null => {
+	if (!tableId) return null;
 
-	// Simply find the mapping that has a destination with the matching tableId
 	for (const mapping of csvFileMappings) {
-		if (mapping.category === "lookup") {
-			const matchingDestination = mapping.destinations.find(d => d.tableId === tableId);
-			if (matchingDestination) {
-				return mapping;
-			}
+		if (mapping.category === "lookup" && mapping.destination.tableId === tableId) {
+			return mapping;
 		}
 	}
-
 	return null;
 };
 
@@ -721,101 +714,102 @@ export const findMappingsForLookupTable = (
  */
 export const mapCsvRowToDbRow = (
 	row: Record<string, any>,
-	destinationTable: DestinationTable
+	destination: DestinationTable
 ): Record<string, any> => {
 	const result: Record<string, any> = {};
 
-	for (const column of destinationTable.columnMappings) {
+	for (const column of destination.columnMappings) {
 		if (row[column.csvColumn] !== undefined) {
-			// Apply transform if exists, otherwise use the raw value
 			try {
 				result[column.dbColumn] = column.transform
 					? column.transform(row[column.csvColumn])
 					: row[column.csvColumn];
 			} catch (error) {
 				console.warn(`Transform error for column ${column.csvColumn} -> ${column.dbColumn}:`, error);
-				// Keep the original value if transform fails
 				result[column.dbColumn] = row[column.csvColumn];
 			}
 		}
 	}
-
 	return result;
 };
 
 /**
  * Process multiple CSV rows for a specific destination table
- * Now supports row expansion for one-to-many transformations
  */
 export const mapCsvDataToDbData = (
 	rows: Record<string, any>[],
-	destinationTable: DestinationTable
+	destination: DestinationTable
 ): Record<string, any>[] => {
-	// If we have a row expander function, use it
-	if (destinationTable.rowExpander) {
-		// Apply the row expander to each CSV row and flatten the results
+	if (destination.rowExpander) {
 		return rows.flatMap(row => {
 			try {
-				return destinationTable.rowExpander!(row);
+				return destination.rowExpander!(row);
 			} catch (error) {
-				console.warn(`Error expanding row for ${destinationTable.tableName}:`, error);
-				return []; // Skip this row if expansion fails
+				console.warn(`Error expanding row for ${destination.tableName}:`, error);
+				return [];
 			}
 		});
 	}
-
-	// Otherwise, use the standard mapping approach
-	return rows.map(row => mapCsvRowToDbRow(row, destinationTable))
+	return rows.map(row => mapCsvRowToDbRow(row, destination))
 		.filter(row => Object.keys(row).length > 0);
 };
 
 /**
- * Get all available file mappings
- */
-export const getAllFileMappings = (): CsvFileMapping[] => {
-	return csvFileMappings;
-};
-
-/**
- * Get all destination tables across all file mappings
+ * Get all destination tables across all mappings
  */
 export const getAllDestinationTables = (): DestinationTable[] => {
-	const result: DestinationTable[] = [];
+	const destinations: DestinationTable[] = [];
 
-	for (const fileMapping of csvFileMappings) {
-		for (const destination of fileMapping.destinations) {
-			result.push(destination);
+	for (const mapping of csvFileMappings) {
+		if (mapping.category === "data") {
+			destinations.push(...mapping.destinations);
+		} else {
+			destinations.push(mapping.destination);
 		}
 	}
-
-	return result;
+	return destinations;
 };
 
 /**
- * Get metadata for CSV to table mappings for frontend/API use
+ * Get CSV mapping metadata for frontend
  */
-export const getImportMetadata = (includeColumnMappings = false) => {
-	return getAllFileMappings().map(mapping => ({
-		filePatterns: mapping.filePatterns.map(pattern => pattern.toString()),
-		description: mapping.description || '',
-		category: mapping.category,
-		requiresTableDesignation: mapping.requiresTableDesignation || false,
-		expectedColumns: mapping.expectedColumns || [],
-		destinations: mapping.destinations.map(destination => ({
+export const getImportInfo = () => {
+	return {
+		tables: getAllDestinationTables().map(destination => ({
 			tableName: destination.tableName,
 			tableId: destination.tableId,
 			primaryKeys: destination.primaryKeys,
-			columnCount: destination.columnMappings.length,
-			usesRowExpander: !!destination.rowExpander,
-			// Only include column mapping details if explicitly requested
-			columnMappings: includeColumnMappings
-				? destination.columnMappings.map(col => ({
-					csvColumn: col.csvColumn,
-					dbColumn: col.dbColumn,
-					hasTransform: !!col.transform
-				}))
-				: undefined
-		}))
-	}));
-};
+			columns: destination.columnMappings.map(col => ({
+				name: col.dbColumn,
+				csvColumn: col.csvColumn,
+				isPrimaryKey: destination.primaryKeys.includes(col.dbColumn),
+				isRequired: destination.primaryKeys.includes(col.dbColumn),
+				hasTransform: !!col.transform
+			})),
+			hasRowExpander: !!destination.rowExpander
+		})),
 
+		filePatterns: csvFileMappings.map(mapping => {
+			const destinations = mapping.category === "data"
+				? mapping.destinations
+				: [mapping.destination];
+
+			return {
+				pattern: mapping.filePatterns?.[0].toString() || "",
+				description: mapping.description,
+				category: mapping.category,
+				multiTable: mapping.category === "data" && mapping.destinations.length > 1,
+				destinations: destinations.map(dest => ({
+					tableName: dest.tableName,
+					tableId: dest.tableId
+				}))
+			};
+		}),
+
+		stats: {
+			tableCount: getAllDestinationTables().length,
+			dataTableCount: csvFileMappings.filter(m => m.category === "data").length,
+			lookupTableCount: csvFileMappings.filter(m => m.category === "lookup").length
+		}
+	};
+};
