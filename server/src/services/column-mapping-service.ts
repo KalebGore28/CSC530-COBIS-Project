@@ -1,10 +1,10 @@
 // src/services/columnMappingService.ts
-
+import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import * as schema from "../db/schema"; // Import your database schema types here
 
 // A comprehensive service for mapping CSV data to database tables
 // Supports both data tables (with strict file naming patterns) and
-// lookup tables (with more flexible naming but requiring explicit designation)
+// Lookup tables (with more flexible naming but requiring explicit designation)
 
 import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convertDates";
 import { parseTermCode } from "../utils/convertTermCode";
@@ -31,7 +31,7 @@ export interface DestinationTable {
 	tableName: string;    // Display name of the table
 	tableId: string;      // Unique identifier for the table (used for routing)
 	primaryKeys: string[]; // Primary key fields for this table
-	schemaRef?: any;      // Reference to the Drizzle schema if directly available
+	schemaRef: AnySQLiteTable;      // Reference to the Drizzle schema if directly available
 	columnMappings: ColumnMapping[];  // Explicit column mappings
 	rowExpander?: RowExpanderFunction;  // Optional function to expand one row into many
 }
@@ -97,7 +97,7 @@ export const expandStudentPrograms = (row: Record<string, any>): Record<string, 
 			level: level,
 			program: row.minor1,
 			department: row.minor1dept || '',
-			college: '' // Minors may not have college assignments
+			college: '' // Minors don't have college assignments
 		});
 	}
 
@@ -111,7 +111,7 @@ export const expandStudentPrograms = (row: Record<string, any>): Record<string, 
 			level: level,
 			program: row.minor2,
 			department: row.minor2dept || '',
-			college: '' // Minors may not have college assignments
+			college: '' // Minors don't have college assignments
 		});
 	}
 
@@ -188,6 +188,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Test Scores",
 				tableId: "test-scores",
 				primaryKeys: ["mnumber", "code", "date"],
+				schemaRef: schema.testScores,
 				columnMappings: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "testcode", dbColumn: "code" },
@@ -473,6 +474,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Academic Standing",
 				tableId: "academic-standing",
 				primaryKeys: ["code"],
+				schemaRef: schema.academicStanding,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -491,6 +493,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Admit Codes",
 				tableId: "admit-codes",
 				primaryKeys: ["code"],
+				schemaRef: schema.admitCodes,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -509,6 +512,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "College Codes",
 				tableId: "college-codes",
 				primaryKeys: ["code"],
+				schemaRef: schema.collegeCodes,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -526,6 +530,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Colleges",
 				tableId: "colleges",
 				primaryKeys: ["code"],
+				schemaRef: schema.colleges,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -544,6 +549,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Departments",
 				tableId: "departments",
 				primaryKeys: ["code"],
+				schemaRef: schema.departments,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" },
@@ -563,6 +569,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Instructional Methods",
 				tableId: "instructional-methods",
 				primaryKeys: ["code"],
+				schemaRef: schema.instructionalMethods,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -581,6 +588,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Nations",
 				tableId: "nations",
 				primaryKeys: ["code"],
+				schemaRef: schema.nations,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -599,6 +607,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Part of Term",
 				tableId: "part-of-term",
 				primaryKeys: ["code"],
+				schemaRef: schema.partOfTerm,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -617,6 +626,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Programs",
 				tableId: "programs",
 				primaryKeys: ["code"],
+				schemaRef: schema.programs,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" },
@@ -644,6 +654,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Registration Status",
 				tableId: "registration-status",
 				primaryKeys: ["code"],
+				schemaRef: schema.registrationStatus,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }
@@ -662,6 +673,7 @@ export const csvFileMappings: CsvFileMapping[] = [
 				tableName: "Terms",
 				tableId: "terms",
 				primaryKeys: ["code"],
+				schemaRef: schema.terms,
 				columnMappings: [
 					{ csvColumn: "code", dbColumn: "code" },
 					{ csvColumn: "description", dbColumn: "description" }

@@ -165,7 +165,7 @@ export class ImportService {
 				primaryKeys: table.primaryKeys,
 				// Convert column mappings to a list of field information
 				fields: table.columnMappings.map(col => ({
-					name: col.dbColumn,
+					dbColumn: col.dbColumn,
 					csvColumn: col.csvColumn,
 					hasTransform: !!col.transform,
 					// Is this a primary key field?

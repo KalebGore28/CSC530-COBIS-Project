@@ -111,7 +111,7 @@ export class ImportController {
 
 			// Validate request parameters
 			if (!tableId || !csvHeaders || !Array.isArray(csvHeaders)) {
-					res.status(400).json({
+				res.status(400).json({
 					error: 'Missing or invalid parameters',
 					message: 'Both tableId and csvHeaders array are required'
 				});
