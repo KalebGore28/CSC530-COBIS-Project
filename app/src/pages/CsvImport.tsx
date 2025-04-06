@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 // Import types
-import { TableConfig, ImportResult, ImportError } from "../types/csv-import-types";
+import { TableConfig, ImportError } from "../types/csv-import-types";
 
 // Import components
 import { TableSelector } from "../components/csv-import/table-selector";
@@ -69,34 +69,6 @@ export const CsvImport: React.FC = () => {
     ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "2002-04-04"],
     ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "2001-05-05"],
   ];
-
-  const mockImportResult: ImportResult = {
-    fileName: "students.csv",
-    category: "data",
-    mappingDescription: "Student data import",
-    success: true,
-    results: [
-      {
-        tableName: "Students",
-        tableId: "students",
-        success: true,
-        message: "Processed 5 records",
-        totalRecords: 5,
-        inserted: 3,
-        updated: 1,
-        skipped: 1,
-        failed: 0
-      }
-    ],
-    timestamp: new Date().toISOString(),
-    // Flattened properties
-    totalRecords: 5,
-    inserted: 3,
-    updated: 1,
-    skipped: 1,
-    failed: 0,
-    errorDetails: []
-  };
 
   // Mock import errors for error fixing mode
   const mockImportErrors: ImportError[] = [
