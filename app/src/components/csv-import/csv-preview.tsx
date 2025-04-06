@@ -41,7 +41,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
   if (!headers.length || !data.length) {
     return (
-      <div className="mb-6">
+      <div className="mb-6 w-full">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-sm font-medium">CSV Preview</h3>
           <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
@@ -49,7 +49,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
           </div>
         </div>
 
-        <Alert variant="destructive" className="mt-3">
+        <Alert variant="destructive" className="mt-3 w-full">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             No data available for preview. Please upload a valid CSV file.
@@ -118,7 +118,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
     );
 
   return (
-    <div className="mb-6">
+    <div className="mb-6 w-full">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-sm font-medium">CSV Preview</h3>
         <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
@@ -138,51 +138,57 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
         </div>
       </div>
 
-      <div className="rounded-md border overflow-x-auto">
-        <Table>
-          <TableHeader className="bg-muted/30 sticky top-0">
-            <TableRow>
-              <TableHead className="w-12 text-center">#</TableHead>
-              {headers.map((header, index) => (
-                <TableHead
-                  key={index}
-                  className="font-medium min-w-[120px]"
-                >
-                  {header}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {pageData.map((row, rowIndex) => (
-              <TableRow key={rowIndex} className="hover:bg-muted/20">
-                <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm">
-                  {pageStart + rowIndex + 1}
-                </TableCell>
-                {headers.map((_, colIndex) => {
-                  const cellValue = row[colIndex] || "";
-                  const cell = analyzeCell(cellValue);
-
-                  return (
-                    <TableCell
-                      key={colIndex}
-                      className={cn(
-                        "font-mono text-sm truncate max-w-xs",
-                        cell.className
-                      )}
-                    >
-                      {cell.displayValue}
-                    </TableCell>
-                  );
-                })}
+      <div className="rounded-md border w-full">
+        <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
+          <Table>
+            <TableHeader className="bg-muted/30 sticky top-0">
+              <TableRow>
+                <TableHead className="w-12 text-center">#</TableHead>
+                {headers.map((header, index) => (
+                  <TableHead
+                    key={index}
+                    className="font-medium min-w-[120px] max-w-[200px]"
+                  >
+                    <div className="truncate" title={header}>
+                      {header}
+                    </div>
+                  </TableHead>
+                ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {pageData.map((row, rowIndex) => (
+                <TableRow key={rowIndex} className="hover:bg-muted/20">
+                  <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm">
+                    {pageStart + rowIndex + 1}
+                  </TableCell>
+                  {headers.map((_, colIndex) => {
+                    const cellValue = row[colIndex] || "";
+                    const cell = analyzeCell(cellValue);
+
+                    return (
+                      <TableCell
+                        key={colIndex}
+                        className={cn(
+                          "font-mono text-sm max-w-[200px]",
+                          cell.className
+                        )}
+                      >
+                        <div className="truncate" title={cell.value}>
+                          {cell.displayValue}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
       {hasSpecialValues && (
-        <div className="flex items-start gap-2 mt-3 p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800">
+        <div className="flex items-start gap-2 mt-3 p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 w-full">
           <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <div className="text-sm">
             <p>Special values in the preview are highlighted:</p>
@@ -199,7 +205,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-between items-center mt-3">
+        <div className="flex justify-between items-center mt-3 w-full">
           <Button
             variant="outline"
             size="sm"

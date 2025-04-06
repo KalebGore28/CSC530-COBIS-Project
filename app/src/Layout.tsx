@@ -59,11 +59,9 @@ function LayoutContent({ selectedRole, routePermissions, location, navigate }: L
 	return (
 		<>
 			<AppSidebar />
-			<SidebarInset className="flex flex-col h-screen">
+			<SidebarInset>
 				<SiteHeader />
-				<div ref={contentRef} className="flex-1 overflow-y-auto">
-					<Outlet />
-				</div>
+				<Outlet />
 			</SidebarInset>
 		</>
 	);
