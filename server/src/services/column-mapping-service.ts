@@ -10,13 +10,10 @@ import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convertDates"
 import { parseTermCode } from "../utils/convertTermCode";
 import { parseCourseCode } from "../utils/convertCourseCode";
 
-/**
- * Interface for column mapping
- */
-export interface ColumnMapping {
-	csvColumn: string;    // Column name in CSV file
-	dbColumn: string;     // Column name in database schema
-	transform?: (value: any) => any;  // Optional transform function
+interface ColumnMapping {
+	csvColumn: string;
+	dbColumn: string;
+	transform?: (value: any) => any; // For the backend
 }
 
 /**
@@ -24,29 +21,68 @@ export interface ColumnMapping {
  */
 export type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
 
+
 /**
- * Interface for destination table configuration
+ * Base interface for all destinations
  */
-export interface DestinationTable {
-	tableName: string;    // Display name of the table
-	tableId: string;      // Unique identifier for the table (used for routing)
-	primaryKeys: string[]; // Primary key fields for this table
-	schemaRef: AnySQLiteTable;      // Reference to the Drizzle schema if directly available
-	columnMappings: ColumnMapping[];  // Explicit column mappings
+interface BaseDestination {
+	tableName: string;
+	tableId: string;
+	primaryKeys: string[];
+	columnMappings: ColumnMapping[];
+	schemaRef: AnySQLiteTable; // For the backend, reference to schema
 	rowExpander?: RowExpanderFunction;  // Optional function to expand one row into many
 }
 
 /**
- * Interface for CSV file mapping configuration
+ * Interface for data destinations
  */
-export interface CsvFileMapping {
-	filePatterns: RegExp[];  // Patterns to match filenames (required for data tables, optional for lookup tables)
-	description?: string;
-	category: "lookup" | "data";
-	requiresTableDesignation?: boolean; // If true, table must be explicitly specified for lookup tables
-	expectedColumns?: string[]; // Expected column headers for lookup tables 
-	destinations: DestinationTable[];  // Multiple destination tables for a single CSV
+interface DataDestination extends BaseDestination {
+	category: "data";
 }
+
+/**
+ * Interface for lookup destinations
+ */
+interface LookupDestination extends BaseDestination {
+	category: "lookup";
+}
+
+/**
+ * Union type for all destinations
+ */
+type Destination = DataDestination | LookupDestination;
+
+/**
+ * Base interface for all CSV mappings
+ */
+interface BaseCsvMapping {
+	description: string;
+	category: "data" | "lookup";
+}
+
+/**
+ * Interface for data CSV mappings
+ */
+interface DataCsvMapping extends BaseCsvMapping {
+	category: "data";
+	filePatterns: RegExp[]; // Note: Using RegExp for backend
+	destinations: Destination[];
+}
+
+/**
+ * Interface for lookup CSV mappings
+ */
+interface LookupCsvMapping extends BaseCsvMapping {
+	category: "lookup";
+	filePatterns?: RegExp[]; // Optional for lookup tables
+	destination: LookupDestination;
+}
+
+/**
+ * Union type for all CSV mappings
+ */
+type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
 
 // Function that expands a single demographic row into multiple student program rows
 export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
@@ -177,7 +213,7 @@ export const expandStudentAddresses = (row: Record<string, any>): Record<string,
 /**
  * Complete mapping configuration for all CSV files
  */
-export const csvFileMappings: CsvFileMapping[] = [
+export const csvFileMappings: CSVFileMapping[] = [
 	// Test Scores CSV
 	{
 		filePatterns: [/reg_cuba_test_scores_\d+_\d+\.csv$/i],
@@ -467,7 +503,6 @@ export const csvFileMappings: CsvFileMapping[] = [
 		filePatterns: [/academic.+standing|standing.+academic/i],
 		description: "Academic standing codes",
 		category: "lookup",
-		requiresTableDesignation: true,
 		expectedColumns: ["code", "description"],
 		destinations: [
 			{

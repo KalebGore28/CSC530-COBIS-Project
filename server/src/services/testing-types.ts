@@ -9,30 +9,54 @@ interface ColumnMapping {
 	transform?: (value: any) => any; // For the backend
 }
 
+/**
+ * Function that transforms one CSV row into multiple DB rows
+ */
+export type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
+
+
+/**
+ * Base interface for all destinations
+ */
 interface BaseDestination {
 	tableName: string;
 	tableId: string;
 	primaryKeys: string[];
 	columnMappings: ColumnMapping[];
-	hasRowExpander?: boolean;
 	schemaRef: AnySQLiteTable; // For the backend, reference to schema
+	rowExpander?: RowExpanderFunction;  // Optional function to expand one row into many
 }
 
+/**
+ * Interface for data destinations
+ */
 interface DataDestination extends BaseDestination {
 	category: "data";
 }
 
+/**
+ * Interface for lookup destinations
+ */
 interface LookupDestination extends BaseDestination {
 	category: "lookup";
 }
 
+/**
+ * Union type for all destinations
+ */
 type Destination = DataDestination | LookupDestination;
 
+/**
+ * Base interface for all CSV mappings
+ */
 interface BaseCsvMapping {
 	description: string;
 	category: "data" | "lookup";
 }
 
+/**
+ * Interface for data CSV mappings
+ */
 interface DataCsvMapping extends BaseCsvMapping {
 	category: "data";
 	filePatterns: RegExp[]; // Note: Using RegExp for backend
@@ -40,17 +64,22 @@ interface DataCsvMapping extends BaseCsvMapping {
 	destinations: Destination[];
 }
 
+/**
+ * Interface for lookup CSV mappings
+ */	
 interface LookupCsvMapping extends BaseCsvMapping {
 	category: "lookup";
 	filePatterns?: RegExp[]; // Optional for lookup tables
 	destination: LookupDestination;
 }
 
-// Define the union type
-type CsvFileMapping = DataCsvMapping | LookupCsvMapping;
+/**
+ * Union type for all CSV mappings
+ */
+type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
 
-// Now define the array that can hold both types
-export const csvFileMappings: CsvFileMapping[] = [
+
+export const csvFileMappings: CSVFileMapping[] = [
 	// Example of a data mapping (Test Scores)
 	{
 		category: "data",
@@ -104,7 +133,6 @@ export const csvFileMappings: CsvFileMapping[] = [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 
 				],
-				hasRowExpander: true
 			}
 			// Other destinations...
 		]
