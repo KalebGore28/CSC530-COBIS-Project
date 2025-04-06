@@ -45,7 +45,7 @@ interface BaseCsvMapping {
 /**
  * Interface for data CSV mappings
  */
-interface DataCsvMapping extends BaseCsvMapping {
+export interface DataCsvMapping extends BaseCsvMapping {
 	category: "data";
 	filePatterns: RegExp[];
 	destinations: BaseDestination[];
@@ -54,7 +54,7 @@ interface DataCsvMapping extends BaseCsvMapping {
 /**
  * Interface for lookup CSV mappings
  */
-interface LookupCsvMapping extends BaseCsvMapping {
+export interface LookupCsvMapping extends BaseCsvMapping {
 	category: "lookup";
 	filePatterns?: RegExp[];
 	destination: BaseDestination;
