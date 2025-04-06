@@ -167,13 +167,89 @@ export const CsvImport: React.FC = () => {
           </div>
           <div className="space-y-12 py-4">
             <div>
-              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Table Selector Component</h3>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Table Selector Component (Data Table)</h3>
               <TableSelector
                 tables={mockTableConfig}
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
                 csvFile={new File([""], "students.csv")}
                 isDataTable={true}
+              />
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Table Selector Component (Lookup Table)</h3>
+              <TableSelector
+                tables={[
+                  {
+                    tableId: "departments",
+                    tableName: "Departments",
+                    category: "lookup",
+                    primaryKeys: ["departmentId"],
+                    hasRowExpander: false,
+                    matchingPatterns: ["departments\\.csv"],
+                    columns: [
+                      { name: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+                      { name: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                      { name: "building", csvColumn: "Building", isPrimaryKey: false, isRequired: false, hasTransform: false },
+                    ],
+                  },
+                  {
+                    tableId: "majors",
+                    tableName: "Majors",
+                    category: "lookup",
+                    primaryKeys: ["majorId"],
+                    hasRowExpander: false,
+                    matchingPatterns: ["majors\\.csv"],
+                    columns: [
+                      { name: "majorId", csvColumn: "Major ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+                      { name: "majorName", csvColumn: "Major Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                      { name: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                    ],
+                  }
+                ]}
+                selectedTable="departments"
+                onTableChange={(id) => console.log("Selected lookup table:", id)}
+                csvFile={new File([""], "departments.csv")}
+                isDataTable={false}
+              />
+            </div>
+
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Table Selector Component (Lookup Table - No Auto-detection)</h3>
+              <TableSelector
+                tables={[
+                  {
+                    tableId: "departments",
+                    tableName: "Departments",
+                    category: "lookup",
+                    primaryKeys: ["departmentId"],
+                    hasRowExpander: false,
+                    matchingPatterns: ["departments\\.csv"],
+                    columns: [
+                      { name: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+                      { name: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                      { name: "building", csvColumn: "Building", isPrimaryKey: false, isRequired: false, hasTransform: false },
+                    ],
+                  },
+                  {
+                    tableId: "majors",
+                    tableName: "Majors",
+                    category: "lookup",
+                    primaryKeys: ["majorId"],
+                    hasRowExpander: false,
+                    matchingPatterns: ["majors\\.csv"],
+                    columns: [
+                      { name: "majorId", csvColumn: "Major ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+                      { name: "majorName", csvColumn: "Major Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                      { name: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, isRequired: true, hasTransform: false },
+                    ],
+                  }
+                ]}
+                selectedTable=""
+                onTableChange={(id) => console.log("Selected lookup table:", id)}
+                csvFile={new File([""], "generic_lookup_data.csv")}
+                isDataTable={false}
               />
             </div>
 

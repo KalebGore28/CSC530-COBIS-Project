@@ -38,7 +38,19 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
   }
 
   const selectedTableData = tables.find(t => t.tableId === selectedTable);
-  const isAutoDetected = isDataTable && csvFile && selectedTable;
+  const isAutoDetected = csvFile && selectedTable;
+
+  // Check if the lookup table was auto-detected from filename
+  const isLookupAutoDetected = !isDataTable && isAutoDetected && selectedTableData?.matchingPatterns.some(
+    pattern => {
+      try {
+        const regex = new RegExp(pattern);
+        return regex.test(csvFile?.name || '');
+      } catch (e) {
+        return false;
+      }
+    }
+  );
 
   return (
     <div className="mb-6">
@@ -58,12 +70,34 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
         )}
       </div>
 
-      {isAutoDetected && (
+      {isDataTable && isAutoDetected && (
         <div className="mb-4 bg-green-50 border border-green-200 rounded-md px-3 py-2">
           <div className="flex items-center text-green-800">
             <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
             <span>
               Auto-detected <span className="font-semibold">{selectedTableData?.tableName} table</span> from file <span className="font-mono text-xs bg-green-100 px-1 rounded">{csvFile.name}</span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      {isLookupAutoDetected && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+          <div className="flex items-center text-amber-800">
+            <CheckCircle2 className="h-4 w-4 mr-2 text-amber-600" />
+            <span>
+              Auto-detected <span className="font-semibold">{selectedTableData?.tableName} lookup table</span> from file <span className="font-mono text-xs bg-amber-100 px-1 rounded">{csvFile.name}</span>
+            </span>
+          </div>
+        </div>
+      )}
+
+      {!isDataTable && !isLookupAutoDetected && csvFile && (
+        <div className="mb-4 bg-amber-50 border border-amber-200 rounded-md px-3 py-2">
+          <div className="flex items-start">
+            <Info className="h-4 w-4 mr-2 mt-0.5 text-amber-600" />
+            <span className="text-amber-800">
+              Please select the appropriate lookup table for this file. The file name <span className="font-mono text-xs bg-amber-100 px-1 rounded">{csvFile.name}</span> didn't match any known patterns.
             </span>
           </div>
         </div>
@@ -90,23 +124,31 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
           </div>
         </div>
       ) : (
-        <Select
-          value={selectedTable}
-          onValueChange={onTableChange}
-        >
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a destination table" />
-          </SelectTrigger>
-          <SelectContent>
-            {tables
-              .sort((a, b) => a.tableName.localeCompare(b.tableName))
-              .map((table) => (
-                <SelectItem key={table.tableId} value={table.tableId}>
-                  {table.tableName}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+        <>
+          <Select
+            value={selectedTable}
+            onValueChange={onTableChange}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a destination table" />
+            </SelectTrigger>
+            <SelectContent>
+              {tables
+                .sort((a, b) => a.tableName.localeCompare(b.tableName))
+                .map((table) => (
+                  <SelectItem key={table.tableId} value={table.tableId}>
+                    {table.tableName}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          {!isDataTable && !selectedTable && csvFile && (
+            <div className="mt-2 text-sm text-amber-600">
+              Please select a lookup table to continue
+            </div>
+          )}
+        </>
       )}
 
       {selectedTable && selectedTableData && !isDataTable && (
