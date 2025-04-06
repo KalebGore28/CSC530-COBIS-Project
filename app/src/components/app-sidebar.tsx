@@ -135,7 +135,7 @@ export function AppSidebar({ ...props }) {
 							className={
 								isExpanded
 									? "text-white text-sm font-semibold text-center text-nowrap"
-									: "hidden text-nowrap"
+									: "hidden text-nowrap ml-5"
 							}
 						>
 							COBIS Tool v0.5.0
