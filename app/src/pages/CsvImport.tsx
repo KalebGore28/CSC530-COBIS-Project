@@ -240,8 +240,8 @@ export const CsvImport: React.FC = () => {
       .map(field => field.name);
 
     // Make sure each required field has a mapping that is not undefined
-    return requiredFields.every(field => 
-      columnMapping[field] !== undefined && 
+    return requiredFields.every(field =>
+      columnMapping[field] !== undefined &&
       columnMapping[field] !== "");
   };
 
@@ -310,7 +310,7 @@ export const CsvImport: React.FC = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       await addMissingValue(
         currentError.dependencyInfo.tableName,
         formData
@@ -329,7 +329,7 @@ export const CsvImport: React.FC = () => {
           message: `Fixed ${fixedData.length + 1} issues. Ready to retry import.`
         }));
       }
-      
+
       setIsLoading(false);
     } catch (error: any) {
       setError(error.message || "Error adding lookup value");
@@ -343,7 +343,7 @@ export const CsvImport: React.FC = () => {
 
     setIsLoading(true);
     setError(null);
-    
+
     try {
       const data = await retryImport(
         selectedTable.tableId,
@@ -409,14 +409,14 @@ export const CsvImport: React.FC = () => {
               <AlertDescription>{error}</AlertDescription>
             </Alert>
           )}
-          
+
           {isLoading && (
             <div className="flex justify-center items-center p-6">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span className="ml-2">Processing...</span>
             </div>
           )}
-          
+
           {isFixMode ? (
             <ErrorFixingMode
               errors={pendingErrors}
