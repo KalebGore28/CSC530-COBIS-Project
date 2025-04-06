@@ -316,8 +316,15 @@ export const addMissingValue = async (
  * Process import result for UI display
  */
 function processImportResult(result: any): ImportResult {
+  console.log("Processing import result:", result);
+
   // If the result is already in the right format, just return it
-  if (result.fileName && (typeof result.success === 'boolean')) {
+  if (
+    result.totalRecords !== undefined &&
+    typeof result.totalRecords === 'number' &&
+    result.inserted !== undefined
+  ) {
+    console.log("Result already in expected format");
     return result;
   }
 
@@ -327,17 +334,31 @@ function processImportResult(result: any): ImportResult {
     fileName: result.fileName || "unknown",
     success: result.success || false,
     timestamp: result.timestamp || new Date().toISOString(),
-    message: result.message || "Import completed"
+    message: result.message || "Import completed",
+    totalRecords: 0,
+    inserted: 0,
+    updated: 0,
+    skipped: 0,
+    failed: 0
   };
 
   // Aggregate results from multiple tables if needed
   if (result.results && Array.isArray(result.results)) {
+    console.log("Processing results array:", result.results);
     processed.totalRecords = result.results.reduce((sum: number, r: any) => sum + (r.totalRecords || 0), 0);
     processed.inserted = result.results.reduce((sum: number, r: any) => sum + (r.inserted || 0), 0);
     processed.updated = result.results.reduce((sum: number, r: any) => sum + (r.updated || 0), 0);
     processed.skipped = result.results.reduce((sum: number, r: any) => sum + (r.skipped || 0), 0);
     processed.failed = result.results.reduce((sum: number, r: any) => sum + (r.failed || 0), 0);
+  } else {
+    // If there are no results arrays, copy over the numbers from the root level if they exist
+    processed.totalRecords = typeof result.totalRecords === 'number' ? result.totalRecords : 0;
+    processed.inserted = typeof result.inserted === 'number' ? result.inserted : 0;
+    processed.updated = typeof result.updated === 'number' ? result.updated : 0;
+    processed.skipped = typeof result.skipped === 'number' ? result.skipped : 0;
+    processed.failed = typeof result.failed === 'number' ? result.failed : 0;
   }
 
+  console.log("Processed result:", processed);
   return processed;
 }

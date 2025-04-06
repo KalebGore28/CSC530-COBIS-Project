@@ -22,7 +22,9 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
   onFixForeignKeyErrors
 }) => {
   if (!result) return null;
-  
+
+  console.log("Import result:", result);
+
   // Check if we have foreign key errors
   const hasForeignKeyErrors = result.errorDetails?.some(err => err.errorType === "foreign_key") || false;
 
@@ -31,8 +33,8 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
     return errors.map(err => ({
       errorType: err.errorType,
       error: err.error,
-      details: err.dependencyInfo 
-        ? `Missing value: "${err.dependencyInfo.value}" in "${err.dependencyInfo.tableName}"`
+      details: err.dependencyInfo
+        ? `Missing value in "${err.dependencyInfo.tableName}"`
         : ''
     }));
   };
@@ -45,9 +47,28 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
     { key: 'details', label: 'Details' }
   ];
 
-  if (result.message && !result.totalRecords) {
+  // Ensure numeric values have defaults
+  const totalRecords = result.totalRecords ?? 0;
+  const inserted = result.inserted ?? 0;
+  const updated = result.updated ?? 0;
+  const skipped = result.skipped ?? 0;
+  const failed = result.failed ?? 0;
+
+  // For an error message with no data
+  if (result.message && !totalRecords && !result.success) {
     return (
       <Alert variant="destructive">
+        <AlertDescription>
+          <p>{result.message}</p>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // For an informational message with no data
+  if (result.message && !totalRecords && result.success) {
+    return (
+      <Alert>
         <AlertDescription>
           <p>{result.message}</p>
         </AlertDescription>
@@ -58,29 +79,29 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
   return (
     <div className="mt-6">
       <Alert
-        variant={result.failed && result.failed > 0 ? "destructive" : "default"}
+        variant={failed > 0 ? "destructive" : "default"}
       >
         <AlertDescription>
-          {result.failed && result.failed > 0 ? (
+          {failed > 0 ? (
             <p className="font-semibold mb-2">Data import completed with errors.</p>
           ) : (
             <p className="font-semibold mb-2">Data imported successfully.</p>
           )}
           <div className="grid grid-cols-2 gap-2 mb-4">
-            <div>Total Records: <span className="font-medium">{result.totalRecords}</span></div>
-            <div>Inserted: <span className="font-medium">{result.inserted}</span></div>
-            <div>Updated: <span className="font-medium">{result.updated}</span></div>
-            <div>Skipped: <span className="font-medium">{result.skipped}</span></div>
-            {result.failed && result.failed > 0 && (
-              <div>Failed: <span className="font-medium text-red-500">{result.failed}</span></div>
+            <div>Total Records: <span className="font-medium">{totalRecords}</span></div>
+            <div>Inserted: <span className="font-medium">{inserted}</span></div>
+            <div>Updated: <span className="font-medium">{updated}</span></div>
+            <div>Skipped: <span className="font-medium">{skipped}</span></div>
+            {failed > 0 && (
+              <div>Failed: <span className="font-medium text-red-500">{failed}</span></div>
             )}
           </div>
 
           {/* Skipped records accordion */}
-          {(result.skipped ?? 0) > 0 && result.skippedDetails && (
+          {skipped > 0 && result.skippedDetails && result.skippedDetails.length > 0 && (
             <Accordion type="single" collapsible className="mt-4">
               <AccordionItem value="skipped">
-                <AccordionTrigger>Skipped rows ({result.skipped})</AccordionTrigger>
+                <AccordionTrigger>Skipped rows ({skipped})</AccordionTrigger>
                 <AccordionContent>
                   <div className="mt-2">
                     {Object.entries(
@@ -101,10 +122,10 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
           )}
 
           {/* Error records accordion */}
-          {result.failed && result.failed > 0 && result.errorDetails && (
+          {failed > 0 && result.errorDetails && result.errorDetails.length > 0 && (
             <Accordion type="single" collapsible className="mt-4">
               <AccordionItem value="errors">
-                <AccordionTrigger>Errors ({result.failed})</AccordionTrigger>
+                <AccordionTrigger>Errors ({failed})</AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-3">
                     {hasForeignKeyErrors && (

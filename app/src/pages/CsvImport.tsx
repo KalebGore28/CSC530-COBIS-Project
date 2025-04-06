@@ -277,23 +277,40 @@ export const CsvImport: React.FC = () => {
         session?.user?.email || session?.user?.name || 'system'
       );
 
-      // Handle errors that might need fixing
-      if (data.errorDetails && data.errorDetails.length > 0) {
-        // Foreign key errors need special handling
-        const foreignKeyErrors = data.errorDetails.filter(
-          err => err.errorType === "foreign_key"
-        );
+      console.log("Import result received:", data);
 
-        if (foreignKeyErrors.length > 0) {
-          setPendingErrors(foreignKeyErrors);
-          setCurrentErrorIndex(0);
-          setIsFixMode(true);
+      // Ensure we have at least default values
+      if (data) {
+        // Handle errors that might need fixing
+        if (data.errorDetails && data.errorDetails.length > 0) {
+          // Foreign key errors need special handling
+          const foreignKeyErrors = data.errorDetails.filter(
+            err => err.errorType === "foreign_key"
+          );
+
+          if (foreignKeyErrors.length > 0) {
+            setPendingErrors(foreignKeyErrors);
+            setCurrentErrorIndex(0);
+            setIsFixMode(true);
+          }
         }
-      }
 
-      setResult(data);
+        setResult(data);
+      } else {
+        throw new Error("No result data received from import");
+      }
     } catch (error: any) {
+      console.error("Error importing data:", error);
       setError(error.message || "Error importing data");
+      setResult({
+        success: false,
+        message: error.message || "Error importing data",
+        totalRecords: 0,
+        inserted: 0,
+        updated: 0,
+        skipped: 0,
+        failed: 0,
+      });
     } finally {
       setIsLoading(false);
     }
