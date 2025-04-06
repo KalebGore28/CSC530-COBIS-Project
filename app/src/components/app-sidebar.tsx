@@ -72,14 +72,11 @@ const data = {
 	],
 }
 
-export function AppSidebar({ onToggle, ...props }) {
+export function AppSidebar({ ...props }) {
 	const { selectedRole, routePermissions } = useRoleContext();
-	const { open, openMobile, isMobile, toggleSidebar: originalToggle } = useSidebar();
+	const { open, openMobile, isMobile } = useSidebar();
 	const { session, logout } = useSession();
 	const navigate = useNavigate()
-
-	// Use the custom toggle if provided, otherwise use the default
-	const toggleSidebar = onToggle || originalToggle;
 
 	// Derive isExpanded from open and openMobile
 	const isExpanded = isMobile ? openMobile : open;

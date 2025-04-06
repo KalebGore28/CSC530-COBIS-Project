@@ -35,28 +35,15 @@ export default function Layout() {
 
 // Separate component to access the sidebar context
 function LayoutContent({ selectedRole, routePermissions, location, navigate }: LayoutContentProps) {
-	const { setOpen, open, isMobile, toggleSidebar } = useSidebar();
+	const { setOpen, isMobile } = useSidebar();
 
-	// Enhanced version of useContentWidth that tracks user sidebar actions
-	const { contentRef, trackSidebarAction } = useContentWidth({
+	const contentRef = useContentWidth({
 		onNarrow: () => {
 			if (!isMobile) {
 				setOpen(false);
 			}
-		},
-		onWide: () => {
-			if (!isMobile) {
-				setOpen(true);
-			}
 		}
 	});
-
-	// Override the toggleSidebar function to track user actions
-	const handleToggleSidebar = () => {
-		// Track that this was a user action
-		trackSidebarAction(!open); // The new state will be the opposite of current
-		toggleSidebar();
-	};
 
 	// Route protection logic
 	useEffect(() => {
@@ -71,9 +58,9 @@ function LayoutContent({ selectedRole, routePermissions, location, navigate }: L
 
 	return (
 		<>
-			<AppSidebar onToggle={handleToggleSidebar} />
+			<AppSidebar />
 			<SidebarInset className="flex flex-col h-screen">
-				<SiteHeader onToggleSidebar={handleToggleSidebar} />
+				<SiteHeader />
 				<div ref={contentRef} className="flex-1 overflow-y-auto">
 					<Outlet />
 				</div>
