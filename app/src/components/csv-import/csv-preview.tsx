@@ -138,52 +138,56 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
         </div>
       </div>
 
-      <div className="rounded-md border w-full">
-        <div className="overflow-x-auto" style={{ maxWidth: '100%' }}>
-          <Table>
-            <TableHeader className="bg-muted/30 sticky top-0">
-              <TableRow>
-                <TableHead className="w-12 text-center">#</TableHead>
-                {headers.map((header, index) => (
-                  <TableHead
-                    key={index}
-                    className="font-medium"
-                  >
-                    <div className="truncate" title={header}>
-                      {header}
-                    </div>
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pageData.map((row, rowIndex) => (
-                <TableRow key={rowIndex} className="hover:bg-muted/20">
-                  <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm">
-                    {pageStart + rowIndex + 1}
-                  </TableCell>
-                  {headers.map((_, colIndex) => {
-                    const cellValue = row[colIndex] || "";
-                    const cell = analyzeCell(cellValue);
-
-                    return (
-                      <TableCell
-                        key={colIndex}
-                        className={cn(
-                          "font-mono text-sm max-w-[200px]",
-                          cell.className
-                        )}
-                      >
-                        <div className="truncate" title={cell.value}>
-                          {cell.displayValue}
-                        </div>
-                      </TableCell>
-                    );
-                  })}
+      <div className="rounded-md border w-full" style={{ maxWidth: "100%", width: "100%", boxSizing: "border-box" }}>
+        <div className="overflow-x-auto" style={{ maxWidth: "100%", width: "100%" }}>
+          <div style={{ maxWidth: "100%", width: "100%", overflowX: "auto" }}>
+            <Table style={{ width: "100%", tableLayout: "fixed" }}>
+              <TableHeader className="bg-muted/30 sticky top-0">
+                <TableRow>
+                  <TableHead className="w-[40px] text-center">#</TableHead>
+                  {headers.map((header, index) => (
+                    <TableHead
+                      key={index}
+                      className="font-medium"
+                      style={{ width: `calc((100% - 40px) / ${headers.length})` }}
+                    >
+                      <div className="truncate" title={header}>
+                        {header}
+                      </div>
+                    </TableHead>
+                  ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pageData.map((row, rowIndex) => (
+                  <TableRow key={rowIndex} className="hover:bg-muted/20">
+                    <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-[40px]">
+                      {pageStart + rowIndex + 1}
+                    </TableCell>
+                    {headers.map((_, colIndex) => {
+                      const cellValue = row[colIndex] || "";
+                      const cell = analyzeCell(cellValue);
+
+                      return (
+                        <TableCell
+                          key={colIndex}
+                          className={cn(
+                            "font-mono text-sm",
+                            cell.className
+                          )}
+                          style={{ width: `calc((100% - 40px) / ${headers.length})` }}
+                        >
+                          <div className="truncate" title={cell.value}>
+                            {cell.displayValue}
+                          </div>
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
 
