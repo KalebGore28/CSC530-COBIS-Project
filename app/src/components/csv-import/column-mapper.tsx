@@ -16,15 +16,15 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { TableField } from "../../types/csv-import-types";
+import { TableColumn, ColumnValidationResult } from "../../types/csv-import-types";
 import { autoMapColumns } from "../../utils/csv-import-utils";
 
 interface ColumnMapperProps {
-  tableFields: TableField[];  // Change from string[] to TableField[]
+  tableFields: TableColumn[];  // Using TableColumn instead of TableField
   csvHeaders: string[];
   mapping: Record<string, string>;
-  onMapChange: (field: string, csvColumn: string) => void;
-  validationResult?: any;  // Optional validation result data
+  onMapChange: (columnName: string, csvColumn: string) => void;
+  validationResult?: ColumnValidationResult;  // Properly typed validation result
 }
 
 export const ColumnMapper: React.FC<ColumnMapperProps> = ({
@@ -34,13 +34,13 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   onMapChange,
   validationResult
 }) => {
-  // Calculate missing required fields (primary keys)
+  // Calculate missing required fields (primary keys or required columns)
   const missingRequiredFields = tableFields
-    .filter(field => field.isPrimaryKey && (
-      mapping[field.name] === undefined ||
-      mapping[field.name] === ""
+    .filter(column => (column.isPrimaryKey || column.isRequired) && (
+      mapping[column.name] === undefined ||
+      mapping[column.name] === ""
     ))
-    .map(field => field.name);
+    .map(column => column.name);
 
   const hasMissingRequired = missingRequiredFields.length > 0;
 
@@ -48,13 +48,13 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   const handleAutoMap = () => {
     const suggestedMapping = autoMapColumns(
       csvHeaders,
-      tableFields.map(f => ({ name: f.name, csvColumn: f.csvColumn }))
+      tableFields.map(c => ({ name: c.name, csvColumn: c.csvColumn }))
     );
 
     // Apply each suggested mapping
-    Object.entries(suggestedMapping).forEach(([field, csvColumn]) => {
+    Object.entries(suggestedMapping).forEach(([columnName, csvColumn]) => {
       if (csvColumn) {
-        onMapChange(field, csvColumn);
+        onMapChange(columnName, csvColumn);
       }
     });
   };
@@ -75,7 +75,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
           </Button>
           {hasMissingRequired && (
             <Badge variant="destructive">
-              {missingRequiredFields.length} required field{missingRequiredFields.length > 1 ? 's' : ''} unmapped
+              {missingRequiredFields.length} required column{missingRequiredFields.length > 1 ? 's' : ''} unmapped
             </Badge>
           )}
         </div>
@@ -85,15 +85,15 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-1/3">Table Field</TableHead>
+              <TableHead className="w-1/3">Table Column</TableHead>
               <TableHead className="w-1/3">CSV Column</TableHead>
               <TableHead className="w-1/3">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tableFields.map((field) => {
-              const hasMapping = mapping[field.name] !== undefined && mapping[field.name] !== "";
-              const isRequired = field.isPrimaryKey;
+            {tableFields.map((column) => {
+              const hasMapping = mapping[column.name] !== undefined && mapping[column.name] !== "";
+              const isRequired = column.isPrimaryKey || column.isRequired;
 
               // Determine row status
               let rowClass = "";
@@ -112,20 +112,23 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
               }
 
               return (
-                <TableRow key={field.name} className={rowClass}>
+                <TableRow key={column.name} className={rowClass}>
                   <TableCell>
-                    <div className="font-medium">{field.name}</div>
-                    {isRequired && (
+                    <div className="font-medium">{column.name}</div>
+                    {column.isPrimaryKey && (
                       <div className="text-xs text-gray-500">Primary Key</div>
                     )}
-                    {field.hasTransform && (
+                    {column.isRequired && !column.isPrimaryKey && (
+                      <div className="text-xs text-gray-500">Required</div>
+                    )}
+                    {column.hasTransform && (
                       <div className="text-xs text-blue-500">Has transformation</div>
                     )}
                   </TableCell>
                   <TableCell>
                     <Select
-                      value={mapping[field.name] || undefined}
-                      onValueChange={(value) => onMapChange(field.name, value)}
+                      value={mapping[column.name] || undefined}
+                      onValueChange={(value) => onMapChange(column.name, value)}
                     >
                       <SelectTrigger
                         className={(isRequired && !hasMapping) ? "border-red-500" : ""}
@@ -133,25 +136,30 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                         <SelectValue placeholder="Select a column" />
                       </SelectTrigger>
                       <SelectContent>
-                        {/* Removed empty value SelectItem */}
                         {csvHeaders.map((header) => {
                           // Check if this header is a suggested match
-                          const isSuggested = validationResult?.suggestedMatches?.[field.name]?.csvColumn === header;
-                          const isExactMatch = field.csvColumn.toLowerCase() === header.toLowerCase();
+                          const isSuggested = validationResult?.suggestedMapping?.[column.name] === header;
+                          const isExactMatch = column.csvColumn.toLowerCase() === header.toLowerCase();
+                          const isMatchingColumn = validationResult?.matchingColumns?.includes(header);
 
                           return (
-                            <SelectItem key={header} value={header} className={isExactMatch ? "font-bold" : ""}>
+                            <SelectItem
+                              key={header}
+                              value={header}
+                              className={isExactMatch ? "font-bold" : ""}
+                            >
                               {header}
                               {isExactMatch && " (Exact Match)"}
                               {isSuggested && !isExactMatch && " (Suggested)"}
+                              {isMatchingColumn && !isExactMatch && !isSuggested && " (Matching)"}
                             </SelectItem>
                           );
                         })}
                       </SelectContent>
                     </Select>
-                    {field.csvColumn && !hasMapping && (
+                    {column.csvColumn && !hasMapping && (
                       <div className="text-xs text-gray-500 mt-1">
-                        Expected: {field.csvColumn}
+                        Expected: {column.csvColumn}
                       </div>
                     )}
                   </TableCell>
@@ -175,13 +183,13 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
       {hasMissingRequired && (
         <p className="text-sm text-red-600 mt-2">
-          Please map all required fields (primary keys) to continue.
+          Please map all required columns to continue.
         </p>
       )}
 
       {tableFields.length > 0 && Object.keys(mapping).length === 0 && (
         <p className="text-sm text-amber-600 mt-2">
-          Tip: Click "Auto-Map Columns" to automatically match CSV columns to table fields.
+          Tip: Click "Auto-Map Columns" to automatically match CSV columns to table columns.
         </p>
       )}
     </div>

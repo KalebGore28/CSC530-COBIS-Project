@@ -86,7 +86,7 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
 
       {selectedTable && (
         <div className="mt-2 text-sm text-muted-foreground">
-          {tables.find(t => t.tableId === selectedTable)?.fields.length || 0} fields available
+          {tables.find(t => t.tableId === selectedTable)?.columns.length || 0} columns available
         </div>
       )}
     </div>

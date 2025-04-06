@@ -6,62 +6,74 @@ export interface TableConfig {
 	tableId: string;        // Unique identifier for the table
 	category: 'data' | 'lookup' | 'unknown';
 	primaryKeys: string[];  // List of primary key fields
-	fields: TableField[];   // List of field configurations
+	columns: TableColumn[]; // List of column configurations
 	hasRowExpander: boolean; // Whether this table uses a row expander
-	endpoint?: string;      // API endpoint for importing (maintained for backward compatibility)
-  }
-  
-  /**
-   * Configuration for a table field/column
-   */
-  export interface TableField {
+	matchingPatterns: string[]; // Patterns that match this table
+}
+
+/**
+ * Configuration for a table column
+ */
+export interface TableColumn {
 	name: string;           // Database column name
 	csvColumn: string;      // Expected CSV column name
 	isPrimaryKey: boolean;  // Whether this is a primary key
+	isRequired: boolean;    // Whether this field is required
 	hasTransform: boolean;  // Whether this field has transformation logic
-  }
-  
-  /**
-   * File pattern for automatic table detection
-   */
-  export interface FilePattern {
-	filePatterns: string[]; // RegExp patterns as strings
+}
+
+/**
+ * File pattern for automatic table detection
+ */
+export interface FilePattern {
+	pattern: string;        // RegExp pattern as string
 	description: string;    // Description of the pattern
 	examples: string[];     // Example filenames that match this pattern
 	destinations: {         // Destination tables for this pattern
-	  tableName: string;
-	  tableId: string;
+		tableName: string;
+		tableId: string;
 	}[];
-  }
-  
-  /**
-   * Response from the validate-columns API
-   */
-  export interface ColumnValidationResult {
+}
+
+/**
+ * Stats about the available tables
+ */
+export interface ImportStats {
+	tableCount: number;
+	dataTableCount: number;
+	lookupTableCount: number;
+}
+
+/**
+ * API response from the consolidated import info endpoint
+ */
+export interface ImportInfoResponse {
+	tables: TableConfig[];
+	filePatterns: FilePattern[];
+	stats: ImportStats;
+}
+
+/**
+ * Client-side column validation result
+ * (since we no longer have a validation API endpoint)
+ */
+export interface ColumnValidationResult {
 	isValid: boolean;
 	tableId: string;
 	tableName: string;
-	exactMatches: Record<string, string>;
-	suggestedMatches: Record<string, {
-	  csvColumn: string;
-	  similarity: number;
-	}>;
-	unmatchedColumns: string[];
+	matchingColumns: string[];
+	missingColumns: string[];
+	extraColumns: string[];
+	matchPercentage: number;
+	isPrimaryKeyValid: boolean;
 	missingRequiredColumns: string[];
-	expectedColumns: {
-	  dbColumn: string;
-	  csvColumn: string;
-	  isPrimaryKey: boolean;
-	  hasTransform: boolean;
-	}[];
-	csvHeaders: string[];
 	suggestedMapping: Record<string, string>;
-  }
-  
-  /**
-   * Result of importing data
-   */
-  export interface ImportResult {
+}
+
+/**
+ * Result of importing data
+ */
+export interface ImportResult {
 	fileName?: string;
 	category?: 'data' | 'lookup';
 	mappingDescription?: string;
@@ -70,7 +82,7 @@ export interface TableConfig {
 	success?: boolean;
 	timestamp?: string;
 	message?: string;
-	
+
 	// Flattened properties for UI display (derived from results)
 	totalRecords?: number;
 	inserted?: number;
@@ -79,15 +91,15 @@ export interface TableConfig {
 	failed?: number;
 	errorDetails?: ImportError[];
 	skippedDetails?: {
-	  row: Record<string, string>;
-	  reason: string;
+		row: Record<string, string>;
+		reason: string;
 	}[];
-  }
-  
-  /**
-   * Result of importing data into a specific table
-   */
-  export interface ImportTableResult {
+}
+
+/**
+ * Result of importing data into a specific table
+ */
+export interface ImportTableResult {
 	tableName: string;
 	tableId: string;
 	success: boolean;
@@ -98,35 +110,28 @@ export interface TableConfig {
 	skipped: number;
 	failed: number;
 	errorDetails?: string[];
-  }
-  
-  /**
-   * Detailed error information from an import
-   */
-  export interface ImportError {
+}
+
+/**
+ * Detailed error information from an import
+ */
+export interface ImportError {
 	row: Record<string, string>;
 	error: string;
 	errorType: string;
 	dependencyInfo?: {
-	  tableName: string;
-	  columns?: string[];
-	  values?: Record<string, string>;
-	  value?: string; // For backward compatibility
+		tableName: string;
+		columns?: string[];
+		values?: Record<string, string>;
 	};
-  }
-  
-  /**
-   * API Responses for new endpoints
-   */
-  
-  export interface ImportPatternsResponse {
-	patterns: FilePattern[];
-	count: number;
-  }
-  
-  export interface ImportTablesResponse {
-	tables: TableConfig[];
-	dataTables: TableConfig[];
-	lookupTables: TableConfig[];
-	count: number;
-  }
+}
+
+/**
+ * Request payload for the import process API
+ */
+export interface ImportProcessRequest {
+	file: File;
+	tableId: string;
+	importedBy: string;
+	mappedData?: Record<string, any>[];
+}

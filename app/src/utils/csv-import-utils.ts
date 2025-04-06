@@ -9,20 +9,18 @@ import { TableConfig, FilePattern } from '../types/csv-import-types';
  */
 export const isDataFile = (fileName: string, patterns: FilePattern[]): boolean => {
   for (const pattern of patterns) {
-    for (const patternStr of pattern.filePatterns) {
-      try {
-        // Convert string pattern back to RegExp
-        // Remove leading/trailing slashes and extract flags
-        const patternBody = patternStr.replace(/^\/|\/[gimuy]*$/g, '');
-        const flags = patternStr.match(/\/([gimuy]*)$/)?.[1] || '';
-        const regex = new RegExp(patternBody, flags);
+    try {
+      // Convert string pattern to RegExp
+      const patternStr = pattern.pattern;
+      const patternBody = patternStr.replace(/^\/|\/[gimuy]*$/g, '');
+      const flags = patternStr.match(/\/([gimuy]*)$/)?.[1] || '';
+      const regex = new RegExp(patternBody, flags);
 
-        if (regex.test(fileName)) {
-          return true;
-        }
-      } catch (error) {
-        console.error(`Invalid regex pattern: ${patternStr}`, error);
+      if (regex.test(fileName)) {
+        return true;
       }
+    } catch (error) {
+      console.error(`Invalid regex pattern: ${pattern.pattern}`, error);
     }
   }
   return false;
@@ -42,27 +40,44 @@ export const detectTableFromFilename = (
 ): TableConfig | null => {
   // Go through each pattern and check if filename matches
   for (const pattern of patterns) {
-    for (const patternStr of pattern.filePatterns) {
-      try {
-        // Convert string pattern back to RegExp
-        const patternBody = patternStr.replace(/^\/|\/[gimuy]*$/g, '');
-        const flags = patternStr.match(/\/([gimuy]*)$/)?.[1] || '';
-        const regex = new RegExp(patternBody, flags);
+    try {
+      // Convert string pattern to RegExp
+      const patternStr = pattern.pattern;
+      const patternBody = patternStr.replace(/^\/|\/[gimuy]*$/g, '');
+      const flags = patternStr.match(/\/([gimuy]*)$/)?.[1] || '';
+      const regex = new RegExp(patternBody, flags);
 
-        if (regex.test(fileName)) {
-          // If we have a match, look for matching destination table
-          for (const destination of pattern.destinations) {
-            const matchingTable = tables.find(t =>
-              t.tableId === destination.tableId
-            );
+      if (regex.test(fileName)) {
+        // If we have a match, look for matching destination table
+        for (const destination of pattern.destinations) {
+          const matchingTable = tables.find(t =>
+            t.tableId === destination.tableId
+          );
 
-            if (matchingTable) {
-              return matchingTable;
-            }
+          if (matchingTable) {
+            return matchingTable;
           }
         }
-      } catch (error) {
-        console.error(`Invalid regex pattern: ${patternStr}`, error);
+      }
+    } catch (error) {
+      console.error(`Invalid regex pattern: ${pattern.pattern}`, error);
+    }
+  }
+
+  // Alternative approach: check matching patterns directly on tables
+  for (const table of tables) {
+    if (table.matchingPatterns && table.matchingPatterns.length > 0) {
+      for (const patternStr of table.matchingPatterns) {
+        try {
+          const patternBody = patternStr.replace(/^\/|\/[gimuy]*$/g, '');
+          const regex = new RegExp(patternBody, 'i'); // Use case-insensitive by default
+
+          if (regex.test(fileName)) {
+            return table;
+          }
+        } catch (error) {
+          console.error(`Invalid regex pattern in table: ${patternStr}`, error);
+        }
       }
     }
   }
@@ -73,12 +88,12 @@ export const detectTableFromFilename = (
 /**
  * Auto-map CSV columns to table fields
  * @param csvHeaders Array of CSV column headers
- * @param tableFields Array of table field objects
+ * @param tableColumns Array of table column objects
  * @returns Mapping of table field names to CSV column names
  */
 export const autoMapColumns = (
   csvHeaders: string[],
-  tableFields: { name: string; csvColumn: string }[]
+  tableColumns: { name: string; csvColumn: string }[]
 ): Record<string, string> => {
   const mapping: Record<string, string> = {};
 
@@ -88,18 +103,18 @@ export const autoMapColumns = (
     headersLowerMap.set(header.toLowerCase().trim(), header);
   });
 
-  // For each table field, try to find a matching CSV header
-  tableFields.forEach(field => {
+  // For each table column, try to find a matching CSV header
+  tableColumns.forEach(column => {
     // First try exact match with the expected csvColumn 
-    let matchedHeader = headersLowerMap.get(field.csvColumn.toLowerCase().trim());
+    let matchedHeader = headersLowerMap.get(column.csvColumn.toLowerCase().trim());
 
-    // If no match found, try using the field name itself
+    // If no match found, try using the column name itself
     if (!matchedHeader) {
-      matchedHeader = headersLowerMap.get(field.name.toLowerCase().trim());
+      matchedHeader = headersLowerMap.get(column.name.toLowerCase().trim());
     }
 
     // Set the mapping or empty string if no match
-    mapping[field.name] = matchedHeader || "";
+    mapping[column.name] = matchedHeader || "";
   });
 
   return mapping;
@@ -107,20 +122,16 @@ export const autoMapColumns = (
 
 /**
  * Convert a validation result's suggested mapping into a complete mapping
- * @param validationResult Result from the validate-columns API
+ * @param validationResult Result from the column validation
  * @returns Complete mapping object ready for use
  */
 export const buildMappingFromValidation = (
   validationResult: {
-    exactMatches: Record<string, string>;
     suggestedMapping: Record<string, string>;
   }
 ): Record<string, string> => {
-  // Combine exact matches with suggested matches
-  return {
-    ...validationResult.exactMatches,
-    ...validationResult.suggestedMapping
-  };
+  // Return the suggested mapping
+  return validationResult.suggestedMapping;
 };
 
 /**
@@ -128,22 +139,22 @@ export const buildMappingFromValidation = (
  * @param data 2D array of CSV data
  * @param headers CSV headers
  * @param mapping Mapping of table fields to CSV columns
- * @param fields Table field names
+ * @param columnNames Table column names
  * @returns Array of objects mapping table fields to values
  */
 export const mapCsvDataToFields = (
   data: string[][],
   headers: string[],
   mapping: Record<string, string>,
-  fields: string[]
+  columnNames: string[]
 ): Record<string, string>[] => {
   return data.map(row => {
     const rowData: Record<string, string> = {};
 
-    fields.forEach(field => {
-      const csvColumn = mapping[field];
+    columnNames.forEach(columnName => {
+      const csvColumn = mapping[columnName];
       const columnIndex = headers.indexOf(csvColumn);
-      rowData[field] = columnIndex >= 0 ? row[columnIndex] || "" : "";
+      rowData[columnName] = columnIndex >= 0 ? row[columnIndex] || "" : "";
     });
 
     return rowData;

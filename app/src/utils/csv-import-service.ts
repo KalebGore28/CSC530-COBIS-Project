@@ -2,79 +2,64 @@
 import {
   TableConfig,
   ImportResult,
-  ImportPatternsResponse,
-  ImportTablesResponse,
+  ImportInfoResponse,
   ColumnValidationResult,
-  FilePattern
+  FilePattern,
+  TableColumn
 } from '../types/csv-import-types';
 
 /**
- * Fetch all available file patterns for data tables
+ * Fetch all import information (tables, file patterns, stats)
  */
-export const fetchFilePatterns = async (): Promise<FilePattern[]> => {
+export const fetchImportInfo = async (): Promise<ImportInfoResponse> => {
   try {
-    const response = await fetch("/api/import/patterns", {
+    const response = await fetch("/api/import/info", {
       method: "GET",
       credentials: "include",
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to fetch file patterns");
+      throw new Error(errorData.message || "Failed to fetch import information");
     }
 
-    const data: ImportPatternsResponse = await response.json();
-    return data.patterns;
+    return await response.json();
   } catch (error: any) {
-    console.error("Error fetching file patterns:", error);
-    throw new Error(error.message || "Error fetching file patterns");
+    console.error("Error fetching import information:", error);
+    throw new Error(error.message || "Error fetching import information");
   }
 };
 
 /**
- * Fetch all available tables for import
+ * Get all tables from the import info
  */
 export const fetchTables = async (): Promise<TableConfig[]> => {
-  try {
-    const response = await fetch("/api/import/tables", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to fetch tables");
-    }
-
-    const data: ImportTablesResponse = await response.json();
-    return data.tables;
-  } catch (error: any) {
-    console.error("Error fetching tables:", error);
-    throw new Error(error.message || "Error fetching tables");
-  }
+  const importInfo = await fetchImportInfo();
+  return importInfo.tables;
 };
 
 /**
- * Get lookup tables only
+ * Get all file patterns from the import info
+ */
+export const fetchFilePatterns = async (): Promise<FilePattern[]> => {
+  const importInfo = await fetchImportInfo();
+  return importInfo.filePatterns;
+};
+
+/**
+ * Get data tables only from the import info
+ */
+export const fetchDataTables = async (): Promise<TableConfig[]> => {
+  const importInfo = await fetchImportInfo();
+  return importInfo.tables.filter(table => table.category === 'data');
+};
+
+/**
+ * Get lookup tables only from the import info
  */
 export const fetchLookupTables = async (): Promise<TableConfig[]> => {
-  try {
-    const response = await fetch("/api/import/tables", {
-      method: "GET",
-      credentials: "include",
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to fetch lookup tables");
-    }
-
-    const data: ImportTablesResponse = await response.json();
-    return data.lookupTables;
-  } catch (error: any) {
-    console.error("Error fetching lookup tables:", error);
-    throw new Error(error.message || "Error fetching lookup tables");
-  }
+  const importInfo = await fetchImportInfo();
+  return importInfo.tables.filter(table => table.category === 'lookup');
 };
 
 /**
@@ -135,29 +120,104 @@ export const parseCSV = async (file: File): Promise<{ headers: string[], data: s
 };
 
 /**
- * Validate column mappings for a specific table
+ * Validate CSV headers against table columns (client-side)
  */
 export const validateColumns = async (
   tableId: string,
-  csvHeaders: string[]
+  csvHeaders: string[],
+  fileName?: string
 ): Promise<ColumnValidationResult> => {
   try {
-    const response = await fetch("/api/import/validate-columns", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        tableId,
-        csvHeaders
-      }),
-    });
+    // Get all tables from the import info
+    const importInfo = await fetchImportInfo();
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to validate columns");
+    // Find the table we're validating against
+    const table = importInfo.tables.find(t => t.tableId === tableId);
+
+    if (!table) {
+      throw new Error(`Table not found: ${tableId}`);
     }
 
-    return await response.json();
+    // Extract expected column names
+    const expectedColumns = table.columns.map(col => col.csvColumn);
+
+    // Find matching and missing columns
+    const matchingColumns = csvHeaders.filter(header =>
+      expectedColumns.includes(header)
+    );
+
+    const missingColumns = expectedColumns.filter(expected =>
+      !csvHeaders.includes(expected)
+    );
+
+    // Find extra columns that are not expected
+    const extraColumns = csvHeaders.filter(header =>
+      !expectedColumns.includes(header)
+    );
+
+    // Calculate match percentage
+    const matchPercentage = expectedColumns.length > 0
+      ? (matchingColumns.length / expectedColumns.length) * 100
+      : 0;
+
+    // Find required columns (primary keys)
+    const requiredColumns = table.columns
+      .filter(col => col.isPrimaryKey || col.isRequired)
+      .map(col => col.csvColumn);
+
+    // Check if all required columns are present
+    const missingRequiredColumns = requiredColumns.filter(col =>
+      !matchingColumns.includes(col)
+    );
+
+    // Check if all primary keys are present
+    const isPrimaryKeyValid = table.columns
+      .filter(col => col.isPrimaryKey)
+      .every(col => matchingColumns.includes(col.csvColumn));
+
+    // Generate suggested mapping
+    const suggestedMapping: Record<string, string> = {};
+
+    table.columns.forEach(col => {
+      if (matchingColumns.includes(col.csvColumn)) {
+        // Exact match
+        suggestedMapping[col.name] = col.csvColumn;
+      } else {
+        // Try case-insensitive match
+        const caseInsensitiveMatch = csvHeaders.find(
+          header => header.toLowerCase() === col.csvColumn.toLowerCase()
+        );
+
+        if (caseInsensitiveMatch) {
+          suggestedMapping[col.name] = caseInsensitiveMatch;
+        } else {
+          // Try partial match
+          const partialMatch = csvHeaders.find(
+            header => header.toLowerCase().includes(col.name.toLowerCase()) ||
+              col.name.toLowerCase().includes(header.toLowerCase())
+          );
+
+          if (partialMatch) {
+            suggestedMapping[col.name] = partialMatch;
+          } else {
+            suggestedMapping[col.name] = ""; // No match found
+          }
+        }
+      }
+    });
+
+    return {
+      isValid: missingRequiredColumns.length === 0,
+      tableId,
+      tableName: table.tableName,
+      matchingColumns,
+      missingColumns,
+      extraColumns,
+      matchPercentage,
+      isPrimaryKeyValid,
+      missingRequiredColumns,
+      suggestedMapping
+    };
   } catch (error: any) {
     console.error("Error validating columns:", error);
     throw new Error(error.message || "Error validating columns");
@@ -213,13 +273,13 @@ export const retryImport = async (
   importedBy: string
 ): Promise<ImportResult> => {
   try {
-    const response = await fetch(`/api/import/retry`, {
+    const response = await fetch(`/api/import/process`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify({
         tableId,
-        fixedData,
+        mappedData: fixedData,
         fileName,
         importedBy,
       }),
@@ -252,7 +312,7 @@ export const addMissingValue = async (
       credentials: "include",
       body: JSON.stringify({
         tableName,
-        data,
+        data
       }),
     });
 
@@ -269,45 +329,30 @@ export const addMissingValue = async (
 };
 
 /**
- * Normalize import result for UI consumption
+ * Process import result for UI display
  */
 function processImportResult(result: any): ImportResult {
-  // If the result already has flattened properties, return as-is
-  if (result.totalRecords !== undefined) {
+  // If the result is already in the right format, just return it
+  if (result.fileName && (typeof result.success === 'boolean')) {
     return result;
   }
 
-  // Extract summary stats from results
+  // Otherwise, try to convert it to the expected format
   const processed: ImportResult = {
     ...result,
-    totalRecords: 0,
-    inserted: 0,
-    updated: 0,
-    skipped: 0,
-    failed: 0,
-    errorDetails: [],
-    skippedDetails: [],
+    fileName: result.fileName || "unknown",
+    success: result.success || false,
+    timestamp: result.timestamp || new Date().toISOString(),
+    message: result.message || "Import completed"
   };
 
-  // Sum up totals from all result tables
+  // Aggregate results from multiple tables if needed
   if (result.results && Array.isArray(result.results)) {
-    result.results.forEach((tableResult: any) => {
-      processed.totalRecords += tableResult.totalRecords || 0;
-      processed.inserted += tableResult.inserted || 0;
-      processed.updated += tableResult.updated || 0;
-      processed.skipped += tableResult.skipped || 0;
-      processed.failed += tableResult.failed || 0;
-
-      // Collect all error details
-      if (tableResult.errorDetails && Array.isArray(tableResult.errorDetails)) {
-        processed.errorDetails?.push(...tableResult.errorDetails);
-      }
-
-      // Collect all skipped details
-      if (tableResult.skippedDetails && Array.isArray(tableResult.skippedDetails)) {
-        processed.skippedDetails?.push(...tableResult.skippedDetails);
-      }
-    });
+    processed.totalRecords = result.results.reduce((sum: number, r: any) => sum + (r.totalRecords || 0), 0);
+    processed.inserted = result.results.reduce((sum: number, r: any) => sum + (r.inserted || 0), 0);
+    processed.updated = result.results.reduce((sum: number, r: any) => sum + (r.updated || 0), 0);
+    processed.skipped = result.results.reduce((sum: number, r: any) => sum + (r.skipped || 0), 0);
+    processed.failed = result.results.reduce((sum: number, r: any) => sum + (r.failed || 0), 0);
   }
 
   return processed;
