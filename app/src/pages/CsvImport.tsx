@@ -1,12 +1,8 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { useSession } from "@/hooks/session-context";
-import { Button } from "@/components/ui/button";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
 
 // Import types
-import { TableConfig, TableColumn, ImportResult, ColumnValidationResult, ImportError } from "../types/csv-import-types";
+import { TableConfig, ImportResult, ImportError } from "../types/csv-import-types";
 
 // Import components
 import { TableSelector } from "../components/csv-import/table-selector";
@@ -73,26 +69,6 @@ export const CsvImport: React.FC = () => {
     ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "2002-04-04"],
     ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "2001-05-05"],
   ];
-
-  const mockMapping = {
-    "studentId": "Student ID",
-    "firstName": "First Name",
-    "lastName": "Last Name",
-    "email": "Email"
-  };
-
-  const mockValidationResult: ColumnValidationResult = {
-    isValid: true,
-    tableId: "students",
-    tableName: "Students",
-    matchingColumns: ["Student ID", "First Name", "Last Name"],
-    missingColumns: [],
-    extraColumns: ["Phone"],
-    matchPercentage: 83,
-    isPrimaryKeyValid: true,
-    missingRequiredColumns: [],
-    suggestedMapping: mockMapping
-  };
 
   const mockImportResult: ImportResult = {
     fileName: "students.csv",
@@ -276,7 +252,7 @@ export const CsvImport: React.FC = () => {
                 <div>
                   <h4 className="text-md font-semibold mb-2">With Valid File</h4>
                   <FileUpload
-                    onFileChange={(e) => console.log("File changed")}
+                    onFileChange={(_) => console.log("File changed")}
                     onClearFile={() => console.log("File cleared")}
                     file={new File([""], "students.csv", { type: "text/csv", lastModified: Date.now() })}
                     disabled={false}
@@ -287,7 +263,7 @@ export const CsvImport: React.FC = () => {
                 <div>
                   <h4 className="text-md font-semibold mb-2">No File Selected</h4>
                   <FileUpload
-                    onFileChange={(e) => console.log("File changed")}
+                    onFileChange={(_) => console.log("File changed")}
                     onClearFile={() => console.log("File cleared")}
                     file={null}
                     disabled={false}
@@ -298,7 +274,7 @@ export const CsvImport: React.FC = () => {
                 <div>
                   <h4 className="text-md font-semibold mb-2">With Invalid File</h4>
                   <FileUpload
-                    onFileChange={(e) => console.log("File changed")}
+                    onFileChange={(_) => console.log("File changed")}
                     onClearFile={() => console.log("File cleared")}
                     file={new File([""], "document.pdf", { type: "application/pdf", lastModified: Date.now() })}
                     disabled={false}
@@ -309,7 +285,7 @@ export const CsvImport: React.FC = () => {
                 <div>
                   <h4 className="text-md font-semibold mb-2">Disabled State</h4>
                   <FileUpload
-                    onFileChange={(e) => console.log("File changed")}
+                    onFileChange={(_) => console.log("File changed")}
                     onClearFile={() => console.log("File cleared")}
                     file={null}
                     disabled={true}
@@ -429,10 +405,61 @@ export const CsvImport: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-bold mb-4 pb-2 border-b">Import Result Component</h3>
-              <ImportResultDisplay
-                result={mockImportResult}
-                onFixForeignKeyErrors={() => console.log("Fix foreign key errors")}
-              />
+
+              <div className="space-y-8">
+                {/* Successful import */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Successful Import</h4>
+                  <ImportResultDisplay
+                    result={mockImportResult}
+                  />
+                </div>
+
+                {/* Import with only insertions */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Insert-Only Import</h4>
+                  <ImportResultDisplay
+                    result={{
+                      ...mockImportResult,
+                      totalRecords: 5,
+                      inserted: 5,
+                      updated: 0,
+                      skipped: 0,
+                      failed: 0
+                    }}
+                  />
+                </div>
+
+                {/* Import with updates */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Update-Heavy Import</h4>
+                  <ImportResultDisplay
+                    result={{
+                      ...mockImportResult,
+                      totalRecords: 5,
+                      inserted: 1,
+                      updated: 4,
+                      skipped: 0,
+                      failed: 0
+                    }}
+                  />
+                </div>
+
+                {/* Import with skipped rows */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Import with Skipped Rows</h4>
+                  <ImportResultDisplay
+                    result={{
+                      ...mockImportResult,
+                      totalRecords: 10,
+                      inserted: 3,
+                      updated: 2,
+                      skipped: 5,
+                      failed: 0
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>
