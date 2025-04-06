@@ -6,31 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 // Import types
-import {
-  TableConfig,
-  ImportResult,
-  ImportError,
-  FilePattern,
-  ColumnValidationResult,
-  ImportInfoResponse
-} from "../types/csv-import-types";
-
-// Import service functions
-import {
-  fetchImportInfo,
-  parseCSV,
-  validateColumns,
-  importCSV,
-  retryImport,
-  addMissingValue
-} from "../utils/csv-import-service";
-
-// Import utility functions
-import {
-  isDataFile,
-  detectTableFromFilename,
-  mapCsvDataToFields
-} from "../utils/csv-import-utils";
+import { TableConfig, TableColumn, ImportResult, ColumnValidationResult, ImportError } from "../types/csv-import-types";
 
 // Import components
 import { TableSelector } from "../components/csv-import/table-selector";
@@ -41,374 +17,135 @@ import { ImportResultDisplay } from "../components/csv-import/import-result";
 import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
 export const CsvImport: React.FC = () => {
-  const { session } = useSession();
-
-  // State for import info
-  const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
-  const [tables, setTables] = useState<TableConfig[]>([]);
-  const [filePatterns, setFilePatterns] = useState<FilePattern[]>([]);
-  const [dataTables, setDataTables] = useState<TableConfig[]>([]);
-  const [lookupTables, setLookupTables] = useState<TableConfig[]>([]);
-
-  // Selection state
-  const [selectedTable, setSelectedTable] = useState<TableConfig | null>(null);
-  const [isDataTable, setIsDataTable] = useState<boolean>(false);
-
-  // CSV state
-  const [csvFile, setCsvFile] = useState<File | null>(null);
-  const [csvData, setCsvData] = useState<string[][]>([]);
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
-  const [validationResult, setValidationResult] = useState<ColumnValidationResult | null>(null);
-
-  // Process state
-  const [isLoading, setIsLoading] = useState(false);
-  const [result, setResult] = useState<ImportResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  // Error fixing state
-  const [pendingErrors, setPendingErrors] = useState<ImportError[]>([]);
-  const [currentErrorIndex, setCurrentErrorIndex] = useState<number>(0);
-  const [fixedData, setFixedData] = useState<Record<string, string>[]>([]);
-  const [isFixMode, setIsFixMode] = useState(false);
-
-  // Fetch metadata on mount
-  useEffect(() => {
-    loadMetadata();
-  }, []);
-
-  // Load import information
-  const loadMetadata = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // Fetch import info
-      const info = await fetchImportInfo();
-      setImportInfo(info);
-
-      // Set tables and patterns
-      setTables(info.tables);
-      setFilePatterns(info.filePatterns);
-
-      // Separate tables by category
-      setLookupTables(info.tables.filter(t => t.category === 'lookup'));
-      setDataTables(info.tables.filter(t => t.category === 'data'));
-
-      setIsLoading(false);
-    } catch (error: any) {
-      console.error("Error loading import information:", error);
-      setError(error.message || "Error loading import information");
-      setIsLoading(false);
+  // Mock data for component previews
+  const mockTableConfig: TableConfig[] = [
+    {
+      tableId: "students",
+      tableName: "Students",
+      category: "data",
+      primaryKeys: ["studentId"],
+      hasRowExpander: false,
+      matchingPatterns: ["students\\.csv", "student_data\\.csv"],
+      columns: [
+        { name: "studentId", csvColumn: "Student ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+        { name: "firstName", csvColumn: "First Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "lastName", csvColumn: "Last Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "email", csvColumn: "Email", isPrimaryKey: false, isRequired: false, hasTransform: false },
+        { name: "dateOfBirth", csvColumn: "Date of Birth", isPrimaryKey: false, isRequired: false, hasTransform: false },
+      ],
+    },
+    {
+      tableId: "courses",
+      tableName: "Courses",
+      category: "data",
+      primaryKeys: ["courseId"],
+      hasRowExpander: false,
+      matchingPatterns: ["courses\\.csv", "course_data\\.csv"],
+      columns: [
+        { name: "courseId", csvColumn: "Course ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+        { name: "courseName", csvColumn: "Course Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "department", csvColumn: "Department", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "credits", csvColumn: "Credits", isPrimaryKey: false, isRequired: true, hasTransform: false },
+      ],
     }
+  ];
+
+  const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Date of Birth"];
+  const mockCsvData = [
+    ["STU001", "John", "Doe", "john.doe@example.com", "555-1234", "2000-01-01"],
+    ["STU002", "Jane", "Smith", "jane.smith@example.com", "555-5678", "2001-02-02"],
+    ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "1999-03-03"],
+    ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "2002-04-04"],
+    ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "2001-05-05"],
+  ];
+
+  const mockMapping = {
+    "studentId": "Student ID",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email"
   };
 
-  // Handle file upload and parse
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const mockValidationResult: ColumnValidationResult = {
+    isValid: true,
+    tableId: "students",
+    tableName: "Students",
+    matchingColumns: ["Student ID", "First Name", "Last Name"],
+    missingColumns: [],
+    extraColumns: ["Phone"],
+    matchPercentage: 83,
+    isPrimaryKeyValid: true,
+    missingRequiredColumns: [],
+    suggestedMapping: mockMapping
+  };
 
-    console.log("File changed:", file.name);
-    setError(null);
-
-    // Reset all state
-    setCsvHeaders([]);
-    setCsvData([]);
-    setColumnMapping({});
-    setResult(null);
-    setPendingErrors([]);
-    setFixedData([]);
-    setIsFixMode(false);
-    setSelectedTable(null);
-    setValidationResult(null);
-    setIsDataTable(false);
-
-    // Set the new file
-    setCsvFile(file);
-
-    try {
-      setIsLoading(true);
-
-      // Parse the CSV file client-side
-      const { headers, data } = await parseCSV(file);
-      console.log("Parsed CSV headers:", headers);
-
-      // Set headers and data
-      setCsvHeaders(headers);
-      setCsvData(data);
-
-      if (headers.length === 0 || data.length === 0) {
-        throw new Error("CSV file appears to be empty or invalid");
+  const mockImportResult: ImportResult = {
+    fileName: "students.csv",
+    category: "data",
+    mappingDescription: "Student data import",
+    success: true,
+    results: [
+      {
+        tableName: "Students",
+        tableId: "students",
+        success: true,
+        message: "Processed 5 records",
+        totalRecords: 5,
+        inserted: 3,
+        updated: 1,
+        skipped: 1,
+        failed: 0
       }
+    ],
+    timestamp: new Date().toISOString(),
+    // Flattened properties
+    totalRecords: 5,
+    inserted: 3,
+    updated: 1,
+    skipped: 1,
+    failed: 0,
+    errorDetails: []
+  };
 
-      // Check if this is a data file by looking at the file patterns
-      const dataFileCheck = isDataFile(file.name, filePatterns);
-      console.log("Is data file:", dataFileCheck);
-      setIsDataTable(dataFileCheck);
-
-      if (dataFileCheck) {
-        // Try to detect the table from the filename
-        const detectedTable = detectTableFromFilename(file.name, filePatterns, tables);
-        console.log("Detected table from filename:", detectedTable);
-
-        if (detectedTable) {
-          setSelectedTable(detectedTable);
-
-          // Validate columns
-          await validateTableColumns(detectedTable.tableId, headers, file.name);
-        } else {
-          console.log("No matching data table for this file pattern");
+  // Mock import errors for error fixing mode
+  const mockImportErrors: ImportError[] = [
+    {
+      row: {
+        "studentId": "STU006",
+        "firstName": "Alex",
+        "lastName": "Garcia",
+        "email": "alex.garcia@example.com",
+        "departmentId": "DEP001"
+      },
+      error: "Foreign key constraint violation on departmentId",
+      errorType: "foreign_key",
+      dependencyInfo: {
+        tableName: "Departments",
+        columns: ["departmentId", "departmentName"],
+        values: {
+          "departmentId": "DEP001"
         }
-      } else {
-        // For lookup tables, user must select manually
-        console.log("This appears to be a lookup file - manual table selection required");
       }
-
-      setIsLoading(false);
-    } catch (error: any) {
-      console.error("Error processing CSV file:", error);
-      setError(error.message || "Error parsing CSV file");
-      setCsvFile(null);
-      setIsLoading(false);
-    }
-  };
-
-  // Validate columns for the selected table
-  const validateTableColumns = async (tableId: string, headers: string[], fileName?: string) => {
-    try {
-      const validation = await validateColumns(tableId, headers, fileName);
-      console.log("Column validation result:", validation);
-
-      setValidationResult(validation);
-
-      // Apply suggested mapping if available
-      if (validation.suggestedMapping) {
-        setColumnMapping(validation.suggestedMapping);
-      }
-
-      return validation;
-    } catch (error: any) {
-      console.error("Error validating columns:", error);
-      setError(error.message || "Error validating columns");
-      return null;
-    }
-  };
-
-  // Handle clearing the file
-  const handleClearFile = () => {
-    setCsvFile(null);
-    setCsvData([]);
-    setCsvHeaders([]);
-    setColumnMapping({});
-    setResult(null);
-    setIsFixMode(false);
-    setPendingErrors([]);
-    setFixedData([]);
-    setSelectedTable(null);
-    setValidationResult(null);
-    setIsDataTable(false);
-    setError(null);
-  };
-
-  // Handle table selection change
-  const handleTableSelect = async (tableId: string) => {
-    const selected = tables.find(t => t.tableId === tableId);
-    if (!selected) return;
-
-    setSelectedTable(selected);
-    setError(null);
-
-    // If we have CSV headers, validate the columns
-    if (csvHeaders.length > 0) {
-      await validateTableColumns(selected.tableId, csvHeaders, csvFile?.name);
-    }
-  };
-
-  // Handle column mapping change
-  const handleColumnMap = (columnName: string, csvColumn: string) => {
-    setColumnMapping(prev => ({ ...prev, [columnName]: csvColumn }));
-  };
-
-  // Check if all required fields are mapped
-  const allRequiredFieldsMapped = (): boolean => {
-    if (!selectedTable) return false;
-
-    // Get all required columns (primary keys or marked as required)
-    const requiredColumns = selectedTable.columns
-      .filter(column => column.isPrimaryKey || column.isRequired)
-      .map(column => column.name);
-
-    // Make sure each required field has a mapping that is not undefined
-    return requiredColumns.every(columnName =>
-      columnMapping[columnName] !== undefined &&
-      columnMapping[columnName] !== "");
-  };
-
-  // Handle import submission
-  const handleImport = async () => {
-    if (!selectedTable || !csvFile || !csvData.length) {
-      setError("Please select a table and upload a CSV file.");
-      return;
-    }
-
-    // Check if required fields are mapped
-    if (!allRequiredFieldsMapped()) {
-      setError("Please map all required fields before importing.");
-      return;
-    }
-
-    setError(null);
-    setResult(null);
-
-    // Map CSV data to table fields
-    const mappedData = mapCsvDataToFields(
-      csvData,
-      csvHeaders,
-      columnMapping,
-      selectedTable.columns.map(c => c.name)
-    );
-
-    setIsLoading(true);
-    try {
-      const data = await importCSV(
-        csvFile,
-        selectedTable.tableId,
-        mappedData,
-        session?.user?.email || session?.user?.name || 'system'
-      );
-
-      console.log("Import result received:", data);
-
-      // Ensure we have at least default values
-      if (data) {
-        // Handle errors that might need fixing
-        if (data.errorDetails && data.errorDetails.length > 0) {
-          // Foreign key errors need special handling
-          const foreignKeyErrors = data.errorDetails.filter(
-            err => err.errorType === "foreign_key"
-          );
-
-          if (foreignKeyErrors.length > 0) {
-            setPendingErrors(foreignKeyErrors);
-            setCurrentErrorIndex(0);
-            setIsFixMode(true);
-          }
+    },
+    {
+      row: {
+        "studentId": "STU007",
+        "firstName": "Sarah",
+        "lastName": "Lee",
+        "email": "sarah.lee@example.com",
+        "majorId": "MAJ001"
+      },
+      error: "Foreign key constraint violation on majorId",
+      errorType: "foreign_key",
+      dependencyInfo: {
+        tableName: "Majors",
+        columns: ["majorId", "majorName"],
+        values: {
+          "majorId": "MAJ001"
         }
-
-        setResult(data);
-      } else {
-        throw new Error("No result data received from import");
       }
-    } catch (error: any) {
-      console.error("Error importing data:", error);
-      setError(error.message || "Error importing data");
-      setResult({
-        success: false,
-        message: error.message || "Error importing data",
-        totalRecords: 0,
-        inserted: 0,
-        updated: 0,
-        skipped: 0,
-        failed: 0,
-      });
-    } finally {
-      setIsLoading(false);
     }
-  };
-
-  // Handle adding missing lookup values
-  const handleAddLookupValue = async (formData: Record<string, string>) => {
-    if (!pendingErrors.length) return;
-
-    const currentError = pendingErrors[currentErrorIndex];
-    if (!currentError.dependencyInfo) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      await addMissingValue(
-        currentError.dependencyInfo.tableName,
-        formData
-      );
-
-      // Add the fixed row to our fixedData array
-      setFixedData(prev => [...prev, currentError.row]);
-
-      // Move to next error
-      if (currentErrorIndex < pendingErrors.length - 1) {
-        setCurrentErrorIndex(prev => prev + 1);
-      } else {
-        // If we're at the last error, prompt to retry import
-        setResult(prev => ({
-          ...prev!,
-          message: `Fixed ${fixedData.length + 1} issues. Ready to retry import.`
-        }));
-      }
-
-      setIsLoading(false);
-    } catch (error: any) {
-      setError(error.message || "Error adding lookup value");
-      setIsLoading(false);
-    }
-  };
-
-  // Handle retry for fixed rows
-  const handleRetryImport = async () => {
-    if (fixedData.length === 0 || !selectedTable) return;
-
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const data = await retryImport(
-        selectedTable.tableId,
-        fixedData,
-        csvFile?.name,
-        session?.user?.email || session?.user?.name || 'system'
-      );
-
-      // Update result with new information
-      setResult(prev => {
-        if (!prev) return data;
-
-        return {
-          totalRecords: (prev.totalRecords || 0),
-          inserted: (prev.inserted || 0) + (data.inserted || 0),
-          updated: (prev.updated || 0) + (data.updated || 0),
-          skipped: (prev.skipped || 0) + (data.skipped || 0),
-          skippedDetails: [...(prev.skippedDetails || []), ...(data.skippedDetails || [])],
-          failed: (prev.failed || 0) - fixedData.length + (data.failed || 0),
-          errorDetails: data.errorDetails || [],
-          message: `Successfully processed ${data.inserted || 0} records from fixed data.`
-        };
-      });
-
-      // Reset fix mode
-      setIsFixMode(false);
-      setPendingErrors([]);
-      setFixedData([]);
-    } catch (error: any) {
-      setError(error.message || "Error importing fixed data");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Enable fix mode from import results
-  const enableFixMode = () => {
-    if (!result?.errorDetails) return;
-
-    const foreignKeyErrors = result.errorDetails.filter(
-      err => err.errorType === "foreign_key"
-    );
-
-    if (foreignKeyErrors.length > 0) {
-      setPendingErrors(foreignKeyErrors);
-      setCurrentErrorIndex(0);
-      setIsFixMode(true);
-    }
-  };
+  ];
 
   return (
     <div className="p-6 flex-1 flex justify-center">
@@ -420,82 +157,77 @@ export const CsvImport: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto px-6">
-          {error && (
-            <Alert variant="destructive" className="mb-4">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {isLoading && (
-            <div className="flex justify-center items-center p-6">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2">Processing...</span>
-            </div>
-          )}
-
-          {isFixMode ? (
-            <ErrorFixingMode
-              errors={pendingErrors}
-              currentErrorIndex={currentErrorIndex}
-              onPreviousError={() => setCurrentErrorIndex(prev => Math.max(0, prev - 1))}
-              onNextError={() => setCurrentErrorIndex(prev => Math.min(pendingErrors.length - 1, prev + 1))}
-              onFixedData={handleAddLookupValue}
-              onRetryImport={handleRetryImport}
-              fixedRowsCount={fixedData.length}
-            />
-          ) : (
-            <>
-              <FileUpload
-                onFileChange={handleFileChange}
-                onClearFile={handleClearFile}
-                file={csvFile}
-                disabled={isLoading}
+          <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
+            <h2 className="text-lg font-semibold text-amber-800 mb-2">Component Preview Mode</h2>
+            <p className="text-amber-700">
+              This page displays all individual components of the CSV import interface for development and testing purposes.
+              Each component is rendered with mock data to demonstrate its functionality.
+              We'll use these components to build the complete CSV import interface.
+            </p>
+          </div>
+          <div className="space-y-12 py-4">
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Table Selector Component</h3>
+              <TableSelector
+                tables={mockTableConfig}
+                selectedTable="students"
+                onTableChange={(id) => console.log("Selected table:", id)}
+                csvFile={new File([""], "students.csv")}
+                isDataTable={true}
               />
+            </div>
 
-              {csvFile && (
-                <TableSelector
-                  tables={isDataTable ? dataTables : lookupTables}
-                  selectedTable={selectedTable?.tableId || ""}
-                  onTableChange={handleTableSelect}
-                  csvFile={csvFile}
-                  isDataTable={isDataTable}
-                />
-              )}
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">File Upload Component</h3>
+              <FileUpload
+                onFileChange={(e) => console.log("File changed")}
+                onClearFile={() => console.log("File cleared")}
+                file={new File([""], "students.csv")}
+                disabled={false}
+              />
+            </div>
 
-              {selectedTable && csvHeaders.length > 0 && (
-                <ColumnMapper
-                  tableFields={selectedTable.columns}
-                  csvHeaders={csvHeaders}
-                  mapping={columnMapping}
-                  onMapChange={handleColumnMap}
-                  validationResult={validationResult || undefined}
-                />
-              )}
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Column Mapper Component</h3>
+              <ColumnMapper
+                tableFields={mockTableConfig[0].columns}
+                csvHeaders={mockCsvHeaders}
+                mapping={mockMapping}
+                onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+                validationResult={mockValidationResult}
+              />
+            </div>
 
-              {csvData.length > 0 && (
-                <CsvPreview
-                  headers={csvHeaders}
-                  data={csvData}
-                  maxRows={5}
-                />
-              )}
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">CSV Preview Component</h3>
+              <CsvPreview
+                headers={mockCsvHeaders}
+                data={mockCsvData}
+                maxRows={5}
+              />
+            </div>
 
-              <Button
-                onClick={handleImport}
-                disabled={isLoading || !selectedTable || !csvFile || !allRequiredFieldsMapped()}
-                className="w-full mt-4"
-              >
-                {isLoading ? "Importing..." : "Import CSV"}
-              </Button>
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Import Result Component</h3>
+              <ImportResultDisplay
+                result={mockImportResult}
+                onFixForeignKeyErrors={() => console.log("Fix foreign key errors")}
+              />
+            </div>
 
-              {result && (
-                <ImportResultDisplay
-                  result={result}
-                  onFixForeignKeyErrors={enableFixMode}
-                />
-              )}
-            </>
-          )}
+            <div>
+              <h3 className="text-xl font-bold mb-4 pb-2 border-b">Error Fixing Mode Component</h3>
+              <ErrorFixingMode
+                errors={mockImportErrors}
+                currentErrorIndex={0}
+                onPreviousError={() => console.log("Previous error")}
+                onNextError={() => console.log("Next error")}
+                onFixedData={(data) => console.log("Fixed data:", data)}
+                onRetryImport={() => console.log("Retry import")}
+                fixedRowsCount={1}
+              />
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>
