@@ -55,13 +55,12 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
 
       {isDataTable && csvFile && selectedTable && (
         <Alert className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
-          <AlertTitle className="text-blue-800 flex items-center">
-            <Database className="h-4 w-4 mr-2" /> Detected Table
-          </AlertTitle>
-          <AlertDescription className="text-blue-700">
-            Based on the filename <strong>"{csvFile.name}"</strong>, we've automatically
-            selected the <strong>{tables.find(t => t.tableId === selectedTable)?.tableName}</strong> table.
-          </AlertDescription>
+          <div className="flex items-center">
+            <Database className="h-4 w-4 mr-2 flex-shrink-0" />
+            <span className="text-sm font-medium">
+              Detected <strong>{tables.find(t => t.tableId === selectedTable)?.tableName}</strong> table from filename "{csvFile.name}"
+            </span>
+          </div>
         </Alert>
       )}
 

@@ -18,8 +18,6 @@ import {
 // Import service functions
 import {
   fetchImportInfo,
-  fetchTables,
-  fetchFilePatterns,
   parseCSV,
   validateColumns,
   importCSV,
@@ -31,8 +29,6 @@ import {
 import {
   isDataFile,
   detectTableFromFilename,
-  autoMapColumns,
-  buildMappingFromValidation,
   mapCsvDataToFields
 } from "../utils/csv-import-utils";
 
@@ -455,7 +451,7 @@ export const CsvImport: React.FC = () => {
                   csvHeaders={csvHeaders}
                   mapping={columnMapping}
                   onMapChange={handleColumnMap}
-                  validationResult={validationResult}
+                  validationResult={validationResult || undefined}
                 />
               )}
 

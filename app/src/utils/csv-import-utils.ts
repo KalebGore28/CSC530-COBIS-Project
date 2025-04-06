@@ -121,20 +121,6 @@ export const autoMapColumns = (
 };
 
 /**
- * Convert a validation result's suggested mapping into a complete mapping
- * @param validationResult Result from the column validation
- * @returns Complete mapping object ready for use
- */
-export const buildMappingFromValidation = (
-  validationResult: {
-    suggestedMapping: Record<string, string>;
-  }
-): Record<string, string> => {
-  // Return the suggested mapping
-  return validationResult.suggestedMapping;
-};
-
-/**
  * Map CSV data to table fields based on a column mapping
  * @param data 2D array of CSV data
  * @param headers CSV headers

@@ -47,22 +47,6 @@ export const fetchFilePatterns = async (): Promise<FilePattern[]> => {
 };
 
 /**
- * Get data tables only from the import info
- */
-export const fetchDataTables = async (): Promise<TableConfig[]> => {
-  const importInfo = await fetchImportInfo();
-  return importInfo.tables.filter(table => table.category === 'data');
-};
-
-/**
- * Get lookup tables only from the import info
- */
-export const fetchLookupTables = async (): Promise<TableConfig[]> => {
-  const importInfo = await fetchImportInfo();
-  return importInfo.tables.filter(table => table.category === 'lookup');
-};
-
-/**
  * Parse a CSV file to extract headers and data
  */
 export const parseCSV = async (file: File): Promise<{ headers: string[], data: string[][] }> => {
