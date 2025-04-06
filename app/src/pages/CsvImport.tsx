@@ -171,7 +171,7 @@ export const CsvImport: React.FC = () => {
             Import data from CSV files into the system
           </CardDescription>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto px-6">
+        <CardContent className="flex-1 overflow-y-auto">
           <div className="bg-amber-50 border border-amber-200 rounded-md p-4 mb-6">
             <h2 className="text-lg font-semibold text-amber-800 mb-2">Component Preview Mode</h2>
             <p className="text-amber-700">
@@ -336,24 +336,6 @@ export const CsvImport: React.FC = () => {
                       "dateOfBirth": "Date of Birth"
                     }}
                     onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
-                    validationResult={{
-                      isValid: true,
-                      tableId: "students",
-                      tableName: "Students",
-                      matchingColumns: ["Student ID", "First Name", "Last Name", "Email", "Date of Birth"],
-                      missingColumns: [],
-                      extraColumns: ["Phone"],
-                      isPrimaryKeyValid: true,
-                      missingRequiredColumns: [],
-                      matchPercentage: 0,
-                      suggestedMapping: {
-                        "studentId": "Student ID",
-                        "firstName": "First Name",
-                        "lastName": "Last Name",
-                        "email": "Email",
-                        "dateOfBirth": "Date of Birth"
-                      }
-                    }}
                   />
                 </div>
 
@@ -371,24 +353,6 @@ export const CsvImport: React.FC = () => {
                       "status": "Status"
                     }}
                     onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
-                    validationResult={{
-                      isValid: true,
-                      tableId: "student-courses",
-                      tableName: "Student Courses",
-                      matchingColumns: ["Student ID", "Course ID", "Term", "Grade", "Status"],
-                      missingColumns: [],
-                      extraColumns: ["Notes"],
-                      isPrimaryKeyValid: true,
-                      missingRequiredColumns: [],
-                      matchPercentage: 0,
-                      suggestedMapping: {
-                        "studentId": "Student ID",
-                        "courseId": "Course ID",
-                        "term": "Term",
-                        "grade": "Grade",
-                        "status": "Status"
-                      }
-                    }}
                   />
                 </div>
 
@@ -404,23 +368,6 @@ export const CsvImport: React.FC = () => {
                       "email": "Email"
                     }}
                     onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
-                    validationResult={{
-                      isValid: false,
-                      tableId: "students",
-                      tableName: "Students",
-                      matchingColumns: ["First Name", "Last Name", "Email"],
-                      missingColumns: ["studentId", "dateOfBirth"],
-                      extraColumns: ["Phone"],
-                      isPrimaryKeyValid: false,
-                      missingRequiredColumns: ["studentId"],
-                      matchPercentage: 0,
-                      suggestedMapping: {
-                        "firstName": "First Name",
-                        "lastName": "Last Name",
-                        "email": "Email",
-                        "studentId": "Student ID"
-                      }
-                    }}
                   />
                 </div>
 
@@ -432,24 +379,6 @@ export const CsvImport: React.FC = () => {
                     csvHeaders={mockCsvHeaders}
                     mapping={{}}
                     onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
-                    validationResult={{
-                      isValid: false,
-                      tableId: "students",
-                      tableName: "Students",
-                      matchingColumns: [],
-                      missingColumns: ["studentId", "firstName", "lastName", "email", "dateOfBirth"],
-                      extraColumns: ["Phone"],
-                      isPrimaryKeyValid: false,
-                      missingRequiredColumns: ["studentId", "firstName", "lastName", "email", "dateOfBirth"],
-                      matchPercentage: 0,
-                      suggestedMapping: {
-                        "studentId": "Student ID",
-                        "firstName": "First Name",
-                        "lastName": "Last Name",
-                        "email": "Email",
-                        "dateOfBirth": "Date of Birth"
-                      }
-                    }}
                   />
                 </div>
               </div>
