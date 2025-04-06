@@ -411,7 +411,14 @@ export const CsvImport: React.FC = () => {
                 <div>
                   <h4 className="text-md font-semibold mb-2">Successful Import</h4>
                   <ImportResultDisplay
-                    result={mockImportResult}
+                    result={{
+                      success: true,
+                      totalRecords: 5,
+                      inserted: 3,
+                      updated: 1,
+                      skipped: 1,
+                      failed: 0
+                    }}
                   />
                 </div>
 
@@ -420,7 +427,7 @@ export const CsvImport: React.FC = () => {
                   <h4 className="text-md font-semibold mb-2">Insert-Only Import</h4>
                   <ImportResultDisplay
                     result={{
-                      ...mockImportResult,
+                      success: true,
                       totalRecords: 5,
                       inserted: 5,
                       updated: 0,
@@ -435,7 +442,7 @@ export const CsvImport: React.FC = () => {
                   <h4 className="text-md font-semibold mb-2">Update-Heavy Import</h4>
                   <ImportResultDisplay
                     result={{
-                      ...mockImportResult,
+                      success: true,
                       totalRecords: 5,
                       inserted: 1,
                       updated: 4,
@@ -450,11 +457,57 @@ export const CsvImport: React.FC = () => {
                   <h4 className="text-md font-semibold mb-2">Import with Skipped Rows</h4>
                   <ImportResultDisplay
                     result={{
-                      ...mockImportResult,
+                      success: true,
                       totalRecords: 10,
                       inserted: 3,
                       updated: 2,
                       skipped: 5,
+                      failed: 0
+                    }}
+                  />
+                </div>
+
+                {/* Import with some errors */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Import with Errors</h4>
+                  <ImportResultDisplay
+                    result={{
+                      success: false,
+                      totalRecords: 12,
+                      inserted: 3,
+                      updated: 2,
+                      skipped: 1,
+                      failed: 6
+                    }}
+                  />
+                </div>
+
+                {/* Completely failed import */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Completely Failed Import</h4>
+                  <ImportResultDisplay
+                    result={{
+                      success: false,
+                      totalRecords: 12,
+                      inserted: 0,
+                      updated: 0,
+                      skipped: 0,
+                      failed: 12
+                    }}
+                  />
+                </div>
+
+                {/* Failed import with error message */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Critical Error Import</h4>
+                  <ImportResultDisplay
+                    result={{
+                      success: false,
+                      message: "Import failed due to invalid data format. Please check your CSV file and try again.",
+                      totalRecords: 0,
+                      inserted: 0,
+                      updated: 0,
+                      skipped: 0,
                       failed: 0
                     }}
                   />
