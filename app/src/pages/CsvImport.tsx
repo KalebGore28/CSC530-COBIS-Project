@@ -30,8 +30,8 @@ export const CsvImport: React.FC = () => {
         { name: "studentId", csvColumn: "Student ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
         { name: "firstName", csvColumn: "First Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
         { name: "lastName", csvColumn: "Last Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
-        { name: "email", csvColumn: "Email", isPrimaryKey: false, isRequired: false, hasTransform: false },
-        { name: "dateOfBirth", csvColumn: "Date of Birth", isPrimaryKey: false, isRequired: false, hasTransform: false },
+        { name: "email", csvColumn: "Email", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "dateOfBirth", csvColumn: "Date of Birth", isPrimaryKey: false, isRequired: true, hasTransform: false },
       ],
     },
     {
@@ -46,6 +46,21 @@ export const CsvImport: React.FC = () => {
         { name: "courseName", csvColumn: "Course Name", isPrimaryKey: false, isRequired: true, hasTransform: false },
         { name: "department", csvColumn: "Department", isPrimaryKey: false, isRequired: true, hasTransform: false },
         { name: "credits", csvColumn: "Credits", isPrimaryKey: false, isRequired: true, hasTransform: false },
+      ],
+    },
+    {
+      tableId: "student-courses",
+      tableName: "Student Courses",
+      category: "data",
+      primaryKeys: ["studentId", "courseId", "term"],
+      hasRowExpander: false,
+      matchingPatterns: ["student_courses\\.csv", "enrollments\\.csv"],
+      columns: [
+        { name: "studentId", csvColumn: "Student ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+        { name: "courseId", csvColumn: "Course ID", isPrimaryKey: true, isRequired: true, hasTransform: false },
+        { name: "term", csvColumn: "Term", isPrimaryKey: true, isRequired: true, hasTransform: false },
+        { name: "grade", csvColumn: "Grade", isPrimaryKey: false, isRequired: true, hasTransform: false },
+        { name: "status", csvColumn: "Status", isPrimaryKey: false, isRequired: true, hasTransform: false },
       ],
     }
   ];
@@ -305,13 +320,139 @@ export const CsvImport: React.FC = () => {
 
             <div>
               <h3 className="text-xl font-bold mb-4 pb-2 border-b">Column Mapper Component</h3>
-              <ColumnMapper
-                tableFields={mockTableConfig[0].columns}
-                csvHeaders={mockCsvHeaders}
-                mapping={mockMapping}
-                onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
-                validationResult={mockValidationResult}
-              />
+
+              <div className="space-y-8">
+                {/* Complete Mapping Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Complete Mapping Example</h4>
+                  <ColumnMapper
+                    tableFields={mockTableConfig[0].columns}
+                    csvHeaders={mockCsvHeaders}
+                    mapping={{
+                      "studentId": "Student ID",
+                      "firstName": "First Name",
+                      "lastName": "Last Name",
+                      "email": "Email",
+                      "dateOfBirth": "Date of Birth"
+                    }}
+                    onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+                    validationResult={{
+                      isValid: true,
+                      tableId: "students",
+                      tableName: "Students",
+                      matchingColumns: ["Student ID", "First Name", "Last Name", "Email", "Date of Birth"],
+                      missingColumns: [],
+                      extraColumns: ["Phone"],
+                      isPrimaryKeyValid: true,
+                      missingRequiredColumns: [],
+                      matchPercentage: 0,
+                      suggestedMapping: {
+                        "studentId": "Student ID",
+                        "firstName": "First Name",
+                        "lastName": "Last Name",
+                        "email": "Email",
+                        "dateOfBirth": "Date of Birth"
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Composite Key Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Composite Key Example</h4>
+                  <ColumnMapper
+                    tableFields={mockTableConfig[2].columns}
+                    csvHeaders={["Student ID", "Course ID", "Term", "Grade", "Status", "Notes"]}
+                    mapping={{
+                      "studentId": "Student ID",
+                      "courseId": "Course ID",
+                      "term": "Term",
+                      "grade": "Grade",
+                      "status": "Status"
+                    }}
+                    onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+                    validationResult={{
+                      isValid: true,
+                      tableId: "student-courses",
+                      tableName: "Student Courses",
+                      matchingColumns: ["Student ID", "Course ID", "Term", "Grade", "Status"],
+                      missingColumns: [],
+                      extraColumns: ["Notes"],
+                      isPrimaryKeyValid: true,
+                      missingRequiredColumns: [],
+                      matchPercentage: 0,
+                      suggestedMapping: {
+                        "studentId": "Student ID",
+                        "courseId": "Course ID",
+                        "term": "Term",
+                        "grade": "Grade",
+                        "status": "Status"
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* Partial Mapping Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">Partial Mapping Example (Missing Required Columns)</h4>
+                  <ColumnMapper
+                    tableFields={mockTableConfig[0].columns}
+                    csvHeaders={mockCsvHeaders}
+                    mapping={{
+                      "firstName": "First Name",
+                      "lastName": "Last Name",
+                      "email": "Email"
+                    }}
+                    onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+                    validationResult={{
+                      isValid: false,
+                      tableId: "students",
+                      tableName: "Students",
+                      matchingColumns: ["First Name", "Last Name", "Email"],
+                      missingColumns: ["studentId", "dateOfBirth"],
+                      extraColumns: ["Phone"],
+                      isPrimaryKeyValid: false,
+                      missingRequiredColumns: ["studentId"],
+                      matchPercentage: 0,
+                      suggestedMapping: {
+                        "firstName": "First Name",
+                        "lastName": "Last Name",
+                        "email": "Email",
+                        "studentId": "Student ID"
+                      }
+                    }}
+                  />
+                </div>
+
+                {/* No Mapping Example */}
+                <div>
+                  <h4 className="text-md font-semibold mb-2">No Mapping Example</h4>
+                  <ColumnMapper
+                    tableFields={mockTableConfig[0].columns}
+                    csvHeaders={mockCsvHeaders}
+                    mapping={{}}
+                    onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+                    validationResult={{
+                      isValid: false,
+                      tableId: "students",
+                      tableName: "Students",
+                      matchingColumns: [],
+                      missingColumns: ["studentId", "firstName", "lastName", "email", "dateOfBirth"],
+                      extraColumns: ["Phone"],
+                      isPrimaryKeyValid: false,
+                      missingRequiredColumns: ["studentId", "firstName", "lastName", "email", "dateOfBirth"],
+                      matchPercentage: 0,
+                      suggestedMapping: {
+                        "studentId": "Student ID",
+                        "firstName": "First Name",
+                        "lastName": "Last Name",
+                        "email": "Email",
+                        "dateOfBirth": "Date of Birth"
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>

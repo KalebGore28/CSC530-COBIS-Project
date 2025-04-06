@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -15,9 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { TableColumn, ColumnValidationResult } from "../../types/csv-import-types";
-import { autoMapColumns } from "../../utils/csv-import-utils";
+import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface ColumnMapperProps {
   tableFields: TableColumn[];  // Using TableColumn instead of TableField
@@ -34,145 +35,149 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   onMapChange,
   validationResult
 }) => {
-  // Calculate missing required fields (primary keys or required columns)
-  const missingRequiredFields = tableFields
-    .filter(column => (column.isPrimaryKey || column.isRequired) && (
-      mapping[column.name] === undefined ||
-      mapping[column.name] === ""
-    ))
+  // Count all unmapped columns (all columns are required)
+  const unmappedColumns = tableFields
+    .filter(column => !mapping[column.name])
     .map(column => column.name);
 
-  const hasMissingRequired = missingRequiredFields.length > 0;
+  const hasUnmappedColumns = unmappedColumns.length > 0;
 
-  // Handle auto-mapping columns
-  const handleAutoMap = () => {
-    const suggestedMapping = autoMapColumns(
-      csvHeaders,
-      tableFields.map(c => ({ name: c.name, csvColumn: c.csvColumn }))
-    );
+  // Count mapped columns
+  const mappedColumnsCount = Object.values(mapping).filter(Boolean).length;
+  const allFieldsMapped = mappedColumnsCount === tableFields.length;
 
-    // Apply each suggested mapping
-    Object.entries(suggestedMapping).forEach(([columnName, csvColumn]) => {
-      if (csvColumn) {
-        onMapChange(columnName, csvColumn);
-      }
-    });
-  };
+  // Determine if we have a composite key
+  const primaryKeyCount = useMemo(() => {
+    return tableFields.filter(column => column.isPrimaryKey).length;
+  }, [tableFields]);
+
+  const hasCompositeKey = primaryKeyCount > 1;
 
   if (!tableFields.length || !csvHeaders.length) return null;
 
   return (
     <div className="mb-6">
-      <div className="flex justify-between items-center mb-3">
-        <h3 className="text-lg font-semibold">Map CSV Columns</h3>
-        <div className="flex items-center gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAutoMap}
-          >
-            Auto-Map Columns
-          </Button>
-          {hasMissingRequired && (
-            <Badge variant="destructive">
-              {missingRequiredFields.length} required column{missingRequiredFields.length > 1 ? 's' : ''} unmapped
+      <div className="flex items-center justify-between mb-2">
+        <h3 className="text-sm font-medium">Map CSV Columns</h3>
+        <div className="px-2 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-md border border-indigo-200 flex items-center">
+          <Columns className="h-3 w-3 mr-1" /> Column Mapping
+        </div>
+      </div>
+
+      <div className="mb-3">
+        <div className="flex items-center gap-2">
+          <div className="text-sm text-muted-foreground">
+            {mappedColumnsCount} of {tableFields.length} columns mapped
+          </div>
+          {hasUnmappedColumns && (
+            <Badge variant="destructive" className="font-normal">
+              {unmappedColumns.length} unmapped
             </Badge>
           )}
         </div>
       </div>
 
-      <div className="max-h-96 overflow-y-auto border rounded">
+      <div className="max-h-96 overflow-y-auto rounded-md border">
         <Table>
-          <TableHeader>
+          <TableHeader className="bg-muted/50 sticky top-0">
             <TableRow>
-              <TableHead className="w-1/3">Table Column</TableHead>
-              <TableHead className="w-1/3">CSV Column</TableHead>
-              <TableHead className="w-1/3">Status</TableHead>
+              <TableHead className="w-2/5">Table Column</TableHead>
+              <TableHead className="w-2/5">CSV Column</TableHead>
+              <TableHead className="w-1/5">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {tableFields.map((column) => {
               const hasMapping = mapping[column.name] !== undefined && mapping[column.name] !== "";
               const isRequired = column.isPrimaryKey || column.isRequired;
-
-              // Determine row status
-              let rowClass = "";
-              let statusVariant = "outline";
-              let statusText = "Optional";
-
-              if (isRequired && !hasMapping) {
-                rowClass = "bg-red-50";
-                statusVariant = "destructive";
-                statusText = "Required";
-              } else if (hasMapping) {
-                rowClass = "bg-green-50";
-                statusVariant = "outline";
-                statusText = "Mapped";
-                statusVariant = isRequired ? "success" : "outline";
-              }
+              const isMapped = hasMapping;
 
               return (
-                <TableRow key={column.name} className={rowClass}>
+                <TableRow
+                  key={column.name}
+                  className={cn(
+                    "group transition-colors",
+                    !isMapped ? "bg-red-50/50" : "bg-green-50/50"
+                  )}
+                >
                   <TableCell>
-                    <div className="font-medium">{column.name}</div>
-                    {column.isPrimaryKey && (
-                      <div className="text-xs text-gray-500">Primary Key</div>
-                    )}
-                    {column.isRequired && !column.isPrimaryKey && (
-                      <div className="text-xs text-gray-500">Required</div>
-                    )}
-                    {column.hasTransform && (
-                      <div className="text-xs text-blue-500">Has transformation</div>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {column.isPrimaryKey ? (
+                        <Key className="h-3.5 w-3.5 text-amber-600" />
+                      ) : (
+                        <Hash className="h-3.5 w-3.5 text-slate-500" />
+                      )}
+                      <div className="font-medium">{column.name}</div>
+                    </div>
+                    <div className="text-xs text-muted-foreground ml-5 mt-0.5">
+                      {column.isPrimaryKey && (hasCompositeKey ? "Composite Key" : "Primary Key")}
+                      {column.hasTransform && (
+                        <span className={cn("text-blue-500", column.isPrimaryKey ? "ml-2" : "")}>
+                          {column.isPrimaryKey ? "• " : ""}Has transformation
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Select
-                      value={mapping[column.name] || undefined}
-                      onValueChange={(value) => onMapChange(column.name, value)}
+                      value={mapping[column.name] || "none"}
+                      onValueChange={(value) => onMapChange(column.name, value === "none" ? "" : value)}
                     >
                       <SelectTrigger
-                        className={(isRequired && !hasMapping) ? "border-red-500" : ""}
+                        className={cn(
+                          "border-input",
+                          !isMapped ? "border-red-300 ring-red-200" : "border-green-300 ring-green-200"
+                        )}
                       >
                         <SelectValue placeholder="Select a column" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="none">-- None --</SelectItem>
                         {csvHeaders.map((header) => {
                           // Check if this header is a suggested match
-                          const isSuggested = validationResult?.suggestedMapping?.[column.name] === header;
-                          const isExactMatch = column.csvColumn.toLowerCase() === header.toLowerCase();
-                          const isMatchingColumn = validationResult?.matchingColumns?.includes(header);
+                          const isExactMatch = column.csvColumn?.toLowerCase() === header.toLowerCase();
 
                           return (
                             <SelectItem
                               key={header}
                               value={header}
-                              className={isExactMatch ? "font-bold" : ""}
+                              className={cn(
+                                isExactMatch && "font-semibold text-green-700 bg-green-50"
+                              )}
                             >
-                              {header}
-                              {isExactMatch && " (Exact Match)"}
-                              {isSuggested && !isExactMatch && " (Suggested)"}
-                              {isMatchingColumn && !isExactMatch && !isSuggested && " (Matching)"}
+                              <div className="flex items-center gap-1.5">
+                                {header}
+                                {isExactMatch && (
+                                  <span className="inline-flex items-center rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-medium text-green-700">
+                                    <CheckCircle2 className="mr-0.5 h-3 w-3" />
+                                    Match
+                                  </span>
+                                )}
+                              </div>
                             </SelectItem>
                           );
                         })}
                       </SelectContent>
                     </Select>
-                    {column.csvColumn && !hasMapping && (
-                      <div className="text-xs text-gray-500 mt-1">
-                        Expected: {column.csvColumn}
+                    {column.csvColumn && !isMapped && (
+                      <div className="text-xs text-muted-foreground mt-1 flex items-center">
+                        <Info className="h-3 w-3 mr-1.5" />
+                        Expected: <span className="font-mono ml-1 text-xs bg-muted px-1 rounded">{column.csvColumn}</span>
                       </div>
                     )}
                   </TableCell>
                   <TableCell>
-                    {isRequired ? (
-                      <Badge variant={hasMapping ? "default" : "destructive"}>
-                        {hasMapping ? "Mapped" : "Required"}
-                      </Badge>
-                    ) : (
-                      <Badge variant={hasMapping ? "default" : "outline"} className={hasMapping ? "bg-green-50 text-green-700 border-green-200" : ""}>
-                        {hasMapping ? "Mapped" : "Optional"}
-                      </Badge>
-                    )}
+                    <Badge
+                      variant={isMapped ? "outline" : "destructive"}
+                      className={isMapped ? "bg-green-50 text-green-700 border-green-200" : ""}
+                    >
+                      {isMapped ? (
+                        <span className="flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          Mapped
+                        </span>
+                      ) : "Not Mapped"}
+                    </Badge>
                   </TableCell>
                 </TableRow>
               );
@@ -181,16 +186,13 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
         </Table>
       </div>
 
-      {hasMissingRequired && (
-        <p className="text-sm text-red-600 mt-2">
-          Please map all required columns to continue.
-        </p>
-      )}
-
-      {tableFields.length > 0 && Object.keys(mapping).length === 0 && (
-        <p className="text-sm text-amber-600 mt-2">
-          Tip: Click "Auto-Map Columns" to automatically match CSV columns to table columns.
-        </p>
+      {hasUnmappedColumns && (
+        <Alert variant="destructive" className="mt-3">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            All columns must be mapped to proceed. {unmappedColumns.length} column(s) still need mapping.
+          </AlertDescription>
+        </Alert>
       )}
     </div>
   );
