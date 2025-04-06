@@ -17,14 +17,25 @@ interface CsvPreviewProps {
   headers: string[];
   data: string[][];
   maxRows?: number;
-  highlightMissingValues?: boolean;
+  highlightSpecialValues?: boolean;
+}
+
+// Helper types for cell value analysis
+type CellType = 'empty' | 'null' | 'text';
+
+interface CellAnalysis {
+  value: string;
+  displayValue: React.ReactNode;
+  type: CellType;
+  isEmpty: boolean;
+  className: string;
 }
 
 export const CsvPreview: React.FC<CsvPreviewProps> = ({
   headers,
   data,
   maxRows = 5,
-  highlightMissingValues = true,
+  highlightSpecialValues = true,
 }) => {
   const [page, setPage] = useState(0);
 
@@ -53,10 +64,58 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
   const pageEnd = Math.min(pageStart + maxRows, data.length);
   const pageData = data.slice(pageStart, pageEnd);
 
-  // Check if there are any missing or empty values in the data
-  const hasMissingValues = highlightMissingValues && pageData.some(row =>
-    row.some(cell => cell === null || cell === undefined || cell === "")
-  );
+  // Analyze cell types and track special values
+  const specialValueTypes = {
+    empty: false,
+    null: false
+  };
+
+  // Analyze a cell to determine its type and display properties
+  const analyzeCell = (value: string): CellAnalysis => {
+    // Handle empty values
+    if (value === null || value === undefined || value === "") {
+      specialValueTypes.empty = true;
+      return {
+        value: "",
+        displayValue: <span className="italic text-muted-foreground">(empty)</span>,
+        type: 'empty',
+        isEmpty: true,
+        className: highlightSpecialValues ? "bg-amber-50 text-amber-800" : ""
+      };
+    }
+
+    // Handle NULL values (case insensitive)
+    if (value.toUpperCase() === "NULL") {
+      specialValueTypes.null = true;
+      return {
+        value,
+        displayValue: <span className="italic text-purple-700">(NULL)</span>,
+        type: 'null',
+        isEmpty: true,
+        className: highlightSpecialValues ? "bg-purple-50" : ""
+      };
+    }
+
+    // Standard text value
+    return {
+      value,
+      displayValue: value,
+      type: 'text',
+      isEmpty: false,
+      className: ""
+    };
+  };
+
+  // Check if there are any special values in the data
+  const hasSpecialValues =
+    highlightSpecialValues &&
+    pageData.some(row =>
+      row.some(cell => {
+        if (!cell || cell === "") return true;
+        if (typeof cell === 'string' && cell.toUpperCase() === "NULL") return true;
+        return false;
+      })
+    );
 
   return (
     <div className="mb-6">
@@ -102,19 +161,17 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                 </TableCell>
                 {headers.map((_, colIndex) => {
                   const cellValue = row[colIndex] || "";
-                  const isEmpty = cellValue === "";
+                  const cell = analyzeCell(cellValue);
 
                   return (
                     <TableCell
                       key={colIndex}
                       className={cn(
                         "font-mono text-sm truncate max-w-xs",
-                        isEmpty && highlightMissingValues && "bg-amber-50 text-amber-800"
+                        cell.className
                       )}
                     >
-                      {isEmpty ? (
-                        <span className="italic text-muted-foreground">(empty)</span>
-                      ) : cellValue}
+                      {cell.displayValue}
                     </TableCell>
                   );
                 })}
@@ -124,12 +181,20 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
         </Table>
       </div>
 
-      {hasMissingValues && (
+      {hasSpecialValues && (
         <div className="flex items-start gap-2 mt-3 p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800">
           <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
-          <p className="text-sm">
-            Some cells in the preview contain missing values. These are highlighted in yellow.
-          </p>
+          <div className="text-sm">
+            <p>Special values in the preview are highlighted:</p>
+            <div className="flex flex-wrap gap-3 mt-1">
+              {specialValueTypes.empty && (
+                <span className="bg-amber-50 px-2 py-0.5 rounded text-amber-800 border border-amber-200">Empty cells</span>
+              )}
+              {specialValueTypes.null && (
+                <span className="bg-purple-50 px-2 py-0.5 rounded text-purple-700 border border-purple-200">NULL values</span>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

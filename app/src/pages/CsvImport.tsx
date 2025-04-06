@@ -469,20 +469,20 @@ export const CsvImport: React.FC = () => {
                   />
                 </div>
 
-                {/* Data with Missing Values */}
+                {/* Data with Special Values */}
                 <div>
-                  <h4 className="text-md font-semibold mb-2">CSV Data with Missing Values</h4>
+                  <h4 className="text-md font-semibold mb-2">CSV Data with Empty/NULL Values</h4>
                   <CsvPreview
                     headers={mockCsvHeaders}
                     data={[
                       ["STU001", "John", "Doe", "john.doe@example.com", "", "2000-01-01"],
-                      ["STU002", "Jane", "Smith", "", "555-5678", "2001-02-02"],
+                      ["STU002", "Jane", "Smith", "NULL", "555-5678", "2001-02-02"],
                       ["STU003", "", "Johnson", "bob.johnson@example.com", "555-9012", "1999-03-03"],
-                      ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", ""],
+                      ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "NULL"],
                       ["", "Anonymous", "User", "anonymous@example.com", "555-7890", "2001-05-05"],
                     ]}
                     maxRows={5}
-                    highlightMissingValues={true}
+                    highlightSpecialValues={true}
                   />
                 </div>
 
