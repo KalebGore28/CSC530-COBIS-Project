@@ -12,12 +12,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ErrorFixingModeProps {
   errors: ImportError[];
-  currentErrorIndex: number;
-  onPreviousError: () => void;
-  onNextError: () => void;
   onFixedData: (formData: Record<string, string>, errorKey: string) => void;
   onRetryImport: () => void;
-  fixedRowsCount: number;
+  fixedCount: number; // Renamed from fixedRowsCount for clarity
 }
 
 // Type for grouped errors
@@ -32,12 +29,9 @@ interface GroupedError {
 
 export const ErrorFixingMode: React.FC<ErrorFixingModeProps> = ({
   errors,
-  currentErrorIndex,
-  onPreviousError,
-  onNextError,
   onFixedData,
   onRetryImport,
-  fixedRowsCount,
+  fixedCount,
 }) => {
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [groupedErrors, setGroupedErrors] = useState<GroupedError[]>([]);
@@ -164,12 +158,17 @@ export const ErrorFixingMode: React.FC<ErrorFixingModeProps> = ({
   };
 
   const activeGroup = groupedErrors[activeGroupIndex];
-  const allFixed = groupedErrors.every(group => group.isFixed);
+
+  // Calculate our own fixed count based on the internal state
   const fixedGroups = groupedErrors.filter(group => group.isFixed).length;
   const totalAffectedRows = groupedErrors.reduce((sum, group) => sum + group.affectedRows, 0);
-  const fixedRows = groupedErrors
+
+  // Use either our internal state or the prop for fixed rows (in real app, should be managed externally)
+  const fixedRows = fixedCount || groupedErrors
     .filter(group => group.isFixed)
     .reduce((sum, group) => sum + group.affectedRows, 0);
+
+  const allFixed = fixedGroups === groupedErrors.length;
 
   return (
     <div>

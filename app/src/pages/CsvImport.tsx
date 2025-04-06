@@ -552,12 +552,9 @@ export const CsvImport: React.FC = () => {
                         }
                       }
                     ]}
-                    currentErrorIndex={0}
-                    onPreviousError={() => console.log("Previous error")}
-                    onNextError={() => console.log("Next error")}
                     onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
                     onRetryImport={() => console.log("Retry import")}
-                    fixedRowsCount={0}
+                    fixedCount={0}
                   />
                 </div>
 
@@ -622,12 +619,9 @@ export const CsvImport: React.FC = () => {
                         }
                       }
                     ]}
-                    currentErrorIndex={0}
-                    onPreviousError={() => console.log("Previous error")}
-                    onNextError={() => console.log("Next error")}
                     onFixedData={(data, key) => console.log("Fixed data:", data, "Key:", key)}
                     onRetryImport={() => console.log("Retry import")}
-                    fixedRowsCount={0}
+                    fixedCount={0}
                   />
                 </div>
 
