@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-import { ImportInfoResponse, ImportResult, TableConfig } from '../types/csv-import-types';
+import {
+  ImportInfoResponse,
+  ImportResult,
+  TableConfig,
+  CsvMapping,
+  DataCsvMapping,
+  LookupCsvMapping,
+  FileMapping
+} from '../types/csv-import-types';
 
 /**
  * CSV Import Service
@@ -8,7 +16,7 @@ import { ImportInfoResponse, ImportResult, TableConfig } from '../types/csv-impo
  * Provides functionality for CSV import operations including:
  * - Getting import configuration information
  * - Processing CSV imports
- * - Parsing regex patterns from backend
+ * - Finding matching tables and mappings
  */
 export const CsvImportService = {
   /**
@@ -58,16 +66,16 @@ export const CsvImportService = {
     }
   },
 
-
   /**
-   * Find the matching table configuration for a file name
-   * @param fileName The file name to match
-   * @param tables Array of table configurations
+   * Find the matching CSV mapping for a file name
+   * @param fileName The name of the file to match
+   * @param mappings Array of CSV mappings from the API
+   * @returns The matching mapping if found
    */
-  findMatchingTable(fileName: string, tables: TableConfig[]): TableConfig | undefined {
-    if (!fileName || !tables.length) return undefined;
+  findMatchingMapping(fileName: string, mappings: CsvMapping[]): FileMapping | undefined {
+    if (!fileName || !mappings.length) return undefined;
 
-    console.log(`Finding match for file: ${fileName}`);
+    console.log(`Finding mapping for file: ${fileName}`);
 
     // Helper function to parse regex pattern strings from backend
     const testPattern = (patternStr: string, testStr: string): boolean => {
@@ -89,47 +97,103 @@ export const CsvImportService = {
       }
     };
 
-    // First try to match data tables
-    const dataTables = tables.filter(t => t.category === 'data');
-    for (const table of dataTables) {
-      if (!table.matchingPatterns) continue;
+    // First try to match data mappings (they often have more specific patterns)
+    const dataMappings = mappings.filter((m): m is DataCsvMapping => m.category === 'data');
+    for (const mapping of dataMappings) {
+      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
 
-      for (const pattern of table.matchingPatterns) {
+      for (const pattern of mapping.filePatterns) {
         if (testPattern(pattern, fileName)) {
-          console.log(`✓ Matched data table ${table.tableName} with pattern ${pattern}`);
-          return table;
+          console.log(`✓ Matched data mapping "${mapping.description}" with pattern ${pattern}`);
+          return {
+            file: new File([], fileName), // Dummy file with filename for logging
+            mapping,
+            matchedPattern: pattern
+          };
         }
       }
     }
 
-    // If no data table matched, check lookup tables
-    const lookupTables = tables.filter(t => t.category === 'lookup');
-    for (const table of lookupTables) {
-      if (!table.matchingPatterns) continue;
+    // If no data mapping matched, check lookup mappings
+    const lookupMappings = mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
+    for (const mapping of lookupMappings) {
+      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
 
-      for (const pattern of table.matchingPatterns) {
+      for (const pattern of mapping.filePatterns) {
         if (testPattern(pattern, fileName)) {
-          console.log(`✓ Matched lookup table ${table.tableName} with pattern ${pattern}`);
-          return table;
+          console.log(`✓ Matched lookup mapping "${mapping.description}" with pattern ${pattern}`);
+          return {
+            file: new File([], fileName), // Dummy file with filename for logging
+            mapping,
+            matchedPattern: pattern
+          };
         }
       }
     }
 
     // If the filename is similar to a lookup table name, use that as fallback
-    for (const table of lookupTables) {
-      const tableNameLower = table.tableName.toLowerCase().replace(/[\s_-]+/g, '');
+    for (const mapping of lookupMappings) {
+      const mappingNameLower = mapping.description.toLowerCase().replace(/[\s_-]+/g, '');
       const fileNameLower = fileName.toLowerCase().replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
 
-      if (fileNameLower.includes(tableNameLower) || tableNameLower.includes(fileNameLower)) {
-        console.log(`✓ Matched lookup table ${table.tableName} by name similarity`);
-        return table;
+      if (fileNameLower.includes(mappingNameLower) || mappingNameLower.includes(fileNameLower)) {
+        console.log(`✓ Matched lookup mapping "${mapping.description}" by name similarity`);
+        return {
+          file: new File([], fileName),
+          mapping,
+          matchedPattern: 'name-similarity'
+        };
       }
     }
 
-    console.log(`No table matched for ${fileName}`);
+    console.log(`No mapping matched for ${fileName}`);
     return undefined;
   },
 
+  /**
+   * Find the matching mapping and destination tables for a file
+   * This replaces the old findMatchingTable function with a more accurate implementation
+   * @param fileName The file name to match
+   * @param mappings Array of CSV mappings from the API
+   * @returns Object containing the mapping and tables
+   */
+  findMatchingMappingAndTables(
+    fileName: string,
+    mappings: CsvMapping[]
+  ): {
+    mapping: CsvMapping | undefined,
+    primaryTable: TableConfig | undefined,
+    allTables: TableConfig[]
+  } {
+    if (!fileName || !mappings.length) {
+      return { mapping: undefined, primaryTable: undefined, allTables: [] };
+    }
+
+    // First find the matching mapping
+    const matchingMapping = this.findMatchingMapping(fileName, mappings)?.mapping;
+
+    if (!matchingMapping) {
+      return { mapping: undefined, primaryTable: undefined, allTables: [] };
+    }
+
+    // Then extract the appropriate tables based on the mapping type
+    if (matchingMapping.category === 'data') {
+      // For data tables, return the first destination as primary and all as allTables
+      const allTables = matchingMapping.destinations;
+      const primaryTable = allTables.length > 0 ? allTables[0] : undefined;
+
+      return { mapping: matchingMapping, primaryTable, allTables };
+    } else {
+      // For lookup tables, there's only one destination
+      const primaryTable = matchingMapping.destination;
+
+      return {
+        mapping: matchingMapping,
+        primaryTable,
+        allTables: primaryTable ? [primaryTable] : []
+      };
+    }
+  },
 
   /**
    * Check if all required fields are mapped
@@ -142,8 +206,8 @@ export const CsvImportService = {
   ): boolean {
     if (!table || !table.columns) return false;
 
-    // Get all required columns
-    const requiredColumns = table.columns.filter(col => col && (col.isPrimaryKey));
+    // Get all required columns (primary keys are always required)
+    const requiredColumns = table.columns.filter(col => col && col.isPrimaryKey);
 
     if (requiredColumns.length === 0) return true; // If no required columns, mapping is valid
 
