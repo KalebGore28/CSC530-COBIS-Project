@@ -53,14 +53,14 @@ const data = {
 			url: "/class-roster",
 			icon: BookOpen,
 		},
-		{
-			title: "Reports",
-			url: "/reports",
-			icon: NotepadText,
-			items: [
-				{ title: "Student Reports", url: "/reports/students" },
-			],
-		},
+		// {
+		// 	title: "Reports",
+		// 	url: "/reports",
+		// 	icon: NotepadText,
+		// 	items: [
+		// 		{ title: "Student Reports", url: "/reports/students" },
+		// 	],
+		// },
 		{
 			title: "COBIS Tools",
 			url: "/cobis-tools",
