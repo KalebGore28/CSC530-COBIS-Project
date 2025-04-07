@@ -419,14 +419,6 @@ export class InstructorsService {
 				)
 			);
 
-		console.log("mnumber", mnumber);
-		console.log("courseSubject", courseSubject);
-		console.log("courseNumber", courseNumber);
-		console.log("courseSuffix", courseSuffix);
-		console.log("courseSection", courseSection);
-		console.log("termCode", termCode);
-		console.log("year", year);
-
 		if (!taughtCourse[0] || taughtCourse[0].count === 0) {
 			return null; // Instructor did not teach this course
 		}
@@ -437,6 +429,7 @@ export class InstructorsService {
 				courseSubject: instructorCourses.course_subject,
 				courseNumber: instructorCourses.course_number,
 				courseSuffix: instructorCourses.course_suffix,
+				courseSection: instructorCourses.course_section,
 				courseTitle: courses.title,
 				crn: instructorCourses.crn,
 				creditHours: studentCourses.course_hours
@@ -631,6 +624,7 @@ export class InstructorsService {
 				courseSubject,
 				courseNumber,
 				courseSuffix,
+				courseSection,
 				courseTitle: courseDetails[0].courseTitle || 'UNKNOWN',
 				termCode,
 				termName,
