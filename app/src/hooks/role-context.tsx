@@ -46,9 +46,9 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/cobis-tools": ["COBIS Admin"],
 		"/cobis-tools/query-builder": ["COBIS Admin"],
 		"/cobis-tools/imports": ["COBIS Admin"],
-		// "/test-page": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/student-lookup": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
-		"/professor-stats": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
+		"/professor-stats": ["Department Chair", "COBIS Admin"],
+		"/class-roster": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
 	useEffect(() => {
@@ -94,12 +94,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 // Helper to map display names to logos
 const getLogoForRole = (displayName: string): React.ElementType => {
 	const logoMap: { [key: string]: React.ElementType } = {
-		"Faculty": BookOpen,
-		"Advisor": Compass,
-		"Program Coordinator": LayoutList,
-		"Department Chair": Armchair,
-		"Administrator": Settings,
-		"COBIS Admin": Shield,
+		"faculty": BookOpen,
+		"advisor": Compass,
+		"program_coordinator": LayoutList,
+		"department_chair": Armchair,
+		"administrator": Settings,
+		"cobis_administrator": Shield,
 	};
 	return logoMap[displayName] || Shield; // Default to Shield if unknown
 };

@@ -3,7 +3,7 @@ import { sql, relations } from "drizzle-orm";
 
 import { colleges } from "./colleges";
 import { departments } from "./departments";
-import { studentPrograms } from "./student_programs";
+import { studentPrograms } from "./student-programs";
 
 export const programs = sqliteTable("programs", {
 	code: text("code").primaryKey(),

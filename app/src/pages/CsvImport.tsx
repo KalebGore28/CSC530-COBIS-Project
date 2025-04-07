@@ -1,351 +1,269 @@
-import { useState, useEffect, ChangeEvent } from "react"
-import {
-	Card,
-	CardContent,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card"
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { useSession } from "@/hooks/session-context"
+import { useState, useEffect } from "react";
+import { Separator } from "@radix-ui/react-separator";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
-// Define table configuration type
-interface TableConfig {
-	name: string
-	endpoint: string
-	fields: string[]
-}
+import { FileUpload } from "@/components/csv-import/file-upload";
+import { TableSelector } from "@/components/csv-import/table-selector";
+import { ColumnMapper } from "@/components/csv-import/column-mapper";
+import { CsvPreview } from "@/components/csv-import/csv-preview";
+import { ImportResultDisplay } from "@/components/csv-import/import-result";
+import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
+
+// Import types
+import { TableConfig, ImportError, ImportInfoResponse, CsvMapping } from "../types/csv-import-types";
+import CsvImportService from "@/services/csv-import-service";
 
 
-export default function CsvImport() {
-	const { session } = useSession()
-	const [tables, setTables] = useState<TableConfig[]>([])
-	const [selectedTable, setSelectedTable] = useState<string>("")
-	const [csvFile, setCsvFile] = useState<File | null>(null)
-	const [csvData, setCsvData] = useState<string[][]>([])
-	const [csvHeaders, setCsvHeaders] = useState<string[]>([])
-	const [columnMapping, setColumnMapping] = useState<Record<string, string>>({})
-	const [isLoading, setIsLoading] = useState(false)
-	const [result, setResult] = useState<{
-		totalRecords?: number
-		inserted?: number
-		updated?: number
-		skipped?: number
-		skippedDetails?: { row: any; reason: string }[]
-		failed?: number
-		errorDetails?: { row: any; error: string }[]
-		message?: string
-	} | null>(null)
+// Sample data for our example
+const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Department ID"];
+const mockCsvData = [
+  ["STU001", "John", "Doe", "john.doe@example.com", "555-1234", "DEP001"],
+  ["STU002", "Jane", "Smith", "jane.smith@example.com", "555-5678", "DEP002"],
+  ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "DEP001"],
+  ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "DEP003"],
+  ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
+];
 
-	// Fetch table metadata on mount
-	useEffect(() => {
-		const fetchTables = async () => {
-			try {
-				const response = await fetch("/api/import/metadata", {
-					method: "GET",
-					credentials: "include",
-				})
-				if (!response.ok) throw new Error("Failed to fetch table metadata")
-				const data = await response.json()
-				setTables(data)
-			} catch (error: any) {
-				setResult({ message: error.message || "Error fetching table metadata" })
-			}
-		}
+const mockTableConfig: TableConfig[] = [
+  {
+    tableId: "students",
+    tableName: "Students",
+    category: "data",
+    primaryKeys: ["studentId"],
+    hasRowExpander: false,
+    columns: [
+      { dbColumn: "studentId", csvColumn: "Student ID", isPrimaryKey: true, hasTransform: false },
+      { dbColumn: "firstName", csvColumn: "First Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "lastName", csvColumn: "Last Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "email", csvColumn: "Email", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "phone", csvColumn: "Phone", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, hasTransform: false },
+    ],
+  },
+  {
+    tableId: "departments",
+    tableName: "Departments",
+    category: "lookup",
+    primaryKeys: ["departmentId"],
+    hasRowExpander: false,
+    columns: [
+      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, hasTransform: false },
+      { dbColumn: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "building", csvColumn: "Building", isPrimaryKey: false, hasTransform: false },
+    ],
+  }
+];
 
-		fetchTables()
-	}, [])
+const mockImportErrors: ImportError[] = [
+  {
+    row: {
+      "studentId": "STU004",
+      "firstName": "Mary",
+      "lastName": "Williams",
+      "email": "mary.williams@example.com",
+      "phone": "555-3456",
+      "departmentId": "DEP003"
+    },
+    error: "Foreign key constraint violation on departmentId",
+    errorType: "foreign_key",
+    dependencyInfo: {
+      tableName: "Departments",
+      columns: ["departmentId", "departmentName"],
+      values: {
+        "departmentId": "DEP003"
+      }
+    }
+  },
+  {
+    row: {
+      "studentId": "STU005",
+      "firstName": "Mike",
+      "lastName": "Brown",
+      "email": "mike.brown@example.com",
+      "phone": "555-7890",
+      "departmentId": "DEP003"
+    },
+    error: "Foreign key constraint violation on departmentId",
+    errorType: "foreign_key",
+    dependencyInfo: {
+      tableName: "Departments",
+      columns: ["departmentId", "departmentName"],
+      values: {
+        "departmentId": "DEP003"
+      }
+    }
+  }
+];
 
-	// Handle file upload and parse via backend with auto-mapping
-	const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0]
-		if (file) {
-			setCsvFile(file)
-			const formData = new FormData()
-			formData.append("file", file)
+export const CsvImport: React.FC = () => {
+  const [showSuccess, setShowSuccess] = useState(true);
+  const [fixedCount, setFixedCount] = useState(0);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
+  const [mapping, setMapping] = useState<CsvMapping | null>(null);
 
-			try {
-				const response = await fetch("/api/import/parse-csv", {
-					method: "POST",
-					body: formData,
-					credentials: "include",
-				})
-				if (!response.ok) throw new Error("Failed to parse CSV")
-				const { headers, data } = await response.json()
-				setCsvHeaders(headers)
-				setCsvData(data)
+  // Fetch import info
+  useEffect(() => {
+    const fetchImportInfo = async () => {
+      const info = await CsvImportService.getImportInfo();
+      setImportInfo(info);
+    };
+    fetchImportInfo();
+  }, []);
 
-				// Auto-map columns based on case-insensitive exact match
-				const tableConfig = tables.find((t) => t.name === selectedTable)
-				if (tableConfig) {
-					const newMapping: Record<string, string> = {}
-					tableConfig.fields.forEach((field) => {
-						const matchedHeader = headers.find((header: string) =>
-							header.toLowerCase() === field.toLowerCase()
-						)
-						newMapping[field] = matchedHeader || "" // Empty if no match
-					})
-					setColumnMapping(newMapping)
-				} else {
-					setColumnMapping({}) // Reset if no table selected
-				}
-			} catch (error: any) {
-				setResult({ message: error.message || "Error parsing CSV file" })
-			}
-		}
-	}
 
-	// Handle column mapping
-	const handleColumnMap = (field: string, csvColumn: string) => {
-		setColumnMapping((prev) => ({ ...prev, [field]: csvColumn }))
-	}
+  useEffect(() => {
+    if (importInfo && selectedFile) {
+      const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
+      setMapping(mapping || null);
+    }
+  }, [importInfo, selectedFile]);
 
-	// Handle import submission
-	const handleImport = async () => {
-		if (!selectedTable || !csvFile || !csvData.length || !Object.keys(columnMapping).length) {
-			setResult({ message: "Please select a table, upload a CSV, and map all required fields." })
-			return
-		}
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setSelectedFile(file);
+  };
 
-		const tableConfig = tables.find((t) => t.name === selectedTable)
-		if (!tableConfig) return
+  const handleClearFile = () => {
+    setSelectedFile(null);
+  };
 
-		// Validate mapping
-		const missingFields = tableConfig.fields.filter((field) => !columnMapping[field])
-		if (missingFields.length > 0) {
-			setResult({ message: `Missing mapping for fields: ${missingFields.join(", ")}` })
-			return
-		}
 
-		// Map CSV data to the expected format
-		const mappedData = csvData.map((row) => {
-			const rowData: Record<string, string> = {}
-			tableConfig.fields.forEach((field) => {
-				const csvColumn = columnMapping[field]
-				const columnIndex = csvHeaders.indexOf(csvColumn)
-				rowData[field] = columnIndex >= 0 ? row[columnIndex] || "" : ""
-			})
-			return rowData
-		})
 
-		setIsLoading(true)
-		try {
-			const response = await fetch(tableConfig.endpoint, {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify({
-					mappedData,
-					fileName: csvFile.name,
-					importedBy: session?.user.email || session?.user.name,
-				}),
-			})
+  return (
+    <div className="max-w-5xl mx-auto p-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-3xl">CSV Import</CardTitle>
+          <CardDescription>
+            Import data from CSV files into the system
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-10">
+          {/* Step 1: File Upload and Table Selection */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
+            <div className="grid gap-6">
+              <FileUpload
+                onFileChange={handleFileChange}
+                onClearFile={handleClearFile}
+                file={selectedFile}
+              />
+              {selectedFile && <TableSelector
+                selectedTable="students"
+                onTableChange={(id) => console.log("Selected table:", id)}
+                mapping={mapping}
+              />}
+            </div>
+          </div>
 
-			if (!response.ok) throw new Error("Failed to import data")
-			const data = await response.json()
-			console.log(data)
-			setResult({
-				totalRecords: data.totalRecords,
-				inserted: data.inserted,
-				updated: data.updated,
-				skipped: data.skipped,
-				skippedDetails: data.skippedDetails,
-				failed: data.failed,
-				errorDetails: data.errorDetails,
-			})
-		} catch (error: any) {
-			setResult({ message: error.message || "Error importing data" })
-		} finally {
-			setIsLoading(false)
-		}
-	}
+          <Separator />
 
-	return (
-		<div className="p-6 flex-1 flex justify-center">
-			<Card className="w-full max-w-full md:max-w-6xl flex flex-col">
-				<CardHeader>
-					<CardTitle className="text-3xl">CSV Import</CardTitle>
-				</CardHeader>
-				<CardContent className="flex-1 overflow-y-auto px-6">
-					{/* Table Selection */}
-					<div className="mb-6">
-						<label className="block mb-2 text-sm font-medium">Select Table</label>
-						<Select value={selectedTable} onValueChange={setSelectedTable}>
-							<SelectTrigger>
-								<SelectValue placeholder="Select a table" />
-							</SelectTrigger>
-							<SelectContent>
-								{tables.map((table) => (
-									<SelectItem key={table.name} value={table.name}>
-										{table.name}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
+          {/* Step 2: Column Mapping */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
+            <ColumnMapper
+              tableFields={mockTableConfig[0].columns}
+              csvHeaders={mockCsvHeaders}
+              mapping={{
+                "studentId": "Student ID",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "email": "Email",
+                "phone": "Phone",
+                "departmentId": "Department ID"
+              }}
+              onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+            />
+          </div>
 
-					{/* File Upload */}
-					<div className="mb-6">
-						<label className="block mb-2 text-sm font-medium">Upload CSV File</label>
-						<Input type="file" accept=".csv" onChange={handleFileChange} />
-					</div>
+          <Separator />
 
-					{/* Column Mapping */}
-					{selectedTable && csvHeaders.length > 0 && (
-						<div className="mb-6">
-							<h3 className="text-lg font-semibold mb-3">Map CSV Columns</h3>
-							<div className="max-h-96 overflow-y-auto border rounded">
-								<Table>
-									<TableHeader>
-										<TableRow>
-											<TableHead>Required Field</TableHead>
-											<TableHead>CSV Column</TableHead>
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{tables
-											.find((t) => t.name === selectedTable)!
-											.fields.map((field) => (
-												<TableRow key={field}>
-													<TableCell>{field}</TableCell>
-													<TableCell>
-														<Select
-															value={columnMapping[field] || ""}
-															onValueChange={(value) => handleColumnMap(field, value)}
-														>
-															<SelectTrigger
-																className={columnMapping[field] ? "" : "border-red-500"}
-															>
-																<SelectValue placeholder={columnMapping[field] ? columnMapping[field] : "Select a column (unmapped)"} />
-															</SelectTrigger>
-															<SelectContent>
-																{csvHeaders.map((header) => (
-																	<SelectItem key={header} value={header}>
-																		{header}
-																	</SelectItem>
-																))}
-															</SelectContent>
-														</Select>
-													</TableCell>
-												</TableRow>
-											))}
-									</TableBody>
-								</Table>
-							</div>
-						</div>
-					)}
+          {/* Step 3: Preview Data */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
+            <CsvPreview
+              headers={mockCsvHeaders}
+              data={mockCsvData}
+              maxRows={5}
+              highlightSpecialValues={true}
+            />
+          </div>
 
-					{/* CSV Preview */}
-					{csvData.length > 0 && (
-						<div className="mb-6">
-							<h3 className="text-lg font-semibold mb-3">CSV Preview</h3>
-							<div className="max-h-96 overflow-x-auto border rounded" style={{ maxWidth: "100%", overflowX: "auto" }}>
-								<Table style={{ minWidth: "100%", maxWidth: "100%" }}>
-									<TableHeader>
-										<TableRow>
-											{csvHeaders.map((header) => (
-												<TableHead key={header}>{header}</TableHead>
-											))}
-										</TableRow>
-									</TableHeader>
-									<TableBody>
-										{csvData.slice(0, 5).map((row, index) => (
-											<TableRow key={index}>
-												{row.map((cell, i) => (
-													<TableCell key={i}>{cell}</TableCell>
-												))}
-											</TableRow>
-										))}
-									</TableBody>
-								</Table>
-							</div>
-						</div>
-					)}
+          <Separator />
 
-					{/* Import Button */}
-					<Button
-						onClick={handleImport}
-						disabled={isLoading || !selectedTable || !csvFile}
-						className="w-full"
-					>
-						{isLoading ? "Importing..." : "Import CSV"}
-					</Button>
+          {/* Step 4: Import Results */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
+            <div className="mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSuccess(!showSuccess)}
+                className="mb-4"
+              >
+                {showSuccess ? "Show Error Result" : "Show Success Result"}
+              </Button>
+            </div>
 
-					{/* Result Display */}
-					{result && (
-						<div className="mt-6">
-							{result.totalRecords !== undefined ? (
-								<Alert
-									variant={result.failed && result.failed > 0 ? "destructive" : "default"}
-								>
-									<AlertDescription>
-										{result.failed && result.failed > 0 ? (
-											<p>Data import completed with errors.</p>
-										) : (
-											<p>Data imported successfully.</p>
-										)}
-										<p>Total Records: {result.totalRecords}</p>
-										<p>Inserted: {result.inserted}</p>
-										<p>Updated: {result.updated}</p>
-										<p>Skipped: {result.skipped}</p>
-										{(result.skipped ?? 0) > 0 && result.skippedDetails && (
-											<div className="mt-2">
-												<p>Skipped rows summary:</p>
-												<ul className="list-disc pl-5">
-													{Object.entries(
-														result.skippedDetails.reduce((acc, detail) => {
-															acc[detail.reason] = (acc[detail.reason] || 0) + 1;
-															return acc;
-														}, {} as Record<string, number>)
-													).map(([reason, count]) => (
-														<li key={reason}>
-															{count} rows skipped: {reason}
-														</li>
-													))}
-												</ul>
-											</div>
-										)}
-										{result.failed && result.failed > 0 && result.errorDetails && (
-											<div className="mt-2">
-												<p>Errors:</p>
-												<ul className="list-disc pl-5">
-													{result.errorDetails.map((err, index) => (
-														<li key={index}>
-															Row {JSON.stringify(err.row)}: {err.error}
-														</li>
-													))}
-												</ul>
-											</div>
-										)}
-									</AlertDescription>
-								</Alert>
-							) : (
-								<Alert variant="destructive">
-									<AlertDescription>
-										<p>{result.message}</p>
-									</AlertDescription>
-								</Alert>
-							)}
-						</div>
-					)}
-				</CardContent>
-			</Card>
-		</div>
-	)
-}
+            {showSuccess ? (
+              <ImportResultDisplay
+                result={{
+                  success: true,
+                  totalRecords: 5,
+                  inserted: 3,
+                  updated: 0,
+                  skipped: 2,
+                  failed: 0
+                }}
+              />
+            ) : (
+              <ImportResultDisplay
+                result={{
+                  success: false,
+                  totalRecords: 5,
+                  inserted: 3,
+                  updated: 0,
+                  skipped: 0,
+                  failed: 2
+                }}
+              />
+            )}
+          </div>
+
+          {!showSuccess && (
+            <>
+              <Separator />
+
+              {/* Step 5: Error Fixing (Only shown when there are errors) */}
+              <div>
+                <h2 className="text-xl font-bold mb-4">Step 5: Fix Import Errors</h2>
+                <ErrorFixingMode
+                  errors={mockImportErrors}
+                  onFixedData={(data, key) => {
+                    console.log("Fixed data:", data, "Key:", key);
+                    setFixedCount(prev => prev + 1);
+                  }}
+                  onRetryImport={() => setShowSuccess(true)}
+                  fixedCount={fixedCount}
+                />
+              </div>
+            </>
+          )}
+        </CardContent>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={() => {
+              setFixedCount(0);
+              setShowSuccess(true);
+            }}
+          >
+            Reset Demo
+          </Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+};

@@ -1,9 +1,9 @@
 import { sqliteTable, text, real, int, primaryKey } from "drizzle-orm/sqlite-core";
 import { sql, relations } from "drizzle-orm";
 
-import { instructorCourses } from "./instructor_courses";
+import { instructorCourses } from "./instructor-courses";
 import { overrides } from "./overrides";
-import { studentCourses } from "./student_courses";
+import { studentCourses } from "./student-courses";
 
 export const courses = sqliteTable("courses", {
 	subject: text("subject").notNull(),

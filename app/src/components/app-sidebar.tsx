@@ -7,6 +7,7 @@ import {
 	TerminalSquareIcon,
 	ScanSearch,
 	FileSearch2,
+	BookOpen,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -46,6 +47,11 @@ const data = {
 			title: " Professor Lookup",
 			url: "/professor-stats",
 			icon: FileSearch2,
+		},
+		{
+			title: "Class Roster",
+			url: "/class-roster",
+			icon: BookOpen,
 		},
 		{
 			title: "Reports",

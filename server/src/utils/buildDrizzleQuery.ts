@@ -1,6 +1,5 @@
 import { eq, like, and, not, gt, lt } from 'drizzle-orm';
 import {
-	advisors,
 	colleges,
 	courses,
 	departments,
@@ -17,7 +16,6 @@ import {
 } from '../db/schema';
 
 export const allowedTables: Record<string, any> = {
-	advisors,
 	colleges,
 	courses,
 	departments,

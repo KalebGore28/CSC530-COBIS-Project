@@ -9,6 +9,7 @@ interface Student {
 	mnumber: string;
 	first_name: string;
 	last_name: string;
+	email: string;
 }
 
 const StudentLookup = () => {
@@ -103,8 +104,9 @@ const StudentLookup = () => {
 								data={results}
 								columns={[
 									{ key: "mnumber", label: "MNumber" },
-									{ key: "first_name", label: "First Name" },
-									{ key: "last_name", label: "Last Name" },
+									{ key: "firstName", label: "First Name" },
+									{ key: "lastName", label: "Last Name" },
+									{ key: "email", label: "Email" },
 								]}
 								rowsPerPage={10}
 							/>

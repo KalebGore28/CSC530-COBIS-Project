@@ -1,27 +1,33 @@
-// vitest.config.ts
 import { defineConfig } from 'vitest/config';
+import path from 'path';
 
 export default defineConfig({
 	test: {
 		globals: true,
-		// Only consider test files in the src/test folder
-		include: ['src/tests/**/*.{ts,js}'],
-		// Exclude any folders you don't want to run tests from (e.g. node_modules, build artifacts)
-		exclude: ['node_modules', 'dist', 'build'],
+		environment: 'node',
+		exclude: ['node_modules', 'dist', '.idea', '.git', '.cache'],
+		include: ['src/tests/**/*.test.ts'],
 		coverage: {
-			provider: 'v8', // or 'istanbul' if you prefer
-			reporter: ['text', 'html'],
-			// Instrument only these directories for coverage
-			include: [
-				'src/routes/**/*.{ts,js}',
-				'src/utils/**/*.{ts,js}',
-			],
-			// Exclude test files and any other directories not meant for coverage instrumentation
+			provider: 'v8', // or 'istanbul'
+			reporter: ['text', 'json', 'html'],
+			include: ['src/**/*.ts'], // Include all TypeScript files in src
 			exclude: [
-				'node_modules',
-				'src/tests/**/*',
-				'src/db/**/*',
+				'node_modules/**',
+				'src/tests/**',
+				'src/routes/**/*.ts', // We are excluding the routes folder because, with the code pattern we are using, we can directly test the controller
+				'src/lib/**/*.ts', // Exclude lib files
+				'src/types/**/*.ts', // Exclude type files
+				'src/specs/**/*.ts', // Exclude specs
+				'src/seed/**/*.ts', // Exclude seed files
+				'src/db/**/*.ts', // Exclude db files
+				'**/*.d.ts',
+				'**/*.test.ts',
 			],
 		},
 	},
+	resolve: {
+		alias: {
+			'@': path.resolve(__dirname, './src')
+		}
+	}
 });

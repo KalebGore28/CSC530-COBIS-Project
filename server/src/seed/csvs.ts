@@ -1,246 +1,197 @@
-// process.env.NODE_ENV = 'test';
+// src/seed/seedDatabase.ts
+
 import express from 'express';
 import request from 'supertest';
-
-import academicStandingRouter from '../routes/imports/academicStanding';
-import admitCodesRouter from '../routes/imports/admitCodes';
-import collegeCodesRouter from '../routes/imports/collegeCodes';
-import collegesRouter from '../routes/imports/colleges';
-import coursesRouter from '../routes/imports/courses';
-import { demographicsRouter } from '../routes/imports/demographics';
-import departmentsRouter from '../routes/imports/departments';
-import instructionalMethodsRouter from '../routes/imports/instructionalMethods';
-import nationsRouter from '../routes/imports/nations';
-import overridesRouter from '../routes/imports/overrides';
-import partOfTermRouter from '../routes/imports/partOfTerm';
-import previousCollegesRouter from '../routes/imports/previousColleges';
-import programsRouter from '../routes/imports/programs';
-import registrationStatusRouter from '../routes/imports/registrationStatus';
-import studentCoursesRouter from '../routes/imports/studentCourses';
-import subjectPrefixesRouter from '../routes/imports/subjectPrefixes';
-import termsRouter from '../routes/imports/terms';
-import testScoresRouter from '../routes/imports/testScores';
-
-// Stuff to import CSVs
-import { importCSV } from '../utils/importCSV';
+import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import importRouter from '../routes/import-router';
 
-const __dirname = path.resolve();
-
+// ES module compatibility
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /**
  * Seeds database with all of the csv files in the data/csvs directory.
  */
 export const seedDatabase = async () => {
-	// Import all csv files in the data/csvs directory
-	const academicStandingCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/academic_standing.csv'));
-	const admitCodesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/admit_codes.csv'));
-	const collegeCodesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/college_codes.csv'));
-	const collegesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/colleges.csv'));
-	const coursesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/course_titles.csv'));
-	const demographicsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/demographics_sample.csv'));
-	const departmentsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/departments.csv'));
-	const instructionalMethodsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/instructional_methods.csv'));
-	const nationsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/nations.csv'));
-	const overridesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/overrides_sample.csv'));
-	const partOfTermCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/part_of_term.csv'));
-	const previousCollegesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/previous_colleges_sample.csv'));
-	const programsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/major_minor.csv'));
-	const registrationStatusCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/registration_status.csv'));
-	const studentCoursesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/courses_sample.csv'));
-	const subjectPrefixesCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/subject_prefixes.csv'));
-	const termsCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/terms.csv'));
-	const testScoresCSV: any = await importCSV(path.resolve(__dirname, './src/seed/data/csvs/test_scores_sample.csv'));
-
-
+	// Set up Express app for testing
 	const app = express()
 		.use(express.json({ limit: "10mb" }))
 		.use(express.urlencoded({ extended: true, limit: "10mb" }))
-		.use('/api/import', academicStandingRouter)
-		.use('/api/import', admitCodesRouter)
-		.use('/api/import', collegeCodesRouter)
-		.use('/api/import', collegesRouter)
-		.use('/api/import', coursesRouter)
-		.use('/api/import', demographicsRouter)
-		.use('/api/import', departmentsRouter)
-		.use('/api/import', instructionalMethodsRouter)
-		.use('/api/import', nationsRouter)
-		.use('/api/import', overridesRouter)
-		.use('/api/import', partOfTermRouter)
-		.use('/api/import', previousCollegesRouter)
-		.use('/api/import', programsRouter)
-		.use('/api/import', registrationStatusRouter)
-		.use('/api/import', studentCoursesRouter)
-		.use('/api/import', subjectPrefixesRouter)
-		.use('/api/import', termsRouter)
-		.use('/api/import', testScoresRouter)
+		.use('/api/import',importRouter);
 
-	// Import all csv files in the data/csvs directory in a particular order to avoid foreign key constraints
-	const termsResponse = await request(app)
-		.post('/api/import/terms')
-		.send({
-			mappedData: termsCSV,
-			fileName: 'terms.csv',
-			importedBy: 'seed script',
-		});
+	// Define lookup tables that need explicit tableId
+	const lookupTables = [
+		{
+			filePath: './data/csvs/academic_standing.csv',
+			tableId: 'academic-standing'
+		},
+		{
+			filePath: './data/csvs/admit_codes.csv',
+			tableId: 'admit-codes'
+		},
+		{
+			filePath: './data/csvs/college_codes.csv',
+			tableId: 'college-codes'
+		},
+		{
+			filePath: './data/csvs/colleges.csv',
+			tableId: 'colleges'
+		},
+		{
+			filePath: './data/csvs/departments.csv',
+			tableId: 'departments'
+		},
+		{
+			filePath: './data/csvs/instructional_methods.csv',
+			tableId: 'instructional-methods'
+		},
+		{
+			filePath: './data/csvs/nations.csv',
+			tableId: 'nations'
+		},
+		{
+			filePath: './data/csvs/part_of_term.csv',
+			tableId: 'part-of-term'
+		},
+		{
+			filePath: './data/csvs/major_minor.csv',
+			tableId: 'programs'
+		},
+		{
+			filePath: './data/csvs/registration_status.csv',
+			tableId: 'registration-status'
+		},
+		{
+			filePath: './data/csvs/terms.csv',
+			tableId: 'terms'
+		}
+	];
 
-	const academicStandingResponse = await request(app)
-		.post('/api/import/academic-standing')
-		.send({
-			mappedData: academicStandingCSV,
-			fileName: 'academic-standing.csv',
-			importedBy: 'seed script',
-		});
+	// Define data tables (with specific filename patterns)
+	const dataTables = [
+		{
+			filePath: './data/csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
+		},
+		{
+			filePath: './data/csvs/prototype/reg_cuba_demographic_202510_20250117.csv',
+		},
+		{
+			filePath: './data/csvs/prototype/reg_cuba_courses_during_term_202510_20250117.csv',
+		},
+		{
+			filePath: './data/csvs/prototype/reg_cuba_test_scores_202510_20250117.csv',
+		},
+	];
 
-	const admitCodesResponse = await request(app)
-		.post('/api/import/admit-codes')
-		.send({
-			mappedData: admitCodesCSV,
-			fileName: 'admit-codes.csv',
-			importedBy: 'seed script',
-		});
+	const responses = [];
 
-	const collegeCodesResponse = await request(app)
-		.post('/api/import/college-codes')
-		.send({
-			mappedData: collegeCodesCSV,
-			fileName: 'college-codes.csv',
-			importedBy: 'seed script',
-		});
+	// Process lookup tables
+	console.log('Importing lookup tables...');
+	for (const table of lookupTables) {
+		try {
+			console.log(`Importing ${path.basename(table.filePath)}...`);
 
-	const collegesResponse = await request(app)
-		.post('/api/import/colleges')
-		.send({
-			mappedData: collegesCSV,
-			fileName: 'colleges.csv',
-			importedBy: 'seed script',
-		});
+			//log full path of the file
+			console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
 
-	const coursesResponse = await request(app)
-		.post('/api/import/courses')
-		.send({
-			mappedData: coursesCSV,
-			fileName: 'course-titles.csv',
-			importedBy: 'seed script',
-		});
+			const response = await request(app)
+				.post('/api/import/process')
+				.field('importedBy', 'seed script')
+				.field('tableId', table.tableId)  // Required for lookup tables
+				.attach('file', path.resolve(__dirname, table.filePath));
 
-	const departmentsResponse = await request(app)
-		.post('/api/import/departments')
-		.send({
-			mappedData: departmentsCSV,
-			fileName: 'departments.csv',
-			importedBy: 'seed script',
-		});
+			responses.push({
+				file: path.basename(table.filePath),
+				status: response.status,
+				success: response.body.success,
+				error: response.status !== 200 ? response.body.error : undefined
+			});
 
-	const instructionalMethodsResponse = await request(app)
-		.post('/api/import/instructional-methods')
-		.send({
-			mappedData: instructionalMethodsCSV,
-			fileName: 'instructional-methods.csv',
-			importedBy: 'seed script',
-		});
-
-	const programsResponse = await request(app)
-		.post('/api/import/programs')
-		.send({
-			mappedData: programsCSV,
-			fileName: 'major-minor.csv',
-			importedBy: 'seed script',
-		});
-
-	const nationsResponse = await request(app)
-		.post('/api/import/nations')
-		.send({
-			mappedData: nationsCSV,
-			fileName: 'nations.csv',
-			importedBy: 'seed script',
-		});
-
-	const partOfTermResponse = await request(app)
-		.post('/api/import/part-of-term')
-		.send({
-			mappedData: partOfTermCSV,
-			fileName: 'part-of-term.csv',
-			importedBy: 'seed script',
-		});
-
-	const registrationStatusResponse = await request(app)
-		.post('/api/import/registration-status')
-		.send({
-			mappedData: registrationStatusCSV,
-			fileName: 'registration-status.csv',
-			importedBy: 'seed script',
-		});
-
-	const subjectPrefixesResponse = await request(app)
-		.post('/api/import/subject-prefixes')
-		.send({
-			mappedData: subjectPrefixesCSV,
-			fileName: 'subject-prefixes.csv',
-			importedBy: 'seed script',
-		});
-
-	const demographicsResponse = await request(app)
-		.post('/api/import/demographics')
-		.send({
-			mappedData: demographicsCSV,
-			fileName: 'demographics.csv',
-			importedBy: 'seed script',
-		});
-
-	const studentCoursesResponse = await request(app)
-		.post('/api/import/student-courses')
-		.send({
-			mappedData: studentCoursesCSV,
-			fileName: 'courses-sample.csv',
-			importedBy: 'seed script',
-		});
-
-	const testScoresResponse = await request(app)
-		.post('/api/import/test-scores')
-		.send({
-			mappedData: testScoresCSV,
-			fileName: 'test-scores-sample.csv',
-			importedBy: 'seed script',
-		});
-
-	const overridesResponse = await request(app)
-		.post('/api/import/overrides')
-		.send({
-			mappedData: overridesCSV,
-			fileName: 'overrides-sample.csv',
-			importedBy: 'seed script',
-		});
-
-	const previousCollegesResponse = await request(app)
-		.post('/api/import/previous-colleges')
-		.send({
-			mappedData: previousCollegesCSV,
-			fileName: 'previous-colleges-sample.csv',
-			importedBy: 'seed script',
-		});
-
-	// Check if any of the responses have failed status codes
-	if (
-		termsResponse.status !== 200 ||
-		academicStandingResponse.status !== 200 ||
-		admitCodesResponse.status !== 200 ||
-		collegeCodesResponse.status !== 200 ||
-		collegesResponse.status !== 200 ||
-		coursesResponse.status !== 200 ||
-		departmentsResponse.status !== 200 ||
-		instructionalMethodsResponse.status !== 200 ||
-		programsResponse.status !== 200 ||
-		nationsResponse.status !== 200 ||
-		partOfTermResponse.status !== 200 ||
-		registrationStatusResponse.status !== 200 ||
-		subjectPrefixesResponse.status !== 200 ||
-		demographicsResponse.status !== 200 ||
-		studentCoursesResponse.status !== 200 ||
-		testScoresResponse.status !== 200 ||
-		overridesResponse.status !== 200 ||
-		previousCollegesResponse.status !== 200
-	) {
-		throw new Error('Failed to seed database.');
+			if (response.status !== 200) {
+				console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
+			} else {
+				console.log(`Successfully imported ${path.basename(table.filePath)}`);
+			}
+		} catch (error: any) {
+			console.error(`Error importing ${path.basename(table.filePath)}:`, error);
+			responses.push({
+				file: path.basename(table.filePath),
+				status: 500,
+				success: false,
+				error: error.message
+			});
+		}
 	}
+
+	// Process data tables
+	console.log('\nImporting data tables...');
+	for (const table of dataTables) {
+		try {
+			console.log(`Importing ${path.basename(table.filePath)}...`);
+
+			// Log full path of the file
+			console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
+
+			// For data tables, we need to use the expected filename pattern
+			const response = await request(app)
+				.post('/api/import/process')
+				.field('importedBy', 'seed script')
+				.attach('file', fs.readFileSync(path.resolve(__dirname, table.filePath)), {
+					filename: path.basename(table.filePath),
+					contentType: 'text/csv'
+				});
+
+			responses.push({
+				file: path.basename(table.filePath),
+				status: response.status,
+				success: response.body.success,
+				error: response.status !== 200 ? response.body.error : undefined
+			});
+
+			console.log(`Response: ${response.status} - ${response.body.success}`);
+
+			if (response.status !== 200) {
+				console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
+			} else {
+				console.log(`Successfully imported ${path.basename(table.filePath)}`);
+			}
+		} catch (error: any) {
+			console.error(`Error importing ${path.basename(table.filePath)}:`, error);
+			responses.push({
+				file: path.basename(table.filePath),
+				status: 500,
+				success: false,
+				error: error.message
+			});
+		}
+	}
+
+	// Check if any imports failed
+	const failedImports = responses.filter(r => !r.success);
+
+	if (failedImports.length > 0) {
+		console.error('\nSome imports failed:');
+		failedImports.forEach(failure => {
+			console.error(`- ${failure.file}: ${failure.error}`);
+		});
+		throw new Error('Failed to seed database completely');
+	}
+
+	console.log('\nDatabase seeding completed successfully');
 };
+
+// Check if this is the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
+	seedDatabase()
+		.then(() => {
+			console.log('Seed completed, exiting.');
+			process.exit(0);
+		})
+		.catch(err => {
+			console.error('Seed failed:', err);
+			process.exit(1);
+		});
+}

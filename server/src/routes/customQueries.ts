@@ -3,22 +3,17 @@ import { getDbConnection } from '../db/connection';
 import { buildDrizzleQuery, allowedTables } from '../utils/buildDrizzleQuery';
 import { relationshipsMapping } from '../utils/relationshipMapping';
 
-import { authenticateUser } from '../middleware/authenticateUser';
-import { getRolesPermissions } from '../middleware/getRolesPermissions';
-import { hasRole } from '../middleware/hasRole';
+import { hasRole } from '../middleware/has-role';
 
 import { AuthAndPermissionsRequest } from '../types/requests';
 
-const COBIS_ADMIN_ROLE_ID = 6;
 
 // Define the API endpoint
 const router = express.Router()
 
 // Attach middleware
-router.use(authenticateUser)
-router.use(getRolesPermissions)
 // @ts-ignore
-router.use(hasRole(COBIS_ADMIN_ROLE_ID))
+router.use(hasRole('cobis_administrator'))
 
 router.get('/metadata', (req: Request, res: Response) => {
 	try {

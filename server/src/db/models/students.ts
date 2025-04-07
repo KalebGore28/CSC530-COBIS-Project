@@ -1,13 +1,13 @@
 import { sqliteTable, text, int } from "drizzle-orm/sqlite-core";
 import { relations } from "drizzle-orm";
 
-import { studentAcademicInfo } from "./student_academic_info";
+import { studentAcademicInfo } from "./student-academic-info";
 import { overrides } from "./overrides";
-import { previousColleges } from "./previous_colleges";
-import { studentAddresses } from "./student_addresses";
-import { studentAdvisors } from "./student_advisors";
-import { studentCourses } from "./student_courses";
-import { studentPrograms } from "./student_programs";
+import { previousColleges } from "./previous-colleges";
+import { studentAddresses } from "./student-addresses";
+import { studentAdvisors } from "./student-advisors";
+import { studentCourses } from "./student-courses";
+import { studentPrograms } from "./student-programs";
 import { testScores } from "./test_scores";
 
 export const students = sqliteTable("students", {
@@ -17,7 +17,7 @@ export const students = sqliteTable("students", {
 	last_name: text("last_name").notNull(),
 	suffix: text("suffix").notNull(),
 	gender: text("gender").notNull(),
-	birthdate: text().notNull(),
+	birthdate: text("birthdate").notNull(),
 	citizenship: text("citizenship").notNull(),
 	race_code: text("race_code").notNull(),
 	race_description: text("race_description").notNull(),
@@ -25,6 +25,7 @@ export const students = sqliteTable("students", {
 	residency_description: text("residency_description").notNull(),
 	age: int("age").notNull(),
 	cell_phone: text("cell_phone").notNull(),
+	email: text("email").notNull(),
 });
 
 export const studentsRelations = relations(students, ({ many }) => ({

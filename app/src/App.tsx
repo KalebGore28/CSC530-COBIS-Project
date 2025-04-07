@@ -6,13 +6,15 @@ import Reports from './pages/Reports';
 import StudentsReport from './pages/StudentsReport';
 import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
-import CsvImport from './pages/CsvImport';
+import { CsvImport } from './pages/CsvImport';
 import TestPage from './pages/TestPage';
 import WaitingPage from './pages/Waiting';
 import OnboardingPage from './pages/Onboarding';
 import StudentLookup from './pages/StudentLookup';
 
+import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
+import ClassRosterPage from './pages/ClassRoster';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -30,7 +32,7 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!session.is_enabled) {
+  if (!session.isEnabled) {
     return <WaitingPage />;
   }
 
@@ -44,6 +46,7 @@ export const App: React.FC = () => {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
+        <Route path="class-roster" element={<ClassRosterPage />} />
         <Route path="reports" element={<Reports />}>
           <Route path="students" element={<StudentsReport />} />
         </Route>
@@ -52,6 +55,7 @@ export const App: React.FC = () => {
           <Route path="imports" element={<CsvImport />} />
         </Route>
         <Route path="test-page" element={<TestPage />} />
+        <Route path="/professor-stats" element={<ProfessorPage />} />
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

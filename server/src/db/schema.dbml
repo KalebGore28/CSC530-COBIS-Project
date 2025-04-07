@@ -24,14 +24,6 @@ table admit_codes {
   description text [not null]
 }
 
-table advisors {
-  id text [pk, not null]
-  first_name text [not null]
-  last_name text [not null]
-  middle_name text [not null]
-  suffix text [not null]
-}
-
 table college_codes {
   code text [pk, not null]
   description text [not null]
@@ -60,9 +52,15 @@ table courses {
 table departments {
   code text [pk, not null]
   description text [not null]
-  prefixes text
-  canvas_id text
   college text [not null, default: '0']
+}
+
+table faculty {
+  mnumber text [pk, not null]
+  first_name text [not null]
+  last_name text [not null]
+  college text
+  department text
 }
 
 table imports {
@@ -82,16 +80,18 @@ table instructional_methods {
 }
 
 table instructor_courses {
-  instructor_mnumber text [not null]
+  mnumber text [not null]
   term text [not null]
   year integer [not null]
+  crn text [not null]
   course_subject text [not null]
   course_number text [not null]
   course_suffix text [not null, default: '']
+  course_section text [not null, default: '']
   role text [not null, default: 'Instructor']
 
   indexes {
-    (instructor_mnumber, term, year, course_subject, course_number, course_suffix) [pk]
+    (mnumber, term, crn) [pk]
     
   }
 }
@@ -194,6 +194,8 @@ table session {
 
 table student_academic_info {
   mnumber text [not null]
+  term text [not null]
+  year integer [not null]
   admit_term text [not null]
   admit_year integer [not null]
   admit_code text [not null]
@@ -208,7 +210,7 @@ table student_academic_info {
   overall_gpa real [not null]
 
   indexes {
-    (mnumber, admit_term, admit_year) [pk]
+    (mnumber, term, year) [pk]
   }
 }
 
@@ -230,13 +232,13 @@ table student_addresses {
 }
 
 table student_advisors {
-  mnumber text [not null]
+  student_mnumber text [not null]
   term text [not null]
   year integer [not null]
-  advisor_id text [not null]
+  advisor_mnumber text [not null]
 
   indexes {
-    (mnumber, term, year, advisor_id) [pk]
+    (student_mnumber, term, year, advisor_mnumber) [pk]
   }
 }
 
@@ -248,15 +250,15 @@ table student_courses {
   crn text [not null]
   course_subject text [not null]
   course_number text [not null]
-  course_suffix text [not null]
+  course_suffix text [not null, default: '']
   course_section text [not null]
   course_hours integer [not null]
   course_level text [not null]
   registration_status text [not null]
   instructional_method text [not null]
   last_attendance text
-  midterm_grade real
-  final_grade real
+  midterm_grade text
+  final_grade text
 
   indexes {
     (mnumber, term, year, crn) [pk]
@@ -268,24 +270,15 @@ table student_programs {
   mnumber text [not null]
   term text [not null]
   year integer [not null]
-  study text [not null]
   type text [not null]
   level text [not null]
   program text [not null]
-  department text [not null]
-  college text [not null]
 
   indexes {
-    (mnumber, term, year, type, program) [pk]
+    (mnumber, type, program) [pk]
     
     
   }
-}
-
-table student_types {
-  code text [pk, not null]
-  description text [not null]
-  next_student_type text [not null]
 }
 
 table students {
@@ -303,16 +296,7 @@ table students {
   residency_description text [not null]
   age integer [not null]
   cell_phone text [not null]
-}
-
-table subject_prefixes {
-  college text [not null]
-  department text [not null]
-  prefix text [not null]
-
-  indexes {
-    (college, department, prefix) [pk]
-  }
+  email text [not null]
 }
 
 table terms {
@@ -338,8 +322,6 @@ table user {
   name text [not null]
   email text [not null, unique]
   email_verified integer [not null]
-  college text
-  department text
   image text
   created_at integer [not null]
   updated_at integer [not null]
@@ -376,15 +358,11 @@ table verification {
   updated_at integer
 }
 
-ref: colleges.code > user.college
-
 ref: departments.college > colleges.code
-
-ref: departments.code > user.department
 
 ref: imports.imported_by > user.id
 
-ref: instructor_courses.instructor_mnumber > user.mnumber
+ref: instructor_courses.mnumber > user.mnumber
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
@@ -420,11 +398,9 @@ ref: student_addresses.mnumber > students.mnumber
 
 ref: student_addresses.nation_code > nations.code
 
-ref: student_advisors.mnumber > students.mnumber
+ref: student_advisors.student_mnumber > students.mnumber
 
 ref: student_advisors.term > terms.code
-
-ref: student_advisors.advisor_id > advisors.id
 
 ref: student_courses.mnumber > students.mnumber
 
@@ -443,16 +419,6 @@ ref: student_programs.mnumber > students.mnumber
 ref: student_programs.term > terms.code
 
 ref: student_programs.program > programs.code
-
-ref: student_programs.department > departments.code
-
-ref: student_programs.college > colleges.code
-
-ref: student_types.next_student_type - student_types.code
-
-ref: subject_prefixes.college > colleges.code
-
-ref: subject_prefixes.department > departments.code
 
 ref: test_scores.mnumber > students.mnumber
 

@@ -6,9 +6,9 @@ import { roleAccessDefinitions } from './data/roleAccess';
 const roleIds: { [key: string]: number } = {
     'faculty': 1,
     'advisor': 2,
-    'program_coordinators': 3,
-    'department_chairs': 4,
-    'administrators_administrative_assistants': 5,
+    'program_coordinator': 3,
+    'department_chair': 4,
+    'administrator': 5,
     'cobis_administrator': 6
 };
 
@@ -49,9 +49,9 @@ export async function seedPermissions(orm: any): Promise<void> {
             .values([
                 { id: 1, name: 'faculty' },
                 { id: 2, name: 'advisor' },
-                { id: 3, name: 'program_coordinators' },
-                { id: 4, name: 'department_chairs' },
-                { id: 5, name: 'administrators_administrative_assistants' },
+                { id: 3, name: 'program_coordinator' },
+                { id: 4, name: 'department_chair' },
+                { id: 5, name: 'administrator' },
                 { id: 6, name: 'cobis_administrator' },
             ])
             .onConflictDoNothing()

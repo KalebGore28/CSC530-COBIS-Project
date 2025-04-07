@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ee059102-d93e-4592-9214-9a6d1e5f2a22",
+  "id": "42f11f18-ecbf-4145-be4f-4d43187a8677",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -40,51 +40,6 @@
         },
         "description": {
           "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "advisors": {
-      "name": "advisors",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "middle_name": {
-          "name": "middle_name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "suffix": {
-          "name": "suffix",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -241,20 +196,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "prefixes": {
-          "name": "prefixes",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "canvas_id": {
-          "name": "canvas_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "college": {
           "name": "college",
           "type": "text",
@@ -392,8 +333,8 @@
     "instructor_courses": {
       "name": "instructor_courses",
       "columns": {
-        "instructor_mnumber": {
-          "name": "instructor_mnumber",
+        "mnumber": {
+          "name": "mnumber",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -409,6 +350,13 @@
         "year": {
           "name": "year",
           "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "crn": {
+          "name": "crn",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -446,19 +394,6 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "instructor_courses_instructor_mnumber_user_mnumber_fk": {
-          "name": "instructor_courses_instructor_mnumber_user_mnumber_fk",
-          "tableFrom": "instructor_courses",
-          "tableTo": "user",
-          "columnsFrom": [
-            "instructor_mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
         "instructor_courses_term_terms_code_fk": {
           "name": "instructor_courses_term_terms_code_fk",
           "tableFrom": "instructor_courses",
@@ -491,18 +426,87 @@
         }
       },
       "compositePrimaryKeys": {
-        "instructor_courses_instructor_mnumber_term_year_course_subject_course_number_course_suffix_pk": {
+        "instructor_courses_mnumber_term_crn_pk": {
           "columns": [
-            "instructor_mnumber",
+            "mnumber",
             "term",
-            "year",
-            "course_subject",
-            "course_number",
-            "course_suffix"
+            "crn"
           ],
-          "name": "instructor_courses_instructor_mnumber_term_year_course_subject_course_number_course_suffix_pk"
+          "name": "instructor_courses_mnumber_term_crn_pk"
         }
       },
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
+    "faculty": {
+      "name": "faculty",
+      "columns": {
+        "mnumber": {
+          "name": "mnumber",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "college": {
+          "name": "college",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "department": {
+          "name": "department",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "faculty_college_colleges_code_fk": {
+          "name": "faculty_college_colleges_code_fk",
+          "tableFrom": "faculty",
+          "tableTo": "colleges",
+          "columnsFrom": [
+            "college"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "faculty_department_departments_code_fk": {
+          "name": "faculty_department_departments_code_fk",
+          "tableFrom": "faculty",
+          "tableTo": "departments",
+          "columnsFrom": [
+            "department"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -1055,6 +1059,20 @@
           "notNull": true,
           "autoincrement": false
         },
+        "term": {
+          "name": "term",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "admit_term": {
           "name": "admit_term",
           "type": "text",
@@ -1155,6 +1173,19 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
+        "student_academic_info_term_terms_code_fk": {
+          "name": "student_academic_info_term_terms_code_fk",
+          "tableFrom": "student_academic_info",
+          "tableTo": "terms",
+          "columnsFrom": [
+            "term"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "student_academic_info_admit_term_terms_code_fk": {
           "name": "student_academic_info_admit_term_terms_code_fk",
           "tableFrom": "student_academic_info",
@@ -1196,13 +1227,13 @@
         }
       },
       "compositePrimaryKeys": {
-        "student_academic_info_mnumber_admit_term_admit_year_pk": {
+        "student_academic_info_mnumber_term_year_pk": {
           "columns": [
             "mnumber",
-            "admit_term",
-            "admit_year"
+            "term",
+            "year"
           ],
-          "name": "student_academic_info_mnumber_admit_term_admit_year_pk"
+          "name": "student_academic_info_mnumber_term_year_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1324,8 +1355,8 @@
     "student_advisors": {
       "name": "student_advisors",
       "columns": {
-        "mnumber": {
-          "name": "mnumber",
+        "student_mnumber": {
+          "name": "student_mnumber",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1345,8 +1376,8 @@
           "notNull": true,
           "autoincrement": false
         },
-        "advisor_id": {
-          "name": "advisor_id",
+        "advisor_mnumber": {
+          "name": "advisor_mnumber",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1355,12 +1386,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "student_advisors_mnumber_students_mnumber_fk": {
-          "name": "student_advisors_mnumber_students_mnumber_fk",
+        "student_advisors_student_mnumber_students_mnumber_fk": {
+          "name": "student_advisors_student_mnumber_students_mnumber_fk",
           "tableFrom": "student_advisors",
           "tableTo": "students",
           "columnsFrom": [
-            "mnumber"
+            "student_mnumber"
           ],
           "columnsTo": [
             "mnumber"
@@ -1380,30 +1411,17 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "student_advisors_advisor_id_advisors_id_fk": {
-          "name": "student_advisors_advisor_id_advisors_id_fk",
-          "tableFrom": "student_advisors",
-          "tableTo": "advisors",
-          "columnsFrom": [
-            "advisor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "student_advisors_mnumber_term_year_advisor_id_pk": {
+        "student_advisors_student_mnumber_term_year_advisor_mnumber_pk": {
           "columns": [
-            "mnumber",
+            "student_mnumber",
             "term",
             "year",
-            "advisor_id"
+            "advisor_mnumber"
           ],
-          "name": "student_advisors_mnumber_term_year_advisor_id_pk"
+          "name": "student_advisors_student_mnumber_term_year_advisor_mnumber_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1466,7 +1484,8 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": "''"
         },
         "course_section": {
           "name": "course_section",
@@ -1512,14 +1531,14 @@
         },
         "midterm_grade": {
           "name": "midterm_grade",
-          "type": "real",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
         "final_grade": {
           "name": "final_grade",
-          "type": "real",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1648,13 +1667,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "study": {
-          "name": "study",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
         "type": {
           "name": "type",
           "type": "text",
@@ -1671,20 +1683,6 @@
         },
         "program": {
           "name": "program",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "college": {
-          "name": "college",
           "type": "text",
           "primaryKey": false,
           "notNull": true,
@@ -1731,44 +1729,16 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "student_programs_department_departments_code_fk": {
-          "name": "student_programs_department_departments_code_fk",
-          "tableFrom": "student_programs",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "student_programs_college_colleges_code_fk": {
-          "name": "student_programs_college_colleges_code_fk",
-          "tableFrom": "student_programs",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
-        "student_programs_mnumber_term_year_type_program_pk": {
+        "student_programs_mnumber_type_program_pk": {
           "columns": [
             "mnumber",
-            "term",
-            "year",
             "type",
             "program"
           ],
-          "name": "student_programs_mnumber_term_year_type_program_pk"
+          "name": "student_programs_mnumber_type_program_pk"
         }
       },
       "uniqueConstraints": {},
@@ -1782,51 +1752,6 @@
           "value": "\"student_programs\".\"level\" IN ('UG', 'GR', 'PB')"
         }
       }
-    },
-    "student_types": {
-      "name": "student_types",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "next_student_type": {
-          "name": "next_student_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_types_next_student_type_student_types_code_fk": {
-          "name": "student_types_next_student_type_student_types_code_fk",
-          "tableFrom": "student_types",
-          "tableTo": "student_types",
-          "columnsFrom": [
-            "next_student_type"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
     },
     "students": {
       "name": "students",
@@ -1928,78 +1853,18 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "checkConstraints": {}
-    },
-    "subject_prefixes": {
-      "name": "subject_prefixes",
-      "columns": {
-        "college": {
-          "name": "college",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "prefix": {
-          "name": "prefix",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "subject_prefixes_college_colleges_code_fk": {
-          "name": "subject_prefixes_college_colleges_code_fk",
-          "tableFrom": "subject_prefixes",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "subject_prefixes_department_departments_code_fk": {
-          "name": "subject_prefixes_department_departments_code_fk",
-          "tableFrom": "subject_prefixes",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "subject_prefixes_college_department_prefix_pk": {
-          "columns": [
-            "college",
-            "department",
-            "prefix"
-          ],
-          "name": "subject_prefixes_college_department_prefix_pk"
-        }
-      },
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
@@ -2464,20 +2329,6 @@
           "notNull": true,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
         "image": {
           "name": "image",
           "type": "text",
@@ -2532,34 +2383,7 @@
           "isUnique": true
         }
       },
-      "foreignKeys": {
-        "user_college_colleges_code_fk": {
-          "name": "user_college_colleges_code_fk",
-          "tableFrom": "user",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "user_department_departments_code_fk": {
-          "name": "user_department_departments_code_fk",
-          "tableFrom": "user",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "checkConstraints": {}
