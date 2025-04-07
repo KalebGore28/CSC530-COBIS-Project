@@ -15,17 +15,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { TableColumn, ColumnValidationResult } from "../../types/csv-import-types";
+import { ColumnDefinition } from "../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+// Define validation result interface
+interface ColumnValidationResult {
+  isValid: boolean;
+  errors: Record<string, string[]>;
+}
+
 interface ColumnMapperProps {
-  tableFields: TableColumn[];  // Using TableColumn instead of TableField
+  tableFields: ColumnDefinition[];
   csvHeaders: string[];
   mapping: Record<string, string>;
   onMapChange: (columnName: string, csvColumn: string) => void;
-  validationResult?: ColumnValidationResult;  // Properly typed validation result
+  validationResult?: ColumnValidationResult;
 }
 
 export const ColumnMapper: React.FC<ColumnMapperProps> = ({
@@ -36,8 +42,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 }) => {
   // Count all unmapped columns (all columns are required)
   const unmappedColumns = tableFields
-    .filter(column => !mapping[column.name])
-    .map(column => column.name);
+    .filter(column => !mapping[column.dbColumn])
+    .map(column => column.dbColumn);
 
   const hasUnmappedColumns = unmappedColumns.length > 0;
 
@@ -86,12 +92,12 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
           </TableHeader>
           <TableBody>
             {tableFields.map((column) => {
-              const hasMapping = mapping[column.name] !== undefined && mapping[column.name] !== "";
+              const hasMapping = mapping[column.dbColumn] !== undefined && mapping[column.dbColumn] !== "";
               const isMapped = hasMapping;
 
               return (
                 <TableRow
-                  key={column.name}
+                  key={column.dbColumn}
                   className={cn(
                     "group transition-colors",
                     !isMapped ? "bg-red-50/50" : "bg-green-50/50"
@@ -104,7 +110,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                       ) : (
                         <Hash className="h-3.5 w-3.5 text-slate-500" />
                       )}
-                      <div className="font-medium">{column.name}</div>
+                      <div className="font-medium">{column.dbColumn}</div>
                     </div>
                     <div className="text-xs text-muted-foreground ml-5 mt-0.5">
                       {column.isPrimaryKey && (hasCompositeKey ? "Composite Key" : "Primary Key")}
@@ -117,8 +123,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                   </TableCell>
                   <TableCell>
                     <Select
-                      value={mapping[column.name] || "none"}
-                      onValueChange={(value) => onMapChange(column.name, value === "none" ? "" : value)}
+                      value={mapping[column.dbColumn] || "none"}
+                      onValueChange={(value) => onMapChange(column.dbColumn, value === "none" ? "" : value)}
                     >
                       <SelectTrigger
                         className={cn(
@@ -132,7 +138,9 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                         <SelectItem value="none">-- None --</SelectItem>
                         {csvHeaders.map((header) => {
                           // Check if this header is a suggested match
-                          const isExactMatch = column.csvColumn?.toLowerCase() === header.toLowerCase();
+                          const isExactMatch =
+                            header.toLowerCase() === column.dbColumn.toLowerCase() ||
+                            (column.csvColumn && header.toLowerCase() === column.csvColumn.toLowerCase());
 
                           return (
                             <SelectItem

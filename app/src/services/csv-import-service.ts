@@ -187,13 +187,13 @@ export const CsvImportService = {
     if (!table || !table.columns) return false;
 
     // Get all required columns
-    const requiredColumns = table.columns.filter(col => col && (col.isPrimaryKey || col.isRequired));
+    const requiredColumns = table.columns.filter(col => col && (col.isPrimaryKey));
 
     if (requiredColumns.length === 0) return true; // If no required columns, mapping is valid
 
     // Check that all required columns are mapped
     for (const column of requiredColumns) {
-      if (!column || !column.name || !mapping[column.name]) {
+      if (!column || !column.dbColumn || !mapping[column.dbColumn]) {
         return false;
       }
     }

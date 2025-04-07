@@ -18,15 +18,6 @@ import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 import CsvImportService from "../services/csv-import-service";
 import { ColumnDefinition, TableConfig } from "../types/csv-import-types";
 
-// TableColumn interface used in ColumnMapper
-interface TableColumn {
-  name: string;
-  csvColumn: string;
-  isPrimaryKey: boolean;
-  isRequired: boolean;
-  hasTransform: boolean;
-}
-
 export const CsvImport: React.FC = () => {
   // State for the import flow
   const [file, setFile] = useState<File | null>(null);
@@ -35,7 +26,7 @@ export const CsvImport: React.FC = () => {
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [tables, setTables] = useState<TableConfig[]>([]);
   const [selectedTable, setSelectedTable] = useState<TableConfig | null>(null);
-  const [tableFields, setTableFields] = useState<TableColumn[]>([]);
+  const [tableFields, setTableFields] = useState<ColumnDefinition[]>([]);
   const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
   const [importResult, setImportResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
@@ -84,6 +75,48 @@ export const CsvImport: React.FC = () => {
     fetchTables();
   }, []);
 
+  // Handle column mapping
+  const handleMapChange = (columnName: string, csvColumn: string) => {
+    setColumnMapping(prev => ({
+      ...prev,
+      [columnName]: csvColumn
+    }));
+  };
+
+  // Auto map columns based on CSV headers
+  const autoMapColumns = (tableColumns: ColumnDefinition[], headers: string[]) => {
+    const mapping: Record<string, string> = {};
+
+    tableColumns.forEach(column => {
+      // Try different matching strategies
+      // 1. Direct match (case insensitive)
+      let matchingHeader = headers.find(h =>
+        h.toLowerCase() === column.dbColumn.toLowerCase()
+      );
+
+      // 2. Match against csvColumn property if specified
+      if (!matchingHeader && column.csvColumn) {
+        matchingHeader = headers.find(h =>
+          h.toLowerCase() === column.csvColumn.toLowerCase()
+        );
+      }
+
+      // 3. Try partial match (contains)
+      if (!matchingHeader) {
+        matchingHeader = headers.find(h =>
+          h.toLowerCase().includes(column.dbColumn.toLowerCase()) ||
+          (column.csvColumn && h.toLowerCase().includes(column.csvColumn.toLowerCase()))
+        );
+      }
+
+      if (matchingHeader) {
+        mapping[column.dbColumn] = matchingHeader;
+      }
+    });
+
+    return mapping;
+  };
+
   // Handle file selection
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files || e.target.files.length === 0) {
@@ -115,31 +148,11 @@ export const CsvImport: React.FC = () => {
           const matchingTable = CsvImportService.findMatchingTable(uploadedFile.name, tables);
           if (matchingTable) {
             setSelectedTable(matchingTable);
-            setTableFields(matchingTable.columns.map(col => ({
-              name: col.name,
-              csvColumn: col.csvColumn,
-              isPrimaryKey: col.isPrimaryKey,
-              isRequired: col.isRequired,
-              hasTransform: col.hasTransform
-            })));
+            setTableFields(matchingTable.columns);
 
-            // Auto-map columns if possible
-            if (matchingTable.columns) {
-              const autoMapping: Record<string, string> = {};
-              matchingTable.columns.forEach(col => {
-                // Look for exact matches between column names and CSV headers
-                const matchingHeader = headers.find(h =>
-                  h.toLowerCase() === col.name.toLowerCase() ||
-                  h.toLowerCase() === col.csvColumn.toLowerCase()
-                );
-
-                if (matchingHeader) {
-                  autoMapping[col.name] = matchingHeader;
-                }
-              });
-
-              setColumnMapping(autoMapping);
-            }
+            // Auto-map columns using the improved function
+            const autoMapping = autoMapColumns(matchingTable.columns, headers);
+            setColumnMapping(autoMapping);
           }
         } else {
           setError("Failed to parse CSV file");
@@ -170,42 +183,30 @@ export const CsvImport: React.FC = () => {
     const table = tables.find(t => t.tableId === tableId);
     if (table) {
       setSelectedTable(table);
+      setTableFields(table.columns);
 
-      // Convert columns to TableColumn format expected by ColumnMapper
-      const columns: TableColumn[] = table.columns.map(col => ({
-        name: col.name,
-        csvColumn: col.csvColumn,
-        isPrimaryKey: col.isPrimaryKey,
-        isRequired: col.isRequired,
-        hasTransform: col.hasTransform
-      }));
-
-      setTableFields(columns);
-
-      // Reset mapping
-      setColumnMapping({});
+      // Auto-map columns if we have headers
+      if (csvHeaders.length > 0) {
+        const autoMapping = autoMapColumns(table.columns, csvHeaders);
+        setColumnMapping(autoMapping);
+      } else {
+        // Reset mapping if we don't have headers
+        setColumnMapping({});
+      }
     }
-  };
-
-  // Handle column mapping
-  const handleMapChange = (columnName: string, csvColumn: string) => {
-    setColumnMapping(prev => ({
-      ...prev,
-      [columnName]: csvColumn
-    }));
   };
 
   // Check if all required fields are mapped
   const areAllRequiredFieldsMapped = () => {
     if (!selectedTable || !tableFields) return false;
 
-    // Check if all required columns are mapped
+    // Check if all required columns are mapped (primary keys are required)
     const requiredColumns = tableFields.filter(field =>
-      field.isPrimaryKey || field.isRequired
+      field.isPrimaryKey
     );
 
     return requiredColumns.every(field =>
-      columnMapping[field.name] && columnMapping[field.name].length > 0
+      columnMapping[field.dbColumn] && columnMapping[field.dbColumn].length > 0
     );
   };
 

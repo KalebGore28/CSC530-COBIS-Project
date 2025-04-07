@@ -4,10 +4,9 @@
 
 // Column definition
 export interface ColumnDefinition {
-	name: string;
+	dbColumn: string;
 	csvColumn: string;
 	isPrimaryKey: boolean;
-	isRequired: boolean;
 	hasTransform: boolean;
 }
 
