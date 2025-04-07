@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +11,7 @@ import { ImportResultDisplay } from "@/components/csv-import/import-result";
 import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
 
 // Import types
-import { TableConfig, ImportError } from "../types/csv-import-types";
+import { TableConfig, ImportError, ImportInfoResponse } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
@@ -100,26 +100,26 @@ export const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  console.log(CsvImportService.getImportInfo())
+  const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
+
+  useEffect(() => {
+    const fetchImportInfo = async () => {
+      const info = await CsvImportService.getImportInfo();
+      setImportInfo(info);
+    };
+    fetchImportInfo();
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
-
-    if (file) {
-      console.log("File selected:", {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        lastModified: new Date(file.lastModified).toLocaleString()
-      });
-    }
   };
 
   const handleClearFile = () => {
     setSelectedFile(null);
-    console.log("File cleared");
   };
+
+  
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -140,7 +140,7 @@ export const CsvImport: React.FC = () => {
                 onClearFile={handleClearFile}
                 file={selectedFile}
               />
-              {selectedFile &&<TableSelector
+              {selectedFile && <TableSelector
                 tables={mockTableConfig}
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
