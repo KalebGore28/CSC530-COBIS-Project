@@ -252,8 +252,8 @@ export default function ClassRoster({
   const totalStudents = students.length
 
   return (
-    <div className="container py-8 max-w-6xl">
-      <div className="grid gap-6">
+    <div className="container mx-auto max-w-7xl">
+      <div className="grid gap-6 max-w-6xl mx-auto">
         {/* Course Information Card */}
         <Card>
           <CardContent className="p-6">

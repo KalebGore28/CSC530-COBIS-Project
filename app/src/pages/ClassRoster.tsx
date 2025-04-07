@@ -37,6 +37,7 @@ const ClassRosterPage: React.FC = () => {
 	const [selectedClass, setSelectedClass] = useState({
 		subject: "CS",
 		number: "101",
+		suffix: "",
 		section: "001",
 		term: "FALL",
 		year: 2024
@@ -44,10 +45,11 @@ const ClassRosterPage: React.FC = () => {
 
 	// Function to handle class selection
 	const handleClassChange = (classString: string) => {
-		const [subject, number, section, term, year] = classString.split("-");
+		const [subject, number, suffix, section, term, year] = classString.split("-");
 		setSelectedClass({
 			subject,
 			number,
+			suffix,
 			section,
 			term,
 			year: parseInt(year)
@@ -60,7 +62,7 @@ const ClassRosterPage: React.FC = () => {
 	};
 
 	return (
-		<div className="p-6">
+		<div className="p-6 max-w-7xl mx-auto">
 			<Card className="mb-6">
 				<CardHeader>
 					<CardTitle>Class Roster</CardTitle>
@@ -95,10 +97,10 @@ const ClassRosterPage: React.FC = () => {
 				</CardContent>
 			</Card>
 
-			{/* For now, we're using the existing component with classId prop */}
 			<ClassRosterComponent
 				subject={selectedClass.subject}
 				number={selectedClass.number}
+				suffix={selectedClass.suffix}
 				section={selectedClass.section}
 				term={selectedClass.term}
 				year={selectedClass.year}
