@@ -46,10 +46,6 @@ const ClassRosterPage: React.FC = () => {
 				const response = await axios.get<InstructorCoursesResponse>(
 					`http://localhost:4000/api/instructor/${mnumber}/courses`,
 					{
-						headers: {
-							Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-							// Add any other headers required by your API
-						},
 						withCredentials: true
 					}
 				);
