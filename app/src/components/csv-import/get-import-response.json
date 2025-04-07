@@ -16,39 +16,39 @@
 						"code",
 						"date"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "testcode",
 							"dbColumn": "code",
+							"csvColumn": "testcode",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "testdesc",
 							"dbColumn": "description",
+							"csvColumn": "testdesc",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "testscore",
 							"dbColumn": "score",
+							"csvColumn": "testscore",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "testdate",
 							"dbColumn": "date",
+							"csvColumn": "testdate",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -67,99 +67,99 @@
 					"primaryKeys": [
 						"mnumber"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "firstname",
 							"dbColumn": "first_name",
+							"csvColumn": "firstname",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "middlename",
 							"dbColumn": "middle_name",
+							"csvColumn": "middlename",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "lastname",
 							"dbColumn": "last_name",
+							"csvColumn": "lastname",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "suffix",
 							"dbColumn": "suffix",
+							"csvColumn": "suffix",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "gender",
 							"dbColumn": "gender",
+							"csvColumn": "gender",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "birthdate",
 							"dbColumn": "birthdate",
+							"csvColumn": "birthdate",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "citizen",
 							"dbColumn": "citizenship",
+							"csvColumn": "citizen",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "race",
 							"dbColumn": "race_code",
+							"csvColumn": "race",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "racedesc",
 							"dbColumn": "race_description",
+							"csvColumn": "racedesc",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "residcode",
 							"dbColumn": "residency_code",
+							"csvColumn": "residcode",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "residdesc",
 							"dbColumn": "residency_description",
+							"csvColumn": "residdesc",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "age",
 							"dbColumn": "age",
+							"csvColumn": "age",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "cellphone",
 							"dbColumn": "cell_phone",
+							"csvColumn": "cellphone",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "msuemail",
 							"dbColumn": "email",
+							"csvColumn": "msuemail",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": false
+					]
 				},
 				{
 					"tableName": "Student Addresses",
@@ -169,117 +169,117 @@
 						"mnumber",
 						"type"
 					],
-					"columnMappings": [
+					"hasRowExpander": true,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
-							"dbColumn": "year",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "type",
+							"dbColumn": "year",
+							"csvColumn": "term",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "type",
+							"csvColumn": "type",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "street1",
 							"csvColumn": "homestreet1",
-							"dbColumn": "street1",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "street2",
 							"csvColumn": "homestreet2",
-							"dbColumn": "street2",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "city",
 							"csvColumn": "homecity",
-							"dbColumn": "city",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "state",
 							"csvColumn": "homestate",
-							"dbColumn": "state",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "zip",
 							"csvColumn": "homezip",
-							"dbColumn": "zip",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "nation_code",
 							"csvColumn": "homenation",
-							"dbColumn": "nation_code",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
+							"dbColumn": "phone",
 							"csvColumn": "homephone",
-							"dbColumn": "phone",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "locstreet1",
 							"dbColumn": "street1",
+							"csvColumn": "locstreet1",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "locstreet2",
 							"dbColumn": "street2",
+							"csvColumn": "locstreet2",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "loccity",
 							"dbColumn": "city",
+							"csvColumn": "loccity",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "locstate",
 							"dbColumn": "state",
+							"csvColumn": "locstate",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "loczip",
 							"dbColumn": "zip",
+							"csvColumn": "loczip",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "locnation",
 							"dbColumn": "nation_code",
+							"csvColumn": "locnation",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "locphone",
 							"dbColumn": "phone",
+							"csvColumn": "locphone",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": true
+					]
 				},
 				{
 					"tableName": "Student Academic Info",
@@ -288,99 +288,99 @@
 					"primaryKeys": [
 						"mnumber"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "year",
+							"csvColumn": "term",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "admitterm",
 							"dbColumn": "admit_term",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "admitterm",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "admit_year",
+							"csvColumn": "admitterm",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "admitcode",
 							"dbColumn": "admit_code",
+							"csvColumn": "admitcode",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "acadstanding",
 							"dbColumn": "academic_standing",
+							"csvColumn": "acadstanding",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "msuatthours",
 							"dbColumn": "msu_attempted_hours",
+							"csvColumn": "msuatthours",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "msuearnhours",
 							"dbColumn": "msu_earned_hours",
+							"csvColumn": "msuearnhours",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "msuqp",
 							"dbColumn": "msu_quality_points",
+							"csvColumn": "msuqp",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "msugpa",
 							"dbColumn": "msu_gpa",
+							"csvColumn": "msugpa",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "overatthours",
 							"dbColumn": "overall_attempted_hours",
+							"csvColumn": "overatthours",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "overearnhours",
 							"dbColumn": "overall_earned_hours",
+							"csvColumn": "overearnhours",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "overqp",
 							"dbColumn": "overall_quality_points",
+							"csvColumn": "overqp",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "overgpa",
 							"dbColumn": "overall_gpa",
+							"csvColumn": "overgpa",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						}
-					],
-					"hasRowExpander": false
+					]
 				},
 				{
 					"tableName": "Student Programs",
@@ -391,39 +391,39 @@
 						"type",
 						"program"
 					],
-					"columnMappings": [
+					"hasRowExpander": true,
+					"columns": [
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
-							"dbColumn": "year",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "type",
+							"dbColumn": "year",
+							"csvColumn": "term",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "type",
+							"csvColumn": "type",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "level",
 							"dbColumn": "level",
+							"csvColumn": "level",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "program",
 							"dbColumn": "program",
+							"csvColumn": "program",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": true
+					]
 				},
 				{
 					"tableName": "Student Advisors",
@@ -433,33 +433,33 @@
 						"student_mnumber",
 						"advisor_mnumber"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "student_mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
-							"dbColumn": "year",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "advnumb",
+							"dbColumn": "year",
+							"csvColumn": "term",
+							"isPrimaryKey": false,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "advisor_mnumber",
+							"csvColumn": "advnumb",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -481,99 +481,99 @@
 						"year",
 						"crn"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": true,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
+							"isPrimaryKey": true,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "year",
+							"csvColumn": "term",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "partofterm",
 							"dbColumn": "part_of_term",
+							"csvColumn": "partofterm",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crn",
 							"dbColumn": "crn",
+							"csvColumn": "crn",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crsesubj",
 							"dbColumn": "course_subject",
+							"csvColumn": "crsesubj",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crsenumb",
 							"dbColumn": "course_number",
+							"csvColumn": "crsenumb",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "section",
 							"dbColumn": "course_section",
+							"csvColumn": "section",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crhrs",
 							"dbColumn": "course_hours",
+							"csvColumn": "crhrs",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "levlcode",
 							"dbColumn": "course_level",
+							"csvColumn": "levlcode",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "rstscode",
 							"dbColumn": "registration_status",
+							"csvColumn": "rstscode",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "insmcode",
 							"dbColumn": "instructional_method",
+							"csvColumn": "insmcode",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "lastattend",
 							"dbColumn": "last_attendance",
+							"csvColumn": "lastattend",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "midgrade",
 							"dbColumn": "midterm_grade",
+							"csvColumn": "midgrade",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "fingrade",
 							"dbColumn": "final_grade",
+							"csvColumn": "fingrade",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": false
+					]
 				},
 				{
 					"tableName": "Instructor Courses",
@@ -585,51 +585,51 @@
 						"year",
 						"crn"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "instmnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "instmnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": true,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
-							"dbColumn": "year",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "crn",
+							"dbColumn": "year",
+							"csvColumn": "term",
+							"isPrimaryKey": true,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "crn",
+							"csvColumn": "crn",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crsesubj",
 							"dbColumn": "course_subject",
+							"csvColumn": "crsesubj",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crsenumb",
 							"dbColumn": "course_number",
+							"csvColumn": "crsenumb",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "section",
 							"dbColumn": "section",
+							"csvColumn": "section",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": false
+					]
 				},
 				{
 					"tableName": "Instructors",
@@ -638,27 +638,27 @@
 					"primaryKeys": [
 						"mnumber"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "instmnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "instmnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "instfirstnm",
 							"dbColumn": "first_name",
+							"csvColumn": "instfirstnm",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "instlastnm",
 							"dbColumn": "last_name",
+							"csvColumn": "instlastnm",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -677,39 +677,39 @@
 						"mnumber",
 						"college_code"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "collegecode",
 							"dbColumn": "college_code",
+							"csvColumn": "collegecode",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "collegedesc",
 							"dbColumn": "college_description",
+							"csvColumn": "collegedesc",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "degree",
 							"dbColumn": "degree",
+							"csvColumn": "degree",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "degreedate",
 							"dbColumn": "date",
+							"csvColumn": "degreedate",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -730,69 +730,69 @@
 						"year",
 						"crn"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "mnumber",
 							"dbColumn": "mnumber",
+							"csvColumn": "mnumber",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "term",
 							"dbColumn": "term",
-							"isPrimaryKey": true,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "term",
-							"dbColumn": "year",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "crn",
+							"dbColumn": "year",
+							"csvColumn": "term",
+							"isPrimaryKey": true,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "crn",
+							"csvColumn": "crn",
 							"isPrimaryKey": true,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "subj",
 							"dbColumn": "course_subject",
+							"csvColumn": "subj",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crsenumb",
 							"dbColumn": "course_number",
+							"csvColumn": "crsenumb",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "section",
 							"dbColumn": "course_section",
+							"csvColumn": "section",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "override",
 							"dbColumn": "override_type",
+							"csvColumn": "override",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "userid",
 							"dbColumn": "granted_by",
+							"csvColumn": "userid",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "activitydate",
 							"dbColumn": "override_date",
+							"csvColumn": "activitydate",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -812,57 +812,57 @@
 						"number",
 						"suffix"
 					],
-					"columnMappings": [
+					"hasRowExpander": false,
+					"columns": [
 						{
-							"csvColumn": "course",
 							"dbColumn": "subject",
+							"csvColumn": "course",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "course",
 							"dbColumn": "number",
-							"isPrimaryKey": true,
-							"hasTransform": true
-						},
-						{
 							"csvColumn": "course",
-							"dbColumn": "suffix",
 							"isPrimaryKey": true,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "crsetitle",
+							"dbColumn": "suffix",
+							"csvColumn": "course",
+							"isPrimaryKey": true,
+							"hasTransform": true
+						},
+						{
 							"dbColumn": "title",
+							"csvColumn": "crsetitle",
 							"isPrimaryKey": false,
 							"hasTransform": false
 						},
 						{
-							"csvColumn": "crhrs",
 							"dbColumn": "hours",
+							"csvColumn": "crhrs",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "course_fee",
 							"dbColumn": "fee",
+							"csvColumn": "course_fee",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "web_fee",
 							"dbColumn": "web_fee",
+							"csvColumn": "web_fee",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						},
 						{
-							"csvColumn": "lastChanged",
 							"dbColumn": "last_updated",
+							"csvColumn": "lastChanged",
 							"isPrimaryKey": false,
 							"hasTransform": true
 						}
-					],
-					"hasRowExpander": false
+					]
 				}
 			]
 		},
@@ -872,31 +872,29 @@
 			],
 			"description": "Academic standing codes",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Academic Standing",
-					"tableId": "academic-standing",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Academic Standing",
+				"tableId": "academic-standing",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -904,31 +902,29 @@
 			],
 			"description": "Admit type codes",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Admit Codes",
-					"tableId": "admit-codes",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Admit Codes",
+				"tableId": "admit-codes",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -936,31 +932,29 @@
 			],
 			"description": "College codes",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "College Codes",
-					"tableId": "college-codes",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "College Codes",
+				"tableId": "college-codes",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -968,31 +962,29 @@
 			],
 			"description": "Colleges data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Colleges",
-					"tableId": "colleges",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Colleges",
+				"tableId": "colleges",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1000,37 +992,35 @@
 			],
 			"description": "Departments data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Departments",
-					"tableId": "departments",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "college",
-							"dbColumn": "college",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Departments",
+				"tableId": "departments",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "college",
+						"csvColumn": "college",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1038,31 +1028,29 @@
 			],
 			"description": "Instructional method codes",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Instructional Methods",
-					"tableId": "instructional-methods",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Instructional Methods",
+				"tableId": "instructional-methods",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1070,31 +1058,29 @@
 			],
 			"description": "Nations data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Nations",
-					"tableId": "nations",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Nations",
+				"tableId": "nations",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1102,31 +1088,29 @@
 			],
 			"description": "Part of term data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Part of Term",
-					"tableId": "part-of-term",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Part of Term",
+				"tableId": "part-of-term",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1134,85 +1118,83 @@
 			],
 			"description": "Major/Minor programs data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Programs",
-					"tableId": "programs",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "cip_code",
-							"dbColumn": "cip_code",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "is_major",
-							"dbColumn": "is_major",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "is_minor",
-							"dbColumn": "is_minor",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "has_concentration",
-							"dbColumn": "has_concentration",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "is_discontinued",
-							"dbColumn": "is_discontinued",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "is_aacsb",
-							"dbColumn": "is_aacsb",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "department",
-							"dbColumn": "department",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "college",
-							"dbColumn": "college",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						},
-						{
-							"csvColumn": "added_on",
-							"dbColumn": "added_on",
-							"isPrimaryKey": false,
-							"hasTransform": true
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Programs",
+				"tableId": "programs",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "cip_code",
+						"csvColumn": "cip_code",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "is_major",
+						"csvColumn": "is_major",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "is_minor",
+						"csvColumn": "is_minor",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "has_concentration",
+						"csvColumn": "has_concentration",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "is_discontinued",
+						"csvColumn": "is_discontinued",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "is_aacsb",
+						"csvColumn": "is_aacsb",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "department",
+						"csvColumn": "department",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "college",
+						"csvColumn": "college",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					},
+					{
+						"dbColumn": "added_on",
+						"csvColumn": "added_on",
+						"isPrimaryKey": false,
+						"hasTransform": true
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1220,31 +1202,29 @@
 			],
 			"description": "Registration status codes",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Registration Status",
-					"tableId": "registration-status",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Registration Status",
+				"tableId": "registration-status",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		},
 		{
 			"filePatterns": [
@@ -1252,31 +1232,29 @@
 			],
 			"description": "Terms data",
 			"category": "lookup",
-			"destinations": [
-				{
-					"tableName": "Terms",
-					"tableId": "terms",
-					"category": "lookup",
-					"primaryKeys": [
-						"code"
-					],
-					"columnMappings": [
-						{
-							"csvColumn": "code",
-							"dbColumn": "code",
-							"isPrimaryKey": true,
-							"hasTransform": false
-						},
-						{
-							"csvColumn": "description",
-							"dbColumn": "description",
-							"isPrimaryKey": false,
-							"hasTransform": false
-						}
-					],
-					"hasRowExpander": false
-				}
-			]
+			"destinations": {
+				"tableName": "Terms",
+				"tableId": "terms",
+				"category": "lookup",
+				"primaryKeys": [
+					"code"
+				],
+				"hasRowExpander": false,
+				"columns": [
+					{
+						"dbColumn": "code",
+						"csvColumn": "code",
+						"isPrimaryKey": true,
+						"hasTransform": false
+					},
+					{
+						"dbColumn": "description",
+						"csvColumn": "description",
+						"isPrimaryKey": false,
+						"hasTransform": false
+					}
+				]
+			}
 		}
 	],
 	"stats": {

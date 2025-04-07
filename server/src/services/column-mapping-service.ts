@@ -809,10 +809,9 @@ export const getImportInfo = () => {
 						primaryKeys: dest.primaryKeys,
 						hasRowExpander: !!dest.rowExpander,
 						columns: dest.columnMappings.map(col => ({
-							name: col.dbColumn,
+							dbColumn: col.dbColumn,
 							csvColumn: col.csvColumn,
 							isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
-							isRequired: dest.primaryKeys.includes(col.dbColumn), // Primary keys are required
 							hasTransform: !!col.transform
 						}))
 					}))
@@ -823,10 +822,9 @@ export const getImportInfo = () => {
 						primaryKeys: mapping.destination.primaryKeys,
 						hasRowExpander: !!mapping.destination.rowExpander,
 						columns: mapping.destination.columnMappings.map(col => ({
-							name: col.dbColumn,
+							dbColumn: col.dbColumn,
 							csvColumn: col.csvColumn,
 							isPrimaryKey: mapping.destination.primaryKeys.includes(col.dbColumn),
-							isRequired: mapping.destination.primaryKeys.includes(col.dbColumn), // Primary keys are required
 							hasTransform: !!col.transform
 						}))
 					}
