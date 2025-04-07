@@ -48,6 +48,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/cobis-tools/imports": ["COBIS Admin"],
 		"/student-lookup": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/professor-stats": ["Department Chair", "COBIS Admin"],
+		"/class-roster": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
 	useEffect(() => {

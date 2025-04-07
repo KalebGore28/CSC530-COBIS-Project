@@ -46,7 +46,7 @@ export const App: React.FC = () => {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
-        <Route path="class-roster" element={<ClassRosterPage classId="CS-101-001-FALL-2024" />} />
+        <Route path="class-roster" element={<ClassRosterPage />} />
         <Route path="reports" element={<Reports />}>
           <Route path="students" element={<StudentsReport />} />
         </Route>

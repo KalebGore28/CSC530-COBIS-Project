@@ -50,7 +50,15 @@ interface CourseInfo {
 }
 
 interface ClassRosterProps {
-  classId: string // Format: "SUBJ-NUM-SECTION-TERM-YEAR" (e.g., "CS-101-001-FALL-2024")
+  // Original prop (to be deprecated)
+  classId?: string; // Format: "SUBJ-NUM-SECTION-TERM-YEAR" (e.g., "CS-101-001-FALL-2024")
+
+  // New individual props
+  subject?: string;
+  number?: string;
+  section?: string;
+  term?: string;
+  year?: number;
 }
 
 // Helper function to convert numeric grade to letter grade
@@ -79,7 +87,14 @@ const getGradeDistribution = (students: Student[]) => {
   return distribution
 }
 
-export default function ClassRoster({ classId }: ClassRosterProps) {
+export default function ClassRoster({
+  classId,
+  subject,
+  number,
+  section,
+  term,
+  year
+}: ClassRosterProps) {
   // Parse the class identifier
   const [classIdentifier, setClassIdentifier] = useState<ClassIdentifier | null>(null)
   const [courseInfo, setCourseInfo] = useState<CourseInfo | null>(null)
@@ -92,22 +107,38 @@ export default function ClassRoster({ classId }: ClassRosterProps) {
   const [gradeFilter, setGradeFilter] = useState<string>("all")
 
   useEffect(() => {
-    // Parse the class identifier
+    // Parse the class identifier - either from props or from classId
     const parseClassId = () => {
       try {
-        const [subject, number, section, term, year] = classId.split("-")
-        return {
-          subject,
-          number,
-          section,
-          term,
-          year: Number.parseInt(year),
+        // If individual props are provided, use those
+        if (subject && number && section && term && year) {
+          return {
+            subject,
+            number,
+            section,
+            term,
+            year
+          };
         }
+
+        // Otherwise fall back to the old classId format
+        if (classId) {
+          const [subj, num, sect, trm, yr] = classId.split("-");
+          return {
+            subject: subj,
+            number: num,
+            section: sect,
+            term: trm,
+            year: Number.parseInt(yr),
+          };
+        }
+
+        return null;
       } catch (error) {
-        console.error("Invalid class identifier format:", error)
-        return null
+        console.error("Invalid class identifier format:", error);
+        return null;
       }
-    }
+    };
 
     const fetchClassData = async () => {
       try {
@@ -120,157 +151,26 @@ export default function ClassRoster({ classId }: ClassRosterProps) {
 
         setClassIdentifier(parsedId)
 
-        // Simulate API call delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-
-        // Placeholder course info
+        // TODO: Replace with actual API call to fetch course and student data
         const courseData: CourseInfo = {
           subject: parsedId.subject,
           number: parsedId.number,
           suffix: "",
           section: parsedId.section,
-          title:
-            parsedId.subject === "CS" && parsedId.number === "101"
-              ? "Introduction to Programming"
-              : parsedId.subject === "CS" && parsedId.number === "240"
-                ? "Data Structures"
-                : parsedId.subject === "MATH" && parsedId.number === "150"
-                  ? "Calculus I"
-                  : "Course Title",
-          hours: 3,
-          instructor: "Dr. John Smith",
+          title: "",
+          hours: 0,
+          instructor: "",
           term: parsedId.term,
           year: parsedId.year,
-          status: parsedId.term === "SPRING" && parsedId.year === 2025 ? "Active" : "Completed",
-          enrollment: 25,
-          average_grade: 84.5,
+          status: "Active",
+          enrollment: 0,
+          average_grade: null,
         }
 
         setCourseInfo(courseData)
 
-        // Placeholder student data
-        const studentData: Student[] = [
-          {
-            mnumber: "M12345678",
-            first_name: "Alice",
-            middle_name: "",
-            last_name: "Johnson",
-            email: "alice.johnsonmurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 92 : null,
-            final_grade: courseData.status === "Completed" ? 94 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345679",
-            first_name: "Bob",
-            middle_name: "R",
-            last_name: "Smith",
-            email: "bob.smithmurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 85 : null,
-            final_grade: courseData.status === "Completed" ? 88 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345680",
-            first_name: "Charlie",
-            middle_name: "",
-            last_name: "Davis",
-            email: "charlie.davismurraystate.edu",
-            major: "Mathematics",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 78 : null,
-            final_grade: courseData.status === "Completed" ? 82 : null,
-            last_attendance: courseData.status === "Active" ? "2025-03-28" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345681",
-            first_name: "Diana",
-            middle_name: "L",
-            last_name: "Wilson",
-            email: "diana.wilsonmurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 95 : null,
-            final_grade: courseData.status === "Completed" ? 97 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345682",
-            first_name: "Ethan",
-            middle_name: "J",
-            last_name: "Brown",
-            email: "ethan.brownmurraystate.edu",
-            major: "Computer Engineering",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 88 : null,
-            final_grade: courseData.status === "Completed" ? 85 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345683",
-            first_name: "Fiona",
-            middle_name: "",
-            last_name: "Garcia",
-            email: "fiona.garciamurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 72 : null,
-            final_grade: courseData.status === "Completed" ? 76 : null,
-            last_attendance: courseData.status === "Active" ? "2025-03-25" : "2024-12-08",
-          },
-          {
-            mnumber: "M12345684",
-            first_name: "George",
-            middle_name: "T",
-            last_name: "Martinez",
-            email: "george.martinezmurraystate.edu",
-            major: "Information Systems",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 65 : null,
-            final_grade: courseData.status === "Completed" ? 68 : null,
-            last_attendance: courseData.status === "Active" ? "2025-03-28" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345685",
-            first_name: "Hannah",
-            middle_name: "M",
-            last_name: "Lee",
-            email: "hannah.leemurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 91 : null,
-            final_grade: courseData.status === "Completed" ? 93 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345686",
-            first_name: "Ian",
-            middle_name: "",
-            last_name: "Clark",
-            email: "ian.clarkmurraystate.edu",
-            major: "Mathematics",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 82 : null,
-            final_grade: courseData.status === "Completed" ? 85 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-          {
-            mnumber: "M12345687",
-            first_name: "Julia",
-            middle_name: "K",
-            last_name: "Adams",
-            email: "julia.adamsmurraystate.edu",
-            major: "Computer Science",
-            academic_standing: "Good Standing",
-            midterm_grade: courseData.status === "Active" ? 89 : null,
-            final_grade: courseData.status === "Completed" ? 91 : null,
-            last_attendance: courseData.status === "Active" ? "2025-04-01" : "2024-12-10",
-          },
-        ]
+        // TODO: Replace with actual API call to fetch student data
+        const studentData: Student[] = []
 
         setStudents(studentData)
         setFilteredStudents(studentData)
@@ -282,7 +182,7 @@ export default function ClassRoster({ classId }: ClassRosterProps) {
     }
 
     fetchClassData()
-  }, [classId])
+  }, [classId, subject, number, section, term, year])
 
   // Apply filters and sorting
   useEffect(() => {
