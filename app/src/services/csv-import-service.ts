@@ -59,30 +59,6 @@ export const CsvImportService = {
   },
 
   /**
-   * Validate a CSV file against a table schema
-   * @param file The CSV file to validate
-   * @param tableId The ID of the table to validate against
-   */
-  async validateCsvFile(file: File, tableId: string): Promise<{ valid: boolean; errors?: string[] }> {
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('tableId', tableId);
-
-      const response = await axios.post('/api/import/validate', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error validating CSV file:', error);
-      throw error;
-    }
-  },
-
-  /**
    * Find the matching table configuration for a file name
    * @param fileName The file name to match
    * @param tables Array of table configurations
@@ -151,28 +127,6 @@ export const CsvImportService = {
 
     console.log(`No table matched for ${fileName}`);
     return undefined;
-  },
-
-  /**
-   * Submit corrections for import errors
-   * @param tableId The ID of the table with errors
-   * @param corrections The corrected data
-   */
-  async submitCorrections(
-    tableId: string,
-    corrections: Record<string, any>[]
-  ): Promise<ImportResult> {
-    try {
-      const response = await axios.post('/api/import/corrections', {
-        tableId,
-        corrections,
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error submitting corrections:', error);
-      throw error;
-    }
   },
 
   /**
