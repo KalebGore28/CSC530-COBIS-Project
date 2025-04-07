@@ -1,3 +1,6 @@
+import { FileUpload } from "@/components/csv-import/file-upload";
+import { TableSelector } from "@/components/csv-import/table-selector";
+import { ColumnMapper } from "@/components/csv-import/column-mapper";
 import { CsvPreview } from "../components/csv-import/csv-preview";
 import { ImportResultDisplay } from "../components/csv-import/import-result";
 import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
@@ -6,10 +9,7 @@ import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 import { TableConfig, ImportError } from "../types/csv-import-types";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
-import { TableSelector } from "@/components/csv-import/table-selector";
-import { FileUpload } from "@/components/csv-import/file-upload";
 import { Separator } from "@radix-ui/react-separator";
-import { ColumnMapper } from "@/components/csv-import/column-mapper";
 import { Button } from "@/components/ui/button";
 
 // Sample data for our example

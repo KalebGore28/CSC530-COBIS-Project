@@ -259,7 +259,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "type", dbColumn: "type" },
+					// { csvColumn: "type", dbColumn: "type" },
 					// Include both home and local address fields for validation
 					{ csvColumn: "homestreet1", dbColumn: "street1" },
 					{ csvColumn: "homestreet2", dbColumn: "street2" },
@@ -312,7 +312,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					// These mappings are used for validation, but the actual transformation happens in rowExpander
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "type", dbColumn: "type" },
+					// { csvColumn: "type", dbColumn: "type" },
 					{ csvColumn: "level", dbColumn: "level" },
 					{ csvColumn: "program", dbColumn: "program" },
 				],
