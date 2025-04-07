@@ -115,19 +115,18 @@ export const CsvImport: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
             <div className="grid gap-6">
+              <FileUpload
+                onFileChange={(e) => console.log("File changed")}
+                onClearFile={() => console.log("File cleared")}
+                file={new File([""], "students.csv", { type: "text/csv", lastModified: Date.now() })}
+                disabled={false}
+              />
               <TableSelector
                 tables={mockTableConfig}
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
                 csvFile={new File([""], "students.csv")}
                 isDataTable={true}
-              />
-
-              <FileUpload
-                onFileChange={(e) => console.log("File changed")}
-                onClearFile={() => console.log("File cleared")}
-                file={new File([""], "students.csv", { type: "text/csv", lastModified: Date.now() })}
-                disabled={false}
               />
             </div>
           </div>

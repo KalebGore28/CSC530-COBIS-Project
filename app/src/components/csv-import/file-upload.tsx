@@ -9,42 +9,57 @@ interface FileUploadProps {
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onClearFile: () => void;
   file: File | null;
-  disabled?: boolean;
   allowedExtensions?: string[];
   maxSizeInMB?: number;
 }
+
+// Utility function to format file size
+const formatFileSize = (sizeInBytes: number) => {
+  const units = ['B', 'KB', 'MB'];
+  let size = sizeInBytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+};
+
+// Utility function to validate file
+const validateFile = (file: File | null, allowedExtensions: string[], maxSizeInMB: number) => {
+  if (!file) return { isValid: true, errors: [] };
+
+  const errors: string[] = [];
+  const isValidType = allowedExtensions.some(ext =>
+    file.name.toLowerCase().endsWith(ext.toLowerCase())
+  );
+  const isValidSize = file.size <= maxSizeInMB * 1024 * 1024;
+
+  if (!isValidType) {
+    errors.push(`Invalid file type. Only ${allowedExtensions.join(", ")} files are allowed.`);
+  }
+  if (!isValidSize) {
+    errors.push(`File exceeds maximum size of ${maxSizeInMB}MB.`);
+  }
+
+  return {
+    isValid: isValidType && isValidSize,
+    errors
+  };
+};
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileChange,
   onClearFile,
   file,
-  disabled = false,
   allowedExtensions = [".csv"],
   maxSizeInMB = 10
 }) => {
-  // Create a ref to the input element to programmatically trigger it
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { isValid, errors } = validateFile(file, allowedExtensions, maxSizeInMB);
 
-  // Check if the file type is valid
-  const isValidFileType = file ?
-    allowedExtensions.some(ext => file.name.toLowerCase().endsWith(ext.toLowerCase())) :
-    true;
-
-  // Check if the file size is within limits
-  const isValidFileSize = file ? file.size <= maxSizeInMB * 1024 * 1024 : true;
-
-  // Format file size for display
-  const formatFileSize = (sizeInBytes: number) => {
-    if (sizeInBytes < 1024) {
-      return `${sizeInBytes} B`;
-    } else if (sizeInBytes < 1024 * 1024) {
-      return `${(sizeInBytes / 1024).toFixed(2)} KB`;
-    } else {
-      return `${(sizeInBytes / (1024 * 1024)).toFixed(2)} MB`;
-    }
-  };
-
-  // Function to trigger file input when "Change File" is clicked
   const handleClickChangeFile = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
@@ -64,20 +79,15 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         // File selection UI when no file is selected
         <div
           className={cn(
-            "border-2 border-dashed rounded-lg p-6 text-center transition-colors",
-            disabled
-              ? "border-gray-200 bg-gray-50"
-              : "border-blue-200 bg-blue-50/30 hover:bg-blue-50/50 cursor-pointer"
-          )}
-          onClick={disabled ? undefined : handleClickChangeFile}
+            "border-2 border-dashed rounded-lg p-6 text-center transition-colors border-blue-200 bg-blue-50/30 hover:bg-blue-50/50 cursor-pointer")}
+          onClick={handleClickChangeFile}
         >
           <Input
             ref={fileInputRef}
             type="file"
             accept={allowedExtensions.join(",")}
             onChange={onFileChange}
-            className="hidden" // Hide the actual input
-            disabled={disabled}
+            className="hidden"
           />
 
           <div className="flex flex-col items-center gap-3">
@@ -97,7 +107,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 e.stopPropagation();
                 handleClickChangeFile();
               }}
-              disabled={disabled}
               className="mt-2"
             >
               Select File
@@ -108,7 +117,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         // File info and action buttons when file is selected
         <div className="flex flex-col gap-3 rounded-lg overflow-hidden">
           {/* Success or error message based on file validity */}
-          {isValidFileType && isValidFileSize ? (
+          {isValid ? (
             <div className="bg-green-50 border border-green-200 rounded-md px-3 py-2">
               <div className="flex items-center text-green-800">
                 <CheckCircle2 className="h-4 w-4 mr-2 text-green-600" />
@@ -121,10 +130,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2">
               <div className="flex items-center text-red-800">
                 <AlertCircle className="h-4 w-4 mr-2 text-red-600" />
-                <span>
-                  {!isValidFileType && <span>Invalid file type. Only {allowedExtensions.join(", ")} files are allowed.</span>}
-                  {!isValidFileSize && <span>File exceeds maximum size of {maxSizeInMB}MB.</span>}
-                </span>
+                <span>{errors.join(" ")}</span>
               </div>
             </div>
           )}
@@ -150,7 +156,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={handleClickChangeFile}
-                disabled={disabled}
                 className="flex-1"
               >
                 Replace File
@@ -161,22 +166,11 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 variant="outline"
                 size="sm"
                 onClick={onClearFile}
-                disabled={disabled}
                 className="flex items-center gap-1"
               >
                 <X className="h-4 w-4" /> Clear
               </Button>
             </div>
-
-            {/* Hidden input for changing file */}
-            <Input
-              ref={fileInputRef}
-              type="file"
-              accept={allowedExtensions.join(",")}
-              onChange={onFileChange}
-              className="hidden"
-              disabled={disabled}
-            />
           </div>
         </div>
       )}
