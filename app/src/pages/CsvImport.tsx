@@ -12,9 +12,6 @@ import { ImportResultDisplay } from "../components/csv-import/import-result";
 import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
 export const CsvImport: React.FC = () => {
-  const [showSuccess, setShowSuccess] = useState(true);
-  const [fixedCount, setFixedCount] = useState(0);
-
   return (
     <div className="max-w-5xl mx-auto p-6">
 
