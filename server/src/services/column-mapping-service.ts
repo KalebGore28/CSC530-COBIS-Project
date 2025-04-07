@@ -780,27 +780,56 @@ export const getImportInfo = () => {
 				? mapping.destinations
 				: [mapping.destination];
 
-			// Convert RegExp patterns to string format
+			// Convert RegExp patterns to string format that can be reconstructed on the client
 			const patternStrings = (mapping.filePatterns || [])
-				.map(pattern => pattern.toString());
+				.map(pattern => {
+					// Get the actual pattern string and flags
+					const patternStr = pattern.toString();
+					// The regex toString() returns something like /pattern/flags
+					// Extract just the pattern part and flags
+					const match = /^\/(.*)\/([gimuy]*)$/.exec(patternStr);
+					if (match) {
+						const [_, patternBody, flags] = match;
+						// Return as a string with slashes and flags that can be parsed on client
+						return `/${patternBody}/${flags}`;
+					}
+					// Fallback to original string representation
+					return patternStr;
+				});
 
 			return {
 				filePatterns: patternStrings,
 				description: mapping.description,
 				category: mapping.category,
-				destinations: destinations.map(dest => ({
-					tableName: dest.tableName,
-					tableId: dest.tableId,
-					category: mapping.category,
-					primaryKeys: dest.primaryKeys,
-					columnMappings: dest.columnMappings.map(col => ({
-						csvColumn: col.csvColumn,
-						dbColumn: col.dbColumn,
-						isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
-						hasTransform: !!col.transform
-					})),
-					hasRowExpander: !!dest.rowExpander
-				}))
+				destinations: mapping.category === "data"
+					? mapping.destinations.map(dest => ({
+						tableName: dest.tableName,
+						tableId: dest.tableId,
+						category: mapping.category,
+						primaryKeys: dest.primaryKeys,
+						hasRowExpander: !!dest.rowExpander,
+						columns: dest.columnMappings.map(col => ({
+							name: col.dbColumn,
+							csvColumn: col.csvColumn,
+							isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
+							isRequired: dest.primaryKeys.includes(col.dbColumn), // Primary keys are required
+							hasTransform: !!col.transform
+						}))
+					}))
+					: {
+						tableName: mapping.destination.tableName,
+						tableId: mapping.destination.tableId,
+						category: mapping.category,
+						primaryKeys: mapping.destination.primaryKeys,
+						hasRowExpander: !!mapping.destination.rowExpander,
+						columns: mapping.destination.columnMappings.map(col => ({
+							name: col.dbColumn,
+							csvColumn: col.csvColumn,
+							isPrimaryKey: mapping.destination.primaryKeys.includes(col.dbColumn),
+							isRequired: mapping.destination.primaryKeys.includes(col.dbColumn), // Primary keys are required
+							hasTransform: !!col.transform
+						}))
+					}
 			};
 		}),
 
