@@ -116,7 +116,7 @@ export const CsvImport: React.FC = () => {
   useEffect(() => {
     if (importInfo && selectedFile) {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
-      setMapping(mapping);
+      setMapping(mapping || null);
     }
   }, [importInfo, selectedFile]);
 
