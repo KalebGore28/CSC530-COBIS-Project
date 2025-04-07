@@ -50,9 +50,6 @@ interface CourseInfo {
 }
 
 interface ClassRosterProps {
-  // Original prop (to be deprecated)
-  classId?: string; // Format: "SUBJ-NUM-SECTION-TERM-YEAR" (e.g., "CS-101-001-FALL-2024")
-
   // New individual props
   subject?: string;
   number?: string;
@@ -88,7 +85,6 @@ const getGradeDistribution = (students: Student[]) => {
 }
 
 export default function ClassRoster({
-  classId,
   subject,
   number,
   section,
@@ -118,18 +114,6 @@ export default function ClassRoster({
             section,
             term,
             year
-          };
-        }
-
-        // Otherwise fall back to the old classId format
-        if (classId) {
-          const [subj, num, sect, trm, yr] = classId.split("-");
-          return {
-            subject: subj,
-            number: num,
-            section: sect,
-            term: trm,
-            year: Number.parseInt(yr),
           };
         }
 
@@ -182,7 +166,7 @@ export default function ClassRoster({
     }
 
     fetchClassData()
-  }, [classId, subject, number, section, term, year])
+  }, [subject, number, section, term, year])
 
   // Apply filters and sorting
   useEffect(() => {
@@ -256,7 +240,6 @@ export default function ClassRoster({
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h2 className="text-2xl font-bold">Class Not Found</h2>
-          <p className="mt-2 text-muted-foreground">Invalid class identifier: {classId}</p>
         </div>
       </div>
     )
