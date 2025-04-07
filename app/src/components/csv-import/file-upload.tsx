@@ -137,27 +137,25 @@ export const FileUpload: React.FC<FileUploadProps> = ({
 
           {/* File details card */}
           <div className="p-4 border rounded-lg bg-card">
-            <div className="flex items-start">
-              <div className="p-2 rounded-md bg-blue-100 mr-3">
-                <FileText className="h-6 w-6 text-blue-600" />
-              </div>
-              <div className="flex-1">
-                <p className="font-medium text-sm truncate">{file.name}</p>
-                <div className="flex flex-wrap gap-x-4 mt-1 text-xs text-muted-foreground">
-                  <span>{formatFileSize(file.size)}</span>
-                  <span>Last modified: {new Date(file.lastModified).toLocaleString()}</span>
+            <div className="flex items-start justify-between">
+              <div className="flex items-start min-w-0">
+                <div className="p-2 rounded-md bg-blue-100 mr-3">
+                  <FileText className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium text-sm truncate">{file.name}</p>
+                  <div className="flex flex-wrap gap-x-4 mt-1 text-xs text-muted-foreground">
+                    <span>{formatFileSize(file.size)}</span>
+                    <span>Last modified: {new Date(file.lastModified).toLocaleString()}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="flex gap-2 mt-3">
-
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
                 onClick={onClearFile}
-                className="flex items-center gap-1"
+                className="flex items-center gap-1 shrink-0"
               >
                 <X className="h-4 w-4" /> Clear
               </Button>
