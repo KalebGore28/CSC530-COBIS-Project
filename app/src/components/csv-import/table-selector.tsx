@@ -6,22 +6,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { TableConfig, CsvMapping } from "../../types/csv-import-types";
+import { CsvMapping } from "../../types/csv-import-types";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { Database, Table2, CheckCircle2, Info } from "lucide-react";
+import { Database, Table2, Info } from "lucide-react";
 
 interface TableSelectorProps {
   mapping: CsvMapping | null;
   selectedTable: string;
   onTableChange: (tableId: string) => void;
-  csvFile: File | null;
 }
 
 export const TableSelector: React.FC<TableSelectorProps> = ({
   mapping,
   selectedTable,
   onTableChange,
-  csvFile,
 }) => {
   console.log("TableSelector received mapping:", mapping);
 

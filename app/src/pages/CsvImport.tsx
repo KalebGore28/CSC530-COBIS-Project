@@ -153,7 +153,6 @@ export const CsvImport: React.FC = () => {
               {selectedFile && <TableSelector
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
-                csvFile={selectedFile}
                 mapping={mapping}
               />}
             </div>
