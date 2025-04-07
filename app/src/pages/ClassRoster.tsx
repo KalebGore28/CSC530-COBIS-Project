@@ -15,6 +15,7 @@ interface CourseDetail {
 	courseSubject: string;
 	courseNumber: string;
 	courseSuffix: string;
+	courseSection: string;
 	crn: string;
 	creditHours: number;
 	studentCount: number;
@@ -28,19 +29,27 @@ interface InstructorCoursesResponse {
 
 // Modified ClassRoster component that will fetch data from API
 const ClassRosterPage: React.FC = () => {
+	const { session } = useSession();
 	const [courses, setCourses] = useState<CourseDetail[]>([]);
 	const [selectedClass, setSelectedClass] = useState<CourseDetail | null>(null);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const session = useSession();
+	const [fetchingRoster, setFetchingRoster] = useState(false);
+	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 	// Fetch courses data from API
 	useEffect(() => {
 		const fetchCourses = async () => {
 			try {
 				setLoading(true);
-				// In a real app, you would get the M-number from authentication context
-				const mnumber = session.session?.mnumber;
+				// Get the M-number from session context
+				const mnumber = session?.mnumber;
+
+				if (!mnumber) {
+					setError("Authentication required. Please log in.");
+					setLoading(false);
+					return;
+				}
 
 				// Create a request with authentication headers
 				const response = await axios.get<InstructorCoursesResponse>(
@@ -49,6 +58,8 @@ const ClassRosterPage: React.FC = () => {
 						withCredentials: true
 					}
 				);
+
+				console.log("Courses:", response.data);
 
 				setCourses(response.data.courseDetails);
 
@@ -66,7 +77,7 @@ const ClassRosterPage: React.FC = () => {
 		};
 
 		fetchCourses();
-	}, []);
+	}, [session]);
 
 	// Function to handle class selection
 	const handleClassChange = (courseId: string) => {
@@ -77,6 +88,20 @@ const ClassRosterPage: React.FC = () => {
 		if (selected) {
 			setSelectedClass(selected);
 		}
+	};
+
+	// Function to manually trigger data refresh by incrementing the refreshTrigger
+	const handleGetRoster = () => {
+		console.log("Get Roster button clicked, triggering refresh");
+		setFetchingRoster(true);
+		// Use a setTimeout to allow state update to propagate
+		setTimeout(() => {
+			setRefreshTrigger(prev => prev + 1);
+			// Add a small delay before setting fetchingRoster back to false
+			setTimeout(() => {
+				setFetchingRoster(false);
+			}, 1000); // Longer delay to ensure component has time to refresh
+		}, 100);
 	};
 
 	// Format class for display and selection
@@ -148,7 +173,19 @@ const ClassRosterPage: React.FC = () => {
 							)}
 						</div>
 						<div className="w-full md:w-1/3 flex justify-end">
-							<Button>New Roster</Button>
+							<Button
+								onClick={handleGetRoster}
+								disabled={fetchingRoster || !selectedClass}
+							>
+								{fetchingRoster ? (
+									<>
+										<div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+										Fetching...
+									</>
+								) : (
+									'Get Roster'
+								)}
+							</Button>
 						</div>
 					</div>
 				</CardContent>
@@ -159,9 +196,10 @@ const ClassRosterPage: React.FC = () => {
 					subject={selectedClass.courseSubject}
 					number={selectedClass.courseNumber}
 					suffix={selectedClass.courseSuffix}
-					section={selectedClass.crn} // Using CRN as the section since it's a unique identifier
-					term={selectedClass.termName}
+					section={selectedClass.courseSection}
+					term={selectedClass.termCode}
 					year={selectedClass.year}
+					refreshTrigger={refreshTrigger}
 				/>
 			)}
 		</div>

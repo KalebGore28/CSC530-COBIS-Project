@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, forwardRef, useImperativeHandle } from "react"
 import { Download, Filter, Search, SortAsc, SortDesc } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useSession } from "@/hooks/session-context"
 
 // TypeScript interfaces
 interface ClassIdentifier {
@@ -57,6 +58,48 @@ interface ClassRosterProps {
   section?: string;
   term?: string;
   year?: number;
+  refreshTrigger?: number;
+}
+
+interface ClassRosterApiResponse {
+  mnumber: string;
+  classRoster: {
+    course: {
+      courseId: string;
+      courseSubject: string;
+      courseNumber: string;
+      courseSuffix: string;
+      courseSection: string;
+      courseTitle: string;
+      termCode: string;
+      termName: string;
+      year: number;
+      creditHours: number;
+    };
+    roster: Array<{
+      mnumber: string;
+      name: string;
+      firstName: string;
+      middleName: string;
+      lastName: string;
+      suffix: string;
+      email: string;
+      major: string;
+      finalGrade: string;
+      midtermGrade: string;
+      registrationStatus: string;
+      instructionalMethod: string;
+      lastAttendance: string | null;
+      overallGpa: number;
+      overallEarnedHours: number;
+    }>;
+    stats: {
+      totalStudents: number;
+      totalGraded: number;
+      overallGpa: number;
+      gradeDistribution: Record<string, number>;
+    };
+  };
 }
 
 // Helper function to convert numeric grade to letter grade
@@ -69,7 +112,7 @@ const getLetterGrade = (grade: number | null): string => {
   return "F"
 }
 
-// Helper function to get grade distribution
+// Helper function to get grade distribution - updated to handle empty data
 const getGradeDistribution = (students: Student[]) => {
   const grades = students.map((s) => s.midterm_grade || s.final_grade).filter((g) => g !== null) as number[]
 
@@ -85,14 +128,24 @@ const getGradeDistribution = (students: Student[]) => {
   return distribution
 }
 
-export default function ClassRoster({
+// Add a helper to check if distribution is empty
+const isDistributionEmpty = (distribution: ReturnType<typeof getGradeDistribution>) => {
+  return distribution.total === 0;
+}
+
+// Modified to use regular function instead of forwardRef
+const ClassRoster = ({
   subject,
   number,
   suffix,
   section,
   term,
-  year
-}: ClassRosterProps) {
+  year,
+  refreshTrigger = 0  // Default to 0
+}: ClassRosterProps) => {
+  // Get session for authentication
+  const { session } = useSession()
+
   // Parse the class identifier
   const [classIdentifier, setClassIdentifier] = useState<ClassIdentifier | null>(null)
   const [courseInfo, setCourseInfo] = useState<CourseInfo | null>(null)
@@ -103,43 +156,127 @@ export default function ClassRoster({
   const [sortField, setSortField] = useState<"name" | "grade">("name")
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc")
   const [gradeFilter, setGradeFilter] = useState<string>("all")
+  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    // Parse the class identifier - either from props or from classId
-    const parseClassId = () => {
-      try {
-        // If individual props are provided, use those
-        if (subject && number && section && term && year) {
-          return {
-            subject,
-            number,
-            suffix,
-            section,
-            term,
-            year
-          };
-        }
-
-        return null;
-      } catch (error) {
-        console.error("Invalid class identifier format:", error);
-        return null;
+  // Function to fetch class data
+  const fetchClassData = async () => {
+    console.log("fetchClassData called in class-roster component", { subject, number, section, term, year, refreshTrigger });
+    try {
+      // Parse the class identifier
+      const parsedId = parseClassId()
+      if (!parsedId) {
+        console.log("No valid class identifier found");
+        setLoading(false)
+        return
       }
-    };
 
-    const fetchClassData = async () => {
+      console.log("Using class identifier:", parsedId);
+      setLoading(true)
+      setClassIdentifier(parsedId)
+
+      // Fetch from the class roster API
       try {
-        // Parse the class identifier
-        const parsedId = parseClassId()
-        if (!parsedId) {
-          setLoading(false)
-          return
+        const mnumber = session?.mnumber;
+
+        if (!mnumber) {
+          console.log("No mnumber found in session");
+          setError("Authentication required. Please log in.");
+          setLoading(false);
+          return;
         }
 
-        setClassIdentifier(parsedId)
+        console.log("Fetching roster data for:", {
+          mnumber,
+          subject: parsedId.subject,
+          number: parsedId.number,
+          suffix: parsedId.suffix || '',
+          term: parsedId.term,
+          year: parsedId.year,
+          section: parsedId.section
+        });
 
-        // TODO: Replace with actual API call to fetch course and student data
-        const courseData: CourseInfo = {
+        const apiUrl = `http://localhost:4000/api/instructor/${mnumber}/class-roster?subject=${parsedId.subject}&number=${parsedId.number}&suffix=${parsedId.suffix || ''}&term=${parsedId.term}&year=${parsedId.year}&section=${parsedId.section}`;
+        console.log("API URL:", apiUrl);
+
+        const response = await fetch(
+          apiUrl,
+          {
+            credentials: 'include'
+          }
+        );
+
+        console.log("API Response status:", response.status);
+
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            setError("Authentication error. Please log in again.");
+            setLoading(false);
+            return;
+          }
+          if (response.status === 404) {
+            setError(`Course ${parsedId.subject} ${parsedId.number} not found`);
+            setLoading(false);
+            return;
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ClassRosterApiResponse = await response.json();
+
+        // Map API data to our component's data structures
+        setCourseInfo({
+          subject: data.classRoster.course.courseSubject,
+          number: data.classRoster.course.courseNumber,
+          suffix: data.classRoster.course.courseSuffix,
+          section: data.classRoster.course.courseSection,
+          title: data.classRoster.course.courseTitle,
+          hours: data.classRoster.course.creditHours,
+          instructor: "", // API doesn't provide instructor name
+          term: data.classRoster.course.termName,
+          year: data.classRoster.course.year,
+          status: new Date().getFullYear() > data.classRoster.course.year ? "Completed" : "Active",
+          enrollment: data.classRoster.stats.totalStudents,
+          average_grade: data.classRoster.stats.overallGpa || null,
+        });
+
+        // Transform roster data
+        const transformedStudents: Student[] = data.classRoster.roster.map(student => {
+          // Convert letter grades to numeric for our component
+          const convertGradeToNumeric = (grade: string): number | null => {
+            if (grade === 'N/A' || !grade) return null;
+
+            const gradeMap: Record<string, number> = {
+              'A+': 97, 'A': 95, 'A-': 92,
+              'B+': 87, 'B': 85, 'B-': 82,
+              'C+': 77, 'C': 75, 'C-': 72,
+              'D+': 67, 'D': 65, 'D-': 62,
+              'F': 55
+            };
+
+            return gradeMap[grade] || null;
+          };
+
+          return {
+            mnumber: student.mnumber,
+            first_name: student.firstName,
+            middle_name: student.middleName,
+            last_name: student.lastName,
+            email: student.email,
+            major: student.major,
+            academic_standing: student.registrationStatus,
+            midterm_grade: convertGradeToNumeric(student.midtermGrade),
+            final_grade: convertGradeToNumeric(student.finalGrade),
+            last_attendance: student.lastAttendance,
+          };
+        });
+
+        setStudents(transformedStudents);
+        setFilteredStudents(transformedStudents);
+      } catch (apiError) {
+        console.error("API error:", apiError);
+        setError("Failed to load course data. Please try again later.");
+        // If API fails, set empty data
+        setCourseInfo({
           subject: parsedId.subject,
           number: parsedId.number,
           suffix: "",
@@ -152,24 +289,47 @@ export default function ClassRoster({
           status: "Active",
           enrollment: 0,
           average_grade: null,
-        }
-
-        setCourseInfo(courseData)
-
-        // TODO: Replace with actual API call to fetch student data
-        const studentData: Student[] = []
-
-        setStudents(studentData)
-        setFilteredStudents(studentData)
-        setLoading(false)
-      } catch (error) {
-        console.error("Error fetching class data:", error)
-        setLoading(false)
+        });
+        setStudents([]);
+        setFilteredStudents([]);
       }
-    }
 
-    fetchClassData()
-  }, [subject, number, section, term, year])
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+      setError("An unexpected error occurred. Please try again later.");
+      setLoading(false);
+    }
+  };
+
+  // Parse the class identifier - either from props or from classId
+  const parseClassId = () => {
+    try {
+      // If individual props are provided, use those
+      if (subject && number && section && term && year) {
+        return {
+          subject,
+          number,
+          suffix,
+          section,
+          term,
+          year
+        };
+      }
+
+      return null;
+    } catch (error) {
+      console.error("Invalid class identifier format:", error);
+      return null;
+    }
+  };
+
+  // Initial data load on mount and when refreshTrigger changes
+  useEffect(() => {
+    console.log("ClassRoster: refreshTrigger changed to", refreshTrigger);
+    fetchClassData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subject, number, section, term, year, session, refreshTrigger]);
 
   // Apply filters and sorting
   useEffect(() => {
@@ -292,68 +452,60 @@ export default function ClassRoster({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">A ({gradeDistribution.A} students)</span>
-                    <span className="text-sm font-medium">
-                      {totalStudents > 0 ? Math.round((gradeDistribution.A / totalStudents) * 100) : 0}%
-                    </span>
+              <Tabs defaultValue="course">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="course">Course Info</TabsTrigger>
+                  <TabsTrigger value="grades">Grade Distribution</TabsTrigger>
+                </TabsList>
+                <TabsContent value="course">
+                  {/* Existing course info content */}
+                </TabsContent>
+                <TabsContent value="grades">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 gap-2">
+                      {courseInfo?.average_grade ? (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Class Average</p>
+                          <p className="text-2xl font-bold">{courseInfo?.average_grade.toFixed(1)}%</p>
+                        </div>
+                      ) : (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Class Average</p>
+                          <p className="text-lg italic text-muted-foreground">No grades available</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium">Grade Distribution</h4>
+
+                      {isDistributionEmpty(getGradeDistribution(students)) ? (
+                        <div className="p-6 text-center border rounded-lg">
+                          <p className="text-muted-foreground">No grade data available</p>
+                        </div>
+                      ) : (
+                        <>
+                          {["A", "B", "C", "D", "F"].map((grade) => {
+                            const distribution = getGradeDistribution(students)
+                            const count = distribution[grade as keyof typeof distribution]
+                            const percentage = distribution.total === 0 ? 0 : (count / distribution.total) * 100
+
+                            return (
+                              <div key={grade} className="space-y-1">
+                                <div className="flex items-center justify-between text-sm">
+                                  <span>{grade}</span>
+                                  <span>{count} ({percentage.toFixed(1)}%)</span>
+                                </div>
+                                <Progress value={percentage} className="h-2" />
+                              </div>
+                            )
+                          })}
+                        </>
+                      )}
+                    </div>
                   </div>
-                  <Progress
-                    value={totalStudents > 0 ? (gradeDistribution.A / totalStudents) * 100 : 0}
-                    className="h-2 bg-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">B ({gradeDistribution.B} students)</span>
-                    <span className="text-sm font-medium">
-                      {totalStudents > 0 ? Math.round((gradeDistribution.B / totalStudents) * 100) : 0}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={totalStudents > 0 ? (gradeDistribution.B / totalStudents) * 100 : 0}
-                    className="h-2 bg-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">C ({gradeDistribution.C} students)</span>
-                    <span className="text-sm font-medium">
-                      {totalStudents > 0 ? Math.round((gradeDistribution.C / totalStudents) * 100) : 0}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={totalStudents > 0 ? (gradeDistribution.C / totalStudents) * 100 : 0}
-                    className="h-2 bg-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">D ({gradeDistribution.D} students)</span>
-                    <span className="text-sm font-medium">
-                      {totalStudents > 0 ? Math.round((gradeDistribution.D / totalStudents) * 100) : 0}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={totalStudents > 0 ? (gradeDistribution.D / totalStudents) * 100 : 0}
-                    className="h-2 bg-muted"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">F ({gradeDistribution.F} students)</span>
-                    <span className="text-sm font-medium">
-                      {totalStudents > 0 ? Math.round((gradeDistribution.F / totalStudents) * 100) : 0}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={totalStudents > 0 ? (gradeDistribution.F / totalStudents) * 100 : 0}
-                    className="h-2 bg-muted"
-                  />
-                </div>
-              </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </Card>
 
@@ -650,4 +802,6 @@ export default function ClassRoster({
     </div>
   )
 }
+
+export default ClassRoster
 

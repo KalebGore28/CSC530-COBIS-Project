@@ -279,9 +279,9 @@ export class InstructorsService {
 				courseSubject: instructorCourses.course_subject,
 				courseNumber: instructorCourses.course_number,
 				courseSuffix: instructorCourses.course_suffix,
+				courseSection: instructorCourses.course_section,
 				courseTitle: courses.title,
 				crn: instructorCourses.crn,
-				section: studentCourses.course_section,
 				creditHours: studentCourses.course_hours,
 				studentCount: count(studentCourses.mnumber),
 			})
@@ -344,6 +344,7 @@ export class InstructorsService {
 				courseSubject: course.courseSubject,
 				courseNumber: course.courseNumber,
 				courseSuffix: course.courseSuffix,
+				courseSection: course.courseSection,
 				crn: course.crn,
 				creditHours: course.creditHours || 0,
 				studentCount: course.studentCount || 0,
