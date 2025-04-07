@@ -49,7 +49,7 @@ interface CourseInfo {
   average_grade: number | null
 }
 
-interface ClassRosterPageProps {
+interface ClassRosterProps {
   classId: string // Format: "SUBJ-NUM-SECTION-TERM-YEAR" (e.g., "CS-101-001-FALL-2024")
 }
 
@@ -79,7 +79,7 @@ const getGradeDistribution = (students: Student[]) => {
   return distribution
 }
 
-export default function ClassRosterPage({ classId }: ClassRosterPageProps) {
+export default function ClassRoster({ classId }: ClassRosterProps) {
   // Parse the class identifier
   const [classIdentifier, setClassIdentifier] = useState<ClassIdentifier | null>(null)
   const [courseInfo, setCourseInfo] = useState<CourseInfo | null>(null)

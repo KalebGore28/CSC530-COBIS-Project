@@ -14,7 +14,7 @@ import StudentLookup from './pages/StudentLookup';
 
 import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
-import CsvServiceTestPage from './pages/CsvServiceTest';
+import ClassRosterPage from './pages/ClassRoster';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -46,6 +46,7 @@ export const App: React.FC = () => {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
+        <Route path="class-roster" element={<ClassRosterPage classId="CS-101-001-FALL-2024" />} />
         <Route path="reports" element={<Reports />}>
           <Route path="students" element={<StudentsReport />} />
         </Route>
@@ -58,7 +59,6 @@ export const App: React.FC = () => {
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      <Route path="/admin/csv-service-test" element={<CsvServiceTestPage />} />
     </Routes>
   );
 };
