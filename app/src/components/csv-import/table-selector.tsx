@@ -98,8 +98,8 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
         </div>
       ) : (
         <Select value={selectedTable} onValueChange={onTableChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select a lookup table..." />
+          <SelectTrigger className="w-full">
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {tables.map(table => (
