@@ -397,6 +397,7 @@ export class InstructorsService {
 		courseSubject: string,
 		courseNumber: string,
 		courseSuffix: string,
+		courseSection: string,
 		termCode: string,
 		year: number
 	) {
@@ -412,10 +413,19 @@ export class InstructorsService {
 					eq(instructorCourses.course_subject, courseSubject),
 					eq(instructorCourses.course_number, courseNumber),
 					eq(instructorCourses.course_suffix, courseSuffix),
+					eq(instructorCourses.course_section, courseSection),
 					eq(instructorCourses.term, termCode),
 					eq(instructorCourses.year, year)
 				)
 			);
+
+		console.log("mnumber", mnumber);
+		console.log("courseSubject", courseSubject);
+		console.log("courseNumber", courseNumber);
+		console.log("courseSuffix", courseSuffix);
+		console.log("courseSection", courseSection);
+		console.log("termCode", termCode);
+		console.log("year", year);
 
 		if (!taughtCourse[0] || taughtCourse[0].count === 0) {
 			return null; // Instructor did not teach this course

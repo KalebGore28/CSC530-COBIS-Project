@@ -182,12 +182,12 @@ export class InstructorController {
 	static async getClassRoster(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
-			const { subject, number, suffix, term, year } = req.query;
+			const { subject, number, suffix = "", term, year, section } = req.query;
 
 			// Validate required parameters
-			if (!subject || !number || !term || !year) {
+			if (!subject || !number || !term || !year || !section) {
 				res.status(400).json({
-					error: 'Missing required parameters. Please provide subject, number, term, and year.'
+					error: 'Missing required parameters. Please provide subject, number, term, year, and section.'
 				});
 				return;
 			}
@@ -198,6 +198,7 @@ export class InstructorController {
 			const courseSuffix = (suffix as string) || ''; // Default to empty string if not provided
 			const termCode = term as string;
 			const yearNum = parseInt(year as string);
+			const courseSection = section as string;
 
 			if (isNaN(yearNum)) {
 				res.status(400).json({ error: 'Invalid parameters. Year must be a number.' });
@@ -216,6 +217,7 @@ export class InstructorController {
 				courseSubject,
 				courseNumber,
 				courseSuffix,
+				courseSection,
 				termCode,
 				yearNum
 			);

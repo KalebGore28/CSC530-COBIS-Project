@@ -29,6 +29,10 @@ const RosterQuerySchema = z.object({
 		description: 'Year when the course was taught',
 		example: '2023'
 	}),
+	section: z.string().openapi({
+		description: 'Course section',
+		example: '001'
+	}),
 })
 
 // Endpoint-specific schemas
@@ -375,6 +379,10 @@ const GetClassRoster = z.object({
 			courseSuffix: z.string().optional().openapi({
 				description: 'Course suffix (if applicable)',
 				example: 'A'
+			}),
+			courseSection: z.string().openapi({
+				description: 'Course section',
+				example: '001'
 			}),
 			courseTitle: z.string().openapi({
 				description: 'Title of the course',
