@@ -1,137 +1,65 @@
 /**
- * Configuration for a table that can be imported into
+ * Types for CSV import functionality
  */
+
+// Column definition
+export interface ColumnDefinition {
+	name: string;
+	csvColumn: string;
+	isPrimaryKey: boolean;
+	isRequired: boolean;
+	hasTransform: boolean;
+}
+
+// Table Configuration
 export interface TableConfig {
-	tableName: string;      // Display name of the table
-	tableId: string;        // Unique identifier for the table
-	category: 'data' | 'lookup' | 'unknown';
-	primaryKeys: string[];  // List of primary key fields
-	columns: TableColumn[]; // List of column configurations
-	hasRowExpander: boolean; // Whether this table uses a row expander
-	matchingPatterns: string[]; // Patterns that match this table
+	tableName: string;
+	tableId: string;
+	category: 'data' | 'lookup';
+	primaryKeys: string[];
+	hasRowExpander: boolean;
+	columns: ColumnDefinition[];
+	matchingPatterns?: string[];
 }
 
-/**
- * Configuration for a table column
- */
-export interface TableColumn {
-	name: string;           // Database column name
-	csvColumn: string;      // Expected CSV column name
-	isPrimaryKey: boolean;  // Whether this is a primary key
-	isRequired: boolean;    // Whether this field is required
-	hasTransform: boolean;  // Whether this field has transformation logic
+// CSV Mapping
+export interface CsvMapping {
+	filePatterns: string[];
+	description: string;
+	category: 'data' | 'lookup';
+	destination?: TableConfig;
+	destinations?: TableConfig[];
 }
 
-/**
- * File pattern for automatic table detection
- */
-export interface FilePattern {
-	pattern: string;        // RegExp pattern as string
-	description: string;    // Description of the pattern
-	examples: string[];     // Example filenames that match this pattern
-	destinations: {         // Destination tables for this pattern
-		tableName: string;
-		tableId: string;
-	}[];
-}
-
-/**
- * Stats about the available tables
- */
-export interface ImportStats {
-	tableCount: number;
-	dataTableCount: number;
-	lookupTableCount: number;
-}
-
-/**
- * API response from the consolidated import info endpoint
- */
+// API Response for import info
 export interface ImportInfoResponse {
-	tables: TableConfig[];
-	filePatterns: FilePattern[];
-	stats: ImportStats;
+	csvMappings: CsvMapping[];
+	stats: {
+		csvMappingCount: number;
+		dataTableCount: number;
+		lookupTableCount: number;
+	};
 }
 
-/**
- * Client-side column validation result
- * (since we no longer have a validation API endpoint)
- */
-export interface ColumnValidationResult {
-	isValid: boolean;
-	tableId: string;
-	tableName: string;
-	matchingColumns: string[];
-	missingColumns: string[];
-	extraColumns: string[];
-	matchPercentage: number;
-	isPrimaryKeyValid: boolean;
-	missingRequiredColumns: string[];
-	suggestedMapping: Record<string, string>;
-}
-
-/**
- * Result of importing data
- */
+// Import Results
 export interface ImportResult {
-	fileName?: string;
-	category?: 'data' | 'lookup';
-	mappingDescription?: string;
-	results?: ImportTableResult[];
-	errors?: string[];
-	success?: boolean;
-	timestamp?: string;
-	message?: string;
-
-	// Flattened properties for UI display (derived from results)
-	totalRecords?: number;
-	inserted?: number;
-	updated?: number;
-	skipped?: number;
-	failed?: number;
-	errorDetails?: ImportError[];
-	skippedDetails?: {
-		row: Record<string, string>;
-		reason: string;
-	}[];
-}
-
-/**
- * Result of importing data into a specific table
- */
-export interface ImportTableResult {
-	tableName: string;
-	tableId: string;
 	success: boolean;
-	message: string;
 	totalRecords: number;
 	inserted: number;
 	updated: number;
 	skipped: number;
 	failed: number;
-	errorDetails?: string[];
+	errorDetails?: ImportError[];
 }
 
-/**
- * Detailed error information from an import
- */
+// Import Error
 export interface ImportError {
-	row: Record<string, string>;
+	row: Record<string, any>;
 	error: string;
 	errorType: string;
 	dependencyInfo?: {
 		tableName: string;
-		columns?: string[];
-		values?: Record<string, string>;
+		columns: string[];
+		values: Record<string, any>;
 	};
-}
-
-/**
- * Request payload for the import process API
- */
-export interface ImportProcessRequest {
-	file: File;
-	tableId: string;
-	importedBy: string;
-	mappedData?: Record<string, any>[];
 }
