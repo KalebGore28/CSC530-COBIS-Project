@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
@@ -279,19 +279,6 @@ export const CsvImport: React.FC = () => {
             </div>
           )}
 
-          {/* File Preview */}
-          {file && csvHeaders.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">CSV Preview</h3>
-              <CsvPreview
-                headers={csvHeaders}
-                data={csvData.slice(1)}
-                maxRows={5}
-                highlightSpecialValues={true}
-              />
-            </div>
-          )}
-
           {showFileUpload && showTableSelector && <Separator />}
 
           {/* Table Selection */}
@@ -328,15 +315,21 @@ export const CsvImport: React.FC = () => {
                 mapping={columnMapping}
                 onMapChange={handleMapChange}
               />
+            </div>
+          )}
 
-              <div className="flex justify-end mt-4">
-                <Button
-                  onClick={handleProcessImport}
-                  disabled={!areAllRequiredFieldsMapped() || loading}
-                >
-                  {loading ? "Processing..." : "Process Import"}
-                </Button>
-              </div>
+          {file && csvHeaders.length > 0 && <Separator />}
+
+          {/* File Preview */}
+          {file && csvHeaders.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">CSV Preview</h3>
+              <CsvPreview
+                headers={csvHeaders}
+                data={csvData.slice(1)}
+                maxRows={5}
+                highlightSpecialValues={true}
+              />
             </div>
           )}
 
@@ -363,15 +356,26 @@ export const CsvImport: React.FC = () => {
                   fixedCount={0} // This would track fixed rows in a real application
                 />
               )}
-
-              <div className="flex justify-end mt-4">
-                <Button onClick={handleClearFile}>
-                  Import Another File
-                </Button>
-              </div>
             </div>
           )}
         </CardContent>
+
+        <CardFooter className="flex justify-end border-t p-6">
+          {showImportResults ? (
+            <Button onClick={handleClearFile}>
+              Import Another File
+            </Button>
+          ) : (
+            showColumnMapper && (
+              <Button
+                onClick={handleProcessImport}
+                disabled={!areAllRequiredFieldsMapped() || loading}
+              >
+                {loading ? "Processing..." : "Process Import"}
+              </Button>
+            )
+          )}
+        </CardFooter>
       </Card>
     </div>
   );
