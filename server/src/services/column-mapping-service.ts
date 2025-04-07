@@ -815,7 +815,9 @@ export const getImportInfo = () => {
 							hasTransform: !!col.transform
 						}))
 					}))
-					: {
+					: undefined,
+				destination: mapping.category === "lookup"
+					? {
 						tableName: mapping.destination.tableName,
 						tableId: mapping.destination.tableId,
 						category: mapping.category,
@@ -828,6 +830,7 @@ export const getImportInfo = () => {
 							hasTransform: !!col.transform
 						}))
 					}
+					: undefined
 			};
 		}),
 

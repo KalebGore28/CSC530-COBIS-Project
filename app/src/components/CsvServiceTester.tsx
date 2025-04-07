@@ -77,6 +77,8 @@ export const CsvServiceTester: React.FC = () => {
 							category: 'lookup',
 							matchingPatterns: mapping.filePatterns || []
 						});
+					} else {
+						addDebug(`Warning: Mapping does not have expected structure: ${mapping.category}, has destination: ${!!mapping.destination}, has destinations: ${!!mapping.destinations}`);
 					}
 				});
 			}
