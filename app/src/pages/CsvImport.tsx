@@ -1,434 +1,237 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
-import { Button } from "../components/ui/button";
-import { Alert, AlertDescription } from "../components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import Papa from "papaparse";
-
-// Import components
-import { TableSelector } from "../components/csv-import/table-selector";
-import { FileUpload } from "../components/csv-import/file-upload";
-import { ColumnMapper } from "../components/csv-import/column-mapper";
 import { CsvPreview } from "../components/csv-import/csv-preview";
 import { ImportResultDisplay } from "../components/csv-import/import-result";
 import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
-// Import service and types
-import CsvImportService from "../services/csv-import-service";
-import {
-  ColumnDefinition,
-  TableConfig,
-  CsvMapping,
-  DataCsvMapping,
-  LookupCsvMapping
-} from "../types/csv-import-types";
+// Import types
+import { TableConfig, ImportError } from "../types/csv-import-types";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from "react";
+import { TableSelector } from "@/components/csv-import/table-selector";
+import { FileUpload } from "@/components/csv-import/file-upload";
+import { Separator } from "@radix-ui/react-separator";
+import { ColumnMapper } from "@/components/csv-import/column-mapper";
+import { Button } from "@/components/ui/button";
+
+// Sample data for our example
+const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Department ID"];
+const mockCsvData = [
+  ["STU001", "John", "Doe", "john.doe@example.com", "555-1234", "DEP001"],
+  ["STU002", "Jane", "Smith", "jane.smith@example.com", "555-5678", "DEP002"],
+  ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "DEP001"],
+  ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "DEP003"],
+  ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
+];
+
+const mockTableConfig: TableConfig[] = [
+  {
+    tableId: "students",
+    tableName: "Students",
+    category: "data",
+    primaryKeys: ["studentId"],
+    hasRowExpander: false,
+    columns: [
+      { dbColumn: "studentId", csvColumn: "Student ID", isPrimaryKey: true, hasTransform: false },
+      { dbColumn: "firstName", csvColumn: "First Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "lastName", csvColumn: "Last Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "email", csvColumn: "Email", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "phone", csvColumn: "Phone", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, hasTransform: false },
+    ],
+  },
+  {
+    tableId: "departments",
+    tableName: "Departments",
+    category: "lookup",
+    primaryKeys: ["departmentId"],
+    hasRowExpander: false,
+    columns: [
+      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, hasTransform: false },
+      { dbColumn: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, hasTransform: false },
+      { dbColumn: "building", csvColumn: "Building", isPrimaryKey: false, hasTransform: false },
+    ],
+  }
+];
+
+const mockImportErrors: ImportError[] = [
+  {
+    row: {
+      "studentId": "STU004",
+      "firstName": "Mary",
+      "lastName": "Williams",
+      "email": "mary.williams@example.com",
+      "phone": "555-3456",
+      "departmentId": "DEP003"
+    },
+    error: "Foreign key constraint violation on departmentId",
+    errorType: "foreign_key",
+    dependencyInfo: {
+      tableName: "Departments",
+      columns: ["departmentId", "departmentName"],
+      values: {
+        "departmentId": "DEP003"
+      }
+    }
+  },
+  {
+    row: {
+      "studentId": "STU005",
+      "firstName": "Mike",
+      "lastName": "Brown",
+      "email": "mike.brown@example.com",
+      "phone": "555-7890",
+      "departmentId": "DEP003"
+    },
+    error: "Foreign key constraint violation on departmentId",
+    errorType: "foreign_key",
+    dependencyInfo: {
+      tableName: "Departments",
+      columns: ["departmentId", "departmentName"],
+      values: {
+        "departmentId": "DEP003"
+      }
+    }
+  }
+];
 
 export const CsvImport: React.FC = () => {
-  // State for the import flow
-  const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>("");
-  const [csvData, setCsvData] = useState<string[][]>([]);
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [tables, setTables] = useState<TableConfig[]>([]);
-  const [selectedTable, setSelectedTable] = useState<TableConfig | null>(null);
-  const [tableFields, setTableFields] = useState<ColumnDefinition[]>([]);
-  const [columnMapping, setColumnMapping] = useState<Record<string, string>>({});
-  const [importResult, setImportResult] = useState<any>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [csvMappings, setCsvMappings] = useState<CsvMapping[]>([]);
-  const [matchedMapping, setMatchedMapping] = useState<CsvMapping | null>(null);
-  const [destinationTables, setDestinationTables] = useState<TableConfig[]>([]);
-
-  // Fetch table configurations on component mount
-  useEffect(() => {
-    const fetchTables = async () => {
-      try {
-        setLoading(true);
-        const importInfo = await CsvImportService.getImportInfo();
-
-        if (!importInfo || !importInfo.csvMappings) {
-          throw new Error("Failed to load import configuration");
-        }
-
-        // Store the raw CSV mappings
-        setCsvMappings(importInfo.csvMappings);
-
-        // Extract all tables from the import info
-        const allTables: TableConfig[] = [];
-        importInfo.csvMappings.forEach(mapping => {
-          if (mapping.category === 'data') {
-            // For data mappings, add all destination tables
-            allTables.push(...mapping.destinations);
-          } else {
-            // For lookup mappings, add the single destination
-            allTables.push(mapping.destination);
-          }
-        });
-
-        setTables(allTables);
-      } catch (err: any) {
-        console.error("Error loading tables:", err);
-        setError(`Failed to load configuration: ${err.message}`);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTables();
-  }, []);
-
-  // Handle column mapping
-  const handleMapChange = (columnName: string, csvColumn: string) => {
-    setColumnMapping(prev => ({
-      ...prev,
-      [columnName]: csvColumn
-    }));
-  };
-
-  // Auto map columns based on CSV headers
-  const autoMapColumns = (tableColumns: ColumnDefinition[], headers: string[]) => {
-    const mapping: Record<string, string> = {};
-    console.log("Auto-mapping columns...");
-    console.log("Headers:", headers);
-
-    tableColumns.forEach(column => {
-      console.log(`Looking for match for column: ${column.dbColumn}, expected CSV column: ${column.csvColumn || 'none'}`);
-
-      // Try different matching strategies
-      // 1. Direct match (case insensitive)
-      let matchingHeader = headers.find(h =>
-        h.toLowerCase() === column.dbColumn.toLowerCase()
-      );
-
-      if (matchingHeader) {
-        console.log(`✓ Found direct match for ${column.dbColumn}: ${matchingHeader}`);
-      }
-
-      // 2. Match against csvColumn property if specified
-      if (!matchingHeader && column.csvColumn) {
-        matchingHeader = headers.find(h =>
-          h.toLowerCase() === column.csvColumn.toLowerCase()
-        );
-        if (matchingHeader) {
-          console.log(`✓ Found match via csvColumn for ${column.dbColumn} using ${column.csvColumn}: ${matchingHeader}`);
-        }
-      }
-
-      // 3. Try partial match (contains) - bidirectional matching
-      if (!matchingHeader) {
-        matchingHeader = headers.find(h => {
-          const headerLower = h.toLowerCase();
-          const dbColumnLower = column.dbColumn.toLowerCase();
-          const csvColumnLower = column.csvColumn?.toLowerCase();
-
-          // Check if header contains column name OR column name contains header
-          const dbColumnMatch = headerLower.includes(dbColumnLower) || dbColumnLower.includes(headerLower);
-
-          // Check if header contains expected CSV column name OR expected CSV column name contains header
-          const csvColumnMatch = csvColumnLower &&
-            (headerLower.includes(csvColumnLower) || csvColumnLower.includes(headerLower));
-
-          return dbColumnMatch || csvColumnMatch;
-        });
-
-        if (matchingHeader) {
-          console.log(`✓ Found partial match for ${column.dbColumn}: ${matchingHeader}`);
-        }
-      }
-
-      if (matchingHeader) {
-        mapping[column.dbColumn] = matchingHeader;
-      } else {
-        console.log(`✗ No match found for ${column.dbColumn}`);
-      }
-    });
-
-    console.log("Final mapping:", mapping);
-    return mapping;
-  };
-
-  // Handle file selection
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || e.target.files.length === 0) {
-      return;
-    }
-
-    const uploadedFile = e.target.files[0];
-    setFile(uploadedFile);
-    setFileName(uploadedFile.name);
-    setError(null);
-
-    // Parse CSV file
-    Papa.parse(uploadedFile, {
-      complete: (results) => {
-        if (results.data && Array.isArray(results.data)) {
-          // Get headers from the first row
-          const headers = results.data[0] as string[];
-
-          if (!headers || headers.length === 0) {
-            console.error("No headers found in CSV file");
-            setError("No headers found in CSV file");
-            return;
-          }
-
-          setCsvHeaders(headers);
-          setCsvData(results.data as string[][]);
-
-          // Find matching mapping and tables for this file
-          const { mapping, primaryTable, allTables } = CsvImportService.findMatchingMappingAndTables(
-            uploadedFile.name,
-            csvMappings
-          );
-
-          // Store matched mapping and destination tables
-          setMatchedMapping(mapping || null);
-          setDestinationTables(allTables);
-
-          // Set the primary table as selected table
-          if (primaryTable) {
-            setSelectedTable(primaryTable);
-            setTableFields(primaryTable.columns);
-
-            // Auto-map columns using the improved function
-            const autoMapping = autoMapColumns(primaryTable.columns, headers);
-            setColumnMapping(autoMapping);
-          }
-        } else {
-          setError("Failed to parse CSV file");
-        }
-      },
-      error: (error) => {
-        console.error("CSV parsing error:", error);
-        setError(`Failed to parse CSV file: ${error.message}`);
-      }
-    });
-  };
-
-  // Clear file
-  const handleClearFile = () => {
-    setFile(null);
-    setFileName("");
-    setCsvData([]);
-    setCsvHeaders([]);
-    setSelectedTable(null);
-    setTableFields([]);
-    setColumnMapping({});
-    setImportResult(null);
-    setError(null);
-    setMatchedMapping(null);
-    setDestinationTables([]);
-  };
-
-  // Handle table selection
-  const handleTableChange = (tableId: string) => {
-    const table = destinationTables.find(t => t.tableId === tableId) ||
-      tables.find(t => t.tableId === tableId);
-
-    if (table) {
-      setSelectedTable(table);
-      setTableFields(table.columns);
-
-      // Auto-map columns if we have headers
-      if (csvHeaders.length > 0) {
-        const autoMapping = autoMapColumns(table.columns, csvHeaders);
-        setColumnMapping(autoMapping);
-      } else {
-        // Reset mapping if we don't have headers
-        setColumnMapping({});
-      }
-    }
-  };
-
-  // Check if all fields are mapped
-  const areAllRequiredFieldsMapped = () => {
-    if (!selectedTable || !tableFields) return false;
-
-    // Check that all columns are mapped
-    for (const column of tableFields) {
-      if (!columnMapping[column.dbColumn]) {
-        return false;
-      }
-    }
-
-    return true;
-  };
-
-  // Process import
-  const handleProcessImport = async () => {
-    if (!file || !selectedTable) {
-      setError("File or table not selected");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Call the service to process the import
-      const result = await CsvImportService.processImport(
-        file,
-        selectedTable.tableId,
-        columnMapping
-      );
-
-      setImportResult(result);
-    } catch (err: any) {
-      console.error("Import error:", err);
-      setError(`Import failed: ${err.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Helper to determine if we should show a component
-  const showFileUpload = true;
-  const showTableSelector = file !== null;
-  const showColumnMapper = file !== null && selectedTable !== null;
-  const showImportResults = importResult !== null;
-
-  // Determine the type of mapping we're dealing with
-  const isDataTable = matchedMapping?.category === 'data';
+  const [showSuccess, setShowSuccess] = useState(true);
+  const [fixedCount, setFixedCount] = useState(0);
 
   return (
     <div className="max-w-5xl mx-auto p-6">
-      <Card className="shadow-md">
+      <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">CSV Data Import</CardTitle>
+          <CardTitle className="text-3xl">CSV Import</CardTitle>
           <CardDescription>
-            Import data from CSV files into the COBIS database
+            Import data from CSV files into the system
           </CardDescription>
         </CardHeader>
-
-        <CardContent className="space-y-8">
-          {error && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
-
-          {/* File Upload Section */}
-          {showFileUpload && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Step 1: Upload CSV File</h3>
-                {file && <span className="text-sm text-green-600">✓ File uploaded</span>}
-              </div>
+        <CardContent className="space-y-10">
+          {/* Step 1: Table Selection and File Upload */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
+            <div className="grid gap-6">
+              <TableSelector
+                tables={mockTableConfig}
+                selectedTable="students"
+                onTableChange={(id) => console.log("Selected table:", id)}
+                csvFile={new File([""], "students.csv")}
+                isDataTable={true}
+              />
 
               <FileUpload
-                onFileChange={handleFileChange}
-                onClearFile={handleClearFile}
-                file={file}
-                disabled={loading}
-                allowedExtensions={[".csv"]}
-                maxSizeInMB={10}
+                onFileChange={(e) => console.log("File changed")}
+                onClearFile={() => console.log("File cleared")}
+                file={new File([""], "students.csv", { type: "text/csv", lastModified: Date.now() })}
+                disabled={false}
               />
             </div>
-          )}
+          </div>
 
-          {showFileUpload && showTableSelector && <Separator />}
+          <Separator />
 
-          {/* Table Selection */}
-          {showTableSelector && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Step 2: Select Destination Table</h3>
-                {selectedTable && <span className="text-sm text-green-600">✓ Table selected</span>}
-              </div>
+          {/* Step 2: Column Mapping */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
+            <ColumnMapper
+              tableFields={mockTableConfig[0].columns}
+              csvHeaders={mockCsvHeaders}
+              mapping={{
+                "studentId": "Student ID",
+                "firstName": "First Name",
+                "lastName": "Last Name",
+                "email": "Email",
+                "phone": "Phone",
+                "departmentId": "Department ID"
+              }}
+              onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+            />
+          </div>
 
-              <TableSelector
-                tables={destinationTables}
-                selectedTable={selectedTable?.tableId || ""}
-                onTableChange={handleTableChange}
-                csvFile={file}
-                isDataTable={isDataTable}
-                mappings={csvMappings}
-              />
+          <Separator />
+
+          {/* Step 3: Preview Data */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
+            <CsvPreview
+              headers={mockCsvHeaders}
+              data={mockCsvData}
+              maxRows={5}
+              highlightSpecialValues={true}
+            />
+          </div>
+
+          <Separator />
+
+          {/* Step 4: Import Results */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
+            <div className="mb-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSuccess(!showSuccess)}
+                className="mb-4"
+              >
+                {showSuccess ? "Show Error Result" : "Show Success Result"}
+              </Button>
             </div>
-          )}
 
-          {showTableSelector && showColumnMapper && <Separator />}
-
-          {/* Column Mapping */}
-          {showColumnMapper && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium">Step 3: Map Columns</h3>
-                {areAllRequiredFieldsMapped() && <span className="text-sm text-green-600">✓ All columns mapped</span>}
-                {!areAllRequiredFieldsMapped() && <span className="text-sm text-amber-600">All columns must be mapped</span>}
-              </div>
-
-              <ColumnMapper
-                tableFields={tableFields}
-                csvHeaders={csvHeaders}
-                mapping={columnMapping}
-                onMapChange={handleMapChange}
-                isDataImport={isDataTable}
-                allTables={destinationTables}
-                selectedTable={selectedTable}
+            {showSuccess ? (
+              <ImportResultDisplay
+                result={{
+                  success: true,
+                  totalRecords: 5,
+                  inserted: 3,
+                  updated: 0,
+                  skipped: 2,
+                  failed: 0
+                }}
               />
-            </div>
-          )}
-
-          {file && csvHeaders.length > 0 && <Separator />}
-
-          {/* File Preview */}
-          {file && csvHeaders.length > 0 && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">CSV Preview</h3>
-              <CsvPreview
-                headers={csvHeaders}
-                data={csvData.slice(1)}
-                maxRows={5}
-                highlightSpecialValues={true}
+            ) : (
+              <ImportResultDisplay
+                result={{
+                  success: false,
+                  totalRecords: 5,
+                  inserted: 3,
+                  updated: 0,
+                  skipped: 0,
+                  failed: 2
+                }}
               />
-            </div>
-          )}
+            )}
+          </div>
 
-          {showImportResults && <Separator />}
+          {!showSuccess && (
+            <>
+              <Separator />
 
-          {/* Results */}
-          {showImportResults && (
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">Import Results</h3>
-              <ImportResultDisplay result={importResult} />
-
-              {importResult.failed > 0 && (
+              {/* Step 5: Error Fixing (Only shown when there are errors) */}
+              <div>
+                <h2 className="text-xl font-bold mb-4">Step 5: Fix Import Errors</h2>
                 <ErrorFixingMode
-                  errors={importResult.errorDetails || []}
-                  onFixedData={(formData, errorKey) => {
-                    console.log('Fixed data:', formData, 'for error:', errorKey);
-                    // In a real application, this would update the database
+                  errors={mockImportErrors}
+                  onFixedData={(data, key) => {
+                    console.log("Fixed data:", data, "Key:", key);
+                    setFixedCount(prev => prev + 1);
                   }}
-                  onRetryImport={() => {
-                    // In a real application, this would retry the import with fixed data
-                    console.log('Retrying import with fixed data');
-                    handleProcessImport();
-                  }}
-                  fixedCount={0} // This would track fixed rows in a real application
+                  onRetryImport={() => setShowSuccess(true)}
+                  fixedCount={fixedCount}
                 />
-              )}
-            </div>
+              </div>
+            </>
           )}
         </CardContent>
-
-        <CardFooter className="flex justify-end border-t p-6">
-          {showImportResults ? (
-            <Button onClick={handleClearFile}>
-              Import Another File
-            </Button>
-          ) : (
-            showColumnMapper && (
-              <Button
-                onClick={handleProcessImport}
-                disabled={!areAllRequiredFieldsMapped() || loading}
-              >
-                {loading ? "Processing..." : "Process Import"}
-              </Button>
-            )
-          )}
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={() => {
+              setFixedCount(0);
+              setShowSuccess(true);
+            }}
+          >
+            Reset Demo
+          </Button>
         </CardFooter>
       </Card>
     </div>
