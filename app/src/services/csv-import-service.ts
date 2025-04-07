@@ -74,8 +74,6 @@ export const CsvImportService = {
   findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | LookupCsvMapping | undefined {
     if (!fileName || !mappings.length) return undefined;
 
-    console.log(`Finding mapping for file: ${fileName}`);
-
     // Helper function to parse regex pattern strings from backend
     const testPattern = (patternStr: string, testStr: string): boolean => {
       try {
@@ -103,12 +101,7 @@ export const CsvImportService = {
 
       for (const pattern of mapping.filePatterns) {
         if (testPattern(pattern, fileName)) {
-          console.log(`✓ Matched data mapping "${mapping.description}" with pattern ${pattern}`);
-          return {
-            file: new File([], fileName), // Dummy file with filename for logging
-            mapping,
-            matchedPattern: pattern
-          };
+          return mapping;
         }
       }
     }
@@ -120,11 +113,7 @@ export const CsvImportService = {
 
       for (const pattern of mapping.filePatterns) {
         if (testPattern(pattern, fileName)) {
-          console.log(`✓ Matched lookup mapping "${mapping.description}" with pattern ${pattern}`);
-          return {
-            mapping,
-            matchedPattern: pattern
-          };
+          return mapping;
         }
       }
     }
@@ -135,16 +124,10 @@ export const CsvImportService = {
       const fileNameLower = fileName.toLowerCase().replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
 
       if (fileNameLower.includes(mappingNameLower) || mappingNameLower.includes(fileNameLower)) {
-        console.log(`✓ Matched lookup mapping "${mapping.description}" by name similarity`);
-        return {
-          file: new File([], fileName),
-          mapping,
-          matchedPattern: 'name-similarity'
-        };
+        return mapping;
       }
     }
 
-    console.log(`No mapping matched for ${fileName}`);
     return undefined;
   },
 
@@ -166,7 +149,7 @@ export const CsvImportService = {
     }
 
     // First find the matching mapping
-    const matchingMapping = this.findMatchingMapping(fileName, mappings)?.mapping;
+    const matchingMapping = this.findMatchingMapping(fileName, mappings)
 
     if (!matchingMapping) {
       return { mapping: undefined };
