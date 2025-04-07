@@ -95,29 +95,48 @@ export const CsvImportService = {
     // Helper function to parse regex pattern strings from backend
     const testPattern = (patternStr: string, testStr: string): boolean => {
       try {
+        console.log(`Testing pattern "${patternStr}" against "${testStr}"`);
+
         // Check if it's a regex pattern with delimiters and flags
         const matches = /^\/(.*)\/([gimuy]*)$/.exec(patternStr);
 
         if (matches) {
           const [_, patternBody, flags] = matches;
-          const regex = new RegExp(patternBody, flags);
-          return regex.test(testStr);
+          console.log(`Parsed regex: pattern=${patternBody}, flags=${flags}`);
+          try {
+            const regex = new RegExp(patternBody, flags);
+            const result = regex.test(testStr);
+            console.log(`Regex test result: ${result}`);
+            return result;
+          } catch (regexError) {
+            console.error(`Invalid regex pattern: ${patternBody}`, regexError);
+            return false;
+          }
         }
 
         // Simple string contains check as fallback
-        return testStr.toLowerCase().includes(patternStr.toLowerCase());
+        const containsResult = testStr.toLowerCase().includes(patternStr.toLowerCase());
+        console.log(`Simple contains test result: ${containsResult}`);
+        return containsResult;
       } catch (error) {
-        console.error(`Invalid pattern: ${patternStr}`, error);
+        console.error(`Error testing pattern: ${patternStr}`, error);
         return false;
       }
     };
 
-    // First try to match data tables
+    // First try data tables (more specific patterns)
     const dataTables = tables.filter(t => t.category === 'data');
-    for (const table of dataTables) {
-      if (!table.matchingPatterns) continue;
+    console.log(`Testing ${dataTables.length} data tables`);
 
+    for (const table of dataTables) {
+      if (!table.matchingPatterns || !Array.isArray(table.matchingPatterns) || table.matchingPatterns.length === 0) {
+        console.log(`Table ${table.tableName} has no patterns to match`);
+        continue;
+      }
+
+      console.log(`Checking ${table.matchingPatterns.length} patterns for table ${table.tableName}`);
       for (const pattern of table.matchingPatterns) {
+        if (!pattern) continue;
         if (testPattern(pattern, fileName)) {
           console.log(`✓ Matched data table ${table.tableName} with pattern ${pattern}`);
           return table;
@@ -127,10 +146,18 @@ export const CsvImportService = {
 
     // If no data table matched, check lookup tables
     const lookupTables = tables.filter(t => t.category === 'lookup');
-    for (const table of lookupTables) {
-      if (!table.matchingPatterns) continue;
+    console.log(`Testing ${lookupTables.length} lookup tables`);
 
+    // First try exact pattern matching for lookup tables
+    for (const table of lookupTables) {
+      if (!table.matchingPatterns || !Array.isArray(table.matchingPatterns) || table.matchingPatterns.length === 0) {
+        console.log(`Lookup table ${table.tableName} has no patterns to match`);
+        continue;
+      }
+
+      console.log(`Checking ${table.matchingPatterns.length} patterns for lookup table ${table.tableName}`);
       for (const pattern of table.matchingPatterns) {
+        if (!pattern) continue;
         if (testPattern(pattern, fileName)) {
           console.log(`✓ Matched lookup table ${table.tableName} with pattern ${pattern}`);
           return table;
@@ -138,14 +165,21 @@ export const CsvImportService = {
       }
     }
 
-    // If the filename is similar to a lookup table name, use that as fallback
-    for (const table of lookupTables) {
-      const tableNameLower = table.tableName.toLowerCase().replace(/[\s_-]+/g, '');
-      const fileNameLower = fileName.toLowerCase().replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
+    // Special case: If the file name appears to be a lookup table (contains common lookup table words)
+    const lookupKeywords = ['lookup', 'code', 'reference', 'dictionary', 'enum', 'list', 'standing', 'status', 'type'];
+    const fileNameLower = fileName.toLowerCase();
+    if (lookupKeywords.some(keyword => fileNameLower.includes(keyword))) {
+      console.log(`File name ${fileName} contains lookup keywords`);
 
-      if (fileNameLower.includes(tableNameLower) || tableNameLower.includes(fileNameLower)) {
-        console.log(`✓ Matched lookup table ${table.tableName} by name similarity`);
-        return table;
+      // Try to find by name similarity first
+      for (const table of lookupTables) {
+        const tableNameLower = table.tableName.toLowerCase().replace(/[\s_-]+/g, '');
+        const fileNameNormalized = fileNameLower.replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
+
+        if (fileNameNormalized.includes(tableNameLower) || tableNameLower.includes(fileNameNormalized)) {
+          console.log(`✓ Matched lookup table ${table.tableName} by name similarity`);
+          return table;
+        }
       }
     }
 
