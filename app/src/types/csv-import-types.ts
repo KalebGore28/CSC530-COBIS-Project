@@ -92,12 +92,3 @@ export interface ImportError {
 		values: Record<string, any>;
 	};
 }
-
-/**
- * Helper type for file and mapping association
- */
-export interface FileMapping {
-	file: File;
-	mapping: CsvMapping;
-	matchedPattern: string;
-}

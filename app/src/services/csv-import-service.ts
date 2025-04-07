@@ -6,8 +6,7 @@ import {
   TableConfig,
   CsvMapping,
   DataCsvMapping,
-  LookupCsvMapping,
-  FileMapping
+  LookupCsvMapping
 } from '../types/csv-import-types';
 
 /**
@@ -72,7 +71,7 @@ export const CsvImportService = {
    * @param mappings Array of CSV mappings from the API
    * @returns The matching mapping if found
    */
-  findMatchingMapping(fileName: string, mappings: CsvMapping[]): FileMapping | undefined {
+  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | LookupCsvMapping | undefined {
     if (!fileName || !mappings.length) return undefined;
 
     console.log(`Finding mapping for file: ${fileName}`);
@@ -123,7 +122,6 @@ export const CsvImportService = {
         if (testPattern(pattern, fileName)) {
           console.log(`✓ Matched lookup mapping "${mapping.description}" with pattern ${pattern}`);
           return {
-            file: new File([], fileName), // Dummy file with filename for logging
             mapping,
             matchedPattern: pattern
           };
@@ -161,36 +159,26 @@ export const CsvImportService = {
     fileName: string,
     mappings: CsvMapping[]
   ): {
-    mapping: CsvMapping | undefined,
-    primaryTable: TableConfig | undefined,
-    allTables: TableConfig[]
+    mapping: CsvMapping | undefined
   } {
     if (!fileName || !mappings.length) {
-      return { mapping: undefined, primaryTable: undefined, allTables: [] };
+      return { mapping: undefined };
     }
 
     // First find the matching mapping
     const matchingMapping = this.findMatchingMapping(fileName, mappings)?.mapping;
 
     if (!matchingMapping) {
-      return { mapping: undefined, primaryTable: undefined, allTables: [] };
+      return { mapping: undefined };
     }
 
     // Then extract the appropriate tables based on the mapping type
     if (matchingMapping.category === 'data') {
-      // For data tables, return the first destination as primary and all as allTables
-      const allTables = matchingMapping.destinations;
-      const primaryTable = allTables.length > 0 ? allTables[0] : undefined;
-
-      return { mapping: matchingMapping, primaryTable, allTables };
+      return { mapping: matchingMapping };
     } else {
-      // For lookup tables, there's only one destination
-      const primaryTable = matchingMapping.destination;
 
       return {
-        mapping: matchingMapping,
-        primaryTable,
-        allTables: primaryTable ? [primaryTable] : []
+        mapping: matchingMapping
       };
     }
   },

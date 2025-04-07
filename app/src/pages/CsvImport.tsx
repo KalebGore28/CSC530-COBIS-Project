@@ -102,6 +102,7 @@ export const CsvImport: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
 
+  // Fetch import info
   useEffect(() => {
     const fetchImportInfo = async () => {
       const info = await CsvImportService.getImportInfo();
@@ -109,6 +110,14 @@ export const CsvImport: React.FC = () => {
     };
     fetchImportInfo();
   }, []);
+
+
+  useEffect(() => {
+    if (importInfo && selectedFile) {
+      console.log(selectedFile?.name);
+      console.log(CsvImportService.findMatchingMappingAndTables(selectedFile?.name || "", importInfo.csvMappings));
+    }
+  }, [importInfo, selectedFile]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -119,7 +128,7 @@ export const CsvImport: React.FC = () => {
     setSelectedFile(null);
   };
 
-  
+
 
   return (
     <div className="max-w-5xl mx-auto p-6">
