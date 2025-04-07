@@ -159,14 +159,37 @@ const ImportStatsSchema = z.object({
 
 // Combined schema for the new import info endpoint
 const ImportInfoResponseSchema = z.object({
-	tables: z.array(ImportTableSchema).openapi({
-		description: 'All available tables for import'
+	csvMappings: z.array(
+		z.object({
+			description: z.string(),
+			category: z.enum(['data', 'lookup']),
+			filePatterns: z.array(z.string()).optional(),
+			destinations: z.array(
+				z.object({
+					tableName: z.string(),
+					tableId: z.string(),
+					primaryKeys: z.array(z.string()),
+					columns: z.array(ImportTableColumnSchema),
+					hasRowExpander: z.boolean().optional()
+				})
+			).optional(),
+			destination: z.object({
+				tableName: z.string(),
+				tableId: z.string(),
+				primaryKeys: z.array(z.string()),
+				columns: z.array(ImportTableColumnSchema),
+				hasRowExpander: z.boolean().optional()
+			}).optional()
+		})
+	).openapi({
+		description: 'All CSV file mapping configurations'
 	}),
-	filePatterns: z.array(FilePatternSchema).openapi({
-		description: 'File patterns for automatic table detection'
-	}),
-	stats: ImportStatsSchema.openapi({
-		description: 'Statistics about available tables'
+	stats: z.object({
+		tableCount: z.number(),
+		dataTableCount: z.number(),
+		lookupTableCount: z.number()
+	}).openapi({
+		description: 'Statistics about available tables and mappings'
 	})
 });
 
