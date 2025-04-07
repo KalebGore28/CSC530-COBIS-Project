@@ -11,7 +11,7 @@ import { ImportResultDisplay } from "@/components/csv-import/import-result";
 import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
 
 // Import types
-import { TableConfig, ImportError, ImportInfoResponse } from "../types/csv-import-types";
+import { TableConfig, ImportError, ImportInfoResponse, CsvMapping } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
@@ -101,6 +101,7 @@ export const CsvImport: React.FC = () => {
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
+  const [mapping, setMapping] = useState<CsvMapping | null>(null);
 
   // Fetch import info
   useEffect(() => {
@@ -114,8 +115,8 @@ export const CsvImport: React.FC = () => {
 
   useEffect(() => {
     if (importInfo && selectedFile) {
-      console.log(selectedFile?.name);
-      console.log(CsvImportService.findMatchingMappingAndTables(selectedFile?.name || "", importInfo.csvMappings));
+      const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
+      setMapping(mapping);
     }
   }, [importInfo, selectedFile]);
 
