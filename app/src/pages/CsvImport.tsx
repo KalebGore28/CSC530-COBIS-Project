@@ -16,12 +16,18 @@ import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
 // Import service and types
 import CsvImportService from "../services/csv-import-service";
-import { ColumnDefinition, TableConfig, CsvMapping } from "../types/csv-import-types";
+import {
+  ColumnDefinition,
+  TableConfig,
+  CsvMapping,
+  DataCsvMapping,
+  LookupCsvMapping
+} from "../types/csv-import-types";
 
 export const CsvImport: React.FC = () => {
   // State for the import flow
   const [file, setFile] = useState<File | null>(null);
-  const [_, setFileName] = useState<string>("");
+  const [fileName, setFileName] = useState<string>("");
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [tables, setTables] = useState<TableConfig[]>([]);
@@ -32,6 +38,8 @@ export const CsvImport: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [csvMappings, setCsvMappings] = useState<CsvMapping[]>([]);
+  const [matchedMapping, setMatchedMapping] = useState<CsvMapping | null>(null);
+  const [destinationTables, setDestinationTables] = useState<TableConfig[]>([]);
 
   // Fetch table configurations on component mount
   useEffect(() => {
@@ -44,26 +52,18 @@ export const CsvImport: React.FC = () => {
           throw new Error("Failed to load import configuration");
         }
 
-        // Store the raw CSV mappings for use in TableSelector
+        // Store the raw CSV mappings
         setCsvMappings(importInfo.csvMappings);
 
         // Extract all tables from the import info
         const allTables: TableConfig[] = [];
         importInfo.csvMappings.forEach(mapping => {
-          if (mapping.category === 'data' && Array.isArray(mapping.destinations)) {
-            mapping.destinations.forEach(dest => {
-              allTables.push({
-                ...dest,
-                category: 'data',
-                matchingPatterns: mapping.filePatterns || []
-              });
-            });
-          } else if (mapping.category === 'lookup' && mapping.destination) {
-            allTables.push({
-              ...mapping.destination,
-              category: 'lookup',
-              matchingPatterns: mapping.filePatterns || []
-            });
+          if (mapping.category === 'data') {
+            // For data mappings, add all destination tables
+            allTables.push(...mapping.destinations);
+          } else {
+            // For lookup mappings, add the single destination
+            allTables.push(mapping.destination);
           }
         });
 
@@ -148,14 +148,23 @@ export const CsvImport: React.FC = () => {
           setCsvHeaders(headers);
           setCsvData(results.data as string[][]);
 
-          // Auto-detect matching table
-          const matchingTable = CsvImportService.findMatchingTable(uploadedFile.name, tables);
-          if (matchingTable) {
-            setSelectedTable(matchingTable);
-            setTableFields(matchingTable.columns);
+          // Find matching mapping and tables for this file
+          const { mapping, primaryTable, allTables } = CsvImportService.findMatchingMappingAndTables(
+            uploadedFile.name,
+            csvMappings
+          );
+
+          // Store matched mapping and destination tables
+          setMatchedMapping(mapping || null);
+          setDestinationTables(allTables);
+
+          // Set the primary table as selected table
+          if (primaryTable) {
+            setSelectedTable(primaryTable);
+            setTableFields(primaryTable.columns);
 
             // Auto-map columns using the improved function
-            const autoMapping = autoMapColumns(matchingTable.columns, headers);
+            const autoMapping = autoMapColumns(primaryTable.columns, headers);
             setColumnMapping(autoMapping);
           }
         } else {
@@ -180,11 +189,15 @@ export const CsvImport: React.FC = () => {
     setColumnMapping({});
     setImportResult(null);
     setError(null);
+    setMatchedMapping(null);
+    setDestinationTables([]);
   };
 
   // Handle table selection
   const handleTableChange = (tableId: string) => {
-    const table = tables.find(t => t.tableId === tableId);
+    const table = destinationTables.find(t => t.tableId === tableId) ||
+      tables.find(t => t.tableId === tableId);
+
     if (table) {
       setSelectedTable(table);
       setTableFields(table.columns);
@@ -204,14 +217,8 @@ export const CsvImport: React.FC = () => {
   const areAllRequiredFieldsMapped = () => {
     if (!selectedTable || !tableFields) return false;
 
-    // Check if all required columns are mapped (primary keys are required)
-    const requiredColumns = tableFields.filter(field =>
-      field.isPrimaryKey
-    );
-
-    return requiredColumns.every(field =>
-      columnMapping[field.dbColumn] && columnMapping[field.dbColumn].length > 0
-    );
+    // Use the service function to check required fields
+    return CsvImportService.areAllRequiredFieldsMapped(selectedTable, columnMapping);
   };
 
   // Process import
@@ -246,6 +253,9 @@ export const CsvImport: React.FC = () => {
   const showTableSelector = file !== null;
   const showColumnMapper = file !== null && selectedTable !== null;
   const showImportResults = importResult !== null;
+
+  // Determine the type of mapping we're dealing with
+  const isDataTable = matchedMapping?.category === 'data';
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -295,11 +305,11 @@ export const CsvImport: React.FC = () => {
               </div>
 
               <TableSelector
-                tables={tables}
+                tables={destinationTables}
                 selectedTable={selectedTable?.tableId || ""}
                 onTableChange={handleTableChange}
                 csvFile={file}
-                isDataTable={selectedTable?.category === 'data'}
+                isDataTable={isDataTable}
                 mappings={csvMappings}
               />
             </div>
