@@ -379,6 +379,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "crn", dbColumn: "crn" },
 					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
 					{ csvColumn: "crsenumb", dbColumn: "course_number" },
+					{ csvColumn: "section", dbColumn: "course_section" },
 				]
 
 			},

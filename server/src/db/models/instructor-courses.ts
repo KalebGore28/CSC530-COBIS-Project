@@ -13,6 +13,7 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 	course_subject: text("course_subject").notNull(),
 	course_number: text("course_number").notNull(),
 	course_suffix: text("course_suffix").notNull().default(""),
+	course_section: text("course_section").notNull().default(""),
 	role: text("role").notNull().default("Instructor"),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.term, table.crn] }),

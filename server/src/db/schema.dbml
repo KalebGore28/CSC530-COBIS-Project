@@ -87,6 +87,7 @@ table instructor_courses {
   course_subject text [not null]
   course_number text [not null]
   course_suffix text [not null, default: '']
+  course_section text [not null, default: '']
   role text [not null, default: 'Instructor']
 
   indexes {

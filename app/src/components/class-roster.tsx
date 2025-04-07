@@ -53,6 +53,7 @@ interface ClassRosterProps {
   // New individual props
   subject?: string;
   number?: string;
+  suffix?: string;
   section?: string;
   term?: string;
   year?: number;
@@ -87,6 +88,7 @@ const getGradeDistribution = (students: Student[]) => {
 export default function ClassRoster({
   subject,
   number,
+  suffix,
   section,
   term,
   year
@@ -111,6 +113,7 @@ export default function ClassRoster({
           return {
             subject,
             number,
+            suffix,
             section,
             term,
             year
