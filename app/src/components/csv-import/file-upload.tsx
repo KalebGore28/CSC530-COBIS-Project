@@ -151,15 +151,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             </div>
 
             <div className="flex gap-2 mt-3">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleClickChangeFile}
-                className="flex-1"
-              >
-                Replace File
-              </Button>
 
               <Button
                 type="button"
