@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import { Alert, AlertDescription } from "../components/ui/alert";
-import { AlertCircle, Upload } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 import Papa from "papaparse";
 
 // Import components
@@ -21,7 +21,7 @@ import { ColumnDefinition, TableConfig } from "../types/csv-import-types";
 export const CsvImport: React.FC = () => {
   // State for the import flow
   const [file, setFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState<string>("");
+  const [_, setFileName] = useState<string>("");
   const [csvData, setCsvData] = useState<string[][]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [tables, setTables] = useState<TableConfig[]>([]);
