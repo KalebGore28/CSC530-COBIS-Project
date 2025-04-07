@@ -1,16 +1,19 @@
-import { FileUpload } from "@/components/csv-import/file-upload";
-import { TableSelector } from "@/components/csv-import/table-selector";
-import { ColumnMapper } from "@/components/csv-import/column-mapper";
-import { CsvPreview } from "../components/csv-import/csv-preview";
-import { ImportResultDisplay } from "../components/csv-import/import-result";
-import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
-
-// Import types
-import { TableConfig, ImportError } from "../types/csv-import-types";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { useState } from "react";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+
+import { FileUpload } from "@/components/csv-import/file-upload";
+import { TableSelector } from "@/components/csv-import/table-selector";
+import { ColumnMapper } from "@/components/csv-import/column-mapper";
+import { CsvPreview } from "@/components/csv-import/csv-preview";
+import { ImportResultDisplay } from "@/components/csv-import/import-result";
+import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
+
+// Import types
+import { TableConfig, ImportError } from "../types/csv-import-types";
+import CsvImportService from "@/services/csv-import-service";
+
 
 // Sample data for our example
 const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Department ID"];
@@ -96,6 +99,7 @@ const mockImportErrors: ImportError[] = [
 export const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
+  console.log(CsvImportService.getImportInfo())
 
   return (
     <div className="max-w-5xl mx-auto p-6">
