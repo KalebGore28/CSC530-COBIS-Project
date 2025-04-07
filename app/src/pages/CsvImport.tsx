@@ -90,34 +90,62 @@ export const CsvImport: React.FC = () => {
   // Auto map columns based on CSV headers
   const autoMapColumns = (tableColumns: ColumnDefinition[], headers: string[]) => {
     const mapping: Record<string, string> = {};
+    console.log("Auto-mapping columns...");
+    console.log("Headers:", headers);
 
     tableColumns.forEach(column => {
+      console.log(`Looking for match for column: ${column.dbColumn}, expected CSV column: ${column.csvColumn || 'none'}`);
+
       // Try different matching strategies
       // 1. Direct match (case insensitive)
       let matchingHeader = headers.find(h =>
         h.toLowerCase() === column.dbColumn.toLowerCase()
       );
 
+      if (matchingHeader) {
+        console.log(`✓ Found direct match for ${column.dbColumn}: ${matchingHeader}`);
+      }
+
       // 2. Match against csvColumn property if specified
       if (!matchingHeader && column.csvColumn) {
         matchingHeader = headers.find(h =>
           h.toLowerCase() === column.csvColumn.toLowerCase()
         );
+        if (matchingHeader) {
+          console.log(`✓ Found match via csvColumn for ${column.dbColumn} using ${column.csvColumn}: ${matchingHeader}`);
+        }
       }
 
-      // 3. Try partial match (contains)
+      // 3. Try partial match (contains) - bidirectional matching
       if (!matchingHeader) {
-        matchingHeader = headers.find(h =>
-          h.toLowerCase().includes(column.dbColumn.toLowerCase()) ||
-          (column.csvColumn && h.toLowerCase().includes(column.csvColumn.toLowerCase()))
-        );
+        matchingHeader = headers.find(h => {
+          const headerLower = h.toLowerCase();
+          const dbColumnLower = column.dbColumn.toLowerCase();
+          const csvColumnLower = column.csvColumn?.toLowerCase();
+
+          // Check if header contains column name OR column name contains header
+          const dbColumnMatch = headerLower.includes(dbColumnLower) || dbColumnLower.includes(headerLower);
+
+          // Check if header contains expected CSV column name OR expected CSV column name contains header
+          const csvColumnMatch = csvColumnLower &&
+            (headerLower.includes(csvColumnLower) || csvColumnLower.includes(headerLower));
+
+          return dbColumnMatch || csvColumnMatch;
+        });
+
+        if (matchingHeader) {
+          console.log(`✓ Found partial match for ${column.dbColumn}: ${matchingHeader}`);
+        }
       }
 
       if (matchingHeader) {
         mapping[column.dbColumn] = matchingHeader;
+      } else {
+        console.log(`✗ No match found for ${column.dbColumn}`);
       }
     });
 
+    console.log("Final mapping:", mapping);
     return mapping;
   };
 
@@ -213,12 +241,18 @@ export const CsvImport: React.FC = () => {
     }
   };
 
-  // Check if all required fields are mapped
+  // Check if all fields are mapped
   const areAllRequiredFieldsMapped = () => {
     if (!selectedTable || !tableFields) return false;
 
-    // Use the service function to check required fields
-    return CsvImportService.areAllRequiredFieldsMapped(selectedTable, columnMapping);
+    // Check that all columns are mapped
+    for (const column of tableFields) {
+      if (!columnMapping[column.dbColumn]) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   // Process import
@@ -322,7 +356,8 @@ export const CsvImport: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium">Step 3: Map Columns</h3>
-                {areAllRequiredFieldsMapped() && <span className="text-sm text-green-600">✓ All required fields mapped</span>}
+                {areAllRequiredFieldsMapped() && <span className="text-sm text-green-600">✓ All columns mapped</span>}
+                {!areAllRequiredFieldsMapped() && <span className="text-sm text-amber-600">All columns must be mapped</span>}
               </div>
 
               <ColumnMapper
@@ -330,6 +365,9 @@ export const CsvImport: React.FC = () => {
                 csvHeaders={csvHeaders}
                 mapping={columnMapping}
                 onMapChange={handleMapChange}
+                isDataImport={isDataTable}
+                allTables={destinationTables}
+                selectedTable={selectedTable}
               />
             </div>
           )}

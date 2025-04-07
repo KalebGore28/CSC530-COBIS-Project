@@ -379,7 +379,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "crn", dbColumn: "crn" },
 					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
 					{ csvColumn: "crsenumb", dbColumn: "course_number" },
-					{ csvColumn: "section", dbColumn: "section" },
 				]
 
 			},
@@ -389,8 +388,8 @@ export const csvFileMappings: CSVFileMapping[] = [
 				 * Why: If an instructor has not signed in to the system before, their name will not be in the
 				 * user table. This table is used to store instructor names for those instructors.
 				 */
-				tableName: "Instructors",
-				tableId: "instructors",
+				tableName: "Faculty",
+				tableId: "faculty",
 				primaryKeys: ["mnumber"],
 				schemaRef: schema.faculty,
 				columnMappings: [
