@@ -132,6 +132,15 @@ export const CsvImportService = {
   },
 
   /**
+   * Get all lookup tables from the mappings
+   * @param mappings Array of CSV mappings from the API
+   * @returns Array of lookup tables
+   */
+  getLookupTables(mappings: CsvMapping[]): LookupCsvMapping[] {
+    return mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
+  },
+
+  /**
    * Find the matching mapping and destination tables for a file
    * This replaces the old findMatchingTable function with a more accurate implementation
    * @param fileName The file name to match

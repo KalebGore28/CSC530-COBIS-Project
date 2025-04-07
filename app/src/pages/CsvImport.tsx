@@ -11,7 +11,7 @@ import { ImportResultDisplay } from "@/components/csv-import/import-result";
 import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
 
 // Import types
-import { TableConfig, ImportError, ImportInfoResponse, CsvMapping } from "../types/csv-import-types";
+import { TableConfig, ImportError, ImportInfoResponse, CsvMapping, LookupCsvMapping } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
@@ -102,6 +102,7 @@ export const CsvImport: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<CsvMapping | null>(null);
+  const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]);
 
   // Fetch import info
   useEffect(() => {
@@ -116,7 +117,9 @@ export const CsvImport: React.FC = () => {
   useEffect(() => {
     if (importInfo && selectedFile) {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
+      const lookupTables = CsvImportService.getLookupTables(importInfo.csvMappings);
       setMapping(mapping || null);
+      setLookupTables(lookupTables);
     }
   }, [importInfo, selectedFile]);
 
@@ -154,6 +157,7 @@ export const CsvImport: React.FC = () => {
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
                 mapping={mapping}
+                lookupTables={lookupTables}
               />}
             </div>
           </div>

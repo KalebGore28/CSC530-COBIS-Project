@@ -6,18 +6,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
-import { CsvMapping } from "../../types/csv-import-types";
+import { CsvMapping, LookupCsvMapping } from "../../types/csv-import-types";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Database, Table2, Info } from "lucide-react";
 
 interface TableSelectorProps {
-  mapping: CsvMapping | null;
+  mapping: CsvMapping | null; // Used only for data tables
+  lookupTables: LookupCsvMapping[]; // Used only for lookup tables when no mapping is found.
   selectedTable: string;
   onTableChange: (tableId: string) => void;
 }
 
 export const TableSelector: React.FC<TableSelectorProps> = ({
   mapping,
+  lookupTables,
   selectedTable,
   onTableChange,
 }) => {
