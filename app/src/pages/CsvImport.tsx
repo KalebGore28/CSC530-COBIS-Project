@@ -140,13 +140,13 @@ export const CsvImport: React.FC = () => {
                 onClearFile={handleClearFile}
                 file={selectedFile}
               />
-              <TableSelector
+              {selectedFile &&<TableSelector
                 tables={mockTableConfig}
                 selectedTable="students"
                 onTableChange={(id) => console.log("Selected table:", id)}
                 csvFile={selectedFile}
                 isDataTable={true}
-              />
+              />}
             </div>
           </div>
 
