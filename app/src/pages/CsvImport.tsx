@@ -16,7 +16,7 @@ import { ErrorFixingMode } from "../components/csv-import/error-fixing-mode";
 
 // Import service and types
 import CsvImportService from "../services/csv-import-service";
-import { ColumnDefinition, TableConfig } from "../types/csv-import-types";
+import { ColumnDefinition, TableConfig, CsvMapping } from "../types/csv-import-types";
 
 export const CsvImport: React.FC = () => {
   // State for the import flow
@@ -31,6 +31,7 @@ export const CsvImport: React.FC = () => {
   const [importResult, setImportResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [csvMappings, setCsvMappings] = useState<CsvMapping[]>([]);
 
   // Fetch table configurations on component mount
   useEffect(() => {
@@ -42,6 +43,9 @@ export const CsvImport: React.FC = () => {
         if (!importInfo || !importInfo.csvMappings) {
           throw new Error("Failed to load import configuration");
         }
+
+        // Store the raw CSV mappings for use in TableSelector
+        setCsvMappings(importInfo.csvMappings);
 
         // Extract all tables from the import info
         const allTables: TableConfig[] = [];
@@ -296,6 +300,7 @@ export const CsvImport: React.FC = () => {
                 onTableChange={handleTableChange}
                 csvFile={file}
                 isDataTable={selectedTable?.category === 'data'}
+                mappings={csvMappings}
               />
             </div>
           )}
