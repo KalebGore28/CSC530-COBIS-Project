@@ -1,9 +1,4 @@
 import React, { useState, useEffect } from "react";
-import ClassRosterComponent from "@/components/class-roster";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
 import { useSession } from "@/hooks/session-context";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector"
@@ -27,6 +22,20 @@ const ClassRosterPage: React.FC = () => {
 		setSelectedCourse(course);
 		setRosterError(null); // Clear any previous errors
 	};
+
+	useEffect(() => {
+		if (selectedCourse) {
+			console.log("Selected course:", {
+				courseId: selectedCourse.courseId,
+				section: selectedCourse.courseSection,
+				title: selectedCourse.courseTitle,
+				crn: selectedCourse.crn,
+				students: selectedCourse.studentCount,
+				term: `${selectedCourse.termName} ${selectedCourse.year}`
+			});
+		}
+	}, [selectedCourse]);
+
 
 	return (
 		<div className="p-6 max-w-7xl mx-auto">
