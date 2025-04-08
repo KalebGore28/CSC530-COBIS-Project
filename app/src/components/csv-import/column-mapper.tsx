@@ -35,34 +35,6 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   onMapChange,
   csvColumns = []
 }) => {
-  // Get available CSV columns from the mapping
-  const getAvailableCsvColumns = (mapping: DataCsvMapping | null, destination?: TableConfig) => {
-    if (!mapping) return [];
-
-    // Extract unique CSV columns from all destinations or the specific destination
-    const allColumns: string[] = [];
-
-    if (destination) {
-      // If a specific destination is provided, only use its columns
-      destination.columns.forEach(column => {
-        if (column.csvColumn && column.csvColumn.trim() !== "" && !allColumns.includes(column.csvColumn)) {
-          allColumns.push(column.csvColumn);
-        }
-      });
-    } else {
-      // Otherwise, collect from all destinations
-      mapping.destinations.forEach(dest => {
-        dest.columns.forEach(column => {
-          if (column.csvColumn && column.csvColumn.trim() !== "" && !allColumns.includes(column.csvColumn)) {
-            allColumns.push(column.csvColumn);
-          }
-        });
-      });
-    }
-
-    return allColumns.filter(Boolean);
-  };
-
   // Component to render a single table mapping
   const TableMapping = ({
     tableName,
@@ -146,7 +118,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     const tablesWithMappings = useMemo(() => {
       return mapping.destinations.map((destination) => {
         const tableName = destination.tableName;
-        const availableCsvColumns = getAvailableCsvColumns(mapping, destination);
+        // Use passed in csvColumns prop directly instead of extracting from mapping
+        const availableCsvColumns = csvColumns;
 
         // Auto-match columns that have the same name (case insensitive)
         const columns = destination.columns.map((column) => {
@@ -168,7 +141,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
           availableCsvColumns
         };
       });
-    }, [mapping]);
+    }, [mapping, csvColumns]);
 
     // For multiple destinations, create tabs
     if (tablesWithMappings.length > 1) {
@@ -239,10 +212,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     );
 
     if (lookupMapping) {
-      // Get all available CSV columns from the lookup table
-      const availableCsvColumns = lookupMapping.destination.columns
-        .map(col => col.csvColumn)
-        .filter(Boolean) as string[];
+      // Use passed in csvColumns prop directly
+      const availableCsvColumns = csvColumns;
 
       return (
         <div className="space-y-4">
