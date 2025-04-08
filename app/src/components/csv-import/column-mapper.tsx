@@ -40,14 +40,33 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     // We know it is a data table
     // we are interested in getting the destinations from the mapping
     // There can be multiple destinations for a single file. So that means multiple tables will need to be mapped.
-    const destinations = mapping.destinations;
+    for (const destination of mapping.destinations) {
 
-    // We need to get the table name and the columns from the destinations
-    const tableNames = destinations.map((destination) => destination.tableName);
-    const columnMappings = destinations.map((destination) => destination.columns);
+      // get the table name
+      const tableName = destination.tableName;
 
-    console.log(tableNames);
-    console.log(columnMappings);
+      // get the columns
+      const columns = destination.columns;
+
+      // check if table has multiple primary keys.
+      const hasMultiplePrimaryKeys = columns.some((column) => column.isPrimaryKey);
+
+      // the column mapping will have the following properties:
+      // dbColumn: string;
+      // csvColumn: string;
+      // isPrimaryKey: boolean; // can have icon for this. 
+      // hasTransform: boolean;
+
+      // We will need to display the dbColumn and the csvColumn for each table.
+
+      // the csvcolumn will be displayed. the dbcolumn will be displayed in a dropdown.
+
+      // if possible try to match the csvcolumn to the dbcolumn.
+      // only exact matches case insensitive will be auto mapped.
+
+      // if there is no exact match, do not auto map.
+
+    }
 
   } else {
     // We know it is a lookup table
