@@ -26,6 +26,11 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
 
   // If no mapping but lookup tables are available, show lookup table selector
   if (!mapping && lookupTables.length > 0) {
+    // Find the selected lookup table for display in the dropdown
+    const selectedLookupTable = lookupTables.find(
+      table => table.destination.tableId === selectedTable
+    );
+
     return (
       <div className="mb-6">
         <div className="flex items-center justify-between mb-2">
@@ -44,9 +49,15 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
             </div>
           </div>
         </div>
-        <Select value={selectedTable} onValueChange={onTableChange}>
+        <Select
+          value={selectedTable}
+          onValueChange={onTableChange}
+          defaultValue={lookupTables.length > 0 ? lookupTables[0].destination.tableId : undefined}
+        >
           <SelectTrigger className="w-full">
-            <SelectValue placeholder="Select a lookup table" />
+            <SelectValue placeholder="Select a lookup table">
+              {selectedLookupTable?.destination.tableName || "Select a lookup table"}
+            </SelectValue>
           </SelectTrigger>
           <SelectContent>
             {lookupTables.map(lookupTable => (
@@ -75,26 +86,10 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
   }
 
   const isDataTable = mapping.category === 'data';
-  console.log("Is data table:", isDataTable);
 
   // For data tables, use the destinations array
-  // For lookup tables, use the single destination
-  const tables = isDataTable
-    ? ('destinations' in mapping ? mapping.destinations : [])
-    : ('destination' in mapping ? [mapping.destination] : []);
+  const tables = mapping.destinations;
 
-  console.log("Available tables:", tables);
-
-  if (!tables.length) {
-    return (
-      <Alert variant="destructive" className="mb-6">
-        <AlertTitle>No tables available</AlertTitle>
-        <AlertDescription>
-          No {isDataTable ? "data" : "lookup"} tables are configured for this mapping.
-        </AlertDescription>
-      </Alert>
-    );
-  }
 
   // If data table, show the destination tables
   return (

@@ -103,6 +103,7 @@ export const CsvImport: React.FC = () => {
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<CsvMapping | null>(null);
   const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]);
+  const [selectedTable, setSelectedTable] = useState<string>("");
 
   // Fetch import info
   useEffect(() => {
@@ -118,10 +119,24 @@ export const CsvImport: React.FC = () => {
     if (importInfo && selectedFile) {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
       const lookupTables = CsvImportService.getLookupTables(importInfo.csvMappings);
+
       setMapping(mapping || null);
-      console.log("Lookup tables:", lookupTables);
-      console.log("Mapping:", mapping);
       setLookupTables(lookupTables);
+
+      // Set default selected table based on the mapping
+      if (mapping) {
+        if (mapping.category === 'data' && 'destinations' in mapping && mapping.destinations.length > 0) {
+          setSelectedTable(mapping.destinations[0].tableId);
+        } else if (mapping.category === 'lookup' && 'destination' in mapping) {
+          setSelectedTable(mapping.destination.tableId);
+        }
+      } else if (lookupTables.length > 0) {
+        // If no mapping but lookup tables available, select the first lookup table
+        setSelectedTable(lookupTables[0].destination.tableId);
+      } else {
+        // Clear selected table if no mapping and no lookup tables
+        setSelectedTable("");
+      }
     }
   }, [importInfo, selectedFile]);
 
@@ -132,9 +147,13 @@ export const CsvImport: React.FC = () => {
 
   const handleClearFile = () => {
     setSelectedFile(null);
+    setSelectedTable("");
   };
 
-
+  const handleTableChange = (tableId: string) => {
+    console.log("Table selected:", tableId);
+    setSelectedTable(tableId);
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -156,8 +175,8 @@ export const CsvImport: React.FC = () => {
                 file={selectedFile}
               />
               {selectedFile && <TableSelector
-                selectedTable="students"
-                onTableChange={(id) => console.log("Selected table:", id)}
+                selectedTable={selectedTable}
+                onTableChange={handleTableChange}
                 mapping={mapping}
                 lookupTables={lookupTables}
               />}
