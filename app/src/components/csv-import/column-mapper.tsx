@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -17,7 +17,6 @@ import {
 import { Badge } from "../ui/badge";
 import { ColumnDefinition, TableConfig, LookupCsvMapping, DataCsvMapping } from "../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
-import { cn } from "../../lib/utils";
 import { Alert, AlertDescription } from "../ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 
