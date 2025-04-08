@@ -107,23 +107,6 @@ export const CsvImportService = {
       }
     }
 
-    // If no data mapping matched, check lookup mappings
-    const lookupMappings = mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
-
-    // For lookup mappings, we should not be trying to access filePatterns
-    // since it doesn't exist on the LookupCsvMapping type
-    // Instead, proceed directly to the name similarity check
-
-    // If the filename is similar to a lookup table name, use that as fallback
-    for (const mapping of lookupMappings) {
-      const mappingNameLower = mapping.description.toLowerCase().replace(/[\s_-]+/g, '');
-      const fileNameLower = fileName.toLowerCase().replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
-
-      if (fileNameLower.includes(mappingNameLower) || mappingNameLower.includes(fileNameLower)) {
-        return mapping;
-      }
-    }
-
     return undefined;
   },
 
