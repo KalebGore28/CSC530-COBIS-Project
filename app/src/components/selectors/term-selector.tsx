@@ -65,6 +65,8 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 
 	useEffect(() => {
 		const fetchTerms = async () => {
+			if (!mnumber) return;
+
 			try {
 				setLoading(true);
 				const response = await axios.get(
@@ -96,12 +98,10 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 			}
 		};
 
-		if (mnumber) {
-			fetchTerms();
-		}
+		fetchTerms();
 	}, [mnumber]);
 
-	const handleTermChange = (termId: any) => {
+	const handleTermChange = (termId: string) => {
 		const [termCode, year] = termId.split("-");
 		const term = terms.find(
 			(t) => t.termCode === termCode && t.year === parseInt(year)
