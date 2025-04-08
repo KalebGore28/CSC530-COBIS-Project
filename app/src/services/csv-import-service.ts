@@ -65,6 +65,7 @@ export const CsvImportService = {
     }
   },
 
+
   /**
    * Find the matching CSV mapping for a file name
    * @param fileName The name of the file to match
@@ -97,26 +98,21 @@ export const CsvImportService = {
     // First try to match data mappings (they often have more specific patterns)
     const dataMappings = mappings.filter((m): m is DataCsvMapping => m.category === 'data');
     for (const mapping of dataMappings) {
-      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
-
-      for (const pattern of mapping.filePatterns) {
-        if (testPattern(pattern, fileName)) {
-          return mapping;
+      if (mapping.filePatterns && mapping.filePatterns.length > 0) {
+        for (const pattern of mapping.filePatterns) {
+          if (testPattern(pattern, fileName)) {
+            return mapping;
+          }
         }
       }
     }
 
     // If no data mapping matched, check lookup mappings
     const lookupMappings = mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
-    for (const mapping of lookupMappings) {
-      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
 
-      for (const pattern of mapping.filePatterns) {
-        if (testPattern(pattern, fileName)) {
-          return mapping;
-        }
-      }
-    }
+    // For lookup mappings, we should not be trying to access filePatterns
+    // since it doesn't exist on the LookupCsvMapping type
+    // Instead, proceed directly to the name similarity check
 
     // If the filename is similar to a lookup table name, use that as fallback
     for (const mapping of lookupMappings) {

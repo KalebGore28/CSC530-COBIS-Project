@@ -769,8 +769,8 @@ export const getImportInfo = () => {
 				: [mapping.destination];
 
 			// Convert RegExp patterns to string format that can be reconstructed on the client
-			const patternStrings = (mapping.filePatterns || [])
-				.map(pattern => {
+			const patternStrings = mapping.category === "data"
+				? mapping.filePatterns.map(pattern => {
 					// Get the actual pattern string and flags
 					const patternStr = pattern.toString();
 					// The regex toString() returns something like /pattern/flags
@@ -783,7 +783,8 @@ export const getImportInfo = () => {
 					}
 					// Fallback to original string representation
 					return patternStr;
-				});
+				})
+				: [];
 
 			return {
 				filePatterns: patternStrings,

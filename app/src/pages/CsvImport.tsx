@@ -119,6 +119,8 @@ export const CsvImport: React.FC = () => {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
       const lookupTables = CsvImportService.getLookupTables(importInfo.csvMappings);
       setMapping(mapping || null);
+      console.log("Lookup tables:", lookupTables);
+      console.log("Mapping:", mapping);
       setLookupTables(lookupTables);
     }
   }, [importInfo, selectedFile]);
