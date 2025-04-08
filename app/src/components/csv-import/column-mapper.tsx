@@ -6,19 +6,19 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Badge } from "../ui/badge";
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
 import { ColumnDefinition, TableConfig, LookupCsvMapping, DataCsvMapping } from "../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
-import { Alert, AlertDescription } from "../ui/alert";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ColumnMapperProps {
   lookupTables: LookupCsvMapping[];
