@@ -18,7 +18,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { SkeletonCard } from "@/components/loading/skeleton";
+import { SkeletonCard } from "@/components/loading/selector-skeleton";
 
 /**
  * Term interface representing a term summary from the API

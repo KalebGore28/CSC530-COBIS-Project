@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Term } from "./term-selector";
-import { SkeletonCard } from "@/components/loading/skeleton";
+import { SkeletonCard } from "@/components/loading/selector-skeleton";
 
 /**
  * Course interface representing a course from the API
