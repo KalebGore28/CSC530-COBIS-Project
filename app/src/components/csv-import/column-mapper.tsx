@@ -45,11 +45,14 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
       // get the table name
       const tableName = destination.tableName;
 
-      // get the columns
-      const columns = destination.columns;
+      // get the csv columns
+      const csvColumns = destination.columns.map((column) => column.csvColumn);
+
+      // get the db columns
+      const dbColumns = destination.columns.map((column) => column.dbColumn);
 
       // check if table has multiple primary keys.
-      const hasMultiplePrimaryKeys = columns.some((column) => column.isPrimaryKey);
+      const hasMultiplePrimaryKeys = destination.columns.some((column) => column.isPrimaryKey);
 
       // the column mapping will have the following properties:
       // dbColumn: string;
