@@ -18,10 +18,10 @@ import {
 	CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Term } from "./term-selector";
+import { SkeletonCard } from "@/components/loading/skeleton";
 
 /**
  * Course interface representing a course from the API
@@ -171,17 +171,11 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 
 	if (loading) {
 		return (
-			<Card className="w-full">
-				<CardHeader>
-					<CardTitle>Loading Courses</CardTitle>
-					<CardDescription>
-						Fetching courses for {selectedTerm.termName} {selectedTerm.year}
-					</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<Skeleton className="h-10 w-full" />
-				</CardContent>
-			</Card>
+			<SkeletonCard
+				showTitle
+				showDescription
+				showDropdown
+			/>
 		);
 	}
 
