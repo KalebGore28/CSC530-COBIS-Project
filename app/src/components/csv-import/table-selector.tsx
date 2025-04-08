@@ -23,7 +23,45 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
   selectedTable,
   onTableChange,
 }) => {
-  console.log("TableSelector received mapping:", mapping);
+
+  // If no mapping but lookup tables are available, show lookup table selector
+  if (!mapping && lookupTables.length > 0) {
+    return (
+      <div className="mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">
+            Select Lookup Table
+          </h3>
+          <div className="px-2 py-1 bg-amber-50 text-amber-700 text-xs rounded-md border border-amber-200 flex items-center">
+            <Table2 className="h-3 w-3 mr-1" /> Lookup Import
+          </div>
+        </div>
+        <div className="p-3 bg-amber-50 rounded-md border border-amber-200 mb-4">
+          <div className="flex items-start">
+            <Info className="h-4 w-4 mr-2 mt-0.5 text-amber-500" />
+            <div className="text-sm text-amber-800">
+              <p>No matching table found for this file. You can use it as a lookup table import.</p>
+            </div>
+          </div>
+        </div>
+        <Select value={selectedTable} onValueChange={onTableChange}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select a lookup table" />
+          </SelectTrigger>
+          <SelectContent>
+            {lookupTables.map(lookupTable => (
+              <SelectItem
+                key={lookupTable.destination.tableId}
+                value={lookupTable.destination.tableId}
+              >
+                {lookupTable.destination.tableName}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
 
   if (!mapping) {
     return (
@@ -58,6 +96,7 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
     );
   }
 
+  // If data table, show the destination tables
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
@@ -76,7 +115,7 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
         )}
       </div>
 
-      {isDataTable ? (
+      {isDataTable && (
         <div className="p-3 bg-blue-50 rounded-md border border-blue-200">
           <div className="flex items-start">
             <Info className="h-4 w-4 mr-2 mt-0.5 text-blue-500" />
@@ -98,19 +137,6 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
             </div>
           </div>
         </div>
-      ) : (
-        <Select value={selectedTable} onValueChange={onTableChange}>
-          <SelectTrigger className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {tables.map(table => (
-              <SelectItem key={table.tableId} value={table.tableId}>
-                {table.tableName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       )}
     </div>
   );
