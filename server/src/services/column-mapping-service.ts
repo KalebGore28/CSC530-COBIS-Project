@@ -56,7 +56,6 @@ export interface DataCsvMapping extends BaseCsvMapping {
  */
 export interface LookupCsvMapping extends BaseCsvMapping {
 	category: "lookup";
-	filePatterns?: RegExp[];
 	destination: BaseDestination;
 }
 
@@ -481,7 +480,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	// Lookup tables
 	{
-		filePatterns: [/academic.+standing|standing.+academic/i],
 		description: "Academic standing codes",
 		category: "lookup",
 		destination: {
@@ -496,7 +494,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/admit.+code|code.+admit/i],
 		description: "Admit type codes",
 		category: "lookup",
 		destination: {
@@ -511,7 +508,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/college.+code|code.+college/i],
 		description: "College codes",
 		category: "lookup",
 		destination: {
@@ -526,7 +522,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/colleges/i],
 		description: "Colleges data",
 		category: "lookup",
 		destination: {
@@ -542,7 +537,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	},
 	{
-		filePatterns: [/departments/i],
 		description: "Departments data",
 		category: "lookup",
 		destination: {
@@ -559,7 +553,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	},
 	{
-		filePatterns: [/instructional.+method|method.+instructional/i],
 		description: "Instructional method codes",
 		category: "lookup",
 		destination: {
@@ -574,7 +567,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/nations/i],
 		description: "Nations data",
 		category: "lookup",
 		destination: {
@@ -589,7 +581,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/part.+term|term.+part/i],
 		description: "Part of term data",
 		category: "lookup",
 		destination: {
@@ -604,7 +595,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/major.+minor|minor.+major/i],
 		description: "Major/Minor programs data",
 		category: "lookup",
 		destination: {
@@ -628,7 +618,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/registration.+status|status.+registration/i],
 		description: "Registration status codes",
 		category: "lookup",
 		destination: {
@@ -643,7 +632,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/terms/i],
 		description: "Terms data",
 		category: "lookup",
 		destination: {
