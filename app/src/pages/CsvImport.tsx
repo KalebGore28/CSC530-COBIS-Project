@@ -11,7 +11,7 @@ import { ImportResultDisplay } from "@/components/csv-import/import-result";
 import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
 
 // Import types
-import { TableConfig, ImportError, ImportInfoResponse, CsvMapping, LookupCsvMapping } from "../types/csv-import-types";
+import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
@@ -23,36 +23,6 @@ const mockCsvData = [
   ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "DEP001"],
   ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "DEP003"],
   ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
-];
-
-const mockTableConfig: TableConfig[] = [
-  {
-    tableId: "students",
-    tableName: "Students",
-    category: "data",
-    primaryKeys: ["studentId"],
-    hasRowExpander: false,
-    columns: [
-      { dbColumn: "studentId", csvColumn: "Student ID", isPrimaryKey: true, hasTransform: false },
-      { dbColumn: "firstName", csvColumn: "First Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "lastName", csvColumn: "Last Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "email", csvColumn: "Email", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "phone", csvColumn: "Phone", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, hasTransform: false },
-    ],
-  },
-  {
-    tableId: "departments",
-    tableName: "Departments",
-    category: "lookup",
-    primaryKeys: ["departmentId"],
-    hasRowExpander: false,
-    columns: [
-      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, hasTransform: false },
-      { dbColumn: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "building", csvColumn: "Building", isPrimaryKey: false, hasTransform: false },
-    ],
-  }
 ];
 
 const mockImportErrors: ImportError[] = [
@@ -101,7 +71,7 @@ export const CsvImport: React.FC = () => {
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
-  const [mapping, setMapping] = useState<CsvMapping | null>(null); // This is only the mapping for the data table.
+  const [mapping, setMapping] = useState<DataCsvMapping | null>(null); // This is only the mapping for the data table.
   const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]); // This is a fallback for lookup tables if no mapping is found.
   // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
   const [selectedTable, setSelectedTable] = useState<string>("");
@@ -189,16 +159,9 @@ export const CsvImport: React.FC = () => {
           {selectedTable && <div>
             <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
             <ColumnMapper
-              tableFields={mockTableConfig[0].columns}
-              csvHeaders={mockCsvHeaders}
-              mapping={{
-                "studentId": "Student ID",
-                "firstName": "First Name",
-                "lastName": "Last Name",
-                "email": "Email",
-                "phone": "Phone",
-                "departmentId": "Department ID"
-              }}
+              lookupTables={lookupTables}
+              selectedTable={selectedTable} // Used only when it is a lookup table so it can filter the lookup tables passed in.
+              mapping={mapping} // This is the mapping for the data table.
               onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
             />
           </div>}
