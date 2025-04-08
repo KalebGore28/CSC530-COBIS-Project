@@ -89,7 +89,6 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	}, [onError]);
 
 	useEffect(() => {
-		// Create a function to fetch courses
 		const fetchCourses = async () => {
 			// Reset state when term changes
 			setSelectedCourse(null);
@@ -111,7 +110,6 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 					withCredentials: true,
 				});
 
-
 				if (response.data.courseDetails && Array.isArray(response.data.courseDetails)) {
 					// Sort courses by subject, number, and section
 					const sortedCourses = [...response.data.courseDetails].sort((a, b) => {
@@ -131,15 +129,12 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 					setCourses([]);
 				}
 			} catch (err: any) {
-				console.error("Axios error details:", err.response ? err.response.data : "No response data");
-				console.error("Axios error status:", err.response ? err.response.status : "No status");
 				handleError(err);
 			} finally {
 				setLoading(false);
 			}
 		};
 
-		// Call the fetch function
 		fetchCourses();
 	}, [mnumber, selectedTerm]);
 
@@ -199,18 +194,8 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 				<CardContent>
 					<Alert variant="destructive">
 						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Error Loading Courses</AlertTitle>
-						<AlertDescription>
-							{error}
-							<div className="mt-2 text-sm">
-								<p>
-									Details:
-								</p>
-								<p>
-									Term: {selectedTerm.termCode}, Year: {selectedTerm.year}
-								</p>
-							</div>
-						</AlertDescription>
+						<AlertTitle>Error</AlertTitle>
+						<AlertDescription>{error}</AlertDescription>
 					</Alert>
 				</CardContent>
 			</Card>
