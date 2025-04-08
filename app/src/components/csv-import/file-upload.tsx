@@ -86,7 +86,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       Papa.parse(selectedFile, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: (header) => header.toLowerCase(),
+        transformHeader: (header) => {
+          console.log('Header:', header);
+          return header.toLowerCase()},
         complete: (results) => {
           setParsingStatus('success');
           onParsedData(results);

@@ -312,7 +312,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					// { csvColumn: "type", dbColumn: "type" },
-					{ csvColumn: "level", dbColumn: "level" },
+					{ csvColumn: "levl", dbColumn: "level" },
 					{ csvColumn: "program", dbColumn: "program" },
 				],
 				// This is the key addition - a function that transforms one CSV row into multiple DB rows
