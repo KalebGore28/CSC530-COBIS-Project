@@ -131,11 +131,7 @@ export const CsvImport: React.FC = () => {
         } else if (mapping.category === 'lookup' && 'destination' in mapping) {
           setSelectedTable(mapping.destination.tableId);
         }
-      } else if (lookupTables.length > 0) {
-        // If no mapping but lookup tables available, select the first lookup table
-        setSelectedTable(lookupTables[0].destination.tableId);
       } else {
-        // Clear selected table if no mapping and no lookup tables
         setSelectedTable("");
       }
     }

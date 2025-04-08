@@ -46,13 +46,13 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
             <Info className="h-4 w-4 mr-2 mt-0.5 text-amber-500" />
             <div className="text-sm text-amber-800">
               <p>No matching table found for this file. You can use it as a lookup table import.</p>
+              <p className="mt-2 font-medium">Please select a lookup table to continue.</p>
             </div>
           </div>
         </div>
         <Select
           value={selectedTable}
           onValueChange={onTableChange}
-          defaultValue={lookupTables.length > 0 ? lookupTables[0].destination.tableId : undefined}
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select a lookup table">
