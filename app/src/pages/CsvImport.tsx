@@ -96,10 +96,8 @@ export const CsvImport: React.FC = () => {
 
       // Set default selected table based on the mapping
       if (mapping) {
-        if (mapping.category === 'data' && 'destinations' in mapping && mapping.destinations.length > 0) {
+        if (mapping.destinations.length > 0) {
           setSelectedTable(mapping.destinations[0].tableId);
-        } else if (mapping.category === 'lookup' && 'destination' in mapping) {
-          setSelectedTable(mapping.destination.tableId);
         }
       } else {
         setSelectedTable("");

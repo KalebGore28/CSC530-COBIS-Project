@@ -72,7 +72,7 @@ export const CsvImportService = {
    * @param mappings Array of CSV mappings from the API
    * @returns The matching mapping if found
    */
-  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | LookupCsvMapping | undefined {
+  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | undefined {
     if (!fileName || !mappings.length) return undefined;
 
     // Helper function to parse regex pattern strings from backend
@@ -130,7 +130,7 @@ export const CsvImportService = {
     fileName: string,
     mappings: CsvMapping[]
   ): {
-    mapping: CsvMapping | undefined
+    mapping: DataCsvMapping | undefined
   } {
     if (!fileName || !mappings.length) {
       return { mapping: undefined };
