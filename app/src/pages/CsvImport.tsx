@@ -101,8 +101,8 @@ export const CsvImport: React.FC = () => {
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
-  const [mapping, setMapping] = useState<CsvMapping | null>(null);
-  const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]);
+  const [mapping, setMapping] = useState<CsvMapping | null>(null); // This is only the mapping for the data table.
+  const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]); // This is a fallback for lookup tables if no mapping is found.
   // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
   const [selectedTable, setSelectedTable] = useState<string>("");
 
@@ -115,7 +115,7 @@ export const CsvImport: React.FC = () => {
     fetchImportInfo();
   }, []);
 
-
+  // This is the main effect that runs when the import info is fetched and a file is selected.
   useEffect(() => {
     if (importInfo && selectedFile) {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
@@ -164,6 +164,7 @@ export const CsvImport: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-10">
+
           {/* Step 1: File Upload and Table Selection */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
