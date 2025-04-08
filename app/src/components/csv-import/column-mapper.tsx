@@ -25,6 +25,7 @@ interface ColumnMapperProps {
   selectedTable?: string;
   mapping: DataCsvMapping | null;
   onMapChange: (columnName: string, csvColumn: string) => void;
+  csvColumns: string[];
 }
 
 export const ColumnMapper: React.FC<ColumnMapperProps> = ({
@@ -32,6 +33,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   selectedTable,
   mapping,
   onMapChange,
+  csvColumns = []
 }) => {
   // Get available CSV columns from the mapping
   const getAvailableCsvColumns = (mapping: DataCsvMapping | null, destination?: TableConfig) => {

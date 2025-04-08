@@ -157,6 +157,7 @@ export const CsvImport: React.FC = () => {
           {selectedTable && <div>
             <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
             <ColumnMapper
+              csvColumns={mockCsvHeaders}
               lookupTables={lookupTables}
               selectedTable={selectedTable} // Used only when it is a lookup table so it can filter the lookup tables passed in.
               mapping={mapping} // This is the mapping for the data table.
