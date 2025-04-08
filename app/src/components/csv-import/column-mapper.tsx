@@ -195,9 +195,10 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertDescription>
-              All required columns must be mapped before proceeding. Primary key columns (
-              <Key className="h-3 w-3 inline mx-1" />) are essential for matching records.
+            <AlertDescription className="flex items-center flex-wrap">
+              <span>All required columns must be mapped before proceeding. Primary key columns</span>
+              <Key className="h-3 w-3 mx-1 flex-shrink-0" />
+              <span>are essential for matching records.</span>
             </AlertDescription>
           </Alert>
         </div>
@@ -215,9 +216,10 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
           <Alert>
             <Info className="h-4 w-4" />
-            <AlertDescription>
-              All required columns must be mapped before proceeding. Primary key columns (
-              <Key className="h-3 w-3 inline mx-1" />) are essential for matching records.
+            <AlertDescription className="flex items-center flex-wrap">
+              <span>All required columns must be mapped before proceeding. Primary key columns</span>
+              <Key className="h-3 w-3 mx-1 flex-shrink-0" />
+              <span>are essential for matching records.</span>
             </AlertDescription>
           </Alert>
         </div>
