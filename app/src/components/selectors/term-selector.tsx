@@ -99,7 +99,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		if (mnumber) {
 			fetchTerms();
 		}
-	}, [mnumber, onTermSelect, onError]);
+	}, [mnumber]);
 
 	const handleTermChange = (termId: any) => {
 		const [termCode, year] = termId.split("-");

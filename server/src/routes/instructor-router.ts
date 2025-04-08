@@ -41,16 +41,16 @@ router.get('/:mnumber/teaching-summary',
 	InstructorController.getTeachingSummary
 );
 
-// Course details
-router.get('/:mnumber/courses',
-	checkInstructorAccess,
-	InstructorController.getCourseDetails
-);
-
-// Term summaries
+// ✅ Term summaries
 router.get('/:mnumber/terms',
 	checkInstructorAccess,
 	InstructorController.getTermSummaries
+);
+
+// ✅ Course details
+router.get('/:mnumber/courses',
+	checkInstructorAccess,
+	InstructorController.getCourseDetails
 );
 
 // Class Roster

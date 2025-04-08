@@ -258,21 +258,23 @@ export class InstructorsService {
 	}
 
 	/**
-	 * Get course details
+	 * Get course details for an instructor in a specific term
+	 * 
 	 * @param mnumber Instructor M number
-	 * @param options Optional filtering parameters (term, year)
+	 * @param options Required filtering parameters (term, year)
+	 * @returns Array of course details for the specified term and year
 	 */
 	static async getCourseDetails(
 		mnumber: string,
-		options?: {
-			term?: string;
-			year?: number;
+		options: {
+			term: string;
+			year: number;
 		}
 	) {
 		const db = (await getDbConnection()).orm;
 
-		// Start building the query
-		let query = db
+		// Build the query with required term and year filters
+		const query = db
 			.select({
 				term: instructorCourses.term,
 				year: instructorCourses.year,
@@ -301,42 +303,38 @@ export class InstructorsService {
 					eq(instructorCourses.term, studentCourses.term),
 					eq(instructorCourses.year, studentCourses.year)
 				)
-			);
-
-		// Build the where conditions
-		const conditions = [eq(instructorCourses.mnumber, mnumber)];
-
-		// Add term filter if provided
-		if (options?.term) {
-			conditions.push(eq(instructorCourses.term, options.term));
-		}
-
-		// Add year filter if provided
-		if (options?.year) {
-			conditions.push(eq(instructorCourses.year, options.year));
-		}
-
-		// Apply all conditions
-		const filteredQuery = query.where(and(...conditions));
-
-		// Complete the query with grouping and ordering
-		const courseDetailsQuery = await filteredQuery
+			)
+			.where(
+				and(
+					eq(instructorCourses.mnumber, mnumber),
+					eq(instructorCourses.term, options.term),
+					eq(instructorCourses.year, options.year)
+				)
+			)
 			.groupBy(
 				instructorCourses.term,
 				instructorCourses.year,
 				instructorCourses.course_subject,
 				instructorCourses.course_number,
 				instructorCourses.course_suffix,
+				instructorCourses.course_section,
 				courses.title,
 				instructorCourses.crn,
 				studentCourses.course_hours
 			)
-			.orderBy(desc(instructorCourses.year), desc(instructorCourses.term));
+			.orderBy(
+				instructorCourses.course_subject,
+				instructorCourses.course_number,
+				instructorCourses.course_suffix,
+				instructorCourses.course_section
+			);
 
-		return courseDetailsQuery.map(course => {
+		const courseDetailsResult = await query;
+
+		return courseDetailsResult.map(course => {
 			const termName = this.termNameMap[course.term] || 'UNKNOWN';
 			return {
-				termName: termName,
+				termName,
 				termCode: course.term,
 				year: course.year,
 				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,

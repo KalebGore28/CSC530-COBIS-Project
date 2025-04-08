@@ -123,28 +123,54 @@ export class InstructorController {
 	}
 
 	/**
-	 * Get course details
+	 * Get course details for an instructor in a specific term
+	 * 
+	 * @param req Request with params (mnumber) and required query (term, year)
+	 * @param res Response object
 	 */
 	static async getCourseDetails(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
 			const { term, year } = req.query;
 
-			// Validate and parse query parameters
-			const options: { term?: string; year?: number } = {};
-			if (term) options.term = term as string;
-			if (year && !isNaN(parseInt(year as string))) {
-				options.year = parseInt(year as string);
+			// Validate required parameters
+			if (!term || !year) {
+				res.status(400).json({
+					error: 'Missing required query parameters',
+					requiredParams: ['term', 'year']
+				});
+				return;
 			}
 
+			// Validate and parse parameters
+			const termCode = term as string;
+			const yearValue = parseInt(year as string);
+
+			if (isNaN(yearValue)) {
+				res.status(400).json({
+					error: 'Invalid year parameter. Year must be a valid number.'
+				});
+				return;
+			}
+
+			// Verify instructor exists
 			if (!(await InstructorsService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const courseDetails = await InstructorsService.getCourseDetails(mnumber, options);
+			// Get course details for the specified term and year
+			const courseDetails = await InstructorsService.getCourseDetails(
+				mnumber,
+				{ term: termCode, year: yearValue }
+			);
 
-			res.json({ mnumber, courseDetails });
+			res.json({
+				mnumber,
+				termCode,
+				year: yearValue,
+				courseDetails
+			});
 			return;
 		} catch (error) {
 			console.error('Error fetching course details:', error);
