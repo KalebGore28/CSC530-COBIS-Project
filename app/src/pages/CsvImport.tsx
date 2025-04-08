@@ -103,6 +103,7 @@ export const CsvImport: React.FC = () => {
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<CsvMapping | null>(null);
   const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]);
+  // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
   const [selectedTable, setSelectedTable] = useState<string>("");
 
   // Fetch import info
@@ -148,6 +149,8 @@ export const CsvImport: React.FC = () => {
   const handleClearFile = () => {
     setSelectedFile(null);
     setSelectedTable("");
+    setMapping(null);
+    setLookupTables([]);
   };
 
   const handleTableChange = (tableId: string) => {
@@ -186,7 +189,7 @@ export const CsvImport: React.FC = () => {
           <Separator />
 
           {/* Step 2: Column Mapping */}
-          <div>
+          {selectedTable && <div>
             <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
             <ColumnMapper
               tableFields={mockTableConfig[0].columns}
@@ -201,7 +204,7 @@ export const CsvImport: React.FC = () => {
               }}
               onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
             />
-          </div>
+          </div>}
 
           <Separator />
 
