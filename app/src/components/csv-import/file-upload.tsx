@@ -1,13 +1,15 @@
-// Enhanced version with clear/change options
-import React, { ChangeEvent, useRef } from "react";
+// Enhanced version with clear/change options and Papa Parse integration
+import React, { ChangeEvent, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X, Upload, FileText, FileUp, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Papa from "papaparse";
 
 interface FileUploadProps {
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onClearFile: () => void;
+  onParsedData?: (results: Papa.ParseResult<unknown>) => void;
   file: File | null;
   allowedExtensions?: string[];
   maxSizeInMB?: number;
@@ -53,16 +55,48 @@ const validateFile = (file: File | null, allowedExtensions: string[], maxSizeInM
 export const FileUpload: React.FC<FileUploadProps> = ({
   onFileChange,
   onClearFile,
+  onParsedData,
   file,
   allowedExtensions = [".csv"],
   maxSizeInMB = 10
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { isValid, errors } = validateFile(file, allowedExtensions, maxSizeInMB);
+  const [parsingStatus, setParsingStatus] = useState<'idle' | 'parsing' | 'success' | 'error'>('idle');
+  const [parseError, setParseError] = useState<string | null>(null);
 
   const handleClickChangeFile = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
+    }
+  };
+
+  // Function to handle file input change and parse the file
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+
+    // Call the original onFileChange callback
+    onFileChange(e);
+
+    // Parse the file if it exists and onParsedData is provided
+    if (selectedFile && onParsedData) {
+      setParsingStatus('parsing');
+      setParseError(null);
+
+      Papa.parse(selectedFile, {
+        header: true,
+        skipEmptyLines: true,
+        transformHeader: (header) => header.toLowerCase(),
+        complete: (results) => {
+          setParsingStatus('success');
+          onParsedData(results);
+        },
+        error: (error) => {
+          setParsingStatus('error');
+          setParseError(error.message);
+          console.error('Error parsing CSV:', error);
+        }
+      });
     }
   };
 
@@ -86,7 +120,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
             ref={fileInputRef}
             type="file"
             accept={allowedExtensions.join(",")}
-            onChange={onFileChange}
+            onChange={handleInputChange}
             className="hidden"
           />
 
@@ -125,12 +159,28 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                   File <span className="font-mono text-xs bg-green-100 px-1 rounded">{file.name}</span> is ready to be processed
                 </span>
               </div>
+              {parsingStatus === 'parsing' && (
+                <p className="text-xs mt-1 text-green-700">Parsing CSV data...</p>
+              )}
+              {parsingStatus === 'success' && (
+                <p className="text-xs mt-1 text-green-700">CSV data parsed successfully!</p>
+              )}
             </div>
           ) : (
             <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2">
               <div className="flex items-center text-red-800">
                 <AlertCircle className="h-4 w-4 mr-2 text-red-600" />
                 <span>{errors.join(" ")}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Show parsing error if it exists */}
+          {parseError && (
+            <div className="bg-red-50 border border-red-200 rounded-md px-3 py-2">
+              <div className="flex items-center text-red-800">
+                <AlertCircle className="h-4 w-4 mr-2 text-red-600" />
+                <span>Error parsing CSV: {parseError}</span>
               </div>
             </div>
           )}

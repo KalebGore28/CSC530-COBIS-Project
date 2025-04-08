@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Papa from "papaparse";
 
 import { FileUpload } from "@/components/csv-import/file-upload";
 import { TableSelector } from "@/components/csv-import/table-selector";
@@ -76,6 +77,11 @@ export const CsvImport: React.FC = () => {
   // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
   const [selectedTable, setSelectedTable] = useState<string>("");
 
+  // State for parsed CSV data
+  const [csvHeaders, setCsvHeaders] = useState<string[]>(mockCsvHeaders);
+  const [csvData, setCsvData] = useState<string[][]>(mockCsvData);
+  const [isParsed, setIsParsed] = useState<boolean>(false);
+
   // Fetch import info
   useEffect(() => {
     const fetchImportInfo = async () => {
@@ -108,6 +114,12 @@ export const CsvImport: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
+    // Reset parsed data if file changes
+    if (!file) {
+      setCsvHeaders(mockCsvHeaders);
+      setCsvData(mockCsvData);
+      setIsParsed(false);
+    }
   };
 
   const handleClearFile = () => {
@@ -115,6 +127,32 @@ export const CsvImport: React.FC = () => {
     setSelectedTable("");
     setMapping(null);
     setLookupTables([]);
+    setCsvHeaders(mockCsvHeaders);
+    setCsvData(mockCsvData);
+    setIsParsed(false);
+  };
+
+  const handleParsedData = (results: Papa.ParseResult<unknown>) => {
+    if (results.data && results.data.length > 0) {
+      // Extract headers from the parse result
+      if (results.meta.fields && results.meta.fields.length > 0) {
+        setCsvHeaders(results.meta.fields);
+      }
+
+      // Extract data rows
+      const dataRows: string[][] = [];
+      results.data.forEach((row: any) => {
+        if (typeof row === 'object' && row !== null) {
+          const rowValues = Object.values(row).map(val =>
+            val !== null && val !== undefined ? String(val) : "");
+          dataRows.push(rowValues);
+        }
+      });
+
+      setCsvData(dataRows);
+      setIsParsed(true);
+      console.log('CSV parsed successfully:', results);
+    }
   };
 
   const handleTableChange = (tableId: string) => {
@@ -140,6 +178,7 @@ export const CsvImport: React.FC = () => {
               <FileUpload
                 onFileChange={handleFileChange}
                 onClearFile={handleClearFile}
+                onParsedData={handleParsedData}
                 file={selectedFile}
               />
               {selectedFile && <TableSelector
@@ -157,7 +196,7 @@ export const CsvImport: React.FC = () => {
           {selectedTable && <div>
             <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
             <ColumnMapper
-              csvColumns={mockCsvHeaders}
+              csvColumns={csvHeaders}
               lookupTables={lookupTables}
               selectedTable={selectedTable} // Used only when it is a lookup table so it can filter the lookup tables passed in.
               mapping={mapping} // This is the mapping for the data table.
@@ -171,8 +210,8 @@ export const CsvImport: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
             <CsvPreview
-              headers={mockCsvHeaders}
-              data={mockCsvData}
+              headers={csvHeaders}
+              data={csvData}
               maxRows={5}
               highlightSpecialValues={true}
             />

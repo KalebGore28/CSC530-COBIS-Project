@@ -470,7 +470,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
 					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
 					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
+					{ csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
 				]
 			}
 		]
