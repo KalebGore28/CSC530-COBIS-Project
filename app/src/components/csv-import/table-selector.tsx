@@ -85,9 +85,8 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
     );
   }
 
-  const isDataTable = mapping.category === 'data';
-
   // For data tables, use the destinations array
+  const isDataTable = mapping.category === 'data';
   const tables = isDataTable && 'destinations' in mapping ? mapping.destinations : [];
 
 
