@@ -88,10 +88,10 @@ export const TableSelector: React.FC<TableSelectorProps> = ({
   const isDataTable = mapping.category === 'data';
 
   // For data tables, use the destinations array
-  const tables = mapping.destinations;
+  const tables = isDataTable && 'destinations' in mapping ? mapping.destinations : [];
 
 
-  // If data table, show the destination tables
+  // For data tables, show the destination table(s)
   return (
     <div className="mb-6">
       <div className="flex items-center justify-between mb-2">
