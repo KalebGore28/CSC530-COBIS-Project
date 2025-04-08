@@ -18,7 +18,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { SkeletonCard } from "@/components/loading/skeleton";
 
 /**
  * Term interface representing a term summary from the API
@@ -123,17 +123,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 	};
 
 	if (loading) {
-		return (
-			<Card className="w-full">
-				<CardHeader>
-					<Skeleton className="h-4 w-1/2" />
-					<Skeleton className="h-3 w-1/3" />
-				</CardHeader>
-				<CardContent>
-					<Skeleton className="h-10 w-full" />
-				</CardContent>
-			</Card>
-		);
+		return <SkeletonCard showTitle showDescription showDropdown />;
 	}
 
 	if (error) {
