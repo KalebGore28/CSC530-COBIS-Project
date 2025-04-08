@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useSession } from "@/hooks/session-context";
+import { TermSelector } from "@/components/selectors/term-selector";
 // Define interfaces for API response
 interface CourseDetail {
 	termName: string;
@@ -141,6 +142,9 @@ const ClassRosterPage: React.FC = () => {
 
 	return (
 		<div className="p-6 max-w-7xl mx-auto">
+			{session && <TermSelector
+				mnumber={session.mnumber}
+			/>}
 			<Card className="mb-6">
 				<CardHeader>
 					<CardTitle>Class Roster</CardTitle>
