@@ -15,6 +15,7 @@ import StudentLookup from './pages/StudentLookup';
 import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
 import ClassRosterPage from './pages/ClassRoster';
+import StudentPage from './components/student-info';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -47,6 +48,7 @@ export const App: React.FC = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
         <Route path="class-roster" element={<ClassRosterPage />} />
+        <Route path="student-info" element={<StudentPage mNumber={"M10000000"} />} />
         <Route path="reports" element={<Reports />}>
           <Route path="students" element={<StudentsReport />} />
         </Route>
