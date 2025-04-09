@@ -80,7 +80,7 @@ export interface RosterStats {
  */
 export interface ClassRosterProps {
 	/** The instructor's M number */
-	mnumber: string;
+	mnumber: string | null;
 	/** The selected course */
 	selectedCourse: Course;
 }

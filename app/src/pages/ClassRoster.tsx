@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import { useSession } from "@/hooks/session-context";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
-import { CourseSelector, Course } from "@/components/selectors/course-selector"
-// Define interfaces for API response
-
+import { CourseSelector, Course } from "@/components/selectors/course-selector";
+import ClassRosterComponent from "@/components/roster";
+import { Separator } from "@/components/ui/separator";
 
 // Modified ClassRoster component that will fetch data from API
 const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
 	const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
 	const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
-	const [isLoadingRoster, setIsLoadingRoster] = useState<boolean>(false);
-	const [rosterError, setRosterError] = useState<string | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
-	const handleTermSelect = (term: Term) => {
-		setSelectedTerm(term);
-		setSelectedCourse(null); // Reset course selection when term changes
-	};
-
-	const handleCourseSelect = (course: Course) => {
-		setSelectedCourse(course);
-		setRosterError(null); // Clear any previous errors
-	};
-
+	// Log selected course whenever it changes
 	useEffect(() => {
 		if (selectedCourse) {
 			console.log("Selected course:", {
@@ -36,23 +29,79 @@ const ClassRosterPage: React.FC = () => {
 		}
 	}, [selectedCourse]);
 
+	const handleTermSelect = (term: Term) => {
+		setSelectedTerm(term);
+		setSelectedCourse(null); // Reset course selection when term changes
+	};
+
+	const handleCourseSelect = (course: Course) => {
+		setSelectedCourse(course);
+		setError(null); // Clear any previous errors
+	};
+
+	const handleError = (err: any) => {
+		console.error("Error:", err);
+		setError("Failed to load data. Please try again.");
+	};
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
-			{session && <TermSelector
-				mnumber={session.mnumber}
-				onTermSelect={handleTermSelect}
-			/>}
+		<div className="p-6 max-w-7xl mx-auto space-y-6">
+			<h1 className="text-2xl font-bold">Class Roster</h1>
 
-			{session && selectedTerm && <CourseSelector
-				mnumber={session.mnumber}
-				selectedTerm={selectedTerm}
-				onCourseSelect={handleCourseSelect}
-				onError={(_) => setRosterError("Failed to load courses. Please try again.")}
-			/>}
+			{!session ? (
+				<Alert variant="destructive">
+					<AlertCircle className="h-4 w-4" />
+					<AlertTitle>Authentication Error</AlertTitle>
+					<AlertDescription>
+						You must be logged in to view class rosters.
+					</AlertDescription>
+				</Alert>
+			) : (
+				<>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						{/* Term Selector */}
+						<div>
+							<TermSelector
+								mnumber={session.mnumber}
+								onTermSelect={handleTermSelect}
+								onError={handleError}
+							/>
+						</div>
 
-			{session && selectedTerm && selectedCourse && console.log()}
+						{/* Course Selector - only shown when a term is selected */}
+						<div>
+							{selectedTerm && (
+								<CourseSelector
+									mnumber={session.mnumber}
+									selectedTerm={selectedTerm}
+									onCourseSelect={handleCourseSelect}
+									onError={handleError}
+								/>
+							)}
+						</div>
+					</div>
 
+					{error && (
+						<Alert variant="destructive">
+							<AlertCircle className="h-4 w-4" />
+							<AlertTitle>Error</AlertTitle>
+							<AlertDescription>{error}</AlertDescription>
+						</Alert>
+					)}
+
+					{/* Class Roster Component - only shown when a course is selected */}
+					{session &&selectedCourse && (
+						<>
+							<Separator className="my-6" />
+
+							<ClassRosterComponent
+								mnumber={session.mnumber}
+								selectedCourse={selectedCourse}
+							/>
+						</>
+					)}
+				</>
+			)}
 		</div>
 	);
 };
