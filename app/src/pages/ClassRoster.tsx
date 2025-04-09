@@ -4,7 +4,7 @@ import { AlertCircle } from "lucide-react";
 import { useSession } from "@/hooks/session-context";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
-import ClassRosterComponent from "@/components/roster";
+import ClassRosterComponent, { Student } from "@/components/roster";
 import { Separator } from "@/components/ui/separator";
 
 // Modified ClassRoster component that will fetch data from API
@@ -89,13 +89,18 @@ const ClassRosterPage: React.FC = () => {
 					)}
 
 					{/* Class Roster Component - only shown when a course is selected */}
-					{session &&selectedCourse && (
+					{session && selectedCourse && (
 						<>
 							<Separator className="my-6" />
 
 							<ClassRosterComponent
 								mnumber={session.mnumber}
 								selectedCourse={selectedCourse}
+								onStudentSelect={(student: Student) => {
+									// Navigate to student page, open modal, etc.
+									console.log(`Selected student: ${student.firstName} ${student.lastName} (${student.mnumber})`);
+									// Example: router.push(`/student/${student.mnumber}`);
+								}}
 							/>
 						</>
 					)}

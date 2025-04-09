@@ -17,7 +17,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, Filter, Search, SortAsc, SortDesc } from "lucide-react";
+import { AlertCircle, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +84,8 @@ export interface ClassRosterProps {
 	mnumber: string | null;
 	/** The selected course */
 	selectedCourse: Course;
+	/** Callback function when a student is selected */
+	onStudentSelect?: (student: Student) => void;
 }
 
 /**
@@ -94,6 +96,7 @@ export interface ClassRosterProps {
 export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 	mnumber,
 	selectedCourse,
+	onStudentSelect,
 }) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -236,6 +239,12 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 		if (courseInfo.termCode === "80") return currentMonth >= 8; // Fall is August-December
 
 		return false;
+	};
+
+	const handleStudentSelect = (student: Student) => {
+		if (onStudentSelect) {
+			onStudentSelect(student);
+		}
 	};
 
 	if (loading) {
@@ -494,11 +503,16 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 									<TableBody>
 										{filteredStudents.length > 0 ? (
 											filteredStudents.map((student, index) => (
-												<TableRow key={index}>
+												<TableRow key={index} className="group">
 													<TableCell className="font-medium">
-														{student.lastName}, {student.firstName}{" "}
-														{student.middleName ? `${student.middleName.charAt(0)}.` : ""}
-														{student.suffix ? `, ${student.suffix}` : ""}
+														<button
+															onClick={() => handleStudentSelect(student)}
+															className="text-left hover:text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-0.5 -mx-1 -my-0.5"
+														>
+															{student.lastName}, {student.firstName}{" "}
+															{student.middleName ? `${student.middleName.charAt(0)}.` : ""}
+															{student.suffix ? `, ${student.suffix}` : ""}
+														</button>
 													</TableCell>
 													<TableCell>{student.mnumber}</TableCell>
 													<TableCell>{student.major}</TableCell>
@@ -532,16 +546,23 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
 								{filteredStudents.length > 0 ? (
 									filteredStudents.map((student, index) => (
-										<Card key={index} className="overflow-hidden">
+										<Card
+											key={index}
+											className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-1 cursor-pointer"
+											onClick={() => handleStudentSelect(student)}
+										>
 											<CardContent className="p-4">
 												<div className="flex flex-col gap-2">
 													<div className="flex justify-between items-start">
-														<div>
-															<h3 className="font-semibold text-lg">
-																{student.firstName} {student.lastName}
-																{student.suffix ? `, ${student.suffix}` : ""}
-															</h3>
-															<p className="text-sm text-muted-foreground">{student.mnumber}</p>
+														<div className="flex items-center gap-2">
+															<UserRound className="h-5 w-5 text-muted-foreground" />
+															<div>
+																<h3 className="font-semibold text-lg hover:text-primary">
+																	{student.firstName} {student.lastName}
+																	{student.suffix ? `, ${student.suffix}` : ""}
+																</h3>
+																<p className="text-sm text-muted-foreground">{student.mnumber}</p>
+															</div>
 														</div>
 														{isActive ? (
 															<Badge className={getGradeColorClass(student.midtermGrade)}>
