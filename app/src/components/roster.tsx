@@ -272,9 +272,9 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 	const isActive = isTermActive();
 
 	return (
-		<div className="space-y-6">
+		<div className="space-y-6 w-full">
 			{/* Course Information Card */}
-			<Card>
+			<Card className="w-full">
 				<CardContent className="p-6">
 					<div className="flex flex-col md:flex-row justify-between gap-4">
 						<div className="space-y-1">
@@ -288,7 +288,7 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 							</p>
 						</div>
 						<div className="flex flex-col items-end justify-center">
-							<Badge variant={isActive ? "default" : "secondary"} className="mb-2">
+							<Badge variant={isActive ? "default" : "secondary"} className="mb-2 text-white">
 								{isActive ? "Active" : "Completed"}
 							</Badge>
 							<div className="text-right">
@@ -439,7 +439,7 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 						</div>
 					</div>
 				</CardHeader>
-				<CardContent>
+				<CardContent className="overflow-x-auto">
 					<Tabs defaultValue="list" className="w-full">
 						<TabsList className="grid w-full md:w-auto grid-cols-2 mb-4">
 							<TabsTrigger value="list">List View</TabsTrigger>
@@ -523,8 +523,8 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 							</div>
 						</TabsContent>
 
-						<TabsContent value="grid">
-							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+						<TabsContent value="grid" className="max-w-full overflow-x-auto">
+							<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
 								{filteredStudents.length > 0 ? (
 									filteredStudents.map((student, index) => (
 										<Card key={index} className="overflow-hidden">
