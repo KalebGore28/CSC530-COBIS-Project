@@ -17,7 +17,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, Download, Filter, Search, SortAsc, SortDesc } from "lucide-react";
+import { AlertCircle, Filter, Search, SortAsc, SortDesc } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
+import { ExportButton } from "@/components/export-button";
 
 /**
  * Student interface representing a student in the class roster
@@ -270,6 +271,7 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 	}
 
 	const isActive = isTermActive();
+	const exportFilename = `${courseInfo.courseSubject}${courseInfo.courseNumber}${courseInfo.courseSuffix}-${courseInfo.courseSection}_${courseInfo.termName}_${courseInfo.year}`;
 
 	return (
 		<div className="space-y-6 w-full">
@@ -432,10 +434,13 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 								)}
 								Sort
 							</Button>
-							<Button variant="outline">
-								<Download className="mr-2 h-4 w-4" />
-								Export
-							</Button>
+
+							{/* Export Dropdown Button */}
+							<ExportButton
+								data={filteredStudents}
+								filename={exportFilename}
+								isActiveTerm={isActive}
+							/>
 						</div>
 					</div>
 				</CardHeader>
