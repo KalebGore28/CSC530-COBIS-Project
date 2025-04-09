@@ -51,6 +51,7 @@ const ClassRosterPage: React.FC = () => {
 				onError={(_) => setRosterError("Failed to load courses. Please try again.")}
 			/>}
 
+			{session && selectedTerm && selectedCourse && console.log()}
 
 		</div>
 	);
