@@ -25,7 +25,6 @@ import reportingRoute from "./routes/reporting-router";
 import studentLookupRoute from "./routes/student-lookup-router";
 import utilityRouter from "./routes/utility-router";
 // import customQuery from "./routes/customQueries";
-// import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 // Import OpenAPI specs
 import { InstructorAPISpecs } from "./specs/instructor-specs";
@@ -37,6 +36,7 @@ import { UserAPISpecs } from "./specs/user-specs";
 import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
 import { ImportAPISpecs } from "./specs/import-specs";
 import { UtilityAPISpecs } from "./specs/utility-specs";
+
 // Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
@@ -65,7 +65,7 @@ const app = express()
 
 // Middleware
 // @ts-ignore
-app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } }))
+app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } })) //! Probably comment this out in production
 app.use(
     cors({
         origin: config.frontend_origin,
