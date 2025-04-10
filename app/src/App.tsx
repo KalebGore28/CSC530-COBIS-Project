@@ -16,6 +16,9 @@ import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
 import ClassRosterPage from './pages/ClassRoster';
 import StudentPage from './components/student-info';
+import InstructorPage from './components/instructor-info';
+
+import FacultyPage from './components/testing/faculty-page';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -48,7 +51,7 @@ export const App: React.FC = () => {
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="student-lookup" element={<StudentLookup />} />
         <Route path="class-roster" element={<ClassRosterPage />} />
-        <Route path="student-info" element={<StudentPage mNumber={"M10000000"} />} />
+        {/* <Route path="student-info" element={<StudentPage mNumber={"M10000000"} />} /> */}
         <Route path="reports" element={<Reports />}>
           <Route path="students" element={<StudentsReport />} />
         </Route>
@@ -58,6 +61,8 @@ export const App: React.FC = () => {
         </Route>
         <Route path="test-page" element={<TestPage />} />
         <Route path="/professor-stats" element={<ProfessorPage />} />
+        {/* <Route path="/instructor-stats" element={<InstructorPage mNumber={"M10000000"} />} /> */}
+        <Route path="/faculty-stats" element={<FacultyPage />} />
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
