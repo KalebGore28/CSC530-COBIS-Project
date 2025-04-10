@@ -221,7 +221,7 @@ const FacultyProfilePage: React.FC = () => {
 	};
 
 	const handleViewDetails = (termCode: string, year: number) => {
-		navigate(`/instructor/${mnumber}?term=${termCode}&year=${year}`);
+		navigate(`/instructors/${mnumber}/${year}${termCode}`);
 	};
 
 	// Loading state
@@ -456,12 +456,7 @@ const FacultyProfilePage: React.FC = () => {
 															<TableCell>{term.creditHoursDelivered}</TableCell>
 															<TableCell className="text-right">
 																<Button
-																	onClick={(e) => {
-																		// e.preventDefault();
-																		// if (currentTerm) {
-																		// 	fetchCourses(term.termCode, term.year);
-																		// }
-																	}}>
+																	onClick={() => handleViewDetails(term.termCode, term.year)}>
 																	View Details
 																</Button>
 															</TableCell>

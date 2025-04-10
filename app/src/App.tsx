@@ -18,6 +18,7 @@ import ClassRosterPage from './pages/ClassRoster';
 
 import InstructorsPage from './pages/instructor/instructors-page';
 import InstructorPage from './pages/instructor/instructor-page';
+import InstructorTermDetails from './pages/instructor/instructor-term-details';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -64,6 +65,7 @@ export const App: React.FC = () => {
         {/* Instructor Pages */}
         <Route path="/instructors" element={<InstructorsPage />} />
         <Route path="/instructors/:mnumber" element={<InstructorPage />} />
+        <Route path="/instructors/:mnumber/:yearTerm" element={<InstructorTermDetails />} />
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
