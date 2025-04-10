@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Users, Loader2, AlertCircle, Mail } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 // Define instructor type based on API response
 type Instructor = {
 	mnumber: string;
@@ -44,11 +45,6 @@ const InstructorsPage: React.FC = () => {
 	const [error, setError] = useState<string | null>(null);
 	const [departmentFilter, setDepartmentFilter] = useState<string>('All Departments');
 
-	// Get unique departments for filtering
-	const departments = instructors.length > 0
-		? ['All Departments', ...new Set(instructors.map(instructor => instructor.department))]
-		: ['All Departments'];
-
 	// Fetch instructors data
 	useEffect(() => {
 		const fetchInstructors = async () => {
@@ -57,9 +53,14 @@ const InstructorsPage: React.FC = () => {
 				const response = await axios.get('/api/instructor', {
 					withCredentials: true
 				});
-				setInstructors(response.data);
-				setFilteredInstructors(response.data);
-				setError(null);
+
+				if (response.data && Array.isArray(response.data)) {
+					setInstructors(response.data);
+					setFilteredInstructors(response.data);
+				} else {
+					console.error('Invalid response format:', response.data);
+					setError('Received invalid data format from server.');
+				}
 			} catch (err) {
 				console.error('Error fetching instructors:', err);
 				setError('Failed to load instructors. Please try again later.');
@@ -71,8 +72,21 @@ const InstructorsPage: React.FC = () => {
 		fetchInstructors();
 	}, []);
 
+	// Get unique departments for filtering - moved inside the component to avoid dependency on instructors
+	const departments = React.useMemo(() => {
+		if (!instructors || instructors.length === 0) return ['All Departments'];
+		const uniqueDepartments = new Set(instructors.map(instructor => instructor.department));
+		return ['All Departments', ...uniqueDepartments];
+	}, [instructors]);
+
 	// Filter instructors based on search query and department filter
 	useEffect(() => {
+		// Safety check to prevent filtering on empty data
+		if (!instructors || instructors.length === 0) {
+			setFilteredInstructors([]);
+			return;
+		}
+
 		let filtered = [...instructors];
 
 		// Apply department filter
@@ -86,9 +100,9 @@ const InstructorsPage: React.FC = () => {
 		if (searchQuery) {
 			const query = searchQuery.toLowerCase();
 			filtered = filtered.filter(instructor =>
-				instructor.name.toLowerCase().includes(query) ||
-				instructor.email.toLowerCase().includes(query) ||
-				instructor.mnumber.toLowerCase().includes(query)
+				(instructor.name && instructor.name.toLowerCase().includes(query)) ||
+				(instructor.email && instructor.email.toLowerCase().includes(query)) ||
+				(instructor.mnumber && instructor.mnumber.toLowerCase().includes(query))
 			);
 		}
 
@@ -100,8 +114,14 @@ const InstructorsPage: React.FC = () => {
 		navigate(`/instructors/${mnumber}`);
 	};
 
+	// Handle search input change with debounce
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
+	};
+
 	// Helper function to get initials from name
 	const getInitials = (name: string): string => {
+		if (!name) return 'N/A';
 		return name
 			.split(' ')
 			.map(part => part.charAt(0))
@@ -110,7 +130,7 @@ const InstructorsPage: React.FC = () => {
 	};
 
 	return (
-		<div className="container mx-auto py-6">
+		<div className="container mx-auto p-6">
 			<div className="flex flex-col space-y-6">
 				{/* Header */}
 				<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -130,7 +150,7 @@ const InstructorsPage: React.FC = () => {
 								placeholder="Search instructors..."
 								className="pl-8 w-full sm:w-[250px] md:w-[300px]"
 								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
+								onChange={handleSearchChange}
 							/>
 						</div>
 
@@ -185,11 +205,15 @@ const InstructorsPage: React.FC = () => {
 									</TableHeader>
 									<TableBody>
 										{filteredInstructors.map((instructor) => (
-											<TableRow key={instructor.mnumber} className="cursor-pointer hover:bg-muted/50" onClick={() => handleSelectInstructor(instructor.mnumber)}>
+											<TableRow
+												key={instructor.mnumber}
+												className="cursor-pointer hover:bg-muted/50"
+												onClick={() => handleSelectInstructor(instructor.mnumber)}
+											>
 												<TableCell>
 													<div className="flex items-center gap-3">
 														<Avatar>
-															<AvatarImage src={instructor.image} alt={instructor.name} />
+															<AvatarImage src={instructor.image} alt={instructor.name || ''} />
 															<AvatarFallback>{getInitials(instructor.name)}</AvatarFallback>
 														</Avatar>
 														<div className="flex flex-col">
