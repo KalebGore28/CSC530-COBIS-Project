@@ -23,6 +23,7 @@ import enrollmentRouter from "./routes/enrollment-router";
 import searchRoute from "./routes/search-router";
 import reportingRoute from "./routes/reporting-router";
 import studentLookupRoute from "./routes/student-lookup-router";
+import utilityRouter from "./routes/utility-router";
 // import customQuery from "./routes/customQueries";
 // import studentEnrollmentRouter from './routes/student-enrollment-router';
 
@@ -35,6 +36,7 @@ import { ReportingAPISpecs } from "./specs/reporting-specs";
 import { UserAPISpecs } from "./specs/user-specs";
 import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
 import { ImportAPISpecs } from "./specs/import-specs";
+import { UtilityAPISpecs } from "./specs/utility-specs";
 // Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
@@ -54,6 +56,7 @@ const document = createDocument({
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
         ...ImportAPISpecs,
+        ...UtilityAPISpecs,
     },
 });
 
@@ -85,6 +88,7 @@ app.use("/api/enrollment", enrollmentRouter)
 app.use("/api/search", searchRoute)
 app.use("/api/reporting", reportingRoute)
 app.use("/api/student-lookup", studentLookupRoute)
+app.use("/api/utility", utilityRouter)
 // app.use('/api/custom-query', customQuery)
 
 
