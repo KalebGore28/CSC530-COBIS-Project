@@ -31,7 +31,7 @@ import {
 	AlertCircle,
 	Loader2
 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
@@ -106,7 +106,8 @@ const getInitials = (name: string): string => {
 
 const FacultyProfilePage: React.FC = () => {
 	const { mnumber } = useParams();
-	
+	const navigate = useNavigate();
+
 	// State for data
 	const [instructor, setInstructor] = useState<InstructorResponse | null>(null);
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
@@ -131,7 +132,6 @@ const FacultyProfilePage: React.FC = () => {
 			});
 			setInstructor(response.data);
 		} catch (error) {
-			console.error('Error fetching instructor data:', error);
 			toast.error("Failed to load instructor information")
 		} finally {
 			setLoadingInstructor(false);
@@ -146,7 +146,6 @@ const FacultyProfilePage: React.FC = () => {
 			setCurrentTerm(response.data);
 			return response.data;
 		} catch (error) {
-			console.error('Error fetching current term:', error);
 			toast.error("Failed to load current term information")
 			return null;
 		}
@@ -163,7 +162,6 @@ const FacultyProfilePage: React.FC = () => {
 			);
 			setCourses(response.data.courseDetails);
 		} catch (error) {
-			console.error('Error fetching courses:', error);
 			toast.error("Failed to load course information")
 			setCourses([]);
 		} finally {
@@ -179,7 +177,6 @@ const FacultyProfilePage: React.FC = () => {
 			});
 			setTermSummaries(response.data.termSummaries);
 		} catch (error) {
-			console.error('Error fetching term summaries:', error);
 			toast.error("Failed to load teaching history")
 			setTermSummaries([]);
 		} finally {
@@ -221,6 +218,10 @@ const FacultyProfilePage: React.FC = () => {
 		if (currentPage > 1) {
 			setCurrentPage(currentPage - 1);
 		}
+	};
+
+	const handleViewDetails = (termCode: string, year: number) => {
+		navigate(`/instructor/${mnumber}?term=${termCode}&year=${year}`);
 	};
 
 	// Loading state
@@ -454,18 +455,15 @@ const FacultyProfilePage: React.FC = () => {
 															<TableCell>{term.studentCount}</TableCell>
 															<TableCell>{term.creditHoursDelivered}</TableCell>
 															<TableCell className="text-right">
-																<a
-																	href="#"
+																<Button
 																	onClick={(e) => {
 																		// e.preventDefault();
 																		// if (currentTerm) {
 																		// 	fetchCourses(term.termCode, term.year);
 																		// }
-																	}}
-																	className="text-sm text-blue-600 hover:underline"
-																>
+																	}}>
 																	View Details
-																</a>
+																</Button>
 															</TableCell>
 														</TableRow>
 													))}

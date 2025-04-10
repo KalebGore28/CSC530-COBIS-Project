@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
 	Card,
@@ -17,7 +17,6 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Users, Loader2, AlertCircle, Mail } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
@@ -98,8 +97,6 @@ const InstructorsPage: React.FC = () => {
 
 	// Handle instructor selection
 	const handleSelectInstructor = (mnumber: string) => {
-		console.log(mnumber);
-		// return;
 		navigate(`/instructors/${mnumber}`);
 	};
 
@@ -185,7 +182,6 @@ const InstructorsPage: React.FC = () => {
 											<TableHead className="w-[250px]">Instructor</TableHead>
 											<TableHead>Department</TableHead>
 											<TableHead>Email</TableHead>
-											<TableHead className="text-right">Actions</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -222,19 +218,6 @@ const InstructorsPage: React.FC = () => {
 															{instructor.email}
 														</a>
 													</div>
-												</TableCell>
-												<TableCell className="text-right">
-													<Button
-														variant="ghost"
-														size="sm"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleSelectInstructor(instructor.mnumber);
-														}}
-														asChild
-													>
-														View Profile
-													</Button>
 												</TableCell>
 											</TableRow>
 										))}

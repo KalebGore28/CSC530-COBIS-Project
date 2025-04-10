@@ -16,8 +16,8 @@ import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
 import ClassRosterPage from './pages/ClassRoster';
 
-import InstructorsPage from './pages/instructors-page';
-import InstructorPage from './pages/instructor-page';
+import InstructorsPage from './pages/instructor/instructors-page';
+import InstructorPage from './pages/instructor/instructor-page';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
