@@ -108,4 +108,74 @@ export class UserController {
 			return;
 		}
 	}
+
+	/**
+	 * Enable a user account
+	 */
+	static async enableUser(req: Request, res: Response) {
+		try {
+			const { userId } = req.params;
+
+			// Check if user exists
+			const user = await UserService.getUserById(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			// Update user's enabled status
+			await UserService.updateUserEnabled(userId, true);
+
+			res.json({
+				success: true,
+				message: 'User enabled successfully'
+			});
+			return;
+		} catch (error) {
+			console.error('Error enabling user:', error);
+			res.status(500).json({
+				success: false,
+				message: 'An error occurred while enabling the user'
+			});
+			return;
+		}
+	}
+
+	/**
+	 * Disable a user account
+	 */
+	static async disableUser(req: Request, res: Response) {
+		try {
+			const { userId } = req.params;
+
+			// Check if user exists
+			const user = await UserService.getUserById(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			// Update user's enabled status
+			await UserService.updateUserEnabled(userId, false);
+
+			res.json({
+				success: true,
+				message: 'User disabled successfully'
+			});
+			return;
+		} catch (error) {
+			console.error('Error disabling user:', error);
+			res.status(500).json({
+				success: false,
+				message: 'An error occurred while disabling the user'
+			});
+			return;
+		}
+	}
 } 

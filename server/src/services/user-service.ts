@@ -14,8 +14,7 @@ export class UserService {
 	 * @returns True if the M-number is already taken, false otherwise
 	 */
 	static async isMnumberTaken(mnumber: string): Promise<boolean> {
-		const dbConnectionInstance = await getDbConnection();
-		const db = dbConnectionInstance.orm;
+		const db = (await getDbConnection()).orm;
 
 		const existingUserWithMnumber = await db
 			.select()
@@ -33,8 +32,7 @@ export class UserService {
 	 * @returns The user data or null if not found
 	 */
 	static async getUserById(userId: string) {
-		const dbConnectionInstance = await getDbConnection();
-		const db = dbConnectionInstance.orm;
+		const db = (await getDbConnection()).orm;
 
 		const userData = await db
 			.select()
@@ -52,8 +50,7 @@ export class UserService {
 	 * @param mnumber The new M-number to set
 	 */
 	static async updateMnumber(userId: string, mnumber: string) {
-		const dbConnectionInstance = await getDbConnection();
-		const db = dbConnectionInstance.orm;
+		const db = (await getDbConnection()).orm;
 
 		await db
 			.update(user)
@@ -79,5 +76,19 @@ export class UserService {
 			session.isEnabled = userInfo.isEnabled || null;
 		}
 		return session;
+	}
+
+	/**
+	 * Update a user's enabled status
+	 */
+	static async updateUserEnabled(userId: string, isEnabled: boolean) {
+		const db = (await getDbConnection()).orm;
+		return await db
+			.update(user)
+			.set({
+				isEnabled: isEnabled,
+				updatedAt: new Date()
+			})
+			.where(eq(user.id, userId));
 	}
 } 

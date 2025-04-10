@@ -16,4 +16,8 @@ router.get('/me', UserController.getCurrentUser);
 // Update user's M-number
 router.post('/update-mnumber', UserController.updateMnumber);
 
+// Enable/disable user routes
+router.post('/enable/:userId', UserController.enableUser);
+router.post('/disable/:userId', UserController.disableUser);
+
 export default router; 
