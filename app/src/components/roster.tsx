@@ -89,11 +89,11 @@ export interface ClassRosterProps {
 }
 
 /**
- * ClassRosterComponent
+ * Roster
  * 
  * Displays a class roster for a specific course
  */
-export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
+export const Roster: React.FC<ClassRosterProps> = ({
 	mnumber,
 	selectedCourse,
 	onStudentSelect,
@@ -620,4 +620,4 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 	);
 };
 
-export default ClassRosterComponent;
+export default Roster;

@@ -337,7 +337,7 @@ export class InstructorsService {
 				termName,
 				termCode: course.term,
 				year: course.year,
-				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}`,
+				courseId: `${course.courseSubject}${course.courseNumber}${course.courseSuffix}-${course.courseSection}`,
 				courseTitle: course.courseTitle || 'UNKNOWN',
 				courseSubject: course.courseSubject,
 				courseNumber: course.courseNumber,

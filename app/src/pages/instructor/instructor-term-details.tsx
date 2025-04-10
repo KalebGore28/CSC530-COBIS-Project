@@ -26,29 +26,14 @@ import {
 	Calculator
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
+import { Course } from "@/components/selectors/course-selector";
 
 // Types based on API response
-type CourseDetail = {
-	termName: string;
-	termCode: string;
-	year: number;
-	courseId: string;
-	courseTitle: string;
-	courseSubject: string;
-	courseNumber: string;
-	courseSuffix: string;
-	courseSection: string;
-	crn: string;
-	creditHours: number;
-	studentCount: number;
-	totalCreditHours: number;
-};
-
 type CourseResponse = {
 	mnumber: string;
 	termCode: string;
 	year: number;
-	courseDetails: CourseDetail[];
+	courseDetails: Course[];
 };
 
 // Instructor type for the breadcrumb context
@@ -135,6 +120,10 @@ const TermDetailsPage: React.FC = () => {
 	// Helper function to format the term name
 	const formatTermName = (termName: string): string => {
 		return termName.charAt(0).toUpperCase() + termName.slice(1).toLowerCase();
+	};
+
+	const handleViewRoster = (courseId: string) => {
+		navigate(`/instructors/${mnumber}/${yearTerm}/${courseId}`);
 	};
 
 	// Calculate summary statistics
@@ -285,11 +274,9 @@ const TermDetailsPage: React.FC = () => {
 															<Button
 																variant="ghost"
 																size="sm"
-																asChild
+																onClick={() => handleViewRoster(course.courseId)}
 															>
-																<Link to={`/instructor/${mnumber}/term/${termCode}/${year}/course/${course.courseId}`}>
-																	View Roster
-																</Link>
+																View Roster
 															</Button>
 														</TableCell>
 													</TableRow>

@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Users, Loader2, AlertCircle, Mail } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // Define instructor type based on API response
 type Instructor = {
 	mnumber: string;
@@ -42,12 +42,12 @@ const InstructorsPage: React.FC = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [departmentFilter, setDepartmentFilter] = useState<string>('all');
+	const [departmentFilter, setDepartmentFilter] = useState<string>('All Departments');
 
 	// Get unique departments for filtering
 	const departments = instructors.length > 0
-		? ['all', ...new Set(instructors.map(instructor => instructor.department))]
-		: ['all'];
+		? ['All Departments', ...new Set(instructors.map(instructor => instructor.department))]
+		: ['All Departments'];
 
 	// Fetch instructors data
 	useEffect(() => {
@@ -76,7 +76,7 @@ const InstructorsPage: React.FC = () => {
 		let filtered = [...instructors];
 
 		// Apply department filter
-		if (departmentFilter !== 'all') {
+		if (departmentFilter !== 'All Departments') {
 			filtered = filtered.filter(instructor =>
 				instructor.department === departmentFilter
 			);
@@ -134,17 +134,16 @@ const InstructorsPage: React.FC = () => {
 							/>
 						</div>
 
-						<select
-							className="h-10 rounded-md border border-input bg-background px-3 py-2"
-							value={departmentFilter}
-							onChange={(e) => setDepartmentFilter(e.target.value)}
-						>
-							{departments.map((dept) => (
-								<option key={dept} value={dept}>
-									{dept === 'all' ? 'All Departments' : dept}
-								</option>
-							))}
-						</select>
+						<Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+							<SelectTrigger>
+								<SelectValue placeholder="Filter by department" />
+							</SelectTrigger>
+							<SelectContent>
+								{departments.map((dept) => (
+									<SelectItem key={dept} value={dept}>{dept}</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 				</div>
 
