@@ -75,8 +75,8 @@ app.use(
 )
 app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
 app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
-app.use(express.json({ limit: "10mb" }))
-app.use(express.urlencoded({ extended: true, limit: "10mb" }))
+app.use(express.json({ limit: "10mb" })) // going to be deprecated in the future
+app.use(express.urlencoded({ extended: true, limit: "10mb" })) // going to be deprecated in the future
 
 app.use(authenticateUser)
 app.use(getUserInfo)
