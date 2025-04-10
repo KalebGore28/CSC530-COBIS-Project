@@ -238,7 +238,7 @@ const InstructorsPage: React.FC = () => {
 															className="text-blue-600 hover:underline"
 															onClick={(e) => e.stopPropagation()}
 														>
-															{instructor.email}
+															{instructor.email || 'N/A'}
 														</a>
 													</div>
 												</TableCell>
