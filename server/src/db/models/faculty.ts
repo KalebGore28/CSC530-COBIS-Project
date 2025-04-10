@@ -7,6 +7,6 @@ export const faculty = sqliteTable("faculty", {
 	mnumber: text("mnumber").primaryKey(),
 	first_name: text("first_name").notNull(),
 	last_name: text("last_name").notNull(),
-	college: text('college').references(() => colleges.code),
-	department: text('department').references(() => departments.code),
+	college: text('college').references(() => colleges.code).default("0"),
+	department: text('department').references(() => departments.code).default("0000"),
 });

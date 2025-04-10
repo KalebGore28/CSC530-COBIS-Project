@@ -31,6 +31,7 @@ import {
 	AlertCircle,
 	Loader2
 } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
@@ -103,12 +104,9 @@ const getInitials = (name: string): string => {
 		.toUpperCase();
 };
 
-// Props interface
-interface FacultyProfilePageProps {
-	mnumber: string;
-}
-
-const FacultyProfilePage: React.FC<FacultyProfilePageProps> = ({ mnumber }) => {
+const FacultyProfilePage: React.FC = () => {
+	const { mnumber } = useParams();
+	
 	// State for data
 	const [instructor, setInstructor] = useState<InstructorResponse | null>(null);
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
@@ -459,10 +457,10 @@ const FacultyProfilePage: React.FC<FacultyProfilePageProps> = ({ mnumber }) => {
 																<a
 																	href="#"
 																	onClick={(e) => {
-																		e.preventDefault();
-																		if (currentTerm) {
-																			fetchCourses(term.termCode, term.year);
-																		}
+																		// e.preventDefault();
+																		// if (currentTerm) {
+																		// 	fetchCourses(term.termCode, term.year);
+																		// }
 																	}}
 																	className="text-sm text-blue-600 hover:underline"
 																>

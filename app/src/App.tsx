@@ -15,10 +15,9 @@ import StudentLookup from './pages/StudentLookup';
 import ProfessorPage from './pages/ProfessorPage';
 import { useSession } from '@/hooks/session-context';
 import ClassRosterPage from './pages/ClassRoster';
-import StudentPage from './components/student-info';
-import InstructorPage from './components/instructor-info';
 
-import FacultyPage from './components/testing/faculty-page';
+import InstructorsPage from './pages/instructors-page';
+import InstructorPage from './pages/instructor-page';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -61,8 +60,10 @@ export const App: React.FC = () => {
         </Route>
         <Route path="test-page" element={<TestPage />} />
         <Route path="/professor-stats" element={<ProfessorPage />} />
-        {/* <Route path="/instructor-stats" element={<InstructorPage mNumber={"M10000000"} />} /> */}
-        {/* <Route path="/faculty-stats" element={<FacultyPage mnumber={"M000000100"} />} /> */}
+
+        {/* Instructor Pages */}
+        <Route path="/instructors" element={<InstructorsPage />} />
+        <Route path="/instructors/:mnumber" element={<InstructorPage />} />
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

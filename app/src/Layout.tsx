@@ -3,10 +3,9 @@ import { useEffect } from 'react';
 import { useLocation, useNavigate, Location, NavigateFunction } from 'react-router-dom';
 import { AppSidebar } from "@/components/app-sidebar";
 import { SiteHeader } from "@/components/site-header";
-import { SidebarInset, SidebarProvider, useSidebar } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { useRoleContext } from '@/hooks/role-context';
-import { useContentWidth } from '@/hooks/use-content-width';
 
 // Define an interface for the LayoutContent props
 interface LayoutContentProps {
@@ -35,15 +34,6 @@ export default function Layout() {
 
 // Separate component to access the sidebar context
 function LayoutContent({ selectedRole, routePermissions, location, navigate }: LayoutContentProps) {
-	const { setOpen, isMobile } = useSidebar();
-
-	const contentRef = useContentWidth({
-		onNarrow: () => {
-			if (!isMobile) {
-				setOpen(false);
-			}
-		}
-	});
 
 	// Route protection logic
 	useEffect(() => {

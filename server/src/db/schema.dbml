@@ -59,8 +59,8 @@ table faculty {
   mnumber text [pk, not null]
   first_name text [not null]
   last_name text [not null]
-  college text
-  department text
+  college text [default: '0']
+  department text [default: '0000']
 }
 
 table imports {
@@ -91,7 +91,7 @@ table instructor_courses {
   role text [not null, default: 'Instructor']
 
   indexes {
-    (mnumber, term, crn) [pk]
+    (mnumber, term, year, crn) [pk]
     
   }
 }
