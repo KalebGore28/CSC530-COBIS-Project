@@ -299,7 +299,7 @@ const FacultyProfilePage: React.FC = () => {
 									<div className="flex items-center gap-2">
 										<Mail className="h-4 w-4 text-muted-foreground" />
 										<a href={`mailto:${instructor.instructorInfo.email}`} className="text-sm hover:underline">
-											{instructor.instructorInfo.email}
+											{instructor.instructorInfo.email || 'N/A'}
 										</a>
 									</div>
 								)}
