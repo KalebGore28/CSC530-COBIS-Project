@@ -30,7 +30,7 @@ import {
 import { signout } from "../lib/auth-client"
 import { useNavigate } from "react-router-dom"
 
-import { Session } from "../App"
+import { Session } from "@/hooks/session-context"
 
 interface NavUserProps {
 	session: Session | null;
@@ -97,13 +97,6 @@ export function NavUser({ session, onLogout }: NavUserProps) {
 								</div>
 							</div>
 						</DropdownMenuLabel>
-						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
-							<DropdownMenuItem>
-								<UserCircleIcon />
-								Account
-							</DropdownMenuItem>
-						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
 							onClick={async () => {
