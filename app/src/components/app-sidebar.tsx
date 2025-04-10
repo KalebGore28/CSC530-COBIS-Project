@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import {
 	Compass,
-	NotepadText,
 	TerminalSquareIcon,
 	ScanSearch,
 	FileSearch2,

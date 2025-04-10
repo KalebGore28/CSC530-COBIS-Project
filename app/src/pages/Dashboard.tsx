@@ -4,7 +4,7 @@ import { Link } from "react-router-dom"
 import { useSession } from "@/hooks/session-context"
 import { useRoleContext } from "@/hooks/role-context"
 import { Separator } from "@/components/ui/separator"
-import { BookOpen, Users, GraduationCap, BookCheck, Database, LineChart, BarChart3, FileText } from "lucide-react"
+import { BookOpen, Users, Database, LineChart, BarChart3, FileText } from "lucide-react"
 
 // Define dashboard cards with role permissions
 const dashboardCards = [
