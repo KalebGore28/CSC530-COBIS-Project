@@ -5,7 +5,7 @@ import {
 	Compass,
 	TerminalSquareIcon,
 	ScanSearch,
-	FileSearch2,
+	PersonStanding,
 	BookOpen,
 } from "lucide-react"
 
@@ -43,9 +43,9 @@ const data = {
 			icon: ScanSearch,
 		},
 		{
-			title: " Professor Lookup",
-			url: "/professor-stats",
-			icon: FileSearch2,
+			title: " Instructors",
+			url: "/instructors",
+			icon: PersonStanding,
 		},
 		{
 			title: "Class Roster",
