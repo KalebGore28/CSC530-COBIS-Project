@@ -61,7 +61,7 @@ export function NavMain({
 									</CollapsibleContent>
 								</Collapsible>
 							) : (
-								<SidebarMenuButton onClick={() => navigate(item.url)}>
+								<SidebarMenuButton onClick={() => navigate(item.url)} tooltip={item.title}>
 									{item.icon && <item.icon />}
 									<span>{item.title}</span>
 								</SidebarMenuButton>

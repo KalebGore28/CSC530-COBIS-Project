@@ -62,7 +62,7 @@ export const App: React.FC = () => {
         <Route path="test-page" element={<TestPage />} />
         <Route path="/professor-stats" element={<ProfessorPage />} />
         {/* <Route path="/instructor-stats" element={<InstructorPage mNumber={"M10000000"} />} /> */}
-        <Route path="/faculty-stats" element={<FacultyPage />} />
+        {/* <Route path="/faculty-stats" element={<FacultyPage mnumber={"M000000100"} />} /> */}
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

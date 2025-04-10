@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
 	Card,
 	CardContent,
@@ -21,23 +22,62 @@ import {
 	TableCell,
 	TableHead,
 	TableHeader,
-	TableFooter,
 	TableRow
 } from "@/components/ui/table";
-import { Mail, Phone, MapPin, Building, BookOpen } from 'lucide-react';
+import {
+	Mail,
+	ChevronLeft,
+	ChevronRight,
+	AlertCircle,
+	Loader2
+} from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
 
-// Types based on your API responses
-type Instructor = {
+// Types based on API responses
+type InstructorResponse = {
 	mnumber: string;
-	name: string;
-	firstName: string;
-	lastName: string;
-	department: string;
-	departmentCode: string;
-	college: string;
-	collegeCode: string;
-	email: string;
-	image: string;
+	instructorInfo: {
+		name: string;
+		firstName: string;
+		lastName: string;
+		department: string;
+		departmentCode: string;
+		college: string;
+		collegeCode: string;
+		email: string;
+		image: string;
+	};
+};
+
+type CurrentTermResponse = {
+	term: string;
+	year: number;
+	termName: string;
+};
+
+type CourseDetail = {
+	termName: string;
+	termCode: string;
+	year: number;
+	courseId: string;
+	courseTitle: string;
+	courseSubject: string;
+	courseNumber: string;
+	courseSuffix: string;
+	courseSection: string;
+	crn: string;
+	creditHours: number;
+	studentCount: number;
+	totalCreditHours: number;
+};
+
+type CourseResponse = {
+	mnumber: string;
+	termCode: string;
+	year: number;
+	courseDetails: CourseDetail[];
 };
 
 type TermSummary = {
@@ -49,62 +89,10 @@ type TermSummary = {
 	creditHoursDelivered: number;
 };
 
-// Mock data based on your API examples
-const instructorData: Instructor = {
-	mnumber: "M123456",
-	name: "John Doe",
-	firstName: "John",
-	lastName: "Doe",
-	department: "Computer Science",
-	departmentCode: "CS",
-	college: "College of Engineering",
-	collegeCode: "ENG",
-	email: "johndoe@example.com",
-	image: "https://example.com/images/johndoe.jpg"
+type TermSummariesResponse = {
+	mnumber: string;
+	termSummaries: TermSummary[];
 };
-
-const currentStatusData = {
-	currentTerm: "FALL",
-	currentTermCode: "80",
-	currentYear: 2025,
-	isCurrentlyTeaching: true,
-	currentCourseCount: 2
-};
-
-const termSummariesData: TermSummary[] = [
-	{
-		termCode: "80",
-		termName: "FALL",
-		year: 2023,
-		courseCount: 3,
-		studentCount: 90,
-		creditHoursDelivered: 90
-	},
-	{
-		termCode: "40",
-		termName: "SPRING",
-		year: 2023,
-		courseCount: 2,
-		studentCount: 75,
-		creditHoursDelivered: 75
-	},
-	{
-		termCode: "60",
-		termName: "SUMMER",
-		year: 2022,
-		courseCount: 1,
-		studentCount: 30,
-		creditHoursDelivered: 30
-	},
-	{
-		termCode: "80",
-		termName: "FALL",
-		year: 2022,
-		courseCount: 3,
-		studentCount: 95,
-		creditHoursDelivered: 95
-	}
-];
 
 // Helper function to get initials from name
 const getInitials = (name: string): string => {
@@ -115,41 +103,241 @@ const getInitials = (name: string): string => {
 		.toUpperCase();
 };
 
-const FacultyProfilePage: React.FC = () => {
+// Props interface
+interface FacultyProfilePageProps {
+	mnumber: string;
+}
+
+const FacultyProfilePage: React.FC<FacultyProfilePageProps> = ({ mnumber }) => {
+	// State for data
+	const [instructor, setInstructor] = useState<InstructorResponse | null>(null);
+	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
+	const [courses, setCourses] = useState<CourseDetail[]>([]);
+	const [termSummaries, setTermSummaries] = useState<TermSummary[]>([]);
+
+	// State for loading
+	const [loadingInstructor, setLoadingInstructor] = useState(true);
+	const [loadingCourses, setLoadingCourses] = useState(true);
+	const [loadingTerms, setLoadingTerms] = useState(true);
+
+	// State for pagination
+	const [currentPage, setCurrentPage] = useState(1);
+	const [itemsPerPage] = useState(5);
+
+	// API fetch functions
+	const fetchInstructorData = async () => {
+		try {
+			setLoadingInstructor(true);
+			const response = await axios.get<InstructorResponse>(`/api/instructor/${mnumber}`, {
+				withCredentials: true
+			});
+			setInstructor(response.data);
+		} catch (error) {
+			console.error('Error fetching instructor data:', error);
+			toast.error("Failed to load instructor information")
+		} finally {
+			setLoadingInstructor(false);
+		}
+	};
+
+	const fetchCurrentTerm = async () => {
+		try {
+			const response = await axios.get<CurrentTermResponse>('/api/utility/current-term', {
+				withCredentials: true
+			});
+			setCurrentTerm(response.data);
+			return response.data;
+		} catch (error) {
+			console.error('Error fetching current term:', error);
+			toast.error("Failed to load current term information")
+			return null;
+		}
+	};
+
+	const fetchCourses = async (term: string, year: number) => {
+		try {
+			setLoadingCourses(true);
+			const response = await axios.get<CourseResponse>(
+				`/api/instructor/${mnumber}/courses`, {
+				params: { term, year },
+				withCredentials: true
+			}
+			);
+			setCourses(response.data.courseDetails);
+		} catch (error) {
+			console.error('Error fetching courses:', error);
+			toast.error("Failed to load course information")
+			setCourses([]);
+		} finally {
+			setLoadingCourses(false);
+		}
+	};
+
+	const fetchTermSummaries = async () => {
+		try {
+			setLoadingTerms(true);
+			const response = await axios.get<TermSummariesResponse>(`/api/instructor/${mnumber}/terms`, {
+				withCredentials: true
+			});
+			setTermSummaries(response.data.termSummaries);
+		} catch (error) {
+			console.error('Error fetching term summaries:', error);
+			toast.error("Failed to load teaching history")
+			setTermSummaries([]);
+		} finally {
+			setLoadingTerms(false);
+		}
+	};
+
+	// Initial data load
+	useEffect(() => {
+		const loadData = async () => {
+			await fetchInstructorData();
+			const termData = await fetchCurrentTerm();
+			if (termData) {
+				await fetchCourses(termData.term, termData.year);
+			}
+			await fetchTermSummaries();
+		};
+
+		loadData();
+	}, [mnumber]);
+
+	// Pagination logic
+	const totalPages = Math.ceil(termSummaries.length / itemsPerPage);
+	const indexOfLastItem = currentPage * itemsPerPage;
+	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+	const currentItems = termSummaries.slice(indexOfFirstItem, indexOfLastItem);
+
+	const paginate = (pageNumber: number) => {
+		setCurrentPage(pageNumber);
+	};
+
+	const goToNextPage = () => {
+		if (currentPage < totalPages) {
+			setCurrentPage(currentPage + 1);
+		}
+	};
+
+	const goToPrevPage = () => {
+		if (currentPage > 1) {
+			setCurrentPage(currentPage - 1);
+		}
+	};
+
+	// Loading state
+	if (loadingInstructor && loadingCourses && loadingTerms) {
+		return (
+			<div className="flex items-center justify-center h-screen">
+				<div className="flex flex-col items-center gap-2">
+					<Loader2 className="h-8 w-8 animate-spin text-primary" />
+					<p className="text-muted-foreground">Loading faculty information...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
-		<div className="container mx-auto p-6 max-w-5xl">
+		<div className="container mx-auto py-6 max-w-5xl">
+			<Toaster />
 			<div className="grid gap-6">
 				{/* Header section with profile info */}
 				<div className="flex flex-col md:flex-row gap-6 items-start">
 					<div className="flex-shrink-0">
-						<Avatar className="h-24 w-24 border-2 border-primary">
-							<AvatarImage src={instructorData.image} alt={instructorData.name} />
-							<AvatarFallback className="text-2xl">
-								{getInitials(instructorData.name)}
-							</AvatarFallback>
-						</Avatar>
+						{loadingInstructor ? (
+							<div className="h-24 w-24 rounded-full flex items-center justify-center bg-muted">
+								<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+							</div>
+						) : instructor ? (
+							<Avatar className="h-24 w-24 border-2 border-primary">
+								<AvatarImage src={instructor.instructorInfo.image} alt={instructor.instructorInfo.name} />
+								<AvatarFallback className="text-2xl">
+									{getInitials(instructor.instructorInfo.name)}
+								</AvatarFallback>
+							</Avatar>
+						) : (
+							<Avatar className="h-24 w-24 border-2 border-primary">
+								<AvatarFallback className="text-2xl">
+									<AlertCircle className="h-8 w-8" />
+								</AvatarFallback>
+							</Avatar>
+						)}
 					</div>
 
 					<div className="flex-grow space-y-2">
 						<div className="flex flex-col md:flex-row md:items-center gap-2 justify-between">
 							<div>
-								<h1 className="text-3xl font-bold">{instructorData.name}</h1>
-								<p className="text-xl text-muted-foreground">{instructorData.department}</p>
-								<p className="text-sm text-muted-foreground">{instructorData.college}</p>
+								{loadingInstructor ? (
+									<div className="space-y-2">
+										<div className="h-8 w-48 bg-muted rounded animate-pulse"></div>
+										<div className="h-6 w-36 bg-muted rounded animate-pulse"></div>
+										<div className="h-4 w-28 bg-muted rounded animate-pulse"></div>
+									</div>
+								) : instructor ? (
+									<>
+										<h1 className="text-3xl font-bold">{instructor.instructorInfo.name}</h1>
+										<p className="text-xl text-muted-foreground">{instructor.instructorInfo.department}</p>
+										<p className="text-sm text-muted-foreground">{instructor.instructorInfo.college}</p>
+									</>
+								) : (
+									<div className="space-y-1">
+										<p className="text-3xl font-bold text-muted">No data available</p>
+										<p className="text-sm text-muted-foreground">Instructor information could not be loaded</p>
+									</div>
+								)}
 							</div>
 
 							<div className="flex flex-col gap-2">
-								{currentStatusData.isCurrentlyTeaching ? (
+								{loadingCourses ? (
+									<div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
+								) : courses && courses.length > 0 ? (
 									<Badge className="self-start" variant="outline">Currently Teaching</Badge>
 								) : (
 									<Badge className="self-start" variant="outline">Not Currently Teaching</Badge>
 								)}
-								<div className="flex items-center gap-2">
-									<Mail className="h-4 w-4 text-muted-foreground" />
-									<a href={`mailto:${instructorData.email}`} className="text-sm hover:underline">
-										{instructorData.email}
-									</a>
-								</div>
+
+								{instructor && (
+									<div className="flex items-center gap-2">
+										<Mail className="h-4 w-4 text-muted-foreground" />
+										<a href={`mailto:${instructor.instructorInfo.email}`} className="text-sm hover:underline">
+											{instructor.instructorInfo.email}
+										</a>
+									</div>
+								)}
+							</div>
+						</div>
+
+						<Separator />
+
+						{/* Quick Stats */}
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
+							<div className="flex flex-col">
+								<span className="text-sm text-muted-foreground">Current Term</span>
+								{loadingCourses ? (
+									<div className="h-5 w-24 bg-muted rounded animate-pulse mt-1"></div>
+								) : currentTerm ? (
+									<span className="font-medium">{currentTerm.termName} {currentTerm.year}</span>
+								) : (
+									<span className="text-muted">Not available</span>
+								)}
+							</div>
+							<div className="flex flex-col">
+								<span className="text-sm text-muted-foreground">Current Courses</span>
+								{loadingCourses ? (
+									<div className="h-5 w-8 bg-muted rounded animate-pulse mt-1"></div>
+								) : (
+									<span className="font-medium">{courses ? courses.length : 0}</span>
+								)}
+							</div>
+							<div className="flex flex-col">
+								<span className="text-sm text-muted-foreground">Department Code</span>
+								{loadingInstructor ? (
+									<div className="h-5 w-12 bg-muted rounded animate-pulse mt-1"></div>
+								) : instructor ? (
+									<span className="font-medium">{instructor.instructorInfo.departmentCode}</span>
+								) : (
+									<span className="text-muted">Not available</span>
+								)}
 							</div>
 						</div>
 					</div>
@@ -166,57 +354,63 @@ const FacultyProfilePage: React.FC = () => {
 					<TabsContent value="current">
 						<Card>
 							<CardHeader>
-								<CardTitle>Current Term: {currentStatusData.currentTerm} {currentStatusData.currentYear}</CardTitle>
+								<CardTitle>
+									{currentTerm ? `Current Term: ${currentTerm.termName} ${currentTerm.year}` : 'Current Term'}
+								</CardTitle>
 								<CardDescription>
-									Currently teaching {currentStatusData.currentCourseCount} courses
+									{loadingCourses ? 'Loading course information...' :
+										courses.length > 0 ? `Currently teaching ${courses.length} courses` : 'No courses this term'}
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
 								<div className="space-y-4">
-									{/* Placeholder for course schedule - would be populated from API */}
-									<p className="text-muted-foreground italic">Course schedule information would be displayed here.</p>
-
-									{/* Example schedule display */}
-									<Card>
-										<CardHeader className="pb-2">
-											<CardTitle className="text-lg">Current Schedule</CardTitle>
-										</CardHeader>
-										<CardContent>
-											<div className="rounded-md border">
-												<Table>
-													<TableHeader>
-														<TableRow>
-															<TableHead>Course</TableHead>
-															<TableHead>Title</TableHead>
-															<TableHead>Days</TableHead>
-															<TableHead>Time</TableHead>
-															<TableHead>Room</TableHead>
-															<TableHead>Students</TableHead>
-														</TableRow>
-													</TableHeader>
-													<TableBody>
-														{/* Example course data - would be populated from API */}
-														<TableRow>
-															<TableCell className="font-medium">CS 101</TableCell>
-															<TableCell>Intro to Programming</TableCell>
-															<TableCell>Mon/Wed</TableCell>
-															<TableCell>9:00 - 10:15</TableCell>
-															<TableCell>SCI 305</TableCell>
-															<TableCell>35</TableCell>
-														</TableRow>
-														<TableRow>
-															<TableCell className="font-medium">CS 350</TableCell>
-															<TableCell>Database Systems</TableCell>
-															<TableCell>Tue/Thu</TableCell>
-															<TableCell>11:00 - 12:15</TableCell>
-															<TableCell>ENG 220</TableCell>
-															<TableCell>28</TableCell>
-														</TableRow>
-													</TableBody>
-												</Table>
-											</div>
-										</CardContent>
-									</Card>
+									{loadingCourses ? (
+										<div className="space-y-4">
+											<div className="h-8 w-64 bg-muted rounded animate-pulse"></div>
+											<div className="h-48 w-full bg-muted rounded animate-pulse"></div>
+										</div>
+									) : courses.length > 0 ? (
+										<Card>
+											<CardHeader className="pb-2">
+												<CardTitle className="text-lg">Current Schedule</CardTitle>
+											</CardHeader>
+											<CardContent>
+												<div className="rounded-md border">
+													<Table>
+														<TableHeader>
+															<TableRow>
+																<TableHead>Course</TableHead>
+																<TableHead>Title</TableHead>
+																<TableHead>CRN</TableHead>
+																<TableHead>Section</TableHead>
+																<TableHead>Credit Hours</TableHead>
+																<TableHead>Students</TableHead>
+															</TableRow>
+														</TableHeader>
+														<TableBody>
+															{courses.map((course, index) => (
+																<TableRow key={index}>
+																	<TableCell className="font-medium">
+																		{`${course.courseSubject} ${course.courseNumber}${course.courseSuffix}`}
+																	</TableCell>
+																	<TableCell>{course.courseTitle}</TableCell>
+																	<TableCell>{course.crn}</TableCell>
+																	<TableCell>{course.courseSection}</TableCell>
+																	<TableCell>{course.creditHours}</TableCell>
+																	<TableCell>{course.studentCount}</TableCell>
+																</TableRow>
+															))}
+														</TableBody>
+													</Table>
+												</div>
+											</CardContent>
+										</Card>
+									) : (
+										<div className="flex flex-col items-center justify-center py-6 text-center">
+											<p className="text-muted-foreground mb-2">No courses scheduled for this term.</p>
+											<p className="text-sm text-muted-foreground">The faculty member is not currently teaching any courses.</p>
+										</div>
+									)}
 								</div>
 							</CardContent>
 						</Card>
@@ -232,51 +426,99 @@ const FacultyProfilePage: React.FC = () => {
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
-								<div className="rounded-md border">
-									<Table>
-										<TableHeader>
-											<TableRow>
-												<TableHead>Term</TableHead>
-												<TableHead>Year</TableHead>
-												<TableHead>Courses</TableHead>
-												<TableHead>Students</TableHead>
-												<TableHead>Credit Hours</TableHead>
-												<TableHead className="text-right">Actions</TableHead>
-											</TableRow>
-										</TableHeader>
-										<TableBody>
-											{termSummariesData.map((term, index) => (
-												<TableRow key={index}>
-													<TableCell className="font-medium">{term.termName}</TableCell>
-													<TableCell>{term.year}</TableCell>
-													<TableCell>{term.courseCount}</TableCell>
-													<TableCell>{term.studentCount}</TableCell>
-													<TableCell>{term.creditHoursDelivered}</TableCell>
-													<TableCell className="text-right">
-														<a href="#" className="text-sm text-blue-600 hover:underline">
-															View Details
-														</a>
-													</TableCell>
-												</TableRow>
-											))}
-										</TableBody>
-										<TableFooter>
-											<TableRow>
-												<TableCell colSpan={2}>Totals</TableCell>
-												<TableCell>
-													{termSummariesData.reduce((sum, term) => sum + term.courseCount, 0)}
-												</TableCell>
-												<TableCell>
-													{termSummariesData.reduce((sum, term) => sum + term.studentCount, 0)}
-												</TableCell>
-												<TableCell>
-													{termSummariesData.reduce((sum, term) => sum + term.creditHoursDelivered, 0)}
-												</TableCell>
-												<TableCell></TableCell>
-											</TableRow>
-										</TableFooter>
-									</Table>
-								</div>
+								{loadingTerms ? (
+									<div className="space-y-4 py-4">
+										<div className="h-8 w-full bg-muted rounded animate-pulse"></div>
+										<div className="h-8 w-full bg-muted rounded animate-pulse"></div>
+										<div className="h-8 w-full bg-muted rounded animate-pulse"></div>
+										<div className="h-8 w-full bg-muted rounded animate-pulse"></div>
+									</div>
+								) : termSummaries.length > 0 ? (
+									<>
+										<div className="rounded-md border">
+											<Table>
+												<TableHeader>
+													<TableRow>
+														<TableHead>Term</TableHead>
+														<TableHead>Year</TableHead>
+														<TableHead>Courses</TableHead>
+														<TableHead>Students</TableHead>
+														<TableHead>Credit Hours</TableHead>
+														<TableHead className="text-right">Actions</TableHead>
+													</TableRow>
+												</TableHeader>
+												<TableBody>
+													{currentItems.map((term, index) => (
+														<TableRow key={index}>
+															<TableCell className="font-medium">{term.termName}</TableCell>
+															<TableCell>{term.year}</TableCell>
+															<TableCell>{term.courseCount}</TableCell>
+															<TableCell>{term.studentCount}</TableCell>
+															<TableCell>{term.creditHoursDelivered}</TableCell>
+															<TableCell className="text-right">
+																<a
+																	href="#"
+																	onClick={(e) => {
+																		e.preventDefault();
+																		if (currentTerm) {
+																			fetchCourses(term.termCode, term.year);
+																		}
+																	}}
+																	className="text-sm text-blue-600 hover:underline"
+																>
+																	View Details
+																</a>
+															</TableCell>
+														</TableRow>
+													))}
+												</TableBody>
+											</Table>
+										</div>
+
+										{/* Pagination Controls */}
+										{totalPages > 1 && (
+											<div className="flex items-center justify-between mt-4">
+												<div className="text-sm text-muted-foreground">
+													Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, termSummaries.length)} of {termSummaries.length} entries
+												</div>
+												<div className="flex items-center space-x-2">
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={goToPrevPage}
+														disabled={currentPage === 1}
+													>
+														<ChevronLeft className="h-4 w-4" />
+													</Button>
+													{[...Array(totalPages)].map((_, i) => (
+														<Button
+															key={i}
+															variant={currentPage === i + 1 ? "default" : "outline"}
+															size="sm"
+															onClick={() => paginate(i + 1)}
+															className="w-8 h-8 p-0"
+														>
+															{i + 1}
+														</Button>
+													))}
+													<Button
+														variant="outline"
+														size="sm"
+														onClick={goToNextPage}
+														disabled={currentPage === totalPages}
+													>
+														<ChevronRight className="h-4 w-4" />
+													</Button>
+												</div>
+											</div>
+										)}
+									</>
+								) : (
+									<div className="flex flex-col items-center justify-center py-6 text-center">
+										<p className="text-muted-foreground mb-2">No teaching history available.</p>
+										<p className="text-sm text-muted-foreground">This faculty member does not have any recorded teaching history.</p>
+									</div>
+								)}
 							</CardContent>
 						</Card>
 					</TabsContent>
