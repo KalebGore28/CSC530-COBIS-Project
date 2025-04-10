@@ -428,11 +428,19 @@ export const ClassRosterComponent: React.FC<ClassRosterProps> = ({
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value="all">All Grades</SelectItem>
+									<SelectItem value="A+">A+</SelectItem>
 									<SelectItem value="A">A</SelectItem>
+									<SelectItem value="A-">A-</SelectItem>
+									<SelectItem value="B+">B+</SelectItem>
 									<SelectItem value="B">B</SelectItem>
+									<SelectItem value="B-">B-</SelectItem>
+									<SelectItem value="C+">C+</SelectItem>
 									<SelectItem value="C">C</SelectItem>
+									<SelectItem value="C-">C-</SelectItem>
+									<SelectItem value="D+">D+</SelectItem>
 									<SelectItem value="D">D</SelectItem>
-									<SelectItem value="F">F</SelectItem>
+									<SelectItem value="D-">D-</SelectItem>
+									<SelectItem value="W">W</SelectItem>
 								</SelectContent>
 							</Select>
 							<Button variant="outline" onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}>
