@@ -14,6 +14,7 @@ import StudentLookup from './pages/StudentLookup';
 
 import ClassRosterPage from './pages/ClassRoster';
 
+// Importing the instructor pages
 import InstructorsPage from './pages/instructors';
 import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
@@ -35,10 +36,8 @@ export const App: React.FC = () => {
     }
   }, [isLoading, showLoading, hideLoading]);
 
-  // Don't render anything substantive while loading
+  // The loading screen is shown via the LoadingProvider
   if (isLoading) {
-    // Return an empty div or fragment
-    // The loading screen is shown via the LoadingProvider
     return <></>;
   }
 
@@ -67,22 +66,26 @@ export const App: React.FC = () => {
       <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="student-lookup" element={<StudentLookup />} />
         <Route path="class-roster" element={<ClassRosterPage />} />
-        {/* <Route path="student-info" element={<StudentPage mNumber={"M10000000"} />} /> */}
-        <Route path="reports" element={<Reports />}>
-          <Route path="students" element={<StudentsReport />} />
-        </Route>
-        <Route path="cobis-tools" element={<CobisTools />}>
-          <Route path="query-builder" element={<QueryBuilderPage />} />
-          <Route path="imports" element={<CsvImport />} />
-        </Route>
+
 
         {/* Instructor Pages */}
         <Route path="/instructors" element={<InstructorsPage />} />
         <Route path="/instructors/:mnumber" element={<InstructorPage />} />
         <Route path="/instructors/:mnumber/:yearTerm" element={<InstructorTermDetails />} />
         <Route path="/instructors/:mnumber/:yearTerm/:courseId" element={<InstructorRoster />} />
+
+        {/* Student Pages */}
+        <Route path="/students/lookup" element={<StudentLookup />} />
+        {/* <Route path="/student/:mnumber" element={<StudentPage />} /> */}
+
+
+        {/* COBIS Tools */}
+        <Route path="cobis-tools" element={<CobisTools />}>
+          <Route path="query-builder" element={<QueryBuilderPage />} />
+          <Route path="imports" element={<CsvImport />} />
+        </Route>
+
       </Route>
       <Route path="/login" element={<Navigate to="/dashboard" replace />} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />

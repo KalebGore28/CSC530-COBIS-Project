@@ -39,7 +39,7 @@ const data = {
 		},
 		{
 			title: " Student Lookup",
-			url: "/student-lookup",
+			url: "/students/lookup",
 			icon: ScanSearch,
 		},
 		{
