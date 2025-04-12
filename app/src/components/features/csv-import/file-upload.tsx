@@ -87,7 +87,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         header: true,
         skipEmptyLines: true,
         transformHeader: (header) => {
-          console.log('Header:', header);
           return header.toLowerCase()},
         complete: (results) => {
           setParsingStatus('success');

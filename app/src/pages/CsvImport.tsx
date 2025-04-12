@@ -207,7 +207,7 @@ const CsvImport: React.FC = () => {
           <Separator />
 
           {/* Step 3: Preview Data */}
-          <div>
+          {/* <div>
             <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
             <CsvPreview
               headers={csvHeaders}
@@ -215,14 +215,14 @@ const CsvImport: React.FC = () => {
               maxRows={5}
               highlightSpecialValues={true}
             />
-          </div>
+          </div> */}
 
           <Separator />
 
           {/* Step 4: Import Results */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <Button
                 variant="outline"
                 size="sm"
@@ -231,9 +231,9 @@ const CsvImport: React.FC = () => {
               >
                 {showSuccess ? "Show Error Result" : "Show Success Result"}
               </Button>
-            </div>
+            </div> */}
 
-            {showSuccess ? (
+            {/* {showSuccess ? (
               <ImportResultDisplay
                 result={{
                   success: true,
@@ -255,7 +255,7 @@ const CsvImport: React.FC = () => {
                   failed: 2
                 }}
               />
-            )}
+            )} */}
           </div>
 
           {!showSuccess && (
@@ -263,7 +263,7 @@ const CsvImport: React.FC = () => {
               <Separator />
 
               {/* Step 5: Error Fixing (Only shown when there are errors) */}
-              <div>
+              {/* <div>
                 <h2 className="text-xl font-bold mb-4">Step 5: Fix Import Errors</h2>
                 <ErrorFixingMode
                   errors={mockImportErrors}
@@ -274,20 +274,11 @@ const CsvImport: React.FC = () => {
                   onRetryImport={() => setShowSuccess(true)}
                   fixedCount={fixedCount}
                 />
-              </div>
+              </div> */}
             </>
           )}
         </CardContent>
         <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => {
-              setFixedCount(0);
-              setShowSuccess(true);
-            }}
-          >
-            Reset Demo
-          </Button>
         </CardFooter>
       </Card>
     </div>

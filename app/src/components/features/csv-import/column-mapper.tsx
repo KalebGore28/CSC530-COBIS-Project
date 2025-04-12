@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ColumnDefinition, LookupCsvMapping, DataCsvMapping } from "../../types/csv-import-types";
+import { ColumnDefinition, LookupCsvMapping, DataCsvMapping } from "../../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -81,11 +81,11 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                       <SelectValue placeholder="Select column" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">None</SelectItem>
+                      <SelectItem value="---">---</SelectItem>
                       {availableCsvColumns
                         .filter(csvCol => csvCol && csvCol.trim() !== "") // Filter out empty values
                         .map((csvCol) => (
-                          <SelectItem key={`option-${csvCol}`} value={csvCol}>
+                          <SelectItem key={`${csvCol}`} value={csvCol}>
                             {csvCol}
                           </SelectItem>
                         ))}
