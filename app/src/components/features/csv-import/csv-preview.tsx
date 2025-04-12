@@ -18,6 +18,7 @@ interface CsvPreviewProps {
   data: string[][];
   maxRows?: number;
   highlightSpecialValues?: boolean;
+  minColumnWidth?: number;
 }
 
 // Helper types for cell value analysis
@@ -36,6 +37,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
   data,
   maxRows = 5,
   highlightSpecialValues = true,
+  minColumnWidth = 150, // Default minimum column width
 }) => {
   const [page, setPage] = useState(0);
 
@@ -117,6 +119,9 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
       })
     );
 
+  // Calculate the total width based on number of columns and minimum width
+  const tableWidth = (headers.length * minColumnWidth) + 40; // 40px for row number column
+
   return (
     <div className="mb-6 w-full">
       <div className="flex items-center justify-between mb-2">
@@ -138,56 +143,54 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
         </div>
       </div>
 
-      <div className="rounded-md border w-full" style={{ maxWidth: "100%", width: "100%", boxSizing: "border-box" }}>
-        <div className="overflow-x-auto" style={{ maxWidth: "100%", width: "100%" }}>
-          <div style={{ maxWidth: "100%", width: "100%", overflowX: "auto" }}>
-            <Table style={{ width: "100%", tableLayout: "fixed" }}>
-              <TableHeader className="bg-muted/30 sticky top-0">
-                <TableRow>
-                  <TableHead className="w-[40px] text-center">#</TableHead>
-                  {headers.map((header, index) => (
-                    <TableHead
-                      key={index}
-                      className="font-medium"
-                      style={{ width: `calc((100% - 40px) / ${headers.length})` }}
-                    >
-                      <div className="truncate" title={header}>
-                        {header}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pageData.map((row, rowIndex) => (
-                  <TableRow key={rowIndex} className="hover:bg-muted/20">
-                    <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-[40px]">
-                      {pageStart + rowIndex + 1}
-                    </TableCell>
-                    {headers.map((_, colIndex) => {
-                      const cellValue = row[colIndex] || "";
-                      const cell = analyzeCell(cellValue);
-
-                      return (
-                        <TableCell
-                          key={colIndex}
-                          className={cn(
-                            "font-mono text-sm",
-                            cell.className
-                          )}
-                          style={{ width: `calc((100% - 40px) / ${headers.length})` }}
-                        >
-                          <div className="truncate" title={cell.value}>
-                            {cell.displayValue}
-                          </div>
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
+      <div className="rounded-md border w-full overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table style={{ width: `${tableWidth}px`, tableLayout: "fixed" }}>
+            <TableHeader className="bg-muted/30 sticky top-0">
+              <TableRow>
+                <TableHead className="w-[40px] text-center">#</TableHead>
+                {headers.map((header, index) => (
+                  <TableHead
+                    key={index}
+                    className="font-medium"
+                    style={{ width: `${minColumnWidth}px`, minWidth: `${minColumnWidth}px` }}
+                  >
+                    <div className="truncate" title={header}>
+                      {header}
+                    </div>
+                  </TableHead>
                 ))}
-              </TableBody>
-            </Table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {pageData.map((row, rowIndex) => (
+                <TableRow key={rowIndex} className="hover:bg-muted/20">
+                  <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-[40px]">
+                    {pageStart + rowIndex + 1}
+                  </TableCell>
+                  {headers.map((_, colIndex) => {
+                    const cellValue = row[colIndex] || "";
+                    const cell = analyzeCell(cellValue);
+
+                    return (
+                      <TableCell
+                        key={colIndex}
+                        className={cn(
+                          "font-mono text-sm",
+                          cell.className
+                        )}
+                        style={{ width: `${minColumnWidth}px`, minWidth: `${minColumnWidth}px` }}
+                      >
+                        <div className="truncate" title={cell.value}>
+                          {cell.displayValue}
+                        </div>
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
 

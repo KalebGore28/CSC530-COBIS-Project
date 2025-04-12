@@ -26,47 +26,6 @@ const mockCsvData = [
   ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
 ];
 
-const mockImportErrors: ImportError[] = [
-  {
-    row: {
-      "studentId": "STU004",
-      "firstName": "Mary",
-      "lastName": "Williams",
-      "email": "mary.williams@example.com",
-      "phone": "555-3456",
-      "departmentId": "DEP003"
-    },
-    error: "Foreign key constraint violation on departmentId",
-    errorType: "foreign_key",
-    dependencyInfo: {
-      tableName: "Departments",
-      columns: ["departmentId", "departmentName"],
-      values: {
-        "departmentId": "DEP003"
-      }
-    }
-  },
-  {
-    row: {
-      "studentId": "STU005",
-      "firstName": "Mike",
-      "lastName": "Brown",
-      "email": "mike.brown@example.com",
-      "phone": "555-7890",
-      "departmentId": "DEP003"
-    },
-    error: "Foreign key constraint violation on departmentId",
-    errorType: "foreign_key",
-    dependencyInfo: {
-      tableName: "Departments",
-      columns: ["departmentId", "departmentName"],
-      values: {
-        "departmentId": "DEP003"
-      }
-    }
-  }
-];
-
 const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
@@ -222,40 +181,16 @@ const CsvImport: React.FC = () => {
           {/* Step 4: Import Results */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
-            {/* <div className="mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSuccess(!showSuccess)}
-                className="mb-4"
-              >
-                {showSuccess ? "Show Error Result" : "Show Success Result"}
-              </Button>
-            </div> */}
-
-            {/* {showSuccess ? (
-              <ImportResultDisplay
-                result={{
-                  success: true,
-                  totalRecords: 5,
-                  inserted: 3,
-                  updated: 0,
-                  skipped: 2,
-                  failed: 0
-                }}
-              />
-            ) : (
-              <ImportResultDisplay
-                result={{
-                  success: false,
-                  totalRecords: 5,
-                  inserted: 3,
-                  updated: 0,
-                  skipped: 0,
-                  failed: 2
-                }}
-              />
-            )} */}
+            <ImportResultDisplay
+              result={{
+                success: true,
+                totalRecords: 5,
+                inserted: 3,
+                updated: 0,
+                skipped: 2,
+                failed: 0
+              }}
+            />
           </div>
 
           {!showSuccess && (
