@@ -4,9 +4,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // Importing Providers
-import { ErrorBoundary } from '@/components/providers/error-boundary';
-import { ThemeProvider } from '@/components/providers/theme-provider';
-import { LoadingProvider } from '@/components/providers/loading-provider';
+import { ErrorBoundary } from '@/providers/error-boundary';
+import { ThemeProvider } from '@/providers/theme-provider';
+import { LoadingProvider } from '@/providers/loading-provider';
 
 // Importing Context Providers
 import { RoleProvider } from '@/hooks/role-context';

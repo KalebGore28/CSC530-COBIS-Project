@@ -5,9 +5,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { CsvMapping, LookupCsvMapping } from "../../types/csv-import-types";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+} from "@/components/ui/select";
+import { CsvMapping, LookupCsvMapping } from "../../../types/csv-import-types";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Database, Table2, Info } from "lucide-react";
 
 interface TableSelectorProps {

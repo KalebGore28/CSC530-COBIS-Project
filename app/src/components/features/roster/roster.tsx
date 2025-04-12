@@ -27,7 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
-import { ExportButton } from "@/components/export-button";
+import { ExportButton } from "@/components/common/export-button";
 
 /**
  * Student interface representing a student in the class roster

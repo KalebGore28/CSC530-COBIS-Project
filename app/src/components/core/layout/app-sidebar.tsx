@@ -9,9 +9,9 @@ import {
 	BookOpen,
 } from "lucide-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavUser } from "@/components/nav-user"
-import { RoleSwitcher } from "@/components/role-switcher"
+import { NavMain } from "@/components/core/navigation/nav-main"
+import { NavUser } from "@/components/core/navigation/nav-user"
+import { RoleSwitcher } from "@/components/core/navigation/nav-role-switcher"
 import {
 	Sidebar,
 	SidebarContent,
@@ -23,9 +23,9 @@ import {
 } from "@/components/ui/sidebar"
 
 import { useNavigate } from "react-router-dom"
-import { Separator } from "./ui/separator"
-import logo from "../assets/primary_white.png"
-import logoIcon from "../assets/primary-icon.png"
+import { Separator } from "../../ui/separator"
+import logo from "@/assets/primary_white.png"
+import logoIcon from "@/assets/primary-icon.png"
 
 import { useSession } from "@/hooks/session-context";
 import { useRoleContext } from '@/hooks/role-context';

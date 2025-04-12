@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import { signinGoogle } from '../lib/auth-client';
+import { signinGoogle } from '../../../lib/auth-client';
 
 export function LoginForm({
 	...props

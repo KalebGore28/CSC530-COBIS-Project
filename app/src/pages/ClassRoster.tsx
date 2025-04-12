@@ -4,7 +4,7 @@ import { AlertCircle } from "lucide-react";
 import { useSession } from "@/hooks/session-context";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
-import ClassRosterComponent, { Student } from "@/components/roster";
+import ClassRosterComponent, { Student } from "@/components/features/roster/roster";
 import { Separator } from "@/components/ui/separator";
 
 // Modified ClassRoster component that will fetch data from API

@@ -22,7 +22,7 @@ import InstructorTermDetails from './pages/instructor/instructor-term-details';
 import InstructorRoster from './pages/instructor/instructor-roster';
 
 import { useSession } from '@/hooks/session-context';
-import { useLoading } from '@/components/providers/loading-provider';
+import { useLoading } from '@/providers/loading-provider';
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();

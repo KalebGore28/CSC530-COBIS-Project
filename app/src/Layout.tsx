@@ -1,8 +1,8 @@
 // Layout.tsx
 import { useEffect } from 'react';
 import { useLocation, useNavigate, Location, NavigateFunction } from 'react-router-dom';
-import { AppSidebar } from "@/components/app-sidebar";
-import { SiteHeader } from "@/components/site-header";
+import { AppSidebar } from "@/components/core/layout/app-sidebar";
+import { SiteHeader } from "@/components/core/layout/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
 import { useRoleContext } from '@/hooks/role-context';
