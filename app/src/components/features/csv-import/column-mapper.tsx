@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ColumnDefinition, LookupCsvMapping, DataCsvMapping } from "../../../types/csv-import-types";
+import { Button } from "@/components/ui/button";
+import { ColumnDefinition, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,7 +25,7 @@ interface ColumnMapperProps {
   lookupTables: LookupCsvMapping[];
   selectedTable?: string;
   mapping: DataCsvMapping | null;
-  onMapChange: (columnName: string, csvColumn: string) => void;
+  onFinishedMapping: (mappings: CsvMapping[]) => void;
   csvColumns: string[];
 }
 
@@ -32,21 +33,139 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   lookupTables,
   selectedTable,
   mapping,
-  onMapChange,
+  onFinishedMapping,
   csvColumns = []
 }) => {
+  // State to track the current mappings for each table
+  const [tableMappings, setTableMappings] = useState<CsvMapping[]>([]);
+  // State to track validation errors
+  const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
+
+  // Initialize table mappings when component receives props
+  useEffect(() => {
+    if (mapping) {
+      // Initialize from data mapping
+      const initialMappings = mapping.destinations.map(destination => {
+        return {
+          tableId: destination.tableId,
+          tableName: destination.tableName,
+          columns: destination.columns.map(column => {
+            // Auto-match columns with the same name (case insensitive)
+            const matchedCsvColumn = !column.csvColumn ?
+              csvColumns.find(csvCol => csvCol.toLowerCase() === column.dbColumn.toLowerCase()) :
+              column.csvColumn;
+
+            return {
+              ...column,
+              csvColumn: column.csvColumn || matchedCsvColumn || ""
+            };
+          })
+        };
+      });
+      setTableMappings(initialMappings);
+    } else if (selectedTable) {
+      // Initialize from lookup table
+      const lookupMapping = lookupTables.find(
+        table => table.destination.tableId === selectedTable
+      );
+
+      if (lookupMapping) {
+        const initialMapping = {
+          tableId: lookupMapping.destination.tableId,
+          tableName: lookupMapping.destination.tableName,
+          columns: lookupMapping.destination.columns.map(column => {
+            // Auto-match columns with the same name
+            const matchedCsvColumn = !column.csvColumn ?
+              csvColumns.find(csvCol => csvCol.toLowerCase() === column.dbColumn.toLowerCase()) :
+              column.csvColumn;
+
+            return {
+              ...column,
+              csvColumn: column.csvColumn || matchedCsvColumn || ""
+            };
+          })
+        };
+        setTableMappings([initialMapping]);
+      }
+    }
+  }, [mapping, selectedTable, lookupTables, csvColumns]);
+
+  // Handle column selection change
+  const handleColumnChange = (tableId: string, dbColumn: string, csvColumn: string) => {
+    setTableMappings(prevMappings =>
+      prevMappings.map(table => {
+        if (table.tableId === tableId) {
+          return {
+            ...table,
+            columns: table.columns.map(column => {
+              if (column.dbColumn === dbColumn) {
+                return {
+                  ...column,
+                  csvColumn: csvColumn === "---" ? "" : csvColumn
+                };
+              }
+              return column;
+            })
+          };
+        }
+        return table;
+      })
+    );
+  };
+
+  // Validate mappings and check if ready to submit
+  const validateMappings = () => {
+    const errors: Record<string, string[]> = {};
+
+    tableMappings.forEach(table => {
+      const tableErrors: string[] = [];
+
+      // Check required columns (primary keys or columns marked as required)
+      table.columns.forEach(column => {
+        if ((column.isPrimaryKey || column.isRequired) && !column.csvColumn) {
+          tableErrors.push(`${column.dbColumn} is required but not mapped.`);
+        }
+      });
+
+      if (tableErrors.length > 0) {
+        errors[table.tableId] = tableErrors;
+      }
+    });
+
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Check if all required columns are mapped
+  const isReadyToSubmit = useMemo(() => {
+    return tableMappings.every(table =>
+      table.columns.every(column =>
+        !(column.isPrimaryKey || column.isRequired) || column.csvColumn
+      )
+    );
+  }, [tableMappings]);
+
+  // Submit mappings automatically when ready or when mappings change
+  useEffect(() => {
+    validateMappings(); // Always update validation errors
+
+    if (tableMappings.length > 0 && isReadyToSubmit) {
+      onFinishedMapping(tableMappings);
+    }
+  }, [tableMappings, isReadyToSubmit, onFinishedMapping]);
 
   // Component to render a single table mapping
   const TableMapping = ({
+    tableId,
     tableName,
     columns,
     availableCsvColumns
   }: {
+    tableId: string;
     tableName: string;
     columns: ColumnDefinition[];
     availableCsvColumns: string[]
   }) => {
-
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -58,6 +177,19 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
             {columns.length} columns
           </Badge>
         </div>
+
+        {validationErrors[tableId] && validationErrors[tableId].length > 0 && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              <ul className="list-disc pl-5 mt-2">
+                {validationErrors[tableId].map((error, index) => (
+                  <li key={index}>{error}</li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Table>
           <TableHeader>
@@ -73,11 +205,14 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                 <TableCell className="font-medium flex items-center gap-2">
                   {column.isPrimaryKey && <Key className="h-4 w-4 text-amber-500" />}
                   {column.dbColumn}
+                  {column.isRequired && !column.isPrimaryKey && (
+                    <span className="text-red-500 ml-1">*</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <Select
                     value={column.csvColumn || "---"}
-                    onValueChange={(value) => onMapChange(column.dbColumn, value === "---" ? "" : value)}
+                    onValueChange={(value) => handleColumnChange(tableId, column.dbColumn, value)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select column">
@@ -109,7 +244,9 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                   ) : (
                     <div className="flex items-center justify-end gap-1">
                       <AlertCircle className="h-4 w-4 text-amber-500" />
-                      <span className="text-xs text-amber-500">Not mapped</span>
+                      <span className="text-xs text-amber-500">
+                        {column.isPrimaryKey || column.isRequired ? "Required" : "Not mapped"}
+                      </span>
                     </div>
                   )}
                 </TableCell>
@@ -121,55 +258,27 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     );
   };
 
-  if (mapping) {
-    // Data table mapping logic
-    const tablesWithMappings = useMemo(() => {
-      return mapping.destinations.map((destination) => {
-        const tableName = destination.tableName;
-        // Use passed in csvColumns prop directly instead of extracting from mapping
-        const availableCsvColumns = csvColumns;
-
-        // Auto-match columns that have the same name (case insensitive)
-        const columns = destination.columns.map((column) => {
-          // Find if there's any CSV column that matches the DB column name
-          const matchedCsvColumn = availableCsvColumns.find(
-            (csvCol) => csvCol.toLowerCase() === column.dbColumn.toLowerCase()
-          );
-
-          // Use existing mapping or auto-match or empty string
-          return {
-            ...column,
-            csvColumn: column.csvColumn || matchedCsvColumn || ""
-          };
-        });
-
-        return {
-          tableName,
-          columns,
-          availableCsvColumns
-        };
-      });
-    }, [mapping, csvColumns]);
-
-    // For multiple destinations, create tabs
-    if (tablesWithMappings.length > 1) {
+  if (tableMappings.length > 0) {
+    // For multiple tables, create tabs
+    if (tableMappings.length > 1) {
       return (
         <div className="space-y-4">
-          <Tabs defaultValue={tablesWithMappings[0].tableName}>
+          <Tabs defaultValue={tableMappings[0].tableId}>
             <TabsList className="mb-4">
-              {tablesWithMappings.map((table) => (
-                <TabsTrigger key={table.tableName} value={table.tableName}>
+              {tableMappings.map((table) => (
+                <TabsTrigger key={table.tableId} value={table.tableId}>
                   {table.tableName}
                 </TabsTrigger>
               ))}
             </TabsList>
 
-            {tablesWithMappings.map((table) => (
-              <TabsContent key={table.tableName} value={table.tableName}>
+            {tableMappings.map((table) => (
+              <TabsContent key={table.tableId} value={table.tableId}>
                 <TableMapping
+                  tableId={table.tableId}
                   tableName={table.tableName}
                   columns={table.columns}
-                  availableCsvColumns={table.availableCsvColumns}
+                  availableCsvColumns={csvColumns}
                 />
               </TabsContent>
             ))}
@@ -183,17 +292,27 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
               <span>are essential for matching records.</span>
             </AlertDescription>
           </Alert>
+
+          {!isReadyToSubmit && (
+            <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please map all required columns to continue.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       );
-    } else if (tablesWithMappings.length === 1) {
-      // Single destination, no tabs needed
-      const table = tablesWithMappings[0];
+    } else if (tableMappings.length === 1) {
+      // Single table, no tabs needed
+      const table = tableMappings[0];
       return (
         <div className="space-y-4">
           <TableMapping
+            tableId={table.tableId}
             tableName={table.tableName}
             columns={table.columns}
-            availableCsvColumns={table.availableCsvColumns}
+            availableCsvColumns={csvColumns}
           />
 
           <Alert>
@@ -204,39 +323,15 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
               <span>are essential for matching records.</span>
             </AlertDescription>
           </Alert>
-        </div>
-      );
-    } else {
-      return (
-        <div className="p-4 text-center">
-          <p className="text-muted-foreground">No table destinations found.</p>
-        </div>
-      );
-    }
-  } else if (selectedTable) {
-    // Lookup table mapping logic
-    const lookupMapping = lookupTables.find(
-      (table) => table.destination.tableId === selectedTable
-    );
 
-    if (lookupMapping) {
-      // Use passed in csvColumns prop directly
-      const availableCsvColumns = csvColumns;
-
-      return (
-        <div className="space-y-4">
-          <TableMapping
-            tableName={lookupMapping.destination.tableName}
-            columns={lookupMapping.destination.columns}
-            availableCsvColumns={availableCsvColumns}
-          />
-
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
-              Lookup tables help associate data from your CSV with existing database records.
-            </AlertDescription>
-          </Alert>
+          {!isReadyToSubmit && (
+            <Alert className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Please map all required columns to continue.
+              </AlertDescription>
+            </Alert>
+          )}
         </div>
       );
     }
