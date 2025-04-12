@@ -21,7 +21,7 @@ import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 
-import { useSession } from '@/hooks/session-context';
+import { useSession } from '@/context/session';
 import { useLoading } from '@/providers/loading-provider';
 
 export const App: React.FC = () => {

@@ -1,8 +1,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useSession } from "@/hooks/session-context"
-import { useRoleContext } from "@/hooks/role-context"
+import { useSession } from "@/context/session"
+import { useRoleContext } from "@/context/role"
 import { Separator } from "@/components/ui/separator"
 import { BookOpen, Users, Database, LineChart, BarChart3, FileText } from "lucide-react"
 

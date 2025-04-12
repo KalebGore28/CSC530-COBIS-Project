@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Link } from "react-router-dom"
-import { useSession } from "@/hooks/session-context"
+import { useSession } from "@/context/session"
 
 export default function Reports() {
 	const { session } = useSession()

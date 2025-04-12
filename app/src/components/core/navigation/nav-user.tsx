@@ -28,7 +28,7 @@ import {
 import { signout } from "../../../lib/auth-client"
 import { useNavigate } from "react-router-dom"
 
-import { Session } from "@/hooks/session-context"
+import { Session } from "@/context/session"
 
 interface NavUserProps {
 	session: Session | null;

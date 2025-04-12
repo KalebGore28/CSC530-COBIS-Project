@@ -17,7 +17,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar"
 
-import { useRoleContext } from "@/hooks/role-context"
+import { useRoleContext } from "@/context/role"
 
 export function RoleSwitcher() {
 	const { roles, selectedRole, setSelectedRole } = useRoleContext()

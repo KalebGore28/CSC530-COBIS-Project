@@ -9,8 +9,8 @@ import { ThemeProvider } from '@/providers/theme-provider';
 import { LoadingProvider } from '@/providers/loading-provider';
 
 // Importing Context Providers
-import { RoleProvider } from '@/hooks/role-context';
-import { SessionProvider } from '@/hooks/session-context';
+import { RoleProvider } from '@/context/role';
+import { SessionProvider } from '@/context/session';
 
 // Importing App Component
 import { App } from './App';

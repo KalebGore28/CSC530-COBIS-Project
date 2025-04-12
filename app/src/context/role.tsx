@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useSession } from '@/hooks/session-context';
+import { useSession } from '@/context/session';
 import {
 	Compass,
 	BookOpen,

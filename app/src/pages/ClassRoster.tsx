@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
-import { useSession } from "@/hooks/session-context";
+import { useSession } from "@/context/session";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
 import ClassRosterComponent, { Student } from "@/components/features/roster/roster";

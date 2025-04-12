@@ -27,8 +27,8 @@ import { Separator } from "../../ui/separator"
 import logo from "@/assets/primary_white.png"
 import logoIcon from "@/assets/primary-icon.png"
 
-import { useSession } from "@/hooks/session-context";
-import { useRoleContext } from '@/hooks/role-context';
+import { useSession } from "@/context/session";
+import { useRoleContext } from '@/context/role';
 
 const data = {
 	navMain: [

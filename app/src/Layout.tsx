@@ -5,7 +5,7 @@ import { AppSidebar } from "@/components/core/layout/app-sidebar";
 import { SiteHeader } from "@/components/core/layout/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Outlet } from "react-router-dom";
-import { useRoleContext } from '@/hooks/role-context';
+import { useRoleContext } from '@/context/role';
 
 // Define an interface for the LayoutContent props
 interface LayoutContentProps {
