@@ -1,3 +1,4 @@
+import React, { useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/Login';
@@ -6,14 +7,13 @@ import Reports from './pages/Reports';
 import StudentsReport from './pages/StudentsReport';
 import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
-import { CsvImport } from './pages/CsvImport';
+import CsvImport from './pages/CsvImport';
 import TestPage from './pages/TestPage';
 import WaitingPage from './pages/Waiting';
 import OnboardingPage from './pages/Onboarding';
 import StudentLookup from './pages/StudentLookup';
 
 import ProfessorPage from './pages/ProfessorPage';
-import { useSession } from '@/hooks/session-context';
 import ClassRosterPage from './pages/ClassRoster';
 
 import InstructorsPage from './pages/instructor/instructors-page';
@@ -21,13 +21,30 @@ import InstructorPage from './pages/instructor/instructor-page';
 import InstructorTermDetails from './pages/instructor/instructor-term-details';
 import InstructorRoster from './pages/instructor/instructor-roster';
 
+import { useSession } from '@/hooks/session-context';
+import { useLoading } from '@/components/providers/loading-provider';
+
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
+  const { showLoading, hideLoading } = useLoading();
 
+  // Use useEffect to handle loading state changes
+  useEffect(() => {
+    if (isLoading) {
+      showLoading('Loading session...');
+    } else {
+      hideLoading();
+    }
+  }, [isLoading, showLoading, hideLoading]);
+
+  // Don't render anything substantive while loading
   if (isLoading) {
-    return <div>Loading...</div>;
+    // Return an empty div or fragment
+    // The loading screen is shown via the LoadingProvider
+    return <></>;
   }
 
+  // Now we know loading is complete, we can safely check session
   if (!session) {
     return (
       <Routes>
@@ -37,6 +54,7 @@ export const App: React.FC = () => {
     );
   }
 
+  // Fix the session access checks
   if (!session.info.isEnabled) {
     return <WaitingPage />;
   }

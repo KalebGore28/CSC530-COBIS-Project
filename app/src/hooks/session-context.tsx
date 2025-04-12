@@ -27,6 +27,7 @@ const SessionContext = createContext<SessionContextType | undefined>(undefined);
 
 // Function to fetch the session
 const fetchUserInfo = async () => {
+  // await new Promise((resolve) => setTimeout(resolve, 1000));
   const response = await axios.get('/api/user/me', {
     withCredentials: true,
   });

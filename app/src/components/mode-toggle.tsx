@@ -6,7 +6,7 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "@/components/providers/theme-provider"
 import { cn } from "@/lib/utils" // Assuming you're using this utility for class merging
 
 export function ModeToggle({ className }: { className?: string }) { // Added className prop

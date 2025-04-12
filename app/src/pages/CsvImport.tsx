@@ -67,7 +67,7 @@ const mockImportErrors: ImportError[] = [
   }
 ];
 
-export const CsvImport: React.FC = () => {
+const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -293,3 +293,5 @@ export const CsvImport: React.FC = () => {
     </div>
   );
 };
+
+export default CsvImport;
