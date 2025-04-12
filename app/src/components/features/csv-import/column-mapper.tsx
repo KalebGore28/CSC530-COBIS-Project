@@ -15,11 +15,22 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ColumnDefinition, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../../../types/csv-import-types";
+import { ColumnDefinition, LookupCsvMapping, DataCsvMapping, CsvMapping, TableConfig } from "../../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Extended column definition with isRequired flag
+interface ExtendedColumnDefinition extends ColumnDefinition {
+  isRequired?: boolean;
+}
+
+// Internal structure for table mapping
+interface InternalTableMapping {
+  tableId: string;
+  tableName: string;
+  columns: ExtendedColumnDefinition[];
+}
 
 interface ColumnMapperProps {
   lookupTables: LookupCsvMapping[];
@@ -37,7 +48,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   csvColumns = []
 }) => {
   // State to track the current mappings for each table
-  const [tableMappings, setTableMappings] = useState<CsvMapping[]>([]);
+  const [tableMappings, setTableMappings] = useState<InternalTableMapping[]>([]);
   // State to track validation errors
   const [validationErrors, setValidationErrors] = useState<Record<string, string[]>>({});
 
@@ -57,7 +68,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
             return {
               ...column,
-              csvColumn: column.csvColumn || matchedCsvColumn || ""
+              csvColumn: column.csvColumn || matchedCsvColumn || "",
+              isRequired: destination.primaryKeys.includes(column.dbColumn)
             };
           })
         };
@@ -81,7 +93,8 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
 
             return {
               ...column,
-              csvColumn: column.csvColumn || matchedCsvColumn || ""
+              csvColumn: column.csvColumn || matchedCsvColumn || "",
+              isRequired: lookupMapping.destination.primaryKeys.includes(column.dbColumn)
             };
           })
         };
@@ -145,14 +158,53 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     );
   }, [tableMappings]);
 
+  // Convert internal table mappings to CsvMapping format for submission
+  const convertToCsvMappings = (): CsvMapping[] => {
+    if (mapping) {
+      // Update the existing DataCsvMapping with new column mappings
+      const updatedMapping: DataCsvMapping = {
+        ...mapping,
+        destinations: mapping.destinations.map(destination => {
+          const tableMapping = tableMappings.find(tm => tm.tableId === destination.tableId);
+          if (tableMapping) {
+            return {
+              ...destination,
+              columns: tableMapping.columns.map(({ isRequired, ...column }) => column)
+            };
+          }
+          return destination;
+        })
+      };
+      return [updatedMapping];
+    } else if (selectedTable && tableMappings.length === 1) {
+      // Find the original lookup mapping
+      const lookupMapping = lookupTables.find(
+        table => table.destination.tableId === selectedTable
+      );
+
+      if (lookupMapping) {
+        // Update the LookupCsvMapping with new column mappings
+        const updatedMapping: LookupCsvMapping = {
+          ...lookupMapping,
+          destination: {
+            ...lookupMapping.destination,
+            columns: tableMappings[0].columns.map(({ isRequired, ...column }) => column)
+          }
+        };
+        return [updatedMapping];
+      }
+    }
+    return [];
+  };
+
   // Submit mappings automatically when ready or when mappings change
   useEffect(() => {
     validateMappings(); // Always update validation errors
 
     if (tableMappings.length > 0 && isReadyToSubmit) {
-      onFinishedMapping(tableMappings);
+      onFinishedMapping(convertToCsvMappings());
     }
-  }, [tableMappings, isReadyToSubmit, onFinishedMapping]);
+  }, [tableMappings, isReadyToSubmit, mapping, selectedTable, lookupTables]);
 
   // Component to render a single table mapping
   const TableMapping = ({
@@ -205,9 +257,6 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                 <TableCell className="font-medium flex items-center gap-2">
                   {column.isPrimaryKey && <Key className="h-4 w-4 text-amber-500" />}
                   {column.dbColumn}
-                  {column.isRequired && !column.isPrimaryKey && (
-                    <span className="text-red-500 ml-1">*</span>
-                  )}
                 </TableCell>
                 <TableCell>
                   <Select
@@ -244,9 +293,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                   ) : (
                     <div className="flex items-center justify-end gap-1">
                       <AlertCircle className="h-4 w-4 text-amber-500" />
-                      <span className="text-xs text-amber-500">
-                        {column.isPrimaryKey || column.isRequired ? "Required" : "Not mapped"}
-                      </span>
+
                     </div>
                   )}
                 </TableCell>
