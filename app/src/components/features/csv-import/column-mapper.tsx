@@ -45,6 +45,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
     columns: ColumnDefinition[];
     availableCsvColumns: string[]
   }) => {
+
     return (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -67,28 +68,32 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
           </TableHeader>
           <TableBody>
             {columns.map((column) => (
-              <TableRow key={`${tableName}-${column.dbColumn}-${Math.random().toString(36).substring(2, 7)}`}>
+              <TableRow key={`${tableName}-${column.dbColumn}`}>
                 <TableCell className="font-medium flex items-center gap-2">
                   {column.isPrimaryKey && <Key className="h-4 w-4 text-amber-500" />}
                   {column.dbColumn}
                 </TableCell>
                 <TableCell>
                   <Select
-                    value={column.csvColumn || ""}
-                    onValueChange={(value) => onMapChange(column.dbColumn, value)}
+                    value={column.csvColumn || "---"}
+                    onValueChange={(value) => onMapChange(column.dbColumn, value === "---" ? "" : value)}
                   >
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select column" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="---">---</SelectItem>
-                      {availableCsvColumns
-                        .filter(csvCol => csvCol && csvCol.trim() !== "") // Filter out empty values
-                        .map((csvCol) => (
-                          <SelectItem key={`${csvCol}`} value={csvCol}>
-                            {csvCol}
-                          </SelectItem>
-                        ))}
+                      {availableCsvColumns && availableCsvColumns.length > 0 ? (
+                        availableCsvColumns
+                          .filter(csvCol => csvCol && csvCol.trim() !== "") // Filter out empty values
+                          .map((csvCol) => (
+                            <SelectItem key={csvCol} value={csvCol}>
+                              {csvCol}
+                            </SelectItem>
+                          ))
+                      ) : (
+                        <SelectItem value="no-columns" disabled>No columns available</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
                 </TableCell>
