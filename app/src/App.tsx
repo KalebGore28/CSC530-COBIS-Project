@@ -54,11 +54,12 @@ export const App: React.FC = () => {
     );
   }
 
-  // Fix the session access checks
+  // If account is not enabled, show waiting page
   if (!session.info.isEnabled) {
     return <WaitingPage />;
   }
 
+  // If account doesn't have a mnumber, show onboarding page
   if (!session.info.mnumber) {
     return <OnboardingPage refetchSession={refetchSession} />;
   }

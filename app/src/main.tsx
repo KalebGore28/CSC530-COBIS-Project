@@ -12,8 +12,9 @@ import { LoadingProvider } from '@/components/providers/loading-provider';
 import { RoleProvider } from '@/hooks/role-context';
 import { SessionProvider } from '@/hooks/session-context';
 
-
+// Importing App Component
 import { App } from './App';
+
 import './index.css'
 
 // Create a client
@@ -25,6 +26,10 @@ createRoot(document.getElementById('root')!).render(
             fallback={
                 <div className="flex items-center justify-center w-full h-full">
                     <h1 className="text-2xl font-bold text-white">Something went wrong</h1>
+                    {/* Ask to redirect to main */}
+                    <a href="/" className="text-blue-500 hover:underline">
+                        Go to main page
+                    </a>
                 </div>
             }
         >
