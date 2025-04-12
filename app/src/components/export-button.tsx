@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Download, Check, AlertCircle } from "lucide-react";
+import React from "react";
+import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -7,8 +7,9 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { exportToCSV, formatRosterForExport } from "@/utils/csv-export";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 interface ExportButtonProps {
 	data: any[];
@@ -24,65 +25,29 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 	filename = 'class-roster',
 	isActiveTerm = true
 }) => {
-	const [notification, setNotification] = useState<{
-		show: boolean;
-		type: 'success' | 'error';
-		message: string;
-	} | null>(null);
-
 	const handleCSVExport = () => {
 		try {
-			if (!data || data.length === 0) {
-				setNotification({
-					show: true,
-					type: 'error',
-					message: "No data available to export"
-				});
-
-				// Clear notification after a delay
-				setTimeout(() => setNotification(null), 3000);
+			if (!data?.length) {
+				toast.error("No data available to export");
 				return;
 			}
 
 			const formattedData = formatRosterForExport(data, isActiveTerm);
-			exportToCSV(formattedData, {
-				filename: filename
-			});
-
-			setNotification({
-				show: true,
-				type: 'success',
-				message: "Data has been exported as CSV"
-			});
-
-			// Clear notification after a delay
-			setTimeout(() => setNotification(null), 3000);
+			exportToCSV(formattedData, { filename });
+			toast.success("Data has been exported as CSV");
 		} catch (error) {
 			console.error("Export error:", error);
-			setNotification({
-				show: true,
-				type: 'error',
-				message: "Failed to export data"
-			});
-
-			// Clear notification after a delay
-			setTimeout(() => setNotification(null), 3000);
+			toast.error("Failed to export data");
 		}
 	};
 
 	const handlePDFExport = () => {
-		setNotification({
-			show: true,
-			type: 'success',
-			message: "PDF export coming soon"
-		});
-
-		// Clear notification after a delay
-		setTimeout(() => setNotification(null), 3000);
+		toast.success("PDF export coming soon");
 	};
 
 	return (
 		<div className="relative">
+			<Toaster />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="outline">
@@ -99,24 +64,6 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
-
-			{notification && notification.show && (
-				<div className="absolute right-0 mt-2 w-64 z-50">
-					<Alert variant={notification.type === 'success' ? "default" : "destructive"}>
-						{notification.type === 'success' ? (
-							<Check className="h-4 w-4" />
-						) : (
-							<AlertCircle className="h-4 w-4" />
-						)}
-						<AlertTitle>
-							{notification.type === 'success' ? "Success" : "Error"}
-						</AlertTitle>
-						<AlertDescription>
-							{notification.message}
-						</AlertDescription>
-					</Alert>
-				</div>
-			)}
 		</div>
 	);
 };
