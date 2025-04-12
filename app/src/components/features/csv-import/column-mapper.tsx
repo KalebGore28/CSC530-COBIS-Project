@@ -35,6 +35,7 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
   onMapChange,
   csvColumns = []
 }) => {
+
   // Component to render a single table mapping
   const TableMapping = ({
     tableName,
@@ -79,7 +80,9 @@ export const ColumnMapper: React.FC<ColumnMapperProps> = ({
                     onValueChange={(value) => onMapChange(column.dbColumn, value === "---" ? "" : value)}
                   >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Select column" />
+                      <SelectValue placeholder="Select column">
+                        {column.csvColumn || "Select column"}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="---">---</SelectItem>
