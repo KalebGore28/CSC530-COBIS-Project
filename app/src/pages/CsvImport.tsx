@@ -207,7 +207,7 @@ const CsvImport: React.FC = () => {
           <Separator />
 
           {/* Step 3: Preview Data */}
-          {/* <div>
+          <div>
             <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
             <CsvPreview
               headers={csvHeaders}
@@ -215,7 +215,7 @@ const CsvImport: React.FC = () => {
               maxRows={5}
               highlightSpecialValues={true}
             />
-          </div> */}
+          </div>
 
           <Separator />
 
