@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useSetBreadcrumb } from '@/context/breadcrumb';
 import axios from 'axios';
 import {
 	Card,
@@ -113,6 +114,11 @@ const FacultyProfilePage: React.FC = () => {
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
 	const [courses, setCourses] = useState<CourseDetail[]>([]);
 	const [termSummaries, setTermSummaries] = useState<TermSummary[]>([]);
+
+	useSetBreadcrumb(
+		mnumber as string,
+		instructor?.instructorInfo?.name || null
+	);
 
 	// State for loading
 	const [loadingInstructor, setLoadingInstructor] = useState(true);

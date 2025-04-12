@@ -11,6 +11,7 @@ import { LoadingProvider } from '@/providers/loading-provider';
 // Importing Context Providers
 import { RoleProvider } from '@/context/role';
 import { SessionProvider } from '@/context/session';
+import { BreadcrumbProvider } from './context/breadcrumb';
 
 // Importing App Component
 import { App } from './App';
@@ -39,7 +40,9 @@ createRoot(document.getElementById('root')!).render(
                         <BrowserRouter>
                             <SessionProvider>
                                 <RoleProvider>
-                                    <App />
+                                    <BreadcrumbProvider>
+                                        <App />
+                                    </BreadcrumbProvider>
                                 </RoleProvider>
                             </SessionProvider>
                         </BrowserRouter>

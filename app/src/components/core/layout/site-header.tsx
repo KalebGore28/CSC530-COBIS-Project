@@ -3,6 +3,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ModeToggle } from "@/components/common/mode-toggle"
 import { useLocation, Link } from "react-router-dom"
 import { Slash } from "lucide-react"
+import { useBreadcrumb } from "@/context/breadcrumb"
 
 import {
 	Breadcrumb,
@@ -15,12 +16,19 @@ import {
 
 export function SiteHeader() {
 	const location = useLocation()
+	const { segmentOverrides } = useBreadcrumb()
 
 	// Generate breadcrumb items from the current pathname
 	const pathSegments = location.pathname.split("/").filter(Boolean)
 	const breadcrumbs = pathSegments.map((segment, index) => {
 		const path = `/${pathSegments.slice(0, index + 1).join("/")}`
-		// Replace hyphens with spaces and capitalize each word
+
+		// Check if we have an override for this segment
+		if (segmentOverrides[segment]) {
+			return { path, title: segmentOverrides[segment] }
+		}
+
+		// Otherwise, use the default formatting
 		const title = segment
 			.replace(/-/g, " ")
 			.split(" ")
@@ -36,8 +44,8 @@ export function SiteHeader() {
 				<Breadcrumb className="border-l-1 border-gray-200 pl-4">
 					<BreadcrumbList>
 						{breadcrumbs.map((crumb, index) => (
-							<React.Fragment key={crumb.path}> {/* Add key to the Fragment */}
-								<BreadcrumbItem key={crumb.path}> {/* Keep key on BreadcrumbItem for its own identity */}
+							<React.Fragment key={crumb.path}>
+								<BreadcrumbItem key={crumb.path}>
 									{index < breadcrumbs.length - 1 ? (
 										<BreadcrumbLink asChild>
 											<Link to={crumb.path}>{crumb.title}</Link>

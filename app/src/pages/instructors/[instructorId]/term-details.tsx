@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useSetBreadcrumb } from '@/context/breadcrumb';
+
 import axios from 'axios';
 import {
 	Card,
@@ -50,6 +52,14 @@ const TermDetailsPage: React.FC = () => {
 	const termCode = yearTerm?.slice(-2);
 	const year = yearTerm?.slice(0, 4);
 
+	// term mappings
+	const termMappings: Record<string, string> = {
+		'10': 'Spring',
+		'50': 'Summer',
+		'80': 'Fall',
+		'90': 'Winter'
+	};
+
 	const navigate = useNavigate();
 
 	// State variables
@@ -57,6 +67,13 @@ const TermDetailsPage: React.FC = () => {
 	const [instructorData, setInstructorData] = useState<Instructor | null>(null);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+
+	useSetBreadcrumb(
+		yearTerm as string,
+		`${termMappings[termCode as string] || 'Term'} ${year}`,
+	);
+
+
 
 	// Fetch course data for the specified term and year
 	useEffect(() => {
