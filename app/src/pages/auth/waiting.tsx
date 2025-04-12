@@ -5,7 +5,7 @@ import { CardContent } from "@/components/ui/card";
 import { CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-import { signout } from "../lib/auth-client";
+import { signout } from "../../lib/auth-client";
 
 function WaitingPage() {
 	const handleLogout = async () => {
