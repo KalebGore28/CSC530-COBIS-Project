@@ -16,16 +16,6 @@ import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping } fro
 import CsvImportService from "@/services/csv-import-service";
 
 
-// Sample data for our example
-const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Department ID"];
-const mockCsvData = [
-  ["STU001", "John", "Doe", "john.doe@example.com", "555-1234", "DEP001"],
-  ["STU002", "Jane", "Smith", "jane.smith@example.com", "555-5678", "DEP002"],
-  ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "DEP001"],
-  ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "DEP003"],
-  ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
-];
-
 const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
@@ -37,9 +27,12 @@ const CsvImport: React.FC = () => {
   const [selectedTable, setSelectedTable] = useState<string>("");
 
   // State for parsed CSV data
-  const [csvHeaders, setCsvHeaders] = useState<string[]>(mockCsvHeaders);
-  const [csvData, setCsvData] = useState<string[][]>(mockCsvData);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvData, setCsvData] = useState<string[][]>([]);
   const [_, setIsParsed] = useState<boolean>(false);
+
+  // Simple state for column mappings
+  const [columnMappings, setColumnMappings] = useState<Record<string, string>>({});
 
   // Fetch import info
   useEffect(() => {
@@ -75,9 +68,10 @@ const CsvImport: React.FC = () => {
     setSelectedFile(file);
     // Reset parsed data if file changes
     if (!file) {
-      setCsvHeaders(mockCsvHeaders);
-      setCsvData(mockCsvData);
+      setCsvHeaders([]);
+      setCsvData([]);
       setIsParsed(false);
+      setColumnMappings({});
     }
   };
 
@@ -86,9 +80,10 @@ const CsvImport: React.FC = () => {
     setSelectedTable("");
     setMapping(null);
     setLookupTables([]);
-    setCsvHeaders(mockCsvHeaders);
-    setCsvData(mockCsvData);
+    setCsvHeaders([]);
+    setCsvData([]);
     setIsParsed(false);
+    setColumnMappings({});
   };
 
   const handleParsedData = (results: Papa.ParseResult<unknown>) => {
@@ -117,6 +112,40 @@ const CsvImport: React.FC = () => {
   const handleTableChange = (tableId: string) => {
     console.log("Table selected:", tableId);
     setSelectedTable(tableId);
+    setColumnMappings({});
+  };
+
+  const handleMapChange = (dbColumn: string, csvColumn: string) => {
+    console.log(`Mapped ${dbColumn} to ${csvColumn}`);
+    setColumnMappings(prev => ({
+      ...prev,
+      [dbColumn]: csvColumn
+    }));
+  };
+
+  // Generate a preview of the mapped data using the first row
+  const getMappedDataPreview = () => {
+    if (!columnMappings || Object.keys(columnMappings).length === 0 || !csvData || csvData.length === 0) {
+      return null;
+    }
+
+    const firstRow = csvData[0];
+    const result: Record<string, string> = {};
+
+    // For each mapping (db column -> csv column), find the value from the first row
+    Object.entries(columnMappings).forEach(([dbColumn, csvColumnName]) => {
+      // Find the index of the CSV column in the headers
+      const csvColumnIndex = csvHeaders.findIndex(header => header === csvColumnName);
+
+      if (csvColumnIndex !== -1 && csvColumnIndex < firstRow.length) {
+        // Get the value from the first row at this index
+        result[dbColumn] = firstRow[csvColumnIndex];
+      } else {
+        result[dbColumn] = "N/A";
+      }
+    });
+
+    return result;
   };
 
   return (
@@ -159,8 +188,18 @@ const CsvImport: React.FC = () => {
               lookupTables={lookupTables}
               selectedTable={selectedTable} // Used only when it is a lookup table so it can filter the lookup tables passed in.
               mapping={mapping} // This is the mapping for the data table.
-              onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+              onMapChange={handleMapChange}
             />
+
+            {/* Mapping Preview */}
+            {Object.keys(columnMappings).length > 0 && (
+              <div className="mt-6 p-4 border rounded-md bg-muted/20">
+                <h3 className="text-md font-medium mb-2">Mapping Preview (First Row)</h3>
+                <div className="bg-slate-50 p-3 rounded font-mono text-sm overflow-x-auto">
+                  {JSON.stringify(getMappedDataPreview(), null, 2)}
+                </div>
+              </div>
+            )}
           </div>}
 
           <Separator />
@@ -173,6 +212,7 @@ const CsvImport: React.FC = () => {
               data={csvData}
               maxRows={5}
               highlightSpecialValues={true}
+              minColumnWidth={150}
             />
           </div>
 
@@ -214,6 +254,11 @@ const CsvImport: React.FC = () => {
           )}
         </CardContent>
         <CardFooter>
+          {Object.keys(columnMappings).length > 0 && (
+            <div className="ml-auto">
+              <Button>Process Import</Button>
+            </div>
+          )}
         </CardFooter>
       </Card>
     </div>
