@@ -3,8 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/auth/login';
 import Layout from './Layout';
-import Reports from './pages/Reports';
-import StudentsReport from './pages/StudentsReport';
 import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
 import CsvImport from './pages/CsvImport';
