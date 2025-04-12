@@ -73,8 +73,6 @@ const TermDetailsPage: React.FC = () => {
 		`${termMappings[termCode as string] || 'Term'} ${year}`,
 	);
 
-
-
 	// Fetch course data for the specified term and year
 	useEffect(() => {
 		const fetchCourseData = async () => {
