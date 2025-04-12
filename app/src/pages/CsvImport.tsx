@@ -80,7 +80,7 @@ const CsvImport: React.FC = () => {
   // State for parsed CSV data
   const [csvHeaders, setCsvHeaders] = useState<string[]>(mockCsvHeaders);
   const [csvData, setCsvData] = useState<string[][]>(mockCsvData);
-  const [isParsed, setIsParsed] = useState<boolean>(false);
+  const [_, setIsParsed] = useState<boolean>(false);
 
   // Fetch import info
   useEffect(() => {

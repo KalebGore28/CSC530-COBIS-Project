@@ -8,12 +8,10 @@ import StudentsReport from './pages/StudentsReport';
 import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
 import CsvImport from './pages/CsvImport';
-import TestPage from './pages/TestPage';
 import WaitingPage from './pages/auth/waiting';
 import OnboardingPage from './pages/auth/onboarding';
 import StudentLookup from './pages/StudentLookup';
 
-import ProfessorPage from './pages/ProfessorPage';
 import ClassRosterPage from './pages/ClassRoster';
 
 import InstructorsPage from './pages/instructors';
@@ -79,8 +77,6 @@ export const App: React.FC = () => {
           <Route path="query-builder" element={<QueryBuilderPage />} />
           <Route path="imports" element={<CsvImport />} />
         </Route>
-        <Route path="test-page" element={<TestPage />} />
-        <Route path="/professor-stats" element={<ProfessorPage />} />
 
         {/* Instructor Pages */}
         <Route path="/instructors" element={<InstructorsPage />} />

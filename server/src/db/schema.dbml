@@ -125,15 +125,6 @@ table part_of_term {
   description text [not null]
 }
 
-table permissions {
-  table_name text [not null]
-  column_name text [not null]
-
-  indexes {
-    (table_name, column_name) [pk]
-  }
-}
-
 table previous_colleges {
   mnumber text [not null]
   college_code text [not null]
@@ -163,17 +154,6 @@ table programs {
 table registration_status {
   code text [pk, not null]
   description text [not null]
-}
-
-table role_permissions {
-  role_id integer [not null]
-  table_name text [not null]
-  column_name text [not null]
-
-  indexes {
-    (role_id, table_name, column_name) [pk]
-    
-  }
 }
 
 table roles {
@@ -329,17 +309,6 @@ table user {
   last_login integer [not null, default: `CURRENT_TIMESTAMP`]
 }
 
-table user_permissions {
-  user_id text [not null]
-  table_name text [not null]
-  column_name text [not null]
-
-  indexes {
-    (user_id, table_name, column_name) [pk]
-    
-  }
-}
-
 table user_roles {
   user_id text [not null]
   role_id integer [not null]
@@ -382,10 +351,6 @@ ref: programs.college > colleges.code
 
 ref: programs.department > departments.code
 
-ref: role_permissions.role_id > roles.id
-
-ref: role_permissions.(table_name, column_name) > permissions.(table_name, column_name)
-
 ref: student_academic_info.mnumber > students.mnumber
 
 ref: student_academic_info.admit_term > terms.code
@@ -421,10 +386,6 @@ ref: student_programs.term > terms.code
 ref: student_programs.program > programs.code
 
 ref: test_scores.mnumber > students.mnumber
-
-ref: user_permissions.user_id > user.id
-
-ref: user_permissions.(table_name, column_name) > permissions.(table_name, column_name)
 
 ref: user_roles.user_id > user.id
 
