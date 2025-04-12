@@ -13,6 +13,10 @@ export const signinGoogle = async () => {
   return data;
 };
 
+export const getSession = async () => {
+  return await authClient.getSession();
+}
+
 export const signout = async () => {
   await authClient.signOut()
 };

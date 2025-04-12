@@ -61,7 +61,7 @@ const ClassRosterPage: React.FC = () => {
 						{/* Term Selector */}
 						<div>
 							<TermSelector
-								mnumber={session.mnumber}
+								mnumber={session.info.mnumber}
 								onTermSelect={handleTermSelect}
 								onError={handleError}
 							/>
@@ -71,7 +71,7 @@ const ClassRosterPage: React.FC = () => {
 						<div>
 							{selectedTerm && (
 								<CourseSelector
-									mnumber={session.mnumber}
+									mnumber={session.info.mnumber}
 									selectedTerm={selectedTerm}
 									onCourseSelect={handleCourseSelect}
 									onError={handleError}
@@ -94,7 +94,7 @@ const ClassRosterPage: React.FC = () => {
 							<Separator className="my-6" />
 
 							<ClassRosterComponent
-								mnumber={session.mnumber}
+								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
 								onStudentSelect={(student: Student) => {
 									// Navigate to student page, open modal, etc.

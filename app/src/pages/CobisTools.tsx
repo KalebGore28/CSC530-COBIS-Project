@@ -14,7 +14,7 @@ export default function CobisTools() {
 					COBIS Tools
 				</h2>
 				<p className="text-muted-foreground text-center mt-2">
-					Welcome, {session?.user.name}! Explore COBIS administrative tools.
+					Welcome, {session?.session.data?.user.name}! Explore COBIS administrative tools.
 				</p>
 			</header>
 

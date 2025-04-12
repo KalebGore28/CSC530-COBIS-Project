@@ -37,11 +37,11 @@ export const App: React.FC = () => {
     );
   }
 
-  if (!session.isEnabled) {
+  if (!session.info.isEnabled) {
     return <WaitingPage />;
   }
 
-  if (!session.mnumber) {
+  if (!session.info.mnumber) {
     return <OnboardingPage refetchSession={refetchSession} />;
   }
 

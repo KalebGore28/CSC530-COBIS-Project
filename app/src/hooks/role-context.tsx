@@ -52,8 +52,8 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 
 	useEffect(() => {
-		if (session?.roles?.length && roles.length === 0) {
-			const fetchedRoles: Role[] = session.roles.map((role: { role_id: number; role_name: string }) => ({
+		if (session?.info.roles?.length && roles.length === 0) {
+			const fetchedRoles: Role[] = session.info.roles.map((role: { role_id: number; role_name: string }) => ({
 				id: role.role_id,
 				name: roleNameMap[role.role_name] || role.role_name,
 				logo: getLogoForRole(role.role_name),

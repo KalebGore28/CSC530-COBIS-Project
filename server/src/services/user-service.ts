@@ -59,26 +59,6 @@ export class UserService {
 	}
 
 	/**
-	 * Enrich a session with additional user information
-	 * 
-	 * @param session The session object to enrich
-	 * @param userInfo Additional user information to add to the session
-	 * @returns The enriched session object
-	 */
-	static enrichSession(session: any, userInfo: UserSessionInfo) {
-		if (session) {
-			// Attach properties to the session object
-			session.roles = userInfo.roles || [];
-			session.permissions = userInfo.permissions || [];
-			session.department = userInfo.department || null;
-			session.college = userInfo.college || null;
-			session.mnumber = userInfo.mnumber || null;
-			session.isEnabled = userInfo.isEnabled || null;
-		}
-		return session;
-	}
-
-	/**
 	 * Update a user's enabled status
 	 */
 	static async updateUserEnabled(userId: string, isEnabled: boolean) {

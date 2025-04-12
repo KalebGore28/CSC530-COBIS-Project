@@ -71,7 +71,7 @@ export default function Dashboard() {
 		<div className="p-6">
 			<div className="flex flex-col items-center space-y-2 mb-8">
 				<h2 className="text-3xl font-bold tracking-tight">
-					Welcome Back, {session?.user.name}
+					Welcome Back, {session?.session.data?.user.name}
 				</h2>
 				<p className="text-muted-foreground text-lg max-w-2xl text-center">
 					Access your tools and information from this dashboard

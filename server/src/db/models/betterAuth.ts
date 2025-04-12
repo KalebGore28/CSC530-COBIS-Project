@@ -3,7 +3,6 @@ import { sql, relations } from "drizzle-orm";
 
 import { imports } from "./imports";
 import { instructorCourses } from "./instructor-courses";
-import { userPermissions } from "./user_permissions";
 import { userRoles } from "./user_roles";
 
 export const user = sqliteTable("user", {
@@ -22,7 +21,6 @@ export const user = sqliteTable("user", {
 export const usersRelations = relations(user, ({ many }) => ({
 	imports: many(imports),
 	instructor_courses: many(instructorCourses),
-	user_permissions: many(userPermissions),
 	user_roles: many(userRoles),
 }));
 

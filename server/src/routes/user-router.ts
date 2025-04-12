@@ -11,7 +11,7 @@ import { UserController } from '../controllers/user-controller';
 const router = express.Router();
 
 // Get current user
-router.get('/me', UserController.getCurrentUser);
+router.get('/me', UserController.getUserInfo);
 
 // Update user's M-number
 router.post('/update-mnumber', UserController.updateMnumber);
