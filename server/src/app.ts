@@ -21,7 +21,6 @@ import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
 import enrollmentRouter from "./routes/enrollment-router";
 import searchRoute from "./routes/search-router";
-import reportingRoute from "./routes/reporting-router";
 import studentLookupRoute from "./routes/student-lookup-router";
 import utilityRouter from "./routes/utility-router";
 // import customQuery from "./routes/customQueries";
@@ -31,7 +30,6 @@ import { InstructorAPISpecs } from "./specs/instructor-specs";
 import { StudentAPISpecs } from "./specs/student-specs";
 import { EnrollmentAPISpecs } from "./specs/enrollment-specs";
 import { SearchAPISpecs } from "./specs/search-specs";
-import { ReportingAPISpecs } from "./specs/reporting-specs";
 import { UserAPISpecs } from "./specs/user-specs";
 import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
 import { ImportAPISpecs } from "./specs/import-specs";
@@ -52,7 +50,6 @@ const document = createDocument({
         ...StudentAPISpecs,
         ...EnrollmentAPISpecs,
         ...SearchAPISpecs,
-        ...ReportingAPISpecs,
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
         ...ImportAPISpecs,
@@ -86,7 +83,6 @@ app.use("/api/instructor", instructorRouter)
 app.use("/api/student", studentRouter)
 app.use("/api/enrollment", enrollmentRouter)
 app.use("/api/search", searchRoute)
-app.use("/api/reporting", reportingRoute)
 app.use("/api/student-lookup", studentLookupRoute)
 app.use("/api/utility", utilityRouter)
 // app.use('/api/custom-query', customQuery)

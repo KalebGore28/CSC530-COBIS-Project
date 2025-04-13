@@ -41,13 +41,13 @@ router.get('/:mnumber/teaching-summary',
 	InstructorController.getTeachingSummary
 );
 
-// ✅ Term summaries
+// Term summaries
 router.get('/:mnumber/terms',
 	checkInstructorAccess,
 	InstructorController.getTermSummaries
 );
 
-// ✅ Course details
+// Course details
 router.get('/:mnumber/courses',
 	checkInstructorAccess,
 	InstructorController.getCourseDetails
