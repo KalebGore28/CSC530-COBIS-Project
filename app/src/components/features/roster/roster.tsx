@@ -322,7 +322,13 @@ export const Roster: React.FC<ClassRosterProps> = ({
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<PieChartDonut />
+						<PieChartDonut data={
+							Object.entries(stats.gradeDistribution).map(([grade, count]) => ({
+								grade,
+								count,
+								color: getGradeColorClass(grade)
+							}))
+						} />
 					</CardContent>
 				</Card>
 

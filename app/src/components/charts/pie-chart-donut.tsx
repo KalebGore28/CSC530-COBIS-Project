@@ -1,81 +1,92 @@
 "use client"
 
-import { TrendingUp } from "lucide-react"
-import { Pie, PieChart } from "recharts"
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 
 import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card"
-import {
-	ChartConfig,
-	ChartContainer,
-	ChartTooltip,
-	ChartTooltipContent,
-} from "@/components/ui/chart"
-const chartData = [
-	{ browser: "A", grades: 275, fill: "var(--color-chrome)" },
-	{ browser: "B", grades: 200, fill: "var(--color-safari)" },
-	{ browser: "C", grades: 187, fill: "var(--color-firefox)" },
-	{ browser: "D", grades: 173, fill: "var(--color-edge)" },
-	{ browser: "F", grades: 90, fill: "var(--color-other)" },
-]
 
-const chartConfig = {
-	grades: {
-		label: "Grades",
-	},
-	A: {
-		label: "A",
-		color: "hsl(var(--chart-1))",
-	},
-	B: {
-		label: "B",
-		color: "hsl(var(--chart-2))",
-	},
-	C: {
-		label: "C",
-		color: "hsl(var(--chart-3))",
-	},
-	D: {
-		label: "D",
-		color: "hsl(var(--chart-4))",
-	},
-	F: {
-		label: "F",
-		color: "hsl(var(--chart-5))",
-	},
-} satisfies ChartConfig
+// Define types for chart data and props
+export type GradeDistribution = {
+	grade: string
+	count: number
+	color: string
+}
 
-export function PieChartDonut() {
+type PieChartDonutProps = {
+	data: GradeDistribution[]
+	title?: string
+	description?: string
+}
+
+// Custom tooltip component
+const CustomTooltip = ({ active, payload }: any) => {
+	if (active && payload && payload.length) {
+		const data = payload[0].payload;
+		const totalCount = payload[0].value;
+		const total = payload[0].payload.allTotal ||
+			payload.reduce((sum: number, entry: any) => sum + entry.value, 0);
+		const percentage = totalCount / total * 100;
+
+		return (
+			<div className="bg-white p-2 shadow rounded border border-gray-200">
+				<p className="font-semibold">{`${data.grade}: ${data.count}`}</p>
+				<p className="text-sm text-gray-500">{`${percentage.toFixed(2)}%`}</p>
+			</div>
+		);
+	}
+	return null;
+};
+
+export function PieChartDonut({
+	data,
+	title = "Grade Distribution",
+	description = "Course grade breakdown"
+}: PieChartDonutProps) {
+	// Calculate total for percentage calculations
+	const total = data.reduce((sum, item) => sum + item.count, 0);
+
+	console.log(data);
+
+	// Add total to each data point for tooltip calculation
+	const dataWithTotal = data.map(item => ({
+		...item,
+		allTotal: total
+	}));
+
 	return (
 		<Card className="flex flex-col">
 			<CardHeader className="items-center pb-0">
-				<CardTitle>Pie Chart - Donut</CardTitle>
-				<CardDescription>January - June 2024</CardDescription>
+				<CardTitle>{title}</CardTitle>
+				<CardDescription>{description}</CardDescription>
 			</CardHeader>
 			<CardContent className="flex-1 pb-0">
-				<ChartContainer
-					config={chartConfig}
-					className="mx-auto aspect-square max-h-[250px]"
-				>
-					<PieChart>
-						<ChartTooltip
-							cursor={false}
-							content={<ChartTooltipContent hideLabel />}
-						/>
-						<Pie
-							data={chartData}
-							dataKey="grades"
-							nameKey="A"
-							innerRadius={60}
-						/>
-					</PieChart>
-				</ChartContainer>
+				<div className="mx-auto aspect-square max-h-[250px]">
+					<ResponsiveContainer width="100%" height="100%">
+						<PieChart>
+							<Tooltip content={<CustomTooltip />} />
+							<Pie
+								data={dataWithTotal}
+								dataKey="count"
+								nameKey="grade"
+								cx="50%"
+								cy="50%"
+								innerRadius={60}
+								outerRadius={80}
+								paddingAngle={2}
+								label={({ grade }) => grade}
+							>
+								{dataWithTotal.map((entry, index) => (
+									<Cell key={`cell-${index}`} fill={entry.color} />
+								))}
+							</Pie>
+						</PieChart>
+					</ResponsiveContainer>
+				</div>
 			</CardContent>
 		</Card>
 	)
