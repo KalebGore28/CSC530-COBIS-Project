@@ -28,6 +28,7 @@ import { Progress } from "@/components/ui/progress";
 import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
+import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
 /**
  * Student interface representing a student in the class roster
@@ -321,48 +322,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 						</CardDescription>
 					</CardHeader>
 					<CardContent>
-						<div className="space-y-4">
-							<div className="grid grid-cols-1 gap-2">
-								{stats.overallGpa ? (
-									<div>
-										<p className="text-sm text-muted-foreground">Class Average</p>
-										<p className="text-2xl font-bold">{stats.overallGpa.toFixed(2)}</p>
-									</div>
-								) : (
-									<div>
-										<p className="text-sm text-muted-foreground">Class Average</p>
-										<p className="text-lg italic text-muted-foreground">No grades available</p>
-									</div>
-								)}
-							</div>
-
-							<div className="space-y-2">
-								<h4 className="text-sm font-medium">Grade Distribution</h4>
-
-								{Object.keys(stats.gradeDistribution).length === 0 ? (
-									<div className="p-6 text-center border rounded-lg">
-										<p className="text-muted-foreground">No grade data available</p>
-									</div>
-								) : (
-									<>
-										{["A", "B", "C", "D", "F"].map((grade) => {
-											const count = stats.gradeDistribution[grade] || 0;
-											const percentage = stats.totalGraded === 0 ? 0 : (count / stats.totalGraded) * 100;
-
-											return (
-												<div key={grade} className="space-y-1">
-													<div className="flex items-center justify-between text-sm">
-														<span>{grade}</span>
-														<span>{count} ({percentage.toFixed(1)}%)</span>
-													</div>
-													<Progress value={percentage} className="h-2" />
-												</div>
-											);
-										})}
-									</>
-								)}
-							</div>
-						</div>
+						<PieChartDonut />
 					</CardContent>
 				</Card>
 
