@@ -326,7 +326,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 							Object.entries(stats.gradeDistribution).map(([grade, count]) => ({
 								grade,
 								count,
-								color: getGradeColorClass(grade)
 							}))
 						} />
 					</CardContent>

@@ -14,7 +14,6 @@ import {
 export type GradeDistribution = {
 	grade: string
 	count: number
-	color: string
 }
 
 type PieChartDonutProps = {
@@ -42,20 +41,41 @@ const CustomTooltip = ({ active, payload }: any) => {
 	return null;
 };
 
+// Default grade colors if not provided
+const DEFAULT_COLORS = {
+	'A': 'hsl(var(--chart-1))',  // Green
+	'B': 'hsl(var(--chart-2))',  // Light Green
+	'C': 'hsl(var(--chart-3))',  // Amber
+	'D': 'hsl(var(--chart-4))',  // Orange
+	'F': 'hsl(var(--chart-5))',  // Red
+	'W': 'hsl(var(--chart-5))',  // Gray
+};
+
 export function PieChartDonut({
 	data,
 	title = "Grade Distribution",
 	description = "Course grade breakdown"
 }: PieChartDonutProps) {
+
+	// If data is empty, return a card with a message
+	if (data.length === 0) {
+		return (
+			<Card className="flex flex-col">
+				<p className="text-center text-sm text-muted-foreground">
+					No data available
+				</p>
+			</Card>
+		)
+	}
+
 	// Calculate total for percentage calculations
 	const total = data.reduce((sum, item) => sum + item.count, 0);
 
-	console.log(data);
-
-	// Add total to each data point for tooltip calculation
+	// Add total to each data point for tooltip calculation and ensure colors
 	const dataWithTotal = data.map(item => ({
 		...item,
-		allTotal: total
+		allTotal: total,
+		color: DEFAULT_COLORS[item.grade as keyof typeof DEFAULT_COLORS] || '#999'
 	}));
 
 	return (
