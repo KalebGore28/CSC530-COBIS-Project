@@ -22,9 +22,9 @@ export const studentAcademicInfo = sqliteTable("student_academic_info", {
 	overall_earned_hours: real("overall_earned_hours").notNull(),
 	overall_quality_points: real("overall_quality_points").notNull(),
 	overall_gpa: real("overall_gpa").notNull(),
-  }, (table) => [
+}, (table) => [
 	primaryKey({ columns: [table.mnumber, table.term, table.year] }),
-  ]);
+]);
 
 // Define relationships for DBML generation
 export const studentAcademicInfoRelations = relations(studentAcademicInfo, ({ one }) => ({
