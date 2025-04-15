@@ -97,65 +97,40 @@ export function GradeDistributions({
 	}
 
 	// Transform the data for the chart
-	const chartData = data.map(item => {
-		const termCode = item.term
-		const termName = termCode === "10" ? "Spring" :
-			termCode === "50" ? "Summer" :
-				termCode === "80" ? "Fall" : "Winter"
-		const date = `${termName} ${item.year}`
+	const chartData = React.useMemo(() => {
+		return data.map(item => {
+			const termCode = item.term
+			const termName = termCode === "10" ? "Spring" :
+				termCode === "50" ? "Summer" :
+					termCode === "80" ? "Fall" : "Winter"
+			const date = `${termName} ${item.year}`
 
-		// Ensure all grades have values (including zeros)
-		const distribution = {
-			"A": { count: 0, percentage: 0 },
-			"B": { count: 0, percentage: 0 },
-			"C": { count: 0, percentage: 0 },
-			"D": { count: 0, percentage: 0 },
-			"F": { count: 0, percentage: 0 },
-			"N/A": { count: 0, percentage: 0 },
-			...item.distribution
-		};
+			// Ensure all grades have values (including zeros)
+			const distribution = {
+				"A": { count: 0, percentage: 0 },
+				"B": { count: 0, percentage: 0 },
+				"C": { count: 0, percentage: 0 },
+				"D": { count: 0, percentage: 0 },
+				"F": { count: 0, percentage: 0 },
+				"N/A": { count: 0, percentage: 0 },
+				...item.distribution
+			};
 
-		return {
-			date,
-			termCode,
-			year: item.year,
-			...Object.entries(distribution).reduce((acc, [grade, stats]) => {
-				acc[grade] = stats.percentage
-				return acc
-			}, {} as Record<string, number>)
-		}
-	})
-
-	const filteredData = chartData.filter((item) => {
-		if (timeRange === "all") return true
-
-		const currentDate = new Date()
-		const currentYear = currentDate.getFullYear()
-		const currentMonth = currentDate.getMonth()
-
-		// Determine current term based on month
-		let currentTermCode = "10" // Default to Spring
-		if (currentMonth >= 5 && currentMonth <= 7) currentTermCode = "50" // Summer
-		else if (currentMonth >= 8 && currentMonth <= 11) currentTermCode = "80" // Fall
-		else if (currentMonth >= 0 && currentMonth <= 1) currentTermCode = "90" // Winter
-
-		if (timeRange === "1y") {
-			// Show last 4 terms (1 year)
-			if (item.year === currentYear) {
-				return parseInt(item.termCode) <= parseInt(currentTermCode)
-			} else if (item.year === currentYear - 1) {
-				return parseInt(item.termCode) > parseInt(currentTermCode)
+			return {
+				date,
+				termCode,
+				year: item.year,
+				...Object.entries(distribution).reduce((acc, [grade, stats]) => {
+					acc[grade] = stats.percentage
+					return acc
+				}, {} as Record<string, number>)
 			}
-			return false
-		} else if (timeRange === "2y") {
-			// Show last 8 terms (2 years)
-			return item.year >= currentYear - 1
-		} else if (timeRange === "3y") {
-			// Show last 12 terms (3 years)
-			return item.year >= currentYear - 2
-		}
-		return true
-	})
+		})
+	}, [data])
+
+	const filteredData = React.useMemo(() => {
+		return chartData;
+	}, [chartData]);
 
 	return (
 		<Card>
