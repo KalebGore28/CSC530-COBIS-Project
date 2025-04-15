@@ -191,13 +191,13 @@ const FacultyProfilePage: React.FC = () => {
 		}
 	};
 
-	const fetchGradeDistributions = async () => {
+	const fetchGradeDistributions = async (yearOffset: number = -1) => {
 		try {
+			setLoadingGradeDistributions(true);
+
 			const response = await axios.get<{
 				mnumber: string;
-				start_term: string;
 				start_year: number;
-				end_term: string;
 				end_year: number;
 				gradeTrends: Array<{
 					term: string;
@@ -211,8 +211,14 @@ const FacultyProfilePage: React.FC = () => {
 					}
 				}>
 			}>(`/api/instructor/${mnumber}/trend/grades`, {
+				params: {
+					start_year: currentTerm ? currentTerm.year + yearOffset : undefined,
+					end_year: currentTerm ? currentTerm.year : undefined
+				},
 				withCredentials: true
 			});
+
+			console.log(response.data);
 
 			// Transform the data to match GradeDistributionData type
 			const transformedData = response.data.gradeTrends.map(trend => ({
@@ -221,9 +227,23 @@ const FacultyProfilePage: React.FC = () => {
 				totalStudents: trend.totalStudents,
 				distribution: trend.distribution
 			}));
-			console.log(transformedData);
 
-			setGradeDistributions(transformedData);
+			// Add a baseline data point with all zeros at the start of the time range
+			const baselineData: GradeDistributionData = {
+				term: "10", // Spring term
+				year: response.data.start_year,
+				totalStudents: 0,
+				distribution: {
+					"A": { count: 0, percentage: 0 },
+					"B": { count: 0, percentage: 0 },
+					"C": { count: 0, percentage: 0 },
+					"D": { count: 0, percentage: 0 },
+					"F": { count: 0, percentage: 0 },
+					"N/A": { count: 0, percentage: 0 }
+				}
+			};
+
+			setGradeDistributions([baselineData, ...transformedData]);
 		} catch (error) {
 			toast.error("Failed to load grade distributions")
 			setGradeDistributions([]);
@@ -241,11 +261,16 @@ const FacultyProfilePage: React.FC = () => {
 				await fetchCourses(termData.term, termData.year);
 			}
 			await fetchTermSummaries();
-			await fetchGradeDistributions();
 		};
 
 		loadData();
 	}, [mnumber]);
+
+	useEffect(() => {
+		if (currentTerm) {
+			fetchGradeDistributions();
+		}
+	}, [currentTerm]);
 
 	// Pagination logic
 	const totalPages = Math.ceil(termSummaries.length / itemsPerPage);
@@ -566,7 +591,12 @@ const FacultyProfilePage: React.FC = () => {
 
 					{/* Grade Distributions Tab */}
 					<TabsContent value="grade-distributions">
-						<GradeDistributions data={gradeDistributions} />
+						<GradeDistributions
+							title={`${instructor?.instructorInfo.name}'s Grade Distributions`}
+							description={`Showing grade distribution trends over time for ${instructor?.instructorInfo.name}`}
+							data={gradeDistributions}
+							onTimeRangeChange={fetchGradeDistributions}
+						/>
 					</TabsContent>
 				</Tabs>
 			</div>

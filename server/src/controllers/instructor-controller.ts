@@ -15,7 +15,6 @@ export class InstructorController {
 	static async getInstructors(req: Request, res: Response) {
 		try {
 			const authReq = req as AuthAndPermissionsRequest;
-			const accessService = new InstructorAccessService();
 
 			// Check permissions
 			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
@@ -270,21 +269,19 @@ export class InstructorController {
 	static async getGradeTrends(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
-			const { start_term, start_year, end_term, end_year } = req.query;
+			const { start_year, end_year } = req.query;
 
-			// Validate required parameters
-			if (!start_term || !start_year || !end_term || !end_year) {
+			// Validate required parameters (years are required)
+			if (!start_year || !end_year) {
 				res.status(400).json({
 					error: 'Missing required query parameters',
-					requiredParams: ['start_term', 'start_year', 'end_term', 'end_year']
+					requiredParams: ['start_year', 'end_year']
 				});
 				return;
 			}
 
 			// Parse and validate parameters
-			const startTerm = start_term as string;
 			const startYear = parseInt(start_year as string);
-			const endTerm = end_term as string;
 			const endYear = parseInt(end_year as string);
 
 			if (isNaN(startYear) || isNaN(endYear)) {
@@ -303,15 +300,13 @@ export class InstructorController {
 			// Get grade trends for the specified time period
 			const gradeTrends = await InstructorsService.getGradeTrends(
 				mnumber,
-				{ term: startTerm, year: startYear },
-				{ term: endTerm, year: endYear }
+				{ term: "10", year: startYear }, // Default to Spring term
+				{ term: "80", year: endYear }    // Default to Fall term
 			);
 
 			res.json({
 				mnumber,
-				start_term: startTerm,
 				start_year: startYear,
-				end_term: endTerm,
 				end_year: endYear,
 				gradeTrends
 			});

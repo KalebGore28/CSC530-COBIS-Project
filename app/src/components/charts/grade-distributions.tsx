@@ -44,6 +44,7 @@ interface GradeDistributionsProps {
 	data: GradeDistributionData[]
 	title?: string
 	description?: string
+	onTimeRangeChange?: (offset: number) => void
 }
 
 // Default chart configuration for grade distributions
@@ -77,9 +78,23 @@ const defaultChartConfig = {
 export function GradeDistributions({
 	data,
 	title = "Grade Distribution Trends",
-	description = "Showing grade distribution trends over time"
+	description = "Showing grade distribution trends over time",
+	onTimeRangeChange
 }: GradeDistributionsProps) {
 	const [timeRange, setTimeRange] = React.useState("all")
+
+	// Handle time range change
+	const handleTimeRangeChange = (value: string) => {
+		setTimeRange(value)
+		// Emit the corresponding offset
+		const offset = value === "1y" ? -1 :
+			value === "2y" ? -2 :
+				value === "3y" ? -3 :
+					-2000 // "all" time
+		onTimeRangeChange?.(offset)
+	}
+
+	console.log(data)
 
 	// Transform the data for the chart
 	const chartData = data.map(item => {

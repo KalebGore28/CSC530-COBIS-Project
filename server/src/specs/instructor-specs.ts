@@ -530,16 +530,16 @@ const Error500ResponseSchema = z.object({
 
 // Grade trends query parameters
 const GradeTrendsQuerySchema = z.object({
-	start_term: z.string().openapi({
-		description: 'Starting term code (e.g., "10", "80")',
+	start_term: z.string().optional().openapi({
+		description: 'Starting term code (e.g., "10", "80"). If not provided, defaults to "10" (Spring)',
 		example: '10'
 	}),
 	start_year: z.string().openapi({
 		description: 'Starting year',
 		example: '2023'
 	}),
-	end_term: z.string().openapi({
-		description: 'Ending term code (e.g., "10", "80")',
+	end_term: z.string().optional().openapi({
+		description: 'Ending term code (e.g., "10", "80"). If not provided, defaults to "80" (Fall)',
 		example: '80'
 	}),
 	end_year: z.string().openapi({
