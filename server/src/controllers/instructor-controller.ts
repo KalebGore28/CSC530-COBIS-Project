@@ -270,6 +270,7 @@ export class InstructorController {
 		try {
 			const { mnumber } = req.params;
 			const { start_year, end_year } = req.query;
+			console.log("\n\ngetGradeTrends", mnumber, start_year, end_year, "\n\n")
 
 			// Validate required parameters (years are required)
 			if (!start_year || !end_year) {

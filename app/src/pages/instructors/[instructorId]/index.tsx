@@ -191,7 +191,7 @@ const FacultyProfilePage: React.FC = () => {
 		}
 	};
 
-	const fetchGradeDistributions = async (yearOffset: number = -1) => {
+	const fetchGradeDistributions = async (offset: number) => {
 		try {
 			setLoadingGradeDistributions(true);
 
@@ -212,7 +212,7 @@ const FacultyProfilePage: React.FC = () => {
 				}>
 			}>(`/api/instructor/${mnumber}/trend/grades`, {
 				params: {
-					start_year: currentTerm ? currentTerm.year + yearOffset : undefined,
+					start_year: currentTerm ? currentTerm.year + offset : undefined,
 					end_year: currentTerm ? currentTerm.year : undefined
 				},
 				withCredentials: true
@@ -278,7 +278,7 @@ const FacultyProfilePage: React.FC = () => {
 
 	useEffect(() => {
 		if (currentTerm) {
-			fetchGradeDistributions();
+			fetchGradeDistributions(-2000);
 		}
 	}, [currentTerm]);
 
@@ -605,21 +605,8 @@ const FacultyProfilePage: React.FC = () => {
 							title={`${instructor?.instructorInfo.name}'s Grade Distributions`}
 							description={`Showing grade distribution trends over time for ${instructor?.instructorInfo.name}`}
 							data={gradeDistributions}
-							onTimeRangeChange={(range) => {
-								switch (range) {
-									case 'all':
-										fetchGradeDistributions(-3); // Last 3 years
-										break;
-									case '3y':
-										fetchGradeDistributions(-3);
-										break;
-									case '2y':
-										fetchGradeDistributions(-2);
-										break;
-									case '1y':
-										fetchGradeDistributions(-1);
-										break;
-								}
+							onTimeRangeChange={(offset: number) => {
+								fetchGradeDistributions(offset);
 							}}
 						/>
 					</TabsContent>

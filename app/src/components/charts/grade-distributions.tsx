@@ -151,7 +151,7 @@ export function GradeDistributions({
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
 				</div>
-				<Select value={timeRange} onValueChange={setTimeRange}>
+				<Select value={timeRange} onValueChange={handleTimeRangeChange}>
 					<SelectTrigger
 						className="w-[160px] rounded-lg sm:ml-auto"
 						aria-label="Select time range"
