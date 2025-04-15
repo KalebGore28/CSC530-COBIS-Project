@@ -238,22 +238,8 @@ const FacultyProfilePage: React.FC = () => {
 				};
 			});
 
-			// Add a baseline data point with all zeros at the start of the time range
-			const baselineData: GradeDistributionData = {
-				term: "10", // Spring term
-				year: response.data.start_year,
-				totalStudents: 0,
-				distribution: {
-					"A": { count: 0, percentage: 0 },
-					"B": { count: 0, percentage: 0 },
-					"C": { count: 0, percentage: 0 },
-					"D": { count: 0, percentage: 0 },
-					"F": { count: 0, percentage: 0 },
-					"N/A": { count: 0, percentage: 0 }
-				}
-			};
 
-			setGradeDistributions([baselineData, ...transformedData]);
+			setGradeDistributions(transformedData);
 		} catch (error) {
 			toast.error("Failed to load grade distributions")
 			setGradeDistributions([]);
@@ -278,7 +264,7 @@ const FacultyProfilePage: React.FC = () => {
 
 	useEffect(() => {
 		if (currentTerm) {
-			fetchGradeDistributions(-2000);
+			fetchGradeDistributions(-1);
 		}
 	}, [currentTerm]);
 

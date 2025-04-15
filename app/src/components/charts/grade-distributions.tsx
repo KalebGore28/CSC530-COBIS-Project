@@ -81,7 +81,9 @@ export function GradeDistributions({
 	description = "Showing grade distribution trends over time",
 	onTimeRangeChange
 }: GradeDistributionsProps) {
-	const [timeRange, setTimeRange] = React.useState("all")
+	const [timeRange, setTimeRange] = React.useState("1y")
+
+	console.log(data)
 
 	// Handle time range change
 	const handleTimeRangeChange = (value: string) => {
@@ -90,7 +92,7 @@ export function GradeDistributions({
 		const offset = value === "1y" ? -1 :
 			value === "2y" ? -2 :
 				value === "3y" ? -3 :
-					-2000 // "all" time
+					-5
 		onTimeRangeChange?.(offset)
 	}
 
@@ -101,7 +103,18 @@ export function GradeDistributions({
 			termCode === "50" ? "Summer" :
 				termCode === "80" ? "Fall" : "Winter"
 		const date = `${termName} ${item.year}`
-		const distribution = item.distribution
+
+		// Ensure all grades have values (including zeros)
+		const distribution = {
+			"A": { count: 0, percentage: 0 },
+			"B": { count: 0, percentage: 0 },
+			"C": { count: 0, percentage: 0 },
+			"D": { count: 0, percentage: 0 },
+			"F": { count: 0, percentage: 0 },
+			"N/A": { count: 0, percentage: 0 },
+			...item.distribution
+		};
+
 		return {
 			date,
 			termCode,
@@ -160,7 +173,7 @@ export function GradeDistributions({
 					</SelectTrigger>
 					<SelectContent className="rounded-xl">
 						<SelectItem value="all" className="rounded-lg">
-							All time
+							Last 5 years
 						</SelectItem>
 						<SelectItem value="3y" className="rounded-lg">
 							Last 3 years
