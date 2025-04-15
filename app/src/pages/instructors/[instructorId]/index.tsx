@@ -218,15 +218,25 @@ const FacultyProfilePage: React.FC = () => {
 				withCredentials: true
 			});
 
-			console.log(response.data);
-
 			// Transform the data to match GradeDistributionData type
-			const transformedData = response.data.gradeTrends.map(trend => ({
-				term: trend.term,
-				year: trend.year,
-				totalStudents: trend.totalStudents,
-				distribution: trend.distribution
-			}));
+			const transformedData = response.data.gradeTrends.map(trend => {
+				// If distribution is empty, create a distribution with all zeros
+				const distribution = Object.keys(trend.distribution).length === 0 ? {
+					"A": { count: 0, percentage: 0 },
+					"B": { count: 0, percentage: 0 },
+					"C": { count: 0, percentage: 0 },
+					"D": { count: 0, percentage: 0 },
+					"F": { count: 0, percentage: 0 },
+					"N/A": { count: 0, percentage: 0 }
+				} : trend.distribution;
+
+				return {
+					term: trend.term,
+					year: trend.year,
+					totalStudents: trend.totalStudents,
+					distribution
+				};
+			});
 
 			// Add a baseline data point with all zeros at the start of the time range
 			const baselineData: GradeDistributionData = {
@@ -595,7 +605,22 @@ const FacultyProfilePage: React.FC = () => {
 							title={`${instructor?.instructorInfo.name}'s Grade Distributions`}
 							description={`Showing grade distribution trends over time for ${instructor?.instructorInfo.name}`}
 							data={gradeDistributions}
-							onTimeRangeChange={fetchGradeDistributions}
+							onTimeRangeChange={(range) => {
+								switch (range) {
+									case 'all':
+										fetchGradeDistributions(-3); // Last 3 years
+										break;
+									case '3y':
+										fetchGradeDistributions(-3);
+										break;
+									case '2y':
+										fetchGradeDistributions(-2);
+										break;
+									case '1y':
+										fetchGradeDistributions(-1);
+										break;
+								}
+							}}
 						/>
 					</TabsContent>
 				</Tabs>

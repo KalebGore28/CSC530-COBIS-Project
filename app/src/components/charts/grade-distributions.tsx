@@ -94,8 +94,6 @@ export function GradeDistributions({
 		onTimeRangeChange?.(offset)
 	}
 
-	console.log(data)
-
 	// Transform the data for the chart
 	const chartData = data.map(item => {
 		const termCode = item.term
