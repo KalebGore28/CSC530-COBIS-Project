@@ -36,7 +36,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
-
+import { GradeDistributions, GradeDistributionData } from '@/components/charts/grade-distributions';
 // Types based on API responses
 type InstructorResponse = {
 	mnumber: string;
@@ -114,6 +114,7 @@ const FacultyProfilePage: React.FC = () => {
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
 	const [courses, setCourses] = useState<CourseDetail[]>([]);
 	const [termSummaries, setTermSummaries] = useState<TermSummary[]>([]);
+	const [gradeDistributions, setGradeDistributions] = useState<GradeDistributionData[]>([]);
 
 	useSetBreadcrumb(
 		mnumber as string,
@@ -124,7 +125,7 @@ const FacultyProfilePage: React.FC = () => {
 	const [loadingInstructor, setLoadingInstructor] = useState(true);
 	const [loadingCourses, setLoadingCourses] = useState(true);
 	const [loadingTerms, setLoadingTerms] = useState(true);
-
+	const [loadingGradeDistributions, setLoadingGradeDistributions] = useState(true);
 	// State for pagination
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage] = useState(5);
@@ -190,6 +191,47 @@ const FacultyProfilePage: React.FC = () => {
 		}
 	};
 
+	const fetchGradeDistributions = async () => {
+		try {
+			const response = await axios.get<{
+				mnumber: string;
+				start_term: string;
+				start_year: number;
+				end_term: string;
+				end_year: number;
+				gradeTrends: Array<{
+					term: string;
+					year: number;
+					totalStudents: number;
+					distribution: {
+						[grade: string]: {
+							count: number;
+							percentage: number;
+						}
+					}
+				}>
+			}>(`/api/instructor/${mnumber}/trend/grades`, {
+				withCredentials: true
+			});
+
+			// Transform the data to match GradeDistributionData type
+			const transformedData = response.data.gradeTrends.map(trend => ({
+				term: trend.term,
+				year: trend.year,
+				totalStudents: trend.totalStudents,
+				distribution: trend.distribution
+			}));
+			console.log(transformedData);
+
+			setGradeDistributions(transformedData);
+		} catch (error) {
+			toast.error("Failed to load grade distributions")
+			setGradeDistributions([]);
+		} finally {
+			setLoadingGradeDistributions(false);
+		}
+	};
+
 	// Initial data load
 	useEffect(() => {
 		const loadData = async () => {
@@ -199,6 +241,7 @@ const FacultyProfilePage: React.FC = () => {
 				await fetchCourses(termData.term, termData.year);
 			}
 			await fetchTermSummaries();
+			await fetchGradeDistributions();
 		};
 
 		loadData();
@@ -350,9 +393,10 @@ const FacultyProfilePage: React.FC = () => {
 
 				{/* Additional Information Tabs */}
 				<Tabs defaultValue="current" className="w-full">
-					<TabsList className="grid w-full grid-cols-2">
+					<TabsList className="grid w-full grid-cols-3">
 						<TabsTrigger value="current">Current Term</TabsTrigger>
 						<TabsTrigger value="history">Teaching History</TabsTrigger>
+						<TabsTrigger value="grade-distributions">Grade Distributions</TabsTrigger>
 					</TabsList>
 
 					{/* Current Term Tab */}
@@ -518,6 +562,11 @@ const FacultyProfilePage: React.FC = () => {
 								)}
 							</CardContent>
 						</Card>
+					</TabsContent>
+
+					{/* Grade Distributions Tab */}
+					<TabsContent value="grade-distributions">
+						<GradeDistributions data={gradeDistributions} />
 					</TabsContent>
 				</Tabs>
 			</div>
