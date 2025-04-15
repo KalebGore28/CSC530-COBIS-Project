@@ -263,4 +263,63 @@ export class InstructorController {
 			return;
 		}
 	}
+
+	/**
+	 * Get grade distribution trends for an instructor over a specified time period
+	 */
+	static async getGradeTrends(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const { start_term, start_year, end_term, end_year } = req.query;
+
+			// Validate required parameters
+			if (!start_term || !start_year || !end_term || !end_year) {
+				res.status(400).json({
+					error: 'Missing required query parameters',
+					requiredParams: ['start_term', 'start_year', 'end_term', 'end_year']
+				});
+				return;
+			}
+
+			// Parse and validate parameters
+			const startTerm = start_term as string;
+			const startYear = parseInt(start_year as string);
+			const endTerm = end_term as string;
+			const endYear = parseInt(end_year as string);
+
+			if (isNaN(startYear) || isNaN(endYear)) {
+				res.status(400).json({
+					error: 'Invalid year parameters. Years must be valid numbers.'
+				});
+				return;
+			}
+
+			// Verify instructor exists
+			if (!(await InstructorsService.instructorExists(mnumber))) {
+				res.status(404).json({ error: 'Instructor not found' });
+				return;
+			}
+
+			// Get grade trends for the specified time period
+			const gradeTrends = await InstructorsService.getGradeTrends(
+				mnumber,
+				{ term: startTerm, year: startYear },
+				{ term: endTerm, year: endYear }
+			);
+
+			res.json({
+				mnumber,
+				start_term: startTerm,
+				start_year: startYear,
+				end_term: endTerm,
+				end_year: endYear,
+				gradeTrends
+			});
+			return;
+		} catch (error) {
+			console.error('Error fetching grade trends:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
 }

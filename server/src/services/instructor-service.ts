@@ -1,4 +1,4 @@
-import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL, inArray } from 'drizzle-orm';
+import { eq, and, desc, sql, max, count, avg, sum, gte, lte, SQL, inArray, or, gt, lt } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection';
 import {
 	faculty,
@@ -704,5 +704,95 @@ export class InstructorsService {
 			.where(eq(faculty.mnumber, mnumber));
 
 		return result[0]?.count > 0;
+	}
+
+	/**
+	 * Get grade distribution trends for an instructor over a specified time period
+	 */
+	static async getGradeTrends(
+		mnumber: string,
+		start: { term: string; year: number },
+		end: { term: string; year: number }
+	) {
+		const db = (await getDbConnection()).orm;
+
+		// Get all terms where instructor taught within the date range
+		const instructorTerms = await db
+			.selectDistinct({
+				term: instructorCourses.term,
+				year: instructorCourses.year
+			})
+			.from(instructorCourses)
+			.where(
+				and(
+					eq(instructorCourses.mnumber, mnumber),
+					// Start date condition
+					or(
+						gt(instructorCourses.year, start.year),
+						and(
+							eq(instructorCourses.year, start.year),
+							gte(instructorCourses.term, start.term)
+						)
+					),
+					// End date condition
+					or(
+						lt(instructorCourses.year, end.year),
+						and(
+							eq(instructorCourses.year, end.year),
+							lte(instructorCourses.term, end.term)
+						)
+					)
+				)
+			)
+			.orderBy(instructorCourses.year, instructorCourses.term);
+
+		// Get grade distributions for each term
+		const gradeTrends = await Promise.all(
+			instructorTerms.map(async ({ term, year }) => {
+				const gradeDistribution = await db
+					.select({
+						grade: studentCourses.final_grade,
+						count: count()
+					})
+					.from(instructorCourses)
+					.innerJoin(
+						studentCourses,
+						and(
+							eq(instructorCourses.crn, studentCourses.crn),
+							eq(instructorCourses.term, studentCourses.term),
+							eq(instructorCourses.year, studentCourses.year)
+						)
+					)
+					.where(
+						and(
+							eq(instructorCourses.mnumber, mnumber),
+							eq(instructorCourses.term, term),
+							eq(instructorCourses.year, year)
+						)
+					)
+					.groupBy(studentCourses.final_grade);
+
+				// Calculate total students and percentages
+				const totalStudents = gradeDistribution.reduce((sum, g) => sum + g.count, 0);
+				const distribution = gradeDistribution.reduce((acc, g) => {
+					// Handle null grades by using 'N/A' as the key
+					const gradeKey = g.grade || 'N/A';
+					acc[gradeKey] = {
+						count: g.count,
+						percentage: (g.count / totalStudents) * 100
+					};
+					return acc;
+				}, {} as Record<string, { count: number; percentage: number }>);
+
+				return {
+					term,
+					year,
+					totalStudents,
+					distribution
+				};
+			})
+		);
+
+		return gradeTrends;
 	}
 }

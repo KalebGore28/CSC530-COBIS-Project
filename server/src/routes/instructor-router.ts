@@ -59,4 +59,10 @@ router.get('/:mnumber/class-roster',
 	InstructorController.getClassRoster
 );
 
+// Grade distribution trends
+router.get('/:mnumber/trend/grades',
+	checkInstructorAccess,
+	InstructorController.getGradeTrends
+);
+
 export default router;
