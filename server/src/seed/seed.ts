@@ -1,6 +1,5 @@
 // src/db/seed.ts
 import { getDbConnection } from '../db/connection';
-import { seedPermissions } from './permissions';
 import { seedDatabase } from "./csvs";
 
 // Uncomment to test in-memory DB
@@ -9,9 +8,6 @@ import { seedDatabase } from "./csvs";
 (async () => {
     // Get DB connection (in-memory for 'test', file-based otherwise)
     const { db, orm } = await getDbConnection();
-
-    // Seed permissions dynamically
-    await seedPermissions(orm);
 
     // Seed additional data from CSV (assumed to handle other tables)
     await seedDatabase();

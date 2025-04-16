@@ -125,7 +125,6 @@ const FacultyProfilePage: React.FC = () => {
 	const [loadingInstructor, setLoadingInstructor] = useState(true);
 	const [loadingCourses, setLoadingCourses] = useState(true);
 	const [loadingTerms, setLoadingTerms] = useState(true);
-	const [loadingGradeDistributions, setLoadingGradeDistributions] = useState(true);
 	// State for pagination
 	const [currentPage, setCurrentPage] = useState(1);
 	const [itemsPerPage] = useState(5);
@@ -193,8 +192,6 @@ const FacultyProfilePage: React.FC = () => {
 
 	const fetchGradeDistributions = async (offset: number) => {
 		try {
-			setLoadingGradeDistributions(true);
-
 			const response = await axios.get<{
 				mnumber: string;
 				start_year: number;
@@ -243,8 +240,6 @@ const FacultyProfilePage: React.FC = () => {
 		} catch (error) {
 			toast.error("Failed to load grade distributions")
 			setGradeDistributions([]);
-		} finally {
-			setLoadingGradeDistributions(false);
 		}
 	};
 
