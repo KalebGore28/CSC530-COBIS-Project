@@ -11,7 +11,7 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 	year: int("year").notNull(),
 	crn: text("crn").notNull(),
 	course_subject: text("course_subject").notNull(),
-	course_number: text("course_number").notNull(),
+	course_number: int("course_number").notNull(),
 	course_suffix: text("course_suffix").notNull().default(""),
 	course_section: text("course_section").notNull().default(""),
 	role: text("role").notNull().default("Instructor"),
