@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
 
 import {
 	Card,
@@ -83,8 +83,6 @@ export function GradeDistributions({
 }: GradeDistributionsProps) {
 	const [timeRange, setTimeRange] = React.useState("1y")
 
-	console.log(data)
-
 	// Handle time range change
 	const handleTimeRangeChange = (value: string) => {
 		setTimeRange(value)
@@ -139,87 +137,109 @@ export function GradeDistributions({
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
 				</div>
-				<Select value={timeRange} onValueChange={handleTimeRangeChange}>
-					<SelectTrigger
-						className="w-[160px] rounded-lg sm:ml-auto"
-						aria-label="Select time range"
-					>
-						<SelectValue placeholder="All time" />
-					</SelectTrigger>
-					<SelectContent className="rounded-xl">
-						<SelectItem value="all" className="rounded-lg">
-							Last 5 years
-						</SelectItem>
-						<SelectItem value="3y" className="rounded-lg">
-							Last 3 years
-						</SelectItem>
-						<SelectItem value="2y" className="rounded-lg">
-							Last 2 years
-						</SelectItem>
-						<SelectItem value="1y" className="rounded-lg">
-							Last year
-						</SelectItem>
-					</SelectContent>
-				</Select>
+				<div className="flex items-center gap-2">
+					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
+						<SelectTrigger
+							className="w-[160px] rounded-lg sm:ml-auto"
+							aria-label="Select time range"
+						>
+							<SelectValue placeholder="All time" />
+						</SelectTrigger>
+						<SelectContent className="rounded-xl">
+							<SelectItem value="all" className="rounded-lg">
+								Last 5 years
+							</SelectItem>
+							<SelectItem value="3y" className="rounded-lg">
+								Last 3 years
+							</SelectItem>
+							<SelectItem value="2y" className="rounded-lg">
+								Last 2 years
+							</SelectItem>
+							<SelectItem value="1y" className="rounded-lg">
+								Last year
+							</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
 			</CardHeader>
 			<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-				<ChartContainer
-					config={defaultChartConfig}
-					className="aspect-auto h-[250px] w-full"
-				>
-					<AreaChart data={filteredData}>
-						<defs>
-							{Object.entries(defaultChartConfig).map(([grade, config]) => (
-								<linearGradient
-									key={grade}
-									id={`fill${grade}`}
-									x1="0"
-									y1="0"
-									x2="0"
-									y2="1"
+				<div className="h-[400px]">
+					<div className="w-full h-full">
+						<ChartContainer
+							config={defaultChartConfig}
+							className="w-full h-full"
+						>
+							<ResponsiveContainer width="100%" height="100%">
+								<AreaChart
+									data={filteredData}
+									margin={{
+										top: 20,
+										right: 20,
+										left: 0,
+										bottom: 20
+									}}
 								>
-									<stop
-										offset="5%"
-										stopColor={config.color}
-										stopOpacity={0.8}
+									<defs>
+										{Object.entries(defaultChartConfig).map(([grade, config]) => (
+											<linearGradient
+												key={grade}
+												id={`fill${grade}`}
+												x1="0"
+												y1="0"
+												x2="0"
+												y2="1"
+											>
+												<stop
+													offset="5%"
+													stopColor={config.color}
+													stopOpacity={0.8}
+												/>
+												<stop
+													offset="95%"
+													stopColor={config.color}
+													stopOpacity={0.1}
+												/>
+											</linearGradient>
+										))}
+									</defs>
+									<CartesianGrid vertical={false} />
+									<XAxis
+										dataKey="date"
+										tickLine={false}
+										axisLine={false}
+										tickMargin={8}
+										minTickGap={32}
 									/>
-									<stop
-										offset="95%"
-										stopColor={config.color}
-										stopOpacity={0.1}
+									<YAxis
+										tickLine={false}
+										axisLine={false}
+										tickFormatter={(value) => `${value}%`}
+										domain={[0, 100]}
 									/>
-								</linearGradient>
-							))}
-						</defs>
-						<CartesianGrid vertical={false} />
-						<XAxis
-							dataKey="date"
-							tickLine={false}
-							axisLine={false}
-							tickMargin={8}
-							minTickGap={32}
-						/>
-						<ChartTooltip
-							cursor={false}
-							content={
-								<ChartTooltipContent
-									indicator="dot"
-								/>
-							}
-						/>
-						{Object.entries(defaultChartConfig).map(([grade, config]) => (
-							<Area
-								key={grade}
-								dataKey={grade}
-								type="natural"
-								fill={`url(#fill${grade})`}
-								stroke={config.color}
-								stackId="a"
-							/>
-						))}
-						<ChartLegend content={<ChartLegendContent />} />
-					</AreaChart>
-				</ChartContainer>
+									<ChartTooltip
+										cursor={false}
+										content={
+											<ChartTooltipContent
+												indicator="dot"
+											/>
+										}
+									/>
+									{Object.entries(defaultChartConfig).map(([grade, config]) => (
+										<Area
+											key={grade}
+											dataKey={grade}
+											type="natural"
+											fill={`url(#fill${grade})`}
+											stroke={config.color}
+											stackId="a"
+										/>
+									))}
+									<ChartLegend content={<ChartLegendContent />} />
+								</AreaChart>
+							</ResponsiveContainer>
+						</ChartContainer>
+					</div>
+				</div>
 			</CardContent>
 		</Card>
 	)
