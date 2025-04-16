@@ -43,12 +43,11 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 // Default grade colors if not provided
 const DEFAULT_COLORS = {
-	'A': 'hsl(var(--chart-1))',  // Green
-	'B': 'hsl(var(--chart-2))',  // Light Green
-	'C': 'hsl(var(--chart-3))',  // Amber
-	'D': 'hsl(var(--chart-4))',  // Orange
-	'F': 'hsl(var(--chart-5))',  // Red
-	'W': 'hsl(var(--chart-5))',  // Gray
+	'A': 'var(--chart-1)',
+	'B': 'var(--chart-2)',
+	'C': 'var(--chart-3)',
+	'D': 'var(--chart-4)',
+	'F': 'var(--chart-5)',
 };
 
 export function PieChartDonut({

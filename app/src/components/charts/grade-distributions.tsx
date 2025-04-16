@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 
 import {
 	Card,
@@ -51,27 +51,27 @@ interface GradeDistributionsProps {
 const defaultChartConfig = {
 	A: {
 		label: "A",
-		color: "hsl(var(--chart-1))",
+		color: "var(--chart-1)",
 	},
 	B: {
 		label: "B",
-		color: "hsl(var(--chart-2))",
+		color: "var(--chart-2)",
 	},
 	C: {
 		label: "C",
-		color: "hsl(var(--chart-3))",
+		color: "var(--chart-3)",
 	},
 	D: {
 		label: "D",
-		color: "hsl(var(--chart-4))",
+		color: "var(--chart-4)",
 	},
 	F: {
 		label: "F",
-		color: "hsl(var(--chart-5))",
+		color: "var(--chart-5)",
 	},
 	"N/A": {
 		label: "N/A",
-		color: "hsl(var(--chart-6))",
+		color: "var(--chart-6)",
 	},
 } satisfies ChartConfig
 
@@ -169,74 +169,72 @@ export function GradeDistributions({
 							config={defaultChartConfig}
 							className="w-full h-full"
 						>
-							<ResponsiveContainer width="100%" height="100%">
-								<AreaChart
-									data={filteredData}
-									margin={{
-										top: 20,
-										right: 20,
-										left: 0,
-										bottom: 20
-									}}
-								>
-									<defs>
-										{Object.entries(defaultChartConfig).map(([grade, config]) => (
-											<linearGradient
-												key={grade}
-												id={`fill${grade}`}
-												x1="0"
-												y1="0"
-												x2="0"
-												y2="1"
-											>
-												<stop
-													offset="5%"
-													stopColor={config.color}
-													stopOpacity={0.8}
-												/>
-												<stop
-													offset="95%"
-													stopColor={config.color}
-													stopOpacity={0.1}
-												/>
-											</linearGradient>
-										))}
-									</defs>
-									<CartesianGrid vertical={false} />
-									<XAxis
-										dataKey="date"
-										tickLine={false}
-										axisLine={false}
-										tickMargin={8}
-										minTickGap={32}
-									/>
-									<YAxis
-										tickLine={false}
-										axisLine={false}
-										tickFormatter={(value) => `${value}%`}
-										domain={[0, 100]}
-									/>
-									<ChartTooltip
-										cursor={false}
-										content={
-											<ChartTooltipContent
-												indicator="dot"
-											/>
-										}
-									/>
+							<AreaChart
+								data={filteredData}
+								margin={{
+									top: 20,
+									right: 20,
+									left: 0,
+									bottom: 20
+								}}
+							>
+								<defs>
 									{Object.entries(defaultChartConfig).map(([grade, config]) => (
-										<Area
+										<linearGradient
 											key={grade}
-											dataKey={grade}
-											type="natural"
-											fill={`url(#fill${grade})`}
-											stroke={config.color}
-											stackId="a"
-										/>
+											id={`fill${grade}`}
+											x1="0"
+											y1="0"
+											x2="0"
+											y2="1"
+										>
+											<stop
+												offset="5%"
+												stopColor={config.color}
+												stopOpacity={0.8}
+											/>
+											<stop
+												offset="95%"
+												stopColor={config.color}
+												stopOpacity={0.1}
+											/>
+										</linearGradient>
 									))}
-									<ChartLegend content={<ChartLegendContent />} />
-								</AreaChart>
-							</ResponsiveContainer>
+								</defs>
+								<CartesianGrid vertical={false} />
+								<XAxis
+									dataKey="date"
+									tickLine={false}
+									axisLine={false}
+									tickMargin={8}
+									minTickGap={32}
+								/>
+								<YAxis
+									tickLine={false}
+									axisLine={false}
+									tickFormatter={(value) => `${value}%`}
+									domain={[0, 100]}
+								/>
+								<ChartTooltip
+									cursor={false}
+									content={
+										<ChartTooltipContent
+											indicator="dot"
+										/>
+									}
+								/>
+								{Object.entries(defaultChartConfig).map(([grade, config]) => (
+									<Area
+										key={grade}
+										dataKey={grade}
+										type="natural"
+										fill={`url(#fill${grade})`}
+										stroke={config.color}
+										stackId="a"
+									/>
+								))}
+								<ChartLegend content={<ChartLegendContent />} />
+							</AreaChart>
 						</ChartContainer>
 					</div>
 				</div>
