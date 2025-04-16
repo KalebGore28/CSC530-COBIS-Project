@@ -27,7 +27,6 @@ const URL_STORAGE_KEY = 'initial_app_url';
 function saveInitialUrl(url: string) {
   try {
     sessionStorage.setItem(URL_STORAGE_KEY, url);
-    console.log('URL saved to sessionStorage:', url);
   } catch (e) {
     console.error('Failed to save URL to sessionStorage:', e);
   }
@@ -36,7 +35,6 @@ function saveInitialUrl(url: string) {
 function getInitialUrl(): string | null {
   try {
     const url = sessionStorage.getItem(URL_STORAGE_KEY);
-    console.log('Retrieved URL from sessionStorage:', url);
     return url;
   } catch (e) {
     console.error('Failed to get URL from sessionStorage:', e);
@@ -46,7 +44,6 @@ function getInitialUrl(): string | null {
 
 function clearInitialUrl() {
   try {
-    console.log('Clearing saved URL from sessionStorage');
     sessionStorage.removeItem(URL_STORAGE_KEY);
   } catch (e) {
     console.error('Failed to clear URL from sessionStorage:', e);
@@ -68,7 +65,6 @@ export const App: React.FC = () => {
       if (location.pathname !== '/login' &&
         location.pathname !== '/dashboard' &&
         location.pathname !== '/') {
-        console.log('Saving initial URL for later:', location.pathname);
         saveInitialUrl(location.pathname);
       }
       setInitialUrlSaved(true);
@@ -80,7 +76,6 @@ export const App: React.FC = () => {
     if (session && !isLoading && location.pathname === '/dashboard' && !redirectAttempted.current) {
       const savedUrl = getInitialUrl();
       if (savedUrl && savedUrl !== '/dashboard' && savedUrl !== '/') {
-        console.log('Attempting direct navigation to saved URL:', savedUrl);
         redirectAttempted.current = true;
         clearInitialUrl();
 
@@ -103,13 +98,11 @@ export const App: React.FC = () => {
 
   // The loading screen is shown via the LoadingProvider
   if (isLoading) {
-    console.log('Loading session...');
     return <></>;
   }
 
   // Now we know loading is complete, we can safely check session
   if (!session) {
-    console.log('Session not found, redirecting to login...');
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
@@ -127,8 +120,6 @@ export const App: React.FC = () => {
   if (!session.info.mnumber) {
     return <OnboardingPage refetchSession={refetchSession} />;
   }
-
-  console.log('Session found, rendering app...');
 
   return (
     <Routes>
