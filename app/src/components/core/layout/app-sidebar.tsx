@@ -87,34 +87,43 @@ export function AppSidebar({ ...props }) {
 	const isExpanded = isMobile ? openMobile : open;
 
 	const filteredNavMain = useMemo(() => {
-		if (!selectedRole) {
-			return []; // No role selected, so no items to show
+		// Ensure role and permissions are loaded
+		if (!selectedRole || !routePermissions) {
+			return [];
 		}
+		const roleName = selectedRole.name;
+
 		return data.navMain
 			.map((item) => {
-				// Handle items with sub-items (e.g., "Reports", "COBIS Tools")
+				// Check if the main item's URL itself is allowed
+				const mainPathAllowed = routePermissions[item.url]?.includes(roleName) ?? false;
+
+				// If it has sub-items (nested menu)
 				if (item.items) {
-					const filteredSubItems = item.items.filter((subItem) => {
-						const allowedRoles = routePermissions[subItem.url] || [];
-						return allowedRoles.includes(selectedRole.name);
-					});
-					// Include the main item if its url is allowed or if it has accessible sub-items
-					const mainAllowed = routePermissions[item.url]?.includes(selectedRole.name) || false;
-					if (filteredSubItems.length > 0 || mainAllowed) {
-						return { ...item, items: filteredSubItems };
+					// Filter sub-items based on their specific permissions
+					const accessibleSubItems = item.items.filter(subItem =>
+						routePermissions[subItem.url]?.includes(roleName) ?? false
+					);
+
+					// Show the parent item if:
+					// 1. The parent item's own URL is directly accessible OR
+					// 2. Any of its sub-items are accessible
+					if (mainPathAllowed || accessibleSubItems.length > 0) {
+						// Return the parent item, but only include the sub-items that are accessible
+						return { ...item, items: accessibleSubItems };
 					}
+					// If neither parent nor any child is accessible, hide the parent item
 					return null;
 				} else {
-					// Handle items without sub-items (e.g., "Dashboard")
-					const allowedRoles = routePermissions[item.url] || [];
-					if (allowedRoles.includes(selectedRole.name)) {
-						return item;
-					}
-					return null;
+					// If it's a top-level item without sub-items
+					// Show it only if its URL is directly accessible
+					return mainPathAllowed ? item : null;
 				}
 			})
-			.filter((item) => item !== null);
-	}, [selectedRole, routePermissions]);
+			// Remove any null entries resulting from filtering
+			.filter((item): item is NonNullable<typeof item> => item !== null);
+
+	}, [selectedRole, routePermissions]); // Dependencies for recalculation
 
 
 	return (

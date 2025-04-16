@@ -41,14 +41,12 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
 		"/dashboard": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
-		"/reports": ["Faculty", "Advisor", "COBIS Admin"],
-		"/reports/students": ["Faculty", "Advisor", "COBIS Admin"],
 		"/cobis-tools": ["COBIS Admin"],
 		"/cobis-tools/query-builder": ["COBIS Admin"],
 		"/cobis-tools/imports": ["COBIS Admin"],
 		"/students/lookup": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/instructors": ["Department Chair", "Administrator", "COBIS Admin"],
-		"/class-roster": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
+		"/class-roster": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
 	useEffect(() => {

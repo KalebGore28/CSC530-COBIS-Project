@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+
+// Page Imports
 import Dashboard from './pages/Dashboard';
 import LoginPage from './pages/auth/login';
 import Layout from './Layout';
@@ -9,20 +11,126 @@ import CsvImport from './pages/CsvImport';
 import WaitingPage from './pages/auth/waiting';
 import OnboardingPage from './pages/auth/onboarding';
 import StudentLookup from './pages/StudentLookup';
-
 import ClassRosterPage from './pages/ClassRoster';
-
-// Importing the instructor pages
 import InstructorsPage from './pages/instructors';
 import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 
+// Context/Provider Imports
 import { useSession } from '@/context/session';
 import { useLoading } from '@/providers/loading-provider';
+import { useRoleContext } from '@/context/role'; // Import useRoleContext
 
-// Create a utility function to save and restore the initial URL
+// Import your new ProtectedRoute component
+import ProtectedRoute from '@/components/auth/ProtectedRoute'; // Adjust path if needed
+
+// Keep URL restoration logic (utility functions and initial hooks)
 const URL_STORAGE_KEY = 'initial_app_url';
+// ... (saveInitialUrl, getInitialUrl, clearInitialUrl functions remain the same)
+
+export const App: React.FC = () => {
+  const { session, isLoading, refetchSession } = useSession();
+  const { showLoading, hideLoading } = useLoading();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [initialUrlSaved, setInitialUrlSaved] = useState(false);
+  const redirectAttempted = useRef(false);
+  const { routePermissions } = useRoleContext();
+
+
+  // --- Keep Existing Hooks for loading, URL restoration ---
+  useEffect(() => {
+    if (!initialUrlSaved) {
+      if (location.pathname !== '/login' && location.pathname !== '/dashboard' && location.pathname !== '/') {
+        saveInitialUrl(location.pathname);
+      }
+      setInitialUrlSaved(true);
+    }
+  }, [location.pathname, initialUrlSaved]);
+
+  useEffect(() => {
+    if (session && !isLoading && location.pathname === '/dashboard' && !redirectAttempted.current) {
+      const savedUrl = getInitialUrl();
+      if (savedUrl && savedUrl !== '/dashboard' && savedUrl !== '/') {
+        redirectAttempted.current = true;
+        clearInitialUrl();
+        setTimeout(() => { navigate(savedUrl, { replace: true }); }, 0);
+      }
+    }
+  }, [session, isLoading, location.pathname, navigate]);
+
+  useEffect(() => {
+    if (isLoading) { showLoading('Loading session...'); }
+    else { hideLoading(); }
+  }, [isLoading, showLoading, hideLoading]);
+
+  // --- Auth Flow ---
+  if (isLoading) return <></>; // Or loading component
+
+  if (!session) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="*" element={<Navigate to="/login" state={{ from: location }} replace />} />
+      </Routes>
+    );
+  }
+
+  if (!session.info.isEnabled) return <WaitingPage />;
+  if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
+
+  // --- Application Routes with Protection ---
+  return (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+
+        <Route path="dashboard" element={
+          <Dashboard />
+        } />
+
+
+        {/* Class Roster: Use permissions from context */}
+        <Route path="class-roster" element={
+          <ProtectedRoute allowedRoles={routePermissions['/class-roster'] || []}>
+            <ClassRosterPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Instructor Pages: Use permissions from context */}
+        <Route element={<ProtectedRoute allowedRoles={routePermissions['/instructors'] || []} />}>
+          <Route path="instructors" element={<InstructorsPage />} />
+          <Route path="instructors/:mnumber" element={<InstructorPage />} />
+          <Route path="instructors/:mnumber/:yearTerm" element={<InstructorTermDetails />} />
+          <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<InstructorRoster />} />
+        </Route>
+
+        {/* Student Lookup: Use permissions from context */}
+        <Route path="students/lookup" element={
+          <ProtectedRoute allowedRoles={routePermissions['/students/lookup'] || []}>
+            <StudentLookup />
+          </ProtectedRoute>
+        } />
+
+        {/* COBIS Tools: Use permissions from context */}
+        <Route element={<ProtectedRoute allowedRoles={routePermissions['/cobis-tools'] || []} />}>
+          <Route path="cobis-tools" element={<CobisTools />}>
+            <Route path="query-builder" element={<QueryBuilderPage />} />
+            <Route path="imports" element={<CsvImport />} />
+          </Route>
+        </Route>
+
+        {/* Catch-all inside Layout */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Route>
+
+      {/* Standalone Routes */}
+      <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
+  );
+};
 
 function saveInitialUrl(url: string) {
   try {
@@ -49,107 +157,3 @@ function clearInitialUrl() {
     console.error('Failed to clear URL from sessionStorage:', e);
   }
 }
-
-export const App: React.FC = () => {
-  const { session, isLoading, refetchSession } = useSession();
-  const { showLoading, hideLoading } = useLoading();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [initialUrlSaved, setInitialUrlSaved] = useState(false);
-  const redirectAttempted = useRef(false);
-
-  // Capture and save the initial URL on first load
-  useEffect(() => {
-    if (!initialUrlSaved) {
-      // Don't save login or default routes
-      if (location.pathname !== '/login' &&
-        location.pathname !== '/dashboard' &&
-        location.pathname !== '/') {
-        saveInitialUrl(location.pathname);
-      }
-      setInitialUrlSaved(true);
-    }
-  }, [location.pathname, initialUrlSaved]);
-
-  // Check if we should restore an initial deep-linked URL (after auth)
-  useEffect(() => {
-    if (session && !isLoading && location.pathname === '/dashboard' && !redirectAttempted.current) {
-      const savedUrl = getInitialUrl();
-      if (savedUrl && savedUrl !== '/dashboard' && savedUrl !== '/') {
-        redirectAttempted.current = true;
-        clearInitialUrl();
-
-        // Use setTimeout to ensure this happens after current render cycle
-        setTimeout(() => {
-          navigate(savedUrl, { replace: true });
-        }, 0);
-      }
-    }
-  }, [session, isLoading, location.pathname, navigate]);
-
-  // Use useEffect to handle loading state changes
-  useEffect(() => {
-    if (isLoading) {
-      showLoading('Loading session...');
-    } else {
-      hideLoading();
-    }
-  }, [isLoading, showLoading, hideLoading]);
-
-  // The loading screen is shown via the LoadingProvider
-  if (isLoading) {
-    return <></>;
-  }
-
-  // Now we know loading is complete, we can safely check session
-  if (!session) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
-      </Routes>
-    );
-  }
-
-  // If account is not enabled, show waiting page
-  if (!session.info.isEnabled) {
-    return <WaitingPage />;
-  }
-
-  // If account doesn't have a mnumber, show onboarding page
-  if (!session.info.mnumber) {
-    return <OnboardingPage refetchSession={refetchSession} />;
-  }
-
-  return (
-    <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="class-roster" element={<ClassRosterPage />} />
-
-        {/* Instructor Pages - use relative paths (no leading slash) */}
-        <Route path="instructors" element={<InstructorsPage />} />
-        <Route path="instructors/:mnumber" element={<InstructorPage />} />
-        <Route path="instructors/:mnumber/:yearTerm" element={<InstructorTermDetails />} />
-        <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<InstructorRoster />} />
-
-        {/* Student Pages - use relative paths (no leading slash) */}
-        <Route path="students/lookup" element={<StudentLookup />} />
-        {/* <Route path="students/:mnumber" element={<StudentPage />} /> */}
-
-        {/* COBIS Tools */}
-        <Route path="cobis-tools" element={<CobisTools />}>
-          <Route path="query-builder" element={<QueryBuilderPage />} />
-          <Route path="imports" element={<CsvImport />} />
-        </Route>
-
-        {/* Catch-all route */}
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Route>
-
-      <Route path="/login" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
-  );
-};
