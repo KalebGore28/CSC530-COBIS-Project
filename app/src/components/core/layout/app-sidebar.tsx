@@ -7,6 +7,7 @@ import {
 	ScanSearch,
 	PersonStanding,
 	BookOpen,
+	Telescope,
 } from "lucide-react"
 
 import { NavMain } from "@/components/core/navigation/nav-main"
@@ -52,14 +53,6 @@ const data = {
 			url: "/class-roster",
 			icon: BookOpen,
 		},
-		// {
-		// 	title: "Reports",
-		// 	url: "/reports",
-		// 	icon: NotepadText,
-		// 	items: [
-		// 		{ title: "Student Reports", url: "/reports/students" },
-		// 	],
-		// },
 		{
 			title: "COBIS Tools",
 			url: "/cobis-tools",
@@ -70,9 +63,9 @@ const data = {
 			],
 		},
 		{
-			title: "Test Page",
-			url: "/test-page",
-			icon: TerminalSquareIcon,
+			title: "Advisor Page",
+			url: "/advisor-page",
+			icon: Telescope,
 		}
 	],
 }

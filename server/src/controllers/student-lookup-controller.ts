@@ -13,8 +13,6 @@ export class StudentLookupController {
 			// Extract and validate query parameters
 			const { academicLevels, gpaMin, gpaMax, majors, minors, coursesTaken, coursesNotTaken, gradeFilters } = req.query;
 
-			console.log('Query parameters:', req.query);
-
 			// Parse query parameters into usable formats
 			const academicLevelsArray = typeof academicLevels === 'string' ? academicLevels.split(',') : [];
 			const gpaMinNum = typeof gpaMin === 'string' ? parseFloat(gpaMin) : undefined;

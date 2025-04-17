@@ -32,7 +32,7 @@ interface ModalProps {
  * @param footer Optional footer content (typically action buttons)
  * @param size Modal size variant: 'sm', 'md', 'lg', or 'xl'
  */
-const Modal: React.FC<ModalProps> = ({
+export const Modal: React.FC<ModalProps> = ({
 	isOpen,
 	onClose,
 	title,

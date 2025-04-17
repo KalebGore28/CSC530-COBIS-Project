@@ -16,6 +16,7 @@ import InstructorsPage from './pages/instructors';
 import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
+import AdvisorPage from './pages/AdvisorPage';
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
@@ -121,6 +122,15 @@ export const App: React.FC = () => {
             <Route path="imports" element={<CsvImport />} />
           </Route>
         </Route>
+
+        {/* Advisor Page: Use permissions from context */}
+        <Route path="advisor-page" element={
+          <ProtectedRoute allowedRoles={routePermissions['/advisor-page'] || []}>
+            <AdvisorPage />
+          </ProtectedRoute>
+        } />
+
+        {/* Login Redirect */}
 
         {/* Catch-all inside Layout */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

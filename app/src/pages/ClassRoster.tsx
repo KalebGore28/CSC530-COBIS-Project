@@ -6,6 +6,8 @@ import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
 import ClassRosterComponent, { Student } from "@/components/features/roster/roster";
 import { Separator } from "@/components/ui/separator";
+import { Modal } from "@/components/modals/modal";
+import StudentPage from "@/components/student-info";
 
 // Modified ClassRoster component that will fetch data from API
 const ClassRosterPage: React.FC = () => {
@@ -104,6 +106,8 @@ const ClassRosterPage: React.FC = () => {
 							/>
 						</>
 					)}
+					{/* Student Info Modal - only shown when a student is selected */}
+					<StudentPage mNumber="200" />
 				</>
 			)}
 		</div>

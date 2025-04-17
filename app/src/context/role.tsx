@@ -47,6 +47,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/students/lookup": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/instructors": ["Department Chair", "Administrator", "COBIS Admin"],
 		"/class-roster": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
+		"/advisor-page": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
 	useEffect(() => {
