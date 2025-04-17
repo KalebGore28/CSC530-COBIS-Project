@@ -5,7 +5,7 @@ import { students } from "./students";
 import { terms } from "./terms";
 
 export const studentAdvisors = sqliteTable("student_advisors", {
-	student_mnumber: text("student_mnumber").notNull().references(() => students.mnumber),
+	student_mnumber: text("student_mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	advisor_mnumber: text("advisor_mnumber").notNull(),

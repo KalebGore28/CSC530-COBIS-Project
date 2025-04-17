@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "6",
-      "when": 1743806117042,
-      "tag": "0000_busy_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1744036024141,
-      "tag": "0001_warm_shockwave",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1744292756534,
-      "tag": "0002_late_kang",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1744295287905,
-      "tag": "0003_military_bruce_banner",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1744473922651,
-      "tag": "0004_brief_luke_cage",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1744827826214,
-      "tag": "0005_cold_sauron",
+      "when": 1744857027358,
+      "tag": "0000_dear_changeling",
       "breakpoints": true
     }
   ]

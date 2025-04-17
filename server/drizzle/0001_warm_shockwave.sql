@@ -1,1 +1,0 @@
-ALTER TABLE `instructor_courses` ADD `course_section` text DEFAULT '' NOT NULL;

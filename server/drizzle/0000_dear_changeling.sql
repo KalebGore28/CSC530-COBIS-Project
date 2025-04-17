@@ -60,10 +60,11 @@ CREATE TABLE `instructor_courses` (
 	`year` integer NOT NULL,
 	`crn` text NOT NULL,
 	`course_subject` text NOT NULL,
-	`course_number` text NOT NULL,
+	`course_number` integer NOT NULL,
 	`course_suffix` text DEFAULT '' NOT NULL,
+	`course_section` text DEFAULT '' NOT NULL,
 	`role` text DEFAULT 'Instructor' NOT NULL,
-	PRIMARY KEY(`mnumber`, `term`, `crn`),
+	PRIMARY KEY(`mnumber`, `term`, `year`, `crn`),
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`course_subject`,`course_number`,`course_suffix`) REFERENCES `courses`(`subject`,`number`,`suffix`) ON UPDATE no action ON DELETE no action
 );
@@ -72,8 +73,8 @@ CREATE TABLE `faculty` (
 	`mnumber` text PRIMARY KEY NOT NULL,
 	`first_name` text NOT NULL,
 	`last_name` text NOT NULL,
-	`college` text,
-	`department` text,
+	`college` text DEFAULT '0',
+	`department` text DEFAULT '0000',
 	FOREIGN KEY (`college`) REFERENCES `colleges`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`department`) REFERENCES `departments`(`code`) ON UPDATE no action ON DELETE no action
 );
@@ -104,12 +105,6 @@ CREATE TABLE `overrides` (
 CREATE TABLE `part_of_term` (
 	`code` text PRIMARY KEY NOT NULL,
 	`description` text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `permissions` (
-	`table_name` text NOT NULL,
-	`column_name` text NOT NULL,
-	PRIMARY KEY(`table_name`, `column_name`)
 );
 --> statement-breakpoint
 CREATE TABLE `previous_colleges` (
@@ -144,15 +139,6 @@ CREATE TABLE `registration_status` (
 	`description` text NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `role_permissions` (
-	`role_id` integer NOT NULL,
-	`table_name` text NOT NULL,
-	`column_name` text NOT NULL,
-	PRIMARY KEY(`role_id`, `table_name`, `column_name`),
-	FOREIGN KEY (`role_id`) REFERENCES `roles`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`table_name`,`column_name`) REFERENCES `permissions`(`table_name`,`column_name`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
 CREATE TABLE `roles` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`name` text NOT NULL
@@ -175,7 +161,7 @@ CREATE TABLE `student_academic_info` (
 	`overall_quality_points` real NOT NULL,
 	`overall_gpa` real NOT NULL,
 	PRIMARY KEY(`mnumber`, `term`, `year`),
-	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`admit_term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`admit_code`) REFERENCES `admit_codes`(`code`) ON UPDATE no action ON DELETE no action,
@@ -193,7 +179,7 @@ CREATE TABLE `student_addresses` (
 	`nation_code` text NOT NULL,
 	`phone` text NOT NULL,
 	PRIMARY KEY(`mnumber`, `type`),
-	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`nation_code`) REFERENCES `nations`(`code`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "address_type" CHECK("student_addresses"."type" IN ('HOME', 'LOCAL'))
 );
@@ -204,7 +190,7 @@ CREATE TABLE `student_advisors` (
 	`year` integer NOT NULL,
 	`advisor_mnumber` text NOT NULL,
 	PRIMARY KEY(`student_mnumber`, `term`, `year`, `advisor_mnumber`),
-	FOREIGN KEY (`student_mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`student_mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
@@ -215,7 +201,7 @@ CREATE TABLE `student_courses` (
 	`part_of_term` text NOT NULL,
 	`crn` text NOT NULL,
 	`course_subject` text NOT NULL,
-	`course_number` text NOT NULL,
+	`course_number` integer NOT NULL,
 	`course_suffix` text DEFAULT '' NOT NULL,
 	`course_section` text NOT NULL,
 	`course_hours` integer NOT NULL,
@@ -226,7 +212,7 @@ CREATE TABLE `student_courses` (
 	`midterm_grade` text,
 	`final_grade` text,
 	PRIMARY KEY(`mnumber`, `term`, `year`, `crn`),
-	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`part_of_term`) REFERENCES `part_of_term`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`registration_status`) REFERENCES `registration_status`(`code`) ON UPDATE no action ON DELETE no action,
@@ -242,7 +228,7 @@ CREATE TABLE `student_programs` (
 	`level` text NOT NULL,
 	`program` text NOT NULL,
 	PRIMARY KEY(`mnumber`, `type`, `program`),
-	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`term`) REFERENCES `terms`(`code`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`program`) REFERENCES `programs`(`code`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "program_type" CHECK("student_programs"."type" IN ('MAJOR', 'MINOR')),
@@ -279,16 +265,7 @@ CREATE TABLE `test_scores` (
 	`score` real NOT NULL,
 	`date` text NOT NULL,
 	PRIMARY KEY(`mnumber`, `code`, `date`),
-	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE no action
-);
---> statement-breakpoint
-CREATE TABLE `user_permissions` (
-	`user_id` text NOT NULL,
-	`table_name` text NOT NULL,
-	`column_name` text NOT NULL,
-	PRIMARY KEY(`user_id`, `table_name`, `column_name`),
-	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade,
-	FOREIGN KEY (`table_name`,`column_name`) REFERENCES `permissions`(`table_name`,`column_name`) ON UPDATE no action ON DELETE cascade
+	FOREIGN KEY (`mnumber`) REFERENCES `students`(`mnumber`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE `user_roles` (

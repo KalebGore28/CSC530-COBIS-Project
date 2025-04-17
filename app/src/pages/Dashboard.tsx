@@ -30,6 +30,13 @@ const dashboardCardsStructure = [
 		buttonText: "Search Students",
 	},
 	{
+		title: "Class Roster",
+		description: "View and manage class rosters, including attendance and grades.",
+		icon: <Users className="h-8 w-8 mb-4 text-primary" />,
+		link: "/class-roster",
+		buttonText: "View Roster",
+	},
+	{
 		title: "Faculty Information",
 		description: "View teaching loads, course enrollment, and student counts for faculty in your department.",
 		icon: <BookOpen className="h-8 w-8 mb-4 text-primary" />,

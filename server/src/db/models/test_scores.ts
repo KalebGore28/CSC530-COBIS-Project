@@ -4,7 +4,7 @@ import { relations } from "drizzle-orm";
 import { students } from "./students";
 
 export const testScores = sqliteTable("test_scores", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber),
+	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
 	code: text("code").notNull(),
 	description: text("description").notNull(),
 	score: real("score").notNull(),

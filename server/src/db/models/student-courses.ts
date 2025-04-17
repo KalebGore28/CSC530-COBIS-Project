@@ -9,7 +9,7 @@ import { instructionalMethods } from "./instructional-methods";
 import { registrationStatus } from "./registration-status";
 
 export const studentCourses = sqliteTable("student_courses", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber),
+	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade"}),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	part_of_term: text("part_of_term").notNull().references(() => partOfTerm.code),
