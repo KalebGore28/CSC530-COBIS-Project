@@ -428,10 +428,3 @@ seed().catch((err) => {
 	console.error("Seed error:", err);
 	process.exit(1); // Exit with error code if seeding fails
 });
-
-// --- Placeholder Schema definitions ---
-// Replace these with your actual drizzle schema imports if they differ
-// const admitCodes = { code: 'code', description: 'description' }; // Mock structure
-// const academicStanding = { code: 'code', description: 'description' }; // Mock structure
-// const nations = { code: 'code', description: 'description' }; // Mock structure
-// const programs = { code: 'code', description: 'description' }; // Mock structure

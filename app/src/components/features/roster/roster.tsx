@@ -476,7 +476,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 									<TableBody>
 										{filteredStudents.length > 0 ? (
 											filteredStudents.map((student, index) => (
-												<TableRow key={index} className="group">
+												<TableRow key={index} className="group cursor-pointer" onClick={() => handleStudentSelect(student)}>
 													<TableCell className="font-medium">
 														<button
 															onClick={() => handleStudentSelect(student)}
