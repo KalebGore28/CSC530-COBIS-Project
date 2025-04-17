@@ -23,6 +23,7 @@ import {
 	academicStanding,
 	nations,
 	programs,
+	roles
 } from "../db/schema";
 
 const NUM_STUDENTS = 1000;
@@ -69,6 +70,16 @@ async function seed() {
 
 
 	const db = (await getDbConnection()).orm;
+
+	// seed the roles table
+	await db.insert(roles).values([
+		{ id: 1, name: "faculty" },
+		{ id: 2, name: "advisor" },
+		{ id: 3, name: "program_coordinator" },
+		{ id: 4, name: "department_chair" },
+		{ id: 5, name: "administrator" },
+		{ id: 6, name: "cobis_administrator" },
+	]);
 
 	await seedDatabase(); // Seed the database with CSV data
 

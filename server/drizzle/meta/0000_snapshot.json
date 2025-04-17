@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9f9a3f38-d6cc-4b94-a25e-e57abcdcb377",
+  "id": "6867ec41-9fbd-413e-bd10-b785e96a026f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
