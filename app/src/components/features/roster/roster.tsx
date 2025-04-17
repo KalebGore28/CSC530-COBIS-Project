@@ -162,7 +162,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 					setStudents(roster);
 					setFilteredStudents(roster);
 					setStats(stats);
-					console.log(stats);
 				} else {
 					setError("Invalid response format from server");
 				}

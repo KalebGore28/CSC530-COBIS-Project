@@ -33,7 +33,7 @@ export interface Course {
 	courseId: string;
 	courseTitle: string;
 	courseSubject: string;
-	courseNumber: string;
+	courseNumber: number;
 	courseSuffix: string;
 	courseSection: string;
 	crn: string;
@@ -111,11 +111,16 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 				});
 
 				if (response.data.courseDetails && Array.isArray(response.data.courseDetails)) {
-					// Sort courses by subject, number, and section
 					const sortedCourses = [...response.data.courseDetails].sort((a, b) => {
-						if (a.courseSubject !== b.courseSubject) return a.courseSubject.localeCompare(b.courseSubject);
-						if (a.courseNumber !== b.courseNumber) return a.courseNumber.localeCompare(b.courseNumber);
-						return a.courseSection.localeCompare(b.courseSection);
+						if (a.courseSubject !== b.courseSubject) {
+							return String(a.courseSubject).localeCompare(String(b.courseSubject));
+						}
+						const courseNumA = String(a.courseNumber);
+						const courseNumB = String(b.courseNumber);
+						if (courseNumA !== courseNumB) {
+							return courseNumA.localeCompare(courseNumB);
+						}
+						return String(a.courseSection).localeCompare(String(b.courseSection));
 					});
 
 					setCourses(sortedCourses);
