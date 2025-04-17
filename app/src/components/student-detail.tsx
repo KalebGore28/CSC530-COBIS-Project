@@ -202,7 +202,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
     const { studentInfo, academicInfo, programs, advisors } = studentData;
 
     return (
-        <div className="space-y-6 p-4 max-h-[80vh] overflow-y-auto">
+        <div className="space-y-6 p-4 max-h-[80vh]">
             {/* Student Information Card */}
             <Card>
                 <CardHeader>

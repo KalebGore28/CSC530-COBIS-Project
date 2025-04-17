@@ -1,3 +1,4 @@
+// src/components/ui/Modal.tsx (or wherever your Modal component is)
 import React from 'react';
 import {
 	Dialog,
@@ -7,9 +8,10 @@ import {
 	DialogTitle,
 	DialogFooter,
 	DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/dialog"; // Adjust path if needed
+import { Button } from "@/components/ui/button"; // Adjust path if needed
 import { X } from "lucide-react";
+import { cn } from "@/lib/utils"; // Import cn utility if you use it for class merging
 
 interface ModalProps {
 	isOpen: boolean;
@@ -19,19 +21,9 @@ interface ModalProps {
 	children: React.ReactNode;
 	footer?: React.ReactNode;
 	size?: 'sm' | 'md' | 'lg' | 'xl';
+	contentClassName?: string; // Added: Optional class name for DialogContent
 }
 
-/**
- * A reusable modal component built with Shadcn UI Dialog
- * 
- * @param isOpen Boolean that controls whether the modal is visible
- * @param onClose Function to call when the modal should close
- * @param title The title displayed in the modal header
- * @param description Optional description text displayed below the title
- * @param children Content to display in the modal body
- * @param footer Optional footer content (typically action buttons)
- * @param size Modal size variant: 'sm', 'md', 'lg', or 'xl'
- */
 export const Modal: React.FC<ModalProps> = ({
 	isOpen,
 	onClose,
@@ -40,8 +32,8 @@ export const Modal: React.FC<ModalProps> = ({
 	children,
 	footer,
 	size = 'md',
+	contentClassName, // Added
 }) => {
-	// Size class mapping
 	const sizeClasses = {
 		sm: 'sm:max-w-sm',
 		md: 'sm:max-w-md',
@@ -49,37 +41,40 @@ export const Modal: React.FC<ModalProps> = ({
 		xl: 'sm:max-w-xl',
 	};
 
+	// Use cn to merge default size class, custom class, and base styles
+	const dialogContentClasses = cn(
+		"p-0", // Keep your base padding reset
+		sizeClasses[size], // Apply default size class
+		contentClassName // Apply custom class (will override size if specific enough)
+	);
+
 	return (
 		<Dialog open={isOpen} onOpenChange={(open) => {
 			if (!open) onClose();
 		}}>
-			<DialogContent className={`${sizeClasses[size]} p-0`}>
-				<DialogHeader className="px-6 pt-6 pb-4">
+			{/* Apply the merged classes here */}
+			<DialogContent className={dialogContentClasses} onEscapeKeyDown={onClose} onPointerDownOutside={onClose}>
+				<DialogHeader className="px-6 pt-6 pb-4 border-b"> {/* Added border */}
 					<div className="flex items-center justify-between">
-						<DialogTitle className="text-xl">{title}</DialogTitle>
+						<DialogTitle className="text-lg font-semibold">{title}</DialogTitle> {/* Adjusted font */}
 						<DialogClose asChild>
-							<Button
-								variant="ghost"
-								size="icon"
-								className="h-8 w-8 rounded-full"
-								onClick={onClose}
-							>
-								<X className="h-4 w-4" />
-								<span className="sr-only">Close</span>
-							</Button>
 						</DialogClose>
 					</div>
 					{description && (
-						<DialogDescription className="mt-2">
+						<DialogDescription className="mt-1 text-sm"> {/* Adjusted styles */}
 							{description}
 						</DialogDescription>
 					)}
 				</DialogHeader>
 
-				<div className="px-6 py-4">{children}</div>
+				{/* Content area with potential for scrolling if StudentDetail handles it */}
+				<div className="max-h-[75vh] overflow-y-auto"> {/* Added max-height & scroll */}
+					<div className="p-6">{children}</div> {/* Keep padding for content */}
+				</div>
+
 
 				{footer && (
-					<DialogFooter className="px-6 py-4 bg-muted/10">
+					<DialogFooter className="p-4 border-t bg-muted/50"> {/* Adjusted styles */}
 						{footer}
 					</DialogFooter>
 				)}

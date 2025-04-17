@@ -1,3 +1,5 @@
+// src/pages/AdvisedStudentsPage.tsx (or wherever your page component is)
+
 import React, { useState, useEffect } from 'react';
 import {
 	Card,
@@ -5,7 +7,7 @@ import {
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@/components/ui/card"; // Assuming shadcn structure
+} from "@/components/ui/card"; // Adjust path
 import {
 	Table,
 	TableBody,
@@ -13,13 +15,16 @@ import {
 	TableHead,
 	TableHeader,
 	TableRow,
-} from "@/components/ui/table"; // Assuming shadcn structure
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Assuming shadcn structure
-import { Skeleton } from "@/components/ui/skeleton"; // Assuming shadcn structure
-import { Terminal } from "lucide-react"; // Example icon for Alert
+} from "@/components/ui/table"; // Adjust path
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"; // Adjust path
+import { Skeleton } from "@/components/ui/skeleton"; // Adjust path
+import { Terminal } from "lucide-react";
 
-// Define the structure of a student based on the API response schema
-// Matches the 'StudentSchema' from advisor-specs.ts
+// --- Import the Modal and StudentDetail components ---
+import { Modal } from "@/components/modals/modal";
+import StudentDetail from '@/components/student-detail'; // Adjust path to your StudentDetail component
+
+// Define the structure of a student
 interface Student {
 	mnumber: string;
 	firstName: string;
@@ -38,64 +43,41 @@ interface Student {
 	email: string;
 }
 
-/**
- * Component to display students advised by the currently logged-in user.
- */
 const AdvisedStudentsPage: React.FC = () => {
-	// State for storing the list of students
 	const [students, setStudents] = useState<Student[]>([]);
-	// State to track loading status
 	const [isLoading, setIsLoading] = useState<boolean>(true);
-	// State to store any error messages
 	const [error, setError] = useState<string | null>(null);
 
-	// Effect hook to fetch data when the component mounts
+	// --- State for Modal Control ---
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
+	const [selectedStudentName, setSelectedStudentName] = useState<string>(''); // For Modal title
+
 	useEffect(() => {
 		const fetchAdvisedStudents = async () => {
-			setIsLoading(true); // Start loading
-			setError(null); // Reset error state
-
+			setIsLoading(true);
+			setError(null);
 			try {
-				// Fetch data from the advisor API endpoint
-				// Assumes authentication (e.g., Bearer token) is handled by the fetch call
-				// or a wrapper function/interceptor.
-				const response = await fetch('/api/advisor/students'); // Adjust URL if needed
-
-				// Check if the request was successful
+				const response = await fetch('/api/advisor/students');
 				if (!response.ok) {
-					// Handle common HTTP errors
-					if (response.status === 401) {
-						throw new Error('Unauthorized: Please log in.');
-					} else if (response.status === 403) {
-						throw new Error('Forbidden: You do not have permission to view this page.');
-					}
-					// Try to parse error message from response body
+					if (response.status === 401) throw new Error('Unauthorized: Please log in.');
+					if (response.status === 403) throw new Error('Forbidden: You do not have permission.');
 					let errorData;
-					try {
-						errorData = await response.json();
-					} catch (parseError) {
-						// Ignore if response body is not JSON
-					}
+					try { errorData = await response.json(); } catch { /* ignore */ }
 					throw new Error(errorData?.error || `HTTP error! Status: ${response.status}`);
 				}
-
-				// Parse the JSON response
 				const data: Student[] = await response.json();
-				setStudents(data); // Update state with fetched students
-
+				setStudents(data);
 			} catch (err) {
-				// Handle errors during fetch or processing
 				console.error("Error fetching advised students:", err);
 				setError(err instanceof Error ? err.message : 'An unknown error occurred.');
 			} finally {
-				setIsLoading(false); // Stop loading regardless of success or error
+				setIsLoading(false);
 			}
 		};
+		fetchAdvisedStudents();
+	}, []);
 
-		fetchAdvisedStudents(); // Call the fetch function
-	}, []); // Empty dependency array means this effect runs once on mount
-
-	// Helper function to render loading skeletons
 	const renderSkeletons = () => (
 		Array.from({ length: 5 }).map((_, index) => (
 			<TableRow key={`skeleton-${index}`}>
@@ -108,25 +90,31 @@ const AdvisedStudentsPage: React.FC = () => {
 		))
 	);
 
+	// --- Updated Click Handler ---
 	const handleStudentClick = (student: Student) => {
-		console.log("Student clicked:", student);
-		// TODO: Implement your modal opening logic here
-		// Example: setSelectedStudent(student); setIsModalOpen(true);
+		console.log("Student clicked:", student.mnumber);
+		setSelectedMnumber(student.mnumber);
+		setSelectedStudentName(`${student.firstName} ${student.lastName}`); // Set name for title
+		setIsModalOpen(true); // Open the modal
 	};
 
-	// Render the component UI
-	// Render the component UI
+	// --- Handler to Close Modal ---
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setSelectedMnumber(null); // Clear selection when closing
+		setSelectedStudentName('');
+	};
+
 	return (
 		<div className="container mx-auto p-4 md:p-6">
 			<Card>
 				<CardHeader>
 					<CardTitle>My Advised Students</CardTitle>
 					<CardDescription>
-						List of students currently assigned to you as an advisor. Click on a row for more details.
+						List of students currently assigned to you. Click on a row for more details.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					{/* Display error message if an error occurred */}
 					{error && (
 						<Alert variant="destructive" className="mb-4">
 							<Terminal className="h-4 w-4" />
@@ -134,13 +122,10 @@ const AdvisedStudentsPage: React.FC = () => {
 							<AlertDescription>{error}</AlertDescription>
 						</Alert>
 					)}
-
-					{/* Display the table or loading skeletons */}
-					<div className="rounded-md border"> {/* Added border for better table definition */}
+					<div className="rounded-md border">
 						<Table>
 							<TableHeader>
 								<TableRow>
-									{/* Adjusted padding for header */}
 									<TableHead className="pl-4">M-Number</TableHead>
 									<TableHead>Name</TableHead>
 									<TableHead>Email</TableHead>
@@ -150,17 +135,14 @@ const AdvisedStudentsPage: React.FC = () => {
 							</TableHeader>
 							<TableBody>
 								{isLoading ? (
-									renderSkeletons() // Show skeletons while loading
+									renderSkeletons()
 								) : students.length > 0 ? (
-									// Map over the students array to create table rows
 									students.map((student) => (
-										// --- MODIFIED: Added onClick and styling to TableRow ---
 										<TableRow
 											key={student.mnumber}
-											onClick={() => handleStudentClick(student)}
-											className="cursor-pointer hover:bg-muted/50" // Make row clickable
+											onClick={() => handleStudentClick(student)} // Attach click handler
+											className="cursor-pointer hover:bg-muted/50 transition-colors" // Add transition
 										>
-											{/* Adjusted padding for cells */}
 											<TableCell className="font-medium pl-4">{student.mnumber}</TableCell>
 											<TableCell>{`${student.lastName}, ${student.firstName}${student.middleName ? ' ' + student.middleName : ''}${student.suffix ? ' ' + student.suffix : ''}`}</TableCell>
 											<TableCell>{student.email}</TableCell>
@@ -169,9 +151,8 @@ const AdvisedStudentsPage: React.FC = () => {
 										</TableRow>
 									))
 								) : (
-									// Show message if no students are found (and not loading/error)
 									<TableRow>
-										<TableCell colSpan={5} className="text-center h-24"> {/* Added height for empty state */}
+										<TableCell colSpan={5} className="text-center h-24">
 											No advised students found.
 										</TableCell>
 									</TableRow>
@@ -182,9 +163,28 @@ const AdvisedStudentsPage: React.FC = () => {
 				</CardContent>
 			</Card>
 
-			{/* --- TODO: Add your Modal component here --- */}
-			{/* Example: <StudentDetailModal isOpen={isModalOpen} student={selectedStudent} onClose={() => setIsModalOpen(false)} /> */}
-
+			{/* --- Render the Modal --- */}
+			{/* The Modal is rendered here but only visible when isModalOpen is true */}
+			{/* It's important to conditionally render StudentDetail *inside* the modal */}
+			{/* or pass selectedMnumber so it knows when to fetch */}
+			<Modal
+				isOpen={isModalOpen}
+				onClose={handleCloseModal}
+				title={`Student Details - ${selectedStudentName}`} // Dynamic title
+				description={`Showing comprehensive details for M-Number: ${selectedMnumber || 'N/A'}`}
+				// Use the contentClassName prop for better sizing
+				// Adjust these classes as needed for your desired modal width
+				contentClassName="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl" // Example: Wider modal sizes
+			>
+				{/*
+                  Render StudentDetail only when an mnumber is selected and modal is technically open.
+                  Passing the 'key' prop ensures that if the modal somehow stays open but the
+                  mnumber changes, the StudentDetail component will remount and fetch new data.
+                */}
+				{selectedMnumber && (
+					<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
+				)}
+			</Modal>
 		</div>
 	);
 };
