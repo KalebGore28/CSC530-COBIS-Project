@@ -28,6 +28,8 @@ import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
 
 /**
  * Student interface representing a student in the class roster
@@ -80,13 +82,16 @@ export interface RosterStats {
  * Props for the ClassRosterComponent
  */
 export interface ClassRosterProps {
-	/** The instructor's M number */
 	mnumber: string | null;
-	/** The selected course */
 	selectedCourse: Course;
-	/** Callback function when a student is selected */
 	onStudentSelect?: (student: Student) => void;
 }
+
+type CurrentTermResponse = {
+	term: string;
+	year: number;
+	termName: string;
+};
 
 /**
  * Roster
@@ -104,6 +109,8 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	const [students, setStudents] = useState<Student[]>([]);
 	const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
 	const [stats, setStats] = useState<RosterStats | null>(null);
+	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
+
 
 	// Filters and sorting
 	const [searchQuery, setSearchQuery] = useState("");
@@ -111,8 +118,21 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [gradeFilter, setGradeFilter] = useState<string>("all");
 
+	// --- API Fetching Logic ---
+	const fetchCurrentTerm = async () => {
+		try {
+			const response = await axios.get<CurrentTermResponse>('/api/utility/current-term', { withCredentials: true });
+			setCurrentTerm(response.data);
+			return response.data;
+		} catch (error) {
+			toast.error("Failed to load current term information");
+			return null;
+		}
+	};
+
 	useEffect(() => {
 		const fetchRosterData = async () => {
+			fetchCurrentTerm();
 			if (!selectedCourse || !mnumber) {
 				return;
 			}
@@ -142,6 +162,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 					setStudents(roster);
 					setFilteredStudents(roster);
 					setStats(stats);
+					console.log(stats);
 				} else {
 					setError("Invalid response format from server");
 				}
@@ -220,27 +241,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 		return "bg-red-100 text-red-800 border-red-300";
 	};
 
-	const isTermActive = () => {
-		const now = new Date();
-		const currentYear = now.getFullYear();
-		const currentMonth = now.getMonth(); // 0-11
-
-		if (!courseInfo) return false;
-
-		// If the course year is in the future, it's active
-		if (courseInfo.year > currentYear) return true;
-		// If the course year is in the past, it's not active
-		if (courseInfo.year < currentYear) return false;
-
-		// If we're in the same year, check the term
-		// Assuming: "10" = Spring, "50" = Summer, "80" = Fall
-		if (courseInfo.termCode === "10") return currentMonth < 5; // Spring ends in May
-		if (courseInfo.termCode === "50") return currentMonth >= 5 && currentMonth < 8; // Summer is May-July
-		if (courseInfo.termCode === "80") return currentMonth >= 8; // Fall is August-December
-
-		return false;
-	};
-
 	const handleStudentSelect = (student: Student) => {
 		if (onStudentSelect) {
 			onStudentSelect(student);
@@ -279,11 +279,13 @@ export const Roster: React.FC<ClassRosterProps> = ({
 		);
 	}
 
-	const isActive = isTermActive();
 	const exportFilename = `${courseInfo.courseSubject}${courseInfo.courseNumber}${courseInfo.courseSuffix}-${courseInfo.courseSection}_${courseInfo.termName}_${courseInfo.year}`;
+
+	const isActive = currentTerm?.term === courseInfo.termCode && currentTerm?.year === courseInfo.year;
 
 	return (
 		<div className="space-y-6 w-full">
+			<Toaster />
 			{/* Course Information Card */}
 			<Card className="w-full">
 				<CardContent className="p-6">
@@ -313,22 +315,15 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 			{/* Class Statistics */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<Card>
-					<CardHeader>
-						<CardTitle>Grade Distribution</CardTitle>
-						<CardDescription>
-							{isActive ? "Current midterm grades" : "Final grades"}
-						</CardDescription>
-					</CardHeader>
-					<CardContent>
-						<PieChartDonut data={
-							Object.entries(stats.gradeDistribution).map(([grade, count]) => ({
-								grade,
-								count,
-							}))
-						} />
-					</CardContent>
-				</Card>
+				<PieChartDonut
+					title="Grade Distributions"
+					description="Final Grades"
+					data={
+						Object.entries(stats.gradeDistribution).map(([grade, count]) => ({
+							grade,
+							count,
+						}))
+					} />
 
 				<Card>
 					<CardHeader>
@@ -413,7 +408,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 							<ExportButton
 								data={filteredStudents}
 								filename={exportFilename}
-								isActiveTerm={isActive}
 							/>
 						</div>
 					</div>
@@ -454,7 +448,22 @@ export const Roster: React.FC<ClassRosterProps> = ({
 													setSortDirection(sortField === "grade" && sortDirection === "asc" ? "desc" : "asc");
 												}}
 											>
-												{isActive ? "Midterm Grade" : "Final Grade"}{" "}
+												Midterm Grade
+												{sortField === "grade" &&
+													(sortDirection === "asc" ? (
+														<SortAsc className="inline h-4 w-4" />
+													) : (
+														<SortDesc className="inline h-4 w-4" />
+													))}
+											</TableHead>
+											<TableHead
+												className="cursor-pointer"
+												onClick={() => {
+													setSortField("grade");
+													setSortDirection(sortField === "grade" && sortDirection === "asc" ? "desc" : "asc");
+												}}
+											>
+												Final Grade
 												{sortField === "grade" &&
 													(sortDirection === "asc" ? (
 														<SortAsc className="inline h-4 w-4" />
@@ -482,15 +491,14 @@ export const Roster: React.FC<ClassRosterProps> = ({
 													<TableCell>{student.mnumber}</TableCell>
 													<TableCell>{student.major}</TableCell>
 													<TableCell>
-														{isActive ? (
-															<Badge className={getGradeColorClass(student.midtermGrade)}>
-																{student.midtermGrade}
-															</Badge>
-														) : (
-															<Badge className={getGradeColorClass(student.finalGrade)}>
-																{student.finalGrade}
-															</Badge>
-														)}
+														<Badge className={getGradeColorClass(student.midtermGrade)}>
+															{student.midtermGrade}
+														</Badge>
+													</TableCell>
+													<TableCell>
+														<Badge className={getGradeColorClass(student.finalGrade)}>
+															{student.finalGrade}
+														</Badge>
 													</TableCell>
 													<TableCell>{student.registrationStatus}</TableCell>
 												</TableRow>
@@ -529,15 +537,12 @@ export const Roster: React.FC<ClassRosterProps> = ({
 																<p className="text-sm text-muted-foreground">{student.mnumber}</p>
 															</div>
 														</div>
-														{isActive ? (
-															<Badge className={getGradeColorClass(student.midtermGrade)}>
-																{student.midtermGrade}
-															</Badge>
-														) : (
-															<Badge className={getGradeColorClass(student.finalGrade)}>
-																{student.finalGrade}
-															</Badge>
-														)}
+														<Badge className={getGradeColorClass(student.midtermGrade)}>
+															{student.midtermGrade}
+														</Badge>
+														<Badge className={getGradeColorClass(student.finalGrade)}>
+															{student.finalGrade}
+														</Badge>
 													</div>
 													<div className="grid grid-cols-2 gap-1 text-sm">
 														<span className="text-muted-foreground">Major:</span>

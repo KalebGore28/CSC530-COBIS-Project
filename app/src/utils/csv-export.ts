@@ -68,7 +68,7 @@ export const exportToCSV = <T extends Record<string, any>>(
  * @param students Array of student objects
  * @returns Formatted array ready for CSV export
  */
-export const formatRosterForExport = (students: any[], isActiveTerm: boolean = true) => {
+export const formatRosterForExport = (students: any[]) => {
 	return students.map(student => ({
 		'Last Name': student.lastName,
 		'First Name': student.firstName,
@@ -77,7 +77,8 @@ export const formatRosterForExport = (students: any[], isActiveTerm: boolean = t
 		'M-Number': student.mnumber,
 		'Email': student.email,
 		'Major': student.major,
-		'Grade': isActiveTerm ? student.midtermGrade : student.finalGrade,
+		'Midterm Grade': student.midtermGrade,
+		'Final Grade': student.finalGrade,
 		'Status': student.registrationStatus,
 		'Method': student.instructionalMethod,
 		'GPA': student.overallGpa.toFixed(2),

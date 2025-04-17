@@ -23,7 +23,6 @@ interface ExportButtonProps {
 export const ExportButton: React.FC<ExportButtonProps> = ({
 	data,
 	filename = 'class-roster',
-	isActiveTerm = true
 }) => {
 	const handleCSVExport = () => {
 		try {
@@ -32,7 +31,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 				return;
 			}
 
-			const formattedData = formatRosterForExport(data, isActiveTerm);
+			const formattedData = formatRosterForExport(data);
 			exportToCSV(formattedData, { filename });
 			toast.success("Data has been exported as CSV");
 		} catch (error) {

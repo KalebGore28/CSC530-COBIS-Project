@@ -377,9 +377,8 @@ async function seed() {
 						course_level: "UG", // TODO: Make this dynamic based on studentPrograms.level
 						registration_status: REGISTRATION_STATUS,
 						instructional_method: faker.helpers.arrayElement(instructionalMethodList).code,
-						// Only assign grades/attendance for past terms
 						last_attendance: (year < 2024 || (year === 2024 && term < 80)) ? faker.date.between({ from: new Date(year, term === 10 ? 0 : (term === 50 ? 4 : (term === 80 ? 7 : 10)), 1), to: new Date(year, term === 10 ? 4 : (term === 50 ? 7 : (term === 80 ? 11 : 11)), 28) }).toISOString().split('T')[0] : null,
-						midterm_grade: (year < 2024 || (year === 2024 && term < 80)) ? faker.helpers.arrayElement([...GRADES.filter(g => g !== 'W'), null]) : null, // Midterm less likely to be W
+						midterm_grade: (year < 2024 || (year === 2024 && term < 80)) ? faker.helpers.arrayElement(GRADES.filter(g => g !== 'W')) : null,
 						final_grade: (year < 2024 || (year === 2024 && term < 80)) ? finalGrade : null,
 					}).onConflictDoNothing();
 
