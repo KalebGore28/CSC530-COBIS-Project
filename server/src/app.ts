@@ -21,20 +21,22 @@ import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
 import enrollmentRouter from "./routes/enrollment-router";
 import searchRoute from "./routes/search-router";
-import reportingRoute from "./routes/reporting-router";
 import studentLookupRoute from "./routes/student-lookup-router";
+import utilityRouter from "./routes/utility-router";
+import advisorRouter from "./routes/advisor-router";
 // import customQuery from "./routes/customQueries";
-// import studentEnrollmentRouter from './routes/student-enrollment-router';
 
 // Import OpenAPI specs
 import { InstructorAPISpecs } from "./specs/instructor-specs";
 import { StudentAPISpecs } from "./specs/student-specs";
 import { EnrollmentAPISpecs } from "./specs/enrollment-specs";
 import { SearchAPISpecs } from "./specs/search-specs";
-import { ReportingAPISpecs } from "./specs/reporting-specs";
 import { UserAPISpecs } from "./specs/user-specs";
 import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
 import { ImportAPISpecs } from "./specs/import-specs";
+import { UtilityAPISpecs } from "./specs/utility-specs";
+import { AdvisorAPISpecs } from "./specs/advisor-specs";
+
 // Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
@@ -50,10 +52,11 @@ const document = createDocument({
         ...StudentAPISpecs,
         ...EnrollmentAPISpecs,
         ...SearchAPISpecs,
-        ...ReportingAPISpecs,
         ...UserAPISpecs,
         ...StudentLookupAPISpecs,
         ...ImportAPISpecs,
+        ...UtilityAPISpecs,
+        ...AdvisorAPISpecs,
     },
 });
 
@@ -62,7 +65,7 @@ const app = express()
 
 // Middleware
 // @ts-ignore
-app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } }))
+app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } })) //! Probably comment this out in production
 app.use(
     cors({
         origin: config.frontend_origin,
@@ -72,8 +75,8 @@ app.use(
 )
 app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
 app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
-app.use(express.json({ limit: "10mb" }))
-app.use(express.urlencoded({ extended: true, limit: "10mb" }))
+app.use(express.json({ limit: "10mb" })) // going to be deprecated in the future
+app.use(express.urlencoded({ extended: true, limit: "10mb" })) // going to be deprecated in the future
 
 app.use(authenticateUser)
 app.use(getUserInfo)
@@ -83,8 +86,9 @@ app.use("/api/instructor", instructorRouter)
 app.use("/api/student", studentRouter)
 app.use("/api/enrollment", enrollmentRouter)
 app.use("/api/search", searchRoute)
-app.use("/api/reporting", reportingRoute)
 app.use("/api/student-lookup", studentLookupRoute)
+app.use("/api/utility", utilityRouter)
+app.use("/api/advisor", advisorRouter)
 // app.use('/api/custom-query', customQuery)
 
 

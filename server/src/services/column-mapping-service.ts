@@ -56,7 +56,6 @@ export interface DataCsvMapping extends BaseCsvMapping {
  */
 export interface LookupCsvMapping extends BaseCsvMapping {
 	category: "lookup";
-	filePatterns?: RegExp[];
 	destination: BaseDestination;
 }
 
@@ -261,20 +260,20 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					// { csvColumn: "type", dbColumn: "type" },
 					// Include both home and local address fields for validation
-					{ csvColumn: "homestreet1", dbColumn: "street1" },
-					{ csvColumn: "homestreet2", dbColumn: "street2" },
-					{ csvColumn: "homecity", dbColumn: "city" },
-					{ csvColumn: "homestate", dbColumn: "state" },
-					{ csvColumn: "homezip", dbColumn: "zip" },
-					{ csvColumn: "homenation", dbColumn: "nation_code" },
-					{ csvColumn: "homephone", dbColumn: "phone" },
-					{ csvColumn: "locstreet1", dbColumn: "street1" },
-					{ csvColumn: "locstreet2", dbColumn: "street2" },
-					{ csvColumn: "loccity", dbColumn: "city" },
-					{ csvColumn: "locstate", dbColumn: "state" },
-					{ csvColumn: "loczip", dbColumn: "zip" },
-					{ csvColumn: "locnation", dbColumn: "nation_code" },
-					{ csvColumn: "locphone", dbColumn: "phone" }
+					{ csvColumn: "homestreet1", dbColumn: "street1-[row-1-home]" },
+					{ csvColumn: "homestreet2", dbColumn: "street2-[row-1-home]" },
+					{ csvColumn: "homecity", dbColumn: "city-[row-1-home]" },
+					{ csvColumn: "homestate", dbColumn: "state-[row-1-home]" },
+					{ csvColumn: "homezip", dbColumn: "zip-[row-1-home]" },
+					{ csvColumn: "homenation", dbColumn: "nation_code-[row-1-home]" },
+					{ csvColumn: "homephone", dbColumn: "phone-[row-1-home]" },
+					{ csvColumn: "locstreet1", dbColumn: "street1-[row-2-local]" },
+					{ csvColumn: "locstreet2", dbColumn: "street2-[row-2-local]" },
+					{ csvColumn: "loccity", dbColumn: "city-[row-2-local]" },
+					{ csvColumn: "locstate", dbColumn: "state-[row-2-local]" },
+					{ csvColumn: "loczip", dbColumn: "zip-[row-2-local]" },
+					{ csvColumn: "locnation", dbColumn: "nation_code-[row-2-local]" },
+					{ csvColumn: "locphone", dbColumn: "phone-[row-2-local]" }
 				],
 				// Use the row expander to create separate records for home and local addresses
 				rowExpander: expandStudentAddresses
@@ -313,8 +312,17 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
 					// { csvColumn: "type", dbColumn: "type" },
-					{ csvColumn: "level", dbColumn: "level" },
-					{ csvColumn: "program", dbColumn: "program" },
+					{ csvColumn: "levl", dbColumn: "level" },
+					{ csvColumn: "major1", dbColumn: "program-[row-1]" },
+					{ csvColumn: "major1dept", dbColumn: "program-[row-1-department]" },
+					{ csvColumn: "major1coll", dbColumn: "program-[row-1-college]" },
+					{ csvColumn: "major2", dbColumn: "program-[row-2]" },
+					{ csvColumn: "major2dept", dbColumn: "program-[row-2-department]" },
+					{ csvColumn: "major2coll", dbColumn: "program-[row-2-college]" },
+					{ csvColumn: "minor1", dbColumn: "program-[row-3]" },
+					{ csvColumn: "minor1dept", dbColumn: "program-[row-3-department]" },
+					{ csvColumn: "minor2", dbColumn: "program-[row-4]" },
+					{ csvColumn: "minor2dept", dbColumn: "program-[row-4-department]" },
 				],
 				// This is the key addition - a function that transforms one CSV row into multiple DB rows
 				rowExpander: expandStudentPrograms
@@ -471,7 +479,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
 					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
 					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "lastChanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
+					{ csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
 				]
 			}
 		]
@@ -481,7 +489,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	// Lookup tables
 	{
-		filePatterns: [/academic.+standing|standing.+academic/i],
 		description: "Academic standing codes",
 		category: "lookup",
 		destination: {
@@ -496,7 +503,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/admit.+code|code.+admit/i],
 		description: "Admit type codes",
 		category: "lookup",
 		destination: {
@@ -511,7 +517,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/college.+code|code.+college/i],
 		description: "College codes",
 		category: "lookup",
 		destination: {
@@ -526,7 +531,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/colleges/i],
 		description: "Colleges data",
 		category: "lookup",
 		destination: {
@@ -542,7 +546,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	},
 	{
-		filePatterns: [/departments/i],
 		description: "Departments data",
 		category: "lookup",
 		destination: {
@@ -559,7 +562,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 
 	},
 	{
-		filePatterns: [/instructional.+method|method.+instructional/i],
 		description: "Instructional method codes",
 		category: "lookup",
 		destination: {
@@ -574,7 +576,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/nations/i],
 		description: "Nations data",
 		category: "lookup",
 		destination: {
@@ -589,7 +590,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/part.+term|term.+part/i],
 		description: "Part of term data",
 		category: "lookup",
 		destination: {
@@ -604,7 +604,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/major.+minor|minor.+major/i],
 		description: "Major/Minor programs data",
 		category: "lookup",
 		destination: {
@@ -628,7 +627,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/registration.+status|status.+registration/i],
 		description: "Registration status codes",
 		category: "lookup",
 		destination: {
@@ -643,7 +641,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		}
 	},
 	{
-		filePatterns: [/terms/i],
 		description: "Terms data",
 		category: "lookup",
 		destination: {
@@ -781,8 +778,8 @@ export const getImportInfo = () => {
 				: [mapping.destination];
 
 			// Convert RegExp patterns to string format that can be reconstructed on the client
-			const patternStrings = (mapping.filePatterns || [])
-				.map(pattern => {
+			const patternStrings = mapping.category === "data"
+				? mapping.filePatterns.map(pattern => {
 					// Get the actual pattern string and flags
 					const patternStr = pattern.toString();
 					// The regex toString() returns something like /pattern/flags
@@ -795,7 +792,8 @@ export const getImportInfo = () => {
 					}
 					// Fallback to original string representation
 					return patternStr;
-				});
+				})
+				: [];
 
 			return {
 				filePatterns: patternStrings,

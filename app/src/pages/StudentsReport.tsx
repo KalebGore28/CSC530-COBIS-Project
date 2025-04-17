@@ -1,4 +1,4 @@
-import { useSession } from "@/hooks/session-context"
+import { useSession } from "@/context/session"
 
 
 export default function StudentsReport() {

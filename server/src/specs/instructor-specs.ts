@@ -528,6 +528,116 @@ const Error500ResponseSchema = z.object({
 	})
 })
 
+// Grade trends query parameters
+const GradeTrendsQuerySchema = z.object({
+	start_term: z.string().optional().openapi({
+		description: 'Starting term code (e.g., "10", "80"). If not provided, defaults to "10" (Spring)',
+		example: '10'
+	}),
+	start_year: z.string().openapi({
+		description: 'Starting year',
+		example: '2023'
+	}),
+	end_term: z.string().optional().openapi({
+		description: 'Ending term code (e.g., "10", "80"). If not provided, defaults to "80" (Fall)',
+		example: '80'
+	}),
+	end_year: z.string().openapi({
+		description: 'Ending year',
+		example: '2024'
+	})
+});
+
+// Grade trends response schema
+const GetGradeTrends = z.object({
+	mnumber: z.string().openapi({
+		description: 'Unique instructor identifier',
+		example: 'M123456'
+	}),
+	start_term: z.string().openapi({
+		description: 'Starting term code',
+		example: '10'
+	}),
+	start_year: z.number().openapi({
+		description: 'Starting year',
+		example: 2023
+	}),
+	end_term: z.string().openapi({
+		description: 'Ending term code',
+		example: '80'
+	}),
+	end_year: z.number().openapi({
+		description: 'Ending year',
+		example: 2024
+	}),
+	gradeTrends: z.array(
+		z.object({
+			term: z.string().openapi({
+				description: 'Term code',
+				example: '10'
+			}),
+			year: z.number().openapi({
+				description: 'Year',
+				example: 2023
+			}),
+			totalStudents: z.number().openapi({
+				description: 'Total number of students in the term',
+				example: 120
+			}),
+			distribution: z.record(
+				z.string(),
+				z.object({
+					count: z.number().openapi({
+						description: 'Number of students with this grade',
+						example: 30
+					}),
+					percentage: z.number().openapi({
+						description: 'Percentage of students with this grade',
+						example: 25.0
+					})
+				})
+			).openapi({
+				description: 'Grade distribution for the term',
+				example: {
+					'A': { count: 30, percentage: 25.0 },
+					'B': { count: 45, percentage: 37.5 },
+					'C': { count: 30, percentage: 25.0 },
+					'D': { count: 10, percentage: 8.3 },
+					'F': { count: 5, percentage: 4.2 }
+				}
+			})
+		})
+	).openapi({
+		description: 'List of grade distributions over time',
+		example: [
+			{
+				term: '10',
+				year: 2023,
+				totalStudents: 120,
+				distribution: {
+					'A': { count: 30, percentage: 25.0 },
+					'B': { count: 45, percentage: 37.5 },
+					'C': { count: 30, percentage: 25.0 },
+					'D': { count: 10, percentage: 8.3 },
+					'F': { count: 5, percentage: 4.2 }
+				}
+			},
+			{
+				term: '80',
+				year: 2024,
+				totalStudents: 100,
+				distribution: {
+					'A': { count: 35, percentage: 35.0 },
+					'B': { count: 40, percentage: 40.0 },
+					'C': { count: 20, percentage: 20.0 },
+					'D': { count: 3, percentage: 3.0 },
+					'F': { count: 2, percentage: 2.0 }
+				}
+			}
+		]
+	})
+});
+
 export const InstructorAPISpecs = {
 	'/api/instructor': {
 		get: {
@@ -802,6 +912,69 @@ export const InstructorAPISpecs = {
 					content: {
 						'application/json': {
 							schema: GetClassRoster
+						}
+					}
+				},
+				'403': {
+					description: 'Access denied',
+					content: {
+						'application/json': {
+							schema: Error403ResponseSchema
+						}
+					}
+				},
+				'404': {
+					description: 'Instructor not found',
+					content: {
+						'application/json': {
+							schema: Error404ResponseSchema
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: Error500ResponseSchema
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/instructor/{mnumber}/trend/grades': {
+		get: {
+			tags: ['Instructor'],
+			operationId: 'getInstructorGradeTrends',
+			summary: 'Get grade distribution trends',
+			description: 'Retrieve grade distribution trends for a specific instructor over a specified time period. Access restricted to authorized users only.',
+			requestParams: {
+				path: MnumberRequestParamsSchema,
+				query: GradeTrendsQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with grade distribution trends',
+					content: {
+						'application/json': {
+							schema: GetGradeTrends
+						}
+					}
+				},
+				'400': {
+					description: 'Bad request - missing or invalid parameters',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string().openapi({
+									description: 'Error message',
+									example: 'Missing required query parameters'
+								}),
+								requiredParams: z.array(z.string()).openapi({
+									description: 'List of required parameters',
+									example: ['start_term', 'start_year', 'end_term', 'end_year']
+								})
+							})
 						}
 					}
 				},

@@ -41,22 +41,28 @@ router.get('/:mnumber/teaching-summary',
 	InstructorController.getTeachingSummary
 );
 
-// Course details
-router.get('/:mnumber/courses',
-	checkInstructorAccess,
-	InstructorController.getCourseDetails
-);
-
 // Term summaries
 router.get('/:mnumber/terms',
 	checkInstructorAccess,
 	InstructorController.getTermSummaries
 );
 
+// Course details
+router.get('/:mnumber/courses',
+	checkInstructorAccess,
+	InstructorController.getCourseDetails
+);
+
 // Class Roster
 router.get('/:mnumber/class-roster',
 	checkInstructorAccess,
 	InstructorController.getClassRoster
+);
+
+// Grade distribution trends
+router.get('/:mnumber/trend/grades',
+	checkInstructorAccess,
+	InstructorController.getGradeTrends
 );
 
 export default router;

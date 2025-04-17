@@ -30,7 +30,6 @@ export interface TableConfig {
 export interface BaseCsvMapping {
 	description: string;         // Human-readable description
 	category: 'data' | 'lookup'; // Type of mapping
-	filePatterns: string[];      // Patterns to match against file names
 }
 
 /**
@@ -39,6 +38,8 @@ export interface BaseCsvMapping {
 export interface DataCsvMapping extends BaseCsvMapping {
 	category: 'data';
 	destinations: TableConfig[];  // Multiple destination tables
+	filePatterns: string[];      // Patterns to match against file names
+
 }
 
 /**

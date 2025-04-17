@@ -2,106 +2,37 @@ import { useState, useEffect } from "react";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import Papa from "papaparse";
 
-import { FileUpload } from "@/components/csv-import/file-upload";
-import { TableSelector } from "@/components/csv-import/table-selector";
-import { ColumnMapper } from "@/components/csv-import/column-mapper";
-import { CsvPreview } from "@/components/csv-import/csv-preview";
-import { ImportResultDisplay } from "@/components/csv-import/import-result";
-import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
+import { FileUpload } from "@/components/features/csv-import/file-upload";
+import { TableSelector } from "@/components/features/csv-import/table-selector";
+import { ColumnMapper } from "@/components/features/csv-import/column-mapper";
+import { CsvPreview } from "@/components/features/csv-import/csv-preview";
+import { ImportResultDisplay } from "@/components/features/csv-import/import-result";
+import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
 
 // Import types
-import { TableConfig, ImportError, ImportInfoResponse, CsvMapping } from "../types/csv-import-types";
+import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
-// Sample data for our example
-const mockCsvHeaders = ["Student ID", "First Name", "Last Name", "Email", "Phone", "Department ID"];
-const mockCsvData = [
-  ["STU001", "John", "Doe", "john.doe@example.com", "555-1234", "DEP001"],
-  ["STU002", "Jane", "Smith", "jane.smith@example.com", "555-5678", "DEP002"],
-  ["STU003", "Bob", "Johnson", "bob.johnson@example.com", "555-9012", "DEP001"],
-  ["STU004", "Mary", "Williams", "mary.williams@example.com", "555-3456", "DEP003"],
-  ["STU005", "Mike", "Brown", "mike.brown@example.com", "555-7890", "DEP002"],
-];
-
-const mockTableConfig: TableConfig[] = [
-  {
-    tableId: "students",
-    tableName: "Students",
-    category: "data",
-    primaryKeys: ["studentId"],
-    hasRowExpander: false,
-    columns: [
-      { dbColumn: "studentId", csvColumn: "Student ID", isPrimaryKey: true, hasTransform: false },
-      { dbColumn: "firstName", csvColumn: "First Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "lastName", csvColumn: "Last Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "email", csvColumn: "Email", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "phone", csvColumn: "Phone", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: false, hasTransform: false },
-    ],
-  },
-  {
-    tableId: "departments",
-    tableName: "Departments",
-    category: "lookup",
-    primaryKeys: ["departmentId"],
-    hasRowExpander: false,
-    columns: [
-      { dbColumn: "departmentId", csvColumn: "Department ID", isPrimaryKey: true, hasTransform: false },
-      { dbColumn: "departmentName", csvColumn: "Department Name", isPrimaryKey: false, hasTransform: false },
-      { dbColumn: "building", csvColumn: "Building", isPrimaryKey: false, hasTransform: false },
-    ],
-  }
-];
-
-const mockImportErrors: ImportError[] = [
-  {
-    row: {
-      "studentId": "STU004",
-      "firstName": "Mary",
-      "lastName": "Williams",
-      "email": "mary.williams@example.com",
-      "phone": "555-3456",
-      "departmentId": "DEP003"
-    },
-    error: "Foreign key constraint violation on departmentId",
-    errorType: "foreign_key",
-    dependencyInfo: {
-      tableName: "Departments",
-      columns: ["departmentId", "departmentName"],
-      values: {
-        "departmentId": "DEP003"
-      }
-    }
-  },
-  {
-    row: {
-      "studentId": "STU005",
-      "firstName": "Mike",
-      "lastName": "Brown",
-      "email": "mike.brown@example.com",
-      "phone": "555-7890",
-      "departmentId": "DEP003"
-    },
-    error: "Foreign key constraint violation on departmentId",
-    errorType: "foreign_key",
-    dependencyInfo: {
-      tableName: "Departments",
-      columns: ["departmentId", "departmentName"],
-      values: {
-        "departmentId": "DEP003"
-      }
-    }
-  }
-];
-
-export const CsvImport: React.FC = () => {
+const CsvImport: React.FC = () => {
   const [showSuccess, setShowSuccess] = useState(true);
   const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
-  const [mapping, setMapping] = useState<CsvMapping | null>(null);
+  const [mapping, setMapping] = useState<DataCsvMapping | null>(null); // This is only the mapping for the data table.
+  const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]); // This is a fallback for lookup tables if no mapping is found.
+  // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
+  const [selectedTable, setSelectedTable] = useState<string>("");
+
+  // State for parsed CSV data
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [csvData, setCsvData] = useState<string[][]>([]);
+  const [_, setIsParsed] = useState<boolean>(false);
+
+  // Simple state for column mappings
+  const [selectedMappings, setSelectedMappings] = useState<CsvMapping[]>([]);
 
   // Fetch import info
   useEffect(() => {
@@ -112,23 +43,83 @@ export const CsvImport: React.FC = () => {
     fetchImportInfo();
   }, []);
 
-
+  // This is the main effect that runs when the import info is fetched and a file is selected.
   useEffect(() => {
     if (importInfo && selectedFile) {
       const { mapping } = CsvImportService.findMatchingMappingAndTables(selectedFile.name, importInfo.csvMappings);
+      const lookupTables = CsvImportService.getLookupTables(importInfo.csvMappings);
+
       setMapping(mapping || null);
+      setLookupTables(lookupTables);
+
+      // Set default selected table based on the mapping
+      if (mapping) {
+        if (mapping.destinations.length > 0) {
+          setSelectedTable(mapping.destinations[0].tableId);
+        }
+      } else {
+        setSelectedTable("");
+      }
     }
   }, [importInfo, selectedFile]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
     setSelectedFile(file);
+    // Reset parsed data if file changes
+    if (!file) {
+      setCsvHeaders([]);
+      setCsvData([]);
+      setIsParsed(false);
+      setSelectedMappings([]);
+    }
   };
 
   const handleClearFile = () => {
     setSelectedFile(null);
+    setSelectedTable("");
+    setMapping(null);
+    setLookupTables([]);
+    setCsvHeaders([]);
+    setCsvData([]);
+    setIsParsed(false);
+    setSelectedMappings([]);
   };
 
+  const handleParsedData = (results: Papa.ParseResult<unknown>) => {
+    if (results.data && results.data.length > 0) {
+      // Extract headers from the parse result
+      if (results.meta.fields && results.meta.fields.length > 0) {
+        setCsvHeaders(results.meta.fields);
+      }
+
+      // Extract data rows
+      const dataRows: string[][] = [];
+      results.data.forEach((row: any) => {
+        if (typeof row === 'object' && row !== null) {
+          const rowValues = Object.values(row).map(val =>
+            val !== null && val !== undefined ? String(val) : "");
+          dataRows.push(rowValues);
+        }
+      });
+
+      setCsvData(dataRows);
+      setIsParsed(true);
+      console.log('CSV parsed successfully:', results);
+    }
+  };
+
+  const handleTableChange = (tableId: string) => {
+    console.log("Table selected:", tableId);
+    setSelectedTable(tableId);
+    setSelectedMappings([]);
+  };
+
+  const handleMapChange = (mappings: CsvMapping[]) => {
+    console.log(mappings);
+    setSelectedMappings(mappings)
+
+  };
 
 
   return (
@@ -141,6 +132,7 @@ export const CsvImport: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-10">
+
           {/* Step 1: File Upload and Table Selection */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
@@ -148,12 +140,14 @@ export const CsvImport: React.FC = () => {
               <FileUpload
                 onFileChange={handleFileChange}
                 onClearFile={handleClearFile}
+                onParsedData={handleParsedData}
                 file={selectedFile}
               />
               {selectedFile && <TableSelector
-                selectedTable="students"
-                onTableChange={(id) => console.log("Selected table:", id)}
+                selectedTable={selectedTable}
+                onTableChange={handleTableChange}
                 mapping={mapping}
+                lookupTables={lookupTables}
               />}
             </div>
           </div>
@@ -161,22 +155,16 @@ export const CsvImport: React.FC = () => {
           <Separator />
 
           {/* Step 2: Column Mapping */}
-          <div>
+          {selectedTable && <div>
             <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
             <ColumnMapper
-              tableFields={mockTableConfig[0].columns}
-              csvHeaders={mockCsvHeaders}
-              mapping={{
-                "studentId": "Student ID",
-                "firstName": "First Name",
-                "lastName": "Last Name",
-                "email": "Email",
-                "phone": "Phone",
-                "departmentId": "Department ID"
-              }}
-              onMapChange={(col, csvCol) => console.log(`Mapped ${col} to ${csvCol}`)}
+              csvColumns={csvHeaders}
+              lookupTables={lookupTables}
+              selectedTable={selectedTable}
+              mapping={mapping}
+              onFinishedMapping={handleMapChange}
             />
-          </div>
+          </div>}
 
           <Separator />
 
@@ -184,10 +172,11 @@ export const CsvImport: React.FC = () => {
           <div>
             <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
             <CsvPreview
-              headers={mockCsvHeaders}
-              data={mockCsvData}
+              headers={csvHeaders}
+              data={csvData}
               maxRows={5}
               highlightSpecialValues={true}
+              minColumnWidth={150}
             />
           </div>
 
@@ -196,40 +185,16 @@ export const CsvImport: React.FC = () => {
           {/* Step 4: Import Results */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
-            <div className="mb-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSuccess(!showSuccess)}
-                className="mb-4"
-              >
-                {showSuccess ? "Show Error Result" : "Show Success Result"}
-              </Button>
-            </div>
-
-            {showSuccess ? (
-              <ImportResultDisplay
-                result={{
-                  success: true,
-                  totalRecords: 5,
-                  inserted: 3,
-                  updated: 0,
-                  skipped: 2,
-                  failed: 0
-                }}
-              />
-            ) : (
-              <ImportResultDisplay
-                result={{
-                  success: false,
-                  totalRecords: 5,
-                  inserted: 3,
-                  updated: 0,
-                  skipped: 0,
-                  failed: 2
-                }}
-              />
-            )}
+            <ImportResultDisplay
+              result={{
+                success: true,
+                totalRecords: 5,
+                inserted: 3,
+                updated: 0,
+                skipped: 2,
+                failed: 0
+              }}
+            />
           </div>
 
           {!showSuccess && (
@@ -237,7 +202,7 @@ export const CsvImport: React.FC = () => {
               <Separator />
 
               {/* Step 5: Error Fixing (Only shown when there are errors) */}
-              <div>
+              {/* <div>
                 <h2 className="text-xl font-bold mb-4">Step 5: Fix Import Errors</h2>
                 <ErrorFixingMode
                   errors={mockImportErrors}
@@ -248,22 +213,22 @@ export const CsvImport: React.FC = () => {
                   onRetryImport={() => setShowSuccess(true)}
                   fixedCount={fixedCount}
                 />
-              </div>
+              </div> */}
             </>
           )}
         </CardContent>
         <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => {
-              setFixedCount(0);
-              setShowSuccess(true);
-            }}
-          >
-            Reset Demo
-          </Button>
+          {Object.keys(selectedMappings).length > 0 && (
+            <div className="ml-auto">
+              <Button onClick={() => console.log("Final mappings:", selectedMappings)}>
+                Process Import
+              </Button>
+            </div>
+          )}
         </CardFooter>
       </Card>
     </div>
   );
 };
+
+export default CsvImport;

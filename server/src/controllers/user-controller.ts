@@ -11,7 +11,7 @@ export class UserController {
 	/**
 	 * Get the current user's session and user data
 	 */
-	static async getCurrentUser(req: Request, res: Response) {
+	static async getUserInfo(req: Request, res: Response) {
 		try {
 			// Get the session using better-auth
 			const session = await auth.api.getSession({
@@ -22,7 +22,6 @@ export class UserController {
 				// Get the user information from the request
 				const userInfo = {
 					roles: (req as AuthAndPermissionsRequest).roles,
-					permissions: (req as AuthAndPermissionsRequest).permissions,
 					department: (req as AuthAndPermissionsRequest).department,
 					college: (req as AuthAndPermissionsRequest).college,
 					mnumber: (req as AuthAndPermissionsRequest).mnumber,
@@ -30,13 +29,11 @@ export class UserController {
 				};
 
 				// Enrich the session with user information
-				const enrichedSession = UserService.enrichSession(session, userInfo);
-				res.json(enrichedSession);
+				res.json(userInfo);
 			} else {
 				res.json(null);
 			}
 		} catch (error) {
-			console.error('Error getting current user:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -104,6 +101,76 @@ export class UserController {
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while updating your M-number',
+			});
+			return;
+		}
+	}
+
+	/**
+	 * Enable a user account
+	 */
+	static async enableUser(req: Request, res: Response) {
+		try {
+			const { userId } = req.params;
+
+			// Check if user exists
+			const user = await UserService.getUserById(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			// Update user's enabled status
+			await UserService.updateUserEnabled(userId, true);
+
+			res.json({
+				success: true,
+				message: 'User enabled successfully'
+			});
+			return;
+		} catch (error) {
+			console.error('Error enabling user:', error);
+			res.status(500).json({
+				success: false,
+				message: 'An error occurred while enabling the user'
+			});
+			return;
+		}
+	}
+
+	/**
+	 * Disable a user account
+	 */
+	static async disableUser(req: Request, res: Response) {
+		try {
+			const { userId } = req.params;
+
+			// Check if user exists
+			const user = await UserService.getUserById(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			// Update user's enabled status
+			await UserService.updateUserEnabled(userId, false);
+
+			res.json({
+				success: true,
+				message: 'User disabled successfully'
+			});
+			return;
+		} catch (error) {
+			console.error('Error disabling user:', error);
+			res.status(500).json({
+				success: false,
+				message: 'An error occurred while disabling the user'
 			});
 			return;
 		}

@@ -11,12 +11,12 @@ export const instructorCourses = sqliteTable("instructor_courses", {
 	year: int("year").notNull(),
 	crn: text("crn").notNull(),
 	course_subject: text("course_subject").notNull(),
-	course_number: text("course_number").notNull(),
+	course_number: int("course_number").notNull(),
 	course_suffix: text("course_suffix").notNull().default(""),
 	course_section: text("course_section").notNull().default(""),
 	role: text("role").notNull().default("Instructor"),
 }, (table) => [
-	primaryKey({ columns: [table.mnumber, table.term, table.crn] }),
+	primaryKey({ columns: [table.mnumber, table.term, table.year, table.crn] }),
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),
 ]);
 

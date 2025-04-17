@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useSession } from "@/hooks/session-context"
+import { useSession } from "@/context/session"
 
 export default function CobisTools() {
 	const { session } = useSession()
@@ -14,7 +14,7 @@ export default function CobisTools() {
 					COBIS Tools
 				</h2>
 				<p className="text-muted-foreground text-center mt-2">
-					Welcome, {session?.user.name}! Explore COBIS administrative tools.
+					Welcome, {session?.session.data?.user.name}! Explore COBIS administrative tools.
 				</p>
 			</header>
 

@@ -107,6 +107,18 @@ const UpdateMnumberResponse = z.object({
 	})
 });
 
+// Add these new schemas after the existing ones
+const EnableDisableUserResponse = z.object({
+	success: z.boolean().openapi({
+		description: 'Whether the operation was successful',
+		example: true
+	}),
+	message: z.string().openapi({
+		description: 'Message describing the result',
+		example: 'User enabled successfully'
+	})
+});
+
 export const UserAPISpecs = {
 	'/api/user/me': {
 		get: {
@@ -243,6 +255,104 @@ export const UserAPISpecs = {
 									description: 'Error message',
 									example: 'An error occurred while updating your M-number'
 								})
+							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/user/enable/{userId}': {
+		post: {
+			tags: ['User'],
+			operationId: 'enableUser',
+			summary: 'Enable a user',
+			description: 'Enable a user account by their ID. Requires admin privileges.',
+			parameters: [{
+				name: 'userId',
+				in: 'path',
+				required: true,
+				schema: z.string().openapi({
+					description: 'The ID of the user to enable',
+					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
+				})
+			}],
+			responses: {
+				'200': {
+					description: 'User enabled successfully',
+					content: {
+						'application/json': {
+							schema: EnableDisableUserResponse
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean(),
+								message: z.string()
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'User not found',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean(),
+								message: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/user/disable/{userId}': {
+		post: {
+			tags: ['User'],
+			operationId: 'disableUser',
+			summary: 'Disable a user',
+			description: 'Disable a user account by their ID. Requires admin privileges.',
+			parameters: [{
+				name: 'userId',
+				in: 'path',
+				required: true,
+				schema: z.string().openapi({
+					description: 'The ID of the user to disable',
+					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
+				})
+			}],
+			responses: {
+				'200': {
+					description: 'User disabled successfully',
+					content: {
+						'application/json': {
+							schema: EnableDisableUserResponse
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden - Insufficient permissions',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean(),
+								message: z.string()
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'User not found',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean(),
+								message: z.string()
 							})
 						}
 					}

@@ -9,13 +9,13 @@ import { instructionalMethods } from "./instructional-methods";
 import { registrationStatus } from "./registration-status";
 
 export const studentCourses = sqliteTable("student_courses", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber),
+	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade"}),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	part_of_term: text("part_of_term").notNull().references(() => partOfTerm.code),
 	crn: text("crn").notNull(),
 	course_subject: text("course_subject").notNull(),
-	course_number: text("course_number").notNull(),
+	course_number: int("course_number").notNull(),
 	course_suffix: text("course_suffix").notNull().default(""),
 	course_section: text("course_section").notNull(),
 	course_hours: int("course_hours").notNull(),

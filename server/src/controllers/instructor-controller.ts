@@ -15,7 +15,6 @@ export class InstructorController {
 	static async getInstructors(req: Request, res: Response) {
 		try {
 			const authReq = req as AuthAndPermissionsRequest;
-			const accessService = new InstructorAccessService();
 
 			// Check permissions
 			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
@@ -123,28 +122,54 @@ export class InstructorController {
 	}
 
 	/**
-	 * Get course details
+	 * Get course details for an instructor in a specific term
+	 * 
+	 * @param req Request with params (mnumber) and required query (term, year)
+	 * @param res Response object
 	 */
 	static async getCourseDetails(req: Request, res: Response) {
 		try {
 			const { mnumber } = req.params;
 			const { term, year } = req.query;
 
-			// Validate and parse query parameters
-			const options: { term?: string; year?: number } = {};
-			if (term) options.term = term as string;
-			if (year && !isNaN(parseInt(year as string))) {
-				options.year = parseInt(year as string);
+			// Validate required parameters
+			if (!term || !year) {
+				res.status(400).json({
+					error: 'Missing required query parameters',
+					requiredParams: ['term', 'year']
+				});
+				return;
 			}
 
+			// Validate and parse parameters
+			const termCode = term as string;
+			const yearValue = parseInt(year as string);
+
+			if (isNaN(yearValue)) {
+				res.status(400).json({
+					error: 'Invalid year parameter. Year must be a valid number.'
+				});
+				return;
+			}
+
+			// Verify instructor exists
 			if (!(await InstructorsService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const courseDetails = await InstructorsService.getCourseDetails(mnumber, options);
+			// Get course details for the specified term and year
+			const courseDetails = await InstructorsService.getCourseDetails(
+				mnumber,
+				{ term: termCode, year: yearValue }
+			);
 
-			res.json({ mnumber, courseDetails });
+			res.json({
+				mnumber,
+				termCode,
+				year: yearValue,
+				courseDetails
+			});
 			return;
 		} catch (error) {
 			console.error('Error fetching course details:', error);
@@ -194,7 +219,7 @@ export class InstructorController {
 
 			// Parse and validate parameters
 			const courseSubject = subject as string;
-			const courseNumber = number as string;
+			const courseNumber = parseInt(number as string);
 			const courseSuffix = (suffix as string) || ''; // Default to empty string if not provided
 			const termCode = term as string;
 			const yearNum = parseInt(year as string);
@@ -233,6 +258,61 @@ export class InstructorController {
 			return;
 		} catch (error) {
 			console.error('Error fetching class roster:', error);
+			res.status(500).json({ error: 'Internal server error' });
+			return;
+		}
+	}
+
+	/**
+	 * Get grade distribution trends for an instructor over a specified time period
+	 */
+	static async getGradeTrends(req: Request, res: Response) {
+		try {
+			const { mnumber } = req.params;
+			const { start_year, end_year } = req.query;
+
+			// Validate required parameters (years are required)
+			if (!start_year || !end_year) {
+				res.status(400).json({
+					error: 'Missing required query parameters',
+					requiredParams: ['start_year', 'end_year']
+				});
+				return;
+			}
+
+			// Parse and validate parameters
+			const startYear = parseInt(start_year as string);
+			const endYear = parseInt(end_year as string);
+
+			if (isNaN(startYear) || isNaN(endYear)) {
+				res.status(400).json({
+					error: 'Invalid year parameters. Years must be valid numbers.'
+				});
+				return;
+			}
+
+			// Verify instructor exists
+			if (!(await InstructorsService.instructorExists(mnumber))) {
+				res.status(404).json({ error: 'Instructor not found' });
+				return;
+			}
+
+			// Get grade trends for the specified time period
+			const gradeTrends = await InstructorsService.getGradeTrends(
+				mnumber,
+				{ term: "10", year: startYear }, // Default to Spring term
+				{ term: "80", year: endYear }    // Default to Fall term
+			);
+
+			res.json({
+				mnumber,
+				start_year: startYear,
+				end_year: endYear,
+				gradeTrends
+			});
+			return;
+		} catch (error) {
+			console.error('Error fetching grade trends:', error);
 			res.status(500).json({ error: 'Internal server error' });
 			return;
 		}

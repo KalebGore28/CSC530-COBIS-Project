@@ -13,11 +13,9 @@ import * as faculty from './models/faculty';
 import * as nations from './models/nations';
 import * as overrides from './models/overrides';
 import * as partOfTerm from './models/part-of-term';
-import * as permissions from './models/permissions';
 import * as previousColleges from './models/previous-colleges';
 import * as programs from './models/programs';
 import * as registrationStatus from './models/registration-status';
-import * as rolePermissions from './models/role-permissions';
 import * as roles from './models/roles';
 import * as studentAcademicInfo from './models/student-academic-info';
 import * as studentAddresses from './models/student-addresses';
@@ -27,7 +25,6 @@ import * as studentPrograms from './models/student-programs';
 import * as students from './models/students';
 import * as terms from './models/terms';
 import * as testScores from './models/test_scores';
-import * as userPermissions from './models/user_permissions';
 import * as userRoles from './models/user_roles';
 import * as betterAuth from './models/betterAuth';
 
@@ -44,11 +41,9 @@ export * from './models/faculty';
 export * from './models/nations';
 export * from './models/overrides';
 export * from './models/part-of-term';
-export * from './models/permissions';
 export * from './models/previous-colleges';
 export * from './models/programs';
 export * from './models/registration-status';
-export * from './models/role-permissions';
 export * from './models/roles';
 export * from './models/student-academic-info';
 export * from './models/student-addresses';
@@ -58,7 +53,6 @@ export * from './models/student-programs';
 export * from './models/students';
 export * from './models/terms';
 export * from './models/test_scores';
-export * from './models/user_permissions';
 export * from './models/user_roles';
 export * from './models/betterAuth';
 
@@ -76,11 +70,9 @@ export const schema = {
 	nations,
 	overrides,
 	partOfTerm,
-	permissions,
 	previousColleges,
 	programs,
 	registrationStatus,
-	rolePermissions,
 	roles,
 	studentAcademicInfo,
 	studentAddresses,
@@ -90,7 +82,6 @@ export const schema = {
 	students,
 	terms,
 	testScores,
-	userPermissions,
 	userRoles,
 	betterAuth,
 };

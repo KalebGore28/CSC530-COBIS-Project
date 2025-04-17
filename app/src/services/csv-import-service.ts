@@ -65,13 +65,14 @@ export const CsvImportService = {
     }
   },
 
+
   /**
    * Find the matching CSV mapping for a file name
    * @param fileName The name of the file to match
    * @param mappings Array of CSV mappings from the API
    * @returns The matching mapping if found
    */
-  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | LookupCsvMapping | undefined {
+  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | undefined {
     if (!fileName || !mappings.length) return undefined;
 
     // Helper function to parse regex pattern strings from backend
@@ -97,38 +98,25 @@ export const CsvImportService = {
     // First try to match data mappings (they often have more specific patterns)
     const dataMappings = mappings.filter((m): m is DataCsvMapping => m.category === 'data');
     for (const mapping of dataMappings) {
-      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
-
-      for (const pattern of mapping.filePatterns) {
-        if (testPattern(pattern, fileName)) {
-          return mapping;
+      if (mapping.filePatterns && mapping.filePatterns.length > 0) {
+        for (const pattern of mapping.filePatterns) {
+          if (testPattern(pattern, fileName)) {
+            return mapping;
+          }
         }
-      }
-    }
-
-    // If no data mapping matched, check lookup mappings
-    const lookupMappings = mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
-    for (const mapping of lookupMappings) {
-      if (!mapping.filePatterns || mapping.filePatterns.length === 0) continue;
-
-      for (const pattern of mapping.filePatterns) {
-        if (testPattern(pattern, fileName)) {
-          return mapping;
-        }
-      }
-    }
-
-    // If the filename is similar to a lookup table name, use that as fallback
-    for (const mapping of lookupMappings) {
-      const mappingNameLower = mapping.description.toLowerCase().replace(/[\s_-]+/g, '');
-      const fileNameLower = fileName.toLowerCase().replace(/[\s_-]+/g, '').replace(/\.csv$/, '');
-
-      if (fileNameLower.includes(mappingNameLower) || mappingNameLower.includes(fileNameLower)) {
-        return mapping;
       }
     }
 
     return undefined;
+  },
+
+  /**
+   * Get all lookup tables from the mappings
+   * @param mappings Array of CSV mappings from the API
+   * @returns Array of lookup tables
+   */
+  getLookupTables(mappings: CsvMapping[]): LookupCsvMapping[] {
+    return mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
   },
 
   /**
@@ -142,7 +130,7 @@ export const CsvImportService = {
     fileName: string,
     mappings: CsvMapping[]
   ): {
-    mapping: CsvMapping | undefined
+    mapping: DataCsvMapping | undefined
   } {
     if (!fileName || !mappings.length) {
       return { mapping: undefined };

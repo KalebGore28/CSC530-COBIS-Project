@@ -1,206 +1,140 @@
-import React, { useState, useEffect } from "react";
-import ClassRosterComponent from "@/components/class-roster";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import axios from "axios";
-import { useSession } from "@/hooks/session-context";
-// Define interfaces for API response
-interface CourseDetail {
-	termName: string;
-	termCode: string;
-	year: number;
-	courseId: string;
-	courseTitle: string;
-	courseSubject: string;
-	courseNumber: string;
-	courseSuffix: string;
-	courseSection: string;
-	crn: string;
-	creditHours: number;
-	studentCount: number;
-	totalCreditHours: number;
-}
+import React, { useState } from "react";
+import { Alert } from "@/components/ui/alert";
+import { useSession } from "@/context/session";
+import { TermSelector, Term } from "@/components/selectors/term-selector";
+import { CourseSelector, Course } from "@/components/selectors/course-selector";
+import ClassRosterComponent, { Student } from "@/components/features/roster/roster"; // Assuming Student type is exported here
+import { Separator } from "@/components/ui/separator";
 
-interface InstructorCoursesResponse {
-	mnumber: string;
-	courseDetails: CourseDetail[];
-}
+// --- Import the Modal and StudentDetail components ---
+// Make sure this path is correct for your project structure
+import { Modal } from "@/components/modals/modal";
+// Make sure this path is correct for your project structure
+import StudentDetail from '@/components/student-detail';
 
-// Modified ClassRoster component that will fetch data from API
 const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
-	const [courses, setCourses] = useState<CourseDetail[]>([]);
-	const [selectedClass, setSelectedClass] = useState<CourseDetail | null>(null);
-	const [loading, setLoading] = useState(true);
+	const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
+	const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 	const [error, setError] = useState<string | null>(null);
-	const [fetchingRoster, setFetchingRoster] = useState(false);
-	const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-	// Fetch courses data from API
-	useEffect(() => {
-		const fetchCourses = async () => {
-			try {
-				setLoading(true);
-				// Get the M-number from session context
-				const mnumber = session?.mnumber;
+	// --- Modal State ---
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	// Store only the mnumber when a student is selected for the modal
+	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
+	const [selectedStudentName, setSelectedStudentName] = useState<string>(''); // For Modal title
 
-				if (!mnumber) {
-					setError("Authentication required. Please log in.");
-					setLoading(false);
-					return;
-				}
+	const handleTermSelect = (term: Term) => {
+		setSelectedTerm(term);
+		setSelectedCourse(null);
+	};
 
-				// Create a request with authentication headers
-				const response = await axios.get<InstructorCoursesResponse>(
-					`http://localhost:4000/api/instructor/${mnumber}/courses`,
-					{
-						withCredentials: true
-					}
-				);
+	const handleCourseSelect = (course: Course) => {
+		setSelectedCourse(course);
+		setError(null);
+	};
 
-				console.log("Courses:", response.data);
+	const handleError = (err: any) => {
+		console.error("Error:", err);
+		setError("Failed to load data. Please try again.");
+	};
 
-				setCourses(response.data.courseDetails);
-
-				// Set the first course as selected by default if available
-				if (response.data.courseDetails.length > 0) {
-					setSelectedClass(response.data.courseDetails[0]);
-				}
-
-				setLoading(false);
-			} catch (err) {
-				console.error("Error fetching courses:", err);
-				setError("Failed to load courses. Please try again later.");
-				setLoading(false);
-			}
-		};
-
-		fetchCourses();
-	}, [session]);
-
-	// Function to handle class selection
-	const handleClassChange = (courseId: string) => {
-		const selected = courses.find(course =>
-			`${course.courseSubject}-${course.courseNumber}-${course.crn}-${course.termName}-${course.year}` === courseId
-		);
-
-		if (selected) {
-			setSelectedClass(selected);
+	// --- Modal Handlers ---
+	/**
+	 * Called when a student is selected from the ClassRosterComponent.
+	 * Sets the state to open the modal with the selected student's details.
+	 * @param student The student object selected.
+	 */
+	const handleStudentSelectForModal = (student: Student) => {
+		if (!student || !student.mnumber) {
+			console.error("Invalid student data received:", student);
+			setError("Could not open details for the selected student.");
+			return;
 		}
+		setSelectedMnumber(student.mnumber);
+		// Set the name for the modal title (optional, adjust formatting as needed)
+		setSelectedStudentName(`${student.firstName} ${student.lastName}`);
+		setIsModalOpen(true); // Open the modal
 	};
 
-	// Function to manually trigger data refresh by incrementing the refreshTrigger
-	const handleGetRoster = () => {
-		console.log("Get Roster button clicked, triggering refresh");
-		setFetchingRoster(true);
-		// Use a setTimeout to allow state update to propagate
-		setTimeout(() => {
-			setRefreshTrigger(prev => prev + 1);
-			// Add a small delay before setting fetchingRoster back to false
-			setTimeout(() => {
-				setFetchingRoster(false);
-			}, 1000); // Longer delay to ensure component has time to refresh
-		}, 100);
+	/**
+	 * Closes the student detail modal and clears the selection state.
+	 */
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setSelectedMnumber(null);
+		setSelectedStudentName('');
 	};
 
-	// Format class for display and selection
-	const formatClassForDisplay = (course: CourseDetail) => {
-		return `${course.courseSubject} ${course.courseNumber}${course.courseSuffix ? `-${course.courseSuffix}` : ''} - ${course.courseTitle} (${course.termName} ${course.year})`;
-	};
-
-	// Generate a unique key for each course
-	const getCourseKey = (course: CourseDetail) => {
-		return `${course.courseSubject}-${course.courseNumber}-${course.crn}-${course.termName}-${course.year}`;
-	};
-
-	if (loading) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-					<p className="mt-4 text-lg">Loading courses...</p>
-				</div>
-			</div>
-		);
-	}
-
-	if (error) {
-		return (
-			<div className="flex items-center justify-center min-h-screen">
-				<div className="text-center">
-					<h2 className="text-2xl font-bold text-red-500">Error</h2>
-					<p className="mt-2">{error}</p>
-					<Button className="mt-4" onClick={() => window.location.reload()}>
-						Retry
-					</Button>
-				</div>
-			</div>
-		);
-	}
 
 	return (
-		<div className="p-6 max-w-7xl mx-auto">
-			<Card className="mb-6">
-				<CardHeader>
-					<CardTitle>Class Roster</CardTitle>
-					<CardDescription>View and manage your class roster</CardDescription>
-				</CardHeader>
-				<CardContent>
-					<div className="flex flex-col md:flex-row gap-4">
-						<div className="w-full md:w-2/3">
-							{courses.length > 0 ? (
-								<Select
-									value={selectedClass ? getCourseKey(selectedClass) : undefined}
-									onValueChange={handleClassChange}
-								>
-									<SelectTrigger>
-										<SelectValue placeholder="Select a class" />
-									</SelectTrigger>
-									<SelectContent>
-										{courses.map((course) => (
-											<SelectItem
-												key={getCourseKey(course)}
-												value={getCourseKey(course)}
-											>
-												{formatClassForDisplay(course)}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							) : (
-								<p>No courses available</p>
+		<div className="container p-6 mx-auto space-y-6">
+			<h1 className="text-2xl font-bold">Class Roster</h1>
+
+			{!session ? (
+				<Alert variant="destructive">{/* ... Auth Error ... */}</Alert>
+			) : (
+				<>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+						{/* Term Selector */}
+						<div>
+							<TermSelector
+								mnumber={session.info.mnumber}
+								onTermSelect={handleTermSelect}
+								onError={handleError}
+							/>
+						</div>
+						{/* Course Selector */}
+						<div>
+							{selectedTerm && (
+								<CourseSelector
+									mnumber={session.info.mnumber}
+									selectedTerm={selectedTerm}
+									onCourseSelect={handleCourseSelect}
+									onError={handleError}
+								/>
 							)}
 						</div>
-						<div className="w-full md:w-1/3 flex justify-end">
-							<Button
-								onClick={handleGetRoster}
-								disabled={fetchingRoster || !selectedClass}
-							>
-								{fetchingRoster ? (
-									<>
-										<div className="h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-										Fetching...
-									</>
-								) : (
-									'Get Roster'
-								)}
-							</Button>
-						</div>
 					</div>
-				</CardContent>
-			</Card>
 
-			{selectedClass && (
-				<ClassRosterComponent
-					subject={selectedClass.courseSubject}
-					number={selectedClass.courseNumber}
-					suffix={selectedClass.courseSuffix}
-					section={selectedClass.courseSection}
-					term={selectedClass.termCode}
-					year={selectedClass.year}
-					refreshTrigger={refreshTrigger}
-				/>
+					{error && (
+						<Alert variant="destructive">{/* ... Error Display ... */}</Alert>
+					)}
+
+					{/* Class Roster Component */}
+					{session && selectedCourse && (
+						<>
+							<Separator className="my-6" />
+							{/* Pass the modal opening handler to the ClassRosterComponent */}
+							<ClassRosterComponent
+								mnumber={session.info.mnumber}
+								selectedCourse={selectedCourse}
+								// Connect the component's output to our modal handler
+								onStudentSelect={handleStudentSelectForModal}
+							/>
+						</>
+					)}
+
+					{/* --- Student Detail Modal --- */}
+					{/* Render the modal conditionally based on isModalOpen */}
+					<Modal
+						isOpen={isModalOpen}
+						onClose={handleCloseModal}
+						title={`Student Details - ${selectedStudentName}`}
+						description={`Showing comprehensive details for M-Number: ${selectedMnumber || 'N/A'}`}
+						// Adjust width as needed using Tailwind classes
+						contentClassName="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl"
+					>
+						{/*
+                          Render StudentDetail only when an mnumber is selected.
+                          The key prop ensures re-fetching if the mnumber changes
+                          while the modal is somehow kept open.
+                        */}
+						{selectedMnumber && (
+							<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
+						)}
+					</Modal>
+				</>
 			)}
 		</div>
 	);

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StudentFilters } from "@/components/student-filters";
 import { FilterState } from "@/components/student-filters";
-import { PaginatedTable } from "@/components/paginated-table";
+import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 
