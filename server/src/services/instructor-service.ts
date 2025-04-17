@@ -394,7 +394,7 @@ export class InstructorsService {
 	static async getClassRoster(
 		mnumber: string,
 		courseSubject: string,
-		courseNumber: string,
+		courseNumber: number,
 		courseSuffix: string,
 		courseSection: string,
 		termCode: string,

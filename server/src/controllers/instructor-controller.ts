@@ -219,7 +219,7 @@ export class InstructorController {
 
 			// Parse and validate parameters
 			const courseSubject = subject as string;
-			const courseNumber = number as string;
+			const courseNumber = parseInt(number as string);
 			const courseSuffix = (suffix as string) || ''; // Default to empty string if not provided
 			const termCode = term as string;
 			const yearNum = parseInt(year as string);
