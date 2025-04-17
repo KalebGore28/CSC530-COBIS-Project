@@ -34,6 +34,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
+import { Modal } from "@/components/modals/modal";
+import StudentDetail from '@/components/student-detail';
 
 
 /**
@@ -119,6 +121,11 @@ const CourseRosterPage: React.FC = () => {
 	const [sortField, setSortField] = useState<"name" | "grade">("name");
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [gradeFilter, setGradeFilter] = useState<string>("all");
+
+
+	const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
+	const [selectedStudentName, setSelectedStudentName] = useState<string>('');
 
 	// Parse courseId on component mount
 	useEffect(() => {
@@ -276,13 +283,25 @@ const CourseRosterPage: React.FC = () => {
 		navigate(`/instructors/${mnumber}/${yearTerm}`);
 	};
 
-	// Navigate to student details
+	// --- Modified Student Select Handler (for Modal) ---
 	const handleStudentSelect = (student: Student) => {
-		// You can implement navigation to student details here
-		// For example: navigate(`/student/${student.mnumber}`);
-		console.log("Selected student:", student);
+		if (!student || !student.mnumber) {
+			console.error("Invalid student data for modal:", student);
+			// Consider adding a user-facing error notification (e.g., toast)
+			return;
+		}
+		console.log(`Opening details for student: ${student.firstName} ${student.lastName} (${student.mnumber})`);
+		setSelectedMnumber(student.mnumber);
+		setSelectedStudentName(`${student.firstName} ${student.lastName}`);
+		setIsModalOpen(true); // Open the modal
 	};
 
+	// --- Add Modal Close Handler ---
+	const handleCloseModal = () => {
+		setIsModalOpen(false);
+		setSelectedMnumber(null);
+		setSelectedStudentName('');
+	};
 	if (loading) {
 		return <SkeletonCard showTitle showDescription lines={5} className="container mx-auto p-6" />;
 	}
@@ -535,10 +554,11 @@ const CourseRosterPage: React.FC = () => {
 										<TableBody>
 											{filteredStudents.length > 0 ? (
 												filteredStudents.map((student, index) => (
-													<TableRow key={index} className="group">
+													<TableRow key={index} className="group cursor-pointer"
+														onClick={() => handleStudentSelect(student)}
+													>
 														<TableCell className="font-medium">
 															<button
-																onClick={() => handleStudentSelect(student)}
 																className="text-left hover:text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-0.5 -mx-1 -my-0.5"
 															>
 																{student.lastName}, {student.firstName}{" "}
@@ -640,6 +660,18 @@ const CourseRosterPage: React.FC = () => {
 						</Tabs>
 					</CardContent>
 				</Card>
+				<Modal
+					isOpen={isModalOpen}
+					onClose={handleCloseModal}
+					title={`Student Details - ${selectedStudentName}`}
+					description={`Showing comprehensive details for M-Number: ${selectedMnumber || 'N/A'}`}
+					// Adjust width as needed
+					contentClassName="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl"
+				>
+					{selectedMnumber && (
+						<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
+					)}
+				</Modal>
 			</div>
 		</div>
 	);

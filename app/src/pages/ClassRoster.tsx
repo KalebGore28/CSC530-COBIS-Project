@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
@@ -23,12 +23,6 @@ const ClassRosterPage: React.FC = () => {
 	// Store only the mnumber when a student is selected for the modal
 	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
 	const [selectedStudentName, setSelectedStudentName] = useState<string>(''); // For Modal title
-
-	useEffect(() => {
-		if (selectedCourse) {
-			console.log("Selected course:", { /* ... course details ... */ });
-		}
-	}, [selectedCourse]);
 
 	const handleTermSelect = (term: Term) => {
 		setSelectedTerm(term);
@@ -57,7 +51,6 @@ const ClassRosterPage: React.FC = () => {
 			setError("Could not open details for the selected student.");
 			return;
 		}
-		console.log(`Opening details for student: ${student.firstName} ${student.lastName} (${student.mnumber})`);
 		setSelectedMnumber(student.mnumber);
 		// Set the name for the modal title (optional, adjust formatting as needed)
 		setSelectedStudentName(`${student.firstName} ${student.lastName}`);
