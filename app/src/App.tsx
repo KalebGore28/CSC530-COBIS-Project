@@ -17,6 +17,7 @@ import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 import AdvisorPage from './pages/AdvisorPage';
+import { UserList } from '@/components/user-list'; // Adjust path if needed
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
@@ -28,7 +29,6 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute'; // Adjust path if
 
 // Keep URL restoration logic (utility functions and initial hooks)
 const URL_STORAGE_KEY = 'initial_app_url';
-// ... (saveInitialUrl, getInitialUrl, clearInitialUrl functions remain the same)
 
 export const App: React.FC = () => {
   const { session, isLoading, refetchSession } = useSession();
@@ -120,6 +120,7 @@ export const App: React.FC = () => {
           <Route path="cobis-tools" element={<CobisTools />}>
             <Route path="query-builder" element={<QueryBuilderPage />} />
             <Route path="imports" element={<CsvImport />} />
+            <Route path="user-list" element={<UserList />} />
           </Route>
         </Route>
 

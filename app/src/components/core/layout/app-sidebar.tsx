@@ -60,6 +60,7 @@ const data = {
 			items: [
 				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
+				{ title: "User List", url: "/cobis-tools/user-list" },
 			],
 		},
 		{
