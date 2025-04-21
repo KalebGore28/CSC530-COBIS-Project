@@ -228,5 +228,122 @@ export const UserAPISpecs = {
 			}
 		}
 	},
-
+	'/api/user/{userId}/provision': {
+		put: {
+			tags: ['User'],
+			operationId: 'provisionUser',
+			summary: 'Provision or update user details (Admin only)',
+			description: `
+				Update optional details for a specific user by their ID. Requires admin privileges.
+				The request body can contain optional fields: \`mnumber\`, \`isEnabled\`, \`college\`, and \`department\`.
+				**Important:** If either \`college\` or \`department\` is included in the request body, *both* must be present and be strings. Providing only one will result in a 400 Bad Request error.
+            `.trim(),
+			// Define path parameters using requestParam with a Zod object
+			requestParam: z.object({
+				// Define the path parameter 'userId' here
+				userId: z.string().openapi({
+					description: 'The unique identifier of the user to provision or update.',
+					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
+				})
+			}),
+			requestBody: {
+				description: 'Optional user details to update. If college or department is provided, both are required.',
+				required: true,
+				content: {
+					'application/json': {
+						schema: z.object({
+							mnumber: z.string().optional().openapi({
+								description: 'User\'s M-Number.',
+								example: 'M00987654'
+							}),
+							isEnabled: z.boolean().optional().openapi({
+								description: 'Set the enabled status of the user account.',
+								example: true
+							}),
+							college: z.string().optional().openapi({
+								description: 'User\'s college. Must be provided if department is present.',
+								example: 'College of Arts & Sciences'
+							}),
+							department: z.string().optional().openapi({
+								description: 'User\'s department. Must be provided if college is present.',
+								example: 'History'
+							})
+						})
+					}
+				}
+			},
+			responses: {
+				'200': {
+					description: 'User provisioned or updated successfully.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: true }),
+								user: z.object({
+									id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
+									roles: z.array(z.string()).openapi({ description: 'Roles assigned to the user', example: ['student', 'researcher'] }),
+									department: z.string().nullable().openapi({ description: 'User\'s department', example: 'History' }),
+									college: z.string().nullable().openapi({ description: 'User\'s college', example: 'College of Arts & Sciences' }),
+									mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00987654' }),
+									name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'John Doe' }),
+									email: z.string().email().nullable().openapi({ description: 'User\'s email address', example: 'john.doe@example.com' }),
+									isEnabled: z.boolean().openapi({ description: 'Indicates if the user account is enabled', example: true })
+								})
+							})
+						}
+					}
+				},
+				'400': {
+					description: 'Bad Request. Invalid input provided.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({
+									examples: [
+										'isEnabled must be a boolean',
+										'Both college and department must be provided to update faculty details',
+										'College and department must be strings',
+									]
+								})
+							})
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden. User does not have admin privileges.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'Forbidden: Insufficient privileges' })
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'Not Found. The specified user does not exist.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'User not found' })
+							})
+						}
+					}
+				},
+				'500': {
+					description: 'Internal Server Error. An unexpected error occurred.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'An unexpected error occurred' })
+							})
+						}
+					}
+				}
+			}
+		}
+	},
 }

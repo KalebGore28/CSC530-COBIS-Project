@@ -195,7 +195,6 @@ export class UserController {
 				details.department = department;
 			}
 
-
 			// Call the service method
 			const result = await UserService.provisionUser(userId, details);
 
