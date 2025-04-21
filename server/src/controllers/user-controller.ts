@@ -120,7 +120,6 @@ export const ProvisionUserBodySchema = z.object({
 })
 
 type ProvisionUserDetails = z.output<typeof ProvisionUserBodySchema>;
-// --- Combined Schema for the Entire Request ---
 const ProvisionUserRequestSchema = z.object({
 	params: UserIdParamsSchema,
 	body: ProvisionUserBodySchema,
@@ -301,7 +300,6 @@ export class UserController {
 			res.status(400).json({
 				success: false,
 				message: 'Invalid request data',
-				// .format() provides structured errors, detailing issues in params and body
 				errors: validationResult.error.format(),
 			});
 			return;
@@ -325,15 +323,13 @@ export class UserController {
 
 			// Send response based on service result
 			if (result.success) {
-				// Use the status from the service result (e.g., 200 OK or 201 Created)
 				res.status(result.status).json({ success: true, user: result.user });
 			} else {
-				// Use the status and message from the service result (e.g., 404 Not Found, 409 Conflict)
 				res.status(result.status).json({ success: false, message: result.message });
 			}
 
 		} catch (error: any) {
-			console.error(`Error in provisionUser controller for userId ${userId}:`, error); // Log context
+			console.error(`Error in provisionUser controller for userId ${userId}:`, error);
 			res.status(500).json({ success: false, message: 'An unexpected error occurred during user provisioning' });
 		}
 	}
