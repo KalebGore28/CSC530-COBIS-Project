@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User as UserIcon, Mail, Building, BriefcaseBusiness, CheckCircle, XCircle, Power, PowerOff } from 'lucide-react'; // Example icons
+import { User as UserIcon, Mail, Building, BriefcaseBusiness, CheckCircle, XCircle, Power, PowerOff } from 'lucide-react';
 
 interface UserCardProps {
 	user: User;
@@ -46,15 +46,12 @@ const UserCard: React.FC<UserCardProps> = ({
 		onToggleEnable(user.id, user.isEnabled);
 	};
 
-	// --- Determine if this card is for the logged-in admin ---
 	const isSelf = user.id === currentAdminId;
-	// --- Determine if the disable action should be prevented ---
 	const preventSelfDisable = isSelf && user.isEnabled;
 
 	return (
 		<Card className="w-full">
 			<CardHeader>
-				{/* ... (CardHeader content remains the same) ... */}
 				<div className="flex items-center space-x-4">
 					<Avatar>
 						<AvatarImage src={user.image ?? undefined} alt={user.name} />
@@ -65,14 +62,12 @@ const UserCard: React.FC<UserCardProps> = ({
 						<CardDescription className="flex items-center space-x-1">
 							<Mail className="h-4 w-4 text-muted-foreground" />
 							<span>{user.email}</span>
-							{/* Optionally indicate if this is the current user */}
 							{isSelf && <Badge variant="outline" className="ml-2">You</Badge>}
 						</CardDescription>
 					</div>
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-2 text-sm">
-				{/* ... (CardContent details remain the same) ... */}
 				<div className="flex items-center space-x-2">
 					{user.isEnabled ? (
 						<CheckCircle className="h-4 w-4 text-green-500" />
