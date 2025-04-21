@@ -78,15 +78,9 @@ export const getUserInfo = async (
 		(req as AuthAndPermissionsRequest).mnumber = userMnumber;
 		(req as AuthAndPermissionsRequest).isEnabled = userIsEnabled;
 
-
 		// Check if user is enabled
 		if (!userIsEnabled) {
 			res.status(403).json({ error: 'Forbidden: User is disabled' });
-
-			// Revoke the session
-			await auth.api.revokeSessions({
-				headers: fromNodeHeaders(req.headers),
-			});
 			return;
 		}
 

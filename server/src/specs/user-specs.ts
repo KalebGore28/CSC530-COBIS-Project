@@ -87,26 +87,6 @@ const CurrentUserResponse = z.object({
 	description: 'Current user information or null if not authenticated'
 });
 
-// Schema for updating M-number request
-const UpdateMnumberRequest = z.object({
-	mnumber: z.string().openapi({
-		description: 'The M-number to update',
-		example: 'M12345678'
-	})
-});
-
-// Schema for updating M-number response
-const UpdateMnumberResponse = z.object({
-	success: z.boolean().openapi({
-		description: 'Whether the operation was successful',
-		example: true
-	}),
-	message: z.string().openapi({
-		description: 'Message describing the result',
-		example: 'M-number updated successfully'
-	})
-});
-
 // Add these new schemas after the existing ones
 const EnableDisableUserResponse = z.object({
 	success: z.boolean().openapi({
@@ -151,118 +131,7 @@ export const UserAPISpecs = {
 			}
 		}
 	},
-	'/api/user/update-mnumber': {
-		post: {
-			tags: ['User'],
-			operationId: 'updateMnumber',
-			summary: 'Update user M-number',
-			description: 'Update the current user\'s M-number. Can only be done once per user.',
-			requestBody: {
-				required: true,
-				content: {
-					'application/json': {
-						schema: UpdateMnumberRequest
-					}
-				}
-			},
-			responses: {
-				'200': {
-					description: 'M-number updated successfully',
-					content: {
-						'application/json': {
-							schema: UpdateMnumberResponse
-						}
-					}
-				},
-				'400': {
-					description: 'Invalid request',
-					content: {
-						'application/json': {
-							schema: z.object({
-								success: z.boolean().openapi({
-									description: 'Operation status',
-									example: false
-								}),
-								message: z.string().openapi({
-									description: 'Error message',
-									example: 'M-number is required and must be a string'
-								})
-							})
-						}
-					}
-				},
-				'403': {
-					description: 'Forbidden - User already has an M-number',
-					content: {
-						'application/json': {
-							schema: z.object({
-								success: z.boolean().openapi({
-									description: 'Operation status',
-									example: false
-								}),
-								message: z.string().openapi({
-									description: 'Error message',
-									example: 'Cannot change M-number. Contact admin to change.'
-								})
-							})
-						}
-					}
-				},
-				'404': {
-					description: 'User not found',
-					content: {
-						'application/json': {
-							schema: z.object({
-								success: z.boolean().openapi({
-									description: 'Operation status',
-									example: false
-								}),
-								message: z.string().openapi({
-									description: 'Error message',
-									example: 'User not found'
-								})
-							})
-						}
-					}
-				},
-				'409': {
-					description: 'Conflict - M-number already taken',
-					content: {
-						'application/json': {
-							schema: z.object({
-								success: z.boolean().openapi({
-									description: 'Operation status',
-									example: false
-								}),
-								message: z.string().openapi({
-									description: 'Error message',
-									example: 'M-number already taken. If this is yours, contact admin to fix.'
-								})
-							})
-						}
-					}
-				},
-				'500': {
-					description: 'Internal server error',
-					content: {
-						'application/json': {
-							schema: z.object({
-								success: z.boolean().openapi({
-									description: 'Operation status',
-									example: false
-								}),
-								message: z.string().openapi({
-									description: 'Error message',
-									example: 'An error occurred while updating your M-number'
-								})
-							})
-						}
-					}
-				}
-			}
-		}
-	},
-	'/api/user/enable/{userId}': {
+	'/api/user/{userId}/enable': {
 		post: {
 			tags: ['User'],
 			operationId: 'enableUser',
@@ -311,7 +180,7 @@ export const UserAPISpecs = {
 			}
 		}
 	},
-	'/api/user/disable/{userId}': {
+	'/api/user/{userId}/disable': {
 		post: {
 			tags: ['User'],
 			operationId: 'disableUser',
@@ -361,9 +230,3 @@ export const UserAPISpecs = {
 		}
 	}
 };
-
-export const UserSpecs = {
-	CurrentUserResponse,
-	UpdateMnumberRequest,
-	UpdateMnumberResponse
-}; 

@@ -1,8 +1,18 @@
 import { Request, Response } from 'express';
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-import { UserService } from '../services/user-service';
+// Import UserService and potentially the filters interface
+import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
+
+// Helper function to parse boolean query params
+function parseBoolean(value: any): boolean | undefined {
+	if (typeof value === 'string') {
+		if (value.toLowerCase() === 'true') return true;
+		if (value.toLowerCase() === 'false') return false;
+	}
+	return undefined; // Return undefined if not 'true' or 'false'
+}
 
 /**
  * Controller for user-related endpoints
@@ -35,74 +45,6 @@ export class UserController {
 			}
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error' });
-		}
-	}
-
-	/**
-	 * Update the current user's M-number
-	 */
-	static async updateMnumber(req: Request, res: Response) {
-		try {
-			// Extract mnumber from the request body
-			const { mnumber } = req.body;
-
-			// Get the current user from the request (attached by authenticateUser middleware)
-			const currentUser = (req as any).user;
-
-			// Step 1: Validate input
-			if (!mnumber || typeof mnumber !== 'string') {
-				res.status(400).json({
-					success: false,
-					message: 'M-number is required and must be a string',
-				});
-				return;
-			}
-
-			// Step 2: Get the current user data
-			const userData = await UserService.getUserById(currentUser.id);
-			if (!userData) {
-				res.status(404).json({
-					success: false,
-					message: 'User not found',
-				});
-				return;
-			}
-
-			// Step 3: Check if the user already has an M-number
-			if (userData.mnumber !== null) {
-				res.status(403).json({
-					success: false,
-					message: 'Cannot change M-number. Contact admin to change.',
-				});
-				return;
-			}
-
-			// Step 4: Check if the M-number is already taken
-			const isMnumberTaken = await UserService.isMnumberTaken(mnumber);
-			if (isMnumberTaken) {
-				res.status(409).json({
-					success: false,
-					message: 'M-number already taken. If this is yours, contact admin to fix.',
-				});
-				return;
-			}
-
-			// Step 5: Update the user's M-number
-			await UserService.updateMnumber(currentUser.id, mnumber);
-
-			// Step 6: Return success response
-			res.json({
-				success: true,
-				message: 'M-number updated successfully',
-			});
-			return;
-		} catch (error) {
-			console.error('Error updating M-number:', error);
-			res.status(500).json({
-				success: false,
-				message: 'An error occurred while updating your M-number',
-			});
-			return;
 		}
 	}
 
@@ -175,4 +117,103 @@ export class UserController {
 			return;
 		}
 	}
+
+	/**
+	 * Get all users with optional filters (Admin only)
+	 */
+	static async getAllUsers(req: Request, res: Response) {
+		try {
+			// Extract and prepare filters from query parameters
+			const filters: UserFilters = {};
+			const { isEnabled, college, department, name, email, mnumber } = req.query;
+
+			const parsedEnabled = parseBoolean(isEnabled);
+			if (parsedEnabled !== undefined) {
+				filters.isEnabled = parsedEnabled;
+			}
+			if (typeof college === 'string') filters.college = college;
+			if (typeof department === 'string') filters.department = department;
+			if (typeof name === 'string') filters.name = name;
+			if (typeof email === 'string') filters.email = email;
+			if (typeof mnumber === 'string') filters.mnumber = mnumber;
+
+
+			// Call the service method
+			const users = await UserService.getAllUsers(filters);
+
+			res.status(200).json(users);
+
+		} catch (error: any) {
+			console.error('Error getting all users:', error);
+			res.status(500).json({ success: false, message: 'An error occurred while fetching users' });
+		}
+	}
+
+
+	/**
+	 * Provision or update user details (Admin only)
+	 */
+	static async provisionUser(req: Request, res: Response) {
+		try {
+			const { userId } = req.params;
+			// Extract optional details from the body
+			const { mnumber, isEnabled, college, department } = req.body;
+
+			// Basic validation (more complex validation can be added)
+			if (!userId) {
+				res.status(400).json({ success: false, message: 'User ID is required' });
+				return;
+			}
+
+			const details: {
+				mnumber?: string;
+				isEnabled?: boolean;
+				college?: string;
+				department?: string;
+			} = {};
+
+			// Only include fields if they are present in the request body
+			if (mnumber !== undefined) details.mnumber = mnumber; // Allow null/empty string based on service logic
+			if (isEnabled !== undefined) {
+				if (typeof isEnabled !== 'boolean') {
+					res.status(400).json({ success: false, message: 'isEnabled must be a boolean' });
+					return;
+				}
+				details.isEnabled = isEnabled;
+			}
+			// Require both college and department if either is provided for faculty update
+			if (college !== undefined || department !== undefined) {
+				if (college === undefined || department === undefined) {
+					res.status(400).json({ success: false, message: 'Both college and department must be provided to update faculty details' });
+					return;
+				}
+				if (typeof college !== 'string' || typeof department !== 'string') {
+					res.status(400).json({ success: false, message: 'College and department must be strings' });
+					return;
+				}
+				details.college = college;
+				details.department = department;
+			}
+
+
+			// Call the service method
+			const result = await UserService.provisionUser(userId, details);
+
+			// Send response based on service result
+			if (result.success) {
+				// On success, status is 200 and includes the updated user
+				res.status(result.status).json({ success: true, user: result.user });
+			} else {
+				// On failure, use status and message from service
+				res.status(result.status).json({ success: false, message: result.message });
+			}
+
+		} catch (error: any) {
+			// Catch unexpected errors during controller execution
+			console.error('Error in provisionUser controller:', error);
+			res.status(500).json({ success: false, message: 'An unexpected error occurred' });
+		}
+	}
+
+
 } 
