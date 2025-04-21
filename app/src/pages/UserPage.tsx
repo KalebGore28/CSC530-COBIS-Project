@@ -139,32 +139,36 @@ export const UserList: React.FC = () => {
 	};
 
 	const handleProvisionSaveSuccess = (updatedUser: UserData) => {
-		console.log("Provision successful in parent, updating list:", updatedUser);
-		// Update the specific user in the list
-		// Ensure the updatedUser structure matches the User type or adapt as needed
 		setUsers(prevUsers =>
-			prevUsers.map(u =>
-				u.id === updatedUser.id
-					// Smart merge: keep existing fields, overwrite with updated ones
-					// Convert role_id back to string if User type requires it, otherwise keep as number
-					? {
+			prevUsers.map(u => {
+				if (u.id === updatedUser.id) {
+					// Construct the new object ensuring it matches the User type
+					const newUser: User = {
 						...u,
-						mnumber: updatedUser.mnumber,
-						name: updatedUser.name,
-						email: updatedUser.email, // Assuming email doesn't change here, but good practice
-						image: updatedUser.image,
-						isEnabled: updatedUser.isEnabled,
-						college: updatedUser.college,
-						department: updatedUser.department,
-						// Handle potential type difference for roles
-						roles: updatedUser.roles?.map(r => ({ ...r, role_id: String(r.role_id) })) || [], // Example: Convert role_id to string
-					}
-					: u
-			)
-		);
-		// Alternatively, refetch the entire list for simplicity:
-		// debouncedFetchUsers(filters);
+						mnumber: updatedUser.mnumber ?? null, // Use null if updatedUser.mnumber is null or undefined
+						name: updatedUser.name ?? u.name, // Fallback to original name if undefined (assuming User type needs a name)
+						email: updatedUser.email ?? u.email, // Fallback to original email
+						image: updatedUser.image ?? u.image, // Fallback (adjust if User requires null/string)
+						isEnabled: updatedUser.isEnabled ?? u.isEnabled, // Fallback to original status
+						college: updatedUser.college ?? null, // Use null if undefined (assuming User allows null)
+						department: updatedUser.department ?? null, // Use null if undefined (assuming User allows null)
 
+						// Handle roles, ensure role_id matches User type (e.g., string)
+						roles: updatedUser.roles?.map(r => ({
+							...r,
+							role_id: Number(r.role_id), // Ensure role_id is a number
+						})) ?? u.roles ?? [], // Fallback to original roles or empty array
+
+						// Explicitly keep fields not typically in UserData if User requires them
+						lastLogin: u.lastLogin,
+						createdAt: u.createdAt,
+					};
+					return newUser;
+				} else {
+					return u;
+				}
+			})
+		);
 		handleCloseProvisionModal(); // Close the modal after saving
 	};
 
