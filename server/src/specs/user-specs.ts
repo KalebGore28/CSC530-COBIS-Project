@@ -31,7 +31,7 @@ export const UserAPISpecs = {
 		get: {
 			tags: ['User'],
 			operationId: 'getAllUsers',
-			summary: 'Get all users',
+			summary: 'Get all users (COBIS Admin only)',
 			description: 'Retrieve a list of all users, with optional filters. Requires admin privileges.',
 			requestQuery: {
 				query: z.object({
@@ -41,11 +41,11 @@ export const UserAPISpecs = {
 					}),
 					college: z.string().optional().openapi({
 						description: 'Filter users by college.',
-						example: 'College of Engineering'
+						example: '0'
 					}),
 					department: z.string().optional().openapi({
 						description: 'Filter users by department.',
-						example: 'Computer Science'
+						example: '0000'
 					}),
 					name: z.string().optional().openapi({
 						description: 'Filter users by name (case-insensitive partial match).',
@@ -72,8 +72,8 @@ export const UserAPISpecs = {
 									// Assuming a user object typically has an ID
 									id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
 									roles: z.array(z.string()).openapi({ description: 'Roles assigned to the user', example: ['student', 'researcher'] }),
-									department: z.string().nullable().openapi({ description: 'User\'s department', example: 'Computer Science' }),
-									college: z.string().nullable().openapi({ description: 'User\'s college', example: 'College of Engineering' }),
+									department: z.string().nullable().openapi({ description: 'User\'s department', example: '0000' }),
+									college: z.string().nullable().openapi({ description: 'User\'s college', example: '0' }),
 									mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00123456' }),
 									// Include fields from filters that are likely part of the user object
 									name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'Jane Doe' }),
@@ -116,7 +116,7 @@ export const UserAPISpecs = {
 		post: {
 			tags: ['User'],
 			operationId: 'enableUser',
-			summary: 'Enable a user',
+			summary: 'Enable a user (COBIS Admin only)',
 			description: 'Enable a user account by their ID. Requires admin privileges.',
 			requestParam: z.object({
 				query: z.string().openapi({
@@ -174,7 +174,7 @@ export const UserAPISpecs = {
 		post: {
 			tags: ['User'],
 			operationId: 'disableUser',
-			summary: 'Disable a user',
+			summary: 'Disable a user (COBIS Admin only)',
 			description: 'Disable a user account by their ID. Requires admin privileges.',
 			requestParam: z.object({
 				query: z.string().openapi({
@@ -232,7 +232,7 @@ export const UserAPISpecs = {
 		put: {
 			tags: ['User'],
 			operationId: 'provisionUser',
-			summary: 'Provision or update user details (Admin only)',
+			summary: 'Provision or update user details (COBIS Admin only)',
 			description: `
 				Update optional details for a specific user by their ID. Requires admin privileges.
 				The request body can contain optional fields: \`mnumber\`, \`isEnabled\`, \`college\`, and \`department\`.
@@ -262,11 +262,11 @@ export const UserAPISpecs = {
 							}),
 							college: z.string().optional().openapi({
 								description: 'User\'s college. Must be provided if department is present.',
-								example: 'College of Arts & Sciences'
+								example: '0'
 							}),
 							department: z.string().optional().openapi({
 								description: 'User\'s department. Must be provided if college is present.',
-								example: 'History'
+								example: '0000'
 							})
 						})
 					}
@@ -282,8 +282,8 @@ export const UserAPISpecs = {
 								user: z.object({
 									id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
 									roles: z.array(z.string()).openapi({ description: 'Roles assigned to the user', example: ['student', 'researcher'] }),
-									department: z.string().nullable().openapi({ description: 'User\'s department', example: 'History' }),
-									college: z.string().nullable().openapi({ description: 'User\'s college', example: 'College of Arts & Sciences' }),
+									department: z.string().nullable().openapi({ description: 'User\'s department', example: '0000' }),
+									college: z.string().nullable().openapi({ description: 'User\'s college', example: '0' }),
 									mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00987654' }),
 									name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'John Doe' }),
 									email: z.string().email().nullable().openapi({ description: 'User\'s email address', example: 'john.doe@example.com' }),
