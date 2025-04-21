@@ -23,8 +23,7 @@ interface PaginatedTableProps {
 	data: any[];
 	columns: { key: string; label: string }[];
 	rowsPerPage?: number;
-	// Sibling count can still be a prop for flexibility, but defined here for simplicity
-	// siblingCount?: number;
+	onRowClick?: (rowData: any) => void; // Optional callback function for row click
 	[key: string]: any; // Allow other props
 }
 
@@ -32,8 +31,9 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
 	data,
 	columns,
 	rowsPerPage = 10,
-	// siblingCount = 1, // You could make this a prop later if needed
+	onRowClick, // Destructure the new prop
 	...props
+
 }) => {
 	const [currentPage, setCurrentPage] = useState(1);
 	const totalPages = Math.ceil(data.length / rowsPerPage);
@@ -130,7 +130,11 @@ export const PaginatedTable: React.FC<PaginatedTableProps> = ({
 				<TableBody>
 					{currentData.length > 0 ? (
 						currentData.map((row, index) => (
-							<TableRow key={`${row[columns[0]?.key] ?? index}-${index}`}>
+
+							<TableRow key={`${row[columns[0]?.key] ?? index}-${index}`}
+								onClick={() => onRowClick?.(row)} // Call callback if it exists
+								className="cursor-pointer hover:bg-gray-100"
+							>
 								{columns.map((column) => (
 									<TableCell key={column.key}>{row[column.key]}</TableCell>
 								))}
