@@ -180,6 +180,9 @@ export class UserService {
 
 		const usersWithParsedRoles: UserWithRoles[] = usersData.map(u => ({
 			...u,
+			id: Number(u.id), // Convert id to number
+			lastLogin: u.lastLogin ? new Date(u.lastLogin).toISOString() : null, // Convert Date to ISO string
+			createdAt: new Date(u.createdAt).toISOString(), // Convert Date to ISO string
 			roles: JSON.parse(u.roles_json) as RoleInfo[], // Parse the string back into an array
 		}));
 
