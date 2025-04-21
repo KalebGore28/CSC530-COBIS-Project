@@ -186,7 +186,6 @@ export class UserService {
 			roles: JSON.parse(u.roles_json) as RoleInfo[], // Parse the string back into an array
 		}));
 
-		// Execute query
 		return usersWithParsedRoles;
 	}
 
