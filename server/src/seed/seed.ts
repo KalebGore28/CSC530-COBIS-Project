@@ -32,7 +32,7 @@ const INSTRUCTORS = 12;
 const YEARS = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
 const TERMS = [10, 50, 80, 90]; // Spring, Summer, Fall, Winter - Assuming these are codes like '10', '50' etc.
 
-const GRADES = ["A", "B", "C", "D", "F", "W"]; // Added F and W for realism
+const GRADES = ["A", "B", "C", "D", "F"];
 const REGISTRATION_STATUS = "RE"; // Registered
 
 // --- Helper Function for GPA/Hours Calculation ---
