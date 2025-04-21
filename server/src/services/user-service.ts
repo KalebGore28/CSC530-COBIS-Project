@@ -1,4 +1,4 @@
-import { eq, and, ne, like, SQL, inArray } from "drizzle-orm"; // Import necessary Drizzle functions
+import { eq, and, ne, like, SQL, sql, inArray } from "drizzle-orm"; // Import necessary Drizzle functions
 import { getDbConnection } from "../db/connection";
 // Import both user and faculty schemas
 import { user, faculty, userRoles, roles } from "../db/schema";
@@ -14,7 +14,6 @@ function deriveNames(fullName: string | null): { firstName: string; lastName: st
 	return { firstName, lastName };
 }
 
-
 /**
  * Interface for getAllUsers filters
  */
@@ -25,6 +24,27 @@ export interface UserFilters {
 	name?: string;
 	email?: string;
 	mnumber?: string; // Allow filtering by mnumber too
+}
+
+// Define the expected structure for the role object in the output
+interface RoleInfo {
+	role_id: number;
+	role_name: string;
+}
+
+// Define the structure for the user object returned by the function
+interface UserWithRoles {
+	id: number;
+	mnumber: string | null;
+	name: string | null;
+	email: string;
+	image: string | null;
+	isEnabled: boolean;
+	lastLogin: string | null; // Assuming lastLogin is stored as a string (e.g., ISO format)
+	createdAt: string; // Assuming createdAt is stored as a string
+	college: string | null;
+	department: string | null;
+	roles: RoleInfo[]; // The desired roles array
 }
 
 /**
@@ -97,11 +117,11 @@ export class UserService {
 	}
 
 	/**
- * Get a list of users with optional filters, including faculty data.
- *
- * @param filters Optional filters for isEnabled, college, department, name, email, mnumber.
- * @returns An array of user objects with potential faculty data.
- */
+	 * Get a list of users with optional filters, including faculty data.
+	 *
+	 * @param filters Optional filters for isEnabled, college, department, name, email, mnumber.
+	 * @returns An array of user objects with potential faculty data.
+	 */
 	static async getAllUsers(filters: UserFilters = {}) {
 		const db = (await getDbConnection()).orm;
 		const conditions: SQL[] = []; // Array to hold WHERE conditions
@@ -143,19 +163,28 @@ export class UserService {
 				isEnabled: user.isEnabled,
 				lastLogin: user.lastLogin,
 				createdAt: user.createdAt,
-				// Include faculty data (will be null if no match)
 				college: faculty.college,
 				department: faculty.department,
+				roles_json: sql<string>`coalesce(json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})), '[]')`.as('roles_json'),
 			})
 			.from(user)
-			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber));
+			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
+			.leftJoin(userRoles, eq(user.id, userRoles.user_id))
+			.leftJoin(roles, eq(userRoles.role_id, roles.id))
+
 
 		// Apply conditions if any exist
 		const finalQuery = conditions.length > 0 ? query.where(and(...conditions)) : query;
 
+		const usersData = await finalQuery;
+
+		const usersWithParsedRoles: UserWithRoles[] = usersData.map(u => ({
+			...u,
+			roles: JSON.parse(u.roles_json) as RoleInfo[], // Parse the string back into an array
+		}));
+
 		// Execute query
-		const users = await finalQuery;
-		return users;
+		return usersWithParsedRoles;
 	}
 
 

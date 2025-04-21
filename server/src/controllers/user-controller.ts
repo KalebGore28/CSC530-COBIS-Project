@@ -258,8 +258,9 @@ export class UserController {
 	}
 
 	/**
-	  * Get all users with optional filters (Admin only)
-	  */
+	 * Get all users with optional filters (Admin only)
+	 * Fetches users with role IDs as a JSON string and parses it into an array.
+	 */
 	static async getAllUsers(req: Request, res: Response) {
 		const validationResult = GetAllUsersQuerySchema.safeParse(req.query);
 
@@ -276,13 +277,19 @@ export class UserController {
 
 		try {
 			const users = await UserService.getAllUsers(filters);
+
 			res.status(200).json(users);
 
 		} catch (error: any) {
 			console.error('Error getting all users:', error);
-			res.status(500).json({ success: false, message: 'An error occurred while fetching users' });
+			if (error instanceof SyntaxError) {
+				res.status(500).json({ success: false, message: 'An error occurred while processing user role data' });
+			} else {
+				res.status(500).json({ success: false, message: 'An error occurred while fetching users' });
+			}
 		}
 	}
+
 
 
 	/**

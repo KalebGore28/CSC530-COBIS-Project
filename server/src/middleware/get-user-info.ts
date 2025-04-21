@@ -84,6 +84,14 @@ export const getUserInfo = async (
 			return;
 		}
 
+		// Set the last login time
+		const lastLogin = new Date();
+		await db
+			.update(user)
+			.set({ lastLogin: lastLogin })
+			.where(eq(user.id, userId))
+			.execute();
+
 		next();
 	} catch (error: any) {
 		next(error);
