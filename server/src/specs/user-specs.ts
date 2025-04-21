@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
+import { UserIdParamsSchema } from '../controllers/user-controller';
+import { GetAllUsersQuerySchema } from '../controllers/user-controller';
+
 
 export const UserAPISpecs = {
 	'/api/user/me': {
@@ -33,33 +36,8 @@ export const UserAPISpecs = {
 			operationId: 'getAllUsers',
 			summary: 'Get all users (COBIS Admin only)',
 			description: 'Retrieve a list of all users, with optional filters. Requires admin privileges.',
-			requestQuery: {
-				query: z.object({
-					isEnabled: z.boolean().optional().openapi({
-						description: 'Filter users by their enabled status.',
-						example: true // Example for the boolean value
-					}),
-					college: z.string().optional().openapi({
-						description: 'Filter users by college.',
-						example: '0'
-					}),
-					department: z.string().optional().openapi({
-						description: 'Filter users by department.',
-						example: '0000'
-					}),
-					name: z.string().optional().openapi({
-						description: 'Filter users by name (case-insensitive partial match).',
-						example: 'Jane Doe'
-					}),
-					email: z.string().email().optional().openapi({ // Added .email() for validation
-						description: 'Filter users by email address.',
-						example: 'jane.doe@example.com'
-					}),
-					mnumber: z.string().optional().openapi({
-						description: 'Filter users by M-Number.',
-						example: 'M00123456'
-					})
-				})
+			requestParams: {
+				query: GetAllUsersQuerySchema
 			},
 			responses: {
 				'200': {
@@ -118,11 +96,7 @@ export const UserAPISpecs = {
 			operationId: 'enableUser',
 			summary: 'Enable a user (COBIS Admin only)',
 			description: 'Enable a user account by their ID. Requires admin privileges.',
-			requestParam: z.object({
-				query: z.string().openapi({
-					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
-				})
-			}),
+			requestParam: UserIdParamsSchema,
 			responses: {
 				'200': {
 					description: 'User enabled successfully',
@@ -176,11 +150,7 @@ export const UserAPISpecs = {
 			operationId: 'disableUser',
 			summary: 'Disable a user (COBIS Admin only)',
 			description: 'Disable a user account by their ID. Requires admin privileges.',
-			requestParam: z.object({
-				query: z.string().openapi({
-					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
-				})
-			}),
+			requestParam: UserIdParamsSchema,
 			responses: {
 				'200': {
 					description: 'User disabled successfully',

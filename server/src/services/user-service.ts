@@ -1,7 +1,7 @@
-import { eq, and, or, ne, like, SQL } from "drizzle-orm"; // Import necessary Drizzle functions
+import { eq, and, ne, like, SQL, inArray } from "drizzle-orm"; // Import necessary Drizzle functions
 import { getDbConnection } from "../db/connection";
 // Import both user and faculty schemas
-import { user, faculty } from "../db/schema";
+import { user, faculty, userRoles, roles } from "../db/schema";
 
 // Helper function to derive names (basic example)
 function deriveNames(fullName: string | null): { firstName: string; lastName: string } {
@@ -160,129 +160,158 @@ export class UserService {
 
 
 	/**
-	 * Provision or update a user's details, including enabling, setting M-number,
-	 * and ensuring faculty record exists. Designed for admin use.
+	 * Provision or update a user's details and roles.
+	 * Handles user fields, faculty upsert, and user_roles synchronization.
+	 * Role IDs are REQUIRED.
+	 * Designed for admin use.
 	 *
 	 * @param userId The ID of the user to provision/update.
-	 * @param details Object containing optional mnumber, isEnabled, college, department.
+	 * @param details Object containing required role_ids and optional mnumber, isEnabled, college, department.
 	 * @returns Object indicating success or containing error information.
 	 */
 	static async provisionUser(userId: string, details: {
-		mnumber?: string;
+		mnumber?: string | null;
 		isEnabled?: boolean;
 		college?: string;
 		department?: string;
+		role_ids: number[]; // <--- Changed: Now required (no `?`)
 	}) {
-		const db = (await getDbConnection()).orm;
-		let finalMnumber: string | null = null; // Track the mnumber to use for faculty upsert
+		const { orm: db } = await getDbConnection();
+		let finalMnumber: string | null = null;
 
-		try {
-			// 1. Fetch User
-			const currentUserData = await db.select().from(user).where(eq(user.id, userId)).limit(1);
-			if (currentUserData.length === 0) {
-				return { success: false, status: 404, message: 'User not found' };
-			}
-			const originalUser = currentUserData[0];
-			finalMnumber = originalUser.mnumber; // Start with existing mnumber
+		// --- Start Transaction ---
+		return db.transaction(async (tx) => {
+			try {
+				// 1. Fetch User (using tx)
+				const currentUserData = await tx.select().from(user).where(eq(user.id, userId)).limit(1);
+				if (currentUserData.length === 0) {
+					return { success: false, status: 404, message: 'User not found' };
+				}
+				const originalUser = currentUserData[0];
+				finalMnumber = originalUser.mnumber;
 
-			// 2. Prepare User Update object
-			const userUpdateData: Partial<typeof user.$inferInsert> = {}; // Use inferInsert for partial type
+				// 2. Prepare User Update object
+				const userUpdateData: Partial<typeof user.$inferInsert> = {};
 
-			// 3. Handle M-number update
-			if (details.mnumber !== undefined) {
-				if (details.mnumber === null || details.mnumber.trim() === '') {
-					// Allow setting mnumber to null if needed
-					userUpdateData.mnumber = null;
-					finalMnumber = null;
-				} else {
-					// Check uniqueness only if mnumber is changing to a non-null value
-					if (details.mnumber !== originalUser.mnumber) {
-						const existingUserWithMnumber = await db
-							.select({ id: user.id })
-							.from(user)
-							.where(and(
-								eq(user.mnumber, details.mnumber),
-								ne(user.id, userId) // Exclude the current user
-							))
-							.limit(1);
-
-						if (existingUserWithMnumber.length > 0) {
-							return { success: false, status: 409, message: 'M-number is already assigned to another user' };
+				// 3. Handle M-number update (using tx) - Logic remains the same
+				if ('mnumber' in details) {
+					// ... same mnumber update logic ...
+					const newMnumber = details.mnumber;
+					if (newMnumber !== originalUser.mnumber) {
+						if (newMnumber === null) {
+							userUpdateData.mnumber = null;
+							finalMnumber = null;
+						} else {
+							const existingUserWithMnumber = await tx.select({ id: user.id }).from(user)
+								.where(and(eq(user.mnumber, newMnumber!), ne(user.id, userId)))
+								.limit(1);
+							if (existingUserWithMnumber.length > 0) {
+								throw new Error(`M-number '${newMnumber}' is already assigned to another user`);
+							}
+							userUpdateData.mnumber = newMnumber;
+							finalMnumber = newMnumber || null;
 						}
 					}
-					userUpdateData.mnumber = details.mnumber;
-					finalMnumber = details.mnumber; // Update finalMnumber for faculty step
-				}
-			}
-
-			// 4. Handle Enable status update
-			if (details.isEnabled !== undefined && details.isEnabled !== originalUser.isEnabled) {
-				userUpdateData.isEnabled = details.isEnabled;
-			}
-
-			// 5. Perform User Update (if changes detected)
-			if (Object.keys(userUpdateData).length > 0) {
-				userUpdateData.updatedAt = new Date(); // Update timestamp
-				await db.update(user).set(userUpdateData).where(eq(user.id, userId));
-			}
-
-			// 6. Handle Faculty Data (only if college AND department are provided)
-			if (details.college !== undefined && details.department !== undefined) {
-				// 7. Check if we have an M-number to use
-				if (!finalMnumber) {
-					return { success: false, status: 400, message: 'User must have an M-number assigned before setting college/department' };
+				} else {
+					finalMnumber = originalUser.mnumber;
 				}
 
-				// 8. Derive names (fetch updated user name if necessary, although unlikely to change here)
-				const userName = userUpdateData.name || originalUser.name; // Use original name
-				const { firstName, lastName } = deriveNames(userName);
 
-				// 9. Perform UPSERT on faculty table
-				// We assume 'mnumber' is the primary key or has a unique constraint for conflict target
-				await db.insert(faculty)
-					.values({
-						mnumber: finalMnumber,
-						first_name: firstName,
-						last_name: lastName,
-						college: details.college,
-						department: details.department,
-					})
-					// Type assertion needed because Drizzle's types for onConflictDoUpdate are complex
-					.onConflictDoUpdate({
-						target: faculty.mnumber, // Target the unique constraint column
-						set: { // Fields to update on conflict
-							first_name: firstName, // Update names in case they changed? Or keep original? Let's update.
-							last_name: lastName,
-							college: details.college,
-							department: details.department,
-							// Note: You might want specific logic for updating existing faculty entries
-						}
-					} as any); // Use 'as any' to bypass complex typing if necessary, ensure target/set are correct
+				// 4. Handle Enable status update - Logic remains the same
+				if (details.isEnabled !== undefined && details.isEnabled !== originalUser.isEnabled) {
+					userUpdateData.isEnabled = details.isEnabled;
+				}
+
+				// 5. Perform User Update (if changes detected) (using tx) - Logic remains the same
+				if (Object.keys(userUpdateData).length > 0) {
+					userUpdateData.updatedAt = new Date();
+					await tx.update(user).set(userUpdateData).where(eq(user.id, userId));
+				}
+
+				// 6. Handle Faculty Data (using tx) - Logic remains the same
+				if (details.college !== undefined && details.department !== undefined) {
+					if (!finalMnumber) {
+						throw new Error('User must have an M-number assigned before setting college/department');
+					}
+					const userName = ('name' in userUpdateData ? userUpdateData.name : originalUser.name) ?? 'Unknown Unknown';
+					const { firstName, lastName } = deriveNames(userName);
+					await tx.insert(faculty)
+						.values({ /* ... */ mnumber: finalMnumber, first_name: firstName, last_name: lastName, college: details.college, department: details.department })
+						.onConflictDoUpdate({ /* ... */ target: faculty.mnumber, set: { first_name: firstName, last_name: lastName, college: details.college, department: details.department } });
+				}
+
+				// --- 7. Handle Role Assignments (Now Always Executes) ---
+				// Removed the outer `if (details.role_ids !== undefined)` check
+				const roleIdsToAssign = details.role_ids; // Guaranteed to be number[] by controller
+
+				// 7a. Validate Role IDs exist in the 'roles' table (using tx)
+				if (roleIdsToAssign.length > 0) { // Still check length > 0 before querying DB
+					const existingRoles = await tx.select({ id: roles.id })
+						.from(roles)
+						.where(inArray(roles.id, roleIdsToAssign));
+
+					if (existingRoles.length !== roleIdsToAssign.length) {
+						const existingRoleIdsSet = new Set(existingRoles.map(r => r.id));
+						const missingIds = roleIdsToAssign.filter(id => !existingRoleIdsSet.has(id));
+						throw new Error(`Invalid or non-existent role IDs provided: ${missingIds.join(', ')}`);
+					}
+				} // If roleIdsToAssign is [], this step is skipped (unless you disallowed [] in controller)
+
+				// 7b. Clear Existing Roles for this user (using tx)
+				await tx.delete(userRoles).where(eq(userRoles.user_id, userId));
+
+				// 7c. Insert New Roles (if any provided) (using tx)
+				if (roleIdsToAssign.length > 0) { // Still check length > 0 before inserting
+					const newUserRolesData = roleIdsToAssign.map(roleId => ({
+						user_id: userId,
+						role_id: roleId
+					}));
+					await tx.insert(userRoles).values(newUserRolesData);
+				}
+				// --- End Role Assignments ---
+
+
+				// 8. Fetch final complete user details including roles (using tx if needed)
+				const updatedUserDetails = await UserService.getUserDetailsById(userId, tx);
+				if (!updatedUserDetails) {
+					throw new Error("Failed to retrieve updated user details after provisioning.");
+				}
+
+				// 9. Return success
+				return { success: true, status: 200, user: updatedUserDetails };
+
+			} catch (error: any) {
+				// Error handling logic remains the same
+				console.error("Error during user provisioning transaction:", error);
+				let status = 500;
+				let message = 'Internal server error during provisioning';
+				if (error.message.includes('M-number') && error.message.includes('already assigned')) { status = 409; message = error.message; }
+				else if (error.message.includes('M-number assigned before setting college/department')) { status = 400; message = error.message; }
+				else if (error.message.includes('Invalid or non-existent role IDs')) { status = 400; message = error.message; }
+				else if (error.message.includes('FOREIGN KEY constraint failed')) { status = 400; message = 'Role assignment failed due to invalid reference.'; }
+				else if (error.message.includes('UNIQUE constraint failed: user.mnumber')) { status = 409; message = 'M-number is already assigned to another user.'; }
+				return { success: false, status: status, message: message };
 			}
-
-			// 10. Return success
-			// Fetch the final state of the user to return it
-			const updatedUserDetails = await this.getUserDetailsById(userId); // Reuse the method from earlier discussion if available or implement similar logic
-			return { success: true, status: 200, user: updatedUserDetails }; // Return updated user details
-
-		} catch (error: any) {
-			console.error("Error in provisionUser:", error);
-			// Check for specific database errors if possible (e.g., constraint violations)
-			return { success: false, status: 500, message: error.message || 'Internal server error during provisioning' };
-		}
+		}); // --- End Transaction ---
 	}
 
-	/**
-	* Get detailed user information by user ID, including faculty data if available.
-	* (Copied from previous discussion - assumed needed for provisionUser return)
-	*
-	* @param userId The ID of the user to fetch details for.
-	* @returns An object containing user details and potentially faculty details, or null if user not found.
-	*/
-	static async getUserDetailsById(userId: string) {
-		const db = (await getDbConnection()).orm;
 
-		const results = await db
+	/**
+	 * Get detailed user information by user ID, including faculty data and roles.
+	 *
+	 * @param userId The ID of the user to fetch details for.
+	 * @param dbOrTx Optional - A Drizzle instance or Transaction object to use for the query.
+	 * @returns An object containing user details, faculty details (if available), and roles, or null if user not found.
+	 */
+	static async getUserDetailsById(userId: string, dbOrTx?: any) { // Accept optional db/tx object
+		const db = dbOrTx ?? (await getDbConnection()).orm; // Use provided tx or get a new connection
+
+		// Fetch user, faculty, and roles in potentially separate queries or a complex join
+		// Option 1: Complex Join (might be less performant with aggregations in SQLite)
+		// Option 2: Separate queries (often clearer and performant enough)
+
+		// Fetch basic user and faculty data
+		const userQuery = db
 			.select({
 				userId: user.id,
 				mnumber: user.mnumber,
@@ -297,16 +326,30 @@ export class UserService {
 				department: faculty.department,
 			})
 			.from(user)
-			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
+			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber)) // Join faculty if mnumber matches
 			.where(eq(user.id, userId))
 			.limit(1);
 
-		if (results.length === 0) {
-			return null;
-		}
+		const userResults = await userQuery;
 
-		const userData = results[0];
-		// Clean up the object, removing faculty fields if they are null
+		if (userResults.length === 0) {
+			return null; // User not found
+		}
+		const userData = userResults[0];
+
+		// Fetch user roles separately
+		const rolesQuery = db
+			.select({
+				id: roles.id,
+				name: roles.name,
+			})
+			.from(userRoles)
+			.innerJoin(roles, eq(userRoles.role_id, roles.id))
+			.where(eq(userRoles.user_id, userId));
+
+		const assignedRoles = await rolesQuery;
+
+		// Construct the final user details object
 		const userDetails: any = {
 			id: userData.userId,
 			mnumber: userData.mnumber,
@@ -317,13 +360,14 @@ export class UserService {
 			lastLogin: userData.lastLogin,
 			createdAt: userData.createdAt,
 			updatedAt: userData.updatedAt,
-
+			roles: assignedRoles, // Add the fetched roles
 		};
+
+		// Conditionally add faculty details
 		if (userData.college !== null && userData.department !== null) {
 			userDetails.college = userData.college;
 			userDetails.department = userData.department;
 		}
-
 
 		return userDetails;
 	}

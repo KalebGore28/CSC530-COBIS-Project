@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-// Import UserService and potentially the filters interface
 import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
+import { z } from 'zod';
+import 'zod-openapi/extend';
 
 // Helper function to parse boolean query params
 function parseBoolean(value: any): boolean | undefined {
@@ -13,6 +14,70 @@ function parseBoolean(value: any): boolean | undefined {
 	}
 	return undefined; // Return undefined if not 'true' or 'false'
 }
+
+// --- Validation Schemas ---
+export const UserIdParamsSchema = z.object({
+	userId: z.string().min(1, { message: "User ID cannot be empty" }).openapi({
+		example: "user_2XQo9jk8JtYmIi3qSEoRYgVpnGn"
+	})
+});
+
+export const GetAllUsersQuerySchema = z.object({
+	isEnabled: z.string()
+		.optional()
+		.transform((val, ctx) => {
+			if (val === undefined) return undefined;
+
+			// Convert valid strings to boolean
+			if (val.toLowerCase() === 'true') return true;
+			if (val.toLowerCase() === 'false') return false;
+
+			// If the string is present but not 'true' or 'false', add an issue
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom, // Use custom issue code
+				message: "Invalid boolean format. Expected 'true' or 'false'.", // Custom error message
+			});
+
+			// Return z.NEVER to indicate transform failure if the issue wasn't handled
+			return z.NEVER;
+		})
+		.openapi({
+			type: 'boolean',
+			description: "Filter by enabled status ('true' or 'false')",
+			example: "true",
+		}),
+
+	college: z.string().min(1).optional()
+		.openapi({
+			description: "Filter by college name",
+			example: "0"
+		}),
+
+	department: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by department name",
+			example: "0000"
+		}),
+
+	name: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by user name (partial match)",
+			example: "John"
+		}),
+
+	email: z.string().email({ message: "Invalid email format provided for filter." }).optional() // Optional, must be valid email format
+		.openapi({
+			description: "Filter by user email address",
+			example: "johndoe@example.com"
+		}),
+
+	mnumber: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by user M-Number",
+			example: "M12345678"
+		}),
+
+})
 
 /**
  * Controller for user-related endpoints
@@ -48,14 +113,27 @@ export class UserController {
 		}
 	}
 
+
 	/**
 	 * Enable a user account
 	 */
 	static async enableUser(req: Request, res: Response) {
-		try {
-			const { userId } = req.params;
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
 
-			// Check if user exists
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		try {
+			// Check if user exists (using the validated userId)
 			const user = await UserService.getUserById(userId);
 			if (!user) {
 				res.status(404).json({
@@ -65,7 +143,7 @@ export class UserController {
 				return;
 			}
 
-			// Update user's enabled status
+			// Update user's enabled status (using the validated userId)
 			await UserService.updateUserEnabled(userId, true);
 
 			res.json({
@@ -73,8 +151,9 @@ export class UserController {
 				message: 'User enabled successfully'
 			});
 			return;
+
 		} catch (error) {
-			console.error('Error enabling user:', error);
+			console.error(`Error enabling user ${userId}:`, error); // Log context
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while enabling the user'
@@ -87,10 +166,22 @@ export class UserController {
 	 * Disable a user account
 	 */
 	static async disableUser(req: Request, res: Response) {
-		try {
-			const { userId } = req.params;
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
 
-			// Check if user exists
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		try {
+			// Check if user exists (using the validated userId)
 			const user = await UserService.getUserById(userId);
 			if (!user) {
 				res.status(404).json({
@@ -100,16 +191,17 @@ export class UserController {
 				return;
 			}
 
-			// Update user's enabled status
-			await UserService.updateUserEnabled(userId, false);
+			// Update user's enabled status (using the validated userId)
+			await UserService.updateUserEnabled(userId, false); // Set to false for disabling
 
 			res.json({
 				success: true,
 				message: 'User disabled successfully'
 			});
 			return;
+
 		} catch (error) {
-			console.error('Error disabling user:', error);
+			console.error(`Error disabling user ${userId}:`, error);
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while disabling the user'
@@ -119,28 +211,24 @@ export class UserController {
 	}
 
 	/**
-	 * Get all users with optional filters (Admin only)
-	 */
+	  * Get all users with optional filters (Admin only)
+	  */
 	static async getAllUsers(req: Request, res: Response) {
+		const validationResult = GetAllUsersQuerySchema.safeParse(req.query);
+
+		if (!validationResult.success) {
+			res.status(400).json({
+				success: false,
+				message: 'Invalid query parameters',
+				errors: validationResult.error.format(),
+			});
+			return;
+		}
+
+		const filters: UserFilters = validationResult.data;
+
 		try {
-			// Extract and prepare filters from query parameters
-			const filters: UserFilters = {};
-			const { isEnabled, college, department, name, email, mnumber } = req.query;
-
-			const parsedEnabled = parseBoolean(isEnabled);
-			if (parsedEnabled !== undefined) {
-				filters.isEnabled = parsedEnabled;
-			}
-			if (typeof college === 'string') filters.college = college;
-			if (typeof department === 'string') filters.department = department;
-			if (typeof name === 'string') filters.name = name;
-			if (typeof email === 'string') filters.email = email;
-			if (typeof mnumber === 'string') filters.mnumber = mnumber;
-
-
-			// Call the service method
 			const users = await UserService.getAllUsers(filters);
-
 			res.status(200).json(users);
 
 		} catch (error: any) {
@@ -151,29 +239,51 @@ export class UserController {
 
 
 	/**
-	 * Provision or update user details (Admin only)
+	 * Provision or update user details and roles (Admin only).
 	 */
 	static async provisionUser(req: Request, res: Response) {
 		try {
 			const { userId } = req.params;
-			// Extract optional details from the body
-			const { mnumber, isEnabled, college, department } = req.body;
+			// Extract details from the body. role_ids is now expected.
+			const { mnumber, isEnabled, college, department, role_ids } = req.body;
 
-			// Basic validation (more complex validation can be added)
+			// --- Mandatory Fields Validation ---
 			if (!userId) {
-				res.status(400).json({ success: false, message: 'User ID is required' });
+				res.status(400).json({ success: false, message: 'User ID is required in the URL path' });
 				return;
 			}
+			// --- Role IDs are MANDATORY ---
+			if (role_ids === undefined || role_ids === null) { // Explicitly check for missing key
+				res.status(400).json({ success: false, message: 'role_ids is required and must be an array of integers' });
+				return;
+			}
+			if (!Array.isArray(role_ids) || !role_ids.every(id => typeof id === 'number' && Number.isInteger(id))) {
+				res.status(400).json({ success: false, message: 'role_ids must be an array of integers' });
+				return;
+			}
+			// --- Optional: Check if at least one role MUST be assigned ---
+			// Uncomment the following block if an empty role array is not allowed
+			/*
+			if (role_ids.length === 0) {
+				return res.status(400).json({ success: false, message: 'At least one role ID must be provided in the role_ids array' });
+			}
+			*/
+			const uniqueRoleIds = [...new Set(role_ids)]; // Ensure unique IDs before passing
 
+			// --- Start of Optional User Details Validation ---
 			const details: {
-				mnumber?: string;
+				mnumber?: string | null;
 				isEnabled?: boolean;
 				college?: string;
 				department?: string;
-			} = {};
+				role_ids: number[]; // Type now reflects mandatory requirement
+			} = {
+				role_ids: uniqueRoleIds // Assign validated & unique role IDs
+			};
 
-			// Only include fields if they are present in the request body
-			if (mnumber !== undefined) details.mnumber = mnumber; // Allow null/empty string based on service logic
+			if ('mnumber' in req.body) {
+				details.mnumber = (req.body.mnumber === null || req.body.mnumber === '') ? null : req.body.mnumber;
+			}
 			if (isEnabled !== undefined) {
 				if (typeof isEnabled !== 'boolean') {
 					res.status(400).json({ success: false, message: 'isEnabled must be a boolean' });
@@ -181,7 +291,6 @@ export class UserController {
 				}
 				details.isEnabled = isEnabled;
 			}
-			// Require both college and department if either is provided for faculty update
 			if (college !== undefined || department !== undefined) {
 				if (college === undefined || department === undefined) {
 					res.status(400).json({ success: false, message: 'Both college and department must be provided to update faculty details' });
@@ -194,25 +303,22 @@ export class UserController {
 				details.college = college;
 				details.department = department;
 			}
+			// --- End of Optional User Details Validation ---
 
-			// Call the service method
+
+			// Call the service method - role_ids is guaranteed to be number[] here
 			const result = await UserService.provisionUser(userId, details);
 
 			// Send response based on service result
 			if (result.success) {
-				// On success, status is 200 and includes the updated user
 				res.status(result.status).json({ success: true, user: result.user });
 			} else {
-				// On failure, use status and message from service
 				res.status(result.status).json({ success: false, message: result.message });
 			}
 
 		} catch (error: any) {
-			// Catch unexpected errors during controller execution
 			console.error('Error in provisionUser controller:', error);
 			res.status(500).json({ success: false, message: 'An unexpected error occurred' });
 		}
 	}
-
-
 } 
