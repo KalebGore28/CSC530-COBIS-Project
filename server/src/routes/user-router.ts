@@ -1,5 +1,6 @@
 import express from 'express';
 import { UserController } from '../controllers/user-controller';
+import { hasRole } from '../middleware/has-role';
 
 /**
  * User routes
@@ -17,6 +18,8 @@ router.get('/me', UserController.getUserInfo);
 router.post('/update-mnumber', UserController.updateMnumber);
 
 // Enable/disable user routes
+// @ts-ignore
+router.use(hasRole('cobis_administrator')); // Only allow admin to access these routes
 router.post('/enable/:userId', UserController.enableUser);
 router.post('/disable/:userId', UserController.disableUser);
 

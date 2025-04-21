@@ -8,6 +8,8 @@ import {
 	user,
 	faculty,
 } from '../db/schema';
+import { auth } from '../lib/auth';
+import { fromNodeHeaders } from 'better-auth/node';
 
 
 /**
@@ -75,6 +77,19 @@ export const getUserInfo = async (
 		(req as AuthAndPermissionsRequest).college = collegeCode;
 		(req as AuthAndPermissionsRequest).mnumber = userMnumber;
 		(req as AuthAndPermissionsRequest).isEnabled = userIsEnabled;
+
+
+		// Check if user is enabled
+		if (!userIsEnabled) {
+			res.status(403).json({ error: 'Forbidden: User is disabled' });
+
+			// Revoke the session
+			await auth.api.revokeSessions({
+				headers: fromNodeHeaders(req.headers),
+			});
+			return;
+		}
+
 		next();
 	} catch (error: any) {
 		next(error);
