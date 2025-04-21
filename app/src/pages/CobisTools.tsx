@@ -49,14 +49,16 @@ export default function CobisTools() {
 					</Card>
 					<Card>
 						<CardHeader>
-							<CardTitle className="text-center">Placeholder</CardTitle>
+							<CardTitle className="text-center">Users</CardTitle>
 							<CardDescription className="text-center">
-								Placeholder description for a future tool.
+								Manage user accounts, roles, and permissions.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex justify-center">
-							<Button variant="default" disabled>
-								Coming Soon
+							<Button variant="default">
+								<Link to="/cobis-tools/user-list">
+									Go to Users
+								</Link>
 							</Button>
 						</CardContent>
 					</Card>

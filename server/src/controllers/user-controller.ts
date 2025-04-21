@@ -56,7 +56,7 @@ export const GetAllUsersQuerySchema = z.object({
 			example: "John"
 		}),
 
-	email: z.string().email({ message: "Invalid email format provided for filter." }).optional() // Optional, must be valid email format
+	email: z.string().optional() // Optional, must be valid email format
 		.openapi({
 			description: "Filter by user email address",
 			example: "johndoe@example.com"
@@ -213,6 +213,9 @@ export class UserController {
 	 * Disable a user account
 	 */
 	static async disableUser(req: Request, res: Response) {
+		const authRequest = req as AuthAndPermissionsRequest;
+		const currentUserId = authRequest.user.id;
+
 		const validationResult = UserIdParamsSchema.safeParse(req.params);
 
 		if (!validationResult.success) {
@@ -226,6 +229,15 @@ export class UserController {
 		}
 
 		const { userId } = validationResult.data;
+
+		// Check if the user is trying to disable themselves
+		if (userId === currentUserId) {
+			res.status(400).json({
+				success: false,
+				message: 'You cannot disable your own account'
+			});
+			return;
+		}
 
 		try {
 			// Check if user exists (using the validated userId)

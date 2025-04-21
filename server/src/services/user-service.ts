@@ -34,7 +34,7 @@ interface RoleInfo {
 
 // Define the structure for the user object returned by the function
 interface UserWithRoles {
-	id: number;
+	id: string;
 	mnumber: string | null;
 	name: string | null;
 	email: string;
@@ -171,16 +171,27 @@ export class UserService {
 			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
 			.leftJoin(userRoles, eq(user.id, userRoles.user_id))
 			.leftJoin(roles, eq(userRoles.role_id, roles.id))
-
+			.groupBy(
+				user.id,
+				user.mnumber,
+				user.name,
+				user.email,
+				user.image,
+				user.isEnabled,
+				user.lastLogin,
+				user.createdAt,
+				faculty.college,
+				faculty.department
+			);
 
 		// Apply conditions if any exist
 		const finalQuery = conditions.length > 0 ? query.where(and(...conditions)) : query;
 
 		const usersData = await finalQuery;
 
+
 		const usersWithParsedRoles: UserWithRoles[] = usersData.map(u => ({
 			...u,
-			id: Number(u.id), // Convert id to number
 			lastLogin: u.lastLogin ? new Date(u.lastLogin).toISOString() : null, // Convert Date to ISO string
 			createdAt: new Date(u.createdAt).toISOString(), // Convert Date to ISO string
 			roles: JSON.parse(u.roles_json) as RoleInfo[], // Parse the string back into an array

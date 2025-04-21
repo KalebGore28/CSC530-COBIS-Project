@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios'; // <--- Import base axios
+import axios from 'axios';
 import { User, UserFilters } from '@/types/user'; // Adjust path
 import UserCard from '@/components/user-card'; // Adjust path
 import { Input } from '@/components/ui/input';
@@ -10,14 +10,20 @@ import {
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from "@/components/ui/select"
-import { Card, CardHeader, CardFooter, CardContent } from './ui/card';
+} from "@/components/ui/select";
+import { Card, CardHeader, CardFooter, CardContent } from './ui/card'; // Assuming './ui/card' is correct relative path
 import { Skeleton } from "@/components/ui/skeleton";
-import { Toaster } from "@/components/ui/sonner"
-import { toast } from "sonner"
+import { Toaster } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import debounce from 'lodash.debounce';
+import { useSession } from '@/context/session'; // Assuming path is correct
 
 export const UserList: React.FC = () => {
+	const { session } = useSession();
+	// Get the current admin's ID (handle potential undefined values)
+	const currentAdminId = session?.session?.data?.user?.id;
+	// console.log("Current Admin ID:", currentAdminId); // Keep for debugging if needed
+
 	const [users, setUsers] = useState<User[]>([]);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -29,9 +35,10 @@ export const UserList: React.FC = () => {
 		department: '',
 		isEnabled: undefined,
 	});
+	// --- Add this state back for handling processing state ---
 	const [togglingUserId, setTogglingUserId] = useState<string | null>(null);
 
-	// Debounced function to fetch users directly using axios
+	// Debounced function to fetch users (keep as is)
 	const debouncedFetchUsers = useCallback(
 		debounce((currentFilters: UserFilters) => {
 			setLoading(true);
@@ -44,7 +51,6 @@ export const UserList: React.FC = () => {
 				return acc;
 			}, {} as Record<string, string | boolean>);
 
-			// --- Direct Axios Call for GET /user ---
 			axios.get<User[]>('/api/user', {
 				params: activeFilters,
 				withCredentials: true,
@@ -61,10 +67,10 @@ export const UserList: React.FC = () => {
 					setLoading(false);
 				});
 		}, 500),
-		[toast]
+		[toast] // Removed toast from dependencies if it doesn't change
 	);
 
-	// Effect remains the same
+	// Effect to fetch users (keep as is)
 	useEffect(() => {
 		debouncedFetchUsers(filters);
 		return () => {
@@ -72,7 +78,7 @@ export const UserList: React.FC = () => {
 		};
 	}, [filters, debouncedFetchUsers]);
 
-	// Filter input handlers remain the same
+	// Filter input handlers (keep as is)
 	const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target;
 		setFilters(prev => ({ ...prev, [name]: value }));
@@ -85,24 +91,30 @@ export const UserList: React.FC = () => {
 		}));
 	};
 
-	// Function to handle enabling/disabling users directly using axios
+	// Function to handle enabling/disabling users
 	const handleToggleEnable = async (userId: string, currentStatus: boolean) => {
+		// --- Prevent API call if it's a self-disable attempt ---
+		if (userId === currentAdminId && currentStatus) {
+			toast.error("You cannot disable your own account.");
+			console.warn("Attempted to disable self. Action prevented.");
+			return; // Stop execution here
+		}
+
+		// --- Set processing state ---
 		setTogglingUserId(userId);
 
 		const endpointPath = currentStatus ? `/api/user/${userId}/disable` : `/api/user/${userId}/enable`;
-
 		const successMessage = currentStatus ? 'User disabled successfully' : 'User enabled successfully';
 		const failureMessage = currentStatus ? 'Failed to disable user.' : 'Failed to enable user.';
 
 		try {
-			// --- Direct Axios Call for POST enable/disable ---
 			await axios.post(endpointPath,
-				{}, // Empty body for this POST request
-				{ // Config object
-					withCredentials: true, // <--- Add credentials flag here
-					headers: { // Optional: Explicitly set Content-Type if needed, though Axios often infers it
-						'Content-Type': 'application/json'
-					}
+				{},
+				{
+					withCredentials: true,
+					headers: { 'Content-Type': 'application/json' },
+					// Consider adding a timeout if hangs persist
+					// timeout: 15000
 				}
 			);
 
@@ -117,20 +129,20 @@ export const UserList: React.FC = () => {
 			setError(failureMessage + " Please try again.");
 			toast.error(failureMessage);
 		} finally {
+			// --- Reset processing state ---
 			setTogglingUserId(null);
 		}
 	};
 
 	// --- JSX Rendering ---
-	// (The rendering part remains exactly the same)
 	return (
 		<div className="container mx-auto p-4 space-y-6">
 			<Toaster richColors position="top-right" />
-
 			<h1 className="text-2xl font-bold">User Management</h1>
-
+			
 			{/* Filter Controls */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-card text-card-foreground">
+				{/* Input fields ... */}
 				<div className="space-y-1">
 					<Label htmlFor="name">Name</Label>
 					<Input id="name" name="name" placeholder="Filter by name..." value={filters.name ?? ''} onChange={handleFilterChange} />
@@ -164,11 +176,14 @@ export const UserList: React.FC = () => {
 				</div>
 			</div>
 
+
 			{/* User List Display */}
 			{loading ? (
+				// ... Skeleton loading state ...
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{[...Array(6)].map((_, i) => (
 						<Card key={i} className="w-full">
+							{/* Skeleton content */}
 							<CardHeader>
 								<div className="flex items-center space-x-4">
 									<Skeleton className="h-12 w-12 rounded-full" />
@@ -199,7 +214,9 @@ export const UserList: React.FC = () => {
 							key={user.id}
 							user={user}
 							onToggleEnable={handleToggleEnable}
+							// --- Pass the admin ID and toggling status ---
 							isToggling={togglingUserId === user.id}
+							currentAdminId={currentAdminId}
 						/>
 					))}
 				</div>
