@@ -3,6 +3,7 @@ import 'zod-openapi/extend';
 
 import { UserIdParamsSchema } from '../controllers/user-controller';
 import { GetAllUsersQuerySchema } from '../controllers/user-controller';
+import { ProvisionUserBodySchema } from '../controllers/user-controller';
 
 
 export const UserAPISpecs = {
@@ -208,37 +209,13 @@ export const UserAPISpecs = {
 				The request body can contain optional fields: \`mnumber\`, \`isEnabled\`, \`college\`, and \`department\`.
 				**Important:** If either \`college\` or \`department\` is included in the request body, *both* must be present and be strings. Providing only one will result in a 400 Bad Request error.
             `.trim(),
-			// Define path parameters using requestParam with a Zod object
-			requestParam: z.object({
-				// Define the path parameter 'userId' here
-				userId: z.string().openapi({
-					description: 'The unique identifier of the user to provision or update.',
-					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
-				})
-			}),
+			requestParam: UserIdParamsSchema,
 			requestBody: {
 				description: 'Optional user details to update. If college or department is provided, both are required.',
 				required: true,
 				content: {
 					'application/json': {
-						schema: z.object({
-							mnumber: z.string().optional().openapi({
-								description: 'User\'s M-Number.',
-								example: 'M00987654'
-							}),
-							isEnabled: z.boolean().optional().openapi({
-								description: 'Set the enabled status of the user account.',
-								example: true
-							}),
-							college: z.string().optional().openapi({
-								description: 'User\'s college. Must be provided if department is present.',
-								example: '0'
-							}),
-							department: z.string().optional().openapi({
-								description: 'User\'s department. Must be provided if college is present.',
-								example: '0000'
-							})
-						})
+						schema: ProvisionUserBodySchema,
 					}
 				}
 			},

@@ -68,7 +68,64 @@ export const GetAllUsersQuerySchema = z.object({
 			example: "M12345678"
 		}),
 
+});
+
+export const ProvisionUserBodySchema = z.object({
+	// role_ids: Mandatory array of unique integers. Use min(1) if empty array is not allowed.
+	role_ids: z.array(z.number().int({ message: "Each role ID must be an integer" }), {
+		required_error: "role_ids is required", // Error if key is missing
+		invalid_type_error: "role_ids must be an array of integers",
+	})
+		.min(1, { message: "At least one role ID must be provided in the role_ids array" }) // Ensure array is not empty
+		.transform(ids => [...new Set(ids)]) // Remove duplicates
+		.openapi({ description: "Array of role IDs to assign (must contain at least one unique integer ID)" }),
+
+	// mnumber: Optional string, allowing null. Empty string is treated as null.
+	mnumber: z.preprocess(
+		(val) => (val === "" ? null : val), // Convert empty string to null before validation
+		z.string({ invalid_type_error: "mnumber must be a string or null" })
+			.nullable() // Allow null
+			.optional() // Allow undefined (key not present)
+	).openapi({ description: "User's M-Number (string or null)" }),
+
+	// isEnabled: Optional boolean
+	isEnabled: z.boolean({ invalid_type_error: "isEnabled must be a boolean" })
+		.optional()
+		.openapi({ description: "Set user account enabled status" }),
+
+	// college & department: Optional strings, but *must* be provided together if one is present.
+	college: z.string({ invalid_type_error: "college must be a string" })
+		.min(1, { message: "college cannot be empty if provided" }) // Optional: ensure non-empty if present
+		.optional()
+		.openapi({ description: "User's college (required if department is provided)" }),
+
+	department: z.string({ invalid_type_error: "department must be a string" })
+		.min(1, { message: "department cannot be empty if provided" }) // Optional: ensure non-empty if present
+		.optional()
+		.openapi({ description: "User's department (required if college is provided)" }),
+
+	// `superRefine` allows cross-field validation after individual fields are parsed.
+}).superRefine((data, ctx) => {
+	const collegeProvided = data.college !== undefined;
+	const departmentProvided = data.department !== undefined;
+
+	// Check if only one of the two is provided
+	if (collegeProvided !== departmentProvided) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: "Both college and department must be provided together, or neither should be provided.",
+			path: ["college", "department"],
+		});
+	}
 })
+
+type ProvisionUserDetails = z.output<typeof ProvisionUserBodySchema>;
+// --- Combined Schema for the Entire Request ---
+const ProvisionUserRequestSchema = z.object({
+	params: UserIdParamsSchema,
+	body: ProvisionUserBodySchema,
+});
+
 
 /**
  * Controller for user-related endpoints
@@ -233,83 +290,51 @@ export class UserController {
 	 * Provision or update user details and roles (Admin only).
 	 */
 	static async provisionUser(req: Request, res: Response) {
+		// --- Zod Validation for Params and Body ---
+		const validationResult = ProvisionUserRequestSchema.safeParse({
+			params: req.params,
+			body: req.body,
+		});
+
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request data',
+				// .format() provides structured errors, detailing issues in params and body
+				errors: validationResult.error.format(),
+			});
+			return;
+		}
+
+		// --- Use Validated Data ---
+		// Extract validated data with correct types
+		const { userId } = validationResult.data.params;
+		const details: ProvisionUserDetails = validationResult.data.body;
+		// 'details' now contains:
+		// - role_ids: number[] (guaranteed non-empty and unique)
+		// - mnumber?: string | null (empty string input becomes null)
+		// - isEnabled?: boolean
+		// - college?: string (only if department is also present)
+		// - department?: string (only if college is also present)
+
 		try {
-			const { userId } = req.params;
-			// Extract details from the body. role_ids is now expected.
-			const { mnumber, isEnabled, college, department, role_ids } = req.body;
-
-			// --- Mandatory Fields Validation ---
-			if (!userId) {
-				res.status(400).json({ success: false, message: 'User ID is required in the URL path' });
-				return;
-			}
-			// --- Role IDs are MANDATORY ---
-			if (role_ids === undefined || role_ids === null) { // Explicitly check for missing key
-				res.status(400).json({ success: false, message: 'role_ids is required and must be an array of integers' });
-				return;
-			}
-			if (!Array.isArray(role_ids) || !role_ids.every(id => typeof id === 'number' && Number.isInteger(id))) {
-				res.status(400).json({ success: false, message: 'role_ids must be an array of integers' });
-				return;
-			}
-			// --- Optional: Check if at least one role MUST be assigned ---
-			// Uncomment the following block if an empty role array is not allowed
-			/*
-			if (role_ids.length === 0) {
-				return res.status(400).json({ success: false, message: 'At least one role ID must be provided in the role_ids array' });
-			}
-			*/
-			const uniqueRoleIds = [...new Set(role_ids)]; // Ensure unique IDs before passing
-
-			// --- Start of Optional User Details Validation ---
-			const details: {
-				mnumber?: string | null;
-				isEnabled?: boolean;
-				college?: string;
-				department?: string;
-				role_ids: number[]; // Type now reflects mandatory requirement
-			} = {
-				role_ids: uniqueRoleIds // Assign validated & unique role IDs
-			};
-
-			if ('mnumber' in req.body) {
-				details.mnumber = (req.body.mnumber === null || req.body.mnumber === '') ? null : req.body.mnumber;
-			}
-			if (isEnabled !== undefined) {
-				if (typeof isEnabled !== 'boolean') {
-					res.status(400).json({ success: false, message: 'isEnabled must be a boolean' });
-					return;
-				}
-				details.isEnabled = isEnabled;
-			}
-			if (college !== undefined || department !== undefined) {
-				if (college === undefined || department === undefined) {
-					res.status(400).json({ success: false, message: 'Both college and department must be provided to update faculty details' });
-					return;
-				}
-				if (typeof college !== 'string' || typeof department !== 'string') {
-					res.status(400).json({ success: false, message: 'College and department must be strings' });
-					return;
-				}
-				details.college = college;
-				details.department = department;
-			}
-			// --- End of Optional User Details Validation ---
-
-
-			// Call the service method - role_ids is guaranteed to be number[] here
+			// Call the service method with validated userId and details object
+			// The 'details' object contains role_ids already.
 			const result = await UserService.provisionUser(userId, details);
 
 			// Send response based on service result
 			if (result.success) {
+				// Use the status from the service result (e.g., 200 OK or 201 Created)
 				res.status(result.status).json({ success: true, user: result.user });
 			} else {
+				// Use the status and message from the service result (e.g., 404 Not Found, 409 Conflict)
 				res.status(result.status).json({ success: false, message: result.message });
 			}
 
 		} catch (error: any) {
-			console.error('Error in provisionUser controller:', error);
-			res.status(500).json({ success: false, message: 'An unexpected error occurred' });
+			console.error(`Error in provisionUser controller for userId ${userId}:`, error); // Log context
+			res.status(500).json({ success: false, message: 'An unexpected error occurred during user provisioning' });
 		}
 	}
 } 
