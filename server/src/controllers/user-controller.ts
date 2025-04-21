@@ -6,15 +6,6 @@ import { AuthAndPermissionsRequest } from '../types/requests';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
-// Helper function to parse boolean query params
-function parseBoolean(value: any): boolean | undefined {
-	if (typeof value === 'string') {
-		if (value.toLowerCase() === 'true') return true;
-		if (value.toLowerCase() === 'false') return false;
-	}
-	return undefined; // Return undefined if not 'true' or 'false'
-}
-
 // --- Validation Schemas ---
 export const UserIdParamsSchema = z.object({
 	userId: z.string().min(1, { message: "User ID cannot be empty" }).openapi({
