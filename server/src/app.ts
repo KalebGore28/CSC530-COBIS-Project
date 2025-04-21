@@ -48,15 +48,15 @@ const document = createDocument({
         { name: 'Imports', description: 'Importing data' },
     ],
     paths: {
-        ...InstructorAPISpecs,
-        ...StudentAPISpecs,
-        ...EnrollmentAPISpecs,
-        ...SearchAPISpecs,
         ...UserAPISpecs,
-        ...StudentLookupAPISpecs,
-        ...ImportAPISpecs,
-        ...UtilityAPISpecs,
-        ...AdvisorAPISpecs,
+        // ...InstructorAPISpecs,
+        // ...StudentAPISpecs,
+        // ...EnrollmentAPISpecs,
+        // ...SearchAPISpecs,
+        // ...StudentLookupAPISpecs,
+        // ...ImportAPISpecs,
+        // ...UtilityAPISpecs,
+        // ...AdvisorAPISpecs,
     },
 });
 

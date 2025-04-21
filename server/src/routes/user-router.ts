@@ -18,6 +18,7 @@ router.get('/me', UserController.getUserInfo);
 // Enable/disable user routes
 // @ts-ignore
 router.use(hasRole('cobis_administrator')); // Only allow admin to access these routes
+router.get('/', UserController.getAllUsers);
 router.post('/:userId/enable', UserController.enableUser);
 router.post('/:userId/disable', UserController.disableUser);
 router.put('/:userId/provision', UserController.provisionUser);

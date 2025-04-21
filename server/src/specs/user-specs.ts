@@ -1,103 +1,6 @@
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
-// Schema for the current user response
-const CurrentUserResponse = z.object({
-	id: z.string().openapi({
-		description: 'User ID',
-		example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
-	}),
-	user: z.object({
-		id: z.string().openapi({
-			description: 'User ID',
-			example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
-		}),
-		name: z.string().openapi({
-			description: 'User name',
-			example: 'John Doe'
-		}),
-		email: z.string().email().openapi({
-			description: 'User email',
-			example: 'john.doe@example.edu'
-		}),
-		emailVerified: z.boolean().openapi({
-			description: 'Whether the email is verified',
-			example: true
-		}),
-		image: z.string().nullable().optional().openapi({
-			description: 'User profile image URL',
-			example: 'https://example.com/profile.jpg'
-		}),
-		createdAt: z.string().openapi({
-			description: 'User creation timestamp',
-			example: '2023-01-01T00:00:00.000Z'
-		}),
-		updatedAt: z.string().openapi({
-			description: 'User last update timestamp',
-			example: '2023-01-01T00:00:00.000Z'
-		})
-	}).openapi({
-		description: 'User information'
-	}),
-	roles: z.array(
-		z.object({
-			role_id: z.number().openapi({
-				description: 'Role ID',
-				example: 1
-			}),
-			role_name: z.string().openapi({
-				description: 'Role name',
-				example: 'faculty'
-			})
-		})
-	).openapi({
-		description: 'User roles'
-	}),
-	permissions: z.array(
-		z.object({
-			table_name: z.string().openapi({
-				description: 'Table name',
-				example: 'students'
-			}),
-			column_name: z.string().openapi({
-				description: 'Column name',
-				example: 'mnumber'
-			})
-		})
-	).openapi({
-		description: 'User permissions'
-	}),
-	department: z.string().nullable().openapi({
-		description: 'User department',
-		example: 'CSC'
-	}),
-	college: z.string().nullable().openapi({
-		description: 'User college',
-		example: 'SCI'
-	}),
-	mnumber: z.string().nullable().openapi({
-		description: 'User M-number',
-		example: 'M12345678'
-	}),
-	isEnabled: z.boolean().nullable().openapi({
-		description: 'Whether the user is enabled',
-		example: true
-	})
-}).nullable().openapi({
-	description: 'Current user information or null if not authenticated'
-});
-
-// Add these new schemas after the existing ones
-const EnableDisableUserResponse = z.object({
-	success: z.boolean().openapi({
-		description: 'Whether the operation was successful',
-		example: true
-	}),
-	message: z.string().openapi({
-		description: 'Message describing the result',
-		example: 'User enabled successfully'
-	})
-});
 
 export const UserAPISpecs = {
 	'/api/user/me': {
@@ -108,22 +11,100 @@ export const UserAPISpecs = {
 			description: 'Retrieve information about the currently authenticated user.',
 			responses: {
 				'200': {
-					description: 'Successful response with user data or null if not authenticated',
+					description: 'User enabled successfully',
 					content: {
 						'application/json': {
-							schema: CurrentUserResponse
+							schema: z.object({
+								roles: z.array(z.string()),
+								department: z.string(),
+								college: z.string(),
+								mnumber: z.string(),
+								isEnabled: z.boolean()
+							})
+						}
+					}
+				}
+			}
+		}
+	},
+	'/api/user': {
+		get: {
+			tags: ['User'],
+			operationId: 'getAllUsers',
+			summary: 'Get all users',
+			description: 'Retrieve a list of all users, with optional filters. Requires admin privileges.',
+			requestQuery: {
+				query: z.object({
+					isEnabled: z.boolean().optional().openapi({
+						description: 'Filter users by their enabled status.',
+						example: true // Example for the boolean value
+					}),
+					college: z.string().optional().openapi({
+						description: 'Filter users by college.',
+						example: 'College of Engineering'
+					}),
+					department: z.string().optional().openapi({
+						description: 'Filter users by department.',
+						example: 'Computer Science'
+					}),
+					name: z.string().optional().openapi({
+						description: 'Filter users by name (case-insensitive partial match).',
+						example: 'Jane Doe'
+					}),
+					email: z.string().email().optional().openapi({ // Added .email() for validation
+						description: 'Filter users by email address.',
+						example: 'jane.doe@example.com'
+					}),
+					mnumber: z.string().optional().openapi({
+						description: 'Filter users by M-Number.',
+						example: 'M00123456'
+					})
+				})
+			},
+			responses: {
+				'200': {
+					description: 'Successfully retrieved list of users.',
+					content: {
+						'application/json': {
+							// Define the schema for the array of users directly here
+							schema: z.array(
+								z.object({
+									// Assuming a user object typically has an ID
+									id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
+									roles: z.array(z.string()).openapi({ description: 'Roles assigned to the user', example: ['student', 'researcher'] }),
+									department: z.string().nullable().openapi({ description: 'User\'s department', example: 'Computer Science' }),
+									college: z.string().nullable().openapi({ description: 'User\'s college', example: 'College of Engineering' }),
+									mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00123456' }),
+									// Include fields from filters that are likely part of the user object
+									name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'Jane Doe' }),
+									email: z.string().email().nullable().openapi({ description: 'User\'s email address', example: 'jane.doe@example.com' }),
+									isEnabled: z.boolean().openapi({ description: 'Indicates if the user account is enabled' })
+								})
+							)
+						}
+					}
+				},
+				// Document the Forbidden status due to the hasRole middleware
+				'403': {
+					description: 'Forbidden. User does not have admin privileges.',
+					content: {
+						'application/json': {
+							// Define the error schema directly here
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'Forbidden: Insufficient privileges' })
+							})
 						}
 					}
 				},
 				'500': {
-					description: 'Internal server error',
+					description: 'An error occurred while fetching users.',
 					content: {
 						'application/json': {
+							// Define the error schema directly here
 							schema: z.object({
-								error: z.string().openapi({
-									description: 'Error message',
-									example: 'Internal server error'
-								})
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'An error occurred while fetching users' })
 							})
 						}
 					}
@@ -137,31 +118,21 @@ export const UserAPISpecs = {
 			operationId: 'enableUser',
 			summary: 'Enable a user',
 			description: 'Enable a user account by their ID. Requires admin privileges.',
-			parameters: [{
-				name: 'userId',
-				in: 'path',
-				required: true,
-				schema: z.string().openapi({
-					description: 'The ID of the user to enable',
+			requestParam: z.object({
+				query: z.string().openapi({
 					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
 				})
-			}],
+			}),
 			responses: {
 				'200': {
 					description: 'User enabled successfully',
 					content: {
 						'application/json': {
-							schema: EnableDisableUserResponse
-						}
-					}
-				},
-				'403': {
-					description: 'Forbidden - Insufficient permissions',
-					content: {
-						'application/json': {
 							schema: z.object({
 								success: z.boolean(),
-								message: z.string()
+								message: z.string().openapi({
+									example: 'User enabled successfully'
+								})
 							})
 						}
 					}
@@ -171,14 +142,33 @@ export const UserAPISpecs = {
 					content: {
 						'application/json': {
 							schema: z.object({
-								success: z.boolean(),
-								message: z.string()
+								success: z.boolean().openapi({
+									example: false
+								}),
+								message: z.string().openapi({
+									example: 'User not found'
+								})
+							})
+						}
+					}
+				},
+				'500': {
+					description: 'An error occurred while enabling the user',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({
+									example: false
+								}),
+								message: z.string().openapi({
+									example: 'An error occurred while enabling the user'
+								})
 							})
 						}
 					}
 				}
 			}
-		}
+		},
 	},
 	'/api/user/{userId}/disable': {
 		post: {
@@ -186,31 +176,21 @@ export const UserAPISpecs = {
 			operationId: 'disableUser',
 			summary: 'Disable a user',
 			description: 'Disable a user account by their ID. Requires admin privileges.',
-			parameters: [{
-				name: 'userId',
-				in: 'path',
-				required: true,
-				schema: z.string().openapi({
-					description: 'The ID of the user to disable',
+			requestParam: z.object({
+				query: z.string().openapi({
 					example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn'
 				})
-			}],
+			}),
 			responses: {
 				'200': {
 					description: 'User disabled successfully',
 					content: {
 						'application/json': {
-							schema: EnableDisableUserResponse
-						}
-					}
-				},
-				'403': {
-					description: 'Forbidden - Insufficient permissions',
-					content: {
-						'application/json': {
 							schema: z.object({
 								success: z.boolean(),
-								message: z.string()
+								message: z.string().openapi({
+									example: 'User disabled successfully'
+								})
 							})
 						}
 					}
@@ -220,13 +200,33 @@ export const UserAPISpecs = {
 					content: {
 						'application/json': {
 							schema: z.object({
-								success: z.boolean(),
-								message: z.string()
+								success: z.boolean().openapi({
+									example: false
+								}),
+								message: z.string().openapi({
+									example: 'User not found'
+								})
+							})
+						}
+					}
+				},
+				'500': {
+					description: 'An error occurred while disabling the user',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({
+									example: false
+								}),
+								message: z.string().openapi({
+									example: 'An error occurred while disabling the user'
+								})
 							})
 						}
 					}
 				}
 			}
 		}
-	}
-};
+	},
+
+}
