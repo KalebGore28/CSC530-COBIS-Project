@@ -22,7 +22,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 // Define the structure of a lookup item (code can be string or number)
 interface LookupOption {
-	code: string | number;
+	code: string;
 	description: string;
 }
 
@@ -35,6 +35,7 @@ interface MultiLookupSelectorProps {
 	triggerClassName?: string; // ClassName for the trigger button
 	contentClassName?: string; // ClassName for the popover content
 	maxDisplay?: number; // Max number of badges to show before showing count
+	disabled?: boolean; // Disable state for the trigger button
 }
 
 export function MultiLookupSelector({
@@ -45,6 +46,7 @@ export function MultiLookupSelector({
 	triggerClassName,
 	contentClassName,
 	maxDisplay = 2, // Default max badges to show
+	disabled = false, // Default to not
 }: MultiLookupSelectorProps) {
 	const [options, setOptions] = useState<LookupOption[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -144,7 +146,7 @@ export function MultiLookupSelector({
 			return (
 				<div className="flex flex-wrap gap-1">
 					{selectedDescriptions.map((option) => (
-						<Badge key={option.code} variant="secondary" className="font-normal">
+						<Badge key={option.code} variant="outline" className="font-normal">
 							{option.description}
 						</Badge>
 					))}
@@ -152,7 +154,7 @@ export function MultiLookupSelector({
 			);
 		} else {
 			return (
-				<Badge variant="secondary" className="font-normal">
+				<Badge variant="outline" className="font-normal">
 					{selectedOptionsMap.size} selected
 				</Badge>
 			);
@@ -167,7 +169,7 @@ export function MultiLookupSelector({
 					role="combobox"
 					aria-expanded={isOpen}
 					className={cn("w-[200px] justify-between", triggerClassName)} // Adjust default width
-					disabled={isLoading || !!error}
+					disabled={isLoading || disabled}
 				>
 					<div className="truncate pr-2">
 						{renderTriggerContent()}

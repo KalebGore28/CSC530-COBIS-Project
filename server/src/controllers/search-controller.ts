@@ -191,4 +191,19 @@ export class SearchController {
 			SearchController.handleError(res, 'terms', error);
 		}
 	}
+
+	/**
+	 * Search faculty
+	 */
+	static async searchFaculty(req: Request, res: Response) {
+		const query = SearchController.validateQuery(req, res);
+		if (!query) return;
+
+		try {
+			const results = await SearchService.searchFaculty(query);
+			res.json(results);
+		} catch (error) {
+			SearchController.handleError(res, 'faculty', error);
+		}
+	}
 } 

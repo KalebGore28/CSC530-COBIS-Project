@@ -9,8 +9,6 @@ import {
 	DialogFooter,
 	DialogClose,
 } from "@/components/ui/dialog"; // Adjust path if needed
-import { Button } from "@/components/ui/button"; // Adjust path if needed
-import { X } from "lucide-react";
 import { cn } from "@/lib/utils"; // Import cn utility if you use it for class merging
 
 interface ModalProps {

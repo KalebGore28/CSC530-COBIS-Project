@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select"; // Adjust path if needed
 
 // Define the structure of a lookup item
-interface LookupOption {
+export interface LookupOption {
 	code: string;
 	description: string;
 }
@@ -22,6 +22,7 @@ interface LookupSelectorProps {
 	onValueChange: (selectedOption: LookupOption | null) => void; // Callback with the full object or null
 	placeholder?: string;
 	className?: string;
+	disabled?: boolean;
 }
 
 export function LookupSelector({
@@ -30,6 +31,7 @@ export function LookupSelector({
 	onValueChange,
 	placeholder = "Select...", // Default placeholder
 	className,
+	disabled = false,
 }: LookupSelectorProps) {
 	const [options, setOptions] = useState<LookupOption[]>([]);
 	const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -94,7 +96,7 @@ export function LookupSelector({
 		<Select
 			value={value} // Controlled component: value is managed by parent
 			onValueChange={handleSelectChange} // Notify parent on change
-			disabled={isLoading || !!error || options.length === 0} // Disable if loading, error, or no data
+			disabled={isLoading || disabled} // Disable if loading or explicitly disabled
 		>
 			<SelectTrigger className={cn("w-[180px]", className)}>
 				{/* Display selected description or placeholder */}

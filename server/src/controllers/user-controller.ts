@@ -302,6 +302,41 @@ export class UserController {
 		}
 	}
 
+	/**
+	 * Get a specific user by ID (Admin only)
+	 */
+	static async getUser(req: Request, res: Response) {
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		try {
+			// Check if user exists (using the validated userId)
+			const user = await UserService.getUser(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			res.status(200).json(user);
+
+		} catch (error: any) {
+			console.error(`Error getting user ${userId}:`, error);
+			res.status(500).json({ success: false, message: 'An error occurred while fetching the user' });
+		}
+	}
 
 
 	/**

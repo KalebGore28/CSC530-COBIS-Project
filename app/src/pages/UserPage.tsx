@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { User, UserFilters } from '@/types/user'; // Adjust path
+import { User, UserFilters, UserData } from '@/types/user'; // Adjust path
 import UserCard from '@/components/user-card'; // Adjust path
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,22 +11,20 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Card, CardHeader, CardFooter, CardContent } from './ui/card'; // Assuming './ui/card' is correct relative path
-import { Skeleton } from "@/components/ui/skeleton";
 import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import debounce from 'lodash.debounce';
-import { useSession } from '@/context/session'; // Assuming path is correct
+import { useSession } from '@/context/session';
+import { Modal } from '@/components/modals/modal';
+import { ProvisionUserForm } from '@/components/forms/provision-user'
 
 export const UserList: React.FC = () => {
 	const { session } = useSession();
-	// Get the current admin's ID (handle potential undefined values)
 	const currentAdminId = session?.session?.data?.user?.id;
-	// console.log("Current Admin ID:", currentAdminId); // Keep for debugging if needed
 
 	const [users, setUsers] = useState<User[]>([]);
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
+	const [isLoading, setIsLoading] = useState(true);
+	const [_, setError] = useState<string | null>(null);
 	const [filters, setFilters] = useState<UserFilters>({
 		name: '',
 		email: '',
@@ -35,13 +33,14 @@ export const UserList: React.FC = () => {
 		department: '',
 		isEnabled: undefined,
 	});
-	// --- Add this state back for handling processing state ---
 	const [togglingUserId, setTogglingUserId] = useState<string | null>(null);
+	const [isProvisionModalOpen, setIsProvisionModalOpen] = useState(false);
+	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
 	// Debounced function to fetch users (keep as is)
 	const debouncedFetchUsers = useCallback(
 		debounce((currentFilters: UserFilters) => {
-			setLoading(true);
+			setIsLoading(true);
 			setError(null);
 
 			const activeFilters = Object.entries(currentFilters).reduce((acc, [key, value]) => {
@@ -64,10 +63,10 @@ export const UserList: React.FC = () => {
 					toast.error(userFriendlyError);
 				})
 				.finally(() => {
-					setLoading(false);
+					setIsLoading(false);
 				});
 		}, 500),
-		[toast] // Removed toast from dependencies if it doesn't change
+		[]
 	);
 
 	// Effect to fetch users (keep as is)
@@ -93,14 +92,12 @@ export const UserList: React.FC = () => {
 
 	// Function to handle enabling/disabling users
 	const handleToggleEnable = async (userId: string, currentStatus: boolean) => {
-		// --- Prevent API call if it's a self-disable attempt ---
 		if (userId === currentAdminId && currentStatus) {
 			toast.error("You cannot disable your own account.");
 			console.warn("Attempted to disable self. Action prevented.");
 			return; // Stop execution here
 		}
 
-		// --- Set processing state ---
 		setTogglingUserId(userId);
 
 		const endpointPath = currentStatus ? `/api/user/${userId}/disable` : `/api/user/${userId}/enable`;
@@ -113,8 +110,6 @@ export const UserList: React.FC = () => {
 				{
 					withCredentials: true,
 					headers: { 'Content-Type': 'application/json' },
-					// Consider adding a timeout if hangs persist
-					// timeout: 15000
 				}
 			);
 
@@ -129,17 +124,55 @@ export const UserList: React.FC = () => {
 			setError(failureMessage + " Please try again.");
 			toast.error(failureMessage);
 		} finally {
-			// --- Reset processing state ---
 			setTogglingUserId(null);
 		}
 	};
 
-	// --- JSX Rendering ---
+	const handleOpenProvisionModal = (userId: string) => {
+		setSelectedUserId(userId); // Set the user ID for the form
+		setIsProvisionModalOpen(true); // Open the modal
+	};
+
+	const handleCloseProvisionModal = () => {
+		setIsProvisionModalOpen(false);
+		setSelectedUserId(null); // Clear the user ID when closing
+	};
+
+	const handleProvisionSaveSuccess = (updatedUser: UserData) => {
+		console.log("Provision successful in parent, updating list:", updatedUser);
+		// Update the specific user in the list
+		// Ensure the updatedUser structure matches the User type or adapt as needed
+		setUsers(prevUsers =>
+			prevUsers.map(u =>
+				u.id === updatedUser.id
+					// Smart merge: keep existing fields, overwrite with updated ones
+					// Convert role_id back to string if User type requires it, otherwise keep as number
+					? {
+						...u,
+						mnumber: updatedUser.mnumber,
+						name: updatedUser.name,
+						email: updatedUser.email, // Assuming email doesn't change here, but good practice
+						image: updatedUser.image,
+						isEnabled: updatedUser.isEnabled,
+						college: updatedUser.college,
+						department: updatedUser.department,
+						// Handle potential type difference for roles
+						roles: updatedUser.roles?.map(r => ({ ...r, role_id: String(r.role_id) })) || [], // Example: Convert role_id to string
+					}
+					: u
+			)
+		);
+		// Alternatively, refetch the entire list for simplicity:
+		// debouncedFetchUsers(filters);
+
+		handleCloseProvisionModal(); // Close the modal after saving
+	};
+
 	return (
 		<div className="container mx-auto p-4 space-y-6">
 			<Toaster richColors position="top-right" />
 			<h1 className="text-2xl font-bold">User Management</h1>
-			
+
 			{/* Filter Controls */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-card text-card-foreground">
 				{/* Input fields ... */}
@@ -178,48 +211,45 @@ export const UserList: React.FC = () => {
 
 
 			{/* User List Display */}
-			{loading ? (
-				// ... Skeleton loading state ...
+			{isLoading && <p>Loading users...</p>}
+
+			{!isLoading && (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{[...Array(6)].map((_, i) => (
-						<Card key={i} className="w-full">
-							{/* Skeleton content */}
-							<CardHeader>
-								<div className="flex items-center space-x-4">
-									<Skeleton className="h-12 w-12 rounded-full" />
-									<div className="space-y-2">
-										<Skeleton className="h-4 w-[150px]" />
-										<Skeleton className="h-4 w-[200px]" />
-									</div></div>
-							</CardHeader>
-							<CardContent className="space-y-2">
-								<Skeleton className="h-4 w-[100px]" />
-								<Skeleton className="h-4 w-[150px]" />
-								<Skeleton className="h-4 w-[180px]" />
-							</CardContent>
-							<CardFooter>
-								<Skeleton className="h-10 w-[120px]" />
-							</CardFooter>
-						</Card>
-					))}
-				</div>
-			) : error ? (
-				<div className="text-red-600 bg-red-100 border border-red-400 p-4 rounded-md">{error}</div>
-			) : users.length === 0 ? (
-				<div className="text-center text-muted-foreground py-8">No users found matching your criteria.</div>
-			) : (
-				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-					{users.map((user) => (
+					{users.map(user => (
 						<UserCard
 							key={user.id}
 							user={user}
 							onToggleEnable={handleToggleEnable}
-							// --- Pass the admin ID and toggling status ---
 							isToggling={togglingUserId === user.id}
 							currentAdminId={currentAdminId}
+							onOpenProvisionModal={handleOpenProvisionModal}
 						/>
 					))}
 				</div>
+			)}
+
+			{/* --- Provision User Modal --- */}
+			{/* Render the modal conditionally based on state */}
+			{isProvisionModalOpen && selectedUserId && (
+				<Modal
+					isOpen={isProvisionModalOpen}
+					onClose={handleCloseProvisionModal}
+					title="Edit / Provision User" // Set modal title
+					description="Update user details and permissions." // Optional description
+					size="lg" // Or 'xl' if the form is wide
+				>
+					{/*
+                        Add a unique key based on selectedUserId.
+                        This forces React to re-mount ProvisionUserForm when the user changes,
+                        ensuring its internal useEffect for fetching data runs correctly.
+                     */}
+					<ProvisionUserForm
+						key={selectedUserId}
+						userId={selectedUserId}
+						onSaveSuccess={handleProvisionSaveSuccess}
+						onCancel={handleCloseProvisionModal}
+					/>
+				</Modal>
 			)}
 		</div>
 	);

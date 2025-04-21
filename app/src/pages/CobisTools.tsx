@@ -56,7 +56,7 @@ export default function CobisTools() {
 						</CardHeader>
 						<CardContent className="flex justify-center">
 							<Button variant="default">
-								<Link to="/cobis-tools/user-list">
+								<Link to="/cobis-tools/users">
 									Go to Users
 								</Link>
 							</Button>

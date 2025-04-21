@@ -17,7 +17,7 @@ import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 import AdvisorPage from './pages/AdvisorPage';
-import { UserList } from '@/components/user-list'; // Adjust path if needed
+import { UserList } from '@/pages/UserPage'; // Adjust path if needed
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
@@ -120,7 +120,7 @@ export const App: React.FC = () => {
           <Route path="cobis-tools" element={<CobisTools />}>
             <Route path="query-builder" element={<QueryBuilderPage />} />
             <Route path="imports" element={<CsvImport />} />
-            <Route path="user-list" element={<UserList />} />
+            <Route path="users" element={<UserList />} />
           </Route>
         </Route>
 

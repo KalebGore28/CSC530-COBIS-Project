@@ -202,6 +202,65 @@ export class UserService {
 		return usersWithParsedRoles;
 	}
 
+	/**
+	 * Get a user by their user ID
+	 * Like the getAllUsers function but for a single user
+	 */
+	static async getUser(userId: string) {
+		const db = (await getDbConnection()).orm;
+
+		const query = db
+			.select({
+				// Select desired fields for the list view
+				id: user.id,
+				mnumber: user.mnumber,
+				name: user.name,
+				email: user.email,
+				image: user.image,
+				isEnabled: user.isEnabled,
+				lastLogin: user.lastLogin,
+				createdAt: user.createdAt,
+				college: faculty.college,
+				department: faculty.department,
+				// Aggregate roles into a JSON array
+				// Using json_group_array to create a JSON array of roles
+				roles_json: sql<string>`CASE WHEN COUNT(${roles.id}) > 0 THEN json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})) ELSE '[]' END`.as('roles_json'),
+			})
+			.from(user)
+			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
+			.leftJoin(userRoles, eq(user.id, userRoles.user_id))
+			.leftJoin(roles, eq(userRoles.role_id, roles.id))
+			.where(eq(user.id, userId))
+			.groupBy(
+				user.id,
+				user.mnumber,
+				user.name,
+				user.email,
+				user.image,
+				user.isEnabled,
+				user.lastLogin,
+				user.createdAt,
+				faculty.college,
+				faculty.department
+			);
+
+		const userData = await query;
+
+		if (userData.length === 0) {
+			return null; // User not found
+		}
+
+		const userWithParsedRoles: UserWithRoles[] = userData.map(u => ({
+			...u,
+			lastLogin: u.lastLogin ? new Date(u.lastLogin).toISOString() : null, // Convert Date to ISO string
+			createdAt: new Date(u.createdAt).toISOString(), // Convert Date to ISO string
+			roles: JSON.parse(u.roles_json) as RoleInfo[], // Parse the string back into an array
+		}));
+
+		return userWithParsedRoles[0];
+	}
+
+
 
 	/**
 	 * Provision or update a user's details and roles.

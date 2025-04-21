@@ -1,9 +1,9 @@
 export interface UserRole {
 	role_id: number;
 	role_name: string;
-  }
-  
-  export interface User {
+}
+
+export interface User {
 	id: string;
 	mnumber: string | null;
 	name: string;
@@ -15,13 +15,28 @@ export interface UserRole {
 	college: string | null;
 	department: string | null;
 	roles: UserRole[] | null;
-  }
-  
-  export interface UserFilters {
+}
+
+export interface UserFilters {
 	isEnabled?: boolean;
 	college?: string;
 	department?: string;
 	name?: string;
 	email?: string;
 	mnumber?: string;
-  }
+}
+
+export interface UserData {
+    id: string;
+    mnumber?: string | null;
+    name?: string;
+    email?: string;
+    image?: string;
+    isEnabled?: boolean;
+    lastLogin?: string;
+    createdAt?: string;
+    updatedAt?: string;
+    roles?: { role_id: string; role_name: string }[];
+    department?: string | null;
+    college?: string | null;
+}

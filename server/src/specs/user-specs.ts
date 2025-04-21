@@ -68,7 +68,6 @@ export const UserAPISpecs = {
 						}
 					}
 				},
-				// Document the Forbidden status due to the hasRole middleware
 				'403': {
 					description: 'Forbidden. User does not have admin privileges.',
 					content: {
@@ -93,6 +92,63 @@ export const UserAPISpecs = {
 						}
 					}
 				}
+			}
+		}
+	},
+	'/api/user/{userId}': {
+		get: {
+			tags: ['User'],
+			operationId: 'getUser',
+			summary: 'Get user by ID (COBIS Admin only)',
+			description: 'Retrieve information about a specific user by their ID. Requires admin privileges.',
+			requestParam: UserIdParamsSchema,
+			responses: {
+				'200': {
+					description: 'Successfully retrieved user information.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
+								mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00123456' }),
+								name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'Jane Doe' }),
+								email: z.string().email().nullable().openapi({ description: 'User\'s email address', example: 'janedoe@example.com' }),
+								image: z.string().nullable().openapi({ description: 'URL to the user\'s profile image', example: 'https://example.com/image.jpg' }),
+								isEnabled: z.boolean().openapi({ description: 'Indicates if the user account is enabled', example: true }),
+								lastLogin: z.string().nullable().openapi({ description: 'Timestamp of the user\'s last login', example: '2023-10-01T12:00:00Z' }),
+								createdAt: z.string().openapi({ description: 'Timestamp of when the user was created', example: '2023-01-01T12:00:00Z' }),
+								updatedAt: z.string().openapi({ description: 'Timestamp of when the user was last updated', example: '2023-10-01T12:00:00Z' }),
+								roles: z.array(z.object({
+									role_id: z.number().openapi({ description: 'Unique identifier for the role', example: 1 }),
+									role_name: z.string().openapi({ description: 'Name of the role', example: 'admin' })
+								})).openapi({ description: 'Roles assigned to the user', example: [{ role_id: 1, role_name: "faculty" }] }),
+								department: z.string().nullable().openapi({ description: 'User\'s department', example: '0000' }),
+								college: z.string().nullable().openapi({ description: 'User\'s college', example: '0' }),
+							})
+						}
+					}
+				},
+				'403': {
+					description: 'Forbidden. User does not have admin privileges.',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'Forbidden: Insufficient privileges' })
+							})
+						}
+					}
+				},
+				'404': {
+					description: 'User not found',
+					content: {
+						'application/json': {
+							schema: z.object({
+								success: z.boolean().openapi({ example: false }),
+								message: z.string().openapi({ example: 'User not found' })
+							})
+						}
+					}
+				},
 			}
 		}
 	},

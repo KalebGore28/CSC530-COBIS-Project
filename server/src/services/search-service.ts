@@ -12,6 +12,7 @@ import {
 	programs,
 	registrationStatus,
 	terms,
+	faculty
 } from '../db/schema';
 
 /**
@@ -265,6 +266,30 @@ export class SearchService {
 				sql`
 					UPPER(${terms.code}) LIKE ${searchQuery + '%'} OR
 					UPPER(${terms.description}) LIKE ${'%' + searchQuery + '%'}
+				`
+			)
+			.limit(10);
+	}
+
+	/**
+	 * Search faculty by first name, last name, or mnumber
+	 */
+	static async searchFaculty(query: string) {
+		const db = (await getDbConnection()).orm;
+		const searchQuery = query.toUpperCase();
+
+		return await db
+			.select({
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
+				mnumber: faculty.mnumber,
+			})
+			.from(faculty)
+			.where(
+				sql`
+					UPPER(${faculty.first_name}) LIKE ${searchQuery + '%'} OR
+					UPPER(${faculty.last_name}) LIKE ${searchQuery + '%'} OR
+					UPPER(${faculty.mnumber}) LIKE ${searchQuery + '%'}
 				`
 			)
 			.limit(10);
