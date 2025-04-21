@@ -12,5 +12,6 @@ const router = express.Router();
 // Lookup routes for different entities
 router.get('/departments', LookupController.getDepartments);
 router.get('/colleges', LookupController.getColleges);
+router.get('/roles', LookupController.getRoles);
 
 export default router;

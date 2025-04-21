@@ -2,6 +2,7 @@ import { getDbConnection } from "../db/connection";
 import {
 	colleges,
 	departments,
+	roles,
 } from '../db/schema';
 
 /**
@@ -36,5 +37,19 @@ export class LookupService {
 				description: colleges.description,
 			})
 			.from(colleges);
+	}
+
+	/**
+	 * Get all roles
+	 */
+	static async getRoles() {
+		const db = (await getDbConnection()).orm;
+
+		return await db
+			.select({
+				code: roles.id,
+				description: roles.name,
+			})
+			.from(roles);
 	}
 }

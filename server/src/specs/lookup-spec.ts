@@ -85,5 +85,47 @@ export const LookupAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/lookup/roles': {
+		get: {
+			tags: ['Lookup'],
+			operationId: 'getRoles',
+			summary: 'Get all roles',
+			description: 'Fetches a list of all roles from the database.',
+			responses: {
+				'200': {
+					description: 'A list of roles',
+					content: {
+						'application/json': {
+							schema: z.array(
+								z.object({
+									code: z.string().openapi({
+										description: 'The role code',
+										example: '0',
+									}),
+									description: z.string().openapi({
+										description: 'The role description',
+										example: 'Unassigned',
+									}),
+								})
+							)
+						}
+					}
+				},
+				'500': {
+					description: 'Internal server error',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string().openapi({
+									description: 'Error message',
+									example: 'Internal server error',
+								}),
+							})
+						}
+					}
+				}
+			}
+		}
 	}
 }

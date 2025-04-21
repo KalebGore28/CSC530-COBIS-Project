@@ -32,4 +32,17 @@ export class LookupController {
 		}
 	}
 
+	/**
+	 * Get all roles
+	 */
+	static async getRoles(req: Request, res: Response) {
+		try {
+			const results = await LookupService.getRoles();
+			res.json(results);
+		} catch (error) {
+			console.error('Error fetching roles:', error);
+			res.status(500).json({ error: "Internal server error" });
+		}
+	}
+
 }
