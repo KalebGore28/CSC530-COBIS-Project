@@ -97,12 +97,12 @@ export const ProvisionUserBodySchema = z.object({
 	college: z.string({ invalid_type_error: "college must be a string" })
 		.min(1, { message: "college cannot be empty if provided" }) // Optional: ensure non-empty if present
 		.optional()
-		.openapi({ description: "User's college (required if department is provided)" }),
+		.openapi({ description: "User's college (required if department is provided)", example: "0" }),
 
 	department: z.string({ invalid_type_error: "department must be a string" })
 		.min(1, { message: "department cannot be empty if provided" }) // Optional: ensure non-empty if present
 		.optional()
-		.openapi({ description: "User's department (required if college is provided)" }),
+		.openapi({ description: "User's department (required if college is provided)", example: "0000" }),
 
 	// `superRefine` allows cross-field validation after individual fields are parsed.
 }).superRefine((data, ctx) => {

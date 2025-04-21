@@ -233,13 +233,20 @@ export const UserAPISpecs = {
 								success: z.boolean().openapi({ example: true }),
 								user: z.object({
 									id: z.string().openapi({ description: 'Unique user identifier', example: 'user_2XQo9jk8JtYmIi3qSEoRYgVpnGn' }),
-									roles: z.array(z.string()).openapi({ description: 'Roles assigned to the user', example: ['student', 'researcher'] }),
-									department: z.string().nullable().openapi({ description: 'User\'s department', example: '0000' }),
-									college: z.string().nullable().openapi({ description: 'User\'s college', example: '0' }),
 									mnumber: z.string().nullable().openapi({ description: 'User\'s M-Number', example: 'M00987654' }),
 									name: z.string().nullable().openapi({ description: 'User\'s full name', example: 'John Doe' }),
 									email: z.string().email().nullable().openapi({ description: 'User\'s email address', example: 'john.doe@example.com' }),
-									isEnabled: z.boolean().openapi({ description: 'Indicates if the user account is enabled', example: true })
+									image: z.string().nullable().openapi({ description: 'URL to the user\'s profile image', example: 'https://example.com/image.jpg' }),
+									isEnabled: z.boolean().openapi({ description: 'Indicates if the user account is enabled', example: true }),
+									lastLogin: z.string().nullable().openapi({ description: 'Timestamp of the user\'s last login', example: '2023-10-01T12:00:00Z' }),
+									createdAt: z.string().openapi({ description: 'Timestamp of when the user was created', example: '2023-01-01T12:00:00Z' }),
+									updatedAt: z.string().openapi({ description: 'Timestamp of when the user was last updated', example: '2023-10-01T12:00:00Z' }),
+									roles: z.array(z.object({
+										role_id: z.number().openapi({ description: 'Unique identifier for the role', example: 1 }),
+										role_name: z.string().openapi({ description: 'Name of the role', example: 'admin' }),
+									})).openapi({ description: 'Roles assigned to the user', example: [{ role_id: 1, role_name: "faculty" }] }),
+									department: z.string().nullable().openapi({ description: 'User\'s department', example: '0000' }),
+									college: z.string().nullable().openapi({ description: 'User\'s college', example: '0' }),
 								})
 							})
 						}

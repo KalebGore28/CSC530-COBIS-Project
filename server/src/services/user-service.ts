@@ -165,7 +165,9 @@ export class UserService {
 				createdAt: user.createdAt,
 				college: faculty.college,
 				department: faculty.department,
-				roles_json: sql<string>`coalesce(json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})), '[]')`.as('roles_json'),
+				// Aggregate roles into a JSON array
+				// Using json_group_array to create a JSON array of roles
+				roles_json: sql<string>`CASE WHEN COUNT(${roles.id}) > 0 THEN json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})) ELSE '[]' END`.as('roles_json'),
 			})
 			.from(user)
 			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
@@ -297,7 +299,7 @@ export class UserService {
 						const missingIds = roleIdsToAssign.filter(id => !existingRoleIdsSet.has(id));
 						throw new Error(`Invalid or non-existent role IDs provided: ${missingIds.join(', ')}`);
 					}
-				} // If roleIdsToAssign is [], this step is skipped (unless you disallowed [] in controller)
+				}
 
 				// 7b. Clear Existing Roles for this user (using tx)
 				await tx.delete(userRoles).where(eq(userRoles.user_id, userId));
@@ -334,7 +336,7 @@ export class UserService {
 				else if (error.message.includes('UNIQUE constraint failed: user.mnumber')) { status = 409; message = 'M-number is already assigned to another user.'; }
 				return { success: false, status: status, message: message };
 			}
-		}); // --- End Transaction ---
+		});
 	}
 
 
@@ -382,8 +384,8 @@ export class UserService {
 		// Fetch user roles separately
 		const rolesQuery = db
 			.select({
-				id: roles.id,
-				name: roles.name,
+				role_id: roles.id,
+				role_name: roles.name,
 			})
 			.from(userRoles)
 			.innerJoin(roles, eq(userRoles.role_id, roles.id))
