@@ -123,12 +123,16 @@ const CsvImport: React.FC = () => {
 
           <Separator />
 
-          {csvData.length > 0 && <TableSelector
-            selectedTable={selectedTable}
-            onTableChange={handleTableChange}
-            mapping={mapping}
-            lookupTables={lookupTables}
-          />}
+          {/* Step 3: Table Selector */}
+          {csvData.length > 0 && <div>
+            <h2 className="text-xl font-bold mb-4">Step 3: Select The Table</h2>
+            <TableSelector
+              selectedTable={selectedTable}
+              onTableChange={handleTableChange}
+              mapping={mapping}
+              lookupTables={lookupTables}
+            />
+          </div>}
 
           <Separator />
 
@@ -173,8 +177,8 @@ const CsvImport: React.FC = () => {
               <Button onClick={() => {
                 if (mapping) {
                   console.log("Data table", mapping.description);
-                } else {
-                  console.log("Lookup table selected:", selectedTable);
+                } else { 
+                  CsvImportService.processImport(csvData, selectedTable)
                 }
 
 

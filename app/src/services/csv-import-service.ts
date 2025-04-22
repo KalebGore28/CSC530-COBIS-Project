@@ -33,29 +33,25 @@ export const CsvImportService = {
 
   /**
    * Process a CSV import
-   * @param file The CSV file to import
+   * @param csvData The CSV data to import
    * @param tableId The ID of the table to import into
    * @param columnMapping Optional column mapping override
    */
   async processImport(
-    file: File,
-    tableId: string,
+    csvData: Record<string, string>[],
+    tableId?: string,
     columnMapping?: Record<string, string>
   ): Promise<ImportResult> {
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('tableId', tableId);
-
-      // Add column mapping if provided
-      if (columnMapping) {
-        formData.append('columnMapping', JSON.stringify(columnMapping));
-      }
-
-      const response = await axios.post('/api/import/process', formData, {
+      const response = await axios.post('/api/import/process', {
+        csvData,
+        tableId,
+        columnMapping
+      }, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
+        withCredentials: true,
       });
 
       return response.data;

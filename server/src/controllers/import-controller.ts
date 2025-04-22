@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
 import { ImportService } from '../services/import-service';
 
 /**
@@ -11,17 +10,24 @@ export class ImportController {
 	 */
 	static async processImport(req: Request, res: Response) {
 		try {
+
+			const { csvData, tableId, columnMapping } = req.body;
+
+			console.log('Received CSV data:', csvData);
+			console.log('Received tableId:', tableId);
+			console.log('Received columnMapping:', columnMapping);
+			return;
+
+
+
 			// Check if file was uploaded
 			if (!req.file) {
 				res.status(400).json({ error: 'No file uploaded' });
 				return;
 			}
 
-			const fileName = req.file.originalname;
-			const filePath = req.file.path;
-			const importedBy = req.body.importedBy || 'system';
-			const tableId = req.body.tableId; // Optional for lookup tables
-			const category = req.body.category; // Optional category
+			// const importedBy = req.body.importedBy || 'system';
+			// const category = req.body.category; // Optional category
 
 			try {
 				// Process the CSV import
