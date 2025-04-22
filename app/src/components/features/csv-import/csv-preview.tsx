@@ -14,8 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CsvPreviewProps {
-  headers: string[];
-  data: string[][];
+  csvData: Record<string, string>[];
   maxRows?: number;
   highlightSpecialValues?: boolean;
   minColumnWidth?: number;
@@ -33,15 +32,15 @@ interface CellAnalysis {
 }
 
 export const CsvPreview: React.FC<CsvPreviewProps> = ({
-  headers,
-  data,
+  csvData,
   maxRows = 5,
   highlightSpecialValues = true,
   minColumnWidth = 150, // Default minimum column width
 }) => {
   const [page, setPage] = useState(0);
+  const headers = Object.keys(csvData[0] ?? {});
 
-  if (!headers.length || !data.length) {
+  if (!csvData || csvData.length === 0) {
     return (
       <div className="mb-6 w-full">
         <div className="flex items-center justify-between mb-2">
@@ -61,10 +60,10 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
     );
   }
 
-  const totalPages = Math.ceil(data.length / maxRows);
+  const totalPages = Math.ceil(csvData.length / maxRows);
   const pageStart = page * maxRows;
-  const pageEnd = Math.min(pageStart + maxRows, data.length);
-  const pageData = data.slice(pageStart, pageEnd);
+  const pageEnd = Math.min(pageStart + maxRows, csvData.length);
+  const pageData = csvData.slice(pageStart, pageEnd);
 
   // Analyze cell types and track special values
   const specialValueTypes = {
@@ -112,10 +111,9 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
   const hasSpecialValues =
     highlightSpecialValues &&
     pageData.some(row =>
-      row.some(cell => {
-        if (!cell || cell === "") return true;
-        if (typeof cell === 'string' && cell.toUpperCase() === "NULL") return true;
-        return false;
+      headers.some(key => {
+        const cellValue = row[key] || "";
+        return analyzeCell(cellValue).isEmpty;
       })
     );
 
@@ -133,7 +131,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
       <div className="flex justify-between items-center mb-3">
         <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <span>{data.length} total rows</span>
+          <span>{csvData.length} total rows</span>
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-normal">
             {headers.length} columns
           </Badge>
@@ -168,8 +166,8 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                   <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-[40px]">
                     {pageStart + rowIndex + 1}
                   </TableCell>
-                  {headers.map((_, colIndex) => {
-                    const cellValue = row[colIndex] || "";
+                  {headers.map((header, colIndex) => {
+                    const cellValue = row[header] || "";
                     const cell = analyzeCell(cellValue);
 
                     return (
