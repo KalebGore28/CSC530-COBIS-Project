@@ -67,17 +67,29 @@ export interface ImportInfoResponse {
 	};
 }
 
+interface Result {
+	tableName: string; // Name of the table
+	tableId: string;   // Unique identifier for the table
+	success: boolean;
+    message: string;
+    totalRecords: number;
+    inserted: number;
+    updated: number;
+    skipped: number;
+    failed: number;
+	errorDetails: string[] | undefined;
+}
+
 /**
  * Result of an import operation
  */
 export interface ImportResult {
+	category: 'data' | 'lookup'; // Type of import
+	mappingDescription: string; // Description of the mapping used
+	results: Result[];
+	errors: string[] | undefined;
 	success: boolean;
-	totalRecords: number;
-	inserted: number;
-	updated: number;
-	skipped: number;
-	failed: number;
-	errorDetails?: ImportError[];
+	timestamp: string; // Timestamp of the import
 }
 
 /**

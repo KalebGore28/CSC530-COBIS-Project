@@ -29,8 +29,6 @@ export async function importData<T extends Record<string, any>>(
 	table: AnySQLiteTable,
 	primaryKey: string | string[],
 	mappedData: T[],
-	fileName: string,
-	importedBy: string
 ) {
 	const db = (await getDbConnection()).orm;
 
@@ -137,8 +135,6 @@ export async function importData<T extends Record<string, any>>(
 		failed: errorDetails.length,
 		errorDetails,
 		skippedDetails,
-		fileName,
-		importedBy,
 		timestamp: new Date().toISOString(),
 	};
 }

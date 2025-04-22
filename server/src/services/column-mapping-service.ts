@@ -677,6 +677,20 @@ export const getDestinationByTableId = (tableId: string): DestinationTable | nul
 };
 
 /**
+ * Get mapping for lookup table by table ID
+ */
+export const getLookupTableByTableId = (tableId: string): LookupCsvMapping | null => {
+	for (const mapping of csvFileMappings) {
+		if (mapping.category === "lookup" && mapping.destination.tableId === tableId) {
+			return mapping;
+		}
+	}
+	return null;
+}
+
+
+
+/**
  * Find mappings for a filename (for data tables)
  */
 export const findMappingsForFilename = (fileName: string): DataCsvMapping | null => {

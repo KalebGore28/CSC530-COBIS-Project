@@ -18,30 +18,20 @@ import {
 export class ImportService {
 	/**
 	 * Process and import a CSV file
-	 * @param filePath Path to the uploaded CSV file
-	 * @param fileName Original name of the uploaded file
-	 * @param importedBy User who imported the file
+	 * @param csvData Parsed CSV data
 	 * @param tableId Optional tableId for lookup tables
 	 * @returns Import results
 	 */
 	static async processImport(
-		filePath: string,
-		fileName: string,
-		importedBy: string,
+		csvData: Record<string, string>[],
+		fileMapping: CSVFileMapping | null,
 		tableId?: string
 	) {
-		// Parse the CSV file
-		const csvData = await importCSV(filePath);
-
 		if (!csvData || csvData.length === 0) {
 			throw new Error('Empty or invalid CSV file');
 		}
 
-		// Get CSV headers
-		const headers = Object.keys(csvData[0]);
-
 		// Try to find mapping by filename (for data tables)
-		let fileMapping: CSVFileMapping | null = findMappingsForFilename(fileName);
 		let category = 'data';
 
 		// If not found and tableId is provided, try to find mapping for lookup table
@@ -101,8 +91,6 @@ export class ImportService {
 					tableSchema,
 					destination.primaryKeys,
 					mappedData,
-					fileName,
-					importedBy
 				);
 
 				results.push({
@@ -139,7 +127,6 @@ export class ImportService {
 
 		// Return the results
 		return {
-			fileName,
 			category,
 			mappingDescription: fileMapping.description,
 			results,

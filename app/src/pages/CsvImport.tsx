@@ -11,13 +11,11 @@ import { ImportResultDisplay } from "@/components/features/csv-import/import-res
 import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
 
 // Import types
-import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../types/csv-import-types";
+import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping, ImportResult } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
 const CsvImport: React.FC = () => {
-  const [showSuccess, setShowSuccess] = useState(true);
-  const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<DataCsvMapping | null>(null); // This is only the mapping for the data table.
@@ -28,6 +26,8 @@ const CsvImport: React.FC = () => {
 
   // State for parsed CSV data
   const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
 
   // Fetch import info
   useEffect(() => {
@@ -137,21 +137,14 @@ const CsvImport: React.FC = () => {
           <Separator />
 
           {/* Step 4: Import Results */}
-          {/* {false && <div>
+          {importResult && <div>
             <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
             <ImportResultDisplay
-              result={{
-                success: true,
-                totalRecords: 5,
-                inserted: 3,
-                updated: 0,
-                skipped: 2,
-                failed: 0
-              }}
+              result={importResult}
             />
-          </div>} */}
+          </div>}
 
-          {!showSuccess && (
+          {false && (
             <>
               <Separator />
 
@@ -174,14 +167,12 @@ const CsvImport: React.FC = () => {
         <CardFooter>
           {selectedTable && (
             <div className="ml-auto">
-              <Button onClick={() => {
+              <Button onClick={async () => {
                 if (mapping) {
                   console.log("Data table", mapping.description);
-                } else { 
-                  CsvImportService.processImport(csvData, selectedTable)
+                } else {
+                  setImportResult(await CsvImportService.processImport(csvData, selectedTable))
                 }
-
-
               }}>
                 Process Import
               </Button>
