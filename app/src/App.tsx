@@ -25,7 +25,7 @@ import { useLoading } from '@/providers/loading-provider';
 import { useRoleContext } from '@/context/role'; // Import useRoleContext
 
 // Import your new ProtectedRoute component
-import ProtectedRoute from '@/components/auth/ProtectedRoute'; // Adjust path if needed
+import ProtectedRoute from '@/components/auth/protected-route'; // Adjust path if needed
 
 // Keep URL restoration logic (utility functions and initial hooks)
 const URL_STORAGE_KEY = 'initial_app_url';

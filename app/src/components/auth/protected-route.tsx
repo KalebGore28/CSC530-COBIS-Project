@@ -29,7 +29,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles, children 
 	const isAllowed = allowedRoles.includes(selectedRole.name);
 
 	if (!isAllowed) {
-		toast.error("You do not have permission to access this page.");
+		toast.error("This page either does not exist or you do not have permission to access it.");
 		return <Navigate to="/dashboard" replace />;
 	}
 
