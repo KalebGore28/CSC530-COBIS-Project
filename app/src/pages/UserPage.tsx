@@ -11,7 +11,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Toaster } from "@/components/ui/sonner";
 import { toast } from "sonner";
 import debounce from 'lodash.debounce';
 import { useSession } from '@/context/session';
@@ -174,7 +173,6 @@ export const UserList: React.FC = () => {
 
 	return (
 		<div className="container mx-auto p-4 space-y-6">
-			<Toaster richColors position="top-right" />
 			<h1 className="text-2xl font-bold">User Management</h1>
 
 			{/* Filter Controls */}

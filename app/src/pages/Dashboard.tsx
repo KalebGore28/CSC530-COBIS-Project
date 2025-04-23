@@ -7,7 +7,6 @@ import { Separator } from "@/components/ui/separator"
 import { BookOpen, Users, Database, LineChart, BarChart3, FileText } from "lucide-react"
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 import { GradeDistributions, GradeDistributionData } from '@/components/charts/grade-distributions'; // Adjust path if needed
 
@@ -157,7 +156,6 @@ export default function Dashboard() {
 
 	return (
 		<div className="p-6">
-			<Toaster richColors position="top-right" />
 			<div className="flex flex-col items-center space-y-2 mb-8">
 				<h2 className="text-3xl font-bold tracking-tight">
 					Welcome Back, {session?.session.data?.user.name}
