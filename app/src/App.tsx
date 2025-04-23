@@ -38,6 +38,7 @@ export const App: React.FC = () => {
   const [initialUrlSaved, setInitialUrlSaved] = useState(false);
   const redirectAttempted = useRef(false);
   const { routePermissions } = useRoleContext();
+  const [sessionChecked, setSessionChecked] = useState(false);
 
 
   // --- Keep Existing Hooks for loading, URL restoration ---
@@ -61,24 +62,29 @@ export const App: React.FC = () => {
     }
   }, [session, isLoading, location.pathname, navigate]);
 
+
+  // Effect to manage LoadingProvider visibility and track check completion
   useEffect(() => {
-    if (isLoading) { showLoading('Loading session...'); }
-    else { hideLoading(); }
+    if (isLoading) {
+      setSessionChecked(false); // Reset flag when loading starts
+      showLoading('Loading session...');
+    } else {
+      // isLoading is now false. Mark session as checked.
+      setSessionChecked(true);
+      hideLoading();
+    }
+    // Ensure show/hide are stable references or included if they aren't
   }, [isLoading, showLoading, hideLoading]);
 
   // --- Auth Flow ---
-  if (isLoading) return <></>; // Or loading component
+  if (!sessionChecked) return <></>; // Or loading component
 
   if (!session) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-
-        <Route path="*" element={<Navigate to="/login" state={{ from: location }} replace />} />
-      </Routes>
-    );
+    console.log('Session not found, redirecting to login');
+    console.log('Session Check', sessionChecked, isLoading);
+    return null;
   }
-
+  //return <LoginPage />;
   if (!session.info.isEnabled) return <WaitingPage />;
   if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
 
@@ -88,10 +94,7 @@ export const App: React.FC = () => {
       <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
 
-        <Route path="dashboard" element={
-          <Dashboard />
-        } />
-
+        <Route path="dashboard" element={<Dashboard />} />
 
         {/* Class Roster: Use permissions from context */}
         <Route path="class-roster" element={
