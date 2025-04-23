@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ImportError } from "../../types/csv-import-types";
+import { ImportError } from "../../../types/csv-import-types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
