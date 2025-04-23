@@ -77,13 +77,12 @@ export const App: React.FC = () => {
   }, [isLoading, showLoading, hideLoading]);
 
   // --- Auth Flow ---
-  if (!sessionChecked) return <></>; // Or loading component
+  if (!sessionChecked) return <></>; // Show nothing for loading screen
 
   if (!session) return <LoginPage />;
   if (!session.info.isEnabled) return <WaitingPage />;
   if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
 
-  // --- Application Routes with Protection ---
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
@@ -128,8 +127,6 @@ export const App: React.FC = () => {
             <AdvisorPage />
           </ProtectedRoute>
         } />
-
-        {/* Login Redirect */}
 
         {/* Catch-all inside Layout */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
