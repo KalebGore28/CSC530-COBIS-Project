@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 interface OnboardingPageProps {
-	refetchSession: () => Promise<void>;
+	refetchSession: () => Promise<unknown>;
 }
 
 async function updateMnumber(mnumber: string) {

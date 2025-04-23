@@ -134,6 +134,8 @@ export class UserController {
 	 * Get the current user's session and user data
 	 */
 	static async getUserInfo(req: Request, res: Response) {
+		// simulate a delay
+		// await new Promise(resolve => setTimeout(resolve, 5000));
 		try {
 			// Get the session using better-auth
 			const session = await auth.api.getSession({
