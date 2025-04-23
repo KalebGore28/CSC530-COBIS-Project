@@ -36,7 +36,7 @@ const roleNameMap: { [key: string]: string } = {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const { session, isLoading: sessionLoading } = useSession(); // ⬅️ Grab loading
+	const { session, isLoading: sessionLoading } = useSession();
 	const [roles, setRoles] = useState<Role[]>([]);
 	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
@@ -51,39 +51,43 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/advisor-page": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
+	// 1. Fetch roles from session
 	useEffect(() => {
-		if (!sessionLoading && session?.info.roles?.length && roles.length === 0) {
-			const fetchedRoles: Role[] = session.info.roles.map((role: { role_id: number; role_name: string }) => ({
-				id: role.role_id,
-				name: roleNameMap[role.role_name] || role.role_name,
-				logo: getLogoForRole(role.role_name),
+		if (!sessionLoading && session?.info.roles?.length) {
+			const fetched = session.info.roles.map(r => ({
+				id: r.role_id,
+				name: roleNameMap[r.role_name] ?? r.role_name,
+				logo: getLogoForRole(r.role_name),
 			}));
-			setRoles(fetchedRoles);
+			setRoles(fetched);
 		}
 	}, [session, sessionLoading]);
 
+	// 2. Once roles are loaded, pick either stored or default
 	useEffect(() => {
-		if (!sessionLoading && session && roles.length > 0) {
-			const savedRoleId = sessionStorage.getItem("selectedRoleId");
-			if (savedRoleId) {
-				const roleIdNum = Number(savedRoleId);
-				const savedRole = roles.find(role => role.id === roleIdNum);
-				if (savedRole) {
-					setSelectedRole(savedRole);
-				}
-			}
-		}
-	}, [session, sessionLoading, roles]);
+		if (roles.length === 0) return;
 
+		// Try storage first
+		const raw = localStorage.getItem("selectedRoleId");
+		const storedId = raw != null ? Number(raw) : NaN;
+		const fromStorage = roles.find(r => r.id === storedId);
+
+		// Fallback to first role if storage miss
+		const initial = fromStorage ?? roles[0];
+		setSelectedRole(initial);
+	}, [roles]);
+
+	// 3. Persist any change of selectedRole
 	useEffect(() => {
-		if (selectedRole && selectedRole.id !== Number(sessionStorage.getItem("selectedRoleId"))) {
-			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString());
+		if (!selectedRole) return;
+		if (selectedRole) {
+			localStorage.setItem("selectedRoleId", String(selectedRole.id));
 		}
 	}, [selectedRole]);
 
-	// 👇 Delay rendering children until role setup is done
+	// Delay until we have a session + at least one role
 	if (sessionLoading || (session && roles.length === 0)) {
-		return null; // Or a spinner
+		return null;
 	}
 
 	return (
