@@ -79,12 +79,7 @@ export const App: React.FC = () => {
   // --- Auth Flow ---
   if (!sessionChecked) return <></>; // Or loading component
 
-  if (!session) {
-    console.log('Session not found, redirecting to login');
-    console.log('Session Check', sessionChecked, isLoading);
-    return null;
-  }
-  //return <LoginPage />;
+  if (!session) return <LoginPage />;
   if (!session.info.isEnabled) return <WaitingPage />;
   if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
 
