@@ -44,6 +44,7 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({
 	};
 
 	const hideLoading = () => {
+		console.log('Loading ended');
 		if (loadStartTime !== null) {
 			const elapsedTime = Date.now() - loadStartTime;
 			const remainingTime = Math.max(0, minLoadTime - elapsedTime);
