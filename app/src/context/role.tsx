@@ -36,7 +36,7 @@ const roleNameMap: { [key: string]: string } = {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const { session } = useSession();
+	const { session, isLoading: sessionLoading } = useSession(); // ⬅️ Grab loading
 	const [roles, setRoles] = useState<Role[]>([]);
 	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
@@ -52,7 +52,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	});
 
 	useEffect(() => {
-		if (session?.info.roles?.length && roles.length === 0) {
+		if (!sessionLoading && session?.info.roles?.length && roles.length === 0) {
 			const fetchedRoles: Role[] = session.info.roles.map((role: { role_id: number; role_name: string }) => ({
 				id: role.role_id,
 				name: roleNameMap[role.role_name] || role.role_name,
@@ -60,29 +60,31 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			}));
 			setRoles(fetchedRoles);
 		}
-	}, [session]); // Only update roles when session.roles become available
-
+	}, [session, sessionLoading]);
 
 	useEffect(() => {
-		if (session && roles.length > 0) {
+		if (!sessionLoading && session && roles.length > 0) {
 			const savedRoleId = sessionStorage.getItem("selectedRoleId");
 			if (savedRoleId) {
 				const roleIdNum = Number(savedRoleId);
 				const savedRole = roles.find(role => role.id === roleIdNum);
 				if (savedRole) {
-					setSelectedRole(savedRole); // Restore only if valid
+					setSelectedRole(savedRole);
 				}
 			}
 		}
-	}, [session, roles]); // Make sure this runs only when roles are available
-
+	}, [session, sessionLoading, roles]);
 
 	useEffect(() => {
 		if (selectedRole && selectedRole.id !== Number(sessionStorage.getItem("selectedRoleId"))) {
 			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString());
 		}
-	}, [selectedRole]); // Update sessionStorage whenever selectedRole changes
+	}, [selectedRole]);
 
+	// 👇 Delay rendering children until role setup is done
+	if (sessionLoading || (session && roles.length === 0)) {
+		return null; // Or a spinner
+	}
 
 	return (
 		<RoleContext.Provider value={{ roles, selectedRole, setSelectedRole, routePermissions }}>
@@ -90,6 +92,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		</RoleContext.Provider>
 	);
 };
+
 
 // Helper to map display names to logos
 const getLogoForRole = (displayName: string): React.ElementType => {
