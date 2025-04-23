@@ -1,4 +1,4 @@
-import { useState, useEffect, createContext, use, ReactNode } from 'react';
+import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 import logo from '@/assets/primary-icon.png';
@@ -32,6 +32,7 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({
 	const [loadStartTime, setLoadStartTime] = useState<number | null>(null);
 
 	const showLoading = (text?: string) => {
+		console.log('Loading started');
 		setLoadText(text || defaultText);
 		setLoadStartTime(Date.now());
 		setMounted(true);
@@ -65,8 +66,7 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({
 
 			{mounted && (
 				<div
-					className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 transition-opacity duration-500 ease-in-out ${visible ? 'opacity-100' : 'opacity-0'
-						}`}
+					className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-900 transition-opacity duration-500 ease-in-out ${visible ? 'opacity-100' : 'opacity-0'}`}
 				>
 					<Card
 						className="w-80 shadow-lg transition-all duration-500 ease-in-out"
@@ -100,7 +100,7 @@ export const LoadingProvider: React.FC<LoadingProviderProps> = ({
 
 // Custom hook to use the loading functionality
 export const useLoading = () => {
-	const context = use(LoadingContext);
+	const context = useContext(LoadingContext);
 
 	if (!context) {
 		throw new Error('useLoading must be used within a LoadingProvider');

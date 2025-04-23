@@ -1,131 +1,143 @@
-import { createContext, ReactNode, use, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { signout, getSession } from '@/lib/auth-client';
-import axios from 'axios';
+// context/session.ts
+import {
+  createContext,
+  ReactNode,
+  useState,
+  useEffect,
+  useContext,           // ← import useContext, not `use`
+} from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import { getSession as rawGetSession, signout } from '@/lib/auth-client'
 
 export interface Session {
-  session: Awaited<ReturnType<typeof getSession>>;
-  info: UserInfo;
+  session: Awaited<ReturnType<typeof rawGetSession>>
+  info: UserInfo
 }
 export type UserInfo = {
-  roles: { role_id: number; role_name: string }[] | [];
-  department: string | null;
-  college: string | null;
-  mnumber: string | null;
-  isEnabled: boolean;
+  roles: { role_id: number; role_name: string }[] | []
+  department: string | null
+  college: string | null
+  mnumber: string | null
+  isEnabled: boolean
 }
+
 interface SessionContextType {
-  session: Session | null;
-  isLoading: boolean;
-  logout: () => void;
-  refetchSession: () => Promise<void>;
+  session: Session | null
+  isLoading: boolean
+  logout: () => void
+  refetchSession: () => Promise<void>
 }
 
-const SessionContext = createContext<SessionContextType | undefined>(undefined);
+const SessionContext = createContext<SessionContextType | undefined>(undefined)
 
-// Function to fetch the session
-const fetchUserInfo = async () => {
-  const response = await axios.get('/api/user/me', {
-    withCredentials: true,
-  });
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch user info');
+// ———————————————————————————————————————————————————————————————
+// 1) wrap getSession to catch 401
+async function fetchSession(): Promise<
+  Awaited<ReturnType<typeof rawGetSession>> | null
+> {
+  try {
+    return await rawGetSession()
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
+      return null
+    }
+    throw err
   }
-  return response.data;
 }
 
-// SessionProvider component
-interface SessionProviderProps {
-  children: ReactNode;
+// 2) wrap your existing fetchUserInfo the same way
+async function fetchUserInfo(): Promise<UserInfo | null> {
+  try {
+    const res = await axios.get<UserInfo>('/api/user/me', {
+      withCredentials: true,
+    })
+    return res.data
+  } catch (err) {
+    if (axios.isAxiosError(err) && err.response?.status === 401) {
+      return null
+    }
+    throw err
+  }
 }
+// ———————————————————————————————————————————————————————————————
 
-export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-
-  // Query 1: Fetches basic session
+export const SessionProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const {
     data: sessionResult,
     isLoading: isLoadingSession,
-    refetch: refetchSessionData
+    refetch: refetchSessionData,
   } = useQuery({
     queryKey: ['session'],
-    queryFn: getSession,
-    // Adjust staleTime/gcTime as needed for session data
-    staleTime: 5 * 60 * 1000, // e.g., 5 minutes
-    gcTime: 10 * 60 * 1000,  // e.g., 10 minutes
-  });
+    queryFn: fetchSession,
+    staleTime: 5 * 60_000,
+    retry: false,              // don’t retry on 401
+  })
 
-  // Query 2: Fetches user details
   const {
     data: userInfo,
-    isLoading: isLoadingUserInfo, // Capture isLoading specifically for Query 2
-    refetch: refetchUserInfo
+    isLoading: isLoadingUserInfo,
+    refetch: refetchUserInfo,
   } = useQuery({
     queryKey: ['userInfo'],
     queryFn: fetchUserInfo,
-    enabled: !!sessionResult, // Still enable only when sessionResult exists
-    // Adjust staleTime/gcTime as needed for user info
-    staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
-  });
+    enabled: !!sessionResult,  // only run if sessionResult !== null
+    staleTime: 5 * 60_000,
+    retry: false,
+  })
 
-  // Combine results when both queries have data
+  const [session, setSession] = useState<Session | null>(null)
+
   useEffect(() => {
-    // Only set the full session object if both parts are successfully loaded
-    if (sessionResult && userInfo) {
-      setSession({
-        session: sessionResult,
-        info: userInfo
-      });
-    } else if (!isLoadingSession && !isLoadingUserInfo) {
-      // If neither query is loading anymore, and we don't have both results,
-      // assume the user is not fully logged in or there was an error.
-      setSession(null);
+    // once both queries are done, build your combined session or null
+    if (
+      sessionResult !== undefined && // ran
+      !isLoadingSession &&
+      !isLoadingUserInfo
+    ) {
+      if (sessionResult && userInfo) {
+        setSession({ session: sessionResult, info: userInfo })
+      } else {
+        setSession(null)
+      }
     }
-    // Add isLoading flags to dependencies if logic relies on them finishing
-  }, [sessionResult, userInfo, isLoadingSession, isLoadingUserInfo]);
+  }, [
+    sessionResult,
+    userInfo,
+    isLoadingSession,
+    isLoadingUserInfo,
+  ])
 
   const logout = async () => {
-    await signout();
-    setSession(null); // Clear local state
-  };
+    await signout()
+    setSession(null)
+  }
 
   const refetchSession = async () => {
-    try {
-      // Refetch session first
-      await refetchSessionData();
-      // Refetch user info - useQuery's enabled flag handles if sessionResult exists after refetch
-      await refetchUserInfo();
-    } catch (error) {
-      console.error('Error refetching session:', error);
-      setSession(null); // Clear session on error
-    }
-  };
+    await refetchSessionData()
+    await refetchUserInfo()
+  }
 
-  // *** Calculate Combined Loading State ***
-  // The overall session is loading if the initial session OR the user info is loading.
-  // Use isFetching as well if you want loading indicators during background refetches.
-  // For initial load, isLoading is usually sufficient.
-  const combinedIsLoading = isLoadingSession || isLoadingUserInfo;
+  const combinedIsLoading = isLoadingSession || isLoadingUserInfo
 
   return (
-    <SessionContext.Provider value={{
-      session,
-      isLoading: combinedIsLoading, // Provide the combined loading state
-      logout,
-      refetchSession
-    }}>
+    <SessionContext.Provider
+      value={{
+        session,
+        isLoading: combinedIsLoading,
+        logout,
+        refetchSession,
+      }}
+    >
       {children}
     </SessionContext.Provider>
-  );
-};
-// Custom hook to use the session context
-export const useSession = () => {
-  const context = use(SessionContext);
-  if (!context) {
-    throw new Error('useSession must be used within a SessionProvider');
-  }
-  return context;
-};
+  )
+}
 
-export default SessionContext;
+export const useSession = () => {
+  const ctx = useContext(SessionContext)  // ← use useContext
+  if (!ctx) throw new Error('useSession must be used within SessionProvider')
+  return ctx
+}
