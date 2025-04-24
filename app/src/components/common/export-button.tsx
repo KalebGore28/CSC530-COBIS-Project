@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { exportToCSV, formatRosterForExport } from "@/utils/csv-export";
 import { toast } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
 
 interface ExportButtonProps {
 	data: any[];
@@ -46,7 +45,6 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 
 	return (
 		<div className="relative">
-			<Toaster />
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button variant="outline">
