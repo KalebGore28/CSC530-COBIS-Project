@@ -157,7 +157,9 @@ export const UserList: React.FC = () => {
 						email: updated.email ?? u.email,
 						mnumber: updated.mnumber ?? u.mnumber,
 						college: updated.college ?? u.college,
+						college_code: updated.college_code ?? u.college_code,
 						department: updated.department ?? u.department,
+						department_code: updated.department_code ?? u.department_code,
 						isEnabled: updated.isEnabled ?? u.isEnabled,
 						roles: updated.roles
 							? updated.roles.map(r => ({ ...r, role_id: Number(r.role_id) }))

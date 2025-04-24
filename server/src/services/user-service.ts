@@ -231,8 +231,10 @@ export class UserService {
 				isEnabled: user.isEnabled,
 				lastLogin: user.lastLogin,
 				createdAt: user.createdAt,
-				college: faculty.college,
-				department: faculty.department,
+				college_code: faculty.college,
+				college: colleges.description,
+				department_code: faculty.department,
+				department: departments.description,
 				// Aggregate roles into a JSON array
 				// Using json_group_array to create a JSON array of roles
 				roles_json: sql<string>`CASE WHEN COUNT(${roles.id}) > 0 THEN json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})) ELSE '[]' END`.as('roles_json'),
@@ -241,6 +243,8 @@ export class UserService {
 			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
 			.leftJoin(userRoles, eq(user.id, userRoles.user_id))
 			.leftJoin(roles, eq(userRoles.role_id, roles.id))
+			.leftJoin(colleges, eq(faculty.college, colleges.code))
+			.leftJoin(departments, eq(faculty.department, departments.code))
 			.where(eq(user.id, userId))
 			.groupBy(
 				user.id,
@@ -350,8 +354,8 @@ export class UserService {
 					const userName = ('name' in userUpdateData ? userUpdateData.name : originalUser.name) ?? 'Unknown Unknown';
 					const { firstName, lastName } = deriveNames(userName);
 					await tx.insert(faculty)
-						.values({ /* ... */ mnumber: finalMnumber, first_name: firstName, last_name: lastName, college: details.college, department: details.department })
-						.onConflictDoUpdate({ /* ... */ target: faculty.mnumber, set: { first_name: firstName, last_name: lastName, college: details.college, department: details.department } });
+						.values({ mnumber: finalMnumber, first_name: firstName, last_name: lastName, college: details.college, department: details.department })
+						.onConflictDoUpdate({ target: faculty.mnumber, set: { first_name: firstName, last_name: lastName, college: details.college, department: details.department } });
 				}
 
 				// --- 7. Handle Role Assignments (Now Always Executes) ---
@@ -436,11 +440,15 @@ export class UserService {
 				lastLogin: user.lastLogin,
 				createdAt: user.createdAt,
 				updatedAt: user.updatedAt,
-				college: faculty.college,
-				department: faculty.department,
+				college_code: faculty.college,
+				college: colleges.description,
+				department_code: faculty.department,
+				department: departments.description,
 			})
 			.from(user)
-			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber)) // Join faculty if mnumber matches
+			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
+			.leftJoin(colleges, eq(faculty.college, colleges.code))
+			.leftJoin(departments, eq(faculty.department, departments.code))
 			.where(eq(user.id, userId))
 			.limit(1);
 
@@ -480,7 +488,9 @@ export class UserService {
 		// Conditionally add faculty details
 		if (userData.college !== null && userData.department !== null) {
 			userDetails.college = userData.college;
+			userDetails.college_code = userData.college_code;
 			userDetails.department = userData.department;
+			userDetails.department_code = userData.department_code;
 		}
 
 		return userDetails;

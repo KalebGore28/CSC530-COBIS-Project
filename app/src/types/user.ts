@@ -29,16 +29,18 @@ export interface UserFilters {
 }
 
 export interface UserData {
-    id: string;
-    mnumber?: string | null;
-    name?: string;
-    email?: string;
-    image?: string;
-    isEnabled?: boolean;
-    lastLogin?: string;
-    createdAt?: string;
-    updatedAt?: string;
-    roles?: { role_id: string; role_name: string }[];
-    department?: string | null;
-    college?: string | null;
+	id: string;
+	mnumber?: string | null;
+	name?: string;
+	email?: string;
+	image?: string;
+	isEnabled?: boolean;
+	lastLogin?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	roles?: { role_id: string; role_name: string }[];
+	department_code?: string | null;
+	department?: string | null;
+	college_code?: string | null;
+	college?: string | null;
 }

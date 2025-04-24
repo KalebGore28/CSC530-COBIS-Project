@@ -1,5 +1,6 @@
 // src/components/forms/ProvisionUserForm.tsx (or your preferred location)
 import React, { useState, useEffect, useCallback } from 'react';
+import { UserData } from '@/types/user';
 import axios from 'axios';
 import { toast } from "sonner";
 
@@ -19,23 +20,6 @@ interface Faculty {
 	firstName: string;
 	lastName: string;
 }
-
-// Type for the fetched user data from GET /api/user/{userId}
-export interface UserData {
-	id: string;
-	mnumber?: string | null;
-	name?: string;
-	email?: string;
-	image?: string;
-	isEnabled?: boolean;
-	lastLogin?: string;
-	createdAt?: string;
-	updatedAt?: string;
-	roles?: { role_id: string; role_name: string }[];
-	department?: string | null;
-	college?: string | null;
-}
-
 
 // Update Props: Remove initialUser
 interface ProvisionUserFormProps {
@@ -102,20 +86,18 @@ export function ProvisionUserForm({
 		const fetchUserData = async () => {
 			setIsFetchingInitialData(true);
 			setFetchInitialError(null); // Clear previous fetch error
-			console.log(`Workspaceing data for userId: ${userId}`);
 
 			try {
 				const response = await axios.get<UserData>(`/api/user/${userId}`, {
 					withCredentials: true,
 				});
 				const userData = response.data;
-				console.log("Fetched user data:", userData);
 
 				// --- Populate state based on fetched userData ---
 				setIsEnabled(userData.isEnabled ?? true);
 
-				const initialCollegeCode = userData.college || "0";
-				const initialDepartmentCode = userData.department || "0000";
+				const initialCollegeCode = userData.college_code || "0";
+				const initialDepartmentCode = userData.department_code || "0000";
 				// Set state with placeholder descriptions; Lookup components will fetch real ones
 				setSelectedCollege({ code: initialCollegeCode, description: initialCollegeCode === "0" ? 'Select...' : 'Loading...' });
 				setSelectedDepartment({ code: initialDepartmentCode, description: initialDepartmentCode === "0000" ? 'Select...' : 'Loading...' });
@@ -229,8 +211,6 @@ export function ProvisionUserForm({
 			college: selectedCollege?.code ?? "0",
 			department: selectedDepartment?.code ?? "0000",
 		};
-
-		console.log("Submitting Provision Data (axios):", payload);
 
 		try {
 			const response = await axios.put(

@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/sonner";
 export default function Layout() {
 	return (
 		<SidebarProvider>
-			<Toaster richColors position="top-right" />
+			<Toaster richColors />
 			<AppSidebar />
 			<SidebarInset>
 				<SiteHeader />
