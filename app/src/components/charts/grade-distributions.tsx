@@ -51,27 +51,27 @@ interface GradeDistributionsProps {
 const defaultChartConfig = {
 	A: {
 		label: "A",
-		color: "var(--chart-1)",
+		color: "hsl(var(--chart-1))",
 	},
 	B: {
 		label: "B",
-		color: "var(--chart-2)",
+		color: "hsl(var(--chart-2))",
 	},
 	C: {
 		label: "C",
-		color: "var(--chart-3)",
+		color: "hsl(var(--chart-3))",
 	},
 	D: {
 		label: "D",
-		color: "var(--chart-4)",
+		color: "hsl(var(--chart-4))",
 	},
 	F: {
 		label: "F",
-		color: "var(--chart-5)",
+		color: "hsl(var(--chart-5))",
 	},
 	"N/A": {
 		label: "N/A",
-		color: "var(--chart-6)",
+		color: "hsl(var(--chart-6))",
 	},
 } satisfies ChartConfig
 
@@ -212,7 +212,8 @@ export function GradeDistributions({
 								<YAxis
 									tickLine={false}
 									axisLine={false}
-									tickFormatter={(value) => `${value}%`}
+									tickCount={6}
+									tickFormatter={(value) => `${value.toFixed(0)}%`}
 									domain={[0, 100]}
 								/>
 								<ChartTooltip
