@@ -76,8 +76,8 @@ const UserCard: React.FC<UserCardProps> = ({
 					<span>Status:</span><Badge variant={user.isEnabled ? 'default' : 'destructive'}>{user.isEnabled ? 'Enabled' : 'Disabled'}</Badge>
 				</div>
 				{user.mnumber && (<div className="flex items-center space-x-2"><UserIcon className="h-4 w-4 text-muted-foreground" /><span>M-Number: {user.mnumber}</span></div>)}
-				{user.college && (<div className="flex items-center space-x-2"><Building className="h-4 w-4 text-muted-foreground" /><span>College: {user.college}</span></div>)}
-				{user.department && (<div className="flex items-center space-x-2"><BriefcaseBusiness className="h-4 w-4 text-muted-foreground" /><span>Department: {user.department}</span></div>)}
+				{user.college && (<div className="flex items-center space-x-2"><Building className="h-4 w-4 text-muted-foreground" /><span>College: {user.college} | Code: {user.college_code}</span></div>)}
+				{user.department && (<div className="flex items-center space-x-2"><BriefcaseBusiness className="h-4 w-4 text-muted-foreground" /><span>Department: {user.department} | Code: {user.department_code}</span></div>)}
 				<div className="pt-2"><p className="font-medium mb-1">Roles:</p>{user.roles && user.roles.length > 0 ? (<div className="flex flex-wrap gap-1">{user.roles.map((role) => (<Badge key={role.role_id} variant="outline">{role.role_name}</Badge>))}</div>) : (<span className="text-muted-foreground italic">No roles assigned</span>)}</div>
 			</CardContent>
 			<CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-2 pt-4"> {/* Adjusted layout for footer */}

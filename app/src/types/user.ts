@@ -12,7 +12,9 @@ export interface User {
 	isEnabled: boolean;
 	lastLogin: string | null;
 	createdAt: string;
+	college_code: string | null;
 	college: string | null;
+	department_code: string | null;
 	department: string | null;
 	roles: UserRole[] | null;
 }

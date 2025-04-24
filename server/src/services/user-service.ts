@@ -1,7 +1,14 @@
 import { eq, and, ne, like, SQL, sql, inArray } from "drizzle-orm"; // Import necessary Drizzle functions
 import { getDbConnection } from "../db/connection";
 // Import both user and faculty schemas
-import { user, faculty, userRoles, roles } from "../db/schema";
+import {
+	user,
+	faculty,
+	userRoles,
+	roles,
+	departments,
+	colleges,
+} from "../db/schema";
 
 // Helper function to derive names (basic example)
 function deriveNames(fullName: string | null): { firstName: string; lastName: string } {
@@ -163,8 +170,10 @@ export class UserService {
 				isEnabled: user.isEnabled,
 				lastLogin: user.lastLogin,
 				createdAt: user.createdAt,
-				college: faculty.college,
-				department: faculty.department,
+				college_code: faculty.college,
+				college: colleges.description,
+				department_code: faculty.department,
+				department: departments.description,
 				// Aggregate roles into a JSON array
 				// Using json_group_array to create a JSON array of roles
 				roles_json: sql<string>`CASE WHEN COUNT(${roles.id}) > 0 THEN json_group_array(json_object('role_id', ${roles.id}, 'role_name', ${roles.name})) ELSE '[]' END`.as('roles_json'),
@@ -173,6 +182,8 @@ export class UserService {
 			.leftJoin(faculty, eq(user.mnumber, faculty.mnumber))
 			.leftJoin(userRoles, eq(user.id, userRoles.user_id))
 			.leftJoin(roles, eq(userRoles.role_id, roles.id))
+			.leftJoin(colleges, eq(faculty.college, colleges.code))
+			.leftJoin(departments, eq(faculty.department, departments.code))
 			.groupBy(
 				user.id,
 				user.mnumber,
