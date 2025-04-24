@@ -58,27 +58,57 @@ export const UserList: React.FC = () => {
 	// 2) Derive filtered list
 	const filteredUsers = useMemo(() => {
 		return allUsers.filter(u => {
-			// name filter
-			if (filters.name && !u.name.toLowerCase().includes(filters.name.toLowerCase()))
+			const name_filter = (filters.name ?? '').toLowerCase();
+			const email_filter = (filters.email ?? '').toLowerCase();
+			const mnumber_filter = (filters.mnumber ?? '').toLowerCase();
+			const college_filter = (filters.college ?? '').toLowerCase();
+			const department_filter = (filters.department ?? '').toLowerCase();
+
+			// name
+			if (filters.name && !u.name.toLowerCase().includes(name_filter)) {
 				return false;
-			// email filter
-			if (filters.email && !u.email.toLowerCase().includes(filters.email.toLowerCase()))
+			}
+
+			// email
+			if (filters.email && !u.email.toLowerCase().includes(email_filter)) {
 				return false;
-			// mnumber
-			if (filters.mnumber && (!u.mnumber || !u.mnumber.includes(filters.mnumber)))
+			}
+
+			// m-number
+			if (
+				filters.mnumber &&
+				!((u.mnumber ?? '').toLowerCase().includes(mnumber_filter))
+			) {
 				return false;
-			// college
-			if (filters.college && (!u.college || !u.college.includes(filters.college)))
-				return false;
-			// department
-			if (filters.department && (!u.department || !u.department.includes(filters.department)))
-				return false;
+			}
+
+			// college: check both college and college_code
+			if (filters.college) {
+				const colName = (u.college ?? '').toLowerCase();
+				const colCode = (u.college_code ?? '').toLowerCase();
+				if (!colName.includes(college_filter) && !colCode.includes(college_filter)) {
+					return false;
+				}
+			}
+
+			// department: check both department and department_code
+			if (filters.department) {
+				const deptName = (u.department ?? '').toLowerCase();
+				const deptCode = (u.department_code ?? '').toLowerCase();
+				if (!deptName.includes(department_filter) && !deptCode.includes(department_filter)) {
+					return false;
+				}
+			}
+
 			// status
-			if (filters.isEnabled !== undefined && u.isEnabled !== filters.isEnabled)
+			if (filters.isEnabled !== undefined && u.isEnabled !== filters.isEnabled) {
 				return false;
+			}
+
 			return true;
 		});
 	}, [allUsers, filters]);
+
 
 	// handlers
 	const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
