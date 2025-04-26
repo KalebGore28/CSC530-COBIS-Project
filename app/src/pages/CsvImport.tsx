@@ -169,7 +169,7 @@ const CsvImport: React.FC = () => {
             <div className="ml-auto">
               <Button onClick={async () => {
                 if (mapping) {
-                  console.log("Data table", mapping.description);
+                  setImportResult(await CsvImportService.processImport(csvData, undefined, mapping));
                 } else {
                   setImportResult(await CsvImportService.processImport(csvData, selectedTable))
                 }

@@ -40,7 +40,7 @@ export const CsvImportService = {
   async processImport(
     csvData: Record<string, string>[],
     tableId?: string,
-    columnMapping?: Record<string, string>
+    columnMapping?: DataCsvMapping
   ): Promise<ImportResult> {
     try {
       const response = await axios.post('/api/import/process', {
