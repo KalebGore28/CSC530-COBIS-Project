@@ -1,15 +1,13 @@
-import * as schema from '../db/schema';
 import { importData } from '../utils/importData';
-import { importCSV } from '../utils/importCSV';
 import { AnySQLiteTable } from 'drizzle-orm/sqlite-core';
 import {
-	findMappingsForFilename,
 	findMappingsForLookupTable,
 	mapCsvDataToDbData,
 	getImportInfo,
 	DataCsvMapping,
 	LookupCsvMapping,
-	CSVFileMapping
+	CSVFileMapping,
+	getMappingByDescription
 } from '../services/column-mapping-service';
 
 /**
@@ -24,7 +22,7 @@ export class ImportService {
 	 */
 	static async processImport(
 		csvData: Record<string, string>[],
-		fileMapping: CSVFileMapping | null,
+		csvMapping: CSVFileMapping | null,
 		tableId?: string
 	) {
 		if (!csvData || csvData.length === 0) {
@@ -35,13 +33,20 @@ export class ImportService {
 		let category = 'data';
 
 		// If not found and tableId is provided, try to find mapping for lookup table
-		if (!fileMapping && tableId) {
-			fileMapping = findMappingsForLookupTable(tableId);
+		if (!csvMapping && tableId) {
+			csvMapping = findMappingsForLookupTable(tableId);
 			category = 'lookup';
 		}
 
+		// Workaround - If is data table, get the description from the mapping
+		// Since the schemaRef is only available on the server side, we need to get it by using the description
+		// This workaround is quick and dirty, but it works for now
+		if (csvMapping && csvMapping.category === 'data') {
+			csvMapping = getMappingByDescription(csvMapping.description);
+		}
+
 		// If still no mapping found
-		if (!fileMapping) {
+		if (!csvMapping) {
 			throw new Error('No mapping found for this file');
 		}
 
@@ -50,9 +55,9 @@ export class ImportService {
 		const errors = [];
 
 		// Handle both data and lookup mappings
-		const destinations = fileMapping.category === 'data'
-			? (fileMapping as DataCsvMapping).destinations
-			: [(fileMapping as LookupCsvMapping).destination];
+		const destinations = csvMapping.category === 'data'
+			? (csvMapping as DataCsvMapping).destinations
+			: [(csvMapping as LookupCsvMapping).destination];
 
 		for (const destination of destinations) {
 			// For lookup tables, only process the requested table
@@ -80,7 +85,7 @@ export class ImportService {
 				}
 
 				// Get the schema reference and primary keys
-				const tableSchema = destination.schemaRef || this.getSchemaReference(destination.tableId);
+				const tableSchema = destination.schemaRef as AnySQLiteTable;
 
 				if (!tableSchema) {
 					throw new Error(`Schema not found for table: ${destination.tableName}`);
@@ -128,7 +133,7 @@ export class ImportService {
 		// Return the results
 		return {
 			category,
-			mappingDescription: fileMapping.description,
+			mappingDescription: csvMapping.description,
 			results,
 			errors: errors.length > 0 ? errors : undefined,
 			success: results.some(r => r.success),
@@ -148,22 +153,5 @@ export class ImportService {
 			csvMappings,
 			stats
 		};
-	}
-
-	/**
-	 * Helper function to get schema reference by table ID
-	 * @param tableId Table ID (kebab-case)
-	 * @returns Schema reference or undefined if not found
-	 */
-	private static getSchemaReference(tableId: string): AnySQLiteTable | undefined {
-		// Convert tableId (kebab-case) to schema property name (camelCase)
-		const schemaName = tableId
-			.split('-')
-			.map((part, index) =>
-				index === 0 ? part : part.charAt(0).toUpperCase() + part.slice(1)
-			)
-			.join('');
-
-		return (schema as any)[schemaName];
 	}
 } 

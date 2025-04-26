@@ -14,6 +14,10 @@ export class ImportController {
 
 			const { csvData, tableId, columnMapping } = req.body;
 
+			console.log('Received CSV data:', csvData);
+			console.log('Received tableId:', tableId);
+			console.log('Received columnMapping:', columnMapping);
+
 			let _columnMapping = columnMapping;
 
 			// If columnMapping is not provided, try to find it based on the tableId

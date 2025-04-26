@@ -8,10 +8,10 @@ import { FileUpload } from "@/components/features/csv-import/file-upload";
 import { TableSelector } from "@/components/features/csv-import/table-selector";
 import { CsvPreview } from "@/components/features/csv-import/csv-preview";
 import { ImportResultDisplay } from "@/components/features/csv-import/import-result";
-// import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
+import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
 
 // Import types
-import { ImportInfoResponse, LookupCsvMapping, DataCsvMapping, ImportResult } from "../types/csv-import-types";
+import { ImportInfoResponse, LookupCsvMapping, DataCsvMapping, ImportResult, ImportError } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
@@ -27,12 +27,13 @@ const CsvImport: React.FC = () => {
   // State for parsed CSV data
   const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
-  // const [importErrors, setImportErrors] = useState<ImportError[]>([]);
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
 
   // Fetch import info
   useEffect(() => {
     const fetchImportInfo = async () => {
       const info = await CsvImportService.getImportInfo();
+      console.log("Import info:", info);
       setImportInfo(info);
     };
     fetchImportInfo();
@@ -73,6 +74,7 @@ const CsvImport: React.FC = () => {
     setMapping(null);
     setLookupTables([]);
     setCsvData([]);
+    setImportResult(null);
   };
 
   /**
