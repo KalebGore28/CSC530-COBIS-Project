@@ -65,7 +65,7 @@ export async function validateFKs<T>(
  */
 export async function importData<T extends Record<string, any>>(
 	table: AnySQLiteTable,
-	primaryKey: string[],
+	primaryKeys: string[],
 	mappedData: T[],
 ) {
 	const { db: conn, orm: db } = await getDbConnection();
@@ -83,11 +83,9 @@ export async function importData<T extends Record<string, any>>(
 	let updated = 0;
 	let skipped = 0;
 
-	// Normalize primaryKey to an array for consistent handling
-	const keyFields = Array.isArray(primaryKey) ? primaryKey : [primaryKey];
 	// Get all column names (simplified; adjust based on actual table schema access)
 	const allColumns = Object.keys(mappedData[0] || {});
-	const nonPrimaryKeyColumns = allColumns.filter(col => !keyFields.includes(col));
+	const nonPrimaryKeyColumns = allColumns.filter(col => !primaryKeys.includes(col));
 
 	if (nonPrimaryKeyColumns.length === 0) {
 		// Table has only primary key columns
@@ -118,14 +116,14 @@ export async function importData<T extends Record<string, any>>(
 				// 1) run our FK‐checks so we know exactly which value is illegal
 				await validateFKs(conn, tableName, row);
 
-				const conditions = keyFields.map(key => eq((table as any)[key], row[key]));
+				const conditions = primaryKeys.map(key => eq((table as any)[key], row[key]));
 				const whereCondition = conditions.length > 1 ? and(...conditions) : conditions[0];
 				const existing = await db.select()
 					.from(table)
 					.where(whereCondition)
 					.limit(1);
 
-				const key = keyFields.map(k => row[k]).join('|');
+				const key = primaryKeys.map(k => row[k]).join('|');
 				if (existing.length > 0) {
 					existingRowsMap.set(key, existing[0] as T);
 				}
@@ -140,15 +138,15 @@ export async function importData<T extends Record<string, any>>(
 				// 1) run our FK‐checks so we know exactly which value is illegal
 				await validateFKs(conn, tableName, row);
 
-				const key = keyFields.map(k => row[k]).join('|');
+				const key = primaryKeys.map(k => row[k]).join('|');
 				const existingRow = existingRowsMap.get(key);
 
 				if (existingRow) {
 					// Check if there are non-primary key columns to update
 					const updateData = { ...row };
-					keyFields.forEach(field => delete updateData[field]);
+					primaryKeys.forEach(field => delete updateData[field]);
 					if (Object.keys(updateData).length > 0) {
-						const conditions = keyFields.map(key => eq((table as any)[key], row[key]));
+						const conditions = primaryKeys.map(key => eq((table as any)[key], row[key]));
 						const whereCondition = conditions.length > 1 ? and(...conditions) : conditions[0];
 						await db.update(table)
 							.set(updateData)
@@ -163,16 +161,8 @@ export async function importData<T extends Record<string, any>>(
 					inserted++;
 				}
 			} catch (error: any) {
-				// console.log(error)
 				errorDetails.push({ row, error: error.message });
 			}
-		}
-	}
-	// Log error details
-	if (errorDetails.length > 0) {
-		//iterate over errorDetails and log them
-		for (const errorDetail of errorDetails) {
-			// console.log(`Error importing row: ${JSON.stringify(errorDetail.row)} - Error: ${errorDetail.error}`);
 		}
 	}
 
