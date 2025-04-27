@@ -4,6 +4,9 @@ export interface FKDef {
 	table: string;  // parent table name
 	from: string;   // child column name
 	to: string;     // parent column name
+	on_update: string;
+	on_delete: string;
+	match: string;
 }
 
 interface FKViolation {

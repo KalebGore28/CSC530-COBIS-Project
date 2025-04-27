@@ -52,6 +52,9 @@ describe('getForeignKeys', () => {
 			table: 'parent',
 			from: 'parentId',
 			to: 'id',
+			on_update: 'NO ACTION',
+			on_delete: 'NO ACTION',
+			match: 'NONE',
 		});
 	});
 
