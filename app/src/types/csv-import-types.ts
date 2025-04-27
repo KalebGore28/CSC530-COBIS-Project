@@ -86,9 +86,8 @@ interface Result {
 export interface ImportResult {
 	category: 'data' | 'lookup'; // Type of import
 	mappingDescription: string; // Description of the mapping used
-	results: Result[];
-	errors: string[] | undefined;
 	success: boolean;
+	results: Result[];
 	timestamp: string; // Timestamp of the import
 }
 

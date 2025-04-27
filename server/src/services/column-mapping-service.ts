@@ -740,7 +740,6 @@ export const mapCsvRowToDbRow = (
 	destination: DestinationTable
 ): Record<string, any> => {
 	const result: Record<string, any> = {};
-	console.log(destination);
 
 	for (const column of destination.columns) {
 		if (row[column.csvColumn] !== undefined) {

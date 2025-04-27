@@ -1,4 +1,4 @@
-import { importData } from '../utils/importData';
+import { importData } from '../utils/import-data';
 import { AnySQLiteTable } from 'drizzle-orm/sqlite-core';
 import {
 	findMappingsForLookupTable,

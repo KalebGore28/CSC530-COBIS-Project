@@ -1,6 +1,48 @@
 import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import { eq, and } from "drizzle-orm";
 import { getDbConnection } from '../db/connection';
+import { Database } from "better-sqlite3";
+import { FKViolationError, type FKDef } from "../types/import-data";
+
+/** 
+ * Fetch the FK definitions for a table. 
+ */
+export async function getForeignKeys(
+	conn: Database,
+	tableName: string
+): Promise<FKDef[]> {
+	// better-sqlite3’s pragma() returns an array of objects:
+	return conn.pragma(`foreign_key_list(${tableName})`, { simple: false }) as FKDef[];
+}
+
+/**
+ * For each FK in `tableName`, verify the parent exists.
+ * Throw a detailed error if it doesn’t.
+ */
+export async function validateFKs<T>(
+	conn: Database,
+	tableName: string,
+	row: T
+) {
+	const fks = await getForeignKeys(conn, tableName);
+	for (const fk of fks) {
+		const childVal = (row as any)[fk.from];
+		const stmt = conn.prepare(
+			`SELECT 1 FROM ${fk.table} WHERE ${fk.to} = ? LIMIT 1`
+		);
+		const found = stmt.get(childVal);
+
+		if (!found) {
+			throw new FKViolationError({
+				tableName,
+				childColumn: fk.from,
+				parentTable: fk.table,
+				parentColumn: fk.to,
+				childValue: childVal,
+			});
+		}
+	}
+}
 
 /**
  * Import data into a table.
@@ -12,25 +54,22 @@ import { getDbConnection } from '../db/connection';
  * @param table - The table to import data into.
  * @param primaryKey - The primary key or composite key of the table.
  * @param mappedData - The data to import, in the form of an array of objects.
- * @param fileName - The name of the file being imported.
- * @param importedBy - The user who is importing the data.
  * @returns An object containing the results of the import operation, including counts of inserted, updated, skipped, and failed records.
  * @throws Error if the data is invalid or if there are issues during the import process.
  * @example
  * const result = await importData(
  *   table,
  *   ['mnumber', 'code', 'date'],
- *   mappedData,
- *   'test_scores.csv',
- *   'admin'
+ *   mappedData
  * );
  */
 export async function importData<T extends Record<string, any>>(
 	table: AnySQLiteTable,
-	primaryKey: string | string[],
+	primaryKey: string[],
 	mappedData: T[],
 ) {
-	const db = (await getDbConnection()).orm;
+	const { db: conn, orm: db } = await getDbConnection();
+	const tableName = (table as any).name as string;
 
 	// Validate input
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
@@ -72,7 +111,13 @@ export async function importData<T extends Record<string, any>>(
 		// Build a map of existing rows for efficiency (simplified; may need optimization)
 		const existingRowsMap = new Map<string, T>();
 		for (const row of mappedData) {
+
+
+
 			try {
+				// 1) run our FK‐checks so we know exactly which value is illegal
+				await validateFKs(conn, tableName, row);
+
 				const conditions = keyFields.map(key => eq((table as any)[key], row[key]));
 				const whereCondition = conditions.length > 1 ? and(...conditions) : conditions[0];
 				const existing = await db.select()
@@ -91,6 +136,10 @@ export async function importData<T extends Record<string, any>>(
 
 		for (const row of mappedData) {
 			try {
+
+				// 1) run our FK‐checks so we know exactly which value is illegal
+				await validateFKs(conn, tableName, row);
+
 				const key = keyFields.map(k => row[k]).join('|');
 				const existingRow = existingRowsMap.get(key);
 
@@ -114,6 +163,7 @@ export async function importData<T extends Record<string, any>>(
 					inserted++;
 				}
 			} catch (error: any) {
+				// console.log(error)
 				errorDetails.push({ row, error: error.message });
 			}
 		}
@@ -122,7 +172,7 @@ export async function importData<T extends Record<string, any>>(
 	if (errorDetails.length > 0) {
 		//iterate over errorDetails and log them
 		for (const errorDetail of errorDetails) {
-			console.log(`Error importing row: ${JSON.stringify(errorDetail.row)} - Error: ${errorDetail.error}`);
+			// console.log(`Error importing row: ${JSON.stringify(errorDetail.row)} - Error: ${errorDetail.error}`);
 		}
 	}
 

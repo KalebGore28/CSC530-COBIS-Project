@@ -5,7 +5,7 @@ import { config } from '../utils/config';
 
 export interface DbConnection {
 	orm: ReturnType<typeof drizzle>;
-	db?: DatabaseType;
+	db: DatabaseType;
 }
 
 let _dbConnection: Promise<DbConnection> | null = null;
@@ -62,7 +62,7 @@ export const createDb = async (useInMemory: boolean = false): Promise<DbConnecti
 		}
 
 		const orm = drizzle(db);
-		return { orm };
+		return { db, orm };
 	}
 };
 
