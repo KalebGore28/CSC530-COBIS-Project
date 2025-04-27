@@ -119,8 +119,8 @@ export async function importData<T extends Record<string, any>>(
 			// preserve the real Error (so FKViolationError stays intact)
 			if (error instanceof Error) {
 				errorDetails.push({ row, error });
+				/* v8 ignore next 3 */ //wrap non-Error throws just in case
 			} else {
-				// wrap non-Error throws just in case
 				errorDetails.push({ row, error: new Error(String(error)) });
 			}
 		}
