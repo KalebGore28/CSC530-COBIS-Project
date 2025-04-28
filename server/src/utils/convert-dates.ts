@@ -1,5 +1,3 @@
-
-
 /**
  * Function to convert date string from DDMMYYYY to YYYY-MM-DD
  * @param dateStr 

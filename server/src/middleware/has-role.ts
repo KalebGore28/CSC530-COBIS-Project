@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { AuthAndPermissionsRequest } from "../types/requests";
 
 /**
  * Middleware to check if the user has the required role(s).
  * @param role_name The role_name or array of role_names to check for.
  */
-export const hasRole = (role_name: string | string[]) => {
+export const hasRole = (role_name: string | string[]): RequestHandler => {
 	// Validate role_name type at middleware creation
 	if (Array.isArray(role_name)) {
 		if (!role_name.every((name) => typeof name === "string")) {

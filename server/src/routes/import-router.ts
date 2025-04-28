@@ -1,5 +1,6 @@
 import express from 'express';
 import { ImportController } from '../controllers/import-controller';
+import { hasRole } from '../middleware/has-role';
 
 /**
  * Import router for handling CSV import operations
@@ -9,6 +10,9 @@ import { ImportController } from '../controllers/import-controller';
  * @requires ../controllers/import-controller
  */
 const router = express.Router();
+
+// Middleware to check if the user has the required role
+router.use(hasRole('cobis_administator'));
 
 // Process and import a CSV file
 router.post('/process',

@@ -6,9 +6,9 @@ import * as schema from "../db/schema"; // Import your database schema types her
 // Supports both data tables (with strict file naming patterns) and
 // Lookup tables (with more flexible naming but requiring explicit designation)
 
-import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convertDates";
-import { parseTermCode } from "../utils/convertTermCode";
-import { parseCourseCode } from "../utils/convertCourseCode";
+import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convert-dates";
+import { parseTermCode } from "../utils/convert-term-code";
+import { parseCourseCode } from "../utils/convert-course-code";
 
 interface ColumnMapping {
 	csvColumn: string;
