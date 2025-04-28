@@ -1,7 +1,39 @@
 import { Request, Response, NextFunction } from 'express';
-// Assuming you have a similar request type that includes the authenticated user's info
-import { AuthAndPermissionsRequest } from '../types/requests'; // Adjust path as needed
-import { AdvisorService } from '../services/advisor-service'; // Adjust path as needed
+import { AuthAndPermissionsRequest } from '../types/requests';
+import { AdvisorService } from '../services/advisor-service';
+import { z } from 'zod';
+import 'zod-openapi/extend';
+
+// --- Validation Schemas ---
+export const getAdvisedStudentsQuerySchema = z.object({
+	term: z
+		.string()
+		.optional()
+		.openapi({ description: 'Academic term (e.g. Fall)' }),
+
+	year: z
+		.preprocess((val) => {
+			// coerce "2025" → 2025
+			if (typeof val === 'string' && val.trim() !== '') return parseInt(val, 10);
+			if (typeof val === 'number') return val;
+			return undefined;
+		}, z
+			.number()
+			.int()
+			.positive()
+			.optional()
+			.openapi({ description: 'Calendar year (e.g. 2025)' })
+		),
+})
+	.openapi({
+		description: 'Query parameters for fetching advised students',
+		example: {
+			term: 'Fall',
+			year: 2025,
+		}
+
+	});
+
 
 /**
  * Controller for advisor-related endpoints
@@ -10,24 +42,17 @@ export class AdvisorController {
 
 	/**
 	 * Middleware to check if the user has advisor privileges or access to advisor data.
-	 * This is a basic example; you might need more specific role checks.
 	 */
 	static async checkAdvisorAccess(req: Request, res: Response, next: NextFunction) {
 		const authReq = req as AuthAndPermissionsRequest;
 
 		try {
-			// Example: Check if the user has an 'advisor' role or is an admin.
-			// Adjust this logic based on your application's roles and permissions.
 			const isAdvisor = authReq.roles?.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'advisor'); // Example role name
+				role.role_name === 'advisor');
 			const isAdmin = authReq.roles?.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'cobis_administrator'); // Example admin role
+				role.role_name === 'cobis_administrator');
 
-			// Allow access if the user is an advisor or an admin
-			// You might refine this logic. For instance, maybe only advisors can see *their* students.
 			if (isAdvisor || isAdmin) {
-				// Ensure the user's mnumber is available on the request object
-				// This should be populated by your authentication middleware
 				if (!authReq.mnumber) {
 					console.error('Advisor mnumber missing from authenticated request.');
 					res.status(401).json({ error: 'User identifier not found.' });
@@ -37,7 +62,6 @@ export class AdvisorController {
 				return;
 			}
 
-			// If none of the conditions are met, deny access
 			res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
 			return;
 
@@ -54,36 +78,34 @@ export class AdvisorController {
 	static async getAdvisedStudents(req: Request, res: Response) {
 		const authReq = req as AuthAndPermissionsRequest;
 
+		// 1) validate advisor identifier
+		if (!authReq.mnumber) {
+			console.error('Advisor mnumber is undefined.');
+			return res.status(400).json({ error: 'Invalid advisor identifier.' });
+		}
+
+		// 2) validate & parse query
+		const parsed = getAdvisedStudentsQuerySchema.safeParse(req.query);
+		if (!parsed.success) {
+			// send back detailed Zod errors
+			return res.status(400).json({
+				error: 'Invalid query parameters.',
+				details: parsed.error.format(),
+			});
+		}
+		const { term, year } = parsed.data;
+
+		// 3) Fetch data
 		try {
-			// Extract the advisor's mnumber from the authenticated request
-			// We've already checked it exists in the middleware
-			const advisorMnumber = authReq.mnumber; // Use non-null assertion because middleware checked
-
-			// Optional: Get term/year from query parameters if needed for filtering
-			const term = req.query.term as string | undefined;
-			const year = req.query.year ? parseInt(req.query.year as string) : undefined;
-
-			// Call the service to get the advised students
-			if (!advisorMnumber) {
-				console.error('Advisor mnumber is undefined.');
-				res.status(400).json({ error: 'Invalid advisor identifier.' });
-				return;
-			}
-
 			const advisedStudents = await AdvisorService.getAdvisedStudents({
-				advisorMnumber,
+				advisorMnumber: authReq.mnumber!,
 				term,
 				year,
 			});
-
-			res.json(advisedStudents);
-
+			return res.json(advisedStudents);
 		} catch (error) {
 			console.error(`Error fetching advised students for advisor ${authReq.mnumber}:`, error);
-			// Avoid sending detailed internal errors to the client
-			res.status(500).json({ error: 'Internal server error while fetching advised students.' });
+			return res.status(500).json({ error: 'Internal server error while fetching advised students.' });
 		}
 	}
-
-	// Add other advisor-related controller methods here if needed
 }

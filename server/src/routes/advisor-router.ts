@@ -17,10 +17,9 @@ const router = express.Router();
 
 // Get students advised by the logged-in user
 router.get('/students',
-	AdvisorController.checkAdvisorAccess, // Then, check if they should access advisor data
-	AdvisorController.getAdvisedStudents // Finally, get the data
+	AdvisorController.checkAdvisorAccess,
+	AdvisorController.getAdvisedStudents
 );
 
-// Add other advisor-related routes here if needed
 
 export default router;
