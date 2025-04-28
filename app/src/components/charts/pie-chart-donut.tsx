@@ -47,7 +47,7 @@ const DEFAULT_COLORS = {
 	'B': 'hsl(var(--chart-2))',
 	'C': 'hsl(var(--chart-3))',
 	'D': 'hsl(var(--chart-4))',
-	'F': 'hsl(var(--chart-5))',
+	'E': 'hsl(var(--chart-5))',
 };
 
 export function PieChartDonut({

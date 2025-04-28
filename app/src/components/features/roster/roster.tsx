@@ -390,7 +390,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 									<SelectItem value="B">B</SelectItem>
 									<SelectItem value="C">C</SelectItem>
 									<SelectItem value="D">D</SelectItem>
-									<SelectItem value="F">F</SelectItem>
+									<SelectItem value="E">E</SelectItem>
 									<SelectItem value="W">W</SelectItem>
 								</SelectContent>
 							</Select>

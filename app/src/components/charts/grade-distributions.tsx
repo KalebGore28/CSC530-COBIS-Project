@@ -65,8 +65,8 @@ const defaultChartConfig = {
 		label: "D",
 		color: "hsl(var(--chart-4))",
 	},
-	F: {
-		label: "F",
+	E: {
+		label: "E",
 		color: "hsl(var(--chart-5))",
 	},
 	"N/A": {
@@ -109,7 +109,7 @@ export function GradeDistributions({
 				"B": { count: 0, percentage: 0 },
 				"C": { count: 0, percentage: 0 },
 				"D": { count: 0, percentage: 0 },
-				"F": { count: 0, percentage: 0 },
+				"E": { count: 0, percentage: 0 },
 				"N/A": { count: 0, percentage: 0 },
 				...item.distribution
 			};
