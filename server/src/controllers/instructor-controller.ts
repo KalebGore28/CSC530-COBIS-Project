@@ -452,6 +452,7 @@ export class InstructorController {
 			const { term: currentTerm } = await UtilityService.getCurrentTermAndYear();
 
 			const { start_year, end_year, start_term = '10', end_term = currentTerm } = parsed.data;
+
 			
 			// Check if instructor exists
 			if (!(await InstructorService.instructorExists(mnumber))) {

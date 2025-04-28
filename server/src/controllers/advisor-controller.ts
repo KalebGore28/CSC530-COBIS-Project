@@ -142,7 +142,6 @@ export class AdvisorController {
 			res.json(advisedStudents);
 			return;
 		} catch (error) {
-			console.error(`Error fetching advised students for advisor ${authReq.mnumber}:`, error);
 			res.status(500).json({ error: 'Internal server error while fetching advised students.' });
 			return;
 		}

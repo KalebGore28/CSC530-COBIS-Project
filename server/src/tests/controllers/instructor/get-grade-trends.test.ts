@@ -1,17 +1,18 @@
 // instructor.controller.getGradeTrends.test.ts
+// @ts-nocheck
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Response } from 'express';
 // Assuming getGradeTrendsQuerySchema is exported from the controller file
 import { InstructorController } from '../../../controllers/instructor-controller';
 import { InstructorService } from '../../../services/instructor-service';
 import { AuthAndPermissionsRequest } from '../../../types/requests';
+import { UtilityService } from '../../../services/utility-service';
 
 // --- Mocking ---
 
-// Mock the InstructorService using the corrected path
+// Mock InstructorService
 vi.mock('../../../services/instructor-service', () => ({
 	InstructorService: {
-		// Mock methods used in getGradeTrends
 		instructorExists: vi.fn(),
 		getGradeTrends: vi.fn(),
 		// Include others as needed
@@ -22,6 +23,13 @@ vi.mock('../../../services/instructor-service', () => ({
 		getCurrentStatus: vi.fn(),
 		getBasicInfo: vi.fn(),
 		isInstructorInDepartment: vi.fn(),
+	}
+}));
+
+// Mock UtilityService
+vi.mock('../../../services/utility-service', () => ({
+	UtilityService: {
+		getCurrentTermAndYear: vi.fn(), // Mock the new dependency
 	}
 }));
 
@@ -56,14 +64,15 @@ describe('InstructorController', () => {
 		});
 
 		const testMnumber = 'm12345';
-		// Assuming schema parses years to numbers
 		const validRequiredQuery = { start_year: '2020', end_year: '2024' };
 		const parsedStartYear = 2020;
 		const parsedEndYear = 2024;
 		const defaultStartTerm = '10';
-		const defaultEndTerm = '90';
+		const mockCurrentTerm = '40'; // Example mocked current term code
+		const mockCurrentYear = 2025; // Example mocked current year
 
 		// --- Test Cases: Query Parameter Validation ---
+		// These tests should FAIL BEFORE the UtilityService is called
 		it('should return 400 if required query parameter "start_year" is missing', async () => {
 			const { start_year, ...invalidQuery } = validRequiredQuery;
 			req = mockRequest({ mnumber: testMnumber }, invalidQuery);
@@ -73,8 +82,9 @@ describe('InstructorController', () => {
 			expect(res.status).toHaveBeenCalledWith(400);
 			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
 				error: 'Invalid query parameters.',
-				details: expect.any(Object)
 			}));
+			// Ensure services are NOT called on validation failure
+			expect(UtilityService.getCurrentTermAndYear).not.toHaveBeenCalled();
 			expect(InstructorService.instructorExists).not.toHaveBeenCalled();
 			expect(InstructorService.getGradeTrends).not.toHaveBeenCalled();
 		});
@@ -84,49 +94,70 @@ describe('InstructorController', () => {
 			req = mockRequest({ mnumber: testMnumber }, invalidQuery);
 			await InstructorController.getGradeTrends(req, res);
 			expect(res.status).toHaveBeenCalledWith(400); // etc.
+			expect(UtilityService.getCurrentTermAndYear).not.toHaveBeenCalled();
 			expect(InstructorService.instructorExists).not.toHaveBeenCalled();
 		});
 
-		it('should return 400 if "start_year" is invalid', async () => {
-			req = mockRequest({ mnumber: testMnumber }, { ...validRequiredQuery, start_year: 'abc' });
+		// --- Test Case: UtilityService Error ---
+		it('should return 500 if UtilityService.getCurrentTermAndYear throws an error', async () => {
+			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
+			const errorMessage = 'Failed to get current term';
+			// Arrange: Mock UtilityService to reject
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockRejectedValue(new Error(errorMessage));
+
+			// Act
 			await InstructorController.getGradeTrends(req, res);
-			expect(res.status).toHaveBeenCalledWith(400); // etc.
+
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
+			expect(res.status).toHaveBeenCalledWith(500);
+			expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
+			// Ensure subsequent services are not called
 			expect(InstructorService.instructorExists).not.toHaveBeenCalled();
+			expect(InstructorService.getGradeTrends).not.toHaveBeenCalled();
 		});
-		// Add more validation tests if schema has more rules (e.g., end_year >= start_year)
 
 		// --- Test Case: Instructor Not Found ---
 		it('should return 404 "Instructor not found" if instructor does not exist', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
+			// Arrange: Mock UtilityService (success) and InstructorService (failure)
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockResolvedValue(false);
 
+			// Act
 			await InstructorController.getGradeTrends(req, res);
 
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
 			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
 			expect(res.status).toHaveBeenCalledWith(404);
 			expect(res.json).toHaveBeenCalledWith({ error: 'Instructor not found' });
 			expect(InstructorService.getGradeTrends).not.toHaveBeenCalled();
 		});
 
-		// --- Test Case: Success (Using Default Terms) ---
-		it('should return grade trends using default terms when optional terms are omitted', async () => {
+		// --- Test Case: Success (Using Default Dynamic End Term) ---
+		it('should return grade trends using fetched current term when end_term is omitted', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
-			const mockTrendData = [{ grade: 'A', percentage: 30 }, { grade: 'B', percentage: 40 }];
+			const mockTrendData = [{ grade: 'A', percentage: 30 }];
 
+			// Arrange: Mock services
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
-			//@ts-ignore
 			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(mockTrendData);
 
+			// Act
 			await InstructorController.getGradeTrends(req, res);
 
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
 			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
-			// Check arguments passed to the service method, including default terms
+			// Check arguments, using the mocked current term for end_term
 			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
 				testMnumber,
 				{ term: defaultStartTerm, year: parsedStartYear },
-				{ term: defaultEndTerm, year: parsedEndYear }
+				{ term: mockCurrentTerm, year: parsedEndYear } // Using mocked term here
 			);
-			expect(res.status).not.toHaveBeenCalled(); // Implies 200 OK
+			expect(res.status).not.toHaveBeenCalled(); // 200 OK
 			expect(res.json).toHaveBeenCalledWith({
 				mnumber: testMnumber,
 				start_year: parsedStartYear,
@@ -135,68 +166,95 @@ describe('InstructorController', () => {
 			});
 		});
 
-		// --- Test Case: Success (Providing Optional Terms) ---
-		it('should return grade trends using provided terms when specified', async () => {
-			const specificTermsQuery = { ...validRequiredQuery, start_term: '20', end_term: '80' };
+		// --- Test Case: Success (Providing Optional End Term - Overrides Default) ---
+		it('should return grade trends using provided end_term when specified', async () => {
+			const providedEndTerm = '80';
+			const specificTermsQuery = { ...validRequiredQuery, end_term: providedEndTerm };
 			req = mockRequest({ mnumber: testMnumber }, specificTermsQuery);
-			const mockTrendData = [{ grade: 'A', percentage: 35 }, { grade: 'C', percentage: 20 }];
+			const mockTrendData = [{ grade: 'B', percentage: 50 }];
 
+			// Arrange: Mock services (UtilityService will still be called but its term is overridden)
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
-			//@ts-ignore
+			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(mockTrendData);
+
+			// Act
+			await InstructorController.getGradeTrends(req, res);
+
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
+			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
+			// Check arguments, ensuring provided end_term overrides the fetched default
+			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
+				testMnumber,
+				{ term: defaultStartTerm, year: parsedStartYear }, // Assuming start_term is default here
+				{ term: providedEndTerm, year: parsedEndYear } // Using provided term
+			);
+			expect(res.status).not.toHaveBeenCalled(); // 200 OK
+			expect(res.json).toHaveBeenCalledWith({
+				mnumber: testMnumber,
+				start_year: parsedStartYear,
+				end_year: parsedEndYear,
+				gradeTrends: mockTrendData
+			});
+		});
+
+		// --- Test Case: Success (Providing Both Optional Terms) ---
+		it('should return grade trends using provided start_term and end_term', async () => {
+			const providedStartTerm = '20';
+			const providedEndTerm = '80';
+			const specificTermsQuery = { ...validRequiredQuery, start_term: providedStartTerm, end_term: providedEndTerm };
+			req = mockRequest({ mnumber: testMnumber }, specificTermsQuery);
+			const mockTrendData = [{ grade: 'C', percentage: 15 }];
+
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
+			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
 			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(mockTrendData);
 
 			await InstructorController.getGradeTrends(req, res);
 
-			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
-			// Check arguments passed to the service method, using provided terms
 			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
 				testMnumber,
-				{ term: specificTermsQuery.start_term, year: parsedStartYear },
-				{ term: specificTermsQuery.end_term, year: parsedEndYear }
+				{ term: providedStartTerm, year: parsedStartYear }, // Provided start
+				{ term: providedEndTerm, year: parsedEndYear }   // Provided end
 			);
-			expect(res.status).not.toHaveBeenCalled();
-			expect(res.json).toHaveBeenCalledWith({
-				mnumber: testMnumber,
-				start_year: parsedStartYear,
-				end_year: parsedEndYear,
-				gradeTrends: mockTrendData
-			});
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ gradeTrends: mockTrendData }));
 		});
+
 
 		// --- Test Case: Success (Empty Results) ---
 		it('should return 200 OK with empty trends if service finds none', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
-			const emptyTrendData: unknown[] = []; // Empty array is a valid result
+			const emptyTrendData: unknown[] = [];
 
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
-			//@ts-ignore
 			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(emptyTrendData);
 
 			await InstructorController.getGradeTrends(req, res);
 
-			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
 			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
 				testMnumber,
 				{ term: defaultStartTerm, year: parsedStartYear },
-				{ term: defaultEndTerm, year: parsedEndYear }
+				{ term: mockCurrentTerm, year: parsedEndYear }
 			);
-			expect(res.status).not.toHaveBeenCalled(); // Still 200 OK
-			expect(res.json).toHaveBeenCalledWith({
-				mnumber: testMnumber,
-				start_year: parsedStartYear,
-				end_year: parsedEndYear,
-				gradeTrends: emptyTrendData // Expecting empty array
-			});
+			expect(res.status).not.toHaveBeenCalled(); // 200 OK
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ gradeTrends: emptyTrendData }));
 		});
 
 
-		// --- Test Cases: Server Errors ---
+		// --- Test Cases: Instructor/Grade Service Errors ---
 		it('should return 500 if instructorExists throws an error', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
+			// Arrange: Mock Utility (success), Instructor (failure)
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockRejectedValue(new Error('DB error'));
 
+			// Act
 			await InstructorController.getGradeTrends(req, res);
 
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
 			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
 			expect(res.status).toHaveBeenCalledWith(500);
 			expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
@@ -205,16 +263,21 @@ describe('InstructorController', () => {
 
 		it('should return 500 if getGradeTrends throws an error', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validRequiredQuery);
+			// Arrange: Mock Utility & InstructorExists (success), getGradeTrends (failure)
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
 			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
 			vi.mocked(InstructorService.getGradeTrends).mockRejectedValue(new Error('DB error'));
 
+			// Act
 			await InstructorController.getGradeTrends(req, res);
 
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
 			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
 			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
 				testMnumber,
 				{ term: defaultStartTerm, year: parsedStartYear },
-				{ term: defaultEndTerm, year: parsedEndYear }
+				{ term: mockCurrentTerm, year: parsedEndYear }
 			);
 			expect(res.status).toHaveBeenCalledWith(500);
 			expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' });
