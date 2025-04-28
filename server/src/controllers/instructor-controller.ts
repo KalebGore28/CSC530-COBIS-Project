@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { InstructorService } from '../services/instructor-service';
+import { UtilityService } from '../services/utility-service';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -445,9 +446,13 @@ export class InstructorController {
 			return;
 		}
 
-		const { start_year, end_year, start_term = '10', end_term = '90' } = parsed.data;
 
 		try {
+			// Get current term
+			const { term: currentTerm } = await UtilityService.getCurrentTermAndYear();
+
+			const { start_year, end_year, start_term = '10', end_term = currentTerm } = parsed.data;
+			
 			// Check if instructor exists
 			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
