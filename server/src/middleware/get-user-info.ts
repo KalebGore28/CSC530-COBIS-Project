@@ -1,16 +1,15 @@
+/* v8 ignore next 100 */ // Not easy to test since it relies on Better Auth
+
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest, AuthAndPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
 	roles,
 	userRoles,
 	user,
 	faculty,
 } from '../db/schema';
-import { auth } from '../lib/auth';
-import { fromNodeHeaders } from 'better-auth/node';
-
 
 /**
  * Middleware to attach user permissions to the request object.

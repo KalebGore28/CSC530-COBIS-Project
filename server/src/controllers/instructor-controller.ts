@@ -7,7 +7,35 @@ import { InstructorAccessService } from '../services/instructor-access-service';
  * Controller for instructor-related endpoints
  */
 export class InstructorController {
-	// See middleware/check-instructor-access.ts for the implementation
+	/**
+	 * Middleware to check if user can access instructor data
+	 * Exact recreation of checkStudentAccess.
+	 */
+	static async checkInstructorAccess(req: Request, res: Response, next: NextFunction) {
+		const user = req as AuthAndPermissionsRequest;
+		const instructorMnumber = req.params.mnumber;
+
+		const accessService = new InstructorAccessService();
+
+		try {
+			const canAccess = await accessService.canAccessInstructor(user, instructorMnumber);
+
+			if (!canAccess) {
+				res.status(403).json({
+					error: 'Access denied. Insufficient permissions to view this instructor data.'
+				});
+				return;
+			}
+
+			// Add the access service to the request for later use in controllers
+			user.instructorAccessService = accessService;
+
+			next();
+		} catch (error) {
+			console.error('Error checking instructor access:', error);
+			res.status(500).json({ error: 'Internal server error during access check' });
+		}
+	}
 
 	/**
 	 * Get instructors - department chairs can only see instructors in their department
