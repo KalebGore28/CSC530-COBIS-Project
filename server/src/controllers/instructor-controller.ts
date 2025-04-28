@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
-import { InstructorsService } from '../services/instructor-service';
+import { InstructorService } from '../services/instructor-service';
 import { InstructorAccessService } from '../services/instructor-access-service';
 
 /**
@@ -68,7 +68,7 @@ export class InstructorController {
 			}
 
 			// Get instructors (filtered by department for chairs, all for admins)
-			const instructors = await InstructorsService.getInstructors(departmentCode);
+			const instructors = await InstructorService.getInstructors(departmentCode);
 
 			res.json(instructors);
 			return;
@@ -87,7 +87,7 @@ export class InstructorController {
 		try {
 			const { mnumber } = req.params;
 
-			const instructorInfo = await InstructorsService.getBasicInfo(mnumber);
+			const instructorInfo = await InstructorService.getBasicInfo(mnumber);
 
 			if (!instructorInfo) {
 				res.status(404).json({ error: 'Instructor not found' });
@@ -110,12 +110,12 @@ export class InstructorController {
 		try {
 			const { mnumber } = req.params;
 
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const currentStatus = await InstructorsService.getCurrentStatus(mnumber);
+			const currentStatus = await InstructorService.getCurrentStatus(mnumber);
 
 			res.json({ mnumber, currentStatus });
 			return;
@@ -133,12 +133,12 @@ export class InstructorController {
 		try {
 			const { mnumber } = req.params;
 
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const teachingSummary = await InstructorsService.getTeachingSummary(mnumber);
+			const teachingSummary = await InstructorService.getTeachingSummary(mnumber);
 
 			res.json({ mnumber, teachingSummary });
 			return;
@@ -181,13 +181,13 @@ export class InstructorController {
 			}
 
 			// Verify instructor exists
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
 			// Get course details for the specified term and year
-			const courseDetails = await InstructorsService.getCourseDetails(
+			const courseDetails = await InstructorService.getCourseDetails(
 				mnumber,
 				{ term: termCode, year: yearValue }
 			);
@@ -213,12 +213,12 @@ export class InstructorController {
 		try {
 			const { mnumber } = req.params;
 
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
-			const termSummaries = await InstructorsService.getTermSummaries(mnumber);
+			const termSummaries = await InstructorService.getTermSummaries(mnumber);
 
 			res.json({ mnumber, termSummaries });
 			return;
@@ -259,13 +259,13 @@ export class InstructorController {
 			}
 
 			// Check if instructor exists
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
 			// Get class roster
-			const classRoster = await InstructorsService.getClassRoster(
+			const classRoster = await InstructorService.getClassRoster(
 				mnumber,
 				courseSubject,
 				courseNumber,
@@ -320,13 +320,13 @@ export class InstructorController {
 			}
 
 			// Verify instructor exists
-			if (!(await InstructorsService.instructorExists(mnumber))) {
+			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });
 				return;
 			}
 
 			// Get grade trends for the specified time period
-			const gradeTrends = await InstructorsService.getGradeTrends(
+			const gradeTrends = await InstructorService.getGradeTrends(
 				mnumber,
 				{ term: "10", year: startYear }, // Default to Spring term
 				{ term: "80", year: endYear }    // Default to Fall term

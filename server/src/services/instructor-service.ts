@@ -19,7 +19,7 @@ import {
 /**
  * Service to handle instructor data operations
  */
-export class InstructorsService {
+export class InstructorService {
 	// Map term code to name
 	private static termNameMap: Record<string, string> = {
 		'10': 'SPRING',
@@ -28,6 +28,25 @@ export class InstructorsService {
 		'90': 'WINTER',
 		'9999': 'UNKNOWN'
 	};
+
+	/**
+	 * Check if an instructor belongs to a specific department
+	 */
+	static async isInstructorInDepartment(instructorMnumber: string, departmentCode: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+
+		const result = await db
+			.select({ count: count() })
+			.from(faculty)
+			.where(
+				and(
+					eq(faculty.mnumber, instructorMnumber),
+					eq(faculty.department, departmentCode)
+				)
+			);
+
+		return Number(result[0]?.count || 0) > 0;
+	}
 
 	/**
 	 * Get basic instructor information

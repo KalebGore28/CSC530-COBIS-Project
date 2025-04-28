@@ -35,7 +35,7 @@ export class InstructorAccessService {
 		}
 
 		// For administrators and program_coordinators, we're currently giving them
-		// the same limited access as regular faculty members (following the client's instruction)
+		// the same limited access as regular faculty members
 		// This can be expanded in the future when requirements are clearer
 
 		// Return false for all other cases - default deny
@@ -59,29 +59,5 @@ export class InstructorAccessService {
 			);
 
 		return Number(result[0]?.count || 0) > 0;
-	}
-
-	/**
-	 * Returns SQL filters for instructor data queries based on user's role
-	 * Can be used for filtering results in controllers
-	 */
-	getInstructorDataFilters(user: AuthAndPermissionsRequest, instructorMnumber: string): SQL[] {
-		const filters: SQL[] = [];
-
-		// System admins and self-access have no restrictions
-		if (user.roles.some(r => r.role_name === 'cobis_administrator') ||
-			user.mnumber === instructorMnumber) {
-			return filters;
-		}
-
-		// Department chairs can only access instructors in their department
-		if (user.roles.some(r => r.role_name === 'department_chair') && user.department) {
-			filters.push(eq(faculty.department, user.department));
-		}
-
-		// For other roles, additional filters can be added here
-		// when the requirements become clearer
-
-		return filters;
 	}
 }

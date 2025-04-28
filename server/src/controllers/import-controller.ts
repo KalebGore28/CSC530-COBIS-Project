@@ -21,7 +21,6 @@ export class ImportController {
 				_columnMapping = getLookupTableByTableId(tableId);
 			}
 
-
 			try {
 				// Process the CSV import
 				const result = await ImportService.processImport(

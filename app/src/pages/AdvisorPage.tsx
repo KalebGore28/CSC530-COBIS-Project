@@ -58,7 +58,7 @@ const AdvisedStudentsPage: React.FC = () => {
 			setIsLoading(true);
 			setError(null);
 			try {
-				const response = await fetch('/api/advisor/students');
+				const response = await fetch('/api/advisor/me');
 				if (!response.ok) {
 					if (response.status === 401) throw new Error('Unauthorized: Please log in.');
 					if (response.status === 403) throw new Error('Forbidden: You do not have permission.');

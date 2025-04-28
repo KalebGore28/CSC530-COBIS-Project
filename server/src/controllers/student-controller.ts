@@ -15,21 +15,21 @@ export class StudentController {
 
 		try {
 			// Check if user has necessary roles
-			const isAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'cobis_administrator');
-			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'department_chair');
 			const isFaculty = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'faculty');
 			const isAdvisor = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'advisor');
 			const isProgramCoordinator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'program_coordinator');
+			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'department_chair');
 			const isAdministrator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'administrator');
+			const isCOBISAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'cobis_administrator');
 
 			// COBIS Administrators can access all students
-			if (isAdmin) {
+			if (isCOBISAdmin) {
 				next();
 				return;
 			}
