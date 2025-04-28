@@ -21,7 +21,8 @@ export const hasRole = (role_name: string | string[]): RequestHandler => {
 
 		// Check if userRoles is defined and is an array
 		if (!userRoles || !Array.isArray(userRoles)) {
-			return res.status(403).json({ error: "Forbidden: User roles are not defined" });
+			res.status(403).json({ error: "Forbidden: User roles are not defined" });
+			return;
 		}
 
 		// Determine if the user has the required role(s)
@@ -36,7 +37,8 @@ export const hasRole = (role_name: string | string[]): RequestHandler => {
 
 		// If the user doesn't have the required role(s), return a 403 error
 		if (!hasRequiredRole) {
-			return res.status(403).json({ error: "Forbidden: User does not have the required role" });
+			res.status(403).json({ error: "Forbidden: User does not have the required role" });
+			return;
 		}
 
 		// Proceed to the next middleware or route handler
