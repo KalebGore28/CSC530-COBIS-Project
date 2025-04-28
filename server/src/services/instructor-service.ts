@@ -285,10 +285,8 @@ export class InstructorService {
 	 */
 	static async getCourseDetails(
 		mnumber: string,
-		options: {
-			term: string;
-			year: number;
-		}
+		term: string,
+		year: number,
 	) {
 		const db = (await getDbConnection()).orm;
 
@@ -326,8 +324,8 @@ export class InstructorService {
 			.where(
 				and(
 					eq(instructorCourses.mnumber, mnumber),
-					eq(instructorCourses.term, options.term),
-					eq(instructorCourses.year, options.year)
+					eq(instructorCourses.term, term),
+					eq(instructorCourses.year, year)
 				)
 			)
 			.groupBy(

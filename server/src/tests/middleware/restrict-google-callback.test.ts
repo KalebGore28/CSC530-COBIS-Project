@@ -20,7 +20,7 @@ beforeEach(() => {
     mockNext = vi.fn(); // Spy for next() calls
 });
 
-describe('restrictGoogleCallback Middleware', () => {
+describe('restrict-google-callback Middleware', () => {
     it('should call next() if hd query parameter matches an allowed domain', () => {
         mockReq.query = { hd: 'murraystate.edu' };
         restrictGoogleCallback(mockReq as Request, mockRes as Response, mockNext);

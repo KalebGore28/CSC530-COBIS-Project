@@ -1,121 +1,223 @@
-// // instructor.checkInstructorAccess.test.ts
-// import { describe, it, expect, vi, beforeEach, Mocked, Mock } from 'vitest';
-// import { Request, Response, NextFunction } from 'express';
-// import { InstructorController } from '../../../controllers/instructor-controller';
-// import { AuthAndPermissionsRequest } from '../../../types/requests';
+// instructor.controller.test.ts
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { Request, Response, NextFunction } from 'express';
+import { InstructorController } from '../../../controllers/instructor-controller';
+import { InstructorService } from '../../../services/instructor-service';
+import { AuthAndPermissionsRequest } from '../../../types/requests';
 
-// // Keep track of the mock constructor and instance methods
-// const mockCanAccessInstructor = vi.fn();
-// vi.mock('../../../services/instructor-access-service', () => { // Adjust path
-// 	// Mock the class constructor
-// 	return {
-// 		checkInstructorAccess: vi.fn().mockImplementation(() => {
-// 			// Return an object mocking the instance methods
-// 			return {
-// 				canAccessInstructor: mockCanAccessInstructor,
-// 			};
-// 		}),
-// 	};
-// });
+// --- Mocking ---
 
-// // Mock Express objects
-// let mockReq: Partial<AuthAndPermissionsRequest>;
-// let mockRes: Partial<Response>;
-// let mockNext: NextFunction;
-// const mockInstructorMnumber = 'M98765432';
-// const mockUser = { mnumber: 'M12345678', roles: [{ role_name: 'test_role', role_id: 1 }] }; // Example user
+// Mock the InstructorService entirely or specific methods
+vi.mock('../../../services/instructor-service', () => ({
+	InstructorService: {
+		// Mock the static method isInstructorInDepartment
+		isInstructorInDepartment: vi.fn(),
+	}
+}));
 
-// beforeEach(() => {
-// 	// Reset mocks before each test
-// 	vi.clearAllMocks(); // Clears constructor mock and method mocks
+// Helper to create a mock Response object
+const mockResponse = () => {
+	const res = {} as Partial<Response>; // Use Partial<Response> for easier mocking
+	// Chainable status function
+	res.status = vi.fn().mockReturnThis();
+	// Mock json function
+	res.json = vi.fn().mockReturnThis();
+	return res as Response;
+};
 
-// 	mockReq = {
-// 		...mockUser, // Spread default user properties
-// 		params: { mnumber: mockInstructorMnumber },
-// 		// instructorAccessService will be added by the middleware if successful
-// 	};
-// 	mockRes = {
-// 		status: vi.fn().mockReturnThis(),
-// 		json: vi.fn(),
-// 	};
-// 	mockNext = vi.fn();
+// Helper to create a mock Request object
+const mockRequest = (
+	params: Record<string, string> = {},
+	roles: { role_name: string; role_id: number }[] = [],
+	mnumber?: string,
+	department?: string
+): AuthAndPermissionsRequest => {
+	const req = {
+		params,
+		roles,
+		mnumber,
+		department,
+	} as Partial<AuthAndPermissionsRequest>; // Use Partial for easier mocking
+	return req as AuthAndPermissionsRequest;
+};
 
-// 	// Reset the specific mock function state if needed (vi.clearAllMocks usually handles this)
-// 	// mockCanAccessInstructor.mockClear();
-// });
+// Mock NextFunction
+const mockNext: NextFunction = vi.fn();
 
-// describe('InstructorController.checkInstructorAccess Middleware', () => {
-// 	it('should call next() and attach service if access is granted', async () => {
-// 		mockCanAccessInstructor.mockResolvedValue(true); // Simulate service granting access
+// --- Test Suite ---
 
-// 		await InstructorController.checkInstructorAccess(mockReq as Request, mockRes as Response, mockNext);
+describe('InstructorController', () => {
+	let req: AuthAndPermissionsRequest;
+	let res: Response;
+	let next: NextFunction;
 
-// 		// Check service was called correctly
-// 		expect(checkInstructorAccess).toHaveBeenCalledTimes(1); // Constructor called
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledWith(mockReq, mockInstructorMnumber); // Ensure user object and mnumber passed
+	// Reset mocks before each test
+	beforeEach(() => {
+		res = mockResponse();
+		next = mockNext;
+		// Reset mocks including call counts
+		vi.clearAllMocks();
+	});
 
-// 		// Check middleware outcome
-// 		expect(mockNext).toHaveBeenCalledTimes(1);
-// 		expect(mockRes.status).not.toHaveBeenCalled();
-// 		expect(mockRes.json).not.toHaveBeenCalled();
+	describe('checkInstructorAccess Middleware', () => {
 
-// 		// Check service instance was attached to request
-// 		expect(mockReq.instructorAccessService).toBeInstanceOf(InstructorAccessService);
-// 	});
+		// --- Test Case: Invalid M-number ---
+		it('should return 400 if mnumber in params is invalid', async () => {
+			req = mockRequest({ mnumber: 'invalid-mnumber' }); // Invalid format
+			await InstructorController.checkInstructorAccess(req, res, next);
 
-// 	it('should return 403 if access is denied', async () => {
-// 		mockCanAccessInstructor.mockResolvedValue(false); // Simulate service denying access
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+				error: 'Invalid M-number format.'
+			}));
+			expect(next).not.toHaveBeenCalled();
+		});
 
-// 		await InstructorController.checkInstructorAccess(mockReq as Request, mockRes as Response, mockNext);
+		it('should return 400 if mnumber in params is missing', async () => {
+			req = mockRequest({}); // Missing mnumber
+			// Manually trigger zod parse error for missing field scenario
+			// Note: Zod's safeParse will handle this, we just need to ensure the structure leads to failure
+			await InstructorController.checkInstructorAccess(req, res, next);
 
-// 		// Check service was called
-// 		expect(InstructorAccessService).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledWith(mockReq, mockInstructorMnumber);
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
+				error: 'Invalid M-number format.'
+			}));
+			expect(next).not.toHaveBeenCalled();
+		});
 
-// 		// Check middleware outcome
-// 		expect(mockNext).not.toHaveBeenCalled();
-// 		expect(mockRes.status).toHaveBeenCalledWith(403);
-// 		expect(mockRes.json).toHaveBeenCalledWith({
-// 			error: 'Access denied. Insufficient permissions to view this instructor data.'
-// 		});
-// 		// Ensure service instance was NOT attached
-// 		expect(mockReq.instructorAccessService).toBeUndefined();
-// 	});
 
-// 	it('should return 500 if InstructorAccessService throws an error', async () => {
-// 		const errorMessage = 'Database error';
-// 		mockCanAccessInstructor.mockRejectedValue(new Error(errorMessage)); // Simulate service error
+		// --- Test Case: COBIS Administrator Access ---
+		it('should call next() if user has cobis_administrator role', async () => {
+			const roles = [{ role_name: 'cobis_administrator', role_id: 1 }];
+			req = mockRequest({ mnumber: 'm12345' }, roles, 'm99999'); // Requesting m12345, user is m99999
 
-// 		await InstructorController.checkInstructorAccess(mockReq as Request, mockRes as Response, mockNext);
+			await InstructorController.checkInstructorAccess(req, res, next);
 
-// 		// Check service was called
-// 		expect(InstructorAccessService).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledWith(mockReq, mockInstructorMnumber);
+			expect(next).toHaveBeenCalledTimes(1);
+			expect(res.status).not.toHaveBeenCalled();
+			expect(res.json).not.toHaveBeenCalled();
+		});
 
-// 		// Check middleware outcome
-// 		expect(mockNext).not.toHaveBeenCalled();
-// 		expect(mockRes.status).toHaveBeenCalledWith(500);
-// 		expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error during access check' });
-// 		// Ensure service instance was NOT attached
-// 		expect(mockReq.instructorAccessService).toBeUndefined();
-// 	});
+		// --- Test Cases: Self-Access (Faculty, Advisor, etc.) ---
+		const selfAccessRoles = ['faculty', 'advisor', 'program_coordinator', 'administrator'];
+		selfAccessRoles.forEach(roleName => {
+			it(`should call next() if user has ${roleName} role and requests their own mnumber`, async () => {
+				const userMnumber = 'm12345';
+				const roles = [{ role_name: roleName, role_id: 2 }];
+				req = mockRequest({ mnumber: userMnumber }, roles, userMnumber); // Requesting own mnumber
 
-// 	it('should handle missing mnumber in params gracefully (passed as undefined to service)', async () => {
-// 		// Although usually routing prevents this, test robustness
-// 		mockReq.params = {}; // No mnumber in params
-// 		mockCanAccessInstructor.mockResolvedValue(false); // Assume denial if mnumber missing, for testing response
+				await InstructorController.checkInstructorAccess(req, res, next);
 
-// 		await InstructorController.checkInstructorAccess(mockReq as Request, mockRes as Response, mockNext);
+				expect(next).toHaveBeenCalledTimes(1);
+				expect(res.status).not.toHaveBeenCalled();
+				expect(res.json).not.toHaveBeenCalled();
+			});
 
-// 		// Check service was called with undefined mnumber
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledTimes(1);
-// 		expect(mockCanAccessInstructor).toHaveBeenCalledWith(mockReq, undefined); // instructorMnumber is undefined
+			it(`should return 403 if user has ${roleName} role but requests a different mnumber`, async () => {
+				const userMnumber = 'm12345';
+				const requestedMnumber = 'm67890';
+				const roles = [{ role_name: roleName, role_id: 2 }];
+				req = mockRequest({ mnumber: requestedMnumber }, roles, userMnumber); // Requesting different mnumber
 
-// 		// Check middleware outcome (still expects 403 based on service response)
-// 		expect(mockNext).not.toHaveBeenCalled();
-// 		expect(mockRes.status).toHaveBeenCalledWith(403); // Or potentially 500 if service errors on undefined
-// 	});
-// });
+				await InstructorController.checkInstructorAccess(req, res, next);
+
+				expect(res.status).toHaveBeenCalledWith(403);
+				expect(res.json).toHaveBeenCalledWith({
+					error: 'Access denied. Insufficient permissions to view this advisor data.',
+				});
+				expect(next).not.toHaveBeenCalled();
+			});
+		});
+
+		// --- Test Case: Administrator without mnumber trying self-access (should fail) ---
+		it('should return 403 if user has administrator role but authReq.mnumber is missing', async () => {
+			const requestedMnumber = 'm12345';
+			const roles = [{ role_name: 'administrator', role_id: 5 }];
+			// Simulate user mnumber not being present on the request
+			req = mockRequest({ mnumber: requestedMnumber }, roles, undefined);
+
+			await InstructorController.checkInstructorAccess(req, res, next);
+
+			// Since they don't have cobis_admin and can't match their own mnumber,
+			// and aren't dept chair, it should fall through to forbidden.
+			expect(res.status).toHaveBeenCalledWith(403);
+			expect(res.json).toHaveBeenCalledWith({
+				error: 'Access denied. Insufficient permissions to view this advisor data.',
+			});
+			expect(next).not.toHaveBeenCalled();
+		});
+
+
+		// --- Test Cases: Department Chair Access ---
+		it('should call next() if user is dept_chair and instructor is in their department', async () => {
+			const requestedMnumber = 'm67890';
+			const chairDepartment = 'Computer Science';
+			const roles = [{ role_name: 'department_chair', role_id: 3 }];
+			req = mockRequest({ mnumber: requestedMnumber }, roles, 'm11111', chairDepartment);
+
+			// Mock the service call to return true
+			vi.mocked(InstructorService.isInstructorInDepartment).mockResolvedValueOnce(true);
+
+			await InstructorController.checkInstructorAccess(req, res, next);
+
+			expect(InstructorService.isInstructorInDepartment).toHaveBeenCalledWith(requestedMnumber, chairDepartment);
+			expect(next).toHaveBeenCalledTimes(1);
+			expect(res.status).not.toHaveBeenCalled();
+			expect(res.json).not.toHaveBeenCalled();
+		});
+
+		it('should return 403 if user is dept_chair and instructor is NOT in their department', async () => {
+			const requestedMnumber = 'm67890';
+			const chairDepartment = 'Computer Science';
+			const roles = [{ role_name: 'department_chair', role_id: 3 }];
+			req = mockRequest({ mnumber: requestedMnumber }, roles, 'm11111', chairDepartment);
+
+			// Mock the service call to return false
+			vi.mocked(InstructorService.isInstructorInDepartment).mockResolvedValueOnce(false);
+
+			await InstructorController.checkInstructorAccess(req, res, next);
+
+			expect(InstructorService.isInstructorInDepartment).toHaveBeenCalledWith(requestedMnumber, chairDepartment);
+			expect(res.status).toHaveBeenCalledWith(403);
+			expect(res.json).toHaveBeenCalledWith({
+				error: 'Access denied. Insufficient permissions to view this advisor data.',
+			});
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		it('should return 403 if user is dept_chair but authReq.department is missing', async () => {
+			const requestedMnumber = 'm67890';
+			const roles = [{ role_name: 'department_chair', role_id: 3 }];
+			// No department provided on the request object
+			req = mockRequest({ mnumber: requestedMnumber }, roles, 'm11111', undefined);
+
+			await InstructorController.checkInstructorAccess(req, res, next);
+
+			// Service call should not be made if department is missing
+			expect(InstructorService.isInstructorInDepartment).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(403);
+			expect(res.json).toHaveBeenCalledWith({
+				error: 'Access denied. Insufficient permissions to view this advisor data.',
+			});
+			expect(next).not.toHaveBeenCalled();
+		});
+
+		// --- Test Case: Insufficient Permissions ---
+		it('should return 403 if user has no relevant roles granting access', async () => {
+			const requestedMnumber = 'm67890';
+			// Example: a user with only a 'student' role (or no roles)
+			const roles = [{ role_name: 'student', role_id: 10 }];
+			req = mockRequest({ mnumber: requestedMnumber }, roles, 'm55555');
+
+			await InstructorController.checkInstructorAccess(req, res, next);
+
+			expect(res.status).toHaveBeenCalledWith(403);
+			expect(res.json).toHaveBeenCalledWith({
+				error: 'Access denied. Insufficient permissions to view this advisor data.',
+			});
+			expect(next).not.toHaveBeenCalled();
+			expect(InstructorService.isInstructorInDepartment).not.toHaveBeenCalled();
+		});
+	});
+});

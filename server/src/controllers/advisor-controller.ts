@@ -52,7 +52,7 @@ export class AdvisorController {
 	 */
 	static async checkAdvisorAccess(req: Request, res: Response, next: NextFunction) {
 		const authReq = req as AuthAndPermissionsRequest;
-		const validationResult = instructorMnumberSchema.safeParse(req.params);
+		const validationResult = instructorMnumberSchema.safeParse(authReq.params);
 
 		if (!validationResult.success) {
 			res.status(400).json({
@@ -61,6 +61,7 @@ export class AdvisorController {
 			});
 			return;
 		}
+
 		const { mnumber } = validationResult.data;
 
 		// Check user roles
