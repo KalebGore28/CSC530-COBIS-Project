@@ -80,6 +80,23 @@ describe('AdvisorController.getAdvisedStudents', () => {
 		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
 		expect(mockRes.status).not.toHaveBeenCalled();
 	});
+	it('should call service with mnumber from params and parsed term and number year', async () => {
+		const mockStudents = [{ studentId: 10, name: 'Eve' }];
+		// @ts-ignore // Testing with a number year
+		mockReq.query = { term: 'Summer II', year: 2023 }; // Valid query params
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
+
+		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+
+		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
+		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
+			advisorMnumber: targetAdvisorMnumber, // Expecting mnumber from params
+			term: 'Summer II',
+			year: 2023, // Preprocessed by Zod
+		});
+		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
+		expect(mockRes.status).not.toHaveBeenCalled();
+	});
 
 	it('should call service with mnumber from params and only term if year is not provided', async () => {
 		const mockStudents = [{ studentId: 11, name: 'Frank' }];

@@ -1,5 +1,5 @@
 // instructor.controller.test.ts
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Request, Response, NextFunction } from 'express';
 import { InstructorController } from '../../../controllers/instructor-controller';
 import { InstructorService } from '../../../services/instructor-service';
