@@ -71,9 +71,16 @@ describe('InstructorController', () => {
         it('should return instructor info if instructor exists', async () => {
             req = mockRequest({ mnumber: testMnumber });
             const mockInstructorData = {
+                mnumber: testMnumber,
+                name: 'Jane Doe', // Combine first and last name or provide a mock name
                 firstName: 'Jane',
                 lastName: 'Doe',
+                department: 'Computer Science', // Provide mock data or null
+                departmentCode: 'CSC', // Provide mock data or null
+                college: 'College of Engineering', // Provide mock data or null
+                collegeCode: 'COE', // Provide mock data or null
                 email: 'jane.doe@example.com',
+                image: null, // Provide mock data or null
             };
 
             vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
