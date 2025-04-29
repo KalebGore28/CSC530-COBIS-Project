@@ -170,6 +170,60 @@ describe('InstructorController', () => {
 			});
 		});
 
+		it('should return class roster if successful with string number', async () => {
+			req = mockRequest({ mnumber: testMnumber }, { ...validQueryBase, number: '212' });
+			const mockRosterData = [{ studentId: 's1', name: 'Alice' }, { studentId: 's2', name: 'Bob' }];
+
+			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
+			// @ts-ignore
+			vi.mocked(InstructorService.getClassRoster).mockResolvedValue(mockRosterData);
+
+			await InstructorController.getClassRoster(req, res);
+
+			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
+			expect(InstructorService.getClassRoster).toHaveBeenCalledWith(
+				testMnumber,
+				validQueryBase.subject,
+				validQueryBase.number,
+				'', // Assert default empty string suffix is used
+				validQueryBase.section,
+				validQueryBase.term,
+				parsedYear
+			);
+			expect(res.status).not.toHaveBeenCalled(); // Implies 200 OK
+			expect(res.json).toHaveBeenCalledWith({
+				mnumber: testMnumber,
+				classRoster: mockRosterData
+			});
+		});
+
+		it('should return class roster if successful with number year', async () => {
+			req = mockRequest({ mnumber: testMnumber }, { ...validQueryBase, year: 2025 });
+			const mockRosterData = [{ studentId: 's1', name: 'Alice' }, { studentId: 's2', name: 'Bob' }];
+
+			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
+			// @ts-ignore
+			vi.mocked(InstructorService.getClassRoster).mockResolvedValue(mockRosterData);
+
+			await InstructorController.getClassRoster(req, res);
+
+			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
+			expect(InstructorService.getClassRoster).toHaveBeenCalledWith(
+				testMnumber,
+				validQueryBase.subject,
+				validQueryBase.number,
+				'', // Assert default empty string suffix is used
+				validQueryBase.section,
+				validQueryBase.term,
+				parsedYear
+			);
+			expect(res.status).not.toHaveBeenCalled(); // Implies 200 OK
+			expect(res.json).toHaveBeenCalledWith({
+				mnumber: testMnumber,
+				classRoster: mockRosterData
+			});
+		});
+
 		// --- Test Case: Success (With Suffix) ---
 		it('should return class roster if successful (suffix provided)', async () => {
 			req = mockRequest({ mnumber: testMnumber }, validQueryWithSuffix);

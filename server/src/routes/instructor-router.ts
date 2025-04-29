@@ -8,7 +8,6 @@ import { InstructorController } from '../controllers/instructor-controller';
  * @requires zod
  * @requires zod-openapi/extend
  * @requires ../controllers/instructor-controller
- * @requires ../middleware/check-instructor-access
  * @description This module defines the routes for instructor-related endpoints.
  * It includes routes for fetching basic instructor information, current teaching status,
  * teaching summary, course details, and term summaries.

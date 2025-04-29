@@ -166,6 +166,66 @@ describe('InstructorController', () => {
 			});
 		});
 
+		it('should return grade trends using fetched current term when start_year is a number', async () => {
+			req = mockRequest({ mnumber: testMnumber }, { ...validRequiredQuery, start_year: 2020 });
+			const mockTrendData = [{ grade: 'A', percentage: 30 }];
+
+			// Arrange: Mock services
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
+			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
+			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(mockTrendData);
+
+			// Act
+			await InstructorController.getGradeTrends(req, res);
+
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
+			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
+			// Check arguments, using the mocked current term for end_term
+			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
+				testMnumber,
+				{ term: defaultStartTerm, year: parsedStartYear },
+				{ term: mockCurrentTerm, year: parsedEndYear } // Using mocked term here
+			);
+			expect(res.status).not.toHaveBeenCalled(); // 200 OK
+			expect(res.json).toHaveBeenCalledWith({
+				mnumber: testMnumber,
+				start_year: parsedStartYear,
+				end_year: parsedEndYear,
+				gradeTrends: mockTrendData
+			});
+		});
+
+		it('should return grade trends using fetched current term when end_year is a number', async () => {
+			req = mockRequest({ mnumber: testMnumber }, { ...validRequiredQuery, end_year: 2024 });
+			const mockTrendData = [{ grade: 'A', percentage: 30 }];
+
+			// Arrange: Mock services
+			vi.mocked(UtilityService.getCurrentTermAndYear).mockResolvedValue({ term: mockCurrentTerm, year: mockCurrentYear });
+			vi.mocked(InstructorService.instructorExists).mockResolvedValue(true);
+			vi.mocked(InstructorService.getGradeTrends).mockResolvedValue(mockTrendData);
+
+			// Act
+			await InstructorController.getGradeTrends(req, res);
+
+			// Assert
+			expect(UtilityService.getCurrentTermAndYear).toHaveBeenCalledTimes(1);
+			expect(InstructorService.instructorExists).toHaveBeenCalledWith(testMnumber);
+			// Check arguments, using the mocked current term for end_term
+			expect(InstructorService.getGradeTrends).toHaveBeenCalledWith(
+				testMnumber,
+				{ term: defaultStartTerm, year: parsedStartYear },
+				{ term: mockCurrentTerm, year: parsedEndYear } // Using mocked term here
+			);
+			expect(res.status).not.toHaveBeenCalled(); // 200 OK
+			expect(res.json).toHaveBeenCalledWith({
+				mnumber: testMnumber,
+				start_year: parsedStartYear,
+				end_year: parsedEndYear,
+				gradeTrends: mockTrendData
+			});
+		});
+
 		// --- Test Case: Success (Providing Optional End Term - Overrides Default) ---
 		it('should return grade trends using provided end_term when specified', async () => {
 			const providedEndTerm = '80';

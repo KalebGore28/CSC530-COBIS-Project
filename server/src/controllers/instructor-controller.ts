@@ -177,35 +177,34 @@ export class InstructorController {
 
 	/**
 	 * Get instructors - department chairs can only see instructors in their department
-	 * TODO: Double check if this is the desired behavior
 	 */
 	static async getInstructors(req: Request, res: Response) {
-		try {
-			const authReq = req as AuthAndPermissionsRequest;
+		const authReq = req as AuthAndPermissionsRequest;
 
-			// Check permissions
-			const isAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
-			const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
+		// Check permissions
+		const isCOBISAdmin = authReq.roles.some(role => role.role_name === 'cobis_administrator');
+		const isDeptChair = authReq.roles.some(role => role.role_name === 'department_chair');
 
-			// For department chairs, filter by their department
-			// For admins, no filter (return all instructors)
-			// For others, return forbidden
-			let departmentCode: string | undefined;
+		// Check if user is admin or department chair
+		if (!isCOBISAdmin && !isDeptChair) {
+			res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
+			return;
+		}
 
-			if (isDeptChair && !isAdmin) {
-				// Department chairs can only see instructors in their department
-				departmentCode = authReq.department || undefined;
+		let departmentCode: string | undefined;
 
-				if (!departmentCode) {
-					res.status(400).json({ error: 'Department chair has no associated department' });
-					return;
-				}
-			} else if (!isAdmin) {
-				// Regular users cannot access this endpoint
-				res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
+		// If the user is a department chair, get their department code
+		if (isDeptChair) {
+			departmentCode = authReq.department || undefined;
+			if (!departmentCode) {
+				res.status(400).json({ error: 'Department chair has no associated department' });
 				return;
 			}
+		}
 
+		// If the user is COBIS admin, leave departmentCode undefined to get all instructors
+
+		try {
 			// Get instructors (filtered by department for chairs, all for admins)
 			const instructors = await InstructorService.getInstructors(departmentCode);
 
