@@ -312,12 +312,15 @@ const TermDetailsPage: React.FC = () => {
 							</CardContent>
 						</Card>
 
-						{/* Faculty advisees */}
-						<AdvisorAdvisedStudents
-							title='Advised Students'
-							term={termCode}
-							year={parseInt(year)}
-						/>
+						{/* Faculty advisees - Render only if termCode and year are defined */}
+						{termCode && year && mnumber && (
+							<AdvisorAdvisedStudents
+								mnumber={mnumber}
+								title='Advised Students'
+								term={termCode}
+								year={parseInt(year)}
+							/>
+						)}
 					</>
 				)}
 			</div>

@@ -131,12 +131,12 @@ export class AdvisorController {
 			});
 			return;
 		}
-		
+
 		// 3) Fetch data
 		try {
 			// Get current term and year if not provided
 			const { term: currentTerm, year: currentYear } = await UtilityService.getCurrentTermAndYear();
-			
+
 			const { term = currentTerm, year = currentYear } = parsed.data;
 
 
@@ -172,9 +172,13 @@ export class AdvisorController {
 			});
 			return;
 		}
-		const { term, year } = parsed.data;
 
 		try {
+			// Get current term and year if not provided
+			const { term: currentTerm, year: currentYear } = await UtilityService.getCurrentTermAndYear();
+
+			const { term = currentTerm, year = currentYear } = parsed.data;
+			
 			const advisedStudents = await AdvisorService.getAdvisedStudents({
 				advisorMnumber: mnumber,
 				term,

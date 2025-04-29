@@ -12,11 +12,6 @@ import { AdvisorController } from '../controllers/advisor-controller';
  */
 const router = express.Router();
 
-// Get students advised by the logged-in user
-router.get('/me',
-	AdvisorController.getUserAdvisedStudents
-);
-
 // Get students advised by a specific advisor
 router.get('/:mnumber',
 	AdvisorController.checkAdvisorAccess,

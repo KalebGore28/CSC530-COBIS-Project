@@ -30,16 +30,17 @@ export interface Student {
 	email: string;
 	age: number;
 	residencyDescription: string;
-	// …any other fields you need
 }
 
 export interface AdvisorAdvisedStudentsProps {
+	mnumber: string;
 	term?: string;
 	year?: number;
 	title?: string;
 }
 
 const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
+	mnumber,
 	term,
 	year,
 	title,
@@ -55,28 +56,22 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 
 	useEffect(() => {
 		(async () => {
-			setIsLoading(true);
-			setError(null);
-			try {
-				const response = await axios.get<Student[]>('/api/advisor/me', {
-					params: { term, year },
-					withCredentials: true,
-				});
-				setStudents(response.data);
-			} catch (err: any) {
-				// map common HTTP errors
-				if (err.response?.status === 401) {
-					setError('Unauthorized: Please log in.');
-				} else if (err.response?.status === 403) {
-					setError('Forbidden: You do not have permission.');
-				} else {
-					setError(err.response?.data?.error ?? err.message);
-				}
-			} finally {
-				setIsLoading(false);
-			}
+		  setIsLoading(true);
+		  setError(null);
+		  try {
+			const url = `/api/advisor/${mnumber}`;
+			const response = await axios.get<Student[]>(url, {
+			  params: { term, year },
+			  withCredentials: true,
+			});
+			setStudents(response.data);
+		  } catch (err: any) {
+			// …same error handling…
+		  } finally {
+			setIsLoading(false);
+		  }
 		})();
-	}, [term, year]);
+	  }, [mnumber, term, year]);
 
 	const renderSkeletons = () =>
 		Array.from({ length: 5 }).map((_, i) => (
