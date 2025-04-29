@@ -1,4 +1,3 @@
-// src/tests/controllers/student/getStudentPrograms.test.ts
 // @ts-nocheck
 
 import { describe, it, expect, vi, beforeEach, Mock } from 'vitest';
