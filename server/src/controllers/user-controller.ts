@@ -202,7 +202,6 @@ export class UserController {
 			return;
 
 		} catch (error) {
-			console.error(`Error enabling user ${userId}:`, error); // Log context
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while enabling the user'
@@ -262,7 +261,6 @@ export class UserController {
 			return;
 
 		} catch (error) {
-			console.error(`Error disabling user ${userId}:`, error);
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while disabling the user'
@@ -295,7 +293,6 @@ export class UserController {
 			res.status(200).json(users);
 
 		} catch (error: any) {
-			console.error('Error getting all users:', error);
 			if (error instanceof SyntaxError) {
 				res.status(500).json({ success: false, message: 'An error occurred while processing user role data' });
 			} else {
@@ -335,7 +332,6 @@ export class UserController {
 			res.status(200).json(user);
 
 		} catch (error: any) {
-			console.error(`Error getting user ${userId}:`, error);
 			res.status(500).json({ success: false, message: 'An error occurred while fetching the user' });
 		}
 	}
@@ -385,7 +381,6 @@ export class UserController {
 			}
 
 		} catch (error: any) {
-			console.error(`Error in provisionUser controller for userId ${userId}:`, error);
 			res.status(500).json({ success: false, message: 'An unexpected error occurred during user provisioning' });
 		}
 	}

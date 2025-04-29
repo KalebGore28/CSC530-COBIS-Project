@@ -33,8 +33,6 @@ export class ImportController {
 				res.json(result);
 				return;
 			} catch (error: any) {
-				console.error(`Error in import process:`, error);
-
 				// Return a more detailed error response
 				res.status(400).json({
 					error: error.message,
@@ -44,7 +42,6 @@ export class ImportController {
 				return;
 			}
 		} catch (error: any) {
-			console.error(`Error in import process:`, error);
 			res.status(500).json({
 				error: 'Error processing import',
 				message: error.message
@@ -61,7 +58,6 @@ export class ImportController {
 			const importInfo = ImportService.getImportInfo();
 			res.json(importInfo);
 		} catch (error: any) {
-			console.error('Error fetching import information:', error);
 			res.status(500).json({
 				error: 'Error fetching import information',
 				message: error.message

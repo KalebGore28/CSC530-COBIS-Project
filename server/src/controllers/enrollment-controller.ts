@@ -33,7 +33,6 @@ export class EnrollmentController {
 			res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
 			return;
 		} catch (error) {
-			console.error('Error in enrollment permission middleware:', error);
 			res.status(500).json({ error: 'Internal server error' });
 			return;
 		}
@@ -96,7 +95,6 @@ export class EnrollmentController {
 
 			res.json(enrollmentData);
 		} catch (error) {
-			console.error('Error fetching program enrollment data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -172,7 +170,6 @@ export class EnrollmentController {
 
 			res.json(studentData);
 		} catch (error) {
-			console.error('Error fetching program student data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -242,7 +239,6 @@ export class EnrollmentController {
 
 			res.json(trendsData);
 		} catch (error) {
-			console.error('Error fetching program enrollment trends:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -302,7 +298,6 @@ export class EnrollmentController {
 
 			res.json(facultyData);
 		} catch (error) {
-			console.error('Error fetching faculty enrollment data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -365,7 +360,6 @@ export class EnrollmentController {
 
 			res.json(facultyData);
 		} catch (error) {
-			console.error('Error fetching faculty member enrollment data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -430,7 +424,6 @@ export class EnrollmentController {
 
 			res.json(trendsData);
 		} catch (error) {
-			console.error('Error fetching faculty member enrollment trends:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
