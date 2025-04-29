@@ -175,16 +175,21 @@ export class AdvisorController {
 
 		try {
 			// Get current term and year if not provided
-			const { term: currentTerm, year: currentYear } = await UtilityService.getCurrentTermAndYear();
+			const { term: currentTerm, year: currentYear, termName } = await UtilityService.getCurrentTermAndYear();
 
 			const { term = currentTerm, year = currentYear } = parsed.data;
-			
+
 			const advisedStudents = await AdvisorService.getAdvisedStudents({
 				advisorMnumber: mnumber,
 				term,
 				year,
 			});
-			res.json(advisedStudents);
+			res.json({
+				advisedStudents,
+				term,
+				year,
+				termName,
+			});
 			return;
 		} catch (error) {
 			res.status(500).json({ error: 'Internal server error while fetching advised students.' });

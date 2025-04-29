@@ -7,6 +7,7 @@ const AdvisedStudentsPage: React.FC = () => {
 	return (
 		<div className="container mx-auto p-4 md:p-6">
 			<AdvisorAdvisedStudents
+				title='My Advised Students'
 				mnumber={session?.info.mnumber || ''}
 			/>
 		</div>

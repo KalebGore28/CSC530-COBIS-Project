@@ -21,6 +21,19 @@ import { Terminal } from 'lucide-react';
 import { Modal } from '@/components/modals/modal';
 import StudentDetail from '@/components/student-detail';
 
+export interface AdvisorAPIResponse {
+	advisedStudents: Student[];
+	term: string;
+	year: number;
+	termName: string;
+}
+
+interface ShownTermAndYear {
+	term: string;
+	year: number;
+	termName: string;
+}
+
 export interface Student {
 	mnumber: string;
 	firstName: string;
@@ -53,6 +66,11 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
 	const [selectedName, setSelectedName] = useState<string>('');
+	const [shownTermAndYear, setShownTermAndYear] = useState<ShownTermAndYear>({
+		term: '',
+		year: 0,
+		termName: '',
+	});
 
 	useEffect(() => {
 		(async () => {
@@ -60,11 +78,17 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 		  setError(null);
 		  try {
 			const url = `/api/advisor/${mnumber}`;
-			const response = await axios.get<Student[]>(url, {
+			const response = await axios.get<AdvisorAPIResponse>(url, {
 			  params: { term, year },
 			  withCredentials: true,
 			});
-			setStudents(response.data);
+
+			setStudents(response.data.advisedStudents);
+			setShownTermAndYear({
+			  term: response.data.term,
+			  year: response.data.year,
+			  termName: response.data.termName,
+			});
 		  } catch (err: any) {
 			// …same error handling…
 		  } finally {
@@ -95,8 +119,8 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>
-					{term && year
-						? `Term: ${term} ${year}`
+					{shownTermAndYear
+						? `Term: ${shownTermAndYear.termName} ${shownTermAndYear.year}`
 						: 'Current term & year'}
 				</CardDescription>
 			</CardHeader>
