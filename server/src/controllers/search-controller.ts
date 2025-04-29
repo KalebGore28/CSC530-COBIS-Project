@@ -1,5 +1,15 @@
 import { Request, Response } from 'express';
 import { SearchService } from '../services/search-service';
+import { z } from 'zod';
+import 'zod-openapi/extend';
+
+// --- Validation Schemas ---
+const querySchema = z.object({
+	query: z.string().openapi({
+		description: 'The search query string',
+		example: 'Computer Science',
+	}),
+});
 
 /**
  * Controller for handling search operations
@@ -9,22 +19,16 @@ export class SearchController {
 	 * Validate the query parameter and ensure it's a string
 	 */
 	private static validateQuery(req: Request, res: Response): string | null {
-		const { query } = req.query;
-
-		if (!query || typeof query !== 'string') {
-			res.status(400).json({ error: "Missing or invalid 'query' parameter." });
+		const validationResult = querySchema.safeParse(req.query);
+		if (!validationResult.success) {
+			res.status(400).json({
+				error: "Invalid query parameter. It should be a string.",
+				details: validationResult.error.errors,
+			});
 			return null;
 		}
 
-		return query;
-	}
-
-	/**
-	 * Generic error handler for search endpoints
-	 */
-	private static handleError(res: Response, entityType: string, error: any) {
-		console.error(`Error fetching ${entityType}:`, error);
-		res.status(500).json({ error: "Internal server error" });
+		return validationResult.data.query;
 	}
 
 	/**
@@ -38,7 +42,7 @@ export class SearchController {
 			const results = await SearchService.searchAcademicStandings(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'academic standings', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -53,7 +57,7 @@ export class SearchController {
 			const results = await SearchService.searchAdmitCodes(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'admit codes', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -68,7 +72,7 @@ export class SearchController {
 			const results = await SearchService.searchColleges(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'colleges', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -83,7 +87,7 @@ export class SearchController {
 			const results = await SearchService.searchCollegeCodes(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'college codes', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -98,7 +102,7 @@ export class SearchController {
 			const results = await SearchService.searchCourses(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'courses', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -113,7 +117,7 @@ export class SearchController {
 			const results = await SearchService.searchDepartments(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'departments', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -128,7 +132,7 @@ export class SearchController {
 			const results = await SearchService.searchNations(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'nations', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -143,7 +147,7 @@ export class SearchController {
 			const results = await SearchService.searchPartOfTerms(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'part of terms', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -158,7 +162,7 @@ export class SearchController {
 			const results = await SearchService.searchPrograms(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'programs', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -173,7 +177,7 @@ export class SearchController {
 			const results = await SearchService.searchRegistrationStatuses(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'registration statuses', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -188,7 +192,7 @@ export class SearchController {
 			const results = await SearchService.searchTerms(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'terms', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 
@@ -203,7 +207,7 @@ export class SearchController {
 			const results = await SearchService.searchFaculty(query);
 			res.json(results);
 		} catch (error) {
-			SearchController.handleError(res, 'faculty', error);
+			res.status(500).json({ error: "Internal server error" });
 		}
 	}
 } 

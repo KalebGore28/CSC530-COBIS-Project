@@ -23,6 +23,18 @@ import {
 export class StudentService {
 
 	/**
+	 * check if a student exists
+	 */
+	static async studentExists(mnumber: string): Promise<boolean> {
+		const db = (await getDbConnection()).orm;
+		const result = await db
+			.select({ count: count() })
+			.from(students)
+			.where(eq(students.mnumber, mnumber));
+		return Number(result[0]?.count || 0) > 0;
+	}
+
+	/**
 	 * Get detailed information for a specific student
 	 */
 	static async getStudentInfo(mnumber: string) {

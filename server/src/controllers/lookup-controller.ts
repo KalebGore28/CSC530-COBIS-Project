@@ -14,7 +14,6 @@ export class LookupController {
 			const results = await LookupService.getDepartments();
 			res.json(results);
 		} catch (error) {
-			console.error('Error fetching departments:', error);
 			res.status(500).json({ error: "Internal server error" });
 		}
 	}
@@ -27,7 +26,6 @@ export class LookupController {
 			const results = await LookupService.getColleges();
 			res.json(results);
 		} catch (error) {
-			console.error('Error fetching colleges:', error);
 			res.status(500).json({ error: "Internal server error" });
 		}
 	}
@@ -40,7 +38,6 @@ export class LookupController {
 			const results = await LookupService.getRoles();
 			res.json(results);
 		} catch (error) {
-			console.error('Error fetching roles:', error);
 			res.status(500).json({ error: "Internal server error" });
 		}
 	}
