@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/components/selectors/course-selector";
+import AdvisorAdvisedStudents from '@/components/advisor-advised-students';
 
 // Types based on API response
 type CourseResponse = {
@@ -310,6 +311,13 @@ const TermDetailsPage: React.FC = () => {
 								)}
 							</CardContent>
 						</Card>
+
+						{/* Faculty advisees */}
+						<AdvisorAdvisedStudents
+							title='Advised Students'
+							term={termCode}
+							year={parseInt(year)}
+						/>
 					</>
 				)}
 			</div>

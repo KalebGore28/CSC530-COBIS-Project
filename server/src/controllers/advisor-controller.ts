@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { AdvisorService } from '../services/advisor-service';
 import { InstructorService } from '../services/instructor-service';
+import { UtilityService } from '../services/utility-service';
 import { z } from 'zod';
 import 'zod-openapi/extend';
 
@@ -130,10 +131,15 @@ export class AdvisorController {
 			});
 			return;
 		}
-		const { term, year } = parsed.data;
-
+		
 		// 3) Fetch data
 		try {
+			// Get current term and year if not provided
+			const { term: currentTerm, year: currentYear } = await UtilityService.getCurrentTermAndYear();
+			
+			const { term = currentTerm, year = currentYear } = parsed.data;
+
+
 			const advisedStudents = await AdvisorService.getAdvisedStudents({
 				advisorMnumber: authReq.mnumber!,
 				term,
