@@ -10,6 +10,7 @@ export const instructorMnumberSchema = z.object({
 	mnumber: z
 		.string()
 		.regex(/^[Mm]\d+$/i, { message: 'Invalid M-number format. Must start with "m" followed by digits.' })
+		// .transform((mnumber) => mnumber.toUpperCase())
 		.openapi({ description: 'M-number of the instructor' }),
 })
 

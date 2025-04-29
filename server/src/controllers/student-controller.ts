@@ -77,28 +77,19 @@ export class StudentController {
 				return;
 			}
 
-			if (mnumber) {
-				// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
-				if ((isFaculty || isAdvisor || isDeptChair) && authReq.mnumber) {
-					const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
-					if (isAdvisee) {
-						next();
-						return;
-					}
+			// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
+			if ((isFaculty || isAdvisor || isDeptChair || isProgramCoordinator || isAdministrator) && authReq.mnumber) {
+				const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
+				if (isAdvisee) {
+					next();
+					return;
 				}
+			}
 
-				// Department chairs can access students in their department
-				if ((isDeptChair) && authReq.department) {
-					const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
-					if (isStudentInDepartment) {
-						next();
-						return;
-					}
-				}
-
-			} else {
-				// For list endpoints (no specific mnumber) - access control will be handled in the controller
-				if (isDeptChair || isProgramCoordinator || isFaculty || isAdvisor || isAdministrator) {
+			// Department chairs can access students in their department
+			if ((isDeptChair) && authReq.department) {
+				const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
+				if (isStudentInDepartment) {
 					next();
 					return;
 				}
