@@ -111,9 +111,10 @@ const fetchCourses = async (query: string): Promise<Course[]> => {
 }
 interface StudentFiltersProps {
   onApplyFilters: (filters: FilterState) => void;
+  onResetFilters?: () => void;
 }
 
-export const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
+export const StudentFilters = ({ onApplyFilters, onResetFilters }: StudentFiltersProps) => {
   const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"]
 
   const gradeOptions = ["A", "B", "C", "D", "F"]
@@ -244,6 +245,9 @@ export const StudentFilters = ({ onApplyFilters }: StudentFiltersProps) => {
       coursesNotTaken: [],
       gradeFilters: [{ course: null, grade: null }],
     })
+    if (onResetFilters) {
+      onResetFilters()
+    }
   }
 
   return (

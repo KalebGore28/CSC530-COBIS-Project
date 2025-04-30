@@ -115,7 +115,7 @@ const StudentLookup = () => {
 	}
 
 	// If no results are found, show a message
-	if (results.length < 0) {
+	if (results.length <= 0) {
 		return (
 			<div className="p-6">
 				<StudentFilters onApplyFilters={fetchStudents} />
@@ -128,7 +128,16 @@ const StudentLookup = () => {
 
 	return (
 		<div className="p-6">
-			<StudentFilters onApplyFilters={fetchStudents} />
+			<StudentFilters
+				onApplyFilters={fetchStudents}
+				onResetFilters={() => {
+					setResults([]);
+					setSelectedMnumber(null);
+					setSelectedName('');
+					setIsModalOpen(false);
+				}}
+
+			/>
 			<div className="mt-6">
 				<Card>
 					<CardHeader>
@@ -136,6 +145,7 @@ const StudentLookup = () => {
 					</CardHeader>
 					<CardContent className="p-4"> {/* Add padding here */}
 						<PaginatedTable
+							className="border"
 							data={results}
 							columns={[
 								{ key: "mnumber", label: "MNumber" },
