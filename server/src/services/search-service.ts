@@ -4,7 +4,6 @@ import {
 	academicStanding,
 	admitCodes,
 	colleges,
-	collegeCodes,
 	courses,
 	departments,
 	nations,
@@ -80,28 +79,6 @@ export class SearchService {
 				sql`
 					UPPER(${colleges.code}) LIKE ${searchQuery + '%'} OR
 					UPPER(${colleges.description}) LIKE ${'%' + searchQuery + '%'}
-				`
-			)
-			.limit(10);
-	}
-
-	/**
-	 * Search college codes by code or description
-	 */
-	static async searchCollegeCodes(query: string) {
-		const db = (await getDbConnection()).orm;
-		const searchQuery = query.toUpperCase();
-
-		return await db
-			.select({
-				code: collegeCodes.code,
-				name: collegeCodes.description,
-			})
-			.from(collegeCodes)
-			.where(
-				sql`
-					UPPER(${collegeCodes.code}) LIKE ${searchQuery + '%'} OR
-					UPPER(${collegeCodes.description}) LIKE ${'%' + searchQuery + '%'}
 				`
 			)
 			.limit(10);

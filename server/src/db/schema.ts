@@ -2,7 +2,6 @@
 
 import * as academicStanding from './models/academic-standing';
 import * as admitCodes from './models/admit-codes';
-import * as collegeCodes from './models/college-codes';
 import * as colleges from './models/colleges';
 import * as courses from './models/courses';
 import * as departments from './models/departments';
@@ -13,7 +12,6 @@ import * as faculty from './models/faculty';
 import * as nations from './models/nations';
 import * as overrides from './models/overrides';
 import * as partOfTerm from './models/part-of-term';
-import * as previousColleges from './models/previous-colleges';
 import * as programs from './models/programs';
 import * as registrationStatus from './models/registration-status';
 import * as roles from './models/roles';
@@ -30,7 +28,6 @@ import * as betterAuth from './models/betterAuth';
 
 export * from './models/academic-standing';
 export * from './models/admit-codes';
-export * from './models/college-codes';
 export * from './models/colleges';
 export * from './models/courses';
 export * from './models/departments';
@@ -41,7 +38,6 @@ export * from './models/faculty';
 export * from './models/nations';
 export * from './models/overrides';
 export * from './models/part-of-term';
-export * from './models/previous-colleges';
 export * from './models/programs';
 export * from './models/registration-status';
 export * from './models/roles';
@@ -59,7 +55,6 @@ export * from './models/betterAuth';
 export const schema = {
 	academicStanding,
 	admitCodes,
-	collegeCodes,
 	colleges,
 	courses,
 	departments,
@@ -70,7 +65,6 @@ export const schema = {
 	nations,
 	overrides,
 	partOfTerm,
-	previousColleges,
 	programs,
 	registrationStatus,
 	roles,

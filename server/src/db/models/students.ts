@@ -3,7 +3,6 @@ import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
 import { overrides } from "./overrides";
-import { previousColleges } from "./previous-colleges";
 import { studentAddresses } from "./student-addresses";
 import { studentAdvisors } from "./student-advisors";
 import { studentCourses } from "./student-courses";
@@ -31,7 +30,6 @@ export const students = sqliteTable("students", {
 export const studentsRelations = relations(students, ({ many }) => ({
 	studentAcademicInfo: many(studentAcademicInfo),
 	overrides: many(overrides),
-	previousColleges: many(previousColleges),
 	studentAddresses: many(studentAddresses),
 	studentAdvisors: many(studentAdvisors),
 	studentCourses: many(studentCourses),
