@@ -122,8 +122,7 @@ const ClassRosterPage: React.FC = () => {
 						onClose={handleCloseModal}
 						title={`Student Details - ${selectedStudentName}`}
 						description={`Showing comprehensive details for M-Number: ${selectedMnumber || 'N/A'}`}
-						// Adjust width as needed using Tailwind classes
-						contentClassName="sm:max-w-3xl md:max-w-4xl lg:max-w-5xl"
+						size="5xl"
 					>
 						{/*
                           Render StudentDetail only when an mnumber is selected.

@@ -383,8 +383,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                                             <TableCell>{minor.college}</TableCell>
                                             <TableCell>{minor.level}</TableCell>
                                             <TableCell>
-                                                {minor.year}
-                                                {minor.term}
+                                                {minor.termDescription} {minor.year}
                                             </TableCell>
                                         </TableRow>
                                     ))}

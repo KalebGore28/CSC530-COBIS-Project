@@ -178,7 +178,7 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				title={`Student Detail: ${selectedName}`}
-				size='full'
+				size='5xl'
 			>
 				{selectedMnumber && (
 					<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />

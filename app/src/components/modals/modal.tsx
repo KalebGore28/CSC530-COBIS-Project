@@ -18,7 +18,7 @@ interface ModalProps {
 	description?: string;
 	children: React.ReactNode;
 	footer?: React.ReactNode;
-	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'| 'full';
+	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'| '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
 	contentClassName?: string; // Added: Optional class name for DialogContent
 }
 
@@ -38,7 +38,12 @@ export const Modal: React.FC<ModalProps> = ({
 		lg: 'sm:max-w-lg',
 		xl: 'sm:max-w-xl',
 		"2xl": 'sm:max-w-2xl',
-		full: 'sm:max-w-11/12',
+		"3xl": 'sm:max-w-3xl',
+		"4xl": 'sm:max-w-4xl',
+		"5xl": 'sm:max-w-5xl',
+		"6xl": 'sm:max-w-6xl',
+		"7xl": 'sm:max-w-7xl',
+		full: 'sm:max-w-9/12',
 	};
 
 	// Use cn to merge default size class, custom class, and base styles
