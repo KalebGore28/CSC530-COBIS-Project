@@ -195,7 +195,7 @@ export class InstructorController {
 		let departmentCode: string | undefined;
 
 		// If the user is a department chair, get their department code
-		if (isDeptChair) {
+		if (isDeptChair && !isCOBISAdmin) {
 			departmentCode = authReq.department || undefined;
 			if (!departmentCode) {
 				res.status(400).json({ error: 'Department chair has no associated department' });

@@ -42,7 +42,7 @@ export interface Student {
 	suffix?: string;
 	email: string;
 	age: number;
-	residencyDescription: string;
+	gender: string;
 }
 
 export interface AdvisorAdvisedStudentsProps {
@@ -140,7 +140,7 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 								<TableHead>Name</TableHead>
 								<TableHead>Email</TableHead>
 								<TableHead>Age</TableHead>
-								<TableHead>Residency</TableHead>
+								<TableHead>Gender</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -157,9 +157,9 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 											<TableCell>
 												{`${s.lastName}, ${s.firstName}${s.middleName ? ' ' + s.middleName : ''}${s.suffix ? ' ' + s.suffix : ''}`}
 											</TableCell>
-											<TableCell>{s.email}</TableCell>
+											<TableCell>{s.email.toLowerCase()}</TableCell>
 											<TableCell>{s.age}</TableCell>
-											<TableCell>{s.residencyDescription}</TableCell>
+											<TableCell>{s.gender === 'M' ? 'Male' : 'Female'}</TableCell>
 										</TableRow>
 									))
 									: (

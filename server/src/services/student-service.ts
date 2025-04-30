@@ -14,7 +14,9 @@ import {
 	studentCourses,
 	courses,
 	registrationStatus,
-	instructorCourses
+	instructorCourses,
+	admitCodes,
+	user
 } from '../db/schema';
 
 /**
@@ -78,12 +80,17 @@ export class StudentService {
 				academicStandingDescription: academicStanding.description,
 				admitTerm: studentAcademicInfo.admit_term,
 				admitYear: studentAcademicInfo.admit_year,
-				admitCode: studentAcademicInfo.admit_code
+				admitCode: studentAcademicInfo.admit_code,
+				admitCodeDescription: admitCodes.description
 			})
 			.from(studentAcademicInfo)
 			.leftJoin(
 				academicStanding,
 				eq(studentAcademicInfo.academic_standing, academicStanding.code)
+			)
+			.leftJoin(
+				admitCodes,
+				eq(studentAcademicInfo.admit_code, admitCodes.code)
 			)
 			.where(eq(studentAcademicInfo.mnumber, mnumber))
 			.limit(1);
@@ -112,12 +119,14 @@ export class StudentService {
 				college: colleges.code,
 				collegeDescription: colleges.description,
 				term: studentPrograms.term,
+				termDescription: terms.description,
 				year: studentPrograms.year
 			})
 			.from(studentPrograms)
 			.innerJoin(programs, eq(studentPrograms.program, programs.code))
 			.leftJoin(departments, eq(programs.department, departments.code))
 			.leftJoin(colleges, eq(programs.college, colleges.code))
+			.leftJoin(terms, eq(studentPrograms.term, terms.code))
 			.where(eq(studentPrograms.mnumber, mnumber))
 			.orderBy(desc(studentPrograms.year), desc(studentPrograms.term), studentPrograms.type);
 
@@ -130,9 +139,16 @@ export class StudentService {
 			.select({
 				advisorMnumber: studentAdvisors.advisor_mnumber,
 				term: studentAdvisors.term,
-				year: studentAdvisors.year
+				termDescription: terms.description,
+				year: studentAdvisors.year,
+				firstName: faculty.first_name,
+				lastName: faculty.last_name,
+				email: user.email
 			})
 			.from(studentAdvisors)
+			.leftJoin(terms, eq(studentAdvisors.term, terms.code))
+			.leftJoin(faculty, eq(studentAdvisors.advisor_mnumber, faculty.mnumber))
+			.leftJoin(user, eq(studentAdvisors.advisor_mnumber, user.mnumber))
 			.where(eq(studentAdvisors.student_mnumber, mnumber))
 			.orderBy(desc(studentAdvisors.year), desc(studentAdvisors.term));
 
@@ -151,6 +167,7 @@ export class StudentService {
 					college: p.collegeDescription,
 					level: p.level,
 					term: p.term,
+					termDescription: p.termDescription,
 					year: p.year
 				})),
 				minors: minorPrograms.map(p => ({
@@ -160,13 +177,18 @@ export class StudentService {
 					college: p.collegeDescription,
 					level: p.level,
 					term: p.term,
+					termDescription: p.termDescription,
 					year: p.year
 				}))
 			},
 			advisors: currentAdvisors.map(a => ({
 				mnumber: a.advisorMnumber,
 				term: a.term,
-				year: a.year
+				termDescription: a.termDescription,
+				year: a.year,
+				firstName: a.firstName,
+				lastName: a.lastName,
+				email: a.email || 'Not Available'
 			}))
 		};
 	}
