@@ -23,4 +23,9 @@ export const studentAdvisorRelations = relations(studentAdvisors, ({ one }) => (
 		fields: [studentAdvisors.term],
 		references: [terms.code],
 	}),
+	// left out faculty relationship since it isn't guaranteed to be in the faculty table.
+	// the advisor info is given by the demographics csv. the faculty table is populated
+	// from the reg_cuba_courses_during_term.csv file, so it may not have all advisors.
+	// so we just don't declare the relationship here. we can use sql to get the
+	// advisor info from the faculty table if needed.
 }));

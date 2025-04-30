@@ -8,6 +8,7 @@ export const academicStanding = sqliteTable("academic_standing", {
 	description: text("description").notNull(),
 });
 
+// Define relationships for DBML generation
 export const academicStandingRelations = relations(academicStanding, ({ many }) => ({
 	studentAcademicInfo: many(studentAcademicInfo)
 }));

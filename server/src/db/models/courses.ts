@@ -2,7 +2,6 @@ import { sqliteTable, text, real, int, primaryKey } from "drizzle-orm/sqlite-cor
 import { sql, relations } from "drizzle-orm";
 
 import { instructorCourses } from "./instructor-courses";
-import { overrides } from "./overrides";
 import { studentCourses } from "./student-courses";
 
 export const courses = sqliteTable("courses", {
@@ -20,6 +19,5 @@ export const courses = sqliteTable("courses", {
 
 export const coursesRelations = relations(courses, ({ many }) => ({
 	instructor_courses: many(instructorCourses),
-	overrides: many(overrides),
 	student_courses: many(studentCourses),
 }));

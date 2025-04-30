@@ -32,27 +32,27 @@ export const studentCourses = sqliteTable("student_courses", {
 
 // Define relationships for DBML generation
 export const studentCourseRelations = relations(studentCourses, ({ one }) => ({
-	student: one(students, { // Student courses have a student
+	student: one(students, {
 		fields: [studentCourses.mnumber],
 		references: [students.mnumber],
 	}),
-	term: one(terms, { // Student courses have a term
+	term: one(terms, {
 		fields: [studentCourses.term],
 		references: [terms.code],
 	}),
-	partOfTerm: one(partOfTerm, { // Student courses have a part of term
+	partOfTerm: one(partOfTerm, {
 		fields: [studentCourses.part_of_term],
 		references: [partOfTerm.code],
 	}),
-	course: one(courses, { // Student courses have a course
+	course: one(courses, {
 		fields: [studentCourses.course_subject, studentCourses.course_number, studentCourses.course_suffix],
 		references: [courses.subject, courses.number, courses.suffix],
 	}),
-	registrationStatus: one(registrationStatus, { // Student courses have a registration status
+	registrationStatus: one(registrationStatus, {
 		fields: [studentCourses.registration_status],
 		references: [registrationStatus.code],
 	}),
-	instructionalMethod: one(instructionalMethods, { // Student courses have an instructional method
+	instructionalMethod: one(instructionalMethods, {
 		fields: [studentCourses.instructional_method],
 		references: [instructionalMethods.code],
 	}),

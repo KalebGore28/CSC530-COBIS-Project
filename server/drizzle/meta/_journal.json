@@ -8,6 +8,13 @@
       "when": 1744858787777,
       "tag": "0000_nappy_vanisher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1746043129918,
+      "tag": "0001_clumsy_celestials",
+      "breakpoints": true
     }
   ]
 }
