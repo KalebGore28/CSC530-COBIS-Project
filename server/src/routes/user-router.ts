@@ -23,4 +23,8 @@ router.post('/:userId/enable', UserController.enableUser);
 router.post('/:userId/disable', UserController.disableUser);
 router.put('/:userId/provision', UserController.provisionUser);
 
+// Enable/disable user routes
+router.post('/enable/:userId', UserController.enableUser);
+router.post('/disable/:userId', UserController.disableUser);
+
 export default router; 
