@@ -3,7 +3,7 @@ import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
-import ClassRosterComponent, { Student } from "@/components/features/roster/roster"; // Assuming Student type is exported here
+import Roster, { Student } from "@/components/features/roster/roster"; // Assuming Student type is exported here
 import { Separator } from "@/components/ui/separator";
 
 // --- Import the Modal and StudentDetail components ---
@@ -66,7 +66,6 @@ const ClassRosterPage: React.FC = () => {
 		setSelectedStudentName('');
 	};
 
-
 	return (
 		<div className="container p-6 mx-auto space-y-6">
 			<h1 className="text-2xl font-bold">Class Roster</h1>
@@ -106,7 +105,7 @@ const ClassRosterPage: React.FC = () => {
 						<>
 							<Separator className="my-6" />
 							{/* Pass the modal opening handler to the ClassRosterComponent */}
-							<ClassRosterComponent
+							<Roster
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
 								// Connect the component's output to our modal handler
