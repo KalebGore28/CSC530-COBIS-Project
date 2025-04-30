@@ -18,7 +18,7 @@ interface ModalProps {
 	description?: string;
 	children: React.ReactNode;
 	footer?: React.ReactNode;
-	size?: 'sm' | 'md' | 'lg' | 'xl';
+	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'| 'full';
 	contentClassName?: string; // Added: Optional class name for DialogContent
 }
 
@@ -37,6 +37,8 @@ export const Modal: React.FC<ModalProps> = ({
 		md: 'sm:max-w-md',
 		lg: 'sm:max-w-lg',
 		xl: 'sm:max-w-xl',
+		"2xl": 'sm:max-w-2xl',
+		full: 'sm:max-w-11/12',
 	};
 
 	// Use cn to merge default size class, custom class, and base styles
@@ -52,7 +54,7 @@ export const Modal: React.FC<ModalProps> = ({
 		}}>
 			{/* Apply the merged classes here */}
 			<DialogContent className={dialogContentClasses} onEscapeKeyDown={onClose} onPointerDownOutside={onClose}>
-				<DialogHeader className="px-6 pt-6 pb-4 border-b"> {/* Added border */}
+				<DialogHeader className="p-4 border-b"> {/* Added border */}
 					<div className="flex items-center justify-between">
 						<DialogTitle className="text-lg font-semibold">{title}</DialogTitle> {/* Adjusted font */}
 						<DialogClose asChild>

@@ -74,28 +74,28 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 
 	useEffect(() => {
 		(async () => {
-		  setIsLoading(true);
-		  setError(null);
-		  try {
-			const url = `/api/advisor/${mnumber}`;
-			const response = await axios.get<AdvisorAPIResponse>(url, {
-			  params: { term, year },
-			  withCredentials: true,
-			});
+			setIsLoading(true);
+			setError(null);
+			try {
+				const url = `/api/advisor/${mnumber}`;
+				const response = await axios.get<AdvisorAPIResponse>(url, {
+					params: { term, year },
+					withCredentials: true,
+				});
 
-			setStudents(response.data.advisedStudents);
-			setShownTermAndYear({
-			  term: response.data.term,
-			  year: response.data.year,
-			  termName: response.data.termName,
-			});
-		  } catch (err: any) {
-			// …same error handling…
-		  } finally {
-			setIsLoading(false);
-		  }
+				setStudents(response.data.advisedStudents);
+				setShownTermAndYear({
+					term: response.data.term,
+					year: response.data.year,
+					termName: response.data.termName,
+				});
+			} catch (err: any) {
+				// …same error handling…
+			} finally {
+				setIsLoading(false);
+			}
 		})();
-	  }, [mnumber, term, year]);
+	}, [mnumber, term, year]);
 
 	const renderSkeletons = () =>
 		Array.from({ length: 5 }).map((_, i) => (
@@ -177,7 +177,8 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 			<Modal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
-				title={`Student Details — ${selectedName}`}
+				title={`Student Detail: ${selectedName}`}
+				size='full'
 			>
 				{selectedMnumber && (
 					<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
