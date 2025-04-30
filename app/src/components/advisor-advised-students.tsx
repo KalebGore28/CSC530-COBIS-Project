@@ -66,6 +66,7 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
 	const [selectedName, setSelectedName] = useState<string>('');
+	
 	const [shownTermAndYear, setShownTermAndYear] = useState<ShownTermAndYear>({
 		term: '',
 		year: 0,

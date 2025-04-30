@@ -3,18 +3,26 @@ import { StudentFilters } from "@/components/student-filters";
 import { FilterState } from "@/components/student-filters";
 import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Modal } from "@/components/modals/modal";
+import { StudentDetail } from "@/components/student-detail";
 
-
-interface Student {
+export interface Student {
 	mnumber: string;
-	first_name: string;
-	last_name: string;
+	firstName: string;
+	middleName?: string;
+	lastName: string;
+	suffix?: string;
 	email: string;
+	age: number;
+	gender: string;
 }
 
 const StudentLookup = () => {
 	const [results, setResults] = useState<Student[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
+	const [isModalOpen, setIsModalOpen] = useState(false);
+	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
+	const [selectedName, setSelectedName] = useState<string>('');
 
 	const fetchStudents = async (filters: FilterState) => {
 		setIsLoading(true);
@@ -88,33 +96,69 @@ const StudentLookup = () => {
 		}
 	};
 
+	const handleStudentClick = (s: Student) => {
+		setSelectedMnumber(s.mnumber);
+		setSelectedName(`${s.firstName} ${s.lastName}`);
+		setIsModalOpen(true);
+	};
+
+	// If loading, show a loading message
+	if (isLoading) {
+		return (
+			<div className="p-6">
+				<StudentFilters onApplyFilters={fetchStudents} />
+				<div className="mt-6">
+					<p>Loading...</p>
+				</div>
+			</div>
+		);
+	}
+
+	// If no results are found, show a message
+	if (results.length < 0) {
+		return (
+			<div className="p-6">
+				<StudentFilters onApplyFilters={fetchStudents} />
+				<div className="mt-6">
+					<p>No students found.</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="p-6">
 			<StudentFilters onApplyFilters={fetchStudents} />
 			<div className="mt-6">
-				{isLoading ? (
-					<p>Loading...</p>
-				) : results.length > 0 ? (
-					<Card>
-						<CardHeader>
-							<CardTitle>Student Results</CardTitle>
-						</CardHeader>
-						<CardContent className="p-4"> {/* Add padding here */}
-							<PaginatedTable
-								data={results}
-								columns={[
-									{ key: "mnumber", label: "MNumber" },
-									{ key: "firstName", label: "First Name" },
-									{ key: "lastName", label: "Last Name" },
-									{ key: "email", label: "Email" },
-								]}
-								rowsPerPage={10}
-							/>
-						</CardContent>
-					</Card>
-				) : (
-					<p>No students found.</p>
-				)}
+				<Card>
+					<CardHeader>
+						<CardTitle>Student Results</CardTitle>
+					</CardHeader>
+					<CardContent className="p-4"> {/* Add padding here */}
+						<PaginatedTable
+							data={results}
+							columns={[
+								{ key: "mnumber", label: "MNumber" },
+								{ key: "firstName", label: "First Name" },
+								{ key: "lastName", label: "Last Name" },
+								{ key: "email", label: "Email" },
+							]}
+							rowsPerPage={10}
+							onRowClick={handleStudentClick}
+						/>
+					</CardContent>
+
+					<Modal
+						isOpen={isModalOpen}
+						onClose={() => setIsModalOpen(false)}
+						title={`Student Detail: ${selectedName}`}
+						size='5xl'
+					>
+						{selectedMnumber && (
+							<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
+						)}
+					</Modal>
+				</Card>
 			</div>
 		</div>
 	);
