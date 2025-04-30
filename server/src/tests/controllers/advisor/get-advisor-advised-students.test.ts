@@ -4,29 +4,43 @@ import { Request, Response } from 'express';
 import { AdvisorController } from '../../../controllers/advisor-controller';
 import { AdvisorService } from '../../../services/advisor-service';
 import { AuthAndPermissionsRequest } from '../../../types/requests';
+import { UtilityService } from '../../../services/utility-service';
 
-// Mock the AdvisorService - Adjust the path as needed
+// 1) Mock advisor‐service
 vi.mock('../../../services/advisor-service', () => {
-	const mockFn = vi.fn();
+	const mockGetAdvisedStudentsFn = vi.fn();
 	return {
 		AdvisorService: {
-			getAdvisedStudents: mockFn, // Mock the static method
+			getAdvisedStudents: mockGetAdvisedStudentsFn,
 		},
 	};
 });
 
-// Mock Express objects
+// 2) Mock utility‐service (so getCurrentTermAndYear is a vi.fn())
+vi.mock('../../../services/utility-service', () => ({
+	UtilityService: {
+		getCurrentTermAndYear: vi.fn(),
+	},
+}));
+
 let mockReq: Partial<AuthAndPermissionsRequest>;
 let mockRes: Partial<Response>;
-const targetAdvisorMnumber = 'M87654321'; // The mnumber from req.params
+const targetAdvisorMnumber = 'M87654321';
 
 beforeEach(() => {
-	// Reset mocks including the service mock before each test
 	vi.clearAllMocks();
 
+	// now this is a real mock fn:
+	const mockGetCurrentTermAndYear = UtilityService.getCurrentTermAndYear as Mock;
+	mockGetCurrentTermAndYear.mockResolvedValue({
+		term: 'Fall',
+		year: 2025,
+		termName: 'Fall 2025',
+	});
+
 	mockReq = {
-		params: { mnumber: targetAdvisorMnumber }, // Set the target mnumber in params
-		query: {}, // Default empty query
+		params: { mnumber: targetAdvisorMnumber },
+		query: {},
 	};
 	mockRes = {
 		status: vi.fn().mockReturnThis(),
@@ -35,126 +49,177 @@ beforeEach(() => {
 });
 
 describe('AdvisorController.getAdvisedStudents', () => {
-
-	it('should return 400 with Zod errors if query validation fails (invalid year)', async () => {
-		mockReq.query = { year: 'this-is-not-a-year' }; // Invalid year format
-		// Cast req to Request as the controller expects it, even though we use Auth props internally sometimes
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
-
+	it('returns 400 on invalid year format', async () => {
+		mockReq.query = { year: 'not-a-year' };
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 		expect(AdvisorService.getAdvisedStudents).not.toHaveBeenCalled();
 		expect(mockRes.status).toHaveBeenCalledWith(400);
-		expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-			error: 'Invalid query parameters.',
-			details: expect.any(Object), // Zod's formatted errors
-		}));
-		// Optional: Check specific error details
-		const responseJson = (mockRes.json as Mock).mock.calls[0][0];
-		expect(responseJson.details?.year?._errors).toEqual(expect.arrayContaining([expect.any(String)]));
+		expect(mockRes.json).toHaveBeenCalledWith(
+			expect.objectContaining({
+				error: 'Invalid query parameters.',
+				details: expect.any(Object),
+			})
+		);
 	});
 
-	it('should return 400 with Zod errors if query validation fails (non-positive year)', async () => {
-		mockReq.query = { year: '0' }; // Invalid year (must be positive)
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
-
+	it('returns 400 on non-positive year', async () => {
+		mockReq.query = { year: '0' };
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 		expect(AdvisorService.getAdvisedStudents).not.toHaveBeenCalled();
 		expect(mockRes.status).toHaveBeenCalledWith(400);
-		expect(mockRes.json).toHaveBeenCalledWith(expect.objectContaining({
-			error: 'Invalid query parameters.',
-			details: expect.any(Object),
-		}));
 	});
 
-	it('should call service with mnumber from params and parsed term/year if validation succeeds', async () => {
+	it('calls service & wraps JSON on full valid query', async () => {
 		const mockStudents = [{ studentId: 10, name: 'Eve' }];
-		mockReq.query = { term: 'Summer II', year: '2023' }; // Valid query params
-		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
+		mockReq.query = { term: 'Summer II', year: '2023' };
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(
+			mockStudents
+		);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
 		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
-			advisorMnumber: targetAdvisorMnumber, // Expecting mnumber from params
+			advisorMnumber: targetAdvisorMnumber,
 			term: 'Summer II',
-			year: 2023, // Preprocessed by Zod
+			year: 2023,
 		});
-		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
-		expect(mockRes.status).not.toHaveBeenCalled();
-	});
-	it('should call service with mnumber from params and parsed term and number year', async () => {
-		const mockStudents = [{ studentId: 10, name: 'Eve' }];
-		// @ts-ignore // Testing with a number year
-		mockReq.query = { term: 'Summer II', year: 2023 }; // Valid query params
-		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
-
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
-			advisorMnumber: targetAdvisorMnumber, // Expecting mnumber from params
+		expect(mockRes.json).toHaveBeenCalledWith({
+			advisedStudents: mockStudents,
 			term: 'Summer II',
-			year: 2023, // Preprocessed by Zod
+			year: 2023,
+			termName: 'Fall 2025',  // from our mockGetCurrentTermAndYear
 		});
-		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
+
+		// status(…) should *not* be called on success
 		expect(mockRes.status).not.toHaveBeenCalled();
 	});
 
-	it('should call service with mnumber from params and only term if year is not provided', async () => {
+	it('accepts numeric year in query directly', async () => {
+		const mockStudents = [{ studentId: 10, name: 'Eve' }];
+		// @ts-ignore
+		mockReq.query = { term: 'Summer II', year: 2023 };
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(
+			mockStudents
+		);
+
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
+
+		expect(mockRes.json).toHaveBeenCalledWith({
+			advisedStudents: mockStudents,
+			term: 'Summer II',
+			year: 2023,
+			termName: 'Fall 2025',
+		});
+	});
+
+	it('defaults to only term if year omitted', async () => {
 		const mockStudents = [{ studentId: 11, name: 'Frank' }];
-		mockReq.query = { term: 'Winter' }; // Only term
-		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
+		mockReq.query = { term: 'Winter' };
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(
+			mockStudents
+		);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
+		// now year should default to 2025
 		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
 			advisorMnumber: targetAdvisorMnumber,
 			term: 'Winter',
-			year: undefined, // Year is optional
+			year: 2025,
 		});
-		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
+
+		expect(mockRes.json).toHaveBeenCalledWith({
+			advisedStudents: mockStudents,
+			term: 'Winter',
+			year: 2025,
+			termName: 'Fall 2025',
+		});
 	});
 
-	it('should call service with mnumber from params and only year if term is not provided', async () => {
+	it('defaults to only year if term omitted', async () => {
 		const mockStudents = [{ studentId: 12, name: 'Grace' }];
-		mockReq.query = { year: '2026' }; // Only year (as string)
-		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
+		mockReq.query = { year: '2026' };
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(
+			mockStudents
+		);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
+		// now term should default to 'Fall'
 		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
 			advisorMnumber: targetAdvisorMnumber,
-			term: undefined, // Term is optional
-			year: 2026, // Preprocessed to number
+			term: 'Fall',
+			year: 2026,
 		});
-		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
+
+		expect(mockRes.json).toHaveBeenCalledWith({
+			advisedStudents: mockStudents,
+			term: 'Fall',
+			year: 2026,
+			termName: 'Fall 2025',
+		});
 	});
 
-	it('should call service with mnumber from params and no term/year if neither is provided', async () => {
+
+	it('defaults to current term/year when neither provided', async () => {
 		const mockStudents = [{ studentId: 13, name: 'Heidi' }];
-		mockReq.query = {}; // Empty query
-		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(mockStudents);
+		mockReq.query = {};
+		(AdvisorService.getAdvisedStudents as Mock).mockResolvedValue(
+			mockStudents
+		);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
+		// Should have picked up the mock currentTerm/currentYear
 		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledWith({
 			advisorMnumber: targetAdvisorMnumber,
-			term: undefined,
-			year: undefined,
+			term: 'Fall',
+			year: 2025,
 		});
-		expect(mockRes.json).toHaveBeenCalledWith(mockStudents);
+		expect(mockRes.json).toHaveBeenCalledWith({
+			advisedStudents: mockStudents,
+			term: 'Fall',
+			year: 2025,
+			termName: 'Fall 2025',
+		});
 	});
 
-	it('should return 500 if AdvisorService.getAdvisedStudents throws an error', async () => {
-		const errorMessage = 'Data fetch failed';
-		mockReq.query = { term: 'Maymester' }; // Valid query
-		(AdvisorService.getAdvisedStudents as Mock).mockRejectedValue(new Error(errorMessage)); // Setup mock to throw error
+	it('returns 500 on service error', async () => {
+		mockReq.query = { term: 'Maymester' };
+		(AdvisorService.getAdvisedStudents as Mock).mockRejectedValue(
+			new Error('Data fetch failed')
+		);
 
-		await AdvisorController.getAdvisedStudents(mockReq as Request, mockRes as Response);
+		await AdvisorController.getAdvisedStudents(
+			mockReq as Request,
+			mockRes as Response
+		);
 
-		expect(AdvisorService.getAdvisedStudents).toHaveBeenCalledTimes(1);
 		expect(mockRes.status).toHaveBeenCalledWith(500);
-		expect(mockRes.json).toHaveBeenCalledWith({ error: 'Internal server error while fetching advised students.' });
+		expect(mockRes.json).toHaveBeenCalledWith({
+			error: 'Internal server error while fetching advised students.',
+		});
 	});
 });

@@ -110,50 +110,6 @@ export class AdvisorController {
 	}
 
 	/**
-	 * Get students advised by the currently logged-in user.
-	 */
-	static async getUserAdvisedStudents(req: Request, res: Response) {
-		const authReq = req as AuthAndPermissionsRequest;
-
-		// 1) validate advisor identifier
-		if (!authReq.mnumber) {
-			res.status(400).json({ error: 'Invalid advisor identifier.' });
-			return;
-		}
-
-		// 2) validate & parse query
-		const parsed = getAdvisedStudentsQuerySchema.safeParse(req.query);
-		if (!parsed.success) {
-			// send back detailed Zod errors
-			res.status(400).json({
-				error: 'Invalid query parameters.',
-				details: parsed.error.format(),
-			});
-			return;
-		}
-
-		// 3) Fetch data
-		try {
-			// Get current term and year if not provided
-			const { term: currentTerm, year: currentYear } = await UtilityService.getCurrentTermAndYear();
-
-			const { term = currentTerm, year = currentYear } = parsed.data;
-
-
-			const advisedStudents = await AdvisorService.getAdvisedStudents({
-				advisorMnumber: authReq.mnumber!,
-				term,
-				year,
-			});
-			res.json(advisedStudents);
-			return;
-		} catch (error) {
-			res.status(500).json({ error: 'Internal server error while fetching advised students.' });
-			return;
-		}
-	}
-
-	/**
 	 * Get students advised by a specific advisor.
 	 */
 	static async getAdvisedStudents(req: Request, res: Response) {
