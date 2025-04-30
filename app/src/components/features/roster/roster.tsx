@@ -380,7 +380,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 								/>
 							</div>
 							<Select value={gradeFilter} onValueChange={setGradeFilter}>
-								<SelectTrigger className="w-full sm:w-32">
+								<SelectTrigger className="w-full sm:w-40">
 									<Filter className="mr-2 h-4 w-4" />
 									<SelectValue placeholder="Filter" />
 								</SelectTrigger>
