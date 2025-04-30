@@ -102,18 +102,6 @@ const StudentLookup = () => {
 		setIsModalOpen(true);
 	};
 
-	// If loading, show a loading message
-	if (isLoading) {
-		return (
-			<div className="p-6">
-				<StudentFilters onApplyFilters={fetchStudents} />
-				<div className="mt-6">
-					<p>Loading...</p>
-				</div>
-			</div>
-		);
-	}
-
 	// If no results are found, show a message
 	if (results.length <= 0) {
 		return (
@@ -145,6 +133,7 @@ const StudentLookup = () => {
 					</CardHeader>
 					<CardContent className="p-4"> {/* Add padding here */}
 						<PaginatedTable
+							isLoading={isLoading}
 							className="border"
 							data={results}
 							columns={[

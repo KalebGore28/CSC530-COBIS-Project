@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import {
 	Table,
 	TableHeader,
@@ -8,6 +8,7 @@ import {
 	TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const DOTS = '...';
 
@@ -21,41 +22,37 @@ function getPaginationItems(
 	siblingCount: number
 ): (number | string)[] {
 	const totalPageNumbers = siblingCount * 2 + 5;
-	// If the number of pages is small, show all pages
 	if (totalPages <= totalPageNumbers) {
 		return range(1, totalPages);
 	}
 
 	const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
 	const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-
 	const shouldShowLeftDots = leftSiblingIndex > 2;
 	const shouldShowRightDots = rightSiblingIndex < totalPages - 2;
-
 	const firstPageIndex = 1;
 	const lastPageIndex = totalPages;
 
-	// No left dots, but right dots
 	if (!shouldShowLeftDots && shouldShowRightDots) {
 		const leftItemCount = 3 + 2 * siblingCount;
-		const leftRange = range(1, leftItemCount);
-		return [...leftRange, DOTS, totalPages];
+		return [...range(1, leftItemCount), DOTS, totalPages];
 	}
 
-	// No right dots, but left dots
 	if (shouldShowLeftDots && !shouldShowRightDots) {
-		const rightItemCount = 3 + 2 * siblingCount;
-		const rightRange = range(totalPages - rightItemCount + 1, totalPages);
-		return [firstPageIndex, DOTS, ...rightRange];
+		const itemCount = 3 + 2 * siblingCount;
+		return [firstPageIndex, DOTS, ...range(lastPageIndex - itemCount + 1, lastPageIndex)];
 	}
 
-	// Both left and right dots
 	if (shouldShowLeftDots && shouldShowRightDots) {
-		const middleRange = range(leftSiblingIndex, rightSiblingIndex);
-		return [firstPageIndex, DOTS, ...middleRange, DOTS, lastPageIndex];
+		return [
+			firstPageIndex,
+			DOTS,
+			...range(leftSiblingIndex, rightSiblingIndex),
+			DOTS,
+			lastPageIndex,
+		];
 	}
 
-	// Fallback to showing all pages
 	return range(1, totalPages);
 }
 
@@ -69,6 +66,7 @@ interface PaginatedTableProps<T> {
 	columns: Column[];
 	rowsPerPage?: number;
 	onRowClick?: (row: T) => void;
+	isLoading?: boolean;
 	className?: string;
 	[key: string]: any;
 }
@@ -78,6 +76,7 @@ export function PaginatedTable<T>({
 	columns,
 	rowsPerPage = 10,
 	onRowClick,
+	isLoading = false,
 	className,
 	...tableProps
 }: PaginatedTableProps<T>) {
@@ -109,7 +108,7 @@ export function PaginatedTable<T>({
 
 	return (
 		<div className="space-y-4">
-			{data.length > 0 && (
+			{data.length > 0 && !isLoading && (
 				<div className="text-sm text-muted-foreground">
 					Showing{' '}
 					<strong>{Math.min((currentPage - 1) * rowsPerPage + 1, data.length)}</strong>-
@@ -127,36 +126,41 @@ export function PaginatedTable<T>({
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{currentData.length > 0 ? (
-						currentData.map((row, rowIndex) => (
-							<TableRow
-								key={rowIndex}
-								onClick={onRowClick ? () => onRowClick(row) : undefined}
-								className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
-							>
+					{isLoading
+						? Array.from({ length: rowsPerPage }).map((_, i) => (
+							<TableRow key={`skeleton-${i}`}>
 								{columns.map((col) => (
-									<TableCell key={col.key}>{(row as any)[col.key]}</TableCell>
+									<TableCell key={col.key}>
+										<Skeleton className="h-4 w-full" />
+									</TableCell>
 								))}
 							</TableRow>
 						))
-					) : (
-						<TableRow>
-							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No results found.
-							</TableCell>
-						</TableRow>
-					)}
+						: currentData.length > 0
+							? currentData.map((row, rowIndex) => (
+								<TableRow
+									key={rowIndex}
+									onClick={onRowClick ? () => onRowClick(row) : undefined}
+									className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
+								>
+									{columns.map((col) => (
+										<TableCell key={col.key}>{(row as any)[col.key]}</TableCell>
+									))}
+								</TableRow>
+							))
+							: (
+								<TableRow>
+									<TableCell colSpan={columns.length} className="h-24 text-center">
+										No results found.
+									</TableCell>
+								</TableRow>
+							)}
 				</TableBody>
 			</Table>
 
-			{totalPages > 1 && (
+			{!isLoading && totalPages > 1 && (
 				<div className="flex justify-end items-center gap-2">
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handlePrevious}
-						disabled={currentPage === 1}
-					>
+					<Button variant="outline" size="sm" onClick={handlePrevious} disabled={currentPage === 1}>
 						← Previous
 					</Button>
 					{paginationItems.map((item, idx) =>
@@ -175,12 +179,7 @@ export function PaginatedTable<T>({
 							</Button>
 						)
 					)}
-					<Button
-						variant="outline"
-						size="sm"
-						onClick={handleNext}
-						disabled={currentPage === totalPages}
-					>
+					<Button variant="outline" size="sm" onClick={handleNext} disabled={currentPage === totalPages}>
 						Next →
 					</Button>
 				</div>
