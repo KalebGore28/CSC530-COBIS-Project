@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import fs from 'fs';
 import { ImportService } from '../services/import-service';
+import { getLookupTableByTableId } from '../services/column-mapping-service';
 
 /**
  * Controller for handling data import operations
@@ -11,24 +11,21 @@ export class ImportController {
 	 */
 	static async processImport(req: Request, res: Response) {
 		try {
-			// Check if file was uploaded
-			if (!req.file) {
-				res.status(400).json({ error: 'No file uploaded' });
-				return;
-			}
 
-			const fileName = req.file.originalname;
-			const filePath = req.file.path;
-			const importedBy = req.body.importedBy || 'system';
-			const tableId = req.body.tableId; // Optional for lookup tables
-			const category = req.body.category; // Optional category
+			const { csvData, tableId, columnMapping } = req.body;
+
+			let _columnMapping = columnMapping;
+
+			// If columnMapping is not provided, try to find it based on the tableId
+			if (!_columnMapping && tableId) {
+				_columnMapping = getLookupTableByTableId(tableId);
+			}
 
 			try {
 				// Process the CSV import
 				const result = await ImportService.processImport(
-					filePath,
-					fileName,
-					importedBy,
+					csvData,
+					_columnMapping,
 					tableId
 				);
 
@@ -36,29 +33,15 @@ export class ImportController {
 				res.json(result);
 				return;
 			} catch (error: any) {
-				console.error(`Error in import process:`, error);
-
 				// Return a more detailed error response
 				res.status(400).json({
 					error: error.message,
 					category: tableId ? 'lookup' : 'data',
-					fileName,
 					tableId: tableId || null
 				});
 				return;
-			} finally {
-				// Clean up the uploaded file
-				if (fs.existsSync(filePath)) {
-					fs.unlinkSync(filePath);
-				}
 			}
 		} catch (error: any) {
-			// Clean up the file if it exists
-			if (req.file?.path && fs.existsSync(req.file.path)) {
-				fs.unlinkSync(req.file.path);
-			}
-
-			console.error(`Error in import process:`, error);
 			res.status(500).json({
 				error: 'Error processing import',
 				message: error.message
@@ -75,7 +58,6 @@ export class ImportController {
 			const importInfo = ImportService.getImportInfo();
 			res.json(importInfo);
 		} catch (error: any) {
-			console.error('Error fetching import information:', error);
 			res.status(500).json({
 				error: 'Error fetching import information',
 				message: error.message

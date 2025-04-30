@@ -1,14 +1,15 @@
+/* v8 ignore next 100 */ // Not easy to test since it relies on Better Auth
+
 import { Request, Response, NextFunction } from 'express';
 import { AuthenticatedRequest, AuthAndPermissionsRequest } from '../types/requests';
 import { getDbConnection } from '../db/connection';
-import { eq, and } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import {
 	roles,
 	userRoles,
 	user,
 	faculty,
 } from '../db/schema';
-
 
 /**
  * Middleware to attach user permissions to the request object.
@@ -75,6 +76,21 @@ export const getUserInfo = async (
 		(req as AuthAndPermissionsRequest).college = collegeCode;
 		(req as AuthAndPermissionsRequest).mnumber = userMnumber;
 		(req as AuthAndPermissionsRequest).isEnabled = userIsEnabled;
+
+		// Check if user is enabled
+		if (!userIsEnabled) {
+			res.status(403).json({ error: 'Forbidden: User is disabled' });
+			return;
+		}
+
+		// Set the last login time
+		const lastLogin = new Date();
+		await db
+			.update(user)
+			.set({ lastLogin: lastLogin })
+			.where(eq(user.id, userId))
+			.execute();
+
 		next();
 	} catch (error: any) {
 		next(error);

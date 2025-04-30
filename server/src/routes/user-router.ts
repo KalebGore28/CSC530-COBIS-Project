@@ -1,5 +1,6 @@
 import express from 'express';
 import { UserController } from '../controllers/user-controller';
+import { hasRole } from '../middleware/has-role';
 
 /**
  * User routes
@@ -13,8 +14,14 @@ const router = express.Router();
 // Get current user
 router.get('/me', UserController.getUserInfo);
 
-// Update user's M-number
-router.post('/update-mnumber', UserController.updateMnumber);
+
+// Enable/disable user routes
+router.use(hasRole('cobis_administrator')); // Only allow admin to access these routes
+router.get('/', UserController.getAllUsers);
+router.get('/:userId', UserController.getUser);
+router.post('/:userId/enable', UserController.enableUser);
+router.post('/:userId/disable', UserController.disableUser);
+router.put('/:userId/provision', UserController.provisionUser);
 
 // Enable/disable user routes
 router.post('/enable/:userId', UserController.enableUser);

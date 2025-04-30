@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Page Imports
 import Dashboard from './pages/Dashboard';
@@ -17,81 +17,27 @@ import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 import AdvisorPage from './pages/AdvisorPage';
+import { UserList } from '@/pages/UserPage'; // Adjust path if needed
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
-import { useLoading } from '@/providers/loading-provider';
 import { useRoleContext } from '@/context/role'; // Import useRoleContext
-
-// Import your new ProtectedRoute component
-import ProtectedRoute from '@/components/auth/ProtectedRoute'; // Adjust path if needed
-
-// Keep URL restoration logic (utility functions and initial hooks)
-const URL_STORAGE_KEY = 'initial_app_url';
-// ... (saveInitialUrl, getInitialUrl, clearInitialUrl functions remain the same)
+import ProtectedRoute from '@/components/auth/protected-route'; // Adjust path if needed
 
 export const App: React.FC = () => {
-  const { session, isLoading, refetchSession } = useSession();
-  const { showLoading, hideLoading } = useLoading();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [initialUrlSaved, setInitialUrlSaved] = useState(false);
-  const redirectAttempted = useRef(false);
+  const { session, refetchSession } = useSession();
   const { routePermissions } = useRoleContext();
 
-
-  // --- Keep Existing Hooks for loading, URL restoration ---
-  useEffect(() => {
-    if (!initialUrlSaved) {
-      if (location.pathname !== '/login' && location.pathname !== '/dashboard' && location.pathname !== '/') {
-        saveInitialUrl(location.pathname);
-      }
-      setInitialUrlSaved(true);
-    }
-  }, [location.pathname, initialUrlSaved]);
-
-  useEffect(() => {
-    if (session && !isLoading && location.pathname === '/dashboard' && !redirectAttempted.current) {
-      const savedUrl = getInitialUrl();
-      if (savedUrl && savedUrl !== '/dashboard' && savedUrl !== '/') {
-        redirectAttempted.current = true;
-        clearInitialUrl();
-        setTimeout(() => { navigate(savedUrl, { replace: true }); }, 0);
-      }
-    }
-  }, [session, isLoading, location.pathname, navigate]);
-
-  useEffect(() => {
-    if (isLoading) { showLoading('Loading session...'); }
-    else { hideLoading(); }
-  }, [isLoading, showLoading, hideLoading]);
-
-  // --- Auth Flow ---
-  if (isLoading) return <></>; // Or loading component
-
-  if (!session) {
-    return (
-      <Routes>
-        <Route path="/login" element={<LoginPage />} />
-
-        <Route path="*" element={<Navigate to="/login" state={{ from: location }} replace />} />
-      </Routes>
-    );
-  }
-
+  if (!session) return <LoginPage />;
   if (!session.info.isEnabled) return <WaitingPage />;
   if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
 
-  // --- Application Routes with Protection ---
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Navigate to="dashboard" replace />} />
 
-        <Route path="dashboard" element={
-          <Dashboard />
-        } />
-
+        <Route path="dashboard" element={<Dashboard />} />
 
         {/* Class Roster: Use permissions from context */}
         <Route path="class-roster" element={
@@ -120,6 +66,7 @@ export const App: React.FC = () => {
           <Route path="cobis-tools" element={<CobisTools />}>
             <Route path="query-builder" element={<QueryBuilderPage />} />
             <Route path="imports" element={<CsvImport />} />
+            <Route path="users" element={<UserList />} />
           </Route>
         </Route>
 
@@ -130,40 +77,9 @@ export const App: React.FC = () => {
           </ProtectedRoute>
         } />
 
-        {/* Login Redirect */}
-
         {/* Catch-all inside Layout */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Route>
-
-      {/* Standalone Routes */}
-      <Route path="/login" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 };
-
-function saveInitialUrl(url: string) {
-  try {
-    sessionStorage.setItem(URL_STORAGE_KEY, url);
-  } catch (e) {
-    console.error('Failed to save URL to sessionStorage:', e);
-  }
-}
-
-function getInitialUrl(): string | null {
-  try {
-    const url = sessionStorage.getItem(URL_STORAGE_KEY);
-    return url;
-  } catch (e) {
-    console.error('Failed to get URL from sessionStorage:', e);
-    return null;
-  }
-}
-
-function clearInitialUrl() {
-  try {
-    sessionStorage.removeItem(URL_STORAGE_KEY);
-  } catch (e) {
-    console.error('Failed to clear URL from sessionStorage:', e);
-  }
-}

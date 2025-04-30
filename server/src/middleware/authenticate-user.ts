@@ -1,3 +1,4 @@
+/* v8 ignore next 50 */ // Not easy to test since it uses Better Auth
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth"; // Your Better Auth instance
 import { Request, Response, NextFunction } from "express";

@@ -1,11 +1,11 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { AuthAndPermissionsRequest } from "../types/requests";
 
 /**
  * Middleware to check if the user has the required role(s).
  * @param role_name The role_name or array of role_names to check for.
  */
-export const hasRole = (role_name: string | string[]) => {
+export const hasRole = (role_name: string | string[]): RequestHandler => {
 	// Validate role_name type at middleware creation
 	if (Array.isArray(role_name)) {
 		if (!role_name.every((name) => typeof name === "string")) {
@@ -21,7 +21,8 @@ export const hasRole = (role_name: string | string[]) => {
 
 		// Check if userRoles is defined and is an array
 		if (!userRoles || !Array.isArray(userRoles)) {
-			return res.status(403).json({ error: "Forbidden: User roles are not defined" });
+			res.status(403).json({ error: "Forbidden: User roles are not defined" });
+			return;
 		}
 
 		// Determine if the user has the required role(s)
@@ -36,7 +37,8 @@ export const hasRole = (role_name: string | string[]) => {
 
 		// If the user doesn't have the required role(s), return a 403 error
 		if (!hasRequiredRole) {
-			return res.status(403).json({ error: "Forbidden: User does not have the required role" });
+			res.status(403).json({ error: "Forbidden: User does not have the required role" });
+			return;
 		}
 
 		// Proceed to the next middleware or route handler

@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ColumnDefinition, LookupCsvMapping, DataCsvMapping, CsvMapping, TableConfig } from "../../../types/csv-import-types";
+import { ColumnDefinition, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../../../types/csv-import-types";
 import { AlertCircle, CheckCircle2, Columns, Key, Hash, Info } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

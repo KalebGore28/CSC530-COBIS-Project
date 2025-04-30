@@ -36,7 +36,7 @@ const roleNameMap: { [key: string]: string } = {
 const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-	const { session } = useSession();
+	const { session, isLoading: sessionLoading } = useSession();
 	const [roles, setRoles] = useState<Role[]>([]);
 	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
@@ -44,44 +44,51 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/cobis-tools": ["COBIS Admin"],
 		"/cobis-tools/query-builder": ["COBIS Admin"],
 		"/cobis-tools/imports": ["COBIS Admin"],
+		"/cobis-tools/users": ["COBIS Admin"],
 		"/students/lookup": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/instructors": ["Department Chair", "Administrator", "COBIS Admin"],
 		"/class-roster": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
 		"/advisor-page": ["Faculty", "Advisor", "Department Chair", "Administrator", "COBIS Admin"],
 	});
 
+	// 1. Fetch roles from session
 	useEffect(() => {
-		if (session?.info.roles?.length && roles.length === 0) {
-			const fetchedRoles: Role[] = session.info.roles.map((role: { role_id: number; role_name: string }) => ({
-				id: role.role_id,
-				name: roleNameMap[role.role_name] || role.role_name,
-				logo: getLogoForRole(role.role_name),
+		if (!sessionLoading && session?.info.roles?.length) {
+			const fetched = session.info.roles.map(r => ({
+				id: r.role_id,
+				name: roleNameMap[r.role_name] ?? r.role_name,
+				logo: getLogoForRole(r.role_name),
 			}));
-			setRoles(fetchedRoles);
+			setRoles(fetched);
 		}
-	}, [session]); // Only update roles when session.roles become available
+	}, [session, sessionLoading]);
 
-
+	// 2. Once roles are loaded, pick either stored or default
 	useEffect(() => {
-		if (session && roles.length > 0) {
-			const savedRoleId = sessionStorage.getItem("selectedRoleId");
-			if (savedRoleId) {
-				const roleIdNum = Number(savedRoleId);
-				const savedRole = roles.find(role => role.id === roleIdNum);
-				if (savedRole) {
-					setSelectedRole(savedRole); // Restore only if valid
-				}
-			}
-		}
-	}, [session, roles]); // Make sure this runs only when roles are available
+		if (roles.length === 0) return;
 
+		// Try storage first
+		const raw = localStorage.getItem("selectedRoleId");
+		const storedId = raw != null ? Number(raw) : NaN;
+		const fromStorage = roles.find(r => r.id === storedId);
 
+		// Fallback to first role if storage miss
+		const initial = fromStorage ?? roles[0];
+		setSelectedRole(initial);
+	}, [roles]);
+
+	// 3. Persist any change of selectedRole
 	useEffect(() => {
-		if (selectedRole && selectedRole.id !== Number(sessionStorage.getItem("selectedRoleId"))) {
-			sessionStorage.setItem("selectedRoleId", selectedRole.id.toString());
+		if (!selectedRole) return;
+		if (selectedRole) {
+			localStorage.setItem("selectedRoleId", String(selectedRole.id));
 		}
-	}, [selectedRole]); // Update sessionStorage whenever selectedRole changes
+	}, [selectedRole]);
 
+	// Delay until we have a session + at least one role
+	if (sessionLoading || (session && roles.length === 0)) {
+		return null;
+	}
 
 	return (
 		<RoleContext.Provider value={{ roles, selectedRole, setSelectedRole, routePermissions }}>
@@ -89,6 +96,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		</RoleContext.Provider>
 	);
 };
+
 
 // Helper to map display names to logos
 const getLogoForRole = (displayName: string): React.ElementType => {

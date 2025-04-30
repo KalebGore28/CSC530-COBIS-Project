@@ -34,7 +34,6 @@ import {
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 import { GradeDistributions, GradeDistributionData } from '@/components/charts/grade-distributions';
 // Types based on API responses
@@ -303,7 +302,6 @@ const FacultyProfilePage: React.FC = () => {
 
 	return (
 		<div className="container mx-auto py-6 max-w-5xl">
-			<Toaster />
 			<div className="grid gap-6">
 				{/* Header section with profile info */}
 				<div className="flex flex-col md:flex-row gap-6 items-start">

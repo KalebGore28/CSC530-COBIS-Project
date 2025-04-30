@@ -6,38 +6,34 @@ import Papa from "papaparse";
 
 import { FileUpload } from "@/components/features/csv-import/file-upload";
 import { TableSelector } from "@/components/features/csv-import/table-selector";
-import { ColumnMapper } from "@/components/features/csv-import/column-mapper";
 import { CsvPreview } from "@/components/features/csv-import/csv-preview";
 import { ImportResultDisplay } from "@/components/features/csv-import/import-result";
 import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
 
 // Import types
-import { ImportError, ImportInfoResponse, LookupCsvMapping, DataCsvMapping, CsvMapping } from "../types/csv-import-types";
+import { ImportInfoResponse, LookupCsvMapping, DataCsvMapping, ImportResult, ImportError } from "../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 
 const CsvImport: React.FC = () => {
-  const [showSuccess, setShowSuccess] = useState(true);
-  const [fixedCount, setFixedCount] = useState(0);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<DataCsvMapping | null>(null); // This is only the mapping for the data table.
   const [lookupTables, setLookupTables] = useState<LookupCsvMapping[]>([]); // This is a fallback for lookup tables if no mapping is found.
+
   // This value is really only needed for lookup tables, which would be passed in the final import, but its also used to show/hide the column mapper. 
   const [selectedTable, setSelectedTable] = useState<string>("");
 
   // State for parsed CSV data
-  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
-  const [csvData, setCsvData] = useState<string[][]>([]);
-  const [_, setIsParsed] = useState<boolean>(false);
-
-  // Simple state for column mappings
-  const [selectedMappings, setSelectedMappings] = useState<CsvMapping[]>([]);
+  const [csvData, setCsvData] = useState<Record<string, string>[]>([]);
+  const [importResult, setImportResult] = useState<ImportResult | null>(null);
+  const [importErrors, setImportErrors] = useState<ImportError[]>([]);
 
   // Fetch import info
   useEffect(() => {
     const fetchImportInfo = async () => {
       const info = await CsvImportService.getImportInfo();
+      console.log("Import info:", info);
       setImportInfo(info);
     };
     fetchImportInfo();
@@ -68,10 +64,7 @@ const CsvImport: React.FC = () => {
     setSelectedFile(file);
     // Reset parsed data if file changes
     if (!file) {
-      setCsvHeaders([]);
       setCsvData([]);
-      setIsParsed(false);
-      setSelectedMappings([]);
     }
   };
 
@@ -80,47 +73,20 @@ const CsvImport: React.FC = () => {
     setSelectedTable("");
     setMapping(null);
     setLookupTables([]);
-    setCsvHeaders([]);
     setCsvData([]);
-    setIsParsed(false);
-    setSelectedMappings([]);
+    setImportResult(null);
   };
 
+  /**
+   * Transforms PapaParse results (expecting data as string[][]) into an array of objects.
+   */
   const handleParsedData = (results: Papa.ParseResult<unknown>) => {
-    if (results.data && results.data.length > 0) {
-      // Extract headers from the parse result
-      if (results.meta.fields && results.meta.fields.length > 0) {
-        setCsvHeaders(results.meta.fields);
-      }
-
-      // Extract data rows
-      const dataRows: string[][] = [];
-      results.data.forEach((row: any) => {
-        if (typeof row === 'object' && row !== null) {
-          const rowValues = Object.values(row).map(val =>
-            val !== null && val !== undefined ? String(val) : "");
-          dataRows.push(rowValues);
-        }
-      });
-
-      setCsvData(dataRows);
-      setIsParsed(true);
-      console.log('CSV parsed successfully:', results);
-    }
+    setCsvData(results.data as Record<string, string>[]);
   };
 
   const handleTableChange = (tableId: string) => {
-    console.log("Table selected:", tableId);
     setSelectedTable(tableId);
-    setSelectedMappings([]);
   };
-
-  const handleMapChange = (mappings: CsvMapping[]) => {
-    console.log(mappings);
-    setSelectedMappings(mappings)
-
-  };
-
 
   return (
     <div className="max-w-5xl mx-auto p-6">
@@ -136,68 +102,51 @@ const CsvImport: React.FC = () => {
           {/* Step 1: File Upload and Table Selection */}
           <div>
             <h2 className="text-xl font-bold mb-4">Step 1: Select Table and Upload CSV</h2>
-            <div className="grid gap-6">
-              <FileUpload
-                onFileChange={handleFileChange}
-                onClearFile={handleClearFile}
-                onParsedData={handleParsedData}
-                file={selectedFile}
-              />
-              {selectedFile && <TableSelector
-                selectedTable={selectedTable}
-                onTableChange={handleTableChange}
-                mapping={mapping}
-                lookupTables={lookupTables}
-              />}
-            </div>
+            <FileUpload
+              onFileChange={handleFileChange}
+              onClearFile={handleClearFile}
+              onParsedData={handleParsedData}
+              file={selectedFile}
+            />
           </div>
 
           <Separator />
 
-          {/* Step 2: Column Mapping */}
-          {selectedTable && <div>
-            <h2 className="text-xl font-bold mb-4">Step 2: Map CSV Columns to Database Fields</h2>
-            <ColumnMapper
-              csvColumns={csvHeaders}
-              lookupTables={lookupTables}
-              selectedTable={selectedTable}
-              mapping={mapping}
-              onFinishedMapping={handleMapChange}
+          {/* Step 2: Preview Data */}
+          {csvData.length > 0 && <div>
+            <h2 className="text-xl font-bold mb-4">Step 2: Preview Your Data</h2>
+            <CsvPreview
+              csvData={csvData}
+              maxRows={5}
+              highlightSpecialValues={true}
+              minColumnWidth={150}
             />
           </div>}
 
           <Separator />
 
-          {/* Step 3: Preview Data */}
-          <div>
-            <h2 className="text-xl font-bold mb-4">Step 3: Preview Your Data</h2>
-            <CsvPreview
-              headers={csvHeaders}
-              data={csvData}
-              maxRows={5}
-              highlightSpecialValues={true}
-              minColumnWidth={150}
+          {/* Step 3: Table Selector */}
+          {csvData.length > 0 && <div>
+            <h2 className="text-xl font-bold mb-4">Step 3: Select The Table</h2>
+            <TableSelector
+              selectedTable={selectedTable}
+              onTableChange={handleTableChange}
+              mapping={mapping}
+              lookupTables={lookupTables}
             />
-          </div>
+          </div>}
 
           <Separator />
 
           {/* Step 4: Import Results */}
-          <div>
+          {importResult && <div>
             <h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
             <ImportResultDisplay
-              result={{
-                success: true,
-                totalRecords: 5,
-                inserted: 3,
-                updated: 0,
-                skipped: 2,
-                failed: 0
-              }}
+              result={importResult}
             />
-          </div>
+          </div>}
 
-          {!showSuccess && (
+          {false && (
             <>
               <Separator />
 
@@ -218,10 +167,28 @@ const CsvImport: React.FC = () => {
           )}
         </CardContent>
         <CardFooter>
-          {Object.keys(selectedMappings).length > 0 && (
+          {selectedTable && !importResult && (
             <div className="ml-auto">
-              <Button onClick={() => console.log("Final mappings:", selectedMappings)}>
+              <Button onClick={async () => {
+                if (mapping) {
+                  setImportResult(await CsvImportService.processImport(csvData, undefined, mapping));
+                } else {
+                  setImportResult(await CsvImportService.processImport(csvData, selectedTable))
+                }
+              }}>
                 Process Import
+              </Button>
+            </div>
+          )}
+          {importResult && (
+            <div className="ml-auto">
+              <Button onClick={() => {
+                setImportResult(null);
+                setCsvData([]);
+                setSelectedFile(null);
+                setSelectedTable("");
+              }}>
+                Start New Import
               </Button>
             </div>
           )}

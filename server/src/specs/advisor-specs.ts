@@ -1,25 +1,6 @@
 import { z } from 'zod';
 import 'zod-openapi/extend'; // Ensures .openapi() extension is available
-
-// --- Query Parameters Schema ---
-
-/**
- * Schema for the query parameters accepted by the GET /api/advisor/students endpoint.
- * Allows filtering advised students by term and year.
- */
-const AdvisedStudentsQuerySchema = z.object({
-    term: z.string().optional().openapi({
-        description: 'Term code to filter advised students by (e.g., Spring=10, Summer=50, Fall=80, Winter=90)',
-        example: '80' // Example: Spring term
-    }),
-    year: z.string().optional().openapi({
-        // Year is often sent as a string in query params
-        description: 'Year to filter advised students by',
-        example: '2024'
-    })
-})
-
-// --- Response Schema ---
+import { getAdvisedStudentsQuerySchema } from '../controllers/advisor-controller';
 
 /**
  * Schema for a single student object returned in the response.
@@ -119,7 +100,7 @@ export const AdvisorAPISpecs = {
                 { bearerAuth: [] } // Assuming Bearer token authentication
             ],
             requestParams: {
-                query: AdvisedStudentsQuerySchema // Reference the query parameter schema
+                query: getAdvisedStudentsQuerySchema // Reference the query schema
             },
             responses: {
                 '200': {
@@ -159,16 +140,4 @@ export const AdvisorAPISpecs = {
         }
     }
     // Add specifications for other advisor endpoints here
-};
-
-// --- Export Schemas for potential reuse ---
-
-/**
- * Exported schemas for use in validation or other parts of the application.
- */
-export const AdvisorSpecs = {
-    AdvisedStudentsQuerySchema,
-    StudentSchema,
-    AdvisedStudentsResponseSchema,
-    ErrorResponseSchema
 };

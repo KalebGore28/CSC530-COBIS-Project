@@ -161,7 +161,7 @@ export class StudentLookupService {
 								and(
 									eq(studentCourses.mnumber, students.mnumber),
 									eq(studentCourses.course_subject, course.subject),
-									eq(studentCourses.course_number, course.number),
+									eq(studentCourses.course_number, parseInt(course.number)),
 									eq(studentCourses.course_suffix, course.suffix)
 								) as SQL<unknown>
 							)
@@ -182,7 +182,7 @@ export class StudentLookupService {
 								and(
 									eq(studentCourses.mnumber, students.mnumber),
 									eq(studentCourses.course_subject, course.subject),
-									eq(studentCourses.course_number, course.number),
+									eq(studentCourses.course_number, parseInt(course.number)),
 									eq(studentCourses.course_suffix, course.suffix)
 								) as SQL<unknown>
 							)
@@ -204,7 +204,7 @@ export class StudentLookupService {
 									and(
 										eq(studentCourses.mnumber, students.mnumber),
 										eq(studentCourses.course_subject, filter.subject),
-										eq(studentCourses.course_number, filter.number),
+										eq(studentCourses.course_number, parseInt(filter.number)),
 										eq(studentCourses.course_suffix, filter.suffix),
 										eq(studentCourses.final_grade, filter.grade)
 									) as SQL<unknown>

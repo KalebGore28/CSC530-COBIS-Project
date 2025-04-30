@@ -1,8 +1,130 @@
 import { Request, Response } from 'express';
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "../lib/auth";
-import { UserService } from '../services/user-service';
+import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
+import { z } from 'zod';
+import 'zod-openapi/extend';
+
+// --- Validation Schemas ---
+export const UserIdParamsSchema = z.object({
+	userId: z.string().min(1, { message: "User ID cannot be empty" }).openapi({
+		example: "user_2XQo9jk8JtYmIi3qSEoRYgVpnGn"
+	})
+});
+
+export const GetAllUsersQuerySchema = z.object({
+	isEnabled: z.string()
+		.optional()
+		.transform((val, ctx) => {
+			if (val === undefined) return undefined;
+
+			// Convert valid strings to boolean
+			if (val.toLowerCase() === 'true') return true;
+			if (val.toLowerCase() === 'false') return false;
+
+			// If the string is present but not 'true' or 'false', add an issue
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom, // Use custom issue code
+				message: "Invalid boolean format. Expected 'true' or 'false'.", // Custom error message
+			});
+
+			// Return z.NEVER to indicate transform failure if the issue wasn't handled
+			return z.NEVER;
+		})
+		.openapi({
+			type: 'boolean',
+			description: "Filter by enabled status ('true' or 'false')",
+			example: "true",
+		}),
+
+	college: z.string().min(1).optional()
+		.openapi({
+			description: "Filter by college name",
+			example: "0"
+		}),
+
+	department: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by department name",
+			example: "0000"
+		}),
+
+	name: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by user name (partial match)",
+			example: "John"
+		}),
+
+	email: z.string().optional() // Optional, must be valid email format
+		.openapi({
+			description: "Filter by user email address",
+			example: "johndoe@example.com"
+		}),
+
+	mnumber: z.string().min(1).optional() // Optional string, non-empty if provided
+		.openapi({
+			description: "Filter by user M-Number",
+			example: "M12345678"
+		}),
+
+});
+
+export const ProvisionUserBodySchema = z.object({
+	// role_ids: Mandatory array of unique integers. Use min(1) if empty array is not allowed.
+	role_ids: z.array(z.number().int({ message: "Each role ID must be an integer" }), {
+		required_error: "role_ids is required", // Error if key is missing
+		invalid_type_error: "role_ids must be an array of integers",
+	})
+		.min(1, { message: "At least one role ID must be provided in the role_ids array" }) // Ensure array is not empty
+		.transform(ids => [...new Set(ids)]) // Remove duplicates
+		.openapi({ description: "Array of role IDs to assign (must contain at least one unique integer ID)" }),
+
+	// mnumber: Optional string, allowing null. Empty string is treated as null.
+	mnumber: z.preprocess(
+		(val) => (val === "" ? null : val), // Convert empty string to null before validation
+		z.string({ invalid_type_error: "mnumber must be a string or null" })
+			.nullable() // Allow null
+			.optional() // Allow undefined (key not present)
+	).openapi({ description: "User's M-Number (string or null)" }),
+
+	// isEnabled: Optional boolean
+	isEnabled: z.boolean({ invalid_type_error: "isEnabled must be a boolean" })
+		.optional()
+		.openapi({ description: "Set user account enabled status" }),
+
+	// college & department: Optional strings, but *must* be provided together if one is present.
+	college: z.string({ invalid_type_error: "college must be a string" })
+		.min(1, { message: "college cannot be empty if provided" }) // Optional: ensure non-empty if present
+		.optional()
+		.openapi({ description: "User's college (required if department is provided)", example: "0" }),
+
+	department: z.string({ invalid_type_error: "department must be a string" })
+		.min(1, { message: "department cannot be empty if provided" }) // Optional: ensure non-empty if present
+		.optional()
+		.openapi({ description: "User's department (required if college is provided)", example: "0000" }),
+
+	// `superRefine` allows cross-field validation after individual fields are parsed.
+}).superRefine((data, ctx) => {
+	const collegeProvided = data.college !== undefined;
+	const departmentProvided = data.department !== undefined;
+
+	// Check if only one of the two is provided
+	if (collegeProvided !== departmentProvided) {
+		ctx.addIssue({
+			code: z.ZodIssueCode.custom,
+			message: "Both college and department must be provided together, or neither should be provided.",
+			path: ["college", "department"],
+		});
+	}
+})
+
+type ProvisionUserDetails = z.output<typeof ProvisionUserBodySchema>;
+const ProvisionUserRequestSchema = z.object({
+	params: UserIdParamsSchema,
+	body: ProvisionUserBodySchema,
+});
+
 
 /**
  * Controller for user-related endpoints
@@ -12,6 +134,8 @@ export class UserController {
 	 * Get the current user's session and user data
 	 */
 	static async getUserInfo(req: Request, res: Response) {
+		// simulate a delay
+		// await new Promise(resolve => setTimeout(resolve, 5000));
 		try {
 			// Get the session using better-auth
 			const session = await auth.api.getSession({
@@ -38,82 +162,27 @@ export class UserController {
 		}
 	}
 
-	/**
-	 * Update the current user's M-number
-	 */
-	static async updateMnumber(req: Request, res: Response) {
-		try {
-			// Extract mnumber from the request body
-			const { mnumber } = req.body;
-
-			// Get the current user from the request (attached by authenticateUser middleware)
-			const currentUser = (req as any).user;
-
-			// Step 1: Validate input
-			if (!mnumber || typeof mnumber !== 'string') {
-				res.status(400).json({
-					success: false,
-					message: 'M-number is required and must be a string',
-				});
-				return;
-			}
-
-			// Step 2: Get the current user data
-			const userData = await UserService.getUserById(currentUser.id);
-			if (!userData) {
-				res.status(404).json({
-					success: false,
-					message: 'User not found',
-				});
-				return;
-			}
-
-			// Step 3: Check if the user already has an M-number
-			if (userData.mnumber !== null) {
-				res.status(403).json({
-					success: false,
-					message: 'Cannot change M-number. Contact admin to change.',
-				});
-				return;
-			}
-
-			// Step 4: Check if the M-number is already taken
-			const isMnumberTaken = await UserService.isMnumberTaken(mnumber);
-			if (isMnumberTaken) {
-				res.status(409).json({
-					success: false,
-					message: 'M-number already taken. If this is yours, contact admin to fix.',
-				});
-				return;
-			}
-
-			// Step 5: Update the user's M-number
-			await UserService.updateMnumber(currentUser.id, mnumber);
-
-			// Step 6: Return success response
-			res.json({
-				success: true,
-				message: 'M-number updated successfully',
-			});
-			return;
-		} catch (error) {
-			console.error('Error updating M-number:', error);
-			res.status(500).json({
-				success: false,
-				message: 'An error occurred while updating your M-number',
-			});
-			return;
-		}
-	}
 
 	/**
 	 * Enable a user account
 	 */
 	static async enableUser(req: Request, res: Response) {
-		try {
-			const { userId } = req.params;
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
 
-			// Check if user exists
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		try {
+			// Check if user exists (using the validated userId)
 			const user = await UserService.getUserById(userId);
 			if (!user) {
 				res.status(404).json({
@@ -123,7 +192,7 @@ export class UserController {
 				return;
 			}
 
-			// Update user's enabled status
+			// Update user's enabled status (using the validated userId)
 			await UserService.updateUserEnabled(userId, true);
 
 			res.json({
@@ -131,8 +200,8 @@ export class UserController {
 				message: 'User enabled successfully'
 			});
 			return;
+
 		} catch (error) {
-			console.error('Error enabling user:', error);
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while enabling the user'
@@ -145,10 +214,34 @@ export class UserController {
 	 * Disable a user account
 	 */
 	static async disableUser(req: Request, res: Response) {
-		try {
-			const { userId } = req.params;
+		const authRequest = req as AuthAndPermissionsRequest;
+		const currentUserId = authRequest.user.id;
 
-			// Check if user exists
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
+
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		// Check if the user is trying to disable themselves
+		if (userId === currentUserId) {
+			res.status(400).json({
+				success: false,
+				message: 'You cannot disable your own account'
+			});
+			return;
+		}
+
+		try {
+			// Check if user exists (using the validated userId)
 			const user = await UserService.getUserById(userId);
 			if (!user) {
 				res.status(404).json({
@@ -158,21 +251,137 @@ export class UserController {
 				return;
 			}
 
-			// Update user's enabled status
-			await UserService.updateUserEnabled(userId, false);
+			// Update user's enabled status (using the validated userId)
+			await UserService.updateUserEnabled(userId, false); // Set to false for disabling
 
 			res.json({
 				success: true,
 				message: 'User disabled successfully'
 			});
 			return;
+
 		} catch (error) {
-			console.error('Error disabling user:', error);
 			res.status(500).json({
 				success: false,
 				message: 'An error occurred while disabling the user'
 			});
 			return;
+		}
+	}
+
+	/**
+	 * Get all users with optional filters (Admin only)
+	 * Fetches users with role IDs as a JSON string and parses it into an array.
+	 */
+	static async getAllUsers(req: Request, res: Response) {
+		const validationResult = GetAllUsersQuerySchema.safeParse(req.query);
+
+		if (!validationResult.success) {
+			res.status(400).json({
+				success: false,
+				message: 'Invalid query parameters',
+				errors: validationResult.error.format(),
+			});
+			return;
+		}
+
+		const filters: UserFilters = validationResult.data;
+
+		try {
+			const users = await UserService.getAllUsers(filters);
+
+			res.status(200).json(users);
+
+		} catch (error: any) {
+			if (error instanceof SyntaxError) {
+				res.status(500).json({ success: false, message: 'An error occurred while processing user role data' });
+			} else {
+				res.status(500).json({ success: false, message: 'An error occurred while fetching users' });
+			}
+		}
+	}
+
+	/**
+	 * Get a specific user by ID (Admin only)
+	 */
+	static async getUser(req: Request, res: Response) {
+		const validationResult = UserIdParamsSchema.safeParse(req.params);
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request parameters',
+				errors: validationResult.error.format(), // Provides detailed errors
+			});
+			return;
+		}
+
+		const { userId } = validationResult.data;
+
+		try {
+			// Check if user exists (using the validated userId)
+			const user = await UserService.getUser(userId);
+			if (!user) {
+				res.status(404).json({
+					success: false,
+					message: 'User not found'
+				});
+				return;
+			}
+
+			res.status(200).json(user);
+
+		} catch (error: any) {
+			res.status(500).json({ success: false, message: 'An error occurred while fetching the user' });
+		}
+	}
+
+
+	/**
+	 * Provision or update user details and roles (Admin only).
+	 */
+	static async provisionUser(req: Request, res: Response) {
+		// --- Zod Validation for Params and Body ---
+		const validationResult = ProvisionUserRequestSchema.safeParse({
+			params: req.params,
+			body: req.body,
+		});
+
+		if (!validationResult.success) {
+			// If validation fails, return a 400 Bad Request with Zod errors
+			res.status(400).json({
+				success: false,
+				message: 'Invalid request data',
+				errors: validationResult.error.format(),
+			});
+			return;
+		}
+
+		// --- Use Validated Data ---
+		// Extract validated data with correct types
+		const { userId } = validationResult.data.params;
+		const details: ProvisionUserDetails = validationResult.data.body;
+		// 'details' now contains:
+		// - role_ids: number[] (guaranteed non-empty and unique)
+		// - mnumber?: string | null (empty string input becomes null)
+		// - isEnabled?: boolean
+		// - college?: string (only if department is also present)
+		// - department?: string (only if college is also present)
+
+		try {
+			// Call the service method with validated userId and details object
+			// The 'details' object contains role_ids already.
+			const result = await UserService.provisionUser(userId, details);
+
+			// Send response based on service result
+			if (result.success) {
+				res.status(result.status).json({ success: true, user: result.user });
+			} else {
+				res.status(result.status).json({ success: false, message: result.message });
+			}
+
+		} catch (error: any) {
+			res.status(500).json({ success: false, message: 'An unexpected error occurred during user provisioning' });
 		}
 	}
 } 

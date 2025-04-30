@@ -8,7 +8,6 @@ export class UtilityController {
 			res.status(200).json(currentTerm);
 			return;
 		} catch (error) {
-			console.error("Error getting current term and year:", error);
 			res.status(500).json({
 				error: "Failed to retrieve current term and year"
 			});

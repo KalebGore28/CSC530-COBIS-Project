@@ -1,6 +1,5 @@
 import express from 'express';
 import { InstructorController } from '../controllers/instructor-controller';
-import { checkInstructorAccess } from '../middleware/check-instructor-access';
 
 /**
  * Instructor routes
@@ -9,7 +8,6 @@ import { checkInstructorAccess } from '../middleware/check-instructor-access';
  * @requires zod
  * @requires zod-openapi/extend
  * @requires ../controllers/instructor-controller
- * @requires ../middleware/check-instructor-access
  * @description This module defines the routes for instructor-related endpoints.
  * It includes routes for fetching basic instructor information, current teaching status,
  * teaching summary, course details, and term summaries.
@@ -25,43 +23,43 @@ router.get('/',
 
 // Basic instructor information
 router.get('/:mnumber',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getBasicInfo
 );
 
 // Current teaching status
 router.get('/:mnumber/current-status',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getCurrentStatus
 );
 
 // Teaching summary
 router.get('/:mnumber/teaching-summary',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getTeachingSummary
 );
 
 // Term summaries
 router.get('/:mnumber/terms',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getTermSummaries
 );
 
 // Course details
 router.get('/:mnumber/courses',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getCourseDetails
 );
 
 // Class Roster
 router.get('/:mnumber/class-roster',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getClassRoster
 );
 
 // Grade distribution trends
 router.get('/:mnumber/trend/grades',
-	checkInstructorAccess,
+	InstructorController.checkInstructorAccess,
 	InstructorController.getGradeTrends
 );
 

@@ -1,4 +1,4 @@
-import { eq, and, sql, type SQL } from 'drizzle-orm';
+import { eq, and, type SQL } from 'drizzle-orm';
 import { getDbConnection } from '../db/connection'; // Adjust path as needed
 import { students, studentAdvisors } from '../db/schema'; // Adjust path as needed
 
@@ -77,6 +77,4 @@ export class AdvisorService {
 			throw new Error('Failed to retrieve advised students from the database.');
 		}
 	}
-
-	// Add other advisor-related service methods here if needed
 }

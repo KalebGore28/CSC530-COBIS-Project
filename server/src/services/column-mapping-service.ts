@@ -6,9 +6,9 @@ import * as schema from "../db/schema"; // Import your database schema types her
 // Supports both data tables (with strict file naming patterns) and
 // Lookup tables (with more flexible naming but requiring explicit designation)
 
-import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convertDates";
-import { parseTermCode } from "../utils/convertTermCode";
-import { parseCourseCode } from "../utils/convertCourseCode";
+import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convert-dates";
+import { parseTermCode } from "../utils/convert-term-code";
+import { parseCourseCode } from "../utils/convert-course-code";
 
 interface ColumnMapping {
 	csvColumn: string;
@@ -29,7 +29,7 @@ interface BaseDestination {
 	tableName: string;
 	tableId: string;
 	primaryKeys: string[];
-	columnMappings: ColumnMapping[];
+	columns: ColumnMapping[];
 	schemaRef: AnySQLiteTable;
 	rowExpander?: RowExpanderFunction;
 }
@@ -205,7 +205,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "test-scores",
 				primaryKeys: ["mnumber", "code", "date"],
 				schemaRef: schema.testScores,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "testcode", dbColumn: "code" },
 					{ csvColumn: "testdesc", dbColumn: "description" },
@@ -230,7 +230,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "students",
 				primaryKeys: ["mnumber"],
 				schemaRef: schema.students,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "firstname", dbColumn: "first_name" },
 					{ csvColumn: "middlename", dbColumn: "middle_name" },
@@ -254,7 +254,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				primaryKeys: ["mnumber", "type"],
 				schemaRef: schema.studentAddresses,
 				// These mappings are used for validation, but the actual transformation happens in rowExpander
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -283,7 +283,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "student-academic-info",
 				primaryKeys: ["mnumber"],
 				schemaRef: schema.studentAcademicInfo,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -307,7 +307,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				primaryKeys: ["mnumber", "type", "program"],
 				schemaRef: schema.studentPrograms,
 				// We're using a row expander instead of direct column mappings for this table
-				columnMappings: [
+				columns: [
 					// These mappings are used for validation, but the actual transformation happens in rowExpander
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -332,7 +332,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "student-advisors",
 				primaryKeys: ["student_mnumber", "advisor_mnumber"],
 				schemaRef: schema.studentAdvisors,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -356,7 +356,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "student-courses",
 				primaryKeys: ["mnumber", "term", "year", "crn"],
 				schemaRef: schema.studentCourses,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -380,7 +380,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "instructor-courses",
 				primaryKeys: ["mnumber", "term", "year", "crn"],
 				schemaRef: schema.instructorCourses,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -401,7 +401,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "faculty",
 				primaryKeys: ["mnumber"],
 				schemaRef: schema.faculty,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
 					{ csvColumn: "instfirstnm", dbColumn: "first_name" },
 					{ csvColumn: "instlastnm", dbColumn: "last_name" }
@@ -421,7 +421,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "previous-colleges",
 				primaryKeys: ["mnumber", "college_code"],
 				schemaRef: schema.previousColleges,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "collegecode", dbColumn: "college_code" },
 					{ csvColumn: "collegedesc", dbColumn: "college_description" },
@@ -443,7 +443,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "overrides",
 				primaryKeys: ["mnumber", "term", "year", "crn"],
 				schemaRef: schema.overrides,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
 					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
 					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
@@ -471,7 +471,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				tableId: "courses-catalog",
 				primaryKeys: ["subject", "number", "suffix"],
 				schemaRef: schema.courses,
-				columnMappings: [
+				columns: [
 					{ csvColumn: "course", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
 					{ csvColumn: "course", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
 					{ csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
@@ -496,7 +496,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "academic-standing",
 			primaryKeys: ["code"],
 			schemaRef: schema.academicStanding,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -510,7 +510,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "admit-codes",
 			primaryKeys: ["code"],
 			schemaRef: schema.admitCodes,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -524,7 +524,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "college-codes",
 			primaryKeys: ["code"],
 			schemaRef: schema.collegeCodes,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -538,7 +538,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "colleges",
 			primaryKeys: ["code"],
 			schemaRef: schema.colleges,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -553,7 +553,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "departments",
 			primaryKeys: ["code"],
 			schemaRef: schema.departments,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" },
 				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
@@ -569,7 +569,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "instructional-methods",
 			primaryKeys: ["code"],
 			schemaRef: schema.instructionalMethods,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -583,7 +583,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "nations",
 			primaryKeys: ["code"],
 			schemaRef: schema.nations,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -597,7 +597,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "part-of-term",
 			primaryKeys: ["code"],
 			schemaRef: schema.partOfTerm,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -611,7 +611,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "programs",
 			primaryKeys: ["code"],
 			schemaRef: schema.programs,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" },
 				{ csvColumn: "cip_code", dbColumn: "cip_code" },
@@ -634,7 +634,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "registration-status",
 			primaryKeys: ["code"],
 			schemaRef: schema.registrationStatus,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -648,7 +648,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "terms",
 			primaryKeys: ["code"],
 			schemaRef: schema.terms,
-			columnMappings: [
+			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }
 			]
@@ -675,6 +675,32 @@ export const getDestinationByTableId = (tableId: string): DestinationTable | nul
 	}
 	return null;
 };
+
+/**
+ * Get mapping by specific mapping description
+ */
+export const getMappingByDescription = (description: string): CSVFileMapping | null => {
+	for (const mapping of csvFileMappings) {
+		if (mapping.description === description) {
+			return mapping;
+		}
+	}
+	return null;
+};
+
+/**
+ * Get mapping for lookup table by table ID
+ */
+export const getLookupTableByTableId = (tableId: string): LookupCsvMapping | null => {
+	for (const mapping of csvFileMappings) {
+		if (mapping.category === "lookup" && mapping.destination.tableId === tableId) {
+			return mapping;
+		}
+	}
+	return null;
+}
+
+
 
 /**
  * Find mappings for a filename (for data tables)
@@ -715,7 +741,7 @@ export const mapCsvRowToDbRow = (
 ): Record<string, any> => {
 	const result: Record<string, any> = {};
 
-	for (const column of destination.columnMappings) {
+	for (const column of destination.columns) {
 		if (row[column.csvColumn] !== undefined) {
 			try {
 				result[column.dbColumn] = column.transform
@@ -806,7 +832,7 @@ export const getImportInfo = () => {
 						category: mapping.category,
 						primaryKeys: dest.primaryKeys,
 						hasRowExpander: !!dest.rowExpander,
-						columns: dest.columnMappings.map(col => ({
+						columns: dest.columns.map(col => ({
 							dbColumn: col.dbColumn,
 							csvColumn: col.csvColumn,
 							isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
@@ -821,7 +847,7 @@ export const getImportInfo = () => {
 						category: mapping.category,
 						primaryKeys: mapping.destination.primaryKeys,
 						hasRowExpander: !!mapping.destination.rowExpander,
-						columns: mapping.destination.columnMappings.map(col => ({
+						columns: mapping.destination.columns.map(col => ({
 							dbColumn: col.dbColumn,
 							csvColumn: col.csvColumn,
 							isPrimaryKey: mapping.destination.primaryKeys.includes(col.dbColumn),

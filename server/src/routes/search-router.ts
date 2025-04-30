@@ -21,5 +21,6 @@ router.get('/part-of-terms', SearchController.searchPartOfTerms);
 router.get('/programs', SearchController.searchPrograms);
 router.get('/registration-statuses', SearchController.searchRegistrationStatuses);
 router.get('/terms', SearchController.searchTerms);
+router.get('/faculty', SearchController.searchFaculty);
 
 export default router;

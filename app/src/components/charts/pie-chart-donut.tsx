@@ -32,9 +32,9 @@ const CustomTooltip = ({ active, payload }: any) => {
 		const percentage = totalCount / total * 100;
 
 		return (
-			<div className="bg-white p-2 shadow rounded border border-gray-200">
+			<div className="bg-muted p-2 shadow rounded border">
 				<p className="font-semibold">{`${data.grade}: ${data.count}`}</p>
-				<p className="text-sm text-gray-500">{`${percentage.toFixed(2)}%`}</p>
+				<p className="text-sm text-primary">{`${percentage.toFixed(2)}%`}</p>
 			</div>
 		);
 	}
@@ -43,11 +43,11 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 // Default grade colors if not provided
 const DEFAULT_COLORS = {
-	'A': 'var(--chart-1)',
-	'B': 'var(--chart-2)',
-	'C': 'var(--chart-3)',
-	'D': 'var(--chart-4)',
-	'F': 'var(--chart-5)',
+	'A': 'hsl(var(--chart-1))',
+	'B': 'hsl(var(--chart-2))',
+	'C': 'hsl(var(--chart-3))',
+	'D': 'hsl(var(--chart-4))',
+	'E': 'hsl(var(--chart-5))',
 };
 
 export function PieChartDonut({

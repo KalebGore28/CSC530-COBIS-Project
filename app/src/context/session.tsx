@@ -1,115 +1,87 @@
-import { createContext, ReactNode, use, useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { signout, getSession } from '@/lib/auth-client';
-import axios from 'axios';
+// context/session.ts
+import {
+  createContext,
+  ReactNode,
+  useContext,
+} from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios, { AxiosError } from 'axios'
+import { getSession as rawGetSession, signout } from '@/lib/auth-client'
 
 export interface Session {
-  session: Awaited<ReturnType<typeof getSession>>;
-  info: UserInfo;
+  session: Awaited<ReturnType<typeof rawGetSession>>
+  info: UserInfo
 }
-
 export type UserInfo = {
-  roles: { role_id: number; role_name: string }[] | [];
-  department: string | null;
-  college: string | null;
-  mnumber: string | null;
-  isEnabled: boolean;
+  roles: { role_id: number; role_name: string }[] | []
+  department: string | null
+  college: string | null
+  mnumber: string | null
+  isEnabled: boolean
 }
 
 interface SessionContextType {
-  session: Session | null;
-  isLoading: boolean;
-  logout: () => void;
-  refetchSession: () => Promise<void>;
+  session: Session | null
+  isLoading: boolean
+  logout: () => Promise<void>
+  refetchSession: () => Promise<unknown>
 }
 
-const SessionContext = createContext<SessionContextType | undefined>(undefined);
+const SessionContext = createContext<SessionContextType | undefined>(undefined)
 
-// Function to fetch the session
-const fetchUserInfo = async () => {
-  // await new Promise((resolve) => setTimeout(resolve, 1000));
-  const response = await axios.get('/api/user/me', {
-    withCredentials: true,
-  });
-
-  if (response.status !== 200) {
-    throw new Error('Failed to fetch user info');
-  }
-
-  return response.data;
-}
-
-// SessionProvider component
-interface SessionProviderProps {
-  children: ReactNode;
-}
-
-export const SessionProvider: React.FC<SessionProviderProps> = ({ children }) => {
-  const [session, setSession] = useState<Session | null>(null);
-
-  const { data: sessionResult, refetch: refetchSessionData } = useQuery({
-    queryKey: ['session'],
-    queryFn: getSession
-  });
-
-  const {
-    data: userInfo,
-    isLoading,
-    refetch: refetchUserInfo
-  } = useQuery({
-    queryKey: ['userInfo'],
-    queryFn: fetchUserInfo,
-    enabled: !!sessionResult,
-  });
-
-  // Update session when data changes
-  useEffect(() => {
-    if (sessionResult && userInfo) {
-      setSession({
-        session: sessionResult,
-        info: userInfo
-      });
-    } else {
-      setSession(null);
-    }
-  }, [sessionResult, userInfo]);
-
-  const logout = () => {
-    signout();
-    setSession(null);
-  };
-
-  const refetchSession = async () => {
-    try {
-      await refetchSessionData();
-      if (sessionResult) {
-        await refetchUserInfo();
+export const SessionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const { data, isLoading, refetch } = useQuery<Session | null, AxiosError>({
+    queryKey: ['fullSession'],
+    queryFn: async () => {
+      let base: Awaited<ReturnType<typeof rawGetSession>> | null
+      try {
+        base = await rawGetSession()
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          base = null
+        } else {
+          throw err
+        }
       }
-    } catch (error) {
-      console.error('Error refetching session:', error);
-      setSession(null);
-    }
-  };
+      if (!base) return null
+
+      // 2) user info
+      try {
+        const { data: info } = await axios.get<UserInfo>('/api/user/me', {
+          withCredentials: true,
+        })
+        return { session: base, info }
+      } catch (err) {
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          return null
+        }
+        throw err
+      }
+    },
+    staleTime: 5 * 60_000,
+    retry: false,
+  })
+
+  const logout = async () => {
+    await signout()    
+  }
 
   return (
-    <SessionContext.Provider value={{
-      session,
-      isLoading,
-      logout,
-      refetchSession
-    }}>
+    <SessionContext.Provider
+      value={{
+        session: data ?? null,
+        isLoading,
+        logout,
+        refetchSession: refetch,
+      }}
+    >
       {children}
     </SessionContext.Provider>
-  );
-};
+  )
+}
 
-// Custom hook to use the session context
 export const useSession = () => {
-  const context = use(SessionContext);
-  if (!context) {
-    throw new Error('useSession must be used within a SessionProvider');
-  }
-  return context;
-};
-
-export default SessionContext;
+  const ctx = useContext(SessionContext)
+  if (!ctx) throw new Error('useSession must be used within SessionProvider')
+  return ctx
+}

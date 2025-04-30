@@ -1,17 +1,17 @@
-CODE ,DESCRIPTION
-AU   ,Audit
-AW   ,Administrative Withdrawal
-CC   ,Course Cancelled
-DC   ,Drop Course
-DD   ,Drop/Delete Data Entry Error
-DR   ,Drop Course on Web
-DW   ,Drop Course on Web
-PG   ,Purge Schd before sem starts
-RC   ,Reinstate Course
-RE   ,Registered
-RW   ,Web Registered
-W    ,Withdraw/Institn w/No Grade
-WC   ,Drop Course with 'W' grade
-WD   ,"WD from Institution ""W"""
-WI   ,WD from Institution WP/WE
-WW   ,Drop Course on Web with 'W'
+CODE,DESCRIPTION
+AU,Audit
+AW,Administrative Withdrawal
+CC,Course Cancelled
+DC,Drop Course
+DD,Drop/Delete Data Entry Error
+DR,Drop Course on Web
+DW,Drop Course on Web
+PG,Purge Schd before sem starts
+RC,Reinstate Course
+RE,Registered
+RW,Web Registered
+W,Withdraw/Institn w/No Grade
+WC,Drop Course with 'W' grade
+WD,"WD from Institution ""W"""
+WI,WD from Institution WP/WE
+WW,Drop Course on Web with 'W'

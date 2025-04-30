@@ -1,6 +1,6 @@
 // ImportResult.tsx - For displaying import results
 import React from "react";
-import { ImportResult } from "../../types/csv-import-types";
+import { ImportResult } from "../../../types/csv-import-types";
 import { Badge } from "@/components/ui/badge";
 import { FileCheck, AlertCircle, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,21 +13,22 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
   result
 }) => {
   if (!result) return null;
+  console.log("Import result:", result);
 
   // Ensure numeric values have defaults
-  const totalRecords = result.totalRecords ?? 0;
-  const inserted = result.inserted ?? 0;
-  const updated = result.updated ?? 0;
-  const skipped = result.skipped ?? 0;
-  const failed = result.failed ?? 0;
+  const totalRecords = result.results[0].totalRecords ?? 0;
+  const inserted = result.results[0].inserted ?? 0;
+  const updated = result.results[0].updated ?? 0;
+  const skipped = result.results[0].skipped ?? 0;
+  const failed = result.results[0].failed ?? 0;
 
   // Determine if this is a completely failed import
   const isCompleteFailure =
     (!result.success && failed === totalRecords) ||
-    (result.message && totalRecords === 0 && !result.success);
+    (totalRecords === 0 && !result.success);
 
   // For an error message with no data
-  if (result.message && totalRecords === 0 && !result.success) {
+  if (totalRecords === 0 && !result.success) {
     return (
       <div className="mb-6 w-full">
         <div className="flex items-center justify-between mb-2">
@@ -39,7 +40,7 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>
-            <p>{result.message}</p>
+            <p>{result.results[0].failed}</p>
           </AlertDescription>
         </Alert>
       </div>

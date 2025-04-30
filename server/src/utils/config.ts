@@ -1,5 +1,6 @@
 import dotenv from 'dotenv';
 
+/* v8 ignore next 2  */
 // Load .env from src/ in dev, but allow override in production
 dotenv.config({ path: process.env.NODE_ENV === 'production' ? undefined : 'src/.env' });
 

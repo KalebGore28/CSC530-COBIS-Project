@@ -138,6 +138,25 @@ const PartOfTermResponse = z.array(
 	description: 'List of part of terms matching the search criteria'
 });
 
+const FacultyResponse = z.array(
+	z.object({
+		mnumber: z.string().openapi({
+			description: 'Faculty member number',
+			example: '123456'
+		}),
+		firstName: z.string().openapi({
+			description: 'Faculty first name',
+			example: 'John'
+		}),
+		lastName: z.string().openapi({
+			description: 'Faculty last name',
+			example: 'Doe'
+		}),
+	})
+).openapi({
+	description: 'List of faculty members matching the search criteria'
+});
+
 const ProgramResponse = z.array(
 	z.object({
 		code: z.string().openapi({
@@ -556,20 +575,36 @@ export const SearchAPISpecs = {
 				}
 			}
 		}
+	},
+	'/api/search/faculty': {
+		get: {
+			tags: ['Search'],
+			operationId: 'searchFaculty',
+			summary: 'Search faculty members',
+			description: 'Search for faculty members by mnumber, first name, or last name. Results are limited to 10 items.',
+			requestParams: {
+				query: SearchQuerySchema
+			},
+			responses: {
+				'200': {
+					description: 'Successful response with faculty data',
+					content: {
+						'application/json': {
+							schema: FacultyResponse
+						}
+					}
+				},
+				'400': {
+					description: 'Missing or invalid query parameter',
+					content: {
+						'application/json': {
+							schema: z.object({
+								error: z.string()
+							})
+						}
+					}
+				}
+			}
+		}
 	}
 };
-
-export const SearchSpecs = {
-	SearchQuerySchema,
-	AcademicStandingResponse,
-	AdmitCodeResponse,
-	CollegeResponse,
-	CollegeCodeResponse,
-	CourseResponse,
-	DepartmentResponse,
-	NationResponse,
-	PartOfTermResponse,
-	ProgramResponse,
-	RegistrationStatusResponse,
-	TermResponse
-}; 

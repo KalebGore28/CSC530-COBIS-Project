@@ -4,63 +4,69 @@ import React, { useState, useEffect } from 'react';
 import axios, { AxiosError } from 'axios';
 
 export interface StudentInfo {
-	mnumber: string;
-	firstName: string;
-	middleName?: string; // Optional fields marked with ?
-	lastName: string;
-	suffix?: string;
-	gender: string;
-	birthdate: string; // Consider using Date type if you parse it
-	email: string;
-	cellPhone?: string;
-	age: number;
-	race: string;
-	citizenship: string;
-	residency: string;
-  }
-  
-  export interface AcademicInfo {
-	msuGpa: number;
-	overallGpa: number;
-	msuAttemptedHours: number;
-	msuEarnedHours: number;
-	overallAttemptedHours: number;
-	overallEarnedHours: number;
-	academicStanding: string;
-	academicStandingDescription: string;
-	admitTerm: string;
-	admitYear: number;
-	admitCode: string;
-	admitTermDescription: string;
-  }
-  
-  export interface Program {
-	code: string;
-	description: string;
-	department: string;
-	college: string;
-	level: string;
-	term: string;
-	year: number;
-  }
-  
-  export interface Programs {
-	majors: Program[];
-	minors: Program[];
-  }
-  
-  export interface Advisor {
-	mnumber: string;
-	term: string;
-	year: number;
-  }
-  
-  export interface StudentDetailData {
-	studentInfo: StudentInfo;
-	academicInfo: AcademicInfo;
-	programs: Programs;
-	advisors: Advisor[];
-  }
+    mnumber: string;
+    firstName: string;
+    middleName?: string; // Optional fields marked with ?
+    lastName: string;
+    suffix?: string;
+    gender: string;
+    birthdate: string; // Consider using Date type if you parse it
+    email: string;
+    cellPhone?: string;
+    age: number;
+    race: string;
+    citizenship: string;
+    residency: string;
+}
+
+export interface AcademicInfo {
+    msuGpa: number;
+    overallGpa: number;
+    msuAttemptedHours: number;
+    msuEarnedHours: number;
+    overallAttemptedHours: number;
+    overallEarnedHours: number;
+    academicStanding: string;
+    academicStandingDescription: string;
+    admitTerm: string;
+    admitTermDescription: string;
+    admitYear: number;
+    admitCode: string;
+    admitCodeDescription: string;
+}
+
+export interface Program {
+    code: string;
+    description: string;
+    department: string;
+    college: string;
+    level: string;
+    term: string;
+    termDescription: string;
+    year: number;
+}
+
+export interface Programs {
+    majors: Program[];
+    minors: Program[];
+}
+
+export interface Advisor {
+    mnumber: string;
+    term: string;
+    termDescription: string;
+    year: number;
+    firstName: string;
+    lastName: string;
+    email: string;
+}
+
+export interface StudentDetailData {
+    studentInfo: StudentInfo;
+    academicInfo: AcademicInfo;
+    programs: Programs;
+    advisors: Advisor[];
+}
 
 
 // Import Shadcn UI components
@@ -114,9 +120,9 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
             }
 
             try {
-				const response = await axios.get<StudentDetailData>(`/api/student/${mnumber}`, {
-					withCredentials: true,
-				});
+                const response = await axios.get<StudentDetailData>(`/api/student/${mnumber}`, {
+                    withCredentials: true,
+                });
 
                 // Check if data was received
                 if (response.data) {
@@ -202,7 +208,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
     const { studentInfo, academicInfo, programs, advisors } = studentData;
 
     return (
-        <div className="space-y-6 p-4 max-h-[80vh]">
+        <div className="space-y-6 p-4">
             {/* Student Information Card */}
             <Card>
                 <CardHeader>
@@ -222,16 +228,20 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                         <strong>M-Number:</strong> {studentInfo.mnumber}
                     </div>
                     <div>
-                        <strong>Email:</strong> {studentInfo.email}
+                        <strong>Email:</strong>{' '}
+                        <a href={`mailto:${studentInfo.email.toLowerCase()}`} className='hover:underline'>
+                            {studentInfo.email.toLowerCase()}
+                        </a>
                     </div>
                     <div>
-                        <strong>Birthdate:</strong> {studentInfo.birthdate}
+                        <strong>Birthdate:</strong> {new Date(studentInfo.birthdate).toLocaleDateString()}
                     </div>
                     <div>
                         <strong>Age:</strong> {studentInfo.age}
                     </div>
                     <div>
-                        <strong>Gender:</strong> {studentInfo.gender}
+                        <strong>Gender:</strong>{' '}
+                        {studentInfo.gender === 'M' ? 'Male' : 'Female'}
                     </div>
                     <div>
                         <strong>Cellphone:</strong>{' '}
@@ -288,11 +298,11 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                     </div>
                     <div>
                         <strong>Admit Term:</strong>{' '}
-                        {academicInfo.admitTermDescription} ({academicInfo.admitYear}
-                        {academicInfo.admitTerm})
+                        {academicInfo.admitTermDescription} {academicInfo.admitYear}
                     </div>
                     <div>
-                        <strong>Admit Code:</strong> {academicInfo.admitCode}
+                        <strong>Admit Code:</strong> {' '}
+                        {academicInfo.admitCodeDescription} ({academicInfo.admitCode})
                     </div>
                 </CardContent>
             </Card>
@@ -332,8 +342,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                                             <TableCell>{major.college}</TableCell>
                                             <TableCell>{major.level}</TableCell>
                                             <TableCell>
-                                                {major.year}
-                                                {major.term}
+                                                {major.termDescription} {major.year}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -374,8 +383,7 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                                             <TableCell>{minor.college}</TableCell>
                                             <TableCell>{minor.level}</TableCell>
                                             <TableCell>
-                                                {minor.year}
-                                                {minor.term}
+                                                {minor.termDescription} {minor.year}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -402,7 +410,10 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>M-Number</TableHead>
+                                    <TableHead>Name</TableHead>
+                                    <TableHead>Email</TableHead>
                                     <TableHead>Term</TableHead>
+
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -413,8 +424,23 @@ const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
                                     >
                                         <TableCell>{advisor.mnumber}</TableCell>
                                         <TableCell>
-                                            {advisor.year}
-                                            {advisor.term}
+                                            {advisor.firstName} {advisor.lastName}
+                                        </TableCell>
+                                        <TableCell>
+                                            {/* Make sure email doesnt say not available */}
+                                            {advisor.email && advisor.email !== 'Not Available' ? (
+                                                <a
+                                                    href={`mailto:${advisor.email.toLowerCase()}`}
+                                                    className="hover:underline"
+                                                >
+                                                    {advisor.email.toLowerCase()}
+                                                </a>
+                                            ) : (
+                                                'Not Available'
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            {advisor.termDescription} {advisor.year}
                                         </TableCell>
                                     </TableRow>
                                 ))}

@@ -1,6 +1,37 @@
 import { Request, Response, NextFunction } from 'express';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { StudentService } from '../services/student-service';
+import { z } from 'zod';
+import 'zod-openapi/extend';
+
+// --- Validation Schemas ---
+export const studentIdSchema = z.object({
+	mnumber: z
+		.string()
+		.regex(/^[Mm]\d+$/i, { message: 'Invalid M-number format. Must start with "m" followed by digits.' })
+		.transform((mnumber) => mnumber.toUpperCase())
+		.openapi({ description: 'Student M-number' }),
+});
+
+export const getStudentCoursesQuerySchema = z.object({
+	term: z.string().optional(),
+	year: z
+		.preprocess((val) => {
+			// coerce "2025" → 2025
+			if (typeof val === 'string' && val.trim() !== '') return parseInt(val, 10);
+			if (typeof val === 'number') return val;
+			return undefined;
+		}, z
+			.number()
+			.int()
+			.positive()
+			.optional()
+			.openapi({ description: 'Calendar year (e.g. 2025)' })
+		),
+
+	onlyCompleted: z.boolean().optional(),
+	onlyPassing: z.boolean().optional(),
+})
 
 /**
  * Controller for student-related endpoints
@@ -11,25 +42,31 @@ export class StudentController {
 	 */
 	static async checkAccess(req: Request, res: Response, next: NextFunction) {
 		const authReq = req as AuthAndPermissionsRequest;
-		const { mnumber } = req.params;
+		const validationResult = studentIdSchema.safeParse(authReq.params);
+		if (!validationResult.success) {
+			res.status(400).json({ error: 'Invalid M-number format' });
+			return;
+		}
+
+		const { mnumber } = validationResult.data;
 
 		try {
 			// Check if user has necessary roles
-			const isAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'cobis_administrator');
-			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) =>
-				role.role_name === 'department_chair');
 			const isFaculty = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'faculty');
 			const isAdvisor = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'advisor');
 			const isProgramCoordinator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'program_coordinator');
+			const isDeptChair = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'department_chair');
 			const isAdministrator = authReq.roles.some((role: { role_name: string; role_id: number }) =>
 				role.role_name === 'administrator');
+			const isCOBISAdmin = authReq.roles.some((role: { role_name: string; role_id: number }) =>
+				role.role_name === 'cobis_administrator');
 
 			// COBIS Administrators can access all students
-			if (isAdmin) {
+			if (isCOBISAdmin) {
 				next();
 				return;
 			}
@@ -40,43 +77,34 @@ export class StudentController {
 				return;
 			}
 
-			if (mnumber) {
-				// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
-				if ((isFaculty || isAdvisor || isDeptChair) && authReq.mnumber) {
-					const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
-					if (isAdvisee) {
-						next();
-						return;
-					}
-				}
-
-				// Department chairs can access students in their department
-				if ((isDeptChair) && authReq.department) {
-					const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
-					if (isStudentInDepartment) {
-						next();
-						return;
-					}
-				}
-
-				// For administrators who have a department association
-				// Currently, this is not implemented in the system
-				if (isAdministrator && authReq.department) {
-					console.error('Administrator access check for student-controller.ts not implemented yet');
-				}
-			} else {
-				// For list endpoints (no specific mnumber) - access control will be handled in the controller
-				if (isDeptChair || isProgramCoordinator || isFaculty || isAdvisor || isAdministrator) {
+			// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
+			if ((isFaculty || isAdvisor || isDeptChair || isProgramCoordinator || isAdministrator) && authReq.mnumber) {
+				const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
+				if (isAdvisee) {
 					next();
 					return;
 				}
+			}
+
+			// Department chairs can access students in their department
+			if ((isDeptChair) && authReq.department) {
+				const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
+				if (isStudentInDepartment) {
+					next();
+					return;
+				}
+			}
+
+			// Check if student exists
+			if (!(await StudentService.studentExists(mnumber))) {
+				res.status(404).json({ error: 'Student not found' });
+				return;
 			}
 
 			// If none of the conditions are met, deny access
 			res.status(403).json({ error: 'Access denied. Insufficient permissions.' });
 			return;
 		} catch (error) {
-			console.error('Error in permission middleware:', error);
 			res.status(500).json({ error: 'Internal server error' });
 			return;
 		}
@@ -86,19 +114,16 @@ export class StudentController {
 	 * Get basic information for a specific student
 	 */
 	static async getStudent(req: Request, res: Response) {
+		const authReq = req as AuthAndPermissionsRequest;
+
+		const { mnumber } = authReq.params;
+
 		try {
-			const { mnumber } = req.params;
-
+			// Get student information
 			const studentInfo = await StudentService.getStudentInfo(mnumber);
-
-			if (!studentInfo) {
-				res.status(404).json({ error: 'Student not found' });
-				return;
-			}
 
 			res.json(studentInfo);
 		} catch (error) {
-			console.error('Error fetching student data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -107,22 +132,19 @@ export class StudentController {
 	 * Get programs (majors and minors) for a specific student
 	 */
 	static async getStudentPrograms(req: Request, res: Response) {
+		const authReq = req as AuthAndPermissionsRequest;
+
+		const { mnumber } = authReq.params;
+
 		try {
-			const { mnumber } = req.params;
-
+			// Get student programs
 			const programData = await StudentService.getStudentPrograms(mnumber);
-
-			if (!programData) {
-				res.status(404).json({ error: 'Student not found' });
-				return;
-			}
 
 			res.json({
 				mnumber,
 				programs: programData
 			});
 		} catch (error) {
-			console.error('Error fetching student program data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -131,22 +153,19 @@ export class StudentController {
 	 * Get academic information for a specific student
 	 */
 	static async getStudentAcademicInfo(req: Request, res: Response) {
+		const authReq = req as AuthAndPermissionsRequest;
+
+		const { mnumber } = authReq.params;
+
 		try {
-			const { mnumber } = req.params;
-
+			// Get student academic information
 			const academicData = await StudentService.getStudentAcademicInfo(mnumber);
-
-			if (!academicData) {
-				res.status(404).json({ error: 'Student not found' });
-				return;
-			}
 
 			res.json({
 				mnumber,
 				academicInfo: academicData
 			});
 		} catch (error) {
-			console.error('Error fetching student academic data:', error);
 			res.status(500).json({ error: 'Internal server error' });
 		}
 	}
@@ -155,19 +174,17 @@ export class StudentController {
 	 * Get student advisors
 	 */
 	static async getStudentAdvisors(req: Request, res: Response) {
-		try {
-			const { mnumber } = req.params;
-			const advisors = await StudentService.getStudentAdvisors(mnumber);
+		const authReq = req as AuthAndPermissionsRequest;
 
-			if (!advisors) {
-				res.status(404).json({ error: "Student not found" });
-				return;
-			}
+		const { mnumber } = authReq.params;
+
+		try {
+			// Get student advisors
+			const advisors = await StudentService.getStudentAdvisors(mnumber);
 
 			res.json(advisors);
 			return;
 		} catch (error) {
-			console.error("Error getting student advisors:", error);
 			res.status(500).json({ error: "Failed to retrieve student advisors" });
 			return;
 		}
@@ -177,19 +194,17 @@ export class StudentController {
 	 * Get student's current enrollment status
 	 */
 	static async getEnrollmentStatus(req: Request, res: Response) {
-		try {
-			const { mnumber } = req.params;
-			const enrollmentStatus = await StudentService.getStudentEnrollmentStatus(mnumber);
+		const authReq = req as AuthAndPermissionsRequest;
 
-			if (!enrollmentStatus) {
-				res.status(404).json({ error: "Student not found" });
-				return;
-			}
+		const { mnumber } = authReq.params;
+
+		try {
+			// Get student enrollment status
+			const enrollmentStatus = await StudentService.getStudentEnrollmentStatus(mnumber);
 
 			res.json(enrollmentStatus);
 			return;
 		} catch (error) {
-			console.error("Error getting student enrollment status:", error);
 			res.status(500).json({ error: "Failed to retrieve student enrollment status" });
 			return;
 		}
@@ -199,34 +214,33 @@ export class StudentController {
 	 * Get courses a student has taken
 	 */
 	static async getStudentCourses(req: Request, res: Response) {
+		const authReq = req as AuthAndPermissionsRequest;
+
+		const { mnumber } = authReq.params;
+
+		// Validate query parameters
+		const validationResult = getStudentCoursesQuerySchema.safeParse(req.query);
+		if (!validationResult.success) {
+			res.status(400).json({ error: 'Invalid query parameters' });
+			return;
+		}
+
+		const { term, year, onlyCompleted, onlyPassing } = validationResult.data;
+
+		const options = {
+			term: term || undefined,
+			year: year || undefined,
+			onlyCompleted: onlyCompleted || undefined,
+			onlyPassing: onlyPassing || undefined,
+		};
+
 		try {
-			const { mnumber } = req.params;
-			const { term, year, onlyCompleted, onlyPassing } = req.query;
-
-			// Parse filter options
-			const options: {
-				term?: string;
-				year?: number;
-				onlyCompleted?: boolean;
-				onlyPassing?: boolean;
-			} = {};
-
-			if (term) options.term = term as string;
-			if (year) options.year = parseInt(year as string);
-			if (onlyCompleted) options.onlyCompleted = onlyCompleted === 'true';
-			if (onlyPassing) options.onlyPassing = onlyPassing === 'true';
-
+			// Get student courses
 			const coursesData = await StudentService.getStudentCourses(mnumber, options);
-
-			if (!coursesData) {
-				res.status(404).json({ error: "Student not found" });
-				return;
-			}
 
 			res.json(coursesData);
 			return;
 		} catch (error) {
-			console.error("Error getting student courses:", error);
 			res.status(500).json({ error: "Failed to retrieve student courses" });
 			return;
 		}
