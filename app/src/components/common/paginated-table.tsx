@@ -56,14 +56,22 @@ function getPaginationItems(
 	return range(1, totalPages);
 }
 
-interface Column {
-	key: string;
+/**
+ * Column definition with optional transform.
+ * @template T - Row data type
+ */
+export interface Column<T, K extends keyof T = keyof T> {
+	/** Key of the property on T to display */
+	key: K;
+	/** Column header label */
 	label: string;
+	/** Optional transform to map a cell value to a string or number */
+	transform?: (value: T[K], row: T) => string | number;
 }
 
 interface PaginatedTableProps<T> {
 	data: T[];
-	columns: Column[];
+	columns: Column<T>[];
 	rowsPerPage?: number;
 	onRowClick?: (row: T) => void;
 	isLoading?: boolean;
@@ -121,7 +129,7 @@ export function PaginatedTable<T>({
 				<TableHeader>
 					<TableRow>
 						{columns.map((col) => (
-							<TableHead key={col.key}>{col.label}</TableHead>
+							<TableHead key={String(col.key)}>{col.label}</TableHead>
 						))}
 					</TableRow>
 				</TableHeader>
@@ -130,7 +138,7 @@ export function PaginatedTable<T>({
 						? Array.from({ length: rowsPerPage }).map((_, i) => (
 							<TableRow key={`skeleton-${i}`}>
 								{columns.map((col) => (
-									<TableCell key={col.key}>
+									<TableCell key={String(col.key)}>
 										<Skeleton className="h-4 w-full" />
 									</TableCell>
 								))}
@@ -143,9 +151,17 @@ export function PaginatedTable<T>({
 									onClick={onRowClick ? () => onRowClick(row) : undefined}
 									className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
 								>
-									{columns.map((col) => (
-										<TableCell key={col.key}>{(row as any)[col.key]}</TableCell>
-									))}
+									{columns.map((col) => {
+										const cellValue = row[col.key];
+										const content = col.transform
+											? col.transform(cellValue, row)
+											: cellValue as React.ReactNode;
+										return (
+											<TableCell key={String(col.key)}>
+												{content}
+											</TableCell>
+										);
+									})}
 								</TableRow>
 							))
 							: (

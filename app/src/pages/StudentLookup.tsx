@@ -132,7 +132,7 @@ const StudentLookup = () => {
 						<CardTitle>Student Results</CardTitle>
 					</CardHeader>
 					<CardContent className="p-4"> {/* Add padding here */}
-						<PaginatedTable
+						<PaginatedTable<Student>
 							isLoading={isLoading}
 							className="border"
 							data={results}
@@ -140,7 +140,7 @@ const StudentLookup = () => {
 								{ key: "mnumber", label: "MNumber" },
 								{ key: "firstName", label: "First Name" },
 								{ key: "lastName", label: "Last Name" },
-								{ key: "email", label: "Email" },
+								{ key: 'email', label: 'Email', transform: val => val.toUpperCase() }
 							]}
 							rowsPerPage={10}
 							onRowClick={handleStudentClick}
