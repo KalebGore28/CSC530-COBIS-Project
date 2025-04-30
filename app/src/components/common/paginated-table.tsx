@@ -57,17 +57,16 @@ function getPaginationItems(
 }
 
 /**
- * Column definition with optional transform.
- * @template T - Row data type
+ * Column definition for PaginatedTable.
+ * Generates a distinct type for each keyof T, so transform gets the correct value type.
  */
-export interface Column<T, K extends keyof T = keyof T> {
-	/** Key of the property on T to display */
-	key: K;
-	/** Column header label */
-	label: string;
-	/** Optional transform to map a cell value to a string or number */
-	transform?: (value: T[K], row: T) => string | number;
-}
+export type Column<T> = {
+	[K in keyof T]: {
+		key: K;
+		label: string;
+		transform?: (value: T[K], row: T) => string | number;
+	}
+}[keyof T];
 
 interface PaginatedTableProps<T> {
 	data: T[];
@@ -153,12 +152,11 @@ export function PaginatedTable<T>({
 								>
 									{columns.map((col) => {
 										const cellValue = row[col.key];
-										const content = col.transform
-											? col.transform(cellValue, row)
-											: cellValue as React.ReactNode;
+										// Ensure display value is always a renderable type (string or number)
+										const display = col.transform ? col.transform(cellValue, row) : String(cellValue);
 										return (
 											<TableCell key={String(col.key)}>
-												{content}
+												{display}
 											</TableCell>
 										);
 									})}
