@@ -17,17 +17,17 @@ export function suggestNextFilename(
 	if (!prefix || !prefix.trim()) {
 		throw new Error("Prefix cannot be empty");
 	}
-	
-	// if not existingFilenames, make a fallback
-	if (!existingFilenames || existingFilenames.length === 0) {
-		return `${prefix}_${'202510'}_${suffix}`;
-	}
 
 	// 1) pull out all the YYYYTT codes
 	const codes = existingFilenames
 		.map((f) => (f.match(codeRegex) || [])[1])
 		.filter(Boolean)
 		.sort();
+
+	// if not existingFilenames, or codes.length === 0, return a fallback
+	if (!existingFilenames || existingFilenames.length === 0 || codes.length === 0) {
+		return `${prefix}_${'202510'}_${suffix}`;
+	}
 
 	if (codes.length === 0) {
 		throw new Error(
