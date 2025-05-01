@@ -20,7 +20,6 @@ export function suggestNextFilename(
 	
 	// if not existingFilenames, make a fallback
 	if (!existingFilenames || existingFilenames.length === 0) {
-		const now = new Date();
 		return `${prefix}_${'202510'}_${suffix}`;
 	}
 
