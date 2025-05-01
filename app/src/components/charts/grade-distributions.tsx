@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
 
 import {
 	Card,
@@ -210,6 +210,7 @@ export function GradeDistributions({
 									minTickGap={32}
 								/>
 								<YAxis
+								    width={40}
 									tickLine={false}
 									axisLine={false}
 									tickCount={6}
@@ -232,7 +233,16 @@ export function GradeDistributions({
 										fill={`url(#fill${grade})`}
 										stroke={config.color}
 										stackId="a"
-									/>
+									>
+										<LabelList
+											dataKey={grade}
+											position="bottom"               // try "inside", "insideBottom", "insideTopLeft", etc.
+											offset={0}
+											content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
+
+										/>
+
+									</Area>
 								))}
 								<ChartLegend content={<ChartLegendContent />} />
 							</AreaChart>
@@ -243,3 +253,53 @@ export function GradeDistributions({
 		</Card>
 	)
 }
+
+// Custom Label Component for LabelList
+const CustomizedLabel = (props: any) => {
+    // Extract props passed by LabelList
+    // x, y: Coordinates of the anchor point on the chart for the label
+    // value: The data value for this label
+    // dataKey: The key associated with this data (e.g., "A", "B")
+    // index: The index of the data point in the dataset
+    const { x, y, value, dataKey } = props;
+
+    // --- Configuration ---
+    const MIN_PERCENTAGE_TO_SHOW = 5; // Only show labels for >= 5%
+    const VERTICAL_OFFSET = 15;       // How far below the point to place the label
+    const FONT_SIZE = 10;
+
+    // --- Logic ---
+    // 1. Basic Validation: Ensure coordinates are valid numbers
+    if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+        return null; // Don't render if position is invalid
+    }
+
+    // 2. Threshold Check: Hide label if the value is too small
+    if (value < MIN_PERCENTAGE_TO_SHOW) {
+        return null;
+    }
+
+    // 3. Format the Label Text
+    const labelText = `${dataKey}-${value.toFixed(0)}%`;
+
+    // --- Rendering ---
+    // Render a <text> SVG element
+    // x, y: Position attributes
+    // dy: Vertical shift from the 'y' coordinate
+    // textAnchor="middle": Center the text horizontally at the 'x' coordinate
+    // dominantBaseline="middle": Helps center text vertically (adjust if needed)
+    // fill, fontSize: Styling
+    return (
+        <text
+            x={x}
+            y={y}
+            dy={VERTICAL_OFFSET} // Apply the vertical offset
+			fill="var(--primary)"      // ← use your CSS var
+            fontSize={FONT_SIZE}
+            textAnchor="middle"
+            dominantBaseline="middle" // Try 'hanging' or remove if vertical alignment is off
+        >
+            {labelText}
+        </text>
+    );
+};
