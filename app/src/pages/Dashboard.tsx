@@ -24,7 +24,7 @@ import { toast } from "sonner";
 import {
   GradeDistributions,
   GradeDistributionData,
-} from "@/components/charts/grade-distributions"; // Adjust path if needed
+} from "@/components/charts/term-grade-distributions"; // Adjust path if needed
 
 type CurrentTermResponse = {
   term: string;

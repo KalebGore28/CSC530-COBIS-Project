@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis, LabelList } from "recharts"
+import { Area, AreaChart, XAxis, YAxis, LabelList } from "recharts"
 
 import {
 	Card,
@@ -174,7 +174,7 @@ export function GradeDistributions({
 								margin={{
 									top: 20,
 									right: 20,
-									left: 0,
+									left: 20,
 									bottom: 20
 								}}
 							>
@@ -201,21 +201,32 @@ export function GradeDistributions({
 										</linearGradient>
 									))}
 								</defs>
-								<CartesianGrid vertical={false} />
 								<XAxis
 									dataKey="date"
 									tickLine={false}
 									axisLine={false}
 									tickMargin={8}
 									minTickGap={32}
+									padding={{ left: 20 }}
 								/>
 								<YAxis
-								    width={40}
+									width={40}
 									tickLine={false}
 									axisLine={false}
 									tickCount={6}
 									tickFormatter={(value) => `${value.toFixed(0)}%`}
 									domain={[0, 100]}
+									label={{
+										value: "Percentage of Grades",
+										angle: -90,
+										position: "insideLeft",
+										offset: -5,
+										style: {
+											textAnchor: "middle",
+											fill: "var(--text-secondary)",
+											fontSize: 12,
+										},
+									}}
 								/>
 								<ChartTooltip
 									cursor={false}
@@ -244,7 +255,10 @@ export function GradeDistributions({
 
 									</Area>
 								))}
-								<ChartLegend content={<ChartLegendContent />} />
+								<ChartLegend
+									content={<ChartLegendContent />}
+									verticalAlign="top"
+								/>
 							</AreaChart>
 						</ChartContainer>
 					</div>
@@ -256,50 +270,50 @@ export function GradeDistributions({
 
 // Custom Label Component for LabelList
 const CustomizedLabel = (props: any) => {
-    // Extract props passed by LabelList
-    // x, y: Coordinates of the anchor point on the chart for the label
-    // value: The data value for this label
-    // dataKey: The key associated with this data (e.g., "A", "B")
-    // index: The index of the data point in the dataset
-    const { x, y, value, dataKey } = props;
+	// Extract props passed by LabelList
+	// x, y: Coordinates of the anchor point on the chart for the label
+	// value: The data value for this label
+	// dataKey: The key associated with this data (e.g., "A", "B")
+	// index: The index of the data point in the dataset
+	const { x, y, value, dataKey } = props;
 
-    // --- Configuration ---
-    const MIN_PERCENTAGE_TO_SHOW = 5; // Only show labels for >= 5%
-    const VERTICAL_OFFSET = 15;       // How far below the point to place the label
-    const FONT_SIZE = 10;
+	// --- Configuration ---
+	const MIN_PERCENTAGE_TO_SHOW = 5; // Only show labels for >= 5%
+	const VERTICAL_OFFSET = 15;       // How far below the point to place the label
+	const FONT_SIZE = 10;
 
-    // --- Logic ---
-    // 1. Basic Validation: Ensure coordinates are valid numbers
-    if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
-        return null; // Don't render if position is invalid
-    }
+	// --- Logic ---
+	// 1. Basic Validation: Ensure coordinates are valid numbers
+	if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
+		return null; // Don't render if position is invalid
+	}
 
-    // 2. Threshold Check: Hide label if the value is too small
-    if (value < MIN_PERCENTAGE_TO_SHOW) {
-        return null;
-    }
+	// 2. Threshold Check: Hide label if the value is too small
+	if (value < MIN_PERCENTAGE_TO_SHOW) {
+		return null;
+	}
 
-    // 3. Format the Label Text
-    const labelText = `${dataKey}-${value.toFixed(0)}%`;
+	// 3. Format the Label Text
+	const labelText = `${dataKey}-${value.toFixed(0)}%`;
 
-    // --- Rendering ---
-    // Render a <text> SVG element
-    // x, y: Position attributes
-    // dy: Vertical shift from the 'y' coordinate
-    // textAnchor="middle": Center the text horizontally at the 'x' coordinate
-    // dominantBaseline="middle": Helps center text vertically (adjust if needed)
-    // fill, fontSize: Styling
-    return (
-        <text
-            x={x}
-            y={y}
-            dy={VERTICAL_OFFSET} // Apply the vertical offset
+	// --- Rendering ---
+	// Render a <text> SVG element
+	// x, y: Position attributes
+	// dy: Vertical shift from the 'y' coordinate
+	// textAnchor="middle": Center the text horizontally at the 'x' coordinate
+	// dominantBaseline="middle": Helps center text vertically (adjust if needed)
+	// fill, fontSize: Styling
+	return (
+		<text
+			x={x}
+			y={y}
+			dy={VERTICAL_OFFSET} // Apply the vertical offset
 			fill="var(--primary)"      // ← use your CSS var
-            fontSize={FONT_SIZE}
-            textAnchor="middle"
-            dominantBaseline="middle" // Try 'hanging' or remove if vertical alignment is off
-        >
-            {labelText}
-        </text>
-    );
+			fontSize={FONT_SIZE}
+			textAnchor="middle"
+			dominantBaseline="middle" // Try 'hanging' or remove if vertical alignment is off
+		>
+			{labelText}
+		</text>
+	);
 };
