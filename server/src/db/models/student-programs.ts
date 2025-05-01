@@ -2,8 +2,8 @@ import { sqliteTable, text, int, primaryKey, check } from "drizzle-orm/sqlite-co
 import { sql, relations } from "drizzle-orm";
 
 import { students } from "./students";
-import { terms } from "./terms";
 import { programs } from "./programs";
+import { terms } from "./terms";
 
 export const studentPrograms = sqliteTable("student_programs", {
 	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
@@ -19,11 +19,8 @@ export const studentPrograms = sqliteTable("student_programs", {
 ]);
 
 // Define relationships for DBML generation
-export const studentProgramRelations = relations(studentPrograms, ({ one }) => ({
-	student: one(students, { // Student programs have a student
-		fields: [studentPrograms.mnumber],
-		references: [students.mnumber],
-	}),
+export const studentProgramRelations = relations(studentPrograms, ({ one, many }) => ({
+	students: many(students), // There can be multiple rows for each student with different programs/types
 	term: one(terms, { // Student programs have a term
 		fields: [studentPrograms.term],
 		references: [terms.code],

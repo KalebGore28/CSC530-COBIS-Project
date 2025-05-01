@@ -94,7 +94,7 @@ interface StudentDetailProps {
     mnumber: string; // The M-Number passed to the component
 }
 
-const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
+export const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
     // State for storing the fetched student data
     const [studentData, setStudentData] = useState<StudentDetailData | null>(
         null

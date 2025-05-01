@@ -410,56 +410,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 		]
 	},
 
-	// Previous Colleges CSV
-	{
-		filePatterns: [/reg_cuba_previous_colleges_\d+_\d+\.csv$/i],
-		description: "Previous colleges attended",
-		category: "data",
-		destinations: [
-			{
-				tableName: "Previous Colleges",
-				tableId: "previous-colleges",
-				primaryKeys: ["mnumber", "college_code"],
-				schemaRef: schema.previousColleges,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "collegecode", dbColumn: "college_code" },
-					{ csvColumn: "collegedesc", dbColumn: "college_description" },
-					{ csvColumn: "degree", dbColumn: "degree" },
-					{ csvColumn: "degreedate", dbColumn: "date", transform: (value) => convertDateDDMMYYYY(value) } // Notice different date format according to Data Dictionary File.
-				]
-			}
-		]
-	},
-
-	// Overrides CSV
-	{
-		filePatterns: [/reg_cuba_overrides_\d+_\d+\.csv$/i],
-		description: "Overrides data",
-		category: "data",
-		destinations: [
-			{
-				tableName: "Overrides",
-				tableId: "overrides",
-				primaryKeys: ["mnumber", "term", "year", "crn"],
-				schemaRef: schema.overrides,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "crn", dbColumn: "crn" },
-					{ csvColumn: "subj", dbColumn: "course_subject" },
-					{ csvColumn: "crsenumb", dbColumn: "course_number" },
-					// Again the suffix column is not present in the overrides file
-					{ csvColumn: "section", dbColumn: "course_section" },
-					{ csvColumn: "override", dbColumn: "override_type" },
-					{ csvColumn: "userid", dbColumn: "granted_by" },
-					{ csvColumn: "activitydate", dbColumn: "override_date", transform: (value) => convertDateDDMMYYYY(value) } // Notice different date format according to Data Dictionary File.
-				]
-			}
-		]
-	},
-
 	// Courses Catalog CSV example file name: reg_cuba_catalog_202510_20250117.csv
 	{
 		filePatterns: [/reg_cuba_catalog_\d+_\d+\.csv$/i],
@@ -510,20 +460,6 @@ export const csvFileMappings: CSVFileMapping[] = [
 			tableId: "admit-codes",
 			primaryKeys: ["code"],
 			schemaRef: schema.admitCodes,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "College codes",
-		category: "lookup",
-		destination: {
-			tableName: "College Codes",
-			tableId: "college-codes",
-			primaryKeys: ["code"],
-			schemaRef: schema.collegeCodes,
 			columns: [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" }

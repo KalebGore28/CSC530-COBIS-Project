@@ -24,11 +24,6 @@ table admit_codes {
   description text [not null]
 }
 
-table college_codes {
-  code text [pk, not null]
-  description text [not null]
-}
-
 table colleges {
   code text [pk, not null]
   description text [not null]
@@ -63,17 +58,6 @@ table faculty {
   department text [default: '0000']
 }
 
-table imports {
-  id integer [pk, not null]
-  entity_type text [not null]
-  file_name text [not null]
-  total_records integer [not null]
-  error_details text [not null]
-  import_status text [not null]
-  imported_by text [not null]
-  import_date text [not null, default: `CURRENT_TIMESTAMP`]
-}
-
 table instructional_methods {
   code text [pk, not null]
   description text [not null]
@@ -101,40 +85,9 @@ table nations {
   description text [not null]
 }
 
-table overrides {
-  mnumber text [not null]
-  term text [not null]
-  year integer [not null]
-  crn text [not null]
-  subject text [not null]
-  number text [not null]
-  suffix text [not null, default: '']
-  section text [not null]
-  override_type text [not null]
-  granted_by text [not null]
-  override_date text [not null]
-
-  indexes {
-    (mnumber, term, year, crn) [pk]
-    
-  }
-}
-
 table part_of_term {
   code text [pk, not null]
   description text [not null]
-}
-
-table previous_colleges {
-  mnumber text [not null]
-  college_code text [not null]
-  college_description text [not null]
-  degree text [not null]
-  date text [not null]
-
-  indexes {
-    (mnumber, college_code) [pk]
-  }
 }
 
 table programs {
@@ -329,23 +282,15 @@ table verification {
 
 ref: departments.college > colleges.code
 
-ref: imports.imported_by > user.id
+ref: faculty.college > colleges.code
+
+ref: faculty.department > departments.code
 
 ref: instructor_courses.mnumber > user.mnumber
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 
 ref: instructor_courses.term > terms.code
-
-ref: overrides.mnumber > students.mnumber
-
-ref: overrides.(subject, number, suffix) > courses.(subject, number, suffix)
-
-ref: overrides.term > terms.code
-
-ref: previous_colleges.college_code > college_codes.code
-
-ref: previous_colleges.mnumber > students.mnumber
 
 ref: programs.college > colleges.code
 
@@ -378,8 +323,6 @@ ref: student_courses.(course_subject, course_number, course_suffix) > courses.(s
 ref: student_courses.registration_status > registration_status.code
 
 ref: student_courses.instructional_method > instructional_methods.code
-
-ref: student_programs.mnumber > students.mnumber
 
 ref: student_programs.term > terms.code
 

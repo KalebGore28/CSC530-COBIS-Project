@@ -28,19 +28,19 @@ export const studentAcademicInfo = sqliteTable("student_academic_info", {
 
 // Define relationships for DBML generation
 export const studentAcademicInfoRelations = relations(studentAcademicInfo, ({ one }) => ({
-	student: one(students, { // Student academic info has a student
+	student: one(students, {
 		fields: [studentAcademicInfo.mnumber],
 		references: [students.mnumber],
 	}),
-	admitTerm: one(terms, { // Student academic info has an admit term
+	admitTerm: one(terms, {
 		fields: [studentAcademicInfo.admit_term],
 		references: [terms.code],
 	}),
-	admitCode: one(admitCodes, { // Student academic info has an admit code
+	admitCode: one(admitCodes, {
 		fields: [studentAcademicInfo.admit_code],
 		references: [admitCodes.code],
 	}),
-	standing: one(academicStanding, { // Student academic info has an academic standing
+	academicStanding: one(academicStanding, {
 		fields: [studentAcademicInfo.academic_standing],
 		references: [academicStanding.code],
 	}),
