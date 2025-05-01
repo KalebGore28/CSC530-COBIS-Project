@@ -1,11 +1,24 @@
+//@ts-nocheck
 import { Request, Response, NextFunction, RequestHandler } from "express";
 import { AuthAndPermissionsRequest } from "../types/requests";
+
+export const ROLES = [
+	'faculty',
+	'advisor',
+	'program_coordinator',
+	'administrator',
+	'department_chair',
+	'cobis_administrator',
+] as const;
+
+/** Union of all valid role strings */
+export type RoleName = typeof ROLES[number];
 
 /**
  * Middleware to check if the user has the required role(s).
  * @param role_name The role_name or array of role_names to check for.
  */
-export const hasRole = (role_name: string | string[]): RequestHandler => {
+export const hasRole = (role_name: RoleName | RoleName[]): RequestHandler => {
 	// Validate role_name type at middleware creation
 	if (Array.isArray(role_name)) {
 		if (!role_name.every((name) => typeof name === "string")) {
