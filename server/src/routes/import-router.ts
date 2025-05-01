@@ -12,7 +12,7 @@ import { hasRole } from '../middleware/has-role';
 const router = express.Router();
 
 // Middleware to check if the user has the required role
-router.use(hasRole('cobis_administator'));
+router.use(hasRole('cobis_administrator'));
 
 // Process and import a CSV file
 router.post('/process',
