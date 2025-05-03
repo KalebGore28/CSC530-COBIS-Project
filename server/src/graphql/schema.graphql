@@ -272,6 +272,12 @@ type Verification {
   updated_at: Int
 }
 
+type YearTerm {
+  term: Term!
+  year: Int!
+}
+
+
 # Root query type
 
 type Query {
@@ -306,5 +312,6 @@ type Query {
 
   student(mnumber: String!): Student
   instructor(mnumber: String!): Faculty
+  getCurrentYearTerm: YearTerm!
   
 }

@@ -1,4 +1,3 @@
-// File: src/graphql/resolvers.ts
 import { eq, sql, and, or } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
@@ -283,7 +282,6 @@ export const resolvers = {
 				return stud || null
 			}
 		),
-
 		instructor: checkInstructorAccess(
 			async (_: any, { mnumber }: { mnumber: string }, ctx: any) => {
 				const [fac] = await ctx.db
@@ -295,7 +293,25 @@ export const resolvers = {
 			}
 		),
 
+		getCurrentYearTerm: async (_: any, __: any, { db }: any) => {
+			const [currentYear] = await db
+				.select({
+					currentYear: sql<number>`MAX(${tables.instructorCourses.year})`
+				})
+				.from(tables.instructorCourses);
 
+			const [currentTerm] = await db
+				.select({
+					currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`
+				})
+				.from(tables.instructorCourses)
+				.where(sql`${tables.instructorCourses.year} = ${currentYear?.currentYear}`);
+
+			return {
+				year: currentYear?.currentYear,
+				term: currentTerm?.currentTerm,
+			}
+		}
 	},
 
 	Account: {
@@ -560,5 +576,10 @@ export const resolvers = {
 			db.select().from(tables.testScores)
 				.where(eq(tables.testScores.mnumber, stud.mnumber))
 	},
+
+	YearTerm: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+	}
 
 }
