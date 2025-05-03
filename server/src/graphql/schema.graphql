@@ -1,0 +1,132 @@
+"""
+A student record and related lookup types
+"""
+
+type Student {
+  mnumber:               String!
+  first_name:            String!
+  middle_name:           String
+  last_name:             String!
+  suffix:                String
+  gender:                String
+  birthdate:             String
+  citizenship:           String
+  race_code:             String
+  race_description:      String
+  residency_code:        String
+  residency_description: String
+  age:                   Int
+  cell_phone:            String
+  email:                 String
+
+  programs:       [StudentProgram!]!
+  academic_info:  [StudentAcademicInfo!]!
+  addresses:      [StudentAddress!]!
+  advisors:       [StudentAdvisor!]!
+  courses:        [StudentCourse!]!
+}
+
+type StudentProgram {
+  mnumber: String!
+  term:    Term!
+  year:    Int!
+  type:    String!
+  level:   String!
+  program: Program!
+}
+
+type StudentAcademicInfo {
+  mnumber:            String!
+  term:               Term!
+  year:               Int!
+  admit_term:         Term!
+  admit_year:         Int!
+  admit_code:         AdmitCode!
+  academic_standing:  AcademicStanding!
+  msu_attempted_hours:    Float!
+  msu_earned_hours:       Float!
+  msu_quality_points:     Float!
+  msu_gpa:                Float!
+  overall_attempted_hours:Float!
+  overall_earned_hours:   Float!
+  overall_quality_points: Float!
+  overall_gpa:            Float!
+}
+
+type StudentAddress {
+  mnumber:    String!
+  type:       String!
+  street1:    String!
+  street2:    String
+  city:       String!
+  state:      String!
+  zip:        String!
+  nation_code: Nation!
+  phone:      String!
+}
+
+type StudentAdvisor {
+  student_mnumber: String!
+  term:            Term!
+  year:            Int!
+  advisor_mnumber: String!
+}
+
+type StudentCourse {
+  mnumber:              String!
+  term:                 Term!
+  year:                 Int!
+  part_of_term:         PartOfTerm!
+  crn:                  String!
+  course:               Course!
+  course_hours:         Int!
+  course_level:         String!
+  registration_status:  RegistrationStatus!
+  instructional_method: InstructionalMethod!
+  last_attendance:      String
+  midterm_grade:        String
+  final_grade:          String
+}
+
+# Lookup types
+
+type Term { code: String! description: String! }
+type PartOfTerm { code: String! description: String! }
+type InstructionalMethod { code: String! description: String! }
+type RegistrationStatus { code: String! description: String! }
+type AdmitCode { code: String! description: String! }
+type AcademicStanding { code: String! description: String! }
+type Nation { code: String! description: String! }
+type Roles { id: String! name: String! }
+type UserRoles { user_id: User! role_id: Role! }
+type User {
+  id: String!
+  mnumber: String
+  name: String!
+  email: String!
+  emailVerified: Boolean!
+  image: String
+  createdAt: String!
+  updatedAt: String!
+  isEnabled: Boolean!
+  lastLogin: Int
+}
+
+
+
+type Course {
+  subject: String! number: Int! suffix: String! title: String!
+  hours: Int! fee: Float! web_fee: Float! last_updated: String!
+}
+type College { code: String! description: String! }
+type Department { code: String! description: String! college: College! }
+type Program {
+  code: String! description: String! cip_code: String!
+  is_major: Boolean! is_minor: Boolean! has_concentration: Boolean!
+  is_discontinued: Boolean! is_aacsb: Boolean! department: Department!
+  college: College! added_on: String!
+}
+
+type Query {
+  student(mnumber: String!): Student
+}

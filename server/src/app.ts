@@ -6,6 +6,12 @@ import { auth } from "./lib/auth";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 import path from "path";
 
+import { createHandler } from 'graphql-http/lib/use/express'
+//@ts-ignore
+import { ruruHTML } from 'ruru/server'
+import { schema } from './graphql'            // resolves src/graphql/index.ts
+import { buildContext } from './graphql/context'
+
 // Open API
 import { apiReference } from '@scalar/express-api-reference'
 import 'zod-openapi/extend';
@@ -85,6 +91,28 @@ app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.j
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
+app.all(
+    '/graphql',
+    async (req, res, next) => {
+        const context = await buildContext()
+        return createHandler({
+            schema,
+            context,
+        })(req, res, next)
+    }
+)
+
+app.get('/graphiql', (_req, res) => {
+    res
+        .type('html')
+        .end(
+            ruruHTML({
+                endpoint: '/graphql',
+                title: 'My API GraphiQL',
+            })
+        )
+})
+
 // now serve client:
 app.use(express.static(staticDir))
 app.use('/api', authenticateUser, getUserInfo)
@@ -101,8 +129,8 @@ app.use("/api/lookup", lookupRouter)
 // app.use('/api/custom-query', customQuery)
 
 app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api')) return next()
-  res.sendFile(path.join(staticDir, 'index.html'))
+    if (req.path.startsWith('/api')) return next()
+    res.sendFile(path.join(staticDir, 'index.html'))
 })
 
 export default app;
