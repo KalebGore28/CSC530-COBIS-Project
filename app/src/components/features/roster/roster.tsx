@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import {
 	Table,
@@ -116,6 +116,28 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	const [sortField, setSortField] = useState<"name" | "grade">("name");
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [gradeFilter, setGradeFilter] = useState<string>("all");
+	const [gradeType, setGradeType] = useState<"final" | "midterm">("final");
+
+	const gradeDistributionFromStudents = useMemo(() => {
+		return students.reduce((acc, student) => {
+			const grade = gradeType === "final"
+				? student.finalGrade
+				: student.midtermGrade;
+			if (grade === "N/A") return acc;              // skip ungraded if you like
+			acc[grade] = (acc[grade] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+	}, [students, gradeType]);
+
+	const chartData = useMemo(
+		() =>
+			Object.entries(gradeDistributionFromStudents).map(
+				([grade, count]) => ({ grade, count })
+			),
+		[gradeDistributionFromStudents]
+	);
+
+
 
 	// --- API Fetching Logic ---
 	const fetchCurrentTerm = async () => {
@@ -312,15 +334,35 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 			{/* Class Statistics */}
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				<PieChartDonut
-					title="Grade Distributions"
-					description="Final Grades"
-					data={
-						Object.entries(stats.gradeDistribution).map(([grade, count]) => ({
-							grade,
-							count,
-						}))
-					} />
+				<Card>
+					<CardHeader className="flex items-center justify-between">
+						<CardTitle>Grade Distributions</CardTitle>
+						<div className="space-x-2">
+							<Button
+								size="sm"
+								variant={gradeType === "midterm" ? "default" : "outline"}
+								onClick={() => setGradeType("midterm")}
+							>
+								Midterm
+							</Button>
+							<Button
+								size="sm"
+								variant={gradeType === "final" ? "default" : "outline"}
+								onClick={() => setGradeType("final")}
+							>
+								Final
+							</Button>
+						</div>
+					</CardHeader>
+					<CardContent>
+						<PieChartDonut
+							title={`${gradeType === "final" ? "Final" : "Midterm"} Grade Distributions`}
+							description={`${gradeType === "final" ? "Final" : "Midterm"} Grades`}
+							data={chartData}
+						/>
+					</CardContent>
+				</Card>
+
 
 				<Card>
 					<CardHeader>
