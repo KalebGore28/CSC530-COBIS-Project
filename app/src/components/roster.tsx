@@ -28,8 +28,8 @@ import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
-import { toast } from "sonner"
 import { gql } from "graphql-request";
+import { fetchGraphQL } from "@/utils/fetch-graphql";
 
 /**
  * Student interface representing a student in the class roster
@@ -78,6 +78,14 @@ export interface RosterStats {
 	gradeDistribution: Record<string, number>;
 }
 
+type CurrentTermResponse = {
+	year: number;
+	term: {
+		code: string;
+		description: string;
+	};
+};
+
 /**
  * Props for the ClassRosterComponent
  */
@@ -87,11 +95,18 @@ export interface ClassRosterProps {
 	onStudentSelect?: (student: Student) => void;
 }
 
-type CurrentTermResponse = {
-	term: string;
-	year: number;
-	termName: string;
-};
+const GET_CURRENT_TERM = gql`
+	query GetCurrentTerm {
+		getCurrentYearTerm {
+			year
+			term {
+			code
+			description
+			}
+		}
+	}
+`;
+
 
 /**
  * Roster
@@ -139,22 +154,12 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	);
 
 
-
-	// --- API Fetching Logic ---
-	const fetchCurrentTerm = async () => {
-		try {
-			const response = await axios.get<CurrentTermResponse>('/api/utility/current-term', { withCredentials: true });
-			setCurrentTerm(response.data);
-			return response.data;
-		} catch (error) {
-			toast.error("Failed to load current term information");
-			return null;
-		}
-	};
-
 	useEffect(() => {
 		const fetchRosterData = async () => {
-			fetchCurrentTerm();
+
+			const data = await fetchGraphQL(GET_CURRENT_TERM, {});
+			setCurrentTerm(data.getCurrentYearTerm as CurrentTermResponse);
+
 			if (!selectedCourse || !mnumber) {
 				return;
 			}
@@ -302,7 +307,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 	const exportFilename = `${courseInfo.courseSubject}${courseInfo.courseNumber}${courseInfo.courseSuffix}-${courseInfo.courseSection}_${courseInfo.termName}_${courseInfo.year}`;
 
-	const isActive = currentTerm?.term === courseInfo.termCode && currentTerm?.year === courseInfo.year;
+	const isActive = currentTerm?.term.code === courseInfo.termCode && currentTerm?.year === courseInfo.year;
 
 	return (
 		<div className="space-y-6 w-full">

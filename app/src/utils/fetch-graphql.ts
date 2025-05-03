@@ -1,3 +1,5 @@
+import { toast } from "sonner"
+
 const GRAPHQL_ENDPOINT = "/api/graphql";
 
 export const fetchGraphQL = async (query: string, variables: any) => {
@@ -8,6 +10,9 @@ export const fetchGraphQL = async (query: string, variables: any) => {
 		body: JSON.stringify({ query, variables }),
 	});
 	const json = await res.json();
-	if (json.errors) throw new Error(json.errors.map((e: any) => e.message).join("; "));
+	if (json.errors) {
+		const errorMessage = json.errors.map((error: any) => error.message).join(", ");
+		toast.error(`GraphQL Error: ${errorMessage}`);
+	}
 	return json.data;
 };
