@@ -31,7 +31,6 @@ export interface Course {
 	termName: string;
 	termCode: string;
 	year: number;
-	courseId: string;
 	courseTitle: string;
 	courseSubject: string;
 	courseNumber: number;
@@ -89,7 +88,10 @@ const GET_COURSE_STATS = gql`
     $mnumber: String!
     $term: String!
     $year: Int!
-    $courseId: String!
+    $subject: String!
+	$number: Int!
+	$suffix: String!
+	$section: String!
   ) {
     instructor(mnumber: $mnumber) {
       courses_taught(
@@ -97,7 +99,10 @@ const GET_COURSE_STATS = gql`
         startYear: $year
         endTerm: $term
         endYear: $year
-        courseId: $courseId
+		subject: $subject
+		number: $number
+		suffix: $suffix
+		section: $section
       ) {
         course {
           subject
@@ -164,7 +169,6 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 					termName: selectedTerm.termName,
 					termCode: selectedTerm.termCode,
 					year: selectedTerm.year,
-					courseId: `${ct.course.subject}${ct.course.number}${ct.course.suffix}`,
 					courseSubject: ct.course.subject,
 					courseNumber: ct.course.number,
 					courseSuffix: ct.course.suffix,
@@ -206,7 +210,10 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 				mnumber,
 				term: selectedTerm!.termCode,
 				year: selectedTerm!.year,
-				courseId: course.courseId,
+				subject: course.courseSubject,
+				number: course.courseNumber,
+				suffix: course.courseSuffix,
+				section: course.courseSection,
 			});
 			const taught = data.instructor.courses_taught as Array<any>;
 
@@ -244,7 +251,7 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 
 	// Create a unique ID for each course
 	const getCourseId = (course: Course) => {
-		return `${course.courseId}-${course.courseSection}`;
+		return `${course.courseSubject}|${course.courseNumber}|${course.courseSuffix}|${course.courseSection}`;
 	};
 
 	if (!selectedTerm) {

@@ -2,6 +2,7 @@ import { eq, sql, and, or } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
+import { number } from 'zod';
 
 export const resolvers = {
 	Query: {
@@ -336,7 +337,10 @@ export const resolvers = {
 				endTerm?: string
 				startYear?: number
 				endYear?: number
-				courseId?: string
+				subject?: string
+				number?: number
+				suffix?: string
+				section?: string
 			},
 			{ db }: any
 		) => {
@@ -364,18 +368,28 @@ export const resolvers = {
 					sql`${tables.instructorCourses.year} <= ${args.endYear}`
 				)
 			}
-			if (args.courseId) {
-				const up = args.courseId.toUpperCase()
+			if (args.subject != null) {
 				predicates.push(
-					sql`
-				  UPPER(
-					${tables.instructorCourses.course_subject}
-					|| CAST(${tables.instructorCourses.course_number} AS TEXT)
-					|| ${tables.instructorCourses.course_suffix}
-				  ) LIKE ${up + '%'}
-				`
+					eq(tables.instructorCourses.course_subject, args.subject)
 				)
 			}
+			if (args.number != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_number, args.number)
+				)
+			}
+			if (args.suffix != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_suffix, args.suffix)
+				)
+			}
+			if (args.section != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_section, args.section)
+				)
+			}
+
+			console.log('Instructor course predicates:', args)
 
 			return db
 				.select()

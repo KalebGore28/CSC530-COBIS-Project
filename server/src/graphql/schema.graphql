@@ -60,7 +60,10 @@ type Faculty {
     endTerm: String,
     startYear: Int,
     endYear: Int,
-    courseId: String, # subject + number + suffix
+    subject: String,
+    number: Int,
+    suffix: String,
+    section: String,
   ): [InstructorCourse!]!
 }
 
