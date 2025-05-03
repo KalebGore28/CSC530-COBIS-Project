@@ -78,7 +78,6 @@ const GET_TERM_STATS = gql`
           code
         }
         students {
-          mnumber
           course_hours
         }
       }
@@ -245,13 +244,13 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 						<SkeletonCard showDropdown={false} showTitle={false} showDescription />
 					) : (
 						<>
-							<Badge variant="outline" className="bg-blue-50">
+							<Badge variant="outline" className="bg-blue-50 dark:bg-blue-900">
 								{selectedTerm.courseCount} {selectedTerm.courseCount === 1 ? "Course" : "Courses"}
 							</Badge>
-							<Badge variant="outline" className="bg-green-50">
+							<Badge variant="outline" className="bg-green-50 dark:bg-green-900">
 								{selectedTerm.studentCount} {selectedTerm.studentCount === 1 ? "Student" : "Students"}
 							</Badge>
-							<Badge variant="outline" className="bg-purple-50">
+							<Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
 								{selectedTerm.creditHoursDelivered} Credit Hours
 							</Badge>
 						</>
