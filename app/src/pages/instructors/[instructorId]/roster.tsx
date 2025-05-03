@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Course } from "@/components/selectors/course-selector";
-import { Roster } from "@/components/features/roster/roster";
+import { Roster } from "@/components/roster";
 import { toast } from "sonner";
 import Modal from "@/components/modals/modal";
 import StudentDetail from "@/components/student-detail";
