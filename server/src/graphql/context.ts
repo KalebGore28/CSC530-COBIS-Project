@@ -44,6 +44,7 @@ export async function buildContext() {
 		})
 
 	const loaders = {
+		user: makeLoader(schema.user),
 		term: makeLoader(schema.terms),
 		partOfTerm: makeLoader(schema.partOfTerm),
 		registrationStatus: makeLoader(schema.registrationStatus),
