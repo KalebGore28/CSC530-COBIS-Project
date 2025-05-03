@@ -77,21 +77,6 @@ export class SearchController {
 	}
 
 	/**
-	 * Search college codes
-	 */
-	static async searchCollegeCodes(req: Request, res: Response) {
-		const query = SearchController.validateQuery(req, res);
-		if (!query) return;
-
-		try {
-			const results = await SearchService.searchCollegeCodes(query);
-			res.json(results);
-		} catch (error) {
-			res.status(500).json({ error: "Internal server error" });
-		}
-	}
-
-	/**
 	 * Search courses
 	 */
 	static async searchCourses(req: Request, res: Response) {
