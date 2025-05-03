@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import {
 	Select,
 	SelectContent,
@@ -347,13 +346,13 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 						<SkeletonCard showDropdown={false} showTitle={false} showDescription />
 					) : (
 						<>
-							<Badge variant="outline" className="bg-yellow-50">
+							<Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900">
 								{selectedCourse.creditHours} Credit Hours
 							</Badge>
-							<Badge variant="outline" className="bg-green-50">
+							<Badge variant="outline" className="bg-green-50 dark:bg-green-900">
 								{selectedCourse.studentCount} {selectedCourse.studentCount === 1 ? "Student" : "Students"}
 							</Badge>
-							<Badge variant="outline" className="bg-purple-50">
+							<Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
 								{selectedCourse.totalCreditHours} Total Credit Hours
 							</Badge>
 						</>
