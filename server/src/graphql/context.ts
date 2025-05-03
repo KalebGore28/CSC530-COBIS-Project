@@ -43,6 +43,15 @@ export async function buildContext() {
 			})
 		})
 
+	const makeLoaderByMnumber = (table: any, keyCol: any) =>
+		new DataLoader<string, any>(async (keys) => {
+			const rows = await db
+				.select()
+				.from(table)
+				.where(inArray(keyCol, keys as string[]))
+			return keys.map((k) => rows.find(r => r[keyCol.name] === k)!)
+		})
+
 	const loaders = {
 		user: makeLoader(schema.user),
 		term: makeLoader(schema.terms),
@@ -56,8 +65,7 @@ export async function buildContext() {
 		department: makeLoader(schema.departments),
 		college: makeLoader(schema.colleges),
 		course: makeCompositeLoader(schema.courses, ['subject', 'number', 'suffix']),
-		studentAcademicInfo: makeCompositeLoader(schema.studentAcademicInfo, ['mnumber', 'term', 'year']),
-		student: makeLoader(schema.students),
+		student: makeLoaderByMnumber(schema.students, schema.students.mnumber),
 	}
 
 	return { db, loaders }

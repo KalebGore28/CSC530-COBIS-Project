@@ -378,6 +378,22 @@ export const resolvers = {
 			loaders.course.load(
 				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
 			),
+		students: (row: any, _: any, { db }: any) =>
+			db
+				.select()
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.orderBy(
+					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
+				)
 	},
 
 	Program: {
@@ -429,6 +445,8 @@ export const resolvers = {
 			loaders.registrationStatus.load(row.registration_status),
 		instructional_method: (row: any, _: any, { loaders }: any) =>
 			loaders.instructionalMethod.load(row.instructional_method),
+		student: (row: any, _: any, { loaders }: any) =>
+			loaders.student.load(row.mnumber),
 	},
 
 	StudentProgram: {

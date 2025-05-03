@@ -77,6 +77,8 @@ type InstructorCourse {
   course: Course!
   course_section: String!
   role: String!
+  # Relationships
+  students: [StudentCourse!]!
 }
 
 type Nation {
@@ -178,6 +180,8 @@ type StudentCourse {
   last_attendance: String
   midterm_grade: String
   final_grade: String
+  # Relationships
+  student: Student!         # FK → students.mnumber
 }
 
 type StudentProgram {
