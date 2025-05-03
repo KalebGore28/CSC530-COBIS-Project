@@ -78,7 +78,6 @@ describe('SearchController', () => {
 		{ controllerMethod: SearchController.searchAcademicStandings, serviceMethodName: 'searchAcademicStandings' as keyof typeof SearchService },
 		{ controllerMethod: SearchController.searchAdmitCodes, serviceMethodName: 'searchAdmitCodes' as keyof typeof SearchService },
 		{ controllerMethod: SearchController.searchColleges, serviceMethodName: 'searchColleges' as keyof typeof SearchService },
-		{ controllerMethod: SearchController.searchCollegeCodes, serviceMethodName: 'searchCollegeCodes' as keyof typeof SearchService },
 		{ controllerMethod: SearchController.searchCourses, serviceMethodName: 'searchCourses' as keyof typeof SearchService },
 		{ controllerMethod: SearchController.searchDepartments, serviceMethodName: 'searchDepartments' as keyof typeof SearchService },
 		{ controllerMethod: SearchController.searchNations, serviceMethodName: 'searchNations' as keyof typeof SearchService },

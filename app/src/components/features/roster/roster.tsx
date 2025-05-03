@@ -28,7 +28,6 @@ import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 
 /**
@@ -284,7 +283,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 	return (
 		<div className="space-y-6 w-full">
-			<Toaster />
 			{/* Course Information Card */}
 			<Card className="w-full">
 				<CardContent className="p-6">

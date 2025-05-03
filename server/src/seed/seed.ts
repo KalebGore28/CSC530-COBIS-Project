@@ -1,7 +1,7 @@
 import { faker } from "@faker-js/faker";
 import { getDbConnection } from "../db/connection"; // your drizzle client instance
 import { sql } from "drizzle-orm"; // Import sql for check constraints if needed
-import { seedDatabase } from "./csvs";
+import { seedDatabase } from "./scripts/seedLookupTables";
 
 import {
 	students,
@@ -12,13 +12,11 @@ import {
 	instructionalMethods,
 	partOfTerm,
 	faculty,
-	// Import the new table schemas
 	studentAcademicInfo,
 	studentAddresses,
 	studentAdvisors,
 	studentPrograms,
 	testScores,
-	// Assuming these schemas exist and are imported (add actual imports if needed)
 	admitCodes,
 	academicStanding,
 	nations,

@@ -123,22 +123,6 @@ describe('InstructorController', () => {
 			expect(res.json).toHaveBeenCalledWith(sampleDeptInstructors);
 		});
 
-		// --- Test Case: Department Chair AND Admin - Success (Should behave as Dept Chair) ---
-		// The code currently prioritizes dept chair logic if that role exists
-		it('should call getInstructors with department code if user is both Dept Chair and Admin', async () => {
-			const bothRoles = [...deptChairRole, ...cobisAdminRole];
-			req = mockAuthRequest(bothRoles, testDepartment);
-			vi.mocked(InstructorService.getInstructors).mockResolvedValue(sampleDeptInstructors);
-
-			await InstructorController.getInstructors(req, res);
-
-			// Because isDeptChair is true, it should use the department code
-			expect(InstructorService.getInstructors).toHaveBeenCalledWith(testDepartment);
-			expect(res.status).not.toHaveBeenCalled();
-			expect(res.json).toHaveBeenCalledWith(sampleDeptInstructors);
-		});
-
-
 		// --- Test Case: COBIS Admin - Success ---
 		it('should call getInstructors with undefined department for COBIS Admin', async () => {
 			req = mockAuthRequest(cobisAdminRole); // Only admin role

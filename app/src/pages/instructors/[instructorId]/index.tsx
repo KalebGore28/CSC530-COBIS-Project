@@ -35,7 +35,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner"
-import { GradeDistributions, GradeDistributionData } from '@/components/charts/grade-distributions';
+import { GradeDistributions, GradeDistributionData } from '@/components/charts/term-grade-distributions';
 // Types based on API responses
 type InstructorResponse = {
 	mnumber: string;

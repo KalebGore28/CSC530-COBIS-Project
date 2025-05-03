@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import importRouter from '../routes/import-router';
+import importRouter from '../../routes/import-router';
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -20,52 +20,52 @@ export const seedDatabase = async () => {
 	const app = express()
 		.use(express.json({ limit: "10mb" }))
 		.use(express.urlencoded({ extended: true, limit: "10mb" }))
-		.use('/api/import',importRouter);
+		.use('/api/import', importRouter);
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
 		{
-			filePath: './data/csvs/academic_standing.csv',
+			filePath: './csvs/academic_standing.csv',
 			tableId: 'academic-standing'
 		},
 		{
-			filePath: './data/csvs/admit_codes.csv',
+			filePath: './csvs/admit_codes.csv',
 			tableId: 'admit-codes'
 		},
 		{
-			filePath: './data/csvs/college_codes.csv',
+			filePath: './csvs/college_codes.csv',
 			tableId: 'college-codes'
 		},
 		{
-			filePath: './data/csvs/colleges.csv',
+			filePath: './csvs/colleges.csv',
 			tableId: 'colleges'
 		},
 		{
-			filePath: './data/csvs/departments.csv',
+			filePath: './csvs/departments.csv',
 			tableId: 'departments'
 		},
 		{
-			filePath: './data/csvs/instructional_methods.csv',
+			filePath: './csvs/instructional_methods.csv',
 			tableId: 'instructional-methods'
 		},
 		{
-			filePath: './data/csvs/nations.csv',
+			filePath: './csvs/nations.csv',
 			tableId: 'nations'
 		},
 		{
-			filePath: './data/csvs/part_of_term.csv',
+			filePath: './csvs/part_of_term.csv',
 			tableId: 'part-of-term'
 		},
 		{
-			filePath: './data/csvs/major_minor.csv',
+			filePath: './csvs/major_minor.csv',
 			tableId: 'programs'
 		},
 		{
-			filePath: './data/csvs/registration_status.csv',
+			filePath: './csvs/registration_status.csv',
 			tableId: 'registration-status'
 		},
 		{
-			filePath: './data/csvs/terms.csv',
+			filePath: './csvs/terms.csv',
 			tableId: 'terms'
 		}
 	];
@@ -73,17 +73,8 @@ export const seedDatabase = async () => {
 	// Define data tables (with specific filename patterns)
 	const dataTables = [
 		{
-			filePath: './data/csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
+			filePath: './csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
 		},
-		// {
-		// 	filePath: './data/csvs/prototype/reg_cuba_demographic_202510_20250117.csv',
-		// },
-		// {
-		// 	filePath: './data/csvs/prototype/reg_cuba_courses_during_term_202510_20250117.csv',
-		// },
-		// {
-		// 	filePath: './data/csvs/prototype/reg_cuba_test_scores_202510_20250117.csv',
-		// },
 	];
 
 	const responses = [];

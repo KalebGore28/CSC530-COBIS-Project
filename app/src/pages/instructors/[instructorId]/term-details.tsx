@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSetBreadcrumb } from '@/context/breadcrumb';
+import { CourseGradeChart } from '@/components/charts/course-grade-distributions';
 
 import axios from 'axios';
 import {
@@ -312,6 +313,13 @@ const TermDetailsPage: React.FC = () => {
 							</CardContent>
 						</Card>
 
+						{/* Grade distribution chart */}
+						<CourseGradeChart
+							mnumber={mnumber as string}
+							term={termCode as string}
+							year={parseInt(year as string)}
+						/>
+
 						{/* Faculty advisees - Render only if termCode and year are defined */}
 						{termCode && year && mnumber && (
 							<AdvisorAdvisedStudents
@@ -321,6 +329,8 @@ const TermDetailsPage: React.FC = () => {
 								year={parseInt(year)}
 							/>
 						)}
+
+
 					</>
 				)}
 			</div>

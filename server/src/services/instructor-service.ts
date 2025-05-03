@@ -290,7 +290,6 @@ export class InstructorService {
 	) {
 		const db = (await getDbConnection()).orm;
 
-		// Build the query with required term and year filters
 		const query = db
 			.select({
 				term: instructorCourses.term,
@@ -303,6 +302,26 @@ export class InstructorService {
 				crn: instructorCourses.crn,
 				creditHours: studentCourses.course_hours,
 				studentCount: count(studentCourses.mnumber),
+
+				// <— NEW: per‐course midterm grade counts
+				midtermDistribution: sql<string>`json_object(
+			'A', SUM(CASE WHEN ${studentCourses.midterm_grade} = 'A' THEN 1 ELSE 0 END),
+			'B', SUM(CASE WHEN ${studentCourses.midterm_grade} = 'B' THEN 1 ELSE 0 END),
+			'C', SUM(CASE WHEN ${studentCourses.midterm_grade} = 'C' THEN 1 ELSE 0 END),
+			'D', SUM(CASE WHEN ${studentCourses.midterm_grade} = 'D' THEN 1 ELSE 0 END),
+			'E', SUM(CASE WHEN ${studentCourses.midterm_grade} = 'E' THEN 1 ELSE 0 END),
+			'N/A', SUM(CASE WHEN ${studentCourses.midterm_grade} IS NULL OR ${studentCourses.midterm_grade} = '' THEN 1 ELSE 0 END)
+		  )`,
+
+				// <— NEW: per‐course final grade counts
+				finalDistribution: sql<string>`json_object(
+			'A', SUM(CASE WHEN ${studentCourses.final_grade} = 'A' THEN 1 ELSE 0 END),
+			'B', SUM(CASE WHEN ${studentCourses.final_grade} = 'B' THEN 1 ELSE 0 END),
+			'C', SUM(CASE WHEN ${studentCourses.final_grade} = 'C' THEN 1 ELSE 0 END),
+			'D', SUM(CASE WHEN ${studentCourses.final_grade} = 'D' THEN 1 ELSE 0 END),
+			'E', SUM(CASE WHEN ${studentCourses.final_grade} = 'E' THEN 1 ELSE 0 END),
+			'N/A', SUM(CASE WHEN ${studentCourses.final_grade} IS NULL OR ${studentCourses.final_grade} = '' THEN 1 ELSE 0 END)
+		  )`,
 			})
 			.from(instructorCourses)
 			.leftJoin(
@@ -310,23 +329,23 @@ export class InstructorService {
 				and(
 					eq(instructorCourses.course_subject, courses.subject),
 					eq(instructorCourses.course_number, courses.number),
-					eq(instructorCourses.course_suffix, courses.suffix)
-				)
+					eq(instructorCourses.course_suffix, courses.suffix),
+				),
 			)
 			.leftJoin(
 				studentCourses,
 				and(
 					eq(instructorCourses.crn, studentCourses.crn),
 					eq(instructorCourses.term, studentCourses.term),
-					eq(instructorCourses.year, studentCourses.year)
-				)
+					eq(instructorCourses.year, studentCourses.year),
+				),
 			)
 			.where(
 				and(
 					eq(instructorCourses.mnumber, mnumber),
 					eq(instructorCourses.term, term),
-					eq(instructorCourses.year, year)
-				)
+					eq(instructorCourses.year, year),
+				),
 			)
 			.groupBy(
 				instructorCourses.term,
@@ -337,13 +356,13 @@ export class InstructorService {
 				instructorCourses.course_section,
 				courses.title,
 				instructorCourses.crn,
-				studentCourses.course_hours
+				studentCourses.course_hours,
 			)
 			.orderBy(
 				instructorCourses.course_subject,
 				instructorCourses.course_number,
 				instructorCourses.course_suffix,
-				instructorCourses.course_section
+				instructorCourses.course_section,
 			);
 
 		const courseDetailsResult = await query;
@@ -363,7 +382,9 @@ export class InstructorService {
 				crn: course.crn,
 				creditHours: course.creditHours || 0,
 				studentCount: course.studentCount || 0,
-				totalCreditHours: (course.creditHours || 0) * (course.studentCount || 0)
+				totalCreditHours: (course.creditHours || 0) * (course.studentCount || 0),
+				midtermDistribution: course.midtermDistribution ? JSON.parse(course.midtermDistribution) : {},
+				finalDistribution: course.finalDistribution ? JSON.parse(course.finalDistribution) : {}
 			};
 		});
 	}

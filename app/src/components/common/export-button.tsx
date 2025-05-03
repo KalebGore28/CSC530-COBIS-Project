@@ -39,10 +39,6 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 		}
 	};
 
-	const handlePDFExport = () => {
-		toast.success("PDF export coming soon");
-	};
-
 	return (
 		<div className="relative">
 			<DropdownMenu>
@@ -55,9 +51,6 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem onClick={handleCSVExport}>
 						Export as CSV
-					</DropdownMenuItem>
-					<DropdownMenuItem onClick={handlePDFExport}>
-						Export as PDF
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
