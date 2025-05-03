@@ -203,7 +203,16 @@ type Student {
   academic_info: [StudentAcademicInfo!]!
   addresses: [StudentAddress!]!
   advisors: [StudentAdvisor!]!
-  courses: [StudentCourse!]!
+  courses(
+    startTerm: String,
+    endTerm: String,
+    startYear: Int,
+    endYear: Int,
+    instructionalMethod: String,
+    registrationStatus: String,
+    partOfTerm: String,
+    courseId: String, # subject + number + suffix
+  ): [StudentCourse!]!
   programs: [StudentProgram!]!
   test_scores: [TestScore!]!
 }

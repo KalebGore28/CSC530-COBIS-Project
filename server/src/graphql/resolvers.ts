@@ -1,6 +1,7 @@
 // File: src/graphql/resolvers.ts
-import { eq, and, sql, or } from 'drizzle-orm'
+import { eq, sql, and, or } from 'drizzle-orm'
 import * as tables from '../db/schema'
+import { checkStudentAccess } from './middleware/checkStudentAccess';
 
 export const resolvers = {
 	Query: {
@@ -271,12 +272,16 @@ export const resolvers = {
 			return rows || []
 		},
 		// Other queries
-		student: async (_: any, { mnumber }: { mnumber: string }, { db }: any) => {
-			const [stud] = await db.select().from(tables.students)
-				.where(eq(tables.students.mnumber, mnumber))
-				.limit(1)
-			return stud || null
-		},
+		student: checkStudentAccess(
+			async (_: any, { mnumber }: { mnumber: string }, ctx: any) => {
+				const [stud] = await ctx.db
+					.select()
+					.from(tables.students)
+					.where(eq(tables.students.mnumber, mnumber))
+					.limit(1)
+				return stud || null
+			}
+		),
 		faculty: async (_: any, { mnumber }: { mnumber: string }, { db }: any) => {
 			const [fac] = await db.select().from(tables.faculty)
 				.where(eq(tables.faculty.mnumber, mnumber))
@@ -370,7 +375,7 @@ export const resolvers = {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
 		program: (row: any, _: any, { loaders }: any) =>
-			loaders.program.load(row.program_code),
+			loaders.program.load(row.program),
 	},
 
 	Student: {
@@ -388,10 +393,86 @@ export const resolvers = {
 				.where(eq(tables.studentAdvisors.student_mnumber, stud.mnumber))
 				.orderBy(sql`${tables.studentAdvisors.year} desc, ${tables.studentAdvisors.term} desc`),
 
-		courses: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.studentCourses)
-				.where(eq(tables.studentCourses.mnumber, stud.mnumber))
-				.orderBy(sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`),
+		courses: async (
+			stud: any,
+			args: {
+				startTerm?: string;
+				endTerm?: string;
+				startYear?: number;
+				endYear?: number;
+				instructionalMethod?: string;
+				registrationStatus?: string;
+				partOfTerm?: string;
+				courseId?: string;
+			},
+			{ db }: any
+		) => {
+			// always filter by the student’s mnumber
+			const predicates: any[] = [
+				eq(tables.studentCourses.mnumber, stud.mnumber)
+			]
+
+			if (args.startTerm != null) {
+				predicates.push(
+					sql`${tables.studentCourses.term} >= ${args.startTerm}`
+				)
+			}
+			if (args.endTerm != null) {
+				predicates.push(
+					sql`${tables.studentCourses.term} <= ${args.endTerm}`
+				)
+			}
+			if (args.startYear != null) {
+				predicates.push(
+					sql`${tables.studentCourses.year} >= ${args.startYear}`
+				)
+			}
+			if (args.endYear != null) {
+				predicates.push(
+					sql`${tables.studentCourses.year} <= ${args.endYear}`
+				)
+			}
+
+			if (args.instructionalMethod != null) {
+				predicates.push(
+					eq(tables.studentCourses.instructional_method, args.instructionalMethod)
+				)
+			}
+
+			if (args.registrationStatus != null) {
+				predicates.push(
+					eq(tables.studentCourses.registration_status, args.registrationStatus)
+				)
+			}
+
+			if (args.partOfTerm != null) {
+				predicates.push(
+					eq(tables.studentCourses.part_of_term, args.partOfTerm)
+				)
+			}
+
+			if (args.courseId) {
+				const up = args.courseId.toUpperCase()
+				predicates.push(
+					// build a string like "PSY331A" and do a prefix‐LIKE
+					sql`
+					UPPER(
+					  ${tables.studentCourses.course_subject}
+					  || CAST(${tables.studentCourses.course_number} AS TEXT)
+					  || ${tables.studentCourses.course_suffix}
+					) LIKE ${up + '%'}
+				  `
+				)
+			}
+
+			return db
+				.select()
+				.from(tables.studentCourses)
+				.where(and(...predicates))
+				.orderBy(
+					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
+				)
+		},
 
 		programs: (stud: any, _: any, { db }: any) =>
 			db.select().from(tables.studentPrograms)

@@ -34,50 +34,16 @@ import advisorRouter from "./routes/advisor-router";
 import lookupRouter from "./routes/lookup-router";
 // import customQuery from "./routes/customQueries";
 
-// Import OpenAPI specs
-import { InstructorAPISpecs } from "./specs/instructor-specs";
-import { StudentAPISpecs } from "./specs/student-specs";
-import { EnrollmentAPISpecs } from "./specs/enrollment-specs";
-import { SearchAPISpecs } from "./specs/search-specs";
-import { UserAPISpecs } from "./specs/user-specs";
-import { StudentLookupAPISpecs } from "./specs/student-lookup-specs";
-import { ImportAPISpecs } from "./specs/import-specs";
-import { UtilityAPISpecs } from "./specs/utility-specs";
-import { AdvisorAPISpecs } from "./specs/advisor-specs";
-import { LookupAPISpecs } from "./specs/lookup-spec";
+import { AuthAndPermissionsRequest } from "./types/requests";
 
 const staticDir = path.resolve(process.cwd(), 'dist', 'public')
 
-// Create an OpenAPI document
-const document = createDocument({
-    openapi: '3.1.0',
-    info: {
-        title: 'My API',
-        version: '1.0.0',
-    },
-    tags: [
-        { name: 'Imports', description: 'Importing data' },
-    ],
-    paths: {
-        ...UserAPISpecs,
-        ...SearchAPISpecs,
-        ...LookupAPISpecs,
-        ...StudentLookupAPISpecs,
-        ...StudentAPISpecs,
-        ...InstructorAPISpecs,
-        ...EnrollmentAPISpecs,
-        ...ImportAPISpecs,
-        ...UtilityAPISpecs,
-        ...AdvisorAPISpecs,
-    },
-});
 
 // Create an Express app
 const app = express()
 
 // Middleware
 // @ts-ignore
-app.use('/api/docs', apiReference({ theme: 'purple', spec: { content: document } })) //! Probably comment this out in production
 app.use(
     cors({
         origin: config.frontend_origin,
@@ -96,12 +62,21 @@ app.use('/api', authenticateUser, getUserInfo)
 
 app.all(
     '/api/graphql',
+    authenticateUser,
+    getUserInfo,
     async (req, res, next) => {
-        const context = await buildContext()
-        return createHandler({
-            schema,
-            context,
-        })(req, res, next)
+        const { db, loaders } = await buildContext()
+        // ← make sure you actually pull roles off of req here!
+        const ctx = {
+            db,
+            loaders,
+            user: (req as AuthAndPermissionsRequest).user,
+            roles: (req as AuthAndPermissionsRequest).roles.map(r => r.role_name),
+            mnumber: (req as AuthAndPermissionsRequest).mnumber,
+            department: (req as AuthAndPermissionsRequest).department,
+            college: (req as AuthAndPermissionsRequest).college,
+        }
+        return createHandler({ schema, context: ctx })(req, res, next)
     }
 )
 
