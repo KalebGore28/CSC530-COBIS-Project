@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/sidebar"
 
 import { signout } from "../../../lib/auth-client"
-import { useNavigate } from "react-router-dom"
 
 import { Session } from "@/context/session"
 
@@ -37,7 +36,6 @@ interface NavUserProps {
 
 export function NavUser({ session, onLogout }: NavUserProps) {
 	const { isMobile } = useSidebar()
-	const navigate = useNavigate()
 
 	return (
 		<SidebarMenu>
@@ -99,7 +97,6 @@ export function NavUser({ session, onLogout }: NavUserProps) {
 						<DropdownMenuItem
 							onClick={async () => {
 								signout()
-								navigate("/")
 								onLogout()
 							}}
 						>

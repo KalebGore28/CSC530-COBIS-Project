@@ -1,16 +1,16 @@
-import { createAuthClient } from "better-auth/client"
+// src/utils/authClient.ts
+import { createAuthClient } from "better-auth/client";
 
-export const authClient = createAuthClient({
-  baseURL: "http://localhost:4000",
-})
+const API_URL = import.meta.env.VITE_API_URL;            // e.g. http://localhost:4000
+const CALLBACK_URL = import.meta.env.VITE_CALLBACK_URL;       // e.g. http://localhost:5173 in dev, your prod URL in prod
 
-export const signinGoogle = async () => {
-  const data = await authClient.signIn.social({
+export const authClient = createAuthClient({ baseURL: API_URL });
+
+export const signinGoogle = () => {
+  return authClient.signIn.social({
     provider: "google",
-    callbackURL: "http://localhost:5173",
+    callbackURL: CALLBACK_URL,
   });
-
-  return data;
 };
 
 export const getSession = async () => {
@@ -18,5 +18,11 @@ export const getSession = async () => {
 }
 
 export const signout = async () => {
-  await authClient.signOut()
+  await authClient.signOut({
+    fetchOptions: {
+      onSuccess: () => {
+        window.location.href = CALLBACK_URL; // Redirect to the callback URL after sign out
+      },
+    },
+  })
 };

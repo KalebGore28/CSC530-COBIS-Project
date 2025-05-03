@@ -9,6 +9,7 @@ dotenv.config({ path: process.env.NODE_ENV === 'production' ? undefined : 'src/.
  */
 export const config = {
   frontend_origin: process.env.FRONTEND_ORIGIN as string,
+  betterAuthUrl: process.env.BETTER_AUTH_URL as string,
   sessionSecret: process.env.SESSION_SECRET as string,
   jwtSecret: process.env.JWT_SECRET as string,
   db: {
