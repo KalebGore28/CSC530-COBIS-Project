@@ -22,6 +22,7 @@ import { AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Term } from "./term-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
+import { gql } from "graphql-request";
 
 /**
  * Course interface representing a course from the API
@@ -58,6 +59,64 @@ export interface CourseSelectorProps {
 	showStats?: boolean;
 }
 
+const GRAPHQL_ENDPOINT = "/api/graphql";
+
+const GET_COURSES = gql`
+  query GetInstructorCourses(
+    $mnumber: String!
+    $term: String!
+    $year: Int!
+  ) {
+    instructor(mnumber: $mnumber) {
+      courses_taught(
+        startTerm: $term
+        startYear: $year
+        endTerm: $term
+        endYear: $year
+      ) {
+        course {
+          subject
+          number
+          suffix
+          title
+        }
+        course_section
+      }
+    }
+  }
+`;
+
+const GET_COURSE_STATS = gql`
+  query GetCourseStats(
+    $mnumber: String!
+    $term: String!
+    $year: Int!
+    $courseId: String!
+  ) {
+    instructor(mnumber: $mnumber) {
+      courses_taught(
+        startTerm: $term
+        startYear: $year
+        endTerm: $term
+        endYear: $year
+        courseId: $courseId
+      ) {
+        course {
+          subject
+          number
+          suffix
+          title
+        }
+        course_section
+        crn
+        students {
+          course_hours
+        }
+      }
+    }
+  }
+`;
+
 /**
  * CourseSelector Component
  * 
@@ -74,6 +133,20 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
+	const [statsLoading, setStatsLoading] = useState<boolean>(false);
+
+	const fetchGraphQL = async (query: string, variables: any) => {
+		const res = await fetch(GRAPHQL_ENDPOINT, {
+			method: "POST",
+			credentials: "include",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ query, variables }),
+		});
+		const json = await res.json();
+		if (json.errors) throw new Error(json.errors.map((e: any) => e.message).join("; "));
+		return json.data;
+	};
+
 
 	// Use stable callbacks to prevent unnecessary re-renders
 	const notifyCourseSelection = useCallback((course: Course) => {
@@ -89,67 +162,95 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	}, [onError]);
 
 	useEffect(() => {
-		const fetchCourses = async () => {
-			// Reset state when term changes
-			setSelectedCourse(null);
-			setCourses([]);
+		if (!mnumber || !selectedTerm) return;
 
-			if (!selectedTerm || !mnumber) {
-				return;
-			}
-
+		(async () => {
 			try {
 				setLoading(true);
 				setError(null);
-
-				const response = await axios.get(`/api/instructor/${mnumber}/courses`, {
-					params: {
-						term: selectedTerm.termCode,
-						year: selectedTerm.year
-					},
-					withCredentials: true,
+				// 1️⃣ fetch the dropdown options
+				const data = await fetchGraphQL(GET_COURSES, {
+					mnumber,
+					term: selectedTerm.termCode,
+					year: selectedTerm.year,
 				});
+				const raw = data.instructor.courses_taught as Array<any>;
+				const list: Course[] = raw.map((ct) => ({
+					termName: selectedTerm.termName,
+					termCode: selectedTerm.termCode,
+					year: selectedTerm.year,
+					courseId: `${ct.course.subject}${ct.course.number}${ct.course.suffix}`,
+					courseSubject: ct.course.subject,
+					courseNumber: ct.course.number,
+					courseSuffix: ct.course.suffix,
+					courseTitle: ct.course.title,
+					courseSection: ct.course_section,
+					crn: "",
+					creditHours: 0,
+					studentCount: 0,
+					totalCreditHours: 0,
+				}));
+				setCourses(list);
 
-				if (response.data.courseDetails && Array.isArray(response.data.courseDetails)) {
-					const sortedCourses = [...response.data.courseDetails].sort((a, b) => {
-						if (a.courseSubject !== b.courseSubject) {
-							return String(a.courseSubject).localeCompare(String(b.courseSubject));
-						}
-						const courseNumA = String(a.courseNumber);
-						const courseNumB = String(b.courseNumber);
-						if (courseNumA !== courseNumB) {
-							return courseNumA.localeCompare(courseNumB);
-						}
-						return String(a.courseSection).localeCompare(String(b.courseSection));
-					});
-
-					setCourses(sortedCourses);
-
-					// Select the first course by default if available
-					if (sortedCourses.length > 0) {
-						setSelectedCourse(sortedCourses[0]);
-						notifyCourseSelection(sortedCourses[0]);
-					}
-				} else {
-					setCourses([]);
+				if (list.length) {
+					// select first by default
+					handleCourseChange(getCourseId(list[0]), list[0]);
 				}
 			} catch (err: any) {
 				handleError(err);
 			} finally {
 				setLoading(false);
 			}
-		};
-
-		fetchCourses();
+		})();
 	}, [mnumber, selectedTerm]);
 
-	const handleCourseChange = (courseId: string) => {
-		const course = courses.find(c => c.courseId + "-" + c.courseSection === courseId);
-		if (course) {
-			setSelectedCourse(course);
-			notifyCourseSelection(course);
+
+	const handleCourseChange = async (
+		value: string,
+		baseCourse?: Course
+	) => {
+		const course = baseCourse ||
+			courses.find((c) => getCourseId(c) === value)!;
+		setSelectedCourse(course);
+		notifyCourseSelection(course);
+
+		try {
+			setStatsLoading(true);
+			// 2️⃣ fetch student/crn/credit‐hours info
+			const data = await fetchGraphQL(GET_COURSE_STATS, {
+				mnumber,
+				term: selectedTerm!.termCode,
+				year: selectedTerm!.year,
+				courseId: course.courseId,
+			});
+			const taught = data.instructor.courses_taught as Array<any>;
+
+			// usually only one element, but just in case:
+			let studentCount = 0;
+			let totalCredit = 0;
+			let crn = "";
+			for (const c of taught) {
+				studentCount += c.students.length;
+				totalCredit += c.students.reduce((sum: number, s: any) => sum + s.course_hours, 0);
+				crn = c.crn;
+			}
+
+			const full: Course = {
+				...course,
+				studentCount,
+				creditHours: taught[0]?.students[0]?.course_hours || 0,
+				totalCreditHours: totalCredit,
+				crn,
+			};
+			setSelectedCourse(full);
+			notifyCourseSelection(full);
+		} catch (err: any) {
+			handleError(err);
+		} finally {
+			setStatsLoading(false);
 		}
 	};
+
 
 	// Format course for display: "SUBJ 1234-01: Course Title"
 	const formatCourseDisplay = (course: Course) => {
@@ -242,17 +343,24 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 
 			{showStats && selectedCourse && (
 				<CardFooter className="flex flex-wrap gap-2">
-					<Badge variant="outline" className="bg-blue-50">
-						CRN: {selectedCourse.crn}
-					</Badge>
-					<Badge variant="outline" className="bg-green-50">
-						{selectedCourse.studentCount} {selectedCourse.studentCount === 1 ? "Student" : "Students"}
-					</Badge>
-					<Badge variant="outline" className="bg-purple-50">
-						{selectedCourse.creditHours} Credit Hours
-					</Badge>
+					{statsLoading ? (
+						<SkeletonCard showDropdown={false} showTitle={false} showDescription />
+					) : (
+						<>
+							<Badge variant="outline" className="bg-yellow-50">
+								{selectedCourse.creditHours} Credit Hours
+							</Badge>
+							<Badge variant="outline" className="bg-green-50">
+								{selectedCourse.studentCount} {selectedCourse.studentCount === 1 ? "Student" : "Students"}
+							</Badge>
+							<Badge variant="outline" className="bg-purple-50">
+								{selectedCourse.totalCreditHours} Total Credit Hours
+							</Badge>
+						</>
+					)}
 				</CardFooter>
 			)}
+
 		</Card>
 	);
 };
