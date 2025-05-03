@@ -48,7 +48,6 @@ import { LookupAPISpecs } from "./specs/lookup-spec";
 
 const staticDir = path.resolve(process.cwd(), 'dist', 'public')
 
-
 // Create an OpenAPI document
 const document = createDocument({
     openapi: '3.1.0',
@@ -91,8 +90,12 @@ app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.j
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
+// now serve client:
+app.use(express.static(staticDir))
+app.use('/api', authenticateUser, getUserInfo)
+
 app.all(
-    '/graphql',
+    '/api/graphql',
     async (req, res, next) => {
         const context = await buildContext()
         return createHandler({
@@ -102,20 +105,17 @@ app.all(
     }
 )
 
-app.get('/graphiql', (_req, res) => {
+app.get('/api/graphiql', (_req, res) => {
     res
         .type('html')
         .end(
             ruruHTML({
-                endpoint: '/graphql',
+                endpoint: '/api/graphql',
                 title: 'My API GraphiQL',
             })
         )
 })
 
-// now serve client:
-app.use(express.static(staticDir))
-app.use('/api', authenticateUser, getUserInfo)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/instructor", instructorRouter)
