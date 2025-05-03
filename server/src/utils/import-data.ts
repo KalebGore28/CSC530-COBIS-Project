@@ -18,8 +18,34 @@ export function getForeignKeys(
 }
 
 /**
- * For each FK in `tableName`, verify the parent exists.
- * Throw a detailed error if it doesn’t.
+ * We deliberately skip FK‐checks on these columns when the incoming value is undefined:
+ *
+ * 1. faculty.department & faculty.college:
+ *    - Our Courses During Term CSV import won’t include department or college.
+ *    - Both columns have defaults (`"0000"` and `"0"`) at the DB level,
+ *      so leaving them undefined here lets our database fill in the defaults.
+ *
+ * 2. student_courses.course_suffix & instructor_courses.course_suffix:
+ *    - The source CSVs never include a suffix.
+ *    - We’ve declared a NOT NULL default (`""`) in Drizzle,
+ *      so an undefined here will become `""` in the database.
+ * 
+ * A downside of this is that we can’t use the suffix to distinguish between
+ * a normal class and say a transition class. This is a present issue but
+ * could not be solved on our end. We can't control the source of the CSVs.
+ * Might consider requesting a change to the source CSVs in the future.
+ */
+const ignoreFKs = [
+	{ table: "student_courses", from: "course_suffix", to: "suffix" },
+	{ table: "instructor_courses", from: "course_suffix", to: "suffix" },
+	{ table: "faculty", from: "department", to: "code" },
+	{ table: "faculty", from: "college", to: "code" },
+];
+
+/**
+ * Validate foreign keys for a given row in a table.
+ * - Throws FKViolationError if any FK constraint is violated.
+ * - Skips validation for FKs in the ignore list if the value is undefined.
  */
 export async function validateFKs<T>(
 	conn: Database,
@@ -30,6 +56,21 @@ export async function validateFKs<T>(
 
 	for (const fk of fks) {
 		const childVal = (row as any)[fk.from];
+
+		// 1) If this FK is in our ignore list *and* the value is undefined, skip it:
+		const shouldIgnoreUndefined =
+			childVal === undefined &&
+			ignoreFKs.some(
+				(i) =>
+					i.table === tableName &&
+					i.from === fk.from &&
+					i.to === fk.to
+			);
+		if (shouldIgnoreUndefined) {
+			continue;
+		}
+
+		// 2) Otherwise do the normal check
 		const stmt = conn.prepare(
 			`SELECT 1 FROM ${fk.table} WHERE ${fk.to} = ? LIMIT 1`
 		);
@@ -46,6 +87,7 @@ export async function validateFKs<T>(
 		}
 	}
 }
+
 
 /**
  * Import data into a table using upsert logic.

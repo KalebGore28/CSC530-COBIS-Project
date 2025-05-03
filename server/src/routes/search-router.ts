@@ -13,7 +13,6 @@ const router = express.Router();
 router.get('/academic-standings', SearchController.searchAcademicStandings);
 router.get('/admit-codes', SearchController.searchAdmitCodes);
 router.get('/colleges', SearchController.searchColleges);
-router.get('/college-codes', SearchController.searchCollegeCodes);
 router.get('/courses', SearchController.searchCourses);
 router.get('/departments', SearchController.searchDepartments);
 router.get('/nations', SearchController.searchNations);

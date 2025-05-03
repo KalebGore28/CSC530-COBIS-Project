@@ -4,6 +4,7 @@ import { config } from "./utils/config";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
+import path from "path";
 
 // Open API
 import { apiReference } from '@scalar/express-api-reference'
@@ -38,6 +39,9 @@ import { ImportAPISpecs } from "./specs/import-specs";
 import { UtilityAPISpecs } from "./specs/utility-specs";
 import { AdvisorAPISpecs } from "./specs/advisor-specs";
 import { LookupAPISpecs } from "./specs/lookup-spec";
+
+const staticDir = path.resolve(process.cwd(), 'dist', 'public')
+
 
 // Create an OpenAPI document
 const document = createDocument({
@@ -78,8 +82,8 @@ app.use(
 )
 app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
 app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
-app.use(express.json({ limit: "10mb" })) // going to be deprecated in the future
-app.use(express.urlencoded({ extended: true, limit: "10mb" })) // going to be deprecated in the future
+app.use(express.json({ limit: "10mb" }))
+app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
 app.use(authenticateUser)
 app.use(getUserInfo)
@@ -95,16 +99,15 @@ app.use("/api/advisor", advisorRouter)
 app.use("/api/lookup", lookupRouter)
 // app.use('/api/custom-query', customQuery)
 
+const appDir = typeof __dirname === 'undefined' ? path.resolve() : __dirname;
 
-// // In dev (ESM), we'll rely on process.cwd() as a fallback; in bundled CJS, __dirname is native
-// const appDir = typeof __dirname === 'undefined' ? path.resolve() : __dirname;
 
-// // Serve static files from dist/public
-// app.use(express.static(path.join(appDir, 'public')))
+// now serve client:
+app.use(express.static(staticDir))
 
-// // Fallback for SPA routing
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(appDir, 'public', 'index.html'));
-// });
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api')) return next()
+  res.sendFile(path.join(staticDir, 'index.html'))
+})
 
 export default app;
