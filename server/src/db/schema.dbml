@@ -155,7 +155,7 @@ table student_addresses {
   city text [not null]
   state text [not null]
   zip text [not null]
-  nation_code text [not null]
+  nation text [not null]
   phone text [not null]
 
   indexes {
@@ -306,7 +306,7 @@ ref: student_academic_info.academic_standing > academic_standing.code
 
 ref: student_addresses.mnumber > students.mnumber
 
-ref: student_addresses.nation_code > nations.code
+ref: student_addresses.nation > nations.code
 
 ref: student_advisors.student_mnumber > students.mnumber
 

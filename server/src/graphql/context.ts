@@ -55,7 +55,9 @@ export async function buildContext() {
 		program: makeLoader(schema.programs),
 		department: makeLoader(schema.departments),
 		college: makeLoader(schema.colleges),
-		course: makeCompositeLoader(schema.courses, ['subject', 'number', 'suffix'])
+		course: makeCompositeLoader(schema.courses, ['subject', 'number', 'suffix']),
+		studentAcademicInfo: makeCompositeLoader(schema.studentAcademicInfo, ['mnumber', 'term', 'year']),
+		student: makeLoader(schema.students),
 	}
 
 	return { db, loaders }

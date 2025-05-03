@@ -1,68 +1,376 @@
 // File: src/graphql/resolvers.ts
-import { eq, and, sql } from 'drizzle-orm'
+import { eq, and, sql, or } from 'drizzle-orm'
 import * as tables from '../db/schema'
 
 export const resolvers = {
 	Query: {
+		// Search lookup tables
+		searchAcademicStandings: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.academicStanding)
+				.where(
+					or(
+						sql`UPPER(${tables.academicStanding.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.academicStanding.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchAdmitCodes: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.admitCodes)
+				.where(
+					or(
+						sql`UPPER(${tables.admitCodes.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.admitCodes.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchColleges: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.colleges)
+				.where(
+					or(
+						sql`UPPER(${tables.colleges.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.colleges.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchCourses: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.courses)
+				.where(
+					sql`
+					UPPER(${tables.courses.subject} || CAST(${tables.courses.number} AS TEXT) || ${tables.courses.suffix}) LIKE ${up + '%'} OR
+					UPPER(${tables.courses.title}) LIKE ${'%' + up + '%'}
+				`
+				)
+				.limit(10);
+		},
+		searchDepartments: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.departments)
+				.where(
+					or(
+						sql`UPPER(${tables.departments.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.departments.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchInstructionalMethods: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.instructionalMethods)
+				.where(
+					or(
+						sql`UPPER(${tables.instructionalMethods.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.instructionalMethods.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchNations: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.nations)
+				.where(
+					or(
+						sql`UPPER(${tables.nations.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.nations.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchPartOfTerms: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.partOfTerm)
+				.where(
+					or(
+						sql`UPPER(${tables.partOfTerm.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.partOfTerm.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchPrograms: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.programs)
+				.where(
+					or(
+						sql`UPPER(${tables.programs.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.programs.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchRegistrationStatuses: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.registrationStatus)
+				.where(
+					or(
+						sql`UPPER(${tables.registrationStatus.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.registrationStatus.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchRoles: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.roles)
+				.where(
+					or(
+						sql`UPPER(${tables.roles.id}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.roles.name}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		searchTerms: async (
+			_parent: any,
+			{ query }: { query: string },
+			{ db }: any
+		) => {
+			const up = query.toUpperCase();
+			return await db
+				.select()
+				.from(tables.terms)
+				.where(
+					or(
+						sql`UPPER(${tables.terms.code}) LIKE ${up + '%'}`,
+						sql`UPPER(${tables.terms.description}) LIKE ${'%' + up + '%'}`
+					)
+				)
+				.limit(10);
+		},
+		// Get all lookup tables
+		getAcademicStandings: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.academicStanding)
+				.orderBy(tables.academicStanding.code)
+			return rows || []
+		},
+		getAdmitCodes: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.admitCodes)
+				.orderBy(tables.admitCodes.code)
+			return rows || []
+		},
+		getColleges: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.colleges)
+				.orderBy(tables.colleges.code)
+			return rows || []
+		},
+		getCourses: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.courses)
+				.orderBy(tables.courses.subject, tables.courses.number, tables.courses.suffix)
+			return rows || []
+		},
+		getDepartments: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.departments)
+				.orderBy(tables.departments.code)
+			return rows || []
+		},
+		getInstructionalMethods: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.instructionalMethods)
+				.orderBy(tables.instructionalMethods.code)
+			return rows || []
+		},
+		getNations: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.nations)
+				.orderBy(tables.nations.code)
+			return rows || []
+		},
+		getPartOfTerms: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.partOfTerm)
+				.orderBy(tables.partOfTerm.code)
+			return rows || []
+		},
+		getPrograms: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.programs)
+				.orderBy(tables.programs.code)
+			return rows || []
+		},
+		getRegistrationStatuses: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.registrationStatus)
+				.orderBy(tables.registrationStatus.code)
+			return rows || []
+		},
+		getRoles: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.roles)
+				.orderBy(tables.roles.id)
+			return rows || []
+		},
+		getTerms: async (_: any, __: any, { db }: any) => {
+			const rows = await db.select().from(tables.terms)
+				.orderBy(tables.terms.code)
+			return rows || []
+		},
+		// Other queries
 		student: async (_: any, { mnumber }: { mnumber: string }, { db }: any) => {
 			const [stud] = await db.select().from(tables.students)
 				.where(eq(tables.students.mnumber, mnumber))
 				.limit(1)
 			return stud || null
 		},
-
 		faculty: async (_: any, { mnumber }: { mnumber: string }, { db }: any) => {
 			const [fac] = await db.select().from(tables.faculty)
 				.where(eq(tables.faculty.mnumber, mnumber))
 				.limit(1)
 			return fac || null
 		},
+	},
 
-		user: async (_: any, { id }: { id: string }, { db }: any) => {
-			const [usr] = await db.select().from(tables.user)
-				.where(eq(tables.user.id, id))
-				.limit(1)
-			return usr || null
-		},
+	Account: {
+		user: (acc: any, _: any, { loaders }: any) =>
+			loaders.user.load(acc.user_id),
+	},
 
-		course: async (_: any, { subject, number, suffix }: any, { db }: any) => {
-			const [c] = await db.select().from(tables.courses)
-				.where(and(
-					eq(tables.courses.subject, subject),
-					eq(tables.courses.number, number),
-					eq(tables.courses.suffix, suffix)
-				))
-				.limit(1)
-			return c || null
-		},
+	Department: {
+		college: (dept: any, _: any, { loaders }: any) =>
+			loaders.college.load(dept.college),
+	},
 
-		program: async (_: any, { code }: { code: string }, { db }: any) => {
-			const [p] = await db.select().from(tables.programs)
-				.where(eq(tables.programs.code, code))
-				.limit(1)
-			return p || null
-		},
+	Faculty: {
+		college: (fac: any, _: any, { loaders }: any) =>
+			loaders.college.load(fac.college),
+		department: (fac: any, _: any, { loaders }: any) =>
+			loaders.department.load(fac.department),
+		courses_taught: (fac: any, _: any, { db }: any) =>
+			db.select().from(tables.instructorCourses)
+				.where(eq(tables.instructorCourses.mnumber, fac.mnumber))
+				.orderBy(sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`),
+	},
 
-		department: async (_: any, { code }: { code: string }, { db }: any) => {
-			const [d] = await db.select().from(tables.departments)
-				.where(eq(tables.departments.code, code))
-				.limit(1)
-			return d || null
-		},
+	InstructorCourse: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+		course: (row: any, _: any, { loaders }: any) =>
+			loaders.course.load(
+				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
+			),
+	},
 
-		college: async (_: any, { code }: { code: string }, { db }: any) => {
-			const [c] = await db.select().from(tables.colleges)
-				.where(eq(tables.colleges.code, code))
-				.limit(1)
-			return c || null
-		},
+	Program: {
+		department: (prog: any, _: any, { loaders }: any) =>
+			loaders.department.load(prog.department),
+		college: (prog: any, _: any, { loaders }: any) =>
+			loaders.college.load(prog.college),
+	},
 
-		term: async (_: any, { code }: { code: string }, { db }: any) => {
-			const [t] = await db.select().from(tables.terms)
-				.where(eq(tables.terms.code, code))
-				.limit(1)
-			return t || null
-		}
+	Session: {
+		user: (sess: any, _: any, { loaders }: any) =>
+			loaders.user.load(sess.user_id),
+	},
+
+	StudentAcademicInfo: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+
+		admit_term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.admit_term),
+
+		admit_code: (row: any, _: any, { loaders }: any) =>
+			loaders.admitCode.load(row.admit_code),
+
+		academic_standing: (row: any, _args: any, { loaders }: any) =>
+			loaders.academicStanding.load(row.academic_standing),
+	},
+
+	StudentAddress: {
+		nation: (addr: any, _: any, { loaders }: any) =>
+			loaders.nation.load(addr.nation),
+	},
+
+	StudentAdvisor: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+	},
+
+	StudentCourse: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+		part_of_term: (row: any, _: any, { loaders }: any) =>
+			loaders.partOfTerm.load(row.part_of_term),
+		course: (row: any, _: any, { loaders }: any) =>
+			loaders.course.load(
+				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
+			),
+		registration_status: (row: any, _: any, { loaders }: any) =>
+			loaders.registrationStatus.load(row.registration_status),
+		instructional_method: (row: any, _: any, { loaders }: any) =>
+			loaders.instructionalMethod.load(row.instructional_method),
+	},
+
+	StudentProgram: {
+		term: (row: any, _: any, { loaders }: any) =>
+			loaders.term.load(row.term),
+		program: (row: any, _: any, { loaders }: any) =>
+			loaders.program.load(row.program_code),
 	},
 
 	Student: {
@@ -89,31 +397,9 @@ export const resolvers = {
 			db.select().from(tables.studentPrograms)
 				.where(eq(tables.studentPrograms.mnumber, stud.mnumber)),
 
-		// testScores: (stud: any, _: any, { db }: any) =>
-		// 	db.select().from(tables.testScores)
-		// 		.where(eq(tables.testScores.mnumber, stud.mnumber))
+		test_scores: (stud: any, _: any, { db }: any) =>
+			db.select().from(tables.testScores)
+				.where(eq(tables.testScores.mnumber, stud.mnumber))
 	},
 
-	Faculty: {
-		courses_taught: (fac: any, _: any, { db }: any) =>
-			db.select().from(tables.instructorCourses)
-				.where(eq(tables.instructorCourses.mnumber, fac.mnumber)),
-		department: (fac: any, _: any, { loaders }: any) =>
-			loaders.department.load(fac.department),
-		college: (fac: any, _: any, { loaders }: any) =>
-			loaders.college.load(fac.college),
-	},
-
-	InstructorCourse: {
-		mnumber: (row: any) => row.mnumber,
-		// turn raw string like "Fall" into the Term lookup object
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-
-		// if you also want to expose the full Course object here:
-		course: (row: any, _: any, { loaders }: any) =>
-			loaders.course.load(
-				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
-			)
-	}
 }

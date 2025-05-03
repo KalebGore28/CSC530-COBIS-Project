@@ -1,10 +1,24 @@
-"""
-Lookup tables
-"""
-
 type AcademicStanding {
   code: String!            # PK
   description: String!
+}
+
+type Account {
+  id: String!                  # PK
+  account_id: String!
+  provider_id: String!
+  user_id: String!              # FK → user.id
+  access_token: String
+  refresh_token: String
+  id_token: String
+  access_token_expires_at: Int
+  refresh_token_expires_at: Int
+  scope: String
+  password: String
+  created_at: Int!
+  updated_at: Int!
+  # Relationships
+  user: User!              # FK → user.id
 }
 
 type AdmitCode {
@@ -13,27 +27,6 @@ type AdmitCode {
 }
 
 type College {
-  code: String!            # PK
-  description: String!
-}
-
-type Department {
-  code: String!            # PK
-  description: String!
-  college: College!         # FK → colleges.code
-}
-
-type InstructionalMethod {
-  code: String!            # PK
-  description: String!
-}
-
-type Nation {
-  code: String!            # PK
-  description: String!
-}
-
-type PartOfTerm {
   code: String!            # PK
   description: String!
 }
@@ -47,6 +40,47 @@ type Course {
   fee: Float!
   web_fee: Float!
   last_updated: String!
+}
+
+type Department {
+  code: String!            # PK
+  description: String!
+  college: College!         # FK → colleges.code
+}
+
+type Faculty {
+  mnumber: String!             # PK
+  first_name: String!
+  last_name: String!
+  college: College!         # FK → colleges.code
+  department: Department!   # FK → departments.code
+  # Relationships
+  courses_taught: [InstructorCourse!]!
+}
+
+type InstructionalMethod {
+  code: String!            # PK
+  description: String!
+}
+
+type InstructorCourse {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  crn: String!
+  course: Course!
+  course_section: String!
+  role: String!
+}
+
+type Nation {
+  code: String!            # PK
+  description: String!
+}
+
+type PartOfTerm {
+  code: String!            # PK
+  description: String!
 }
 
 type Program {
@@ -73,118 +107,21 @@ type Role {
   name: String!
 }
 
-type Term {
-  code: String!            # PK
-  description: String!
-}
-
-"""
-Core entity tables
-"""
-
-type User {
-  id: ID!                  # PK
-  mnumber: String          # unique, FK → students.mnumber or faculty.mnumber
-  name: String!
-  email: String!
-  email_verified: Boolean!
-  image: String
-  created_at: Int!
-  updated_at: Int!
-  is_enabled: Boolean!
-  last_login: String!
-  roles: [Role!]!          # via user_roles
-}
-
-type Student {
-  mnumber: ID!             # PK, FK → user.mnumber
-  first_name: String!
-  middle_name: String!
-  last_name: String!
-  suffix: String!
-  gender: String!
-  birthdate: String!
-  citizenship: String!
-  race_code: String!
-  race_description: String!
-  residency_code: String!
-  residency_description: String!
-  age: Int!
-  cell_phone: String!
-  email: String!
-  academic_info: [StudentAcademicInfo!]!
-  addresses: [StudentAddress!]!
-  advisors: [StudentAdvisor!]!
-  courses: [StudentCourse!]!
-  programs: [StudentProgram!]!
-  test_scores: [TestScore!]!
-}
-
-type Faculty {
-  mnumber: ID!             # PK
-  first_name: String!
-  last_name: String!
-  college: College!         # FK → colleges.code
-  department: Department!   # FK → departments.code
-  courses_taught: [InstructorCourse!]!
-}
-
-"""
-Auth & session tables
-"""
-
-type Account {
-  id: ID!                  # PK
-  account_id: String!
-  provider_id: String!
-  user: User!              # FK → user.id
-  access_token: String
-  refresh_token: String
-  id_token: String
-  access_token_expires_at: Int
-  refresh_token_expires_at: Int
-  scope: String
-  password: String
-  created_at: Int!
-  updated_at: Int!
-}
-
 type Session {
-  id: ID!                  # PK
+  id: String!                 # PK
   token: String!
   expires_at: Int!
   created_at: Int!
   updated_at: Int!
   ip_address: String
   user_agent: String
-  user: User!              # FK → user.id
+  user_id: String!              # FK → user.id
+  # Relationships
+  user: User!
 }
-
-type Verification {
-  id: ID!                  # PK
-  identifier: String!
-  value: String!
-  expires_at: Int!
-  created_at: Int
-  updated_at: Int
-}
-
-"""
-Relationship tables
-"""
-
-type UserRole {
-  user: User!              # FK → user.id
-  role: Role!              # FK → roles.id
-}
-
-"""
-Student-related tables
-"""
 
 type StudentAcademicInfo {
   mnumber: String!         # FK → students.mnumber
-  student: Student!
   term: Term!
   year: Int!
   admit_term: Term!
@@ -203,29 +140,25 @@ type StudentAcademicInfo {
 
 type StudentAddress {
   mnumber: String!         # FK → students.mnumber
-  student: Student!
   type: String!
   street1: String!
   street2: String
   city: String!
   state: String!
   zip: String!
-  nation_code: Nation!
+  nation: Nation!
   phone: String!
 }
 
 type StudentAdvisor {
   student_mnumber: String! # FK → students.mnumber
-  student: Student!
   term: Term!
   year: Int!
   advisor_mnumber: String! # FK → faculty.mnumber
-  advisor: Faculty!
 }
 
 type StudentCourse {
   mnumber: String!         # FK → students.mnumber
-  student: Student!
   term: Term!
   year: Int!
   part_of_term: PartOfTerm!
@@ -243,7 +176,6 @@ type StudentCourse {
 
 type StudentProgram {
   mnumber: String!         # FK → students.mnumber
-  student: Student!
   term: Term!
   year: Int!
   type: String!
@@ -251,37 +183,108 @@ type StudentProgram {
   program: Program!
 }
 
+type Student {
+  mnumber: String!
+  first_name: String!
+  middle_name: String!
+  last_name: String!
+  suffix: String!
+  gender: String!
+  birthdate: String!
+  citizenship: String!
+  race_code: String!
+  race_description: String!
+  residency_code: String!
+  residency_description: String!
+  age: Int!
+  cell_phone: String!
+  email: String!
+  # Relationships
+  academic_info: [StudentAcademicInfo!]!
+  addresses: [StudentAddress!]!
+  advisors: [StudentAdvisor!]!
+  courses: [StudentCourse!]!
+  programs: [StudentProgram!]!
+  test_scores: [TestScore!]!
+}
+
+type Term {
+  code: String!            # PK
+  description: String!
+}
+
 type TestScore {
-  mnumber: Student!         # FK → students.mnumber
-  student: Student!
+  mnumber: String!         # FK → students.mnumber
   code: String!
   description: String!
   score: Float!
   date: String!
 }
 
-"""
-Instructor courses
-"""
+type User {
+  id: String!                  # PK
+  mnumber: String          # unique, FK → students.mnumber or faculty.mnumber
+  name: String!
+  email: String!
+  email_verified: Boolean!
+  image: String
+  created_at: Int!
+  updated_at: Int!
+  is_enabled: Boolean!
+  last_login: String!
+  # Relationships
+  roles: [Role!]!          # via user_roles
+}
 
-type InstructorCourse {
-  mnumber: Faculty!         # FK → user.mnumber
-  term: Term!
-  year: Int!
-  crn: String!
-  course: Course!
-  role: String!
+type UserRole {
+  user_id: String!              # FK → user.id
+  role_id: Int!              # FK → roles.id
+  # Relationships
+  user: User!              # FK → user.id
+  role: Role!              # FK → roles.id
+}
+
+type Verification {
+  id: String!                  # PK
+  identifier: String!
+  value: String!
+  expires_at: Int!
+  created_at: Int
+  updated_at: Int
 }
 
 # Root query type
 
 type Query {
+  # Search lookup tables
+  searchAcademicStandings(query: String!): [AcademicStanding!]!
+  searchAdmitCodes(query: String!): [AdmitCode!]!
+  searchColleges(query: String!): [College!]!
+  searchCourses(query: String!): [Course!]!
+  searchDepartments(query: String!): [Department!]!
+  searchInstructionalMethods(query: String!): [InstructionalMethod!]!
+  searchNations(query: String!): [Nation!]!
+  searchPartOfTerms(query: String!): [PartOfTerm!]!
+  searchPrograms(query: String!): [Program!]!
+  searchRegistrationStatuses(query: String!): [RegistrationStatus!]!
+  searchRoles(query: String!): [Role!]!
+  searchTerms(query: String!): [Term!]!
+
+  # Get lookup tables
+  getAcademicStandings: [AcademicStanding!]!
+  getAdmitCodes: [AdmitCode!]!
+  getColleges: [College!]!
+  getCourses: [Course!]!
+  getDepartments: [Department!]!
+  getInstructionalMethods: [InstructionalMethod!]!
+  getNations: [Nation!]!
+  getPartOfTerms: [PartOfTerm!]!
+  getPrograms: [Program!]!
+  getRegistrationStatuses: [RegistrationStatus!]!
+  getRoles: [Role!]!
+  getTerms: [Term!]!
+
+
   student(mnumber: String!): Student
   faculty(mnumber: String!): Faculty
-  user(id: ID!): User
-  course(subject: String!, number: Int!, suffix: String!): Course
-  program(code: String!): Program
-  department(code: String!): Department
-  college(code: String!): College
-  term(code: String!): Term
 }
