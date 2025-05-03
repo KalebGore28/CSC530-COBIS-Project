@@ -453,7 +453,7 @@ export class InstructorController {
 
 			const { start_year, end_year, start_term = '10', end_term = currentTerm } = parsed.data;
 
-			
+
 			// Check if instructor exists
 			if (!(await InstructorService.instructorExists(mnumber))) {
 				res.status(404).json({ error: 'Instructor not found' });

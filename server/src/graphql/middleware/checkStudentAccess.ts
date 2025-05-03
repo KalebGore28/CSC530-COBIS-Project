@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { eq, and, count as sqlCount } from 'drizzle-orm'
 import * as tables from '../../db/schema'
 
-const studentIdSchema = z.string().regex(/^M\d{8}$/, 'Invalid M-number format')
+const studentIdSchema = z.string().regex(/^[Mm]\d+$/i, 'Invalid M-number format').transform((val) => val.toUpperCase())
 
 /**
  * Wraps a resolver so it only runs if the user passes all of:
@@ -39,17 +39,20 @@ export function checkStudentAccess<
 			})
 		}
 
+		// pull out the uppercase M-number:
+		const mnum = parsed.data   // e.g. "M94325996"
+
 		const roles: string[] = Array.isArray(ctx.roles) ? ctx.roles : []
 		const hasRole = (r: string) => roles.includes(r)
 
 		// 3) COBIS administrators see all
 		if (hasRole('cobis_administrator')) {
-			return resolver(parent, args, ctx, info)
+			return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
 		}
 
 		// 4) Users see their own record
-		if (ctx.mnumber === mnumber) {
-			return resolver(parent, args, ctx, info)
+		if (ctx.mnumber === mnum) {
+			return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
 		}
 
 		// 5) Faculty/Advisor/ProgCoord/DeptChair/Admin can see advisees
@@ -67,12 +70,12 @@ export function checkStudentAccess<
 				.from(tables.studentAdvisors)
 				.where(
 					and(
-						eq(tables.studentAdvisors.student_mnumber, mnumber),
+						eq(tables.studentAdvisors.student_mnumber, mnum),
 						eq(tables.studentAdvisors.advisor_mnumber, ctx.mnumber)
 					)
 				)
 			if (Number(adviseeCount[0]?.cnt || 0) > 0) {
-				return resolver(parent, args, ctx, info)
+				return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
 			}
 		}
 
@@ -87,12 +90,12 @@ export function checkStudentAccess<
 				)
 				.where(
 					and(
-						eq(tables.studentPrograms.mnumber, mnumber),
+						eq(tables.studentPrograms.mnumber, mnum),
 						eq(tables.programs.department, ctx.department)
 					)
 				)
 			if (Number(deptCount[0]?.cnt || 0) > 0) {
-				return resolver(parent, args, ctx, info)
+				return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
 			}
 		}
 
@@ -100,7 +103,7 @@ export function checkStudentAccess<
 		const existsCount = await ctx.db
 			.select({ cnt: sqlCount() })
 			.from(tables.students)
-			.where(eq(tables.students.mnumber, mnumber))
+			.where(eq(tables.students.mnumber, mnum))
 		if (Number(existsCount[0]?.cnt || 0) === 0) {
 			throw new GraphQLError('Student not found', {
 				extensions: { code: 'NOT_FOUND' },

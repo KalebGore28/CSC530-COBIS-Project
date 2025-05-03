@@ -2,6 +2,7 @@
 import { eq, sql, and, or } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
+import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 
 export const resolvers = {
 	Query: {
@@ -282,12 +283,19 @@ export const resolvers = {
 				return stud || null
 			}
 		),
-		faculty: async (_: any, { mnumber }: { mnumber: string }, { db }: any) => {
-			const [fac] = await db.select().from(tables.faculty)
-				.where(eq(tables.faculty.mnumber, mnumber))
-				.limit(1)
-			return fac || null
-		},
+
+		instructor: checkInstructorAccess(
+			async (_: any, { mnumber }: { mnumber: string }, ctx: any) => {
+				const [fac] = await ctx.db
+					.select()
+					.from(tables.faculty)
+					.where(eq(tables.faculty.mnumber, mnumber))
+					.limit(1)
+				return fac || null
+			}
+		),
+
+
 	},
 
 	Account: {
@@ -305,10 +313,62 @@ export const resolvers = {
 			loaders.college.load(fac.college),
 		department: (fac: any, _: any, { loaders }: any) =>
 			loaders.department.load(fac.department),
-		courses_taught: (fac: any, _: any, { db }: any) =>
-			db.select().from(tables.instructorCourses)
-				.where(eq(tables.instructorCourses.mnumber, fac.mnumber))
-				.orderBy(sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`),
+		courses_taught: async (
+			fac: any,
+			args: {
+				startTerm?: string
+				endTerm?: string
+				startYear?: number
+				endYear?: number
+				courseId?: string
+			},
+			{ db }: any
+		) => {
+			const predicates: any[] = [
+				eq(tables.instructorCourses.mnumber, fac.mnumber),
+			]
+
+			if (args.startTerm != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.term} >= ${args.startTerm}`
+				)
+			}
+			if (args.endTerm != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.term} <= ${args.endTerm}`
+				)
+			}
+			if (args.startYear != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.year} >= ${args.startYear}`
+				)
+			}
+			if (args.endYear != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.year} <= ${args.endYear}`
+				)
+			}
+			if (args.courseId) {
+				const up = args.courseId.toUpperCase()
+				predicates.push(
+					sql`
+				  UPPER(
+					${tables.instructorCourses.course_subject}
+					|| CAST(${tables.instructorCourses.course_number} AS TEXT)
+					|| ${tables.instructorCourses.course_suffix}
+				  ) LIKE ${up + '%'}
+				`
+				)
+			}
+
+			return db
+				.select()
+				.from(tables.instructorCourses)
+				.where(and(...predicates))
+				.orderBy(
+					sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`
+				)
+		},
 	},
 
 	InstructorCourse: {

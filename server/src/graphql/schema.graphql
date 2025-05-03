@@ -55,7 +55,13 @@ type Faculty {
   college: College!         # FK → colleges.code
   department: Department!   # FK → departments.code
   # Relationships
-  courses_taught: [InstructorCourse!]!
+  courses_taught(
+    startTerm: String,
+    endTerm: String,
+    startYear: Int,
+    endYear: Int,
+    courseId: String, # subject + number + suffix
+  ): [InstructorCourse!]!
 }
 
 type InstructionalMethod {
@@ -295,5 +301,6 @@ type Query {
 
 
   student(mnumber: String!): Student
-  faculty(mnumber: String!): Faculty
+  instructor(mnumber: String!): Faculty
+  
 }
