@@ -20,6 +20,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { gql } from "graphql-request";
+import { fetchGraphQL } from "@/utils/fetch-graphql";
 
 export interface Term {
 	termCode: string;
@@ -36,8 +37,6 @@ export interface TermSelectorProps {
 	onError?: (error: any) => void;
 	showStats?: boolean;
 }
-
-const GRAPHQL_ENDPOINT = "/api/graphql";
 
 // 1️⃣ Query just year + code for dropdown
 const GET_TERMS = gql`
@@ -96,19 +95,6 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [statsLoading, setStatsLoading] = useState(false);
-
-	// helper to talk to your GraphQL endpoint
-	const fetchGraphQL = async (query: string, variables: any) => {
-		const res = await fetch(GRAPHQL_ENDPOINT, {
-			method: "POST",
-			credentials: "include",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ query, variables }),
-		});
-		const json = await res.json();
-		if (json.errors) throw new Error(json.errors.map((e: any) => e.message).join("; "));
-		return json.data;
-	};
 
 	// Load just term/year list once
 	useEffect(() => {

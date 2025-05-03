@@ -22,6 +22,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Term } from "./term-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { gql } from "graphql-request";
+import { fetchGraphQL } from "@/utils/fetch-graphql";
 
 /**
  * Course interface representing a course from the API
@@ -57,8 +58,6 @@ export interface CourseSelectorProps {
 	/** Whether to show course statistics (default: true) */
 	showStats?: boolean;
 }
-
-const GRAPHQL_ENDPOINT = "/api/graphql";
 
 const GET_COURSES = gql`
   query GetInstructorCourses(
@@ -133,19 +132,6 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [statsLoading, setStatsLoading] = useState<boolean>(false);
-
-	const fetchGraphQL = async (query: string, variables: any) => {
-		const res = await fetch(GRAPHQL_ENDPOINT, {
-			method: "POST",
-			credentials: "include",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify({ query, variables }),
-		});
-		const json = await res.json();
-		if (json.errors) throw new Error(json.errors.map((e: any) => e.message).join("; "));
-		return json.data;
-	};
-
 
 	// Use stable callbacks to prevent unnecessary re-renders
 	const notifyCourseSelection = useCallback((course: Course) => {

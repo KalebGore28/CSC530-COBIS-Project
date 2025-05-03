@@ -29,6 +29,7 @@ import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 import { toast } from "sonner"
+import { gql } from "graphql-request";
 
 /**
  * Student interface representing a student in the class roster
