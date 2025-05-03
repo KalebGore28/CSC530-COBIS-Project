@@ -85,8 +85,9 @@ app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.j
 app.use(express.json({ limit: "10mb" }))
 app.use(express.urlencoded({ extended: true, limit: "10mb" }))
 
-app.use(authenticateUser)
-app.use(getUserInfo)
+// now serve client:
+app.use(express.static(staticDir))
+app.use('/api', authenticateUser, getUserInfo)
 app.use("/api/user", userRoute)
 app.use("/api/import", importRoutes)
 app.use("/api/instructor", instructorRouter)
@@ -98,12 +99,6 @@ app.use("/api/utility", utilityRouter)
 app.use("/api/advisor", advisorRouter)
 app.use("/api/lookup", lookupRouter)
 // app.use('/api/custom-query', customQuery)
-
-const appDir = typeof __dirname === 'undefined' ? path.resolve() : __dirname;
-
-
-// now serve client:
-app.use(express.static(staticDir))
 
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api')) return next()

@@ -32,6 +32,7 @@ export const auth = betterAuth({
 	database: drizzleAdapter(orm, {
 		provider: "sqlite",
 	}),
+	baseURL: config.betterAuthUrl,
 	trustedOrigins: [config.frontend_origin],
 	socialProviders: {
 		// This app was only designed to work with Google OAuth even though better-auth supports more.
