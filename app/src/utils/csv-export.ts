@@ -1,8 +1,6 @@
+// utils/csv-export.ts
 import Papa from 'papaparse';
 
-/**
- * Options for exporting data to CSV
- */
 export interface CSVExportOptions {
 	/** The filename for the exported CSV (without extension) */
 	filename?: string;
@@ -10,26 +8,22 @@ export interface CSVExportOptions {
 	headers?: string[];
 	/** Fields to include in the export (includes all if not provided) */
 	fields?: string[];
+	/** Lines to insert before the actual CSV table */
+	preHeader?: string[];
 }
 
-/**
- * Exports data to a CSV file and triggers a download
- * 
- * @param data Array of objects to export as CSV
- * @param options Export options
- */
 export const exportToCSV = <T extends Record<string, any>>(
 	data: T[],
 	options: CSVExportOptions = {}
 ): void => {
-	if (!data || data.length === 0) {
+	if (!data?.length) {
 		console.warn('No data to export');
 		return;
 	}
 
-	const { filename = 'export', headers, fields } = options;
+	const { filename = 'export', headers, fields, preHeader } = options;
 
-	// If specific fields are provided, filter the data
+	// 1) filter fields if needed
 	const processedData = fields
 		? data.map(item => {
 			const filtered: Record<string, any> = {};
@@ -42,22 +36,25 @@ export const exportToCSV = <T extends Record<string, any>>(
 		})
 		: data;
 
-	// Convert to CSV using PapaParse
-	const csv = Papa.unparse({
-		fields: headers || (fields || Object.keys(processedData[0])),
-		data: processedData
+	// 2) generate the core CSV
+	const coreCsv = Papa.unparse({
+		fields: headers || Object.keys(processedData[0]),
+		data: processedData,
 	});
 
-	// Create a Blob and download link
+	// 3) stitch preHeader (if any) above it
+	const csv = preHeader && preHeader.length
+		? preHeader.join('\n') + '\n\n' + coreCsv
+		: coreCsv;
+
+	// 4) download it
 	const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');
-
-	link.setAttribute('href', url);
-	link.setAttribute('download', `${filename}.csv`);
-	link.style.visibility = 'hidden';
-
+	link.href = url;
+	link.download = `${filename}.csv`;
 	document.body.appendChild(link);
 	link.click();
 	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
 };

@@ -6,6 +6,7 @@ import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Modal } from "@/components/modals/modal";
 import { StudentDetail } from "@/components/student-detail";
+import { format } from 'date-fns';
 
 export interface Student {
 	mnumber: string;
@@ -18,12 +19,56 @@ export interface Student {
 	gender: string;
 }
 
+const makePreHeader = (filters: FilterState): string[] => {
+	const lines: string[] = [];
+
+
+	if (filters.academicLevels.length) {
+		lines.push(`Academic Levels,${filters.academicLevels.join('|')}`);
+	}
+	if (filters.gpaRange) {
+		lines.push(`GPA,${filters.gpaRange[0]}-${filters.gpaRange[1]}`);
+	}
+	if (filters.majors.length) {
+		lines.push(`Majors,${filters.majors.map(m => m.code).join('|')}`);
+	}
+	if (filters.minors.length) {
+		lines.push(`Minors,${filters.minors.map(m => m.code).join('|')}`);
+	}
+	if (filters.coursesTaken.length) {
+		lines.push(`Courses Taken,${filters.coursesTaken.map(c => `${c.subject}${c.number}${c.suffix || ''}`).join('|')}`);
+	}
+	if (filters.coursesNotTaken.length) {
+		lines.push(`Courses Not Taken,${filters.coursesNotTaken.map(c => `${c.subject}${c.number}${c.suffix || ''}`).join('|')}`);
+	}
+	if (filters.gradeFilters.length) {
+		lines.push(`Grades,${filters.gradeFilters
+			.filter(g => g.course && g.grade)
+			.map(g => `${g.course!.subject}${g.course!.number}${g.course!.suffix || ''}:${g.grade}`)
+			.join('|')}`);
+	}
+
+	// always add an export timestamp
+	lines.push(`Exported At,${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`);
+
+	return lines;
+};
+
 const StudentLookup = () => {
 	const [results, setResults] = useState<Student[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
 	const [selectedName, setSelectedName] = useState<string>('');
+	const [currentFilters, setCurrentFilters] = useState<FilterState>({
+		academicLevels: [],
+		gpaRange: [0, 4],
+		majors: [],
+		minors: [],
+		coursesTaken: [],
+		coursesNotTaken: [],
+		gradeFilters: [],
+	});
 
 	const fetchStudents = async (filters: FilterState) => {
 		setIsLoading(true);
@@ -60,6 +105,9 @@ const StudentLookup = () => {
 					.map(g => `${g.course!.subject}${g.course!.number}${g.course!.suffix || ''}:${g.grade}`);
 				if (gf.length) params.gradeFilters = gf.join(',');
 			}
+
+			// Set current filters for preHeader
+			setCurrentFilters(filters);
 
 			// Axios GET with credentials included
 			const response = await axios.get<Student[]>('/api/student-lookup', {
@@ -122,7 +170,8 @@ const StudentLookup = () => {
 								{ key: 'email', label: 'Email', transform: val => val.toLowerCase() }
 							]}
 							rowsPerPage={10}
-							fileName="Student Lookup Results"
+							fileName="student-lookup"
+							preHeader={makePreHeader(currentFilters)}
 							onRowClick={handleStudentClick}
 						/>
 					</CardContent>

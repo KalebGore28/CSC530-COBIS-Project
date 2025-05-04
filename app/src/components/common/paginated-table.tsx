@@ -77,6 +77,7 @@ interface PaginatedTableProps<T> {
 	isLoading?: boolean;
 	className?: string;
 	fileName?: string;
+	preHeader?: string[];
 	[key: string]: any;
 }
 
@@ -88,6 +89,7 @@ export function PaginatedTable<T>({
 	isLoading = false,
 	className,
 	fileName = 'export',
+	preHeader = [],
 	...tableProps
 }: PaginatedTableProps<T>) {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -126,7 +128,7 @@ export function PaginatedTable<T>({
 						<strong>{Math.min(currentPage * rowsPerPage, data.length)}</strong> of{' '}
 						<strong>{data.length}</strong> rows
 					</div>
-					<ExportButton data={data} filename={fileName} />
+					<ExportButton data={data} filename={fileName} preHeader={preHeader} />
 				</div>
 			)}
 

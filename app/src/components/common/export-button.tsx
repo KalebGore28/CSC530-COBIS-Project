@@ -13,6 +13,8 @@ import { toast } from "sonner";
 interface ExportButtonProps {
 	data: any[];
 	filename?: string;
+	preHeader?: string[];   // each entry is one CSV line
+
 }
 
 /**
@@ -21,6 +23,7 @@ interface ExportButtonProps {
 export const ExportButton: React.FC<ExportButtonProps> = ({
 	data,
 	filename = 'unknown',
+	preHeader = [],
 }) => {
 	console.log("ExportButton data:", data);
 	const handleCSVExport = () => {
@@ -29,7 +32,7 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 				toast.error("No data available to export");
 				return;
 			}
-			exportToCSV(data, { filename });
+			exportToCSV(data, { filename, preHeader });
 			toast.success("Data has been exported as CSV");
 		} catch (error) {
 			console.error("Export error:", error);
