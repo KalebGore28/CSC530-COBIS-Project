@@ -61,27 +61,3 @@ export const exportToCSV = <T extends Record<string, any>>(
 	link.click();
 	document.body.removeChild(link);
 };
-
-/**
- * Format student data for roster export
- * 
- * @param students Array of student objects
- * @returns Formatted array ready for CSV export
- */
-export const formatRosterForExport = (students: any[]) => {
-	return students.map(student => ({
-		'Last Name': student.lastName,
-		'First Name': student.firstName,
-		'Middle Initial': student.middleName ? student.middleName.charAt(0) : '',
-		'Suffix': student.suffix || '',
-		'M-Number': student.mnumber,
-		'Email': student.email,
-		'Major': student.major,
-		'Midterm Grade': student.midtermGrade,
-		'Final Grade': student.finalGrade,
-		'Status': student.registrationStatus,
-		'Method': student.instructionalMethod,
-		'GPA': student.overallGpa.toFixed(2),
-		'Earned Hours': student.overallEarnedHours
-	}));
-};

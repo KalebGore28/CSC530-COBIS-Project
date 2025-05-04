@@ -7,13 +7,12 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { exportToCSV, formatRosterForExport } from "@/utils/csv-export";
+import { exportToCSV } from "@/utils/csv-export";
 import { toast } from "sonner";
 
 interface ExportButtonProps {
 	data: any[];
 	filename?: string;
-	isActiveTerm?: boolean;
 }
 
 /**
@@ -21,17 +20,16 @@ interface ExportButtonProps {
  */
 export const ExportButton: React.FC<ExportButtonProps> = ({
 	data,
-	filename = 'class-roster',
+	filename = 'unknown',
 }) => {
+	console.log("ExportButton data:", data);
 	const handleCSVExport = () => {
 		try {
 			if (!data?.length) {
 				toast.error("No data available to export");
 				return;
 			}
-
-			const formattedData = formatRosterForExport(data);
-			exportToCSV(formattedData, { filename });
+			exportToCSV(data, { filename });
 			toast.success("Data has been exported as CSV");
 		} catch (error) {
 			console.error("Export error:", error);
