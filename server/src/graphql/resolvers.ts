@@ -3,6 +3,46 @@ import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 
+// --- TypeScript types for your GraphQL inputs ---
+
+export type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
+export type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
+export interface GradeFilterInput {
+	operator: ComparisonOperator;
+	grade: GradeValue;
+}
+
+export type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
+
+export interface StudentLookupInput {
+	academicLevels?: AcademicLevel[];
+	gpaMin?: number;
+	gpaMax?: number;
+	majors?: string[];
+	minors?: string[];
+	coursesTaken?: string[];
+	coursesNotTaken?: string[];
+	gradeFilters?: GradeFilterInput[];
+}
+
+// --- Helpers ---
+
+const parseCourseId = (cid: string) => {
+	const m = /^([A-Za-z]+)(\d+)([A-Za-z]*)$/.exec(cid);
+	if (!m) throw new Error(`Invalid course ID: ${cid}`);
+	return { subject: m[1], number: +m[2], suffix: m[3] };
+};
+
+const opMap: Record<ComparisonOperator, string> = {
+	EQ: '=',
+	NE: '!=',
+	LT: '<',
+	LTE: '<=',
+	GT: '>',
+	GTE: '>=',
+};
+
+
 export const resolvers = {
 	Query: {
 		// Search lookup tables
@@ -328,37 +368,46 @@ export const resolvers = {
 				coursesTaken,
 				coursesNotTaken,
 				gradeFilters,
-			} = filters
+			} = filters;
 
-			// Collect SQL snippets for WHERE …
-			const whereClauses: unknown[] = []
+			const whereClauses: unknown[] = [];
 
-			// — GPA filters —
+			// 1) GPA filtering via EXISTS
 			if (gpaMin != null) {
-				whereClauses.push(sql`${tables.studentAcademicInfo.overall_gpa} >= ${gpaMin}`)
+				whereClauses.push(sql`
+				EXISTS (
+				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
+				  WHERE sai.mnumber = ${tables.students.mnumber}
+					AND sai.overall_gpa >= ${gpaMin}
+				)
+			  `);
 			}
 			if (gpaMax != null) {
-				whereClauses.push(sql`${tables.studentAcademicInfo.overall_gpa} <= ${gpaMax}`)
+				whereClauses.push(sql`
+				EXISTS (
+				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
+				  WHERE sai.mnumber = ${tables.students.mnumber}
+					AND sai.overall_gpa <= ${gpaMax}
+				)
+			  `);
 			}
 
-			// — Classification (AcademicLevel) —
-			// here we assume classification by overall_earned_hours:
-			//   Freshman <30, Sophomore 30–59, Junior 60–89, Senior ≥90
+			// 2) Academic-level classification
 			academicLevels?.forEach((lvl) => {
-				let cond: unknown
+				let cond: unknown;
 				switch (lvl) {
 					case 'Freshman':
-						cond = sql`${tables.studentAcademicInfo.overall_earned_hours} < 30`
-						break
+						cond = sql`sai.overall_earned_hours < 30`;
+						break;
 					case 'Sophomore':
-						cond = sql`(${tables.studentAcademicInfo.overall_earned_hours} >= 30 AND ${tables.studentAcademicInfo.overall_earned_hours} < 60)`
-						break
+						cond = sql`sai.overall_earned_hours >= 30 AND sai.overall_earned_hours < 60`;
+						break;
 					case 'Junior':
-						cond = sql`(${tables.studentAcademicInfo.overall_earned_hours} >= 60 AND ${tables.studentAcademicInfo.overall_earned_hours} < 90)`
-						break
+						cond = sql`sai.overall_earned_hours >= 60 AND sai.overall_earned_hours < 90`;
+						break;
 					case 'Senior':
-						cond = sql`${tables.studentAcademicInfo.overall_earned_hours} >= 90`
-						break
+						cond = sql`sai.overall_earned_hours >= 90`;
+						break;
 				}
 				whereClauses.push(sql`
 				EXISTS (
@@ -366,10 +415,10 @@ export const resolvers = {
 				  WHERE sai.mnumber = ${tables.students.mnumber}
 					AND ${cond}
 				)
-			  `)
-			})
+			  `);
+			});
 
-			// — Majors / Minors via studentPrograms —
+			// 3) Majors / Minors
 			if (majors?.length) {
 				whereClauses.push(sql`
 				EXISTS (
@@ -378,7 +427,7 @@ export const resolvers = {
 					AND sp.type = 'MAJOR'
 					AND sp.program IN (${majors})
 				)
-			  `)
+			  `);
 			}
 			if (minors?.length) {
 				whereClauses.push(sql`
@@ -388,87 +437,66 @@ export const resolvers = {
 					AND sp.type = 'MINOR'
 					AND sp.program IN (${minors})
 				)
-			  `)
+			  `);
 			}
 
-			// — Courses Taken / Not Taken —
-			const parseCourse = (cid: string) => {
-				const m = /^([A-Za-z]+)(\d+)([A-Za-z]*)$/.exec(cid)
-				if (!m) throw new Error(`Invalid course ID: ${cid}`)
-				return { subject: m[1], number: +m[2], suffix: m[3] || '' }
-			}
-
+			// 4) Courses taken
 			coursesTaken?.forEach((cid) => {
-				const { subject, number, suffix } = parseCourse(cid)
+				const { subject, number, suffix } = parseCourseId(cid);
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber = ${tables.students.mnumber}
-					AND sc.course_subject = ${subject}
-					AND sc.course_number = ${number}
-					AND sc.course_suffix = ${suffix}
+				  WHERE sc.mnumber         = ${tables.students.mnumber}
+					AND sc.course_subject  = ${subject}
+					AND sc.course_number   = ${number}
+					AND sc.course_suffix   = ${suffix}
 				)
-			  `)
-			})
+			  `);
+			});
 
+			// 5) Courses NOT taken
 			coursesNotTaken?.forEach((cid) => {
-				const { subject, number, suffix } = parseCourse(cid)
+				const { subject, number, suffix } = parseCourseId(cid);
 				whereClauses.push(sql`
 				NOT EXISTS (
 				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber = ${tables.students.mnumber}
-					AND sc.course_subject = ${subject}
-					AND sc.course_number = ${number}
-					AND sc.course_suffix = ${suffix}
+				  WHERE sc.mnumber         = ${tables.students.mnumber}
+					AND sc.course_subject  = ${subject}
+					AND sc.course_number   = ${number}
+					AND sc.course_suffix   = ${suffix}
 				)
-			  `)
-			})
+			  `);
+			});
 
-			// — Grade filters on final_grade —
-			// (university uses ‘E’ instead of ‘F’)
+			// 6) Grade filters on final_grade (with E for failing)
 			gradeFilters?.forEach(({ operator, grade }) => {
-				// map GraphQL operator → SQL
-				const opMap: Record<ComparisonOperator, string> = {
-					EQ: '=',
-					NE: '!=',
-					LT: '<',
-					LTE: '<=',
-					GT: '>',
-					GTE: '>=',
-				}
-				const sqlOp = opMap[operator]
+				const sqlOp = opMap[operator];
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber = ${tables.students.mnumber}
+				  WHERE sc.mnumber      = ${tables.students.mnumber}
 					AND sc.final_grade ${sqlOp} ${grade}
 				)
-			  `)
-			})
+			  `);
+			});
 
-			// Build & run the query
+			// --- Build & execute the main student query ---
 			let query = db
 				.select({
 					mnumber: tables.students.mnumber,
-					first_name: tables.students.first_name,
-					last_name: tables.students.last_name,
+					firstName: tables.students.first_name,
+					lastName: tables.students.last_name,
 					email: tables.students.email,
 				})
-				.from(tables.students)
+				.from(tables.students);
 
 			if (whereClauses.length) {
-				query = query.where(and(...whereClauses))
+				query = query.where(and(...whereClauses));
 			}
 
-			const rows = await query.all()
+			const rows = await query.all();
 
-			// Shape to StudentBasic
-			return rows.map((r) => ({
-				mnumber: r.mnumber,
-				firstName: r.first_name,
-				lastName: r.last_name,
-				email: r.email,
-			}))
+			return rows;
 		},
 	},
 
