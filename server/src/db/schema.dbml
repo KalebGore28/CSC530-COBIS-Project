@@ -38,6 +38,8 @@ table courses {
   fee real [not null, default: 0]
   web_fee real [not null, default: 0]
   last_updated text [not null, default: `CURRENT_TIMESTAMP`]
+  department text [default: '0000']
+  college text [default: '0']
 
   indexes {
     (subject, number, suffix) [pk]

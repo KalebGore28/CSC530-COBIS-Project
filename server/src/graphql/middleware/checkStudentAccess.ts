@@ -79,21 +79,62 @@ export function checkStudentAccess<
 			}
 		}
 
-		// 6) Department chairs see students in their department
+		// 6) Instructors (faculty) see any student they’ve taught
+		if (hasRole('faculty') && ctx.mnumber) {
+			const taughtCount = await ctx.db
+				.select({ cnt: sqlCount() })
+				.from(tables.instructorCourses)
+				.innerJoin(
+					tables.studentCourses,
+					and(
+						// match the same course instance
+						eq(tables.instructorCourses.term, tables.studentCourses.term),
+						eq(tables.instructorCourses.year, tables.studentCourses.year),
+						eq(tables.instructorCourses.crn, tables.studentCourses.crn),
+						eq(
+							tables.instructorCourses.course_subject,
+							tables.studentCourses.course_subject
+						),
+						eq(
+							tables.instructorCourses.course_number,
+							tables.studentCourses.course_number
+						),
+						eq(
+							tables.instructorCourses.course_suffix,
+							tables.studentCourses.course_suffix
+						),
+						// only those this instructor taught
+						eq(tables.instructorCourses.mnumber, ctx.mnumber),
+						// only for this student
+						eq(tables.studentCourses.mnumber, mnum)
+					)
+				)
+
+			if (Number(taughtCount[0]?.cnt || 0) > 0) {
+				return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
+			}
+		}
+
+		// 7) Department chairs see any student who’s taken a course in their department
 		if (hasRole('department_chair') && ctx.department) {
 			const deptCount = await ctx.db
 				.select({ cnt: sqlCount() })
-				.from(tables.studentPrograms)
+				.from(tables.studentCourses)
 				.innerJoin(
-					tables.programs,
-					eq(tables.studentPrograms.program, tables.programs.code)
+					tables.courses,
+					and(
+						eq(tables.studentCourses.course_subject, tables.courses.subject),
+						eq(tables.studentCourses.course_number, tables.courses.number),
+						eq(tables.studentCourses.course_suffix, tables.courses.suffix)
+					)
 				)
 				.where(
 					and(
-						eq(tables.studentPrograms.mnumber, mnum),
-						eq(tables.programs.department, ctx.department)
+						eq(tables.studentCourses.mnumber, mnum),
+						eq(tables.courses.department, ctx.department)
 					)
 				)
+
 			if (Number(deptCount[0]?.cnt || 0) > 0) {
 				return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
 			}

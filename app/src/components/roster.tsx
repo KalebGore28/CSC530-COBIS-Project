@@ -638,6 +638,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 													))}
 											</TableHead>
 											<TableHead>M-Number</TableHead>
+											<TableHead>Email</TableHead>
 											<TableHead>Major</TableHead>
 											<TableHead
 												className="cursor-pointer"
@@ -669,7 +670,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 														<SortDesc className="inline h-4 w-4" />
 													))}
 											</TableHead>
-											<TableHead>Status</TableHead>
 										</TableRow>
 									</TableHeader>
 									<TableBody>
@@ -687,6 +687,14 @@ export const Roster: React.FC<ClassRosterProps> = ({
 														</button>
 													</TableCell>
 													<TableCell>{student.mnumber}</TableCell>
+													<TableCell>
+														<a
+															href={`mailto:${student.email.toLowerCase()}`}
+															className="text-blue-600 hover:underline"
+														>
+															{student.email.toLowerCase()}
+														</a>
+													</TableCell>
 													<TableCell>{student.major}</TableCell>
 													<TableCell>
 														<Badge className={getGradeColorClass(student.midtermGrade)}>
@@ -698,7 +706,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 															{student.finalGrade}
 														</Badge>
 													</TableCell>
-													<TableCell>{student.registrationStatus}</TableCell>
 												</TableRow>
 											))
 										) : (

@@ -77,9 +77,13 @@ export class StudentController {
 				return;
 			}
 
+			console.log('Department chair accessing student data');
+			console.log('Department:', authReq.department, 'M-number:', mnumber);
+
 			// Check for advisee relationship first (applies to faculty, advisors, and dept chairs who advise)
 			if ((isFaculty || isAdvisor || isDeptChair || isProgramCoordinator || isAdministrator) && authReq.mnumber) {
 				const isAdvisee = await StudentService.isAdvisee(mnumber, authReq.mnumber);
+				console.log('Is advisee:', isAdvisee);
 				if (isAdvisee) {
 					next();
 					return;
@@ -89,6 +93,7 @@ export class StudentController {
 			// Department chairs can access students in their department
 			if ((isDeptChair) && authReq.department) {
 				const isStudentInDepartment = await StudentService.isStudentInDepartment(mnumber, authReq.department);
+				console.log('Is student in department:', isStudentInDepartment);
 				if (isStudentInDepartment) {
 					next();
 					return;

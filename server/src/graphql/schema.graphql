@@ -232,7 +232,10 @@ type Student {
     suffix: String,
     section: String,
   ): [StudentCourse!]!
-  programs: [StudentProgram!]!
+  programs(
+    term: String,
+    year: Int,
+  ): [StudentProgram!]!
   test_scores: [TestScore!]!
 }
 
