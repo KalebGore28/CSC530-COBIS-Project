@@ -763,7 +763,12 @@ export const Roster: React.FC<ClassRosterProps> = ({
 													</div>
 													<div className="grid grid-cols-2 gap-1 text-sm">
 														<span className="text-muted-foreground">Email:</span>
-														<span className="truncate">{student.email}</span>
+														<a
+															href={`mailto:${student.email.toLowerCase()}`}
+															className="text-blue-600 hover:underline"
+														>
+															{student.email.toLowerCase()}
+														</a>
 													</div>
 												</div>
 											</CardContent>

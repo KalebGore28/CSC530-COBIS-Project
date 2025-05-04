@@ -1,6 +1,6 @@
 // ImportResult.tsx - For displaying import results
 import React from "react";
-import { ImportResult } from "../../../types/csv-import-types";
+import { ImportResult } from "../../types/csv-import-types";
 import { Badge } from "@/components/ui/badge";
 import { FileCheck, AlertCircle, AlertTriangle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";

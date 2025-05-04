@@ -6,6 +6,7 @@ import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Modal } from "@/components/modals/modal";
 import { StudentDetail } from "@/components/student-detail";
+import {ExportButton} from "@/components/common/export-button";
 
 export interface Student {
 	mnumber: string;

@@ -10,9 +10,9 @@ import {
 	Telescope,
 } from "lucide-react"
 
-import { NavMain } from "@/components/core/navigation/nav-main"
-import { NavUser } from "@/components/core/navigation/nav-user"
-import { RoleSwitcher } from "@/components/core/navigation/nav-role-switcher"
+import { NavMain } from "@/components/core/nav-main"
+import { NavUser } from "@/components/core/nav-user"
+import { RoleSwitcher } from "@/components/core/nav-role-switcher"
 import {
 	Sidebar,
 	SidebarContent,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { useNavigate } from "react-router-dom"
-import { Separator } from "../../ui/separator"
+import { Separator } from "../ui/separator"
 import logo from "@/assets/primary_white.png"
 import logoIcon from "@/assets/primary-icon.png"
 
@@ -58,7 +58,7 @@ const data = {
 			url: "/cobis-tools",
 			icon: TerminalSquareIcon,
 			items: [
-				{ title: "Query Builder", url: "/cobis-tools/query-builder" },
+				// { title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
 				{ title: "Users", url: "/cobis-tools/users" },
 			],

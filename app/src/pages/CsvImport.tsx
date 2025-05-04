@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import Papa from "papaparse";
 
-import { FileUpload } from "@/components/features/csv-import/file-upload";
-import { TableSelector } from "@/components/features/csv-import/table-selector";
-import { CsvPreview } from "@/components/features/csv-import/csv-preview";
-import { ImportResultDisplay } from "@/components/features/csv-import/import-result";
-// import { ErrorFixingMode } from "@/components/features/csv-import/error-fixing-mode";
+import { FileUpload } from "@/components/csv-import/file-upload";
+import { TableSelector } from "@/components/csv-import/table-selector";
+import { CsvPreview } from "@/components/csv-import/csv-preview";
+import { ImportResultDisplay } from "@/components/csv-import/import-result";
+// import { ErrorFixingMode } from "@/components/csv-import/error-fixing-mode";
 
 // Import types
 import {

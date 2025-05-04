@@ -25,7 +25,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar"
 
-import { signout } from "../../../lib/auth-client"
+import { signout } from "../../lib/auth-client"
 
 import { Session } from "@/context/session"
 

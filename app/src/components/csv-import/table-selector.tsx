@@ -6,7 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CsvMapping, LookupCsvMapping } from "../../../types/csv-import-types";
+import { CsvMapping, LookupCsvMapping } from "../../types/csv-import-types";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Database, Table2, Info } from "lucide-react";
 

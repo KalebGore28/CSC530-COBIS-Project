@@ -13,10 +13,11 @@ import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Users,
-  Database,
+  // Database,
   LineChart,
   BarChart3,
   FileText,
+  Telescope
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import axios from "axios";
@@ -69,14 +70,14 @@ const dashboardCardsStructure = [
     link: "/reports/students",
     buttonText: "View Reports",
   },
-  {
-    title: "Query Builder",
-    description:
-      "Create custom database queries for advanced data analysis and reporting.",
-    icon: <Database className="h-8 w-8 mb-4 text-primary" />,
-    link: "/cobis-tools/query-builder",
-    buttonText: "Open Query Builder",
-  },
+  // {
+  //   title: "Query Builder",
+  //   description:
+  //     "Create custom database queries for advanced data analysis and reporting.",
+  //   icon: <Database className="h-8 w-8 mb-4 text-primary" />,
+  //   link: "/cobis-tools/query-builder",
+  //   buttonText: "Open Query Builder",
+  // },
   {
     title: "Data Import Tools",
     description:
@@ -93,6 +94,14 @@ const dashboardCardsStructure = [
     link: "/reports",
     buttonText: "View Analytics",
   },
+  {
+    title: "Advisor Page",
+    description:
+      "Access tools and information specific to academic advising.",
+    icon: <Telescope className="h-8 w-8 mb-4 text-primary" />,
+    link: "/advisor-page",
+    buttonText: "Go to Advisor Page",
+  }
 ];
 
 export default function Dashboard() {
