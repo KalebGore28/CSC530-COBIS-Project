@@ -388,9 +388,7 @@ export const resolvers = {
 					eq(tables.instructorCourses.course_section, args.section)
 				)
 			}
-
-			console.log('Instructor course predicates:', args)
-
+			
 			return db
 				.select()
 				.from(tables.instructorCourses)
@@ -598,7 +596,7 @@ export const resolvers = {
 					eq(tables.studentCourses.course_number, args.number)
 				)
 			}
-			
+
 			if (args.suffix != null) {
 				predicates.push(
 					eq(tables.studentCourses.course_suffix, args.suffix)

@@ -75,6 +75,7 @@ export interface RosterStats {
 	totalGraded: number;
 	overallGpa: number;
 	gradeDistribution: Record<string, number>;
+	averageGradeValue: number;
 }
 
 type CurrentTermResponse = {
@@ -195,7 +196,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	const [stats, setStats] = useState<RosterStats | null>(null);
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
 
-
 	// Filters and sorting
 	const [searchQuery, setSearchQuery] = useState("");
 	const [sortField, setSortField] = useState<"name" | "grade">("name");
@@ -208,7 +208,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 			const grade = gradeType === "final"
 				? student.finalGrade
 				: student.midtermGrade;
-			if (grade === "N/A") return acc;              // skip ungraded if you like
+			if (grade === "N/A") return acc;
 			acc[grade] = (acc[grade] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
@@ -221,7 +221,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 			),
 		[gradeDistributionFromStudents]
 	);
-
 
 	useEffect(() => {
 		const fetchRosterData = async () => {
@@ -304,16 +303,37 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 				// 5️⃣ Compute stats
 				const totalStudents = normalized.length;
-				const totalGraded = normalized.filter((st) => st.finalGrade !== "N/A").length;
+
+				// build your distribution directly:
+				const dist = normalized.reduce((acc, st) => {
+					const g = st.finalGrade === "N/A" ? st.midtermGrade : st.finalGrade;
+					if (g !== "N/A") {
+						acc[g] = (acc[g] || 0) + 1;
+					}
+					return acc;
+				}, {} as Record<string, number>);
+
+				const totalGraded = Object.values(dist).reduce((sum, c) => sum + c, 0);
+
 				const overallGpa = totalStudents
 					? normalized.reduce((sum, st) => sum + st.overallGpa, 0) / totalStudents
+					: 0;
+
+				// now average on a 0–4 scale:
+				const GRADE_POINTS: Record<string, number> = { A: 4, B: 3, C: 2, D: 1, E: 0 };
+				const averageGradeValue = totalGraded
+					? Object.entries(dist).reduce((sum, [grade, count]) => {
+						const pts = GRADE_POINTS[grade] ?? 0;
+						return sum + pts * count;
+					}, 0) / totalGraded
 					: 0;
 
 				setStats({
 					totalStudents,
 					totalGraded,
 					overallGpa,
-					gradeDistribution: gradeDistributionFromStudents,
+					gradeDistribution: dist,
+					averageGradeValue,
 				});
 			} catch (err: any) {
 				console.error(err);
@@ -502,11 +522,20 @@ export const Roster: React.FC<ClassRosterProps> = ({
 					<CardContent>
 						<dl className="grid grid-cols-1 gap-4 text-sm">
 							<div className="grid grid-cols-2 gap-1">
-								<dt className="font-medium text-muted-foreground">Average Grade:</dt>
+								<dt className="font-medium text-muted-foreground">Average GPA:</dt>
 								<dd className="font-semibold">
-									{stats.overallGpa ? stats.overallGpa.toFixed(2) : "N/A"}
+									{stats.overallGpa.toFixed(2)}
 								</dd>
 							</div>
+							<div className="grid grid-cols-2 gap-1">
+								<dt className="font-medium text-muted-foreground">Average Grade:</dt>
+								<dd className="font-semibold">
+									{stats.totalGraded > 0
+										? stats.averageGradeValue.toFixed(2)
+										: "N/A"}
+								</dd>
+							</div>
+
 							<div className="grid grid-cols-2 gap-1">
 								<dt className="font-medium text-muted-foreground">Total Students:</dt>
 								<dd className="font-semibold">{stats.totalStudents}</dd>
@@ -724,10 +753,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 													<div className="grid grid-cols-2 gap-1 text-sm">
 														<span className="text-muted-foreground">Method:</span>
 														<span>{student.instructionalMethod}</span>
-													</div>
-													<div className="grid grid-cols-2 gap-1 text-sm">
-														<span className="text-muted-foreground">GPA:</span>
-														<span>{student.overallGpa.toFixed(2)}</span>
 													</div>
 													<div className="grid grid-cols-2 gap-1 text-sm">
 														<span className="text-muted-foreground">Email:</span>
