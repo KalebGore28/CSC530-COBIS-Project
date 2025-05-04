@@ -29,6 +29,12 @@ table colleges {
   description text [not null]
 }
 
+table course_prefixes {
+  prefix text [pk, not null]
+  department text [not null]
+  college text [not null]
+}
+
 table courses {
   subject text [not null]
   number integer [not null]

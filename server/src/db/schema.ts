@@ -3,6 +3,7 @@
 import * as academicStanding from './models/academic-standing';
 import * as admitCodes from './models/admit-codes';
 import * as colleges from './models/colleges';
+import * as coursePrefixes from './models/course-prefixes';
 import * as courses from './models/courses';
 import * as departments from './models/departments';
 import * as instructionalMethods from './models/instructional-methods';
@@ -28,6 +29,7 @@ export * from './models/academic-standing';
 export * from './models/admit-codes';
 export * from './models/colleges';
 export * from './models/courses';
+export * from './models/course-prefixes';
 export * from './models/departments';
 export * from './models/instructional-methods';
 export * from './models/instructor-courses';
@@ -53,6 +55,7 @@ export const schema = {
 	admitCodes,
 	colleges,
 	courses,
+	coursePrefixes,
 	departments,
 	instructionalMethods,
 	instructorCourses,

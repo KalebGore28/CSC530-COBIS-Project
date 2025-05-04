@@ -1,6 +1,7 @@
 // src/services/columnMappingService.ts
 import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
 import * as schema from "../db/schema"; // Import your database schema types here
+import { getDbConnection } from "../db/connection";
 
 // A comprehensive service for mapping CSV data to database tables
 // Supports both data tables (with strict file naming patterns) and
@@ -63,6 +64,19 @@ export interface LookupCsvMapping extends BaseCsvMapping {
  * Union type for all CSV mappings
  */
 export type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
+
+let prefixMap: Map<string, { dept: string; coll: string }> = new Map();
+
+export async function loadPrefixMap() {
+	const { orm: db } = await getDbConnection();
+	const rows = await db.select().from(schema.coursePrefixes);
+	prefixMap = new Map(
+		rows.map(r => [r.prefix, { dept: r.department, coll: r.college }])
+	);
+}
+loadPrefixMap().catch(err => {
+	console.error("Error loading prefix map:", err);
+});
 
 // Function that expands a single demographic row into multiple student program rows
 export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
@@ -189,6 +203,43 @@ export const expandStudentAddresses = (row: Record<string, any>): Record<string,
 
 	return results;
 };
+
+// Function that expands a single course row into multiple course rows
+export function expandCourses(row: Record<string, string>) {
+	const out: Record<string, any>[] = [];
+
+
+	const raw = row.course?.trim() || '';
+	const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
+	if (!m) return out;
+
+	const [, prefix, numStr, suffixRaw] = m;
+	const subject = prefix;
+	const number = parseInt(numStr, 10);
+	const suffix = suffixRaw || '';
+	const title = row.crsetitle?.trim() || '';
+	const hours = parseInt(row.crhrs, 10) || 0;
+	const fee = parseFloat(row.course_fee) || 0;
+	const web_fee = parseFloat(row.web_fee) || 0;
+	const last_updated = row.lastChanged || new Date().toISOString();
+
+	// look up department/college, fallback if missing
+	const { dept, coll } = prefixMap.get(subject) || { dept: '0000', coll: '0' };
+	out.push({
+		subject,
+		number,
+		suffix,
+		title,
+		hours,
+		fee,
+		web_fee,
+		last_updated,
+		department: dept,
+		college: coll,
+	});
+
+	return out;
+}
 
 /**
  * Complete mapping configuration for all CSV files
@@ -430,7 +481,8 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
 					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
 					{ csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
-				]
+				],
+				rowExpander: expandCourses
 			}
 		]
 	},
@@ -493,7 +545,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 				{ csvColumn: "code", dbColumn: "code" },
 				{ csvColumn: "description", dbColumn: "description" },
 				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
-			]
+			],
 		}
 
 	},
@@ -590,6 +642,21 @@ export const csvFileMappings: CSVFileMapping[] = [
 			]
 		}
 	},
+	{
+		description: "Course Prefixes",
+		category: "lookup",
+		destination: {
+			tableName: "Course Prefixes",
+			tableId: "course-prefixes",
+			primaryKeys: ["prefix"],
+			schemaRef: schema.coursePrefixes,
+			columns: [
+				{ csvColumn: "prefix", dbColumn: "prefix" },
+				{ csvColumn: "crsedept", dbColumn: "department" },
+				{ csvColumn: "crsecoll", dbColumn: "college" },
+			]
+		}
+	}
 ];
 
 // Type alias for any destination table
