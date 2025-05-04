@@ -1,4 +1,4 @@
-import { eq, sql, and, or } from 'drizzle-orm'
+import { eq, sql, and, or, SQLWrapper } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
@@ -370,7 +370,7 @@ export const resolvers = {
 				gradeFilters,
 			} = filters;
 
-			const whereClauses: unknown[] = [];
+			const whereClauses: SQLWrapper[] = [];
 
 			// 1) GPA filtering via EXISTS
 			if (gpaMin != null) {
