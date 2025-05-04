@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
 import {
 	Table,
 	TableBody,
@@ -107,6 +106,76 @@ const GET_CURRENT_TERM = gql`
 	}
 `;
 
+const GET_CLASS_ROSTER = gql`
+query GetClassRoster(
+  $mnumber: String!
+  $subject: String!
+  $number: Int!
+  $suffix: String
+  $section: String!
+  $startTerm: String!
+  $startYear: Int!
+) {
+  instructor(mnumber: $mnumber) {
+    courses_taught(
+      subject: $subject
+      number: $number
+      suffix: $suffix
+      section: $section
+      startTerm: $startTerm
+      endTerm: $startTerm
+      startYear: $startYear
+      endYear: $startYear
+    ) {
+      course {
+        subject
+        number
+        suffix
+        title
+      }
+      course_section
+      crn
+      term {
+        code
+        description
+      }
+      students {
+        mnumber
+        student {
+          first_name
+          middle_name
+          last_name
+          suffix
+          email
+          programs {
+            program {
+              code
+            }
+          }
+          academic_info(term: $startTerm, year: $startYear) {
+            overall_gpa
+            overall_earned_hours
+          }
+        }
+        final_grade
+        midterm_grade
+        registration_status {
+          code
+          description
+        }
+        instructional_method {
+          code
+          description
+        }
+        last_attendance
+      }
+    }
+  }
+}
+`;
+
+
+
 
 /**
  * Roster
@@ -156,44 +225,98 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 	useEffect(() => {
 		const fetchRosterData = async () => {
+			if (!mnumber || !selectedCourse) return;
 
-			const data = await fetchGraphQL(GET_CURRENT_TERM, {});
-			setCurrentTerm(data.getCurrentYearTerm as CurrentTermResponse);
-
-			if (!selectedCourse || !mnumber) {
-				return;
-			}
+			setLoading(true);
+			setError(null);
 
 			try {
-				setLoading(true);
-				setError(null);
+				// 1️⃣ Load “current term” to mark Active/Completed
+				const termData = await fetchGraphQL(GET_CURRENT_TERM, {});
+				setCurrentTerm(termData.getCurrentYearTerm as CurrentTermResponse);
 
-				const response = await axios.get(
-					`/api/instructor/${mnumber}/class-roster`,
-					{
-						params: {
-							subject: selectedCourse.courseSubject,
-							number: selectedCourse.courseNumber,
-							suffix: selectedCourse.courseSuffix || '',
-							term: selectedCourse.termCode,
-							year: selectedCourse.year,
-							section: selectedCourse.courseSection
-						},
-						withCredentials: true,
-					}
-				);
+				// 2️⃣ Load roster via GraphQL
+				const data = await fetchGraphQL(GET_CLASS_ROSTER, {
+					mnumber,
+					subject: selectedCourse.courseSubject,
+					number: selectedCourse.courseNumber,
+					suffix: selectedCourse.courseSuffix || null,
+					section: selectedCourse.courseSection,
+					startTerm: selectedCourse.termCode,
+					startYear: selectedCourse.year,
+				});
 
-				if (response.data && response.data.classRoster) {
-					const { course, roster, stats } = response.data.classRoster;
-					setRosterCourse(course);
-					setStudents(roster);
-					setFilteredStudents(roster);
-					setStats(stats);
-				} else {
-					setError("Invalid response format from server");
+				// unwrap the array — should be length 1
+				const taught = data.instructor.courses_taught as any[];
+				if (!taught.length) {
+					throw new Error("No matching course found for this term");
 				}
+
+				const node = taught[0];
+
+				// 3️⃣ Set course info
+				setRosterCourse({
+					courseId: `${node.course.subject}${node.course.number}${node.course.suffix}`,
+					courseSubject: node.course.subject,
+					courseNumber: String(node.course.number),
+					courseSuffix: node.course.suffix,
+					courseSection: node.course_section,
+					courseTitle: node.course.title,
+					termCode: node.term.code,
+					termName: node.term.description,
+					year: selectedCourse.year,
+					creditHours: selectedCourse.creditHours,
+				});
+
+				// inside your fetchRosterData after `const node = taught[0];`
+
+				// 4️⃣ Normalize students
+				const normalized: Student[] = node.students.map((s: any) => {
+					const info = s.student.academic_info || {};
+					// pick the first program as the student's “major”
+					const progList = s.student.programs || [];
+					const majorCode = progList.length > 0
+						? progList[0].program.code
+						: "Undeclared";
+
+					return {
+						mnumber: s.mnumber,
+						firstName: s.student.first_name,
+						middleName: s.student.middle_name,
+						lastName: s.student.last_name,
+						suffix: s.student.suffix,
+						name: `${s.student.first_name} ${s.student.last_name}`,
+						email: s.student.email || "N/A",
+						major: majorCode,
+						finalGrade: s.final_grade,
+						midtermGrade: s.midterm_grade,
+						registrationStatus: s.registration_status.description,
+						instructionalMethod: s.instructional_method.description,
+						lastAttendance: s.last_attendance,
+						overallGpa: info[0].overall_gpa ?? 0,
+						overallEarnedHours: info[0].overall_earned_hours ?? 0,
+					};
+				});
+
+
+				setStudents(normalized);
+				setFilteredStudents(normalized);
+
+				// 5️⃣ Compute stats
+				const totalStudents = normalized.length;
+				const totalGraded = normalized.filter((st) => st.finalGrade !== "N/A").length;
+				const overallGpa = totalStudents
+					? normalized.reduce((sum, st) => sum + st.overallGpa, 0) / totalStudents
+					: 0;
+
+				setStats({
+					totalStudents,
+					totalGraded,
+					overallGpa,
+					gradeDistribution: gradeDistributionFromStudents,
+				});
 			} catch (err: any) {
-				console.error("Error fetching class roster:", err);
+				console.error(err);
 				setError(err.message || "Failed to load class roster");
 			} finally {
 				setLoading(false);
@@ -202,6 +325,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 		fetchRosterData();
 	}, [mnumber, selectedCourse]);
+
 
 	// Apply filters and sorting
 	useEffect(() => {
@@ -583,10 +707,10 @@ export const Roster: React.FC<ClassRosterProps> = ({
 															</div>
 														</div>
 														<Badge className={getGradeColorClass(student.midtermGrade)}>
-															{student.midtermGrade}
+															MG: {student.midtermGrade}
 														</Badge>
 														<Badge className={getGradeColorClass(student.finalGrade)}>
-															{student.finalGrade}
+															FG: {student.finalGrade}
 														</Badge>
 													</div>
 													<div className="grid grid-cols-2 gap-1 text-sm">

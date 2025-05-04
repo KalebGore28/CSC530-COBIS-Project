@@ -487,10 +487,35 @@ export const resolvers = {
 	},
 
 	Student: {
-		academic_info: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.studentAcademicInfo)
-				.where(eq(tables.studentAcademicInfo.mnumber, stud.mnumber))
-				.orderBy(sql`${tables.studentAcademicInfo.year} desc, ${tables.studentAcademicInfo.term} desc`),
+		academic_info: async (
+			stud: any,
+			args: {
+				term?: string;
+				year?: number;
+			},
+			{ db }: any
+		) => {
+			const predicates: any[] = [
+				eq(tables.studentAcademicInfo.mnumber, stud.mnumber)
+			]
+
+			if (args.term != null) {
+				predicates.push(
+					sql`${tables.studentAcademicInfo.term} = ${args.term}`
+				)
+			}
+			if (args.year != null) {
+				predicates.push(
+					sql`${tables.studentAcademicInfo.year} = ${args.year}`
+				)
+			}
+
+			return db
+				.select()
+				.from(tables.studentAcademicInfo)
+				.where(and(...predicates))
+				.orderBy(sql`${tables.studentAcademicInfo.year} desc, ${tables.studentAcademicInfo.term} desc`)
+		},
 
 		addresses: (stud: any, _: any, { db }: any) =>
 			db.select().from(tables.studentAddresses)
@@ -511,7 +536,10 @@ export const resolvers = {
 				instructionalMethod?: string;
 				registrationStatus?: string;
 				partOfTerm?: string;
-				courseId?: string;
+				subject?: string;
+				number?: number;
+				suffix?: string;
+				section?: string;
 			},
 			{ db }: any
 		) => {
@@ -559,17 +587,27 @@ export const resolvers = {
 				)
 			}
 
-			if (args.courseId) {
-				const up = args.courseId.toUpperCase()
+			if (args.subject != null) {
 				predicates.push(
-					// build a string like "PSY331A" and do a prefix‐LIKE
-					sql`
-					UPPER(
-					  ${tables.studentCourses.course_subject}
-					  || CAST(${tables.studentCourses.course_number} AS TEXT)
-					  || ${tables.studentCourses.course_suffix}
-					) LIKE ${up + '%'}
-				  `
+					eq(tables.studentCourses.course_subject, args.subject)
+				)
+			}
+
+			if (args.number != null) {
+				predicates.push(
+					eq(tables.studentCourses.course_number, args.number)
+				)
+			}
+			
+			if (args.suffix != null) {
+				predicates.push(
+					eq(tables.studentCourses.course_suffix, args.suffix)
+				)
+			}
+
+			if (args.section != null) {
+				predicates.push(
+					eq(tables.studentCourses.course_section, args.section)
 				)
 			}
 

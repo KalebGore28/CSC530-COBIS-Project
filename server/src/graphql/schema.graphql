@@ -213,7 +213,10 @@ type Student {
   cell_phone: String!
   email: String!
   # Relationships
-  academic_info: [StudentAcademicInfo!]!
+  academic_info(
+    term: String,
+    year: Int,
+  ): [StudentAcademicInfo!]!
   addresses: [StudentAddress!]!
   advisors: [StudentAdvisor!]!
   courses(
@@ -224,7 +227,10 @@ type Student {
     instructionalMethod: String,
     registrationStatus: String,
     partOfTerm: String,
-    courseId: String, # subject + number + suffix
+    subject: String,
+    number: Int,
+    suffix: String,
+    section: String,
   ): [StudentCourse!]!
   programs: [StudentProgram!]!
   test_scores: [TestScore!]!
