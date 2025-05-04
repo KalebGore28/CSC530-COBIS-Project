@@ -12,11 +12,6 @@ import { ruruHTML } from 'ruru/server'
 import { schema } from './graphql'            // resolves src/graphql/index.ts
 import { buildContext } from './graphql/context'
 
-// Open API
-import { apiReference } from '@scalar/express-api-reference'
-import 'zod-openapi/extend';
-import { createDocument } from 'zod-openapi';
-
 // Middleware
 import { authenticateUser } from './middleware/authenticate-user';
 import { getUserInfo } from './middleware/get-user-info';

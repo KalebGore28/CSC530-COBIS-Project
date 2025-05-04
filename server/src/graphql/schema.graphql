@@ -289,6 +289,56 @@ type YearTerm {
   year: Int!
 }
 
+# Student Lookup Types and Enums
+
+enum AcademicLevel {
+  Freshman
+  Sophomore
+  Junior
+  Senior
+}
+
+enum GradeValue {
+  A
+  B
+  C
+  D
+  E
+}
+
+enum ComparisonOperator {
+  EQ    # =
+  NE    # !=
+  LT    # <
+  LTE   # <=
+  GT    # >
+  GTE   # >=
+}
+
+input GradeFilterInput {
+  operator: ComparisonOperator!
+  grade:    GradeValue!
+}
+
+input StudentLookupInput {
+  academicLevels: [AcademicLevel!]
+  gpaMin: Float
+  gpaMax: Float
+  majors: [String!]
+  minors: [String!]
+  coursesTaken: [String!]
+  coursesNotTaken: [String!]
+  gradeFilters: [GradeFilterInput!]
+}
+
+type StudentBasic {
+  mnumber:   String!
+  firstName: String!
+  lastName:  String!
+  email:     String!
+}
+
+
 
 # Root query type
 
@@ -321,9 +371,12 @@ type Query {
   getRoles: [Role!]!
   getTerms: [Term!]!
 
+  # Utility
+  getCurrentYearTerm: YearTerm!
+
 
   student(mnumber: String!): Student
   instructor(mnumber: String!): Faculty
-  getCurrentYearTerm: YearTerm!
+  lookupStudents(filters: StudentLookupInput!): [StudentBasic!]!
   
 }
