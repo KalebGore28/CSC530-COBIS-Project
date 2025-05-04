@@ -15,8 +15,8 @@ export const courses = sqliteTable("courses", {
 	fee: real("fee").notNull().default(0),
 	web_fee: real("web_fee").notNull().default(0),
 	last_updated: text("last_updated").notNull().default(sql`CURRENT_TIMESTAMP`),
-	//department: text("department").default("0000").references(() => departments.code),
-	//college: text("college").default("0").references(() => colleges.code),
+	department: text("department").default("0000").references(() => departments.code),
+	college: text("college").default("0").references(() => colleges.code),
 }, (table) => [
 	primaryKey({ columns: [table.subject, table.number, table.suffix] }),
 ]);
