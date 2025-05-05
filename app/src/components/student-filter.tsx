@@ -155,16 +155,26 @@ export const StudentFilters = ({
 
 	const toggleCourseFilter = (key: string, flag: "taken" | "notTaken") => {
 		setCourseFilters(maps => {
-			const cur = maps[key] || { taken: false, notTaken: false };
-			let { taken, notTaken } = cur;
+			const cur = maps[key] ?? {};
+			let { taken = false, notTaken = false, gradeOperator, grade } = cur;
+
 			if (flag === "taken") {
 				taken = !taken;
-				if (taken) notTaken = false;
+				if (taken) {
+					// turned on → clear notTaken, and seed defaults
+					notTaken = false;
+					gradeOperator = gradeOperator ?? ComparisonOperator.EQ;
+					grade = grade ?? "A";
+				}
 			} else {
 				notTaken = !notTaken;
 				if (notTaken) taken = false;
 			}
-			return { ...maps, [key]: { taken, notTaken } };
+
+			return {
+				...maps,
+				[key]: { taken, notTaken, gradeOperator, grade },
+			};
 		});
 	};
 
@@ -470,7 +480,7 @@ export const StudentFilters = ({
 							})
 						}
 					>
-						Apply
+						Run Search
 					</Button>
 				</div>
 			</CardContent>
