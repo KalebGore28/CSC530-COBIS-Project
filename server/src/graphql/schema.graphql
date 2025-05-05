@@ -337,6 +337,7 @@ type StudentBasic {
   firstName: String!
   lastName:  String!
   email:     String!
+  final_grade:    String!
 }
 
 

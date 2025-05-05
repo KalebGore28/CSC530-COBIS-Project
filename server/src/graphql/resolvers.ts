@@ -1,4 +1,4 @@
-import { eq, sql, and, or, SQLWrapper } from 'drizzle-orm'
+import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, exists } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
@@ -6,6 +6,14 @@ import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 // --- TypeScript types for your GraphQL inputs ---
 
 export type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
+const opFnMap: Record<ComparisonOperator, typeof eq> = {
+	EQ: eq,
+	NE: ne,
+	LT: lt,
+	LTE: lte,
+	GT: gt,
+	GTE: gte,
+};
 export type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
 export interface GradeFilterInput {
 	operator: ComparisonOperator;
@@ -196,7 +204,7 @@ export const resolvers = {
 			const up = args.query.toUpperCase();
 
 			const filters: SQLWrapper[] = [];
-			
+
 			// start with the text‐match condition
 			filters.push(or(
 				sql`UPPER(${tables.programs.code}) LIKE ${up + "%"}`,
@@ -500,14 +508,33 @@ export const resolvers = {
 
 			// 6) Grade filters on final_grade (with E for failing)
 			gradeFilters?.forEach(({ operator, grade }) => {
-				const sqlOp = opMap[operator];
-				whereClauses.push(sql`
-				EXISTS (
-				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber      = ${tables.students.mnumber}
-					AND sc.final_grade ${sqlOp} ${grade}
-				)
-			  `);
+				const compare = opFnMap[operator];
+
+				const [cid] = coursesTaken || [];
+				const { subject, number, suffix } = cid
+					? parseCourseId(cid)
+					: { subject: null, number: null, suffix: null };
+
+				whereClauses.push(
+					exists(
+						db
+							.select()
+							.from(tables.studentCourses)
+							.where(
+								and(
+									eq(tables.studentCourses.mnumber, tables.students.mnumber),
+
+									// only this one course:
+									eq(tables.studentCourses.course_subject, subject),
+									eq(tables.studentCourses.course_number, number),
+									eq(tables.studentCourses.course_suffix, suffix),
+
+									// _and_ the grade comparison:
+									compare(tables.studentCourses.final_grade, grade),
+								)
+							)
+					)
+				);
 			});
 
 			// --- Build & execute the main student query ---
@@ -517,8 +544,10 @@ export const resolvers = {
 					firstName: tables.students.first_name,
 					lastName: tables.students.last_name,
 					email: tables.students.email,
+					final_grade: tables.studentCourses.final_grade,
 				})
-				.from(tables.students);
+				.from(tables.students)
+				.leftJoin(tables.studentCourses, eq(tables.studentCourses.mnumber, tables.students.mnumber))
 
 			if (whereClauses.length) {
 				query = query.where(and(...whereClauses));
@@ -845,6 +874,5 @@ export const resolvers = {
 	YearTerm: {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
-	}
-
+	},
 }

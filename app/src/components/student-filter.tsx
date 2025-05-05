@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import {
 	GraphQLSearchInput,
@@ -19,6 +20,15 @@ import {
 	searchCourses
 } from "@/utils/search";
 
+enum ComparisonOperator {
+	EQ = "Equal",
+	NE = "Not Equal",
+	LT = "Less Than",
+	LTE = "Less Than or Equal",
+	GT = "Greater Than",
+	GTE = "Greater Than or Equal",
+}
+
 
 export interface FilterState {
 	academicLevels: string[];
@@ -26,7 +36,12 @@ export interface FilterState {
 	selectedPrograms: Program[];
 	programFilters: Record<string, Partial<Record<keyof Program, boolean>>>;
 	selectedCourses: Course[];
-	courseFilters: Record<string, { taken?: boolean; notTaken?: boolean }>;
+	courseFilters: Record<string, {
+		taken?: boolean;
+		notTaken?: boolean;
+		gradeOperator?: ComparisonOperator;
+		grade?: string;
+	}>;
 }
 
 interface StudentFiltersProps {
@@ -55,7 +70,12 @@ export const StudentFilters = ({
 	>({});
 	const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
 	const [courseFilters, setCourseFilters] = useState<
-		Record<string, { taken?: boolean; notTaken?: boolean }>
+		Record<string, {
+			taken?: boolean;
+			notTaken?: boolean;
+			gradeOperator?: ComparisonOperator;
+			grade?: string;
+		}>
 	>({});
 
 	const courseKey = (c: Course) => `${c.subject}-${c.number}-${c.suffix}`;
@@ -157,14 +177,44 @@ export const StudentFilters = ({
 		onResetFilters?.();
 	};
 
+	const setCourseGradeOperator = (key: string, op: ComparisonOperator) => {
+		setCourseFilters(maps => {
+			const cur = maps[key] ?? {};
+			return {
+				...maps,
+				[key]: {
+					...cur,
+					gradeOperator: op,
+					// if they haven’t picked a grade yet, default to “A”
+					grade: cur.grade ?? "A",
+				},
+			};
+		});
+	};
+
+	const setCourseGrade = (key: string, grade: string) => {
+		setCourseFilters(maps => {
+			const cur = maps[key] ?? {};
+			return {
+				...maps,
+				[key]: {
+					...cur,
+					grade,
+					// if they haven’t picked an operator yet, default to EQ
+					gradeOperator: cur.gradeOperator ?? ComparisonOperator.EQ,
+				},
+			};
+		});
+	};
+
 	const FILTERABLE: { key: keyof Program; label: string }[] = [
 		{ key: "is_major", label: "Major" },
 		{ key: "is_minor", label: "Minor" },
 	];
 
 	useEffect(() => {
-		console.log(":", selectedCourses);
-	}, [selectedCourses]);
+		console.log(":", courseFilters);
+	}, [courseFilters]);
 
 	return (
 		<Card className="w-full">
@@ -172,7 +222,7 @@ export const StudentFilters = ({
 				<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
 					{/* Academic Level */}
-					<div className="border rounded-lg p-2 shadow">
+					<div className="border rounded-lg p-4 shadow">
 						<Label>Academic Level</Label>
 						<div className="grid grid-cols-2 gap-2 mt-2">
 							{academicLevelOptions.map((level) => (
@@ -188,7 +238,7 @@ export const StudentFilters = ({
 					</div>
 
 					{/* GPA Range */}
-					<div className="border rounded-lg p-2 shadow">
+					<div className="border rounded-lg p-4 shadow">
 						<div className="flex justify-between">
 							<Label>GPA Range</Label>
 							<span className="text-sm text-muted-foreground">
@@ -323,31 +373,72 @@ export const StudentFilters = ({
 									<div className="space-y-2">
 										{selectedCourses.map(c => {
 											const key = courseKey(c);
-											const { taken, notTaken } = courseFilters[key] || {};
+											const { taken, notTaken, gradeOperator, grade } = courseFilters[key] || {};
+
 											return (
 												<div
 													key={key}
-													className="flex items-center justify-between"
+													className="w-full grid grid-cols-3 items-center gap-x-4 justify-items-stretch"
 												>
-													<span className="text-sm font-medium truncate max-w-[50%]">
+													{/* 1) Course label on the left */}
+													<span className="text-sm font-medium truncate">
 														{c.subject} {c.number}{c.suffix} — {c.title}
 													</span>
-													<div className="flex items-center gap-4">
+
+													{/* 2) Operator + Grade selector in the middle (empty if not taken) */}
+													{taken ? (
+														<div className="flex items-center gap-x-2 justify-center">
+															<Select
+																value={gradeOperator}
+																onValueChange={(v) =>
+																	setCourseGradeOperator(key, v as ComparisonOperator)
+																}
+															>
+																<SelectTrigger className="w-min-[70px]">
+																	<SelectValue placeholder="Op" />
+																</SelectTrigger>
+																<SelectContent>
+																	{Object.values(ComparisonOperator).map((op) => (
+																		<SelectItem key={op} value={op}>
+																			{op}
+																		</SelectItem>
+																	))}
+																</SelectContent>
+															</Select>
+
+															<Select
+																value={grade}
+																onValueChange={(v) => setCourseGrade(key, v)}
+															>
+																<SelectTrigger className="w-min-[70px]">
+																	<SelectValue placeholder="Grade" />
+																</SelectTrigger>
+																<SelectContent>
+																	{["A", "B", "C", "D", "E"].map((g) => (
+																		<SelectItem key={g} value={g}>
+																			{g}
+																		</SelectItem>
+																	))}
+																</SelectContent>
+															</Select>
+														</div>
+													) : (
+														<div /> /* placeholder cell so grid stays aligned */
+													)}
+
+													{/* 3) Taken / Not Taken toggles on the right */}
+													<div className="flex items-center gap-4 justify-self-end">
 														<label className="flex items-center space-x-1">
 															<Checkbox
 																checked={taken}
-																onCheckedChange={() =>
-																	toggleCourseFilter(key, "taken")
-																}
+																onCheckedChange={() => toggleCourseFilter(key, "taken")}
 															/>
 															<span className="text-sm">Taken</span>
 														</label>
 														<label className="flex items-center space-x-1">
 															<Checkbox
 																checked={notTaken}
-																onCheckedChange={() =>
-																	toggleCourseFilter(key, "notTaken")
-																}
+																onCheckedChange={() => toggleCourseFilter(key, "notTaken")}
 															/>
 															<span className="text-sm">Not Taken</span>
 														</label>
@@ -356,6 +447,7 @@ export const StudentFilters = ({
 											);
 										})}
 									</div>
+
 								)}
 							</CardContent>
 						</Card>
