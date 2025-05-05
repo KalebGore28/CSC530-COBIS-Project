@@ -40,9 +40,7 @@ const StudentLookup = () => {
 	const [currentFilters, setCurrentFilters] = useState<FilterState>({
 		academicLevels: [],
 		gpaRange: [0, 4],
-		selectedPrograms: [],
 		programFilters: {},
-		selectedCourses: [],
 		courseFilters: {},
 	});
 

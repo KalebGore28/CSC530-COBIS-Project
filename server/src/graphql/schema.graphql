@@ -318,18 +318,23 @@ enum ComparisonOperator {
 
 input CourseFilter {
   course: String!
+  taken: Boolean!
   operator: ComparisonOperator
   grade: GradeValue
+}
+
+input ProgramFilter {
+  program: String!
+  is_major: Boolean!
+  is_minor: Boolean!
 }
 
 input StudentLookupInput {
   academicLevels: [AcademicLevel!]
   gpaMin: Float
   gpaMax: Float
-  majors: [String!]
-  minors: [String!]
-  coursesTaken: [CourseFilter!]
-  coursesNotTaken: [CourseFilter!]
+  programs: [ProgramFilter!]
+  courses: [CourseFilter!]
 }
 
 type StudentBasic {

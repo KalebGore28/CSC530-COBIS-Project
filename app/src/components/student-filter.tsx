@@ -33,12 +33,9 @@ enum ComparisonOperator {
 export interface FilterState {
 	academicLevels: string[];
 	gpaRange: [number, number];
-	selectedPrograms: Program[];
 	programFilters: Record<string, Partial<Record<keyof Program, boolean>>>;
-	selectedCourses: Course[];
 	courseFilters: Record<string, {
 		taken?: boolean;
-		notTaken?: boolean;
 		gradeOperator?: ComparisonOperator;
 		grade?: string;
 	}>;
@@ -71,8 +68,7 @@ export const StudentFilters = ({
 	const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
 	const [courseFilters, setCourseFilters] = useState<
 		Record<string, {
-			taken?: boolean;
-			notTaken?: boolean;
+			taken: boolean;
 			gradeOperator?: ComparisonOperator;
 			grade?: string;
 		}>
@@ -138,22 +134,18 @@ export const StudentFilters = ({
 	const addCourse = (c: Course) => {
 		const key = courseKey(c);
 
-		// 1) Add to selectedCourses as before
 		setSelectedCourses(cs =>
 			cs.some(x => courseKey(x) === key) ? cs : [...cs, c]
 		);
 
-		// 2) Seed courseFilters[key] with taken=true
 		setCourseFilters(maps => {
 			if (maps[key]) return maps;
-
 			return {
 				...maps,
 				[key]: {
-					taken: true,              // ← auto-select “Taken”
-					notTaken: false,
-					gradeOperator: ComparisonOperator.EQ, // optional defaults
-					grade: "A",                         // if you want them pre-populated
+					taken: true,                              // ← start as “Taken”
+					gradeOperator: ComparisonOperator.EQ,     // optional defaults
+					grade: "A",
 				},
 			};
 		});
@@ -165,41 +157,27 @@ export const StudentFilters = ({
 		setCourseFilters(({ [key]: _, ...rest }) => rest);
 	};
 
-	const toggleCourseFilter = (key: string, flag: "taken" | "notTaken") => {
+	const toggleCourseTaken = (key: string) => {
 		setCourseFilters(maps => {
-			const cur = maps[key] ?? {};
-			let { taken = false, notTaken = false, gradeOperator, grade } = cur;
-
-			if (flag === "taken") {
-				taken = !taken;
-				if (taken) {
-					// turned ON → clear notTaken, seed defaults
-					notTaken = false;
-					gradeOperator = gradeOperator ?? ComparisonOperator.EQ;
-					grade = grade ?? "A";
-				} else {
-					// turned OFF → clear operator+grade
-					gradeOperator = undefined;
-					grade = undefined;
-				}
-
-			} else {
-				notTaken = !notTaken;
-				if (notTaken) {
-					// turned ON → clear taken & operator+grade
-					taken = false;
-					gradeOperator = undefined;
-					grade = undefined;
-				}
-				// if they un-check "notTaken", we leave taken=false and no gradeOperator/grade
-			}
+			const cur = maps[key] || { taken: false };
+			const taken = !cur.taken;
 
 			return {
 				...maps,
-				[key]: { taken, notTaken, gradeOperator, grade },
+				[key]: {
+					taken,
+					// only carry defaults back in when turning ON
+					...(taken
+						? {
+							gradeOperator: cur.gradeOperator ?? ComparisonOperator.EQ,
+							grade: cur.grade ?? "A",
+						}
+						: {}),
+				},
 			};
 		});
 	};
+
 
 	const resetAll = () => {
 		setFilters({ academicLevels: [], gpaRange: [0, 4.0] });
@@ -390,6 +368,7 @@ export const StudentFilters = ({
 					</div>
 
 					{/* Course Filters */}
+					{/* Course Filters */}
 					<div className="col-span-1 md:col-span-2 my-4">
 						<Label>Course Filters</Label>
 						<Card className="w-full mt-2">
@@ -402,32 +381,39 @@ export const StudentFilters = ({
 									<div className="space-y-2">
 										{selectedCourses.map(c => {
 											const key = courseKey(c);
-											const { taken, notTaken, gradeOperator, grade } = courseFilters[key] || {};
+											const {
+												taken,
+												gradeOperator,
+												grade,
+											} = courseFilters[key] || { taken: false };
 
 											return (
 												<div
 													key={key}
-													className="w-full grid grid-cols-3 items-center gap-x-4 justify-items-stretch"
+													className="w-full grid grid-cols-3 items-center gap-x-4"
 												>
-													{/* 1) Course label on the left */}
+													{/* 1) Course label */}
 													<span className="text-sm font-medium truncate">
 														{c.subject} {c.number}{c.suffix} — {c.title}
 													</span>
 
-													{/* 2) Operator + Grade selector in the middle (empty if not taken) */}
+													{/* 2) Grade selectors when “taken” */}
 													{taken ? (
 														<div className="flex items-center gap-x-2 justify-center">
 															<Select
 																value={gradeOperator}
-																onValueChange={(v) =>
-																	setCourseGradeOperator(key, v as ComparisonOperator)
+																onValueChange={v =>
+																	setCourseGradeOperator(
+																		key,
+																		v as ComparisonOperator
+																	)
 																}
 															>
-																<SelectTrigger className="w-min-[70px]">
+																<SelectTrigger className="min-w-[70px]">
 																	<SelectValue placeholder="Op" />
 																</SelectTrigger>
 																<SelectContent>
-																	{Object.values(ComparisonOperator).map((op) => (
+																	{Object.values(ComparisonOperator).map(op => (
 																		<SelectItem key={op} value={op}>
 																			{op}
 																		</SelectItem>
@@ -437,13 +423,13 @@ export const StudentFilters = ({
 
 															<Select
 																value={grade}
-																onValueChange={(v) => setCourseGrade(key, v)}
+																onValueChange={v => setCourseGrade(key, v)}
 															>
-																<SelectTrigger className="w-min-[70px]">
+																<SelectTrigger className="min-w-[70px]">
 																	<SelectValue placeholder="Grade" />
 																</SelectTrigger>
 																<SelectContent>
-																	{["A", "B", "C", "D", "E"].map((g) => (
+																	{["A", "B", "C", "D", "E"].map(g => (
 																		<SelectItem key={g} value={g}>
 																			{g}
 																		</SelectItem>
@@ -452,35 +438,30 @@ export const StudentFilters = ({
 															</Select>
 														</div>
 													) : (
-														<div /> /* placeholder cell so grid stays aligned */
+														<div />
 													)}
 
-													{/* 3) Taken / Not Taken toggles on the right */}
-													<div className="flex items-center gap-4 justify-self-end">
+													{/* 3) Single Taken toggle */}
+													<div className="flex items-center justify-self-end">
 														<label className="flex items-center space-x-1">
 															<Checkbox
 																checked={taken}
-																onCheckedChange={() => toggleCourseFilter(key, "taken")}
+																onCheckedChange={() => toggleCourseTaken(key)}
 															/>
-															<span className="text-sm">Taken</span>
-														</label>
-														<label className="flex items-center space-x-1">
-															<Checkbox
-																checked={notTaken}
-																onCheckedChange={() => toggleCourseFilter(key, "notTaken")}
-															/>
-															<span className="text-sm">Not Taken</span>
+															<span className="text-sm">
+																{taken ? "Taken" : "Not Taken"}
+															</span>
 														</label>
 													</div>
 												</div>
 											);
 										})}
 									</div>
-
 								)}
 							</CardContent>
 						</Card>
 					</div>
+
 				</div>
 
 				<div className="flex justify-end space-x-3 mt-6">
@@ -492,9 +473,7 @@ export const StudentFilters = ({
 							onApplyFilters({
 								academicLevels: filters.academicLevels,
 								gpaRange: filters.gpaRange,
-								selectedPrograms,
 								programFilters,
-								selectedCourses,
 								courseFilters,
 							})
 						}

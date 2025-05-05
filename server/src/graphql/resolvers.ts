@@ -11,8 +11,15 @@ type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
 
 interface CourseFilterInput {
 	course: string;
+	taken: boolean;
 	operator?: ComparisonOperator;
 	grade?: GradeValue;
+}
+
+interface ProgramFilterInput {
+	program: string;
+	is_major?: boolean;
+	is_minor?: boolean;
 }
 
 type StudentBasic = {
@@ -26,10 +33,8 @@ interface StudentLookupInput {
 	academicLevels?: string[];
 	gpaMin?: number;
 	gpaMax?: number;
-	majors?: string[];
-	minors?: string[];
-	coursesTaken?: CourseFilterInput[];
-	coursesNotTaken?: CourseFilterInput[];
+	programs?: ProgramFilterInput[];
+	courses?: CourseFilterInput[];
 }
 
 // --- Helpers ---
@@ -388,20 +393,18 @@ export const resolvers = {
 				academicLevels,
 				gpaMin,
 				gpaMax,
-				majors,
-				minors,
-				coursesTaken,
-				coursesNotTaken,
+				programs,
+				courses
 			} = filters;
 
 			const whereClauses: SQL[] = [];
 
-			// 1) GPA filters
+			// 1) GPA filters (unchanged) …
 			if (gpaMin != null) {
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
-				  WHERE sai.mnumber     = ${tables.students.mnumber}
+				  WHERE sai.mnumber = ${tables.students.mnumber}
 					AND sai.overall_gpa >= ${gpaMin}
 				)
 			  `);
@@ -410,13 +413,13 @@ export const resolvers = {
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
-				  WHERE sai.mnumber     = ${tables.students.mnumber}
+				  WHERE sai.mnumber = ${tables.students.mnumber}
 					AND sai.overall_gpa <= ${gpaMax}
 				)
 			  `);
 			}
 
-			// 2) Academic‐level filters
+			// 2) Academic‐level filters (unchanged) …
 			academicLevels?.forEach(level => {
 				let rangeCond: SQL;
 				switch (level) {
@@ -442,83 +445,83 @@ export const resolvers = {
 			  `);
 			});
 
-			// 3) Majors / Minors
-			if (majors?.length) {
-				whereClauses.push(sql`
-				EXISTS (
-				  SELECT 1 FROM ${tables.studentPrograms} sp
-				  WHERE sp.mnumber = ${tables.students.mnumber}
-					AND sp.type    = 'MAJOR'
-					AND sp.program IN (${majors})
-				)
-			  `);
-			}
-			if (minors?.length) {
-				whereClauses.push(sql`
-				EXISTS (
-				  SELECT 1 FROM ${tables.studentPrograms} sp
-				  WHERE sp.mnumber = ${tables.students.mnumber}
-					AND sp.type    = 'MINOR'
-					AND sp.program IN (${minors})
-				)
-			  `);
-			}
-
-			// 4) Courses TAKEN filters
-			coursesTaken?.forEach(({ course, operator, grade }) => {
-				const { subject, number, suffix = '' } = parseCourseId(course);
-
-				// build basic match clauses
-				const base = [
-					eq(tables.studentCourses.mnumber, tables.students.mnumber),
-					eq(tables.studentCourses.course_subject, subject),
-					eq(tables.studentCourses.course_number, number),
-					sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`
-				] as SQL[];
-
-				// Since letter grades sort alphabetically (“A” < “B” < “C” < “D” < “E”),
-				// but in academic terms “A” is the highest and “E” the lowest, we invert
-				// the usual comparisons. “Less than C” (i.e. D or E) becomes string-wise
-				// “greater than or equal to 'C'” — hence the flipped operator map.
-				if (operator && grade) {
-					const map: Record<ComparisonOperator, typeof eq> = {
-						EQ: eq,    // = “equal to”
-						NE: ne,    // != “not equal to”
-
-						// flip for academic ordering:
-						LT: gt,    // “less than” academically → final_grade >= target
-						LTE: gte,   // “≤” academically       → final_grade >  target
-						GT: lt,    // “greater than” academically → final_grade <= target
-						GTE: lte,   // “≥” academically            → final_grade <  target
-					};
-					const fn = map[operator];
-					base.push(fn(tables.studentCourses.final_grade, grade));
+			// 3) Program filters (new)
+			programs?.forEach(({ program, is_major, is_minor }) => {
+				if (is_major) {
+					whereClauses.push(sql`
+				  EXISTS (
+					SELECT 1
+					FROM ${tables.studentPrograms} sp
+					WHERE sp.mnumber = ${tables.students.mnumber}
+					  AND sp.type    = 'MAJOR'
+					  AND sp.program = ${program}
+				  )
+				`);
 				}
-
-
-				whereClauses.push(sql`
-				EXISTS (
-				  SELECT 1 FROM ${tables.studentCourses}
-				  WHERE ${and(...base)}
-				)
-			  `);
+				if (is_minor) {
+					whereClauses.push(sql`
+				  EXISTS (
+					SELECT 1
+					FROM ${tables.studentPrograms} sp
+					WHERE sp.mnumber = ${tables.students.mnumber}
+					  AND sp.type    = 'MINOR'
+					  AND sp.program = ${program}
+				  )
+				`);
+				}
 			});
 
-			// 5) Courses NOT TAKEN filters
-			coursesNotTaken?.forEach(({ course }) => {
+			// 4) Course filters (new combined logic)
+			courses?.forEach(({ course, taken, operator, grade }) => {
 				const { subject, number, suffix = '' } = parseCourseId(course);
-				whereClauses.push(sql`
-				NOT EXISTS (
-				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber        = ${tables.students.mnumber}
-					AND sc.course_subject = ${subject}
-					AND sc.course_number  = ${number}
-					AND COALESCE(sc.course_suffix, '') = ${suffix}
-				)
-			  `);
+
+				if (taken) {
+					// build base match clauses
+					const base: SQL[] = [
+						eq(tables.studentCourses.mnumber, tables.students.mnumber),
+						eq(tables.studentCourses.course_subject, subject),
+						eq(tables.studentCourses.course_number, number),
+						sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`,
+					];
+
+					// flip string comparisons so that "A" > "B" academically → invert operators
+					if (operator && grade) {
+						const map: Record<ComparisonOperator, typeof eq> = {
+							EQ: eq,    // = 
+							NE: ne,    // !=
+
+							// flipped for academic order:
+							LT: gt,    // academically “<”  → string-wise “>=”
+							LTE: gte,   // academically “≤” → string-wise “>”
+							GT: lt,    // academically “>”  → string-wise “<=”
+							GTE: lte,   // academically “≥” → string-wise “<”
+						};
+						base.push(map[operator](tables.studentCourses.final_grade, grade));
+					}
+
+					whereClauses.push(sql`
+				  EXISTS (
+					SELECT 1
+					FROM ${tables.studentCourses}
+					WHERE ${and(...base)}
+				  )
+				`);
+				} else {
+					// not taken → NOT EXISTS
+					whereClauses.push(sql`
+				  NOT EXISTS (
+					SELECT 1
+					FROM ${tables.studentCourses} sc
+					WHERE sc.mnumber        = ${tables.students.mnumber}
+					  AND sc.course_subject = ${subject}
+					  AND sc.course_number  = ${number}
+					  AND COALESCE(sc.course_suffix, '') = ${suffix}
+				  )
+				`);
+				}
 			});
 
-			// 7) Assemble main query
+			// 5) Assemble & execute
 			let q = db
 				.select({
 					mnumber: tables.students.mnumber,
