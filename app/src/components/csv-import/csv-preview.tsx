@@ -143,7 +143,14 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
       <div className="rounded-md border w-full overflow-hidden">
         <div className="overflow-x-auto">
-          <Table style={{ width: `${tableWidth}px`, tableLayout: "fixed" }}>
+          <Table
+            className="w-full table-fixed"
+            style={{
+              width: "100%",
+              minWidth: `${tableWidth}px`,
+              tableLayout: "fixed",
+            }}
+          >
             <TableHeader className="bg-muted/30 sticky top-0">
               <TableRow>
                 <TableHead className="w-[40px] text-center">#</TableHead>
