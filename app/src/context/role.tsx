@@ -48,7 +48,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/students/lookup": ["Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/instructors": ["Department Chair", "Administrator", "COBIS Admin"],
 		"/class-roster": ["Faculty", "Advisor", "Department Chair", "COBIS Admin"],
-		"/advisor-page": ["Faculty", "Advisor", "Department Chair"],
+		"/advisor-page": ["Faculty", "Advisor", "Department Chair", "COBIS Admin"],
 	});
 
 	// 1. Fetch roles from session
