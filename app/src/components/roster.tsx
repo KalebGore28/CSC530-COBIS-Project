@@ -271,8 +271,11 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 				// 4️⃣ Normalize students
 				const normalized: Student[] = node.students.map((s: any) => {
-					const info = s.student.academic_info || {};
-					// pick the first program as the student's “major”
+					// coerce nulls → "N/A"
+					const final = s.final_grade ?? "N/A";
+					const midt = s.midterm_grade ?? "N/A";
+
+					const info = s.student.academic_info || [];
 					const progList = s.student.programs || [];
 					const majorCode = progList.length > 0
 						? progList[0].program.code
@@ -287,15 +290,16 @@ export const Roster: React.FC<ClassRosterProps> = ({
 						name: `${s.student.first_name} ${s.student.last_name}`,
 						email: s.student.email || "N/A",
 						major: majorCode,
-						finalGrade: s.final_grade,
-						midtermGrade: s.midterm_grade,
+						finalGrade: final,
+						midtermGrade: midt,
 						registrationStatus: s.registration_status.description,
 						instructionalMethod: s.instructional_method.description,
 						lastAttendance: s.last_attendance,
-						overallGpa: info[0].overall_gpa ?? 0,
-						overallEarnedHours: info[0].overall_earned_hours ?? 0,
+						overallGpa: info[0]?.overall_gpa ?? 0,
+						overallEarnedHours: info[0]?.overall_earned_hours ?? 0,
 					};
 				});
+
 
 
 				setStudents(normalized);
@@ -403,7 +407,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	}, [students, searchQuery, sortField, sortDirection, gradeFilter]);
 
 	const getGradeColorClass = (grade: string) => {
-		if (grade === "N/A") return "";
+		if (grade === "N/A" || null) return "";
 		if (grade.startsWith("A")) return "bg-green-100 text-green-800 border-green-300";
 		if (grade.startsWith("B")) return "bg-blue-100 text-blue-800 border-blue-300";
 		if (grade.startsWith("C")) return "bg-yellow-100 text-yellow-800 border-yellow-300";
@@ -678,7 +682,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 												<TableRow
 													key={index}
 													className="group cursor-pointer"
-													onClick={() => {}//handleStudentSelect(student)
+													onClick={() => { }//handleStudentSelect(student)
 
 													}>
 													<TableCell className="font-medium">
