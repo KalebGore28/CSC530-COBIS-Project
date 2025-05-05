@@ -675,10 +675,14 @@ export const Roster: React.FC<ClassRosterProps> = ({
 									<TableBody>
 										{filteredStudents.length > 0 ? (
 											filteredStudents.map((student, index) => (
-												<TableRow key={index} className="group cursor-pointer" onClick={() => handleStudentSelect(student)}>
+												<TableRow
+													key={index}
+													className="group cursor-pointer"
+													onClick={() => {}//handleStudentSelect(student)
+
+													}>
 													<TableCell className="font-medium">
 														<button
-															onClick={() => handleStudentSelect(student)}
 															className="text-left hover:text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-0.5 -mx-1 -my-0.5"
 														>
 															{student.lastName}, {student.firstName}{" "}
@@ -727,7 +731,9 @@ export const Roster: React.FC<ClassRosterProps> = ({
 										<Card
 											key={index}
 											className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-1 cursor-pointer"
-											onClick={() => handleStudentSelect(student)}
+											onClick={() => { }//handleStudentSelect(student)
+
+											}
 										>
 											<CardContent className="p-4">
 												<div className="flex flex-col gap-2">
