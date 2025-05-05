@@ -137,14 +137,26 @@ export const StudentFilters = ({
 	// Courses
 	const addCourse = (c: Course) => {
 		const key = courseKey(c);
+
+		// 1) Add to selectedCourses as before
 		setSelectedCourses(cs =>
 			cs.some(x => courseKey(x) === key) ? cs : [...cs, c]
 		);
-		setCourseFilters(maps =>
-			maps[key]
-				? maps
-				: { ...maps, [key]: { taken: false, notTaken: false } }
-		);
+
+		// 2) Seed courseFilters[key] with taken=true
+		setCourseFilters(maps => {
+			if (maps[key]) return maps;
+
+			return {
+				...maps,
+				[key]: {
+					taken: true,              // ← auto-select “Taken”
+					notTaken: false,
+					gradeOperator: ComparisonOperator.EQ, // optional defaults
+					grade: "A",                         // if you want them pre-populated
+				},
+			};
+		});
 	};
 
 	const removeCourse = (c: Course) => {
@@ -161,14 +173,25 @@ export const StudentFilters = ({
 			if (flag === "taken") {
 				taken = !taken;
 				if (taken) {
-					// turned on → clear notTaken, and seed defaults
+					// turned ON → clear notTaken, seed defaults
 					notTaken = false;
 					gradeOperator = gradeOperator ?? ComparisonOperator.EQ;
 					grade = grade ?? "A";
+				} else {
+					// turned OFF → clear operator+grade
+					gradeOperator = undefined;
+					grade = undefined;
 				}
+
 			} else {
 				notTaken = !notTaken;
-				if (notTaken) taken = false;
+				if (notTaken) {
+					// turned ON → clear taken & operator+grade
+					taken = false;
+					gradeOperator = undefined;
+					grade = undefined;
+				}
+				// if they un-check "notTaken", we leave taken=false and no gradeOperator/grade
 			}
 
 			return {
