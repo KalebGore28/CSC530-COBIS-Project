@@ -29,6 +29,8 @@ enum ComparisonOperator {
 	GTE = "Greater Than or Equal",
 }
 
+type OperatorKey = keyof typeof ComparisonOperator; // "EQ"|"NE"|…
+
 
 export interface FilterState {
 	academicLevels: string[];
@@ -36,7 +38,7 @@ export interface FilterState {
 	programFilters: Record<string, Partial<Record<keyof Program, boolean>>>;
 	courseFilters: Record<string, {
 		taken?: boolean;
-		gradeOperator?: ComparisonOperator;
+		gradeOperator?: OperatorKey;
 		grade?: string;
 	}>;
 }
@@ -69,7 +71,7 @@ export const StudentFilters = ({
 	const [courseFilters, setCourseFilters] = useState<
 		Record<string, {
 			taken: boolean;
-			gradeOperator?: ComparisonOperator;
+			gradeOperator?: OperatorKey;
 			grade?: string;
 		}>
 	>({});
@@ -144,7 +146,7 @@ export const StudentFilters = ({
 				...maps,
 				[key]: {
 					taken: true,                              // ← start as “Taken”
-					gradeOperator: ComparisonOperator.EQ,     // optional defaults
+					gradeOperator: 'EQ' as keyof typeof ComparisonOperator, // ← default to EQ
 					grade: "A",
 				},
 			};
@@ -169,7 +171,7 @@ export const StudentFilters = ({
 					// only carry defaults back in when turning ON
 					...(taken
 						? {
-							gradeOperator: cur.gradeOperator ?? ComparisonOperator.EQ,
+							gradeOperator: key as keyof typeof ComparisonOperator,
 							grade: cur.grade ?? "A",
 						}
 						: {}),
@@ -188,7 +190,7 @@ export const StudentFilters = ({
 		onResetFilters?.();
 	};
 
-	const setCourseGradeOperator = (key: string, op: ComparisonOperator) => {
+	const setCourseGradeOperator = (key: string, op: OperatorKey) => {
 		setCourseFilters(maps => {
 			const cur = maps[key] ?? {};
 			return {
@@ -212,7 +214,7 @@ export const StudentFilters = ({
 					...cur,
 					grade,
 					// if they haven’t picked an operator yet, default to EQ
-					gradeOperator: cur.gradeOperator ?? ComparisonOperator.EQ,
+					gradeOperator: 'EQ' as keyof typeof ComparisonOperator,
 				},
 			};
 		});
@@ -402,20 +404,15 @@ export const StudentFilters = ({
 														<div className="flex items-center gap-x-2 justify-center">
 															<Select
 																value={gradeOperator}
-																onValueChange={v =>
-																	setCourseGradeOperator(
-																		key,
-																		v as ComparisonOperator
-																	)
-																}
+																onValueChange={v => setCourseGradeOperator(key, v as OperatorKey)}
 															>
 																<SelectTrigger className="min-w-[70px]">
 																	<SelectValue placeholder="Op" />
 																</SelectTrigger>
 																<SelectContent>
-																	{Object.values(ComparisonOperator).map(op => (
-																		<SelectItem key={op} value={op}>
-																			{op}
+																	{(Object.keys(ComparisonOperator) as OperatorKey[]).map(opKey => (
+																		<SelectItem key={opKey} value={opKey}>
+																			{ComparisonOperator[opKey]}
 																		</SelectItem>
 																	))}
 																</SelectContent>
