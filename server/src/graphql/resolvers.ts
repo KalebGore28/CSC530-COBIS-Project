@@ -12,7 +12,7 @@ export interface GradeFilterInput {
 	grade: GradeValue;
 }
 
-export type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior';
+export type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior' | 'Graduate';
 
 export interface StudentLookupInput {
 	academicLevels?: AcademicLevel[];
@@ -184,19 +184,46 @@ export const resolvers = {
 		},
 		searchPrograms: async (
 			_parent: any,
-			{ query }: { query: string },
+			args: {
+				query: string;
+				is_major?: boolean;
+				is_minor?: boolean;
+				has_concentration?: boolean;
+				is_discontinued?: boolean;
+				is_aacsb?: boolean;
+			},
 			{ db }: any
 		) => {
-			const up = query.toUpperCase();
+			const up = args.query.toUpperCase();
+
+			const filters: SQLWrapper[] = [];
+			
+			// start with the text‐match condition
+			filters.push(or(
+				sql`UPPER(${tables.programs.code}) LIKE ${up + "%"}`,
+				sql`UPPER(${tables.programs.description}) LIKE ${"%" + up + "%"}`
+			) as SQLWrapper)
+
+			if (args.is_major !== undefined) {
+				filters.push(eq(tables.programs.is_major, args.is_major));
+			}
+			if (args.is_minor !== undefined) {
+				filters.push(eq(tables.programs.is_minor, args.is_minor));
+			}
+			if (args.has_concentration !== undefined) {
+				filters.push(eq(tables.programs.has_concentration, args.has_concentration));
+			}
+			if (args.is_discontinued !== undefined) {
+				filters.push(eq(tables.programs.is_discontinued, args.is_discontinued));
+			}
+			if (args.is_aacsb !== undefined) {
+				filters.push(eq(tables.programs.is_aacsb, args.is_aacsb));
+			}
+
 			return await db
 				.select()
 				.from(tables.programs)
-				.where(
-					or(
-						sql`UPPER(${tables.programs.code}) LIKE ${up + '%'}`,
-						sql`UPPER(${tables.programs.description}) LIKE ${'%' + up + '%'}`
-					)
-				)
+				.where(and(...filters))
 				.limit(10);
 		},
 		searchRegistrationStatuses: async (
@@ -406,8 +433,12 @@ export const resolvers = {
 						cond = sql`sai.overall_earned_hours >= 60 AND sai.overall_earned_hours < 90`;
 						break;
 					case 'Senior':
-						cond = sql`sai.overall_earned_hours >= 90`;
+						cond = sql`sai.overall_earned_hours >= 90 AND sai.overall_earned_hours < 120`;
 						break;
+					case 'Graduate':
+						cond = sql`sai.overall_earned_hours >= 120`;
+						break;
+
 				}
 				whereClauses.push(sql`
 				EXISTS (

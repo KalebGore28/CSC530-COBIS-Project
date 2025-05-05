@@ -296,6 +296,7 @@ enum AcademicLevel {
   Sophomore
   Junior
   Senior
+  Graduate
 }
 
 enum GradeValue {
@@ -352,7 +353,14 @@ type Query {
   searchInstructionalMethods(query: String!): [InstructionalMethod!]!
   searchNations(query: String!): [Nation!]!
   searchPartOfTerms(query: String!): [PartOfTerm!]!
-  searchPrograms(query: String!): [Program!]!
+  searchPrograms(
+    query: String!
+    is_major: Boolean
+    is_minor: Boolean
+    has_concentration: Boolean
+    is_discontinued: Boolean
+    is_aacsb: Boolean
+    ): [Program!]!
   searchRegistrationStatuses(query: String!): [RegistrationStatus!]!
   searchRoles(query: String!): [Role!]!
   searchTerms(query: String!): [Term!]!

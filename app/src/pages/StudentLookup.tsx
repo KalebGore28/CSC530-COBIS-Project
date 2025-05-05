@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from 'axios';
-import { StudentFilters } from "@/components/student-filters";
+import { StudentFilters } from "@/components/new-student-filter";
 import { FilterState } from "@/components/student-filters";
 import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,17 +11,12 @@ import { format } from 'date-fns';
 export interface Student {
 	mnumber: string;
 	firstName: string;
-	middleName?: string;
 	lastName: string;
-	suffix?: string;
 	email: string;
-	age: number;
-	gender: string;
 }
 
 const makePreHeader = (filters: FilterState): string[] => {
 	const lines: string[] = [];
-
 
 	if (filters.academicLevels.length) {
 		lines.push(`Academic Levels,${filters.academicLevels.join('|')}`);
