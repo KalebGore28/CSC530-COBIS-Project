@@ -30,25 +30,33 @@ const INSTRUCTORS = 12;
 const YEARS = [2018, 2019, 2020, 2021, 2022, 2023, 2024];
 const TERMS = [10, 50, 80, 90]; // Spring, Summer, Fall, Winter - Assuming these are codes like '10', '50' etc.
 
-const GRADES = ["A", "B", "C", "D", "F"];
+const GRADES = ["A", "B", "C", "D", "E"];
 const REGISTRATION_STATUS = "RE"; // Registered
 
 // --- Helper Function for GPA/Hours Calculation ---
 function generateAcademicMetrics(baseHours = 0, basePoints = 0) {
-	const attemptedHours = faker.number.float({ min: 0, max: 18 });
-	const earnedHoursRatio = faker.number.float({ min: 0.8, max: 1.0 }); // Most hours attempted are earned
-	const earnedHours = parseFloat((attemptedHours * earnedHoursRatio).toFixed(1));
-	// Simple GPA calculation (e.g., A=4, B=3, C=2, D=1, F=0)
-	const qualityPoints = parseFloat(
-		(earnedHours * faker.number.float({ min: 2.0, max: 4.0 })).toFixed(2)
-	);
-	const gpa = earnedHours > 0 ? parseFloat((qualityPoints / earnedHours).toFixed(2)) : 0;
+	// 1) Hours: both attempted and earned are whole numbers
+	const attemptedHours = faker.number.int({ min: 0, max: 18 });
+	const earnedHours = faker.number.int({ min: 0, max: attemptedHours });
 
+	// 2) Simulate a “grade value” (0–4) and compute quality points as an int
+	const gradeValue = earnedHours > 0
+		? faker.number.int({ min: 0, max: 4 })
+		: 0;
+	const qualityPoints = earnedHours * gradeValue;
+
+	// 3) Since qualityPoints = earnedHours * gradeValue, GPA is exactly that integer
+	const gpa = gradeValue;
+
+	// 4) Overall metrics remain integers
 	const overallAttempted = baseHours + attemptedHours;
 	const overallEarned = baseHours + earnedHours;
-	const overallPoints = basePoints + qualityPoints;
-	const overallGpa = overallEarned > 0 ? parseFloat((overallPoints / overallEarned).toFixed(2)) : 0;
+	const overallQualityPoints = basePoints + qualityPoints;
 
+	// 5) Round overall GPA to the nearest integer
+	const overallGpa = overallEarned > 0
+		? Math.round(overallQualityPoints / overallEarned)
+		: 0;
 
 	return {
 		attempted_hours: attemptedHours,
@@ -57,10 +65,11 @@ function generateAcademicMetrics(baseHours = 0, basePoints = 0) {
 		gpa: gpa,
 		overall_attempted_hours: overallAttempted,
 		overall_earned_hours: overallEarned,
-		overall_quality_points: overallPoints,
+		overall_quality_points: overallQualityPoints,
 		overall_gpa: overallGpa,
 	};
 }
+
 
 
 async function seed() {
@@ -77,9 +86,10 @@ async function seed() {
 		{ id: 4, name: "department_chair" },
 		{ id: 5, name: "administrator" },
 		{ id: 6, name: "cobis_administrator" },
-	]);
+	])
+	.onConflictDoNothing(); // Ignore if primary key conflict
 
-	await seedDatabase(); // Seed the database with CSV data
+	// await seedDatabase(); // Seed the database with CSV data
 
 	// --- Get lookup data from DB ---
 	console.log("Fetching lookup data...");
@@ -131,7 +141,7 @@ async function seed() {
 		studentMnumbers.push(mnumber);
 
 		// Determine a plausible first term/year for the student
-		const firstYear = faker.helpers.arrayElement(YEARS.slice(0, -1)); // Can't start in the current year usually
+		const firstYear = faker.helpers.arrayElement(YEARS); // Can't start in the current year usually
 		const firstTerm = faker.helpers.arrayElement(TERMS); // Any term
 		studentDataMap.set(mnumber, { firstTerm, firstYear });
 
@@ -205,7 +215,7 @@ async function seed() {
 			city: faker.location.city(),
 			state: faker.location.state({ abbreviated: true }),
 			zip: faker.location.zipCode("#####"), // Basic 5 digit zip
-			nation_code: faker.helpers.arrayElement(nationList).code, // Use fetched/placeholder nations
+			nation: faker.helpers.arrayElement(nationList).code, // Use fetched/placeholder nations
 			phone: faker.phone.number(),
 		}).onConflictDoNothing(); // Ignore if primary key conflict (mnumber, type)
 
@@ -219,7 +229,7 @@ async function seed() {
 				city: faker.location.city(), // Could be same city or different
 				state: faker.location.state({ abbreviated: true }),
 				zip: faker.location.zipCode("#####"),
-				nation_code: "55913", // Assume local address is mostly US
+				nation: "55913", // Assume local address is mostly US
 				phone: faker.phone.number(),
 			}).onConflictDoNothing(); // Ignore if primary key conflict (mnumber, type)
 		}
