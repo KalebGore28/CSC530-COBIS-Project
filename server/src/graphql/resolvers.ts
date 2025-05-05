@@ -22,8 +22,6 @@ type StudentBasic = {
 	email: string;
 };
 
-type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior' | 'Graduate';
-
 interface StudentLookupInput {
 	academicLevels?: string[];
 	gpaMin?: number;
@@ -478,16 +476,25 @@ export const resolvers = {
 					sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`
 				] as SQL[];
 
-				// if operator+grade given, add that clause
+				// Since letter grades sort alphabetically (“A” < “B” < “C” < “D” < “E”),
+				// but in academic terms “A” is the highest and “E” the lowest, we invert
+				// the usual comparisons. “Less than C” (i.e. D or E) becomes string-wise
+				// “greater than or equal to 'C'” — hence the flipped operator map.
 				if (operator && grade) {
 					const map: Record<ComparisonOperator, typeof eq> = {
-						EQ: eq, NE: ne,
-						LT: lt, LTE: lte,
-						GT: gt, GTE: gte,
+						EQ: eq,    // = “equal to”
+						NE: ne,    // != “not equal to”
+
+						// flip for academic ordering:
+						LT: gt,    // “less than” academically → final_grade >= target
+						LTE: gte,   // “≤” academically       → final_grade >  target
+						GT: lt,    // “greater than” academically → final_grade <= target
+						GTE: lte,   // “≥” academically            → final_grade <  target
 					};
 					const fn = map[operator];
 					base.push(fn(tables.studentCourses.final_grade, grade));
 				}
+
 
 				whereClauses.push(sql`
 				EXISTS (
@@ -527,10 +534,6 @@ export const resolvers = {
 
 			return await q.all();
 		},
-
-
-
-
 	},
 
 	Account: {
