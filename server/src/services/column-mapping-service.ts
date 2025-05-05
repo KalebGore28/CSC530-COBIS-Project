@@ -169,7 +169,7 @@ export const expandStudentAddresses = (row: Record<string, any>): Record<string,
 			city: row.homecity || '',
 			state: row.homestate || '',
 			zip: row.homezip || '',
-			nation_code: row.homenation || 'USA',
+			nation: row.homenation || 'USA',
 			phone: row.homephone || ''
 		});
 	}
@@ -195,7 +195,7 @@ export const expandStudentAddresses = (row: Record<string, any>): Record<string,
 				city: row.loccity || '',
 				state: row.locstate || '',
 				zip: row.loczip || '',
-				nation_code: row.locnation || 'USA',
+				nation: row.locnation || 'USA',
 				phone: row.locphone || ''
 			});
 		}
@@ -316,14 +316,14 @@ export const csvFileMappings: CSVFileMapping[] = [
 					{ csvColumn: "homecity", dbColumn: "city-[row-1-home]" },
 					{ csvColumn: "homestate", dbColumn: "state-[row-1-home]" },
 					{ csvColumn: "homezip", dbColumn: "zip-[row-1-home]" },
-					{ csvColumn: "homenation", dbColumn: "nation_code-[row-1-home]" },
+					{ csvColumn: "homenation", dbColumn: "nation-[row-1-home]" },
 					{ csvColumn: "homephone", dbColumn: "phone-[row-1-home]" },
 					{ csvColumn: "locstreet1", dbColumn: "street1-[row-2-local]" },
 					{ csvColumn: "locstreet2", dbColumn: "street2-[row-2-local]" },
 					{ csvColumn: "loccity", dbColumn: "city-[row-2-local]" },
 					{ csvColumn: "locstate", dbColumn: "state-[row-2-local]" },
 					{ csvColumn: "loczip", dbColumn: "zip-[row-2-local]" },
-					{ csvColumn: "locnation", dbColumn: "nation_code-[row-2-local]" },
+					{ csvColumn: "locnation", dbColumn: "nation-[row-2-local]" },
 					{ csvColumn: "locphone", dbColumn: "phone-[row-2-local]" }
 				],
 				// Use the row expander to create separate records for home and local addresses
@@ -332,7 +332,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			{
 				tableName: "Student Academic Info",
 				tableId: "student-academic-info",
-				primaryKeys: ["mnumber"],
+				primaryKeys: ["mnumber", "term", "year"],
 				schemaRef: schema.studentAcademicInfo,
 				columns: [
 					{ csvColumn: "mnumber", dbColumn: "mnumber" },
@@ -381,7 +381,7 @@ export const csvFileMappings: CSVFileMapping[] = [
 			{
 				tableName: "Student Advisors",
 				tableId: "student-advisors",
-				primaryKeys: ["student_mnumber", "advisor_mnumber"],
+				primaryKeys: ["student_mnumber", "term", "year", "advisor_mnumber"],
 				schemaRef: schema.studentAdvisors,
 				columns: [
 					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
