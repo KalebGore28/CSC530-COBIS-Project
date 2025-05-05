@@ -419,31 +419,55 @@ export const resolvers = {
 			  `);
 			}
 
-			// 2) Academic‐level filters (unchanged) …
-			academicLevels?.forEach(level => {
-				let rangeCond: SQL;
-				switch (level) {
-					case 'Freshman':
-						rangeCond = sql`sai.overall_earned_hours < 30`; break;
-					case 'Sophomore':
-						rangeCond = sql`sai.overall_earned_hours BETWEEN 30 AND 59`; break;
-					case 'Junior':
-						rangeCond = sql`sai.overall_earned_hours BETWEEN 60 AND 89`; break;
-					case 'Senior':
-						rangeCond = sql`sai.overall_earned_hours BETWEEN 90 AND 119`; break;
-					case 'Graduate':
-						rangeCond = sql`sai.overall_earned_hours >= 120`; break;
-					default:
-						return;
-				}
-				whereClauses.push(sql`
+			// 2) Academic‐level filters (latest‐row + correct ranges)
+			if (academicLevels?.length) {
+				const levelClauses: SQL[] = academicLevels.map(level => {
+					switch (level) {
+						case 'Freshman':
+							// < 30
+							return sql`sai1.overall_earned_hours < 30`;
+						case 'Sophomore':
+							// ≥ 30 AND < 60
+							return sql`(sai1.overall_earned_hours >= 30 AND sai1.overall_earned_hours < 60)`;
+						case 'Junior':
+							// ≥ 60 AND < 90
+							return sql`(sai1.overall_earned_hours >= 60 AND sai1.overall_earned_hours < 90)`;
+						case 'Senior':
+							// ≥ 90 AND < 120
+							return sql`(sai1.overall_earned_hours >= 90 AND sai1.overall_earned_hours < 120)`;
+						case 'Graduate':
+							// ≥ 120
+							return sql`sai1.overall_earned_hours >= 120`;
+						default:
+							throw new Error(`Unknown academic level: ${level}`);
+					}
+				});
+
+						whereClauses.push(sql`
 				EXISTS (
-				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
-				  WHERE sai.mnumber = ${tables.students.mnumber}
-					AND ${rangeCond}
+					SELECT 1
+					FROM ${tables.studentAcademicInfo} AS sai1
+					WHERE sai1.mnumber = ${tables.students.mnumber}
+			
+					-- only the latest snapshot:
+					AND NOT EXISTS (
+						SELECT 1
+						FROM ${tables.studentAcademicInfo} AS sai2
+						WHERE sai2.mnumber = sai1.mnumber
+						AND (
+							sai2.year  > sai1.year
+							OR (sai2.year = sai1.year AND sai2.term > sai1.term)
+						)
+					)
+			
+					-- apply the selected‐level ranges
+					AND (${or(...levelClauses)})
 				)
-			  `);
-			});
+			`);
+			}
+
+
+
 
 			// 3) Program filters (new)
 			programs?.forEach(({ program, is_major, is_minor }) => {

@@ -1,7 +1,7 @@
 // src/app/student-lookup/page.tsx  (or wherever your page lives)
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import { fetchGraphQL } from "@/utils/fetch-graphql";
 import { toast } from "sonner";
@@ -61,6 +61,10 @@ const StudentLookup = () => {
 		programFilters: {},
 		courseFilters: {},
 	});
+
+	useEffect(() => {
+		console.log("Current filters:", currentFilters);
+	},[currentFilters]);
 
 	const fetchStudents = async (filters: FilterState) => {
 		setIsLoading(true);
