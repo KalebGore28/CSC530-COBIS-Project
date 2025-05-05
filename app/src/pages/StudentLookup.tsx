@@ -43,6 +43,31 @@ const makePreHeader = (filters: FilterState): string[] => {
 	if (filters.gpaRange) {
 		lines.push(`GPA,${filters.gpaRange[0]}-${filters.gpaRange[1]}`);
 	}
+
+	if (Object.keys(filters.programFilters).length) {
+		const programLines = Object.entries(filters.programFilters)
+			.map(([program, flags]) => {
+				const flagsStr = [];
+				if (flags.is_major) flagsStr.push("major");
+				if (flags.is_minor) flagsStr.push("minor");
+				return `${program} (${flagsStr.join(",")})`;
+			})
+			.join("|");
+		lines.push(`Programs,${programLines}`);
+	}
+
+	if (Object.keys(filters.courseFilters).length) {
+		const courseLines = Object.entries(filters.courseFilters)
+			.map(([course, cf]) => {
+				const flagsStr = [];
+				if (cf.taken) flagsStr.push("taken");
+				if (cf.gradeOperator) flagsStr.push(`grade ${cf.gradeOperator}`);
+				if (cf.grade) flagsStr.push(`grade ${cf.grade}`);
+				return `${course} (${flagsStr.join(",")})`;
+			})
+			.join("|");
+		lines.push(`Courses,${courseLines}`);
+	}
 	// always add an export timestamp
 	lines.push(`Exported At,${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`);
 
