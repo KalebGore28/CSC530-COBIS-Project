@@ -13,7 +13,7 @@ export default function LoginPage() {
 					<div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
 						<Wrench className="size-4" />
 					</div>
-					COBIS Tool (v0.0.1)
+					COBIS Tool (v0.8.0)
 				</a>
 				<LoginForm />
 			</div>
