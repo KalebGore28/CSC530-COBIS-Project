@@ -42,7 +42,6 @@ const opMap: Record<ComparisonOperator, string> = {
 	GTE: '>=',
 };
 
-
 export const resolvers = {
 	Query: {
 		// Search lookup tables

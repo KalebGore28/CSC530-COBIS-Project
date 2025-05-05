@@ -12,7 +12,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Program } from "@/utils/search";
+import { Program, Course } from "@/utils/search";
 
 interface HasCodeDesc {
 	code: string;
@@ -188,3 +188,11 @@ export function renderProgram(program: Program) {
 		</div>
 	);
 }
+
+export const renderCourse = (course: Course) => (
+	<div className="flex items-center justify-start space-x-2 w-full">
+		<span className="flex-shrink-0 font-medium">
+			{course.subject} {course.number}{course.suffix} — {course.title}
+		</span>
+	</div>
+);

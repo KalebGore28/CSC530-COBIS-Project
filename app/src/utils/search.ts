@@ -66,7 +66,12 @@ export const searchCourses = async (query: string) => {
         searchCourses(query: $query) {
           subject
           number
+		  suffix
           title
+		  hours
+		  fee
+		  web_fee
+		  last_updated
         }
       }
     `,
@@ -92,8 +97,7 @@ export const searchPrograms = async (query: string) => {
 		  }
 		}
 	  `,
-	  { query }
+		{ query }
 	);
 	return data.searchPrograms as Program[];
-  };
-
+};
