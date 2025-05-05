@@ -101,6 +101,13 @@ const dashboardCardsStructure = [
     icon: <Telescope className="h-8 w-8 mb-4 text-primary" />,
     link: "/advisor-page",
     buttonText: "Go to Advisor Page",
+  },
+  {
+    title: "User Management",
+    description: "Manage user accounts, roles, and permissions.",
+    icon: <Users className="h-8 w-8 mb-4 text-primary" />,
+    link: "/cobis-tools/users",
+    buttonText: "Manage Users",
   }
 ];
 
