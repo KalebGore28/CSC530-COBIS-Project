@@ -71,7 +71,7 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 	}, [query, fetchResults]);
 
 	return (
-		<Command className={`rounded-lg border shadow-md md:min-w-[450px] ${className}`}>
+		<Command className={`h-auto rounded-lg border shadow-md md:min-w-[450px] ${className}`}>
 			<CommandInput
 				placeholder={placeholder}
 				value={query}
