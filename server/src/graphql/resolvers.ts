@@ -1,36 +1,37 @@
-import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, exists } from 'drizzle-orm'
+import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, exists, SQL, desc } from 'drizzle-orm'
+
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 
 // --- TypeScript types for your GraphQL inputs ---
 
-export type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
-const opFnMap: Record<ComparisonOperator, typeof eq> = {
-	EQ: eq,
-	NE: ne,
-	LT: lt,
-	LTE: lte,
-	GT: gt,
-	GTE: gte,
-};
-export type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
-export interface GradeFilterInput {
-	operator: ComparisonOperator;
-	grade: GradeValue;
+type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
+type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
+
+interface CourseFilterInput {
+	course: string;
+	operator?: ComparisonOperator;
+	grade?: GradeValue;
 }
 
-export type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior' | 'Graduate';
+type StudentBasic = {
+	mnumber: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+};
 
-export interface StudentLookupInput {
-	academicLevels?: AcademicLevel[];
+type AcademicLevel = 'Freshman' | 'Sophomore' | 'Junior' | 'Senior' | 'Graduate';
+
+interface StudentLookupInput {
+	academicLevels?: string[];
 	gpaMin?: number;
 	gpaMax?: number;
 	majors?: string[];
 	minors?: string[];
-	coursesTaken?: string[];
-	coursesNotTaken?: string[];
-	gradeFilters?: GradeFilterInput[];
+	coursesTaken?: CourseFilterInput[];
+	coursesNotTaken?: CourseFilterInput[];
 }
 
 // --- Helpers ---
@@ -41,14 +42,6 @@ const parseCourseId = (cid: string) => {
 	return { subject: m[1], number: +m[2], suffix: m[3] };
 };
 
-const opMap: Record<ComparisonOperator, string> = {
-	EQ: '=',
-	NE: '!=',
-	LT: '<',
-	LTE: '<=',
-	GT: '>',
-	GTE: '>=',
-};
 
 export const resolvers = {
 	Query: {
@@ -392,7 +385,7 @@ export const resolvers = {
 			_parent: any,
 			{ filters }: { filters: StudentLookupInput },
 			{ db }: any
-		) => {
+		): Promise<StudentBasic[]> => {
 			const {
 				academicLevels,
 				gpaMin,
@@ -401,17 +394,16 @@ export const resolvers = {
 				minors,
 				coursesTaken,
 				coursesNotTaken,
-				gradeFilters,
 			} = filters;
 
-			const whereClauses: SQLWrapper[] = [];
+			const whereClauses: SQL[] = [];
 
-			// 1) GPA filtering via EXISTS
+			// 1) GPA filters
 			if (gpaMin != null) {
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
-				  WHERE sai.mnumber = ${tables.students.mnumber}
+				  WHERE sai.mnumber     = ${tables.students.mnumber}
 					AND sai.overall_gpa >= ${gpaMin}
 				)
 			  `);
@@ -420,38 +412,34 @@ export const resolvers = {
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
-				  WHERE sai.mnumber = ${tables.students.mnumber}
+				  WHERE sai.mnumber     = ${tables.students.mnumber}
 					AND sai.overall_gpa <= ${gpaMax}
 				)
 			  `);
 			}
 
-			// 2) Academic-level classification
-			academicLevels?.forEach((lvl) => {
-				let cond: unknown;
-				switch (lvl) {
+			// 2) Academic‐level filters
+			academicLevels?.forEach(level => {
+				let rangeCond: SQL;
+				switch (level) {
 					case 'Freshman':
-						cond = sql`sai.overall_earned_hours < 30`;
-						break;
+						rangeCond = sql`sai.overall_earned_hours < 30`; break;
 					case 'Sophomore':
-						cond = sql`sai.overall_earned_hours >= 30 AND sai.overall_earned_hours < 60`;
-						break;
+						rangeCond = sql`sai.overall_earned_hours BETWEEN 30 AND 59`; break;
 					case 'Junior':
-						cond = sql`sai.overall_earned_hours >= 60 AND sai.overall_earned_hours < 90`;
-						break;
+						rangeCond = sql`sai.overall_earned_hours BETWEEN 60 AND 89`; break;
 					case 'Senior':
-						cond = sql`sai.overall_earned_hours >= 90 AND sai.overall_earned_hours < 120`;
-						break;
+						rangeCond = sql`sai.overall_earned_hours BETWEEN 90 AND 119`; break;
 					case 'Graduate':
-						cond = sql`sai.overall_earned_hours >= 120`;
-						break;
-
+						rangeCond = sql`sai.overall_earned_hours >= 120`; break;
+					default:
+						return;
 				}
 				whereClauses.push(sql`
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentAcademicInfo} sai
 				  WHERE sai.mnumber = ${tables.students.mnumber}
-					AND ${cond}
+					AND ${rangeCond}
 				)
 			  `);
 			});
@@ -462,7 +450,7 @@ export const resolvers = {
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentPrograms} sp
 				  WHERE sp.mnumber = ${tables.students.mnumber}
-					AND sp.type = 'MAJOR'
+					AND sp.type    = 'MAJOR'
 					AND sp.program IN (${majors})
 				)
 			  `);
@@ -472,91 +460,77 @@ export const resolvers = {
 				EXISTS (
 				  SELECT 1 FROM ${tables.studentPrograms} sp
 				  WHERE sp.mnumber = ${tables.students.mnumber}
-					AND sp.type = 'MINOR'
+					AND sp.type    = 'MINOR'
 					AND sp.program IN (${minors})
 				)
 			  `);
 			}
 
-			// 4) Courses taken
-			coursesTaken?.forEach((cid) => {
-				const { subject, number, suffix } = parseCourseId(cid);
+			// 4) Courses TAKEN filters
+			coursesTaken?.forEach(({ course, operator, grade }) => {
+				const { subject, number, suffix = '' } = parseCourseId(course);
+
+				// build basic match clauses
+				const base = [
+					eq(tables.studentCourses.mnumber, tables.students.mnumber),
+					eq(tables.studentCourses.course_subject, subject),
+					eq(tables.studentCourses.course_number, number),
+					sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`
+				] as SQL[];
+
+				// if operator+grade given, add that clause
+				if (operator && grade) {
+					const map: Record<ComparisonOperator, typeof eq> = {
+						EQ: eq, NE: ne,
+						LT: lt, LTE: lte,
+						GT: gt, GTE: gte,
+					};
+					const fn = map[operator];
+					base.push(fn(tables.studentCourses.final_grade, grade));
+				}
+
 				whereClauses.push(sql`
 				EXISTS (
-				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber         = ${tables.students.mnumber}
-					AND sc.course_subject  = ${subject}
-					AND sc.course_number   = ${number}
-					AND sc.course_suffix   = ${suffix}
+				  SELECT 1 FROM ${tables.studentCourses}
+				  WHERE ${and(...base)}
 				)
 			  `);
 			});
 
-			// 5) Courses NOT taken
-			coursesNotTaken?.forEach((cid) => {
-				const { subject, number, suffix } = parseCourseId(cid);
+			// 5) Courses NOT TAKEN filters
+			coursesNotTaken?.forEach(({ course }) => {
+				const { subject, number, suffix = '' } = parseCourseId(course);
 				whereClauses.push(sql`
 				NOT EXISTS (
 				  SELECT 1 FROM ${tables.studentCourses} sc
-				  WHERE sc.mnumber         = ${tables.students.mnumber}
-					AND sc.course_subject  = ${subject}
-					AND sc.course_number   = ${number}
-					AND sc.course_suffix   = ${suffix}
+				  WHERE sc.mnumber        = ${tables.students.mnumber}
+					AND sc.course_subject = ${subject}
+					AND sc.course_number  = ${number}
+					AND COALESCE(sc.course_suffix, '') = ${suffix}
 				)
 			  `);
 			});
 
-			// 6) Grade filters on final_grade (with E for failing)
-			gradeFilters?.forEach(({ operator, grade }) => {
-				const compare = opFnMap[operator];
-
-				const [cid] = coursesTaken || [];
-				const { subject, number, suffix } = cid
-					? parseCourseId(cid)
-					: { subject: null, number: null, suffix: null };
-
-				whereClauses.push(
-					exists(
-						db
-							.select()
-							.from(tables.studentCourses)
-							.where(
-								and(
-									eq(tables.studentCourses.mnumber, tables.students.mnumber),
-
-									// only this one course:
-									eq(tables.studentCourses.course_subject, subject),
-									eq(tables.studentCourses.course_number, number),
-									eq(tables.studentCourses.course_suffix, suffix),
-
-									// _and_ the grade comparison:
-									compare(tables.studentCourses.final_grade, grade),
-								)
-							)
-					)
-				);
-			});
-
-			// --- Build & execute the main student query ---
-			let query = db
+			// 7) Assemble main query
+			let q = db
 				.select({
 					mnumber: tables.students.mnumber,
 					firstName: tables.students.first_name,
 					lastName: tables.students.last_name,
 					email: tables.students.email,
-					final_grade: tables.studentCourses.final_grade,
 				})
-				.from(tables.students)
-				.leftJoin(tables.studentCourses, eq(tables.studentCourses.mnumber, tables.students.mnumber))
+				.from(tables.students);
 
 			if (whereClauses.length) {
-				query = query.where(and(...whereClauses));
+				q = q.where(and(...whereClauses));
 			}
 
-			const rows = await query.all();
-
-			return rows;
+			return await q.all();
 		},
+
+
+
+
 	},
 
 	Account: {

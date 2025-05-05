@@ -316,9 +316,10 @@ enum ComparisonOperator {
   GTE   # >=
 }
 
-input GradeFilterInput {
-  operator: ComparisonOperator!
-  grade:    GradeValue!
+input CourseFilter {
+  course: String!
+  operator: ComparisonOperator
+  grade: GradeValue
 }
 
 input StudentLookupInput {
@@ -327,9 +328,8 @@ input StudentLookupInput {
   gpaMax: Float
   majors: [String!]
   minors: [String!]
-  coursesTaken: [String!]
-  coursesNotTaken: [String!]
-  gradeFilters: [GradeFilterInput!]
+  coursesTaken: [CourseFilter!]
+  coursesNotTaken: [CourseFilter!]
 }
 
 type StudentBasic {
@@ -337,7 +337,6 @@ type StudentBasic {
   firstName: String!
   lastName:  String!
   email:     String!
-  final_grade:    String!
 }
 
 # Root query type
