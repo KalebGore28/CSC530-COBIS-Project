@@ -161,24 +161,25 @@ export const StudentFilters = ({
 
 	const toggleCourseTaken = (key: string) => {
 		setCourseFilters(maps => {
-			const cur = maps[key] || { taken: false };
+			const cur = maps[key] ?? { taken: false };
 			const taken = !cur.taken;
 
 			return {
 				...maps,
 				[key]: {
 					taken,
-					// only carry defaults back in when turning ON
+					// when turning ON, restore previous operator or default to "EQ"
 					...(taken
 						? {
-							gradeOperator: key as keyof typeof ComparisonOperator,
-							grade: cur.grade ?? "A",
+							gradeOperator: cur.gradeOperator ?? 'EQ',
+							grade: cur.grade ?? 'A',
 						}
 						: {}),
 				},
 			};
 		});
 	};
+
 
 
 	const resetAll = () => {
@@ -213,8 +214,8 @@ export const StudentFilters = ({
 				[key]: {
 					...cur,
 					grade,
-					// if they haven’t picked an operator yet, default to EQ
-					gradeOperator: 'EQ' as keyof typeof ComparisonOperator,
+					// preserve existing operator, or default to EQ if somehow missing
+					gradeOperator: cur.gradeOperator ?? 'EQ',
 				},
 			};
 		});

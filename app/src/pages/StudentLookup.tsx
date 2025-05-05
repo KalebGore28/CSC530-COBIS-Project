@@ -180,7 +180,7 @@ const StudentLookup = () => {
 							rowsPerPage={10}
 							fileName="student-lookup"
 							preHeader={makePreHeader(currentFilters)}
-							onRowClick={handleStudentClick}
+							// onRowClick={handleStudentClick}
 						/>
 					</CardContent>
 
