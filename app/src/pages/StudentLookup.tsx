@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from 'axios';
-import { StudentFilters } from "@/components/new-student-filter";
-import { FilterState } from "@/components/student-filters";
+import { StudentFilters } from "@/components/student-filter";
+import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Modal } from "@/components/modals/modal";
@@ -24,24 +24,6 @@ const makePreHeader = (filters: FilterState): string[] => {
 	if (filters.gpaRange) {
 		lines.push(`GPA,${filters.gpaRange[0]}-${filters.gpaRange[1]}`);
 	}
-	if (filters.majors.length) {
-		lines.push(`Majors,${filters.majors.map(m => m.code).join('|')}`);
-	}
-	if (filters.minors.length) {
-		lines.push(`Minors,${filters.minors.map(m => m.code).join('|')}`);
-	}
-	if (filters.coursesTaken.length) {
-		lines.push(`Courses Taken,${filters.coursesTaken.map(c => `${c.subject}${c.number}${c.suffix || ''}`).join('|')}`);
-	}
-	if (filters.coursesNotTaken.length) {
-		lines.push(`Courses Not Taken,${filters.coursesNotTaken.map(c => `${c.subject}${c.number}${c.suffix || ''}`).join('|')}`);
-	}
-	if (filters.gradeFilters.length) {
-		lines.push(`Grades,${filters.gradeFilters
-			.filter(g => g.course && g.grade)
-			.map(g => `${g.course!.subject}${g.course!.number}${g.course!.suffix || ''}:${g.grade}`)
-			.join('|')}`);
-	}
 
 	// always add an export timestamp
 	lines.push(`Exported At,${format(new Date(), 'yyyy-MM-dd HH:mm:ss')}`);
@@ -58,11 +40,8 @@ const StudentLookup = () => {
 	const [currentFilters, setCurrentFilters] = useState<FilterState>({
 		academicLevels: [],
 		gpaRange: [0, 4],
-		majors: [],
-		minors: [],
-		coursesTaken: [],
-		coursesNotTaken: [],
-		gradeFilters: [],
+		selectedPrograms: [],
+		programFilters: {},
 	});
 
 	const fetchStudents = async (filters: FilterState) => {
@@ -77,28 +56,6 @@ const StudentLookup = () => {
 			if (filters.gpaRange) {
 				params.gpaMin = filters.gpaRange[0].toString();
 				params.gpaMax = filters.gpaRange[1].toString();
-			}
-			if (filters.majors.length) {
-				params.majors = filters.majors.map(m => m.code).join(',');
-			}
-			if (filters.minors.length) {
-				params.minors = filters.minors.map(m => m.code).join(',');
-			}
-			if (filters.coursesTaken.length) {
-				params.coursesTaken = filters.coursesTaken
-					.map(c => `${c.subject}${c.number}${c.suffix || ''}`)
-					.join(',');
-			}
-			if (filters.coursesNotTaken.length) {
-				params.coursesNotTaken = filters.coursesNotTaken
-					.map(c => `${c.subject}${c.number}${c.suffix || ''}`)
-					.join(',');
-			}
-			if (filters.gradeFilters.length) {
-				const gf = filters.gradeFilters
-					.filter(g => g.course && g.grade)
-					.map(g => `${g.course!.subject}${g.course!.number}${g.course!.suffix || ''}:${g.grade}`);
-				if (gf.length) params.gradeFilters = gf.join(',');
 			}
 
 			// Set current filters for preHeader

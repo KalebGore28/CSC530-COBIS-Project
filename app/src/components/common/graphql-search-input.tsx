@@ -75,10 +75,7 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 			<CommandInput
 				placeholder={placeholder}
 				value={query}
-				onValueChange={q => {
-					console.log("💬 onValueChange:", q);
-					setQuery(q);
-				}}
+				onValueChange={q => setQuery(q)}
 			/>
 			<CommandList>
 				{loading && (
