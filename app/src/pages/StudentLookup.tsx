@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
@@ -42,7 +42,13 @@ const StudentLookup = () => {
 		gpaRange: [0, 4],
 		selectedPrograms: [],
 		programFilters: {},
+		selectedCourses: [],
+		courseFilters: {},
 	});
+
+	useEffect(() => {
+		console.log('Current Filters:', currentFilters);
+	}, [currentFilters]);
 
 	const fetchStudents = async (filters: FilterState) => {
 		setIsLoading(true);

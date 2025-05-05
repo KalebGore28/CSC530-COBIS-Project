@@ -340,8 +340,6 @@ type StudentBasic {
   final_grade:    String!
 }
 
-
-
 # Root query type
 
 type Query {

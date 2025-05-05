@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -78,7 +78,7 @@ export const StudentFilters = ({
 		}>
 	>({});
 
-	const courseKey = (c: Course) => `${c.subject}-${c.number}-${c.suffix}`;
+	const courseKey = (c: Course) => `${c.subject}${c.number}${c.suffix}`;
 
 
 	// Academic Level
@@ -244,10 +244,6 @@ export const StudentFilters = ({
 		{ key: "is_major", label: "Major" },
 		{ key: "is_minor", label: "Minor" },
 	];
-
-	useEffect(() => {
-		console.log(":", courseFilters);
-	}, [courseFilters]);
 
 	return (
 		<Card className="w-full">
