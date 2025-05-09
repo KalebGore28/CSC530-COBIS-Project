@@ -5,7 +5,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Course } from "@/components/selectors/course-selector";
-import { Roster } from "@/components/features/roster/roster";
+import { Roster } from "@/components/roster";
 import { toast } from "sonner";
 import Modal from "@/components/modals/modal";
 import StudentDetail from "@/components/student-detail";
@@ -134,7 +134,7 @@ const CourseRosterPage: React.FC = () => {
 
 	return (
 		<div className="container mx-auto p-6">
-			<div className="flex flex-col space-y-6">
+			<div className="flex flex-col space-y-6 pb-2">
 				{/* Back button */}
 				<Button
 					variant="outline"

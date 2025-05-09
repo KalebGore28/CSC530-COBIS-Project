@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { ExportButton } from '@/components/common/export-button';
 
 const DOTS = '...';
 
@@ -75,6 +76,8 @@ interface PaginatedTableProps<T> {
 	onRowClick?: (row: T) => void;
 	isLoading?: boolean;
 	className?: string;
+	fileName?: string;
+	preHeader?: string[];
 	[key: string]: any;
 }
 
@@ -85,6 +88,8 @@ export function PaginatedTable<T>({
 	onRowClick,
 	isLoading = false,
 	className,
+	fileName = 'export',
+	preHeader = [],
 	...tableProps
 }: PaginatedTableProps<T>) {
 	const [currentPage, setCurrentPage] = useState(1);
@@ -116,13 +121,18 @@ export function PaginatedTable<T>({
 	return (
 		<div className="space-y-4">
 			{data.length > 0 && !isLoading && (
-				<div className="text-sm text-muted-foreground">
-					Showing{' '}
-					<strong>{Math.min((currentPage - 1) * rowsPerPage + 1, data.length)}</strong>-
-					<strong>{Math.min(currentPage * rowsPerPage, data.length)}</strong> of{' '}
-					<strong>{data.length}</strong> rows
+				<div className="flex items-center justify-between text-sm text-muted-foreground">
+					<div>
+						Showing{' '}
+						<strong>{Math.min((currentPage - 1) * rowsPerPage + 1, data.length)}</strong>-
+						<strong>{Math.min(currentPage * rowsPerPage, data.length)}</strong> of{' '}
+						<strong>{data.length}</strong> rows
+					</div>
+					<ExportButton data={data} filename={fileName} preHeader={preHeader} />
 				</div>
 			)}
+
+			{/* Table */}
 
 			<Table className={className} {...tableProps}>
 				<TableHeader>

@@ -134,8 +134,8 @@ export const CourseGradeChart: React.FC<CourseGradeChartProps> = ({
 								tickLine={false}
 								axisLine={false}
 								tickMargin={8}
-								angle={-30}
-								textAnchor="end"
+								angle={0}
+								textAnchor="middle"
 								interval={0}
 							/>
 							<YAxis

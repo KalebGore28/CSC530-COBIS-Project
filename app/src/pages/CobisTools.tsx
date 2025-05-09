@@ -21,7 +21,7 @@ export default function CobisTools() {
 			{/* Show overview if on /cobis-tools, otherwise render nested route */}
 			{location.pathname === "/cobis-tools" ? (
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-					<Card>
+					{/* <Card>
 						<CardHeader>
 							<CardTitle className="text-center">Query Builder</CardTitle>
 							<CardDescription className="text-center">
@@ -33,7 +33,7 @@ export default function CobisTools() {
 								<Button variant="default">Go to Query Builder</Button>
 							</Link>
 						</CardContent>
-					</Card>
+					</Card> */}
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-center">Imports</CardTitle>

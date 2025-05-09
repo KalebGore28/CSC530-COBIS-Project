@@ -3,7 +3,7 @@ import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
 import { TermSelector, Term } from "@/components/selectors/term-selector";
 import { CourseSelector, Course } from "@/components/selectors/course-selector";
-import Roster, { Student } from "@/components/features/roster/roster"; // Assuming Student type is exported here
+import Roster, { Student } from "@/components/roster"; // Assuming Student type is exported here
 import { Separator } from "@/components/ui/separator";
 
 // --- Import the Modal and StudentDetail components ---

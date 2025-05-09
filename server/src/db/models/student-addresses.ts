@@ -12,7 +12,7 @@ export const studentAddresses = sqliteTable("student_addresses", {
 	city: text("city").notNull(),
 	state: text("state").notNull(),
 	zip: text("zip").notNull(),
-	nation_code: text("nation_code").notNull().references(() => nations.code),
+	nation: text("nation").notNull().references(() => nations.code),
 	phone: text("phone").notNull(),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.type] }),
@@ -26,7 +26,7 @@ export const studentAddressRelations = relations(studentAddresses, ({ one }) => 
 		references: [students.mnumber],
 	}),
 	nation: one(nations, { // Student addresses have a nation
-		fields: [studentAddresses.nation_code],
+		fields: [studentAddresses.nation],
 		references: [nations.code],
 	}),
 }));

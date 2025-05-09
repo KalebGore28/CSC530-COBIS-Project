@@ -29,6 +29,12 @@ table colleges {
   description text [not null]
 }
 
+table course_prefixes {
+  prefix text [pk, not null]
+  department text [not null]
+  college text [not null]
+}
+
 table courses {
   subject text [not null]
   number integer [not null]
@@ -38,6 +44,8 @@ table courses {
   fee real [not null, default: 0]
   web_fee real [not null, default: 0]
   last_updated text [not null, default: `CURRENT_TIMESTAMP`]
+  department text [default: '0000']
+  college text [default: '0']
 
   indexes {
     (subject, number, suffix) [pk]
@@ -155,7 +163,7 @@ table student_addresses {
   city text [not null]
   state text [not null]
   zip text [not null]
-  nation_code text [not null]
+  nation text [not null]
   phone text [not null]
 
   indexes {
@@ -306,7 +314,7 @@ ref: student_academic_info.academic_standing > academic_standing.code
 
 ref: student_addresses.mnumber > students.mnumber
 
-ref: student_addresses.nation_code > nations.code
+ref: student_addresses.nation > nations.code
 
 ref: student_advisors.student_mnumber > students.mnumber
 
