@@ -1,6 +1,7 @@
 {
-	"type": "module",
 	"name": "cobis-server",
+	"type": "module",
+	"version": "1.0.0",
 	"scripts": {
 		"dev": "npx nodemon --exec tsx src/index.ts",
 		"test": "vitest --coverage",
