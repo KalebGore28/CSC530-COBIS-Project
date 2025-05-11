@@ -9,6 +9,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      '@cobis/types': path.resolve(__dirname, '../types/src'),
     },
   },
   server: {
