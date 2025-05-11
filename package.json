@@ -1,0 +1,25 @@
+{
+  "name": "cobis-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=cobis-app\" \"npm run dev --workspace=cobis-server\"",
+    "build": "npm run build --workspace=cobis-app && npm run build --workspace=cobis-server",
+    "start": "concurrently \"npm run preview --workspace=cobis-app\" \"npm run start --workspace=cobis-server\"",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "db:push": "npm run db:push --workspace=cobis-server",
+    "db:generate": "npm run db:generate --workspace=cobis-server",
+    "db:migrate": "npm run db:migrate --workspace=cobis-server",
+    "db:reset": "npm run db:reset --workspace=cobis-server",
+    "db:studio": "npm run db:studio --workspace=cobis-server",
+    "db:seed": "npm run db:seed --workspace=cobis-server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1",
+    "typescript": "~5.7.3"
+  }
+}
