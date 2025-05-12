@@ -186,7 +186,6 @@ query GetClassRoster(
 export const Roster: React.FC<ClassRosterProps> = ({
 	mnumber,
 	selectedCourse,
-	onStudentSelect,
 }) => {
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
@@ -413,12 +412,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 		if (grade.startsWith("C")) return "bg-yellow-100 text-yellow-800 border-yellow-300";
 		if (grade.startsWith("D")) return "bg-orange-100 text-orange-800 border-orange-300";
 		return "bg-red-100 text-red-800 border-red-300";
-	};
-
-	const handleStudentSelect = (student: Student) => {
-		if (onStudentSelect) {
-			onStudentSelect(student);
-		}
 	};
 
 	if (loading) {
@@ -681,10 +674,7 @@ export const Roster: React.FC<ClassRosterProps> = ({
 											filteredStudents.map((student, index) => (
 												<TableRow
 													key={index}
-													className="group cursor-pointer"
-													onClick={() => { }//handleStudentSelect(student)
-
-													}>
+													className="group cursor-pointer">
 													<TableCell className="font-medium">
 														<button
 															className="text-left hover:text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded px-1 py-0.5 -mx-1 -my-0.5"
@@ -735,9 +725,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 										<Card
 											key={index}
 											className="overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-1 cursor-pointer"
-											onClick={() => { }//handleStudentSelect(student)
-
-											}
 										>
 											<CardContent className="p-4">
 												<div className="flex flex-col gap-2">

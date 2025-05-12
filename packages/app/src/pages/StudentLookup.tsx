@@ -10,8 +10,6 @@ import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Modal } from "@/components/modals/modal";
-import { StudentDetail } from "@/components/student-detail";
 
 //
 // 1) GraphQL query string
@@ -77,9 +75,6 @@ const makePreHeader = (filters: FilterState): string[] => {
 const StudentLookup = () => {
 	const [results, setResults] = useState<Student[]>([]);
 	const [isLoading, setIsLoading] = useState(false);
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedMnumber, setSelectedMnumber] = useState<string | null>(null);
-	const [selectedName, setSelectedName] = useState("");
 	const [currentFilters, setCurrentFilters] = useState<FilterState>({
 		academicLevels: [],
 		gpaRange: [0, 4],
@@ -152,12 +147,6 @@ const StudentLookup = () => {
 		}
 	};
 
-	const handleStudentClick = (s: Student) => {
-		setSelectedMnumber(s.mnumber);
-		setSelectedName(`${s.firstName} ${s.lastName}`);
-		setIsModalOpen(true);
-	};
-
 	// if no results (and not loading) show filters + “no students found”
 	if (!isLoading && results.length === 0) {
 		return (
@@ -176,9 +165,6 @@ const StudentLookup = () => {
 				onApplyFilters={fetchStudents}
 				onResetFilters={() => {
 					setResults([]);
-					setSelectedMnumber(null);
-					setSelectedName("");
-					setIsModalOpen(false);
 				}}
 			/>
 
@@ -205,20 +191,8 @@ const StudentLookup = () => {
 							rowsPerPage={10}
 							fileName="student-lookup"
 							preHeader={makePreHeader(currentFilters)}
-							// onRowClick={handleStudentClick}
 						/>
 					</CardContent>
-
-					<Modal
-						isOpen={isModalOpen}
-						onClose={() => setIsModalOpen(false)}
-						title={`Student Detail: ${selectedName}`}
-						size="5xl"
-					>
-						{selectedMnumber && (
-							<StudentDetail key={selectedMnumber} mnumber={selectedMnumber} />
-						)}
-					</Modal>
 				</Card>
 			</div>
 		</div>

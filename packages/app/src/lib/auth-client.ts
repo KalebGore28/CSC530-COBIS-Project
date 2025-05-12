@@ -4,7 +4,7 @@ import { createAuthClient } from "better-auth/client";
 const API_URL = import.meta.env.VITE_API_URL;            // e.g. http://localhost:4000
 const CALLBACK_URL = import.meta.env.VITE_CALLBACK_URL;       // e.g. http://localhost:5173 in dev, your prod URL in prod
 
-export const authClient = createAuthClient({ baseURL: API_URL });
+export const authClient: ReturnType<typeof createAuthClient> = createAuthClient({ baseURL: API_URL });
 
 export const signinGoogle = () => {
   return authClient.signIn.social({

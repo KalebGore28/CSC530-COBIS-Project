@@ -291,6 +291,7 @@ const TermDetailsPage: React.FC = () => {
 															<Button
 																variant="ghost"
 																size="sm"
+																// @ts-ignore
 																onClick={() => handleViewRoster(course.courseId)}
 															>
 																View Roster
