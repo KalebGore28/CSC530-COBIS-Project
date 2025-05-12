@@ -1,6 +1,5 @@
 import express from "express";
 import cors from "cors";
-import { config } from "./utils/config";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
@@ -41,7 +40,7 @@ const app = express()
 // @ts-ignore
 app.use(
     cors({
-        origin: config.frontend_origin,
+        origin: process.env.FRONTEND_ORIGIN as string,
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials: true,
     })

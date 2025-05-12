@@ -1,7 +1,6 @@
 import Database, { Database as DatabaseType } from 'better-sqlite3';
 import { drizzle } from 'drizzle-orm/better-sqlite3';
 import fs from 'fs';
-import { config } from '../utils/config';
 
 export interface DbConnection {
 	orm: ReturnType<typeof drizzle>;
@@ -17,7 +16,7 @@ export const createDb = async (useInMemory: boolean = false): Promise<DbConnecti
 		return { orm, db };
 	} else {
 		const isProduction = process.env.NODE_ENV === 'production';
-		const dbUrl = config.db.url;
+		const dbUrl = process.env.DB_URL as string;
 
 		if (isProduction && !dbUrl) {
 			throw new Error('DB_URL is required in production mode');

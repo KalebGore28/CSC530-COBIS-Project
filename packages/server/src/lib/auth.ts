@@ -3,9 +3,8 @@ import { drizzle } from "drizzle-orm/better-sqlite3";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { verification, session, user, account } from "../db/schema";
 import Database from "better-sqlite3";
-import { config } from "../utils/config";
 
-const db = new Database(config.db.url);
+const db = new Database(process.env.DB_URL as string);
 const orm = drizzle(db, {
 	schema: { // This part of the schema is passed in for better-auth
 		verification,
@@ -32,15 +31,15 @@ export const auth = betterAuth({
 	database: drizzleAdapter(orm, {
 		provider: "sqlite",
 	}),
-	baseURL: config.betterAuthUrl,
-	trustedOrigins: [config.frontend_origin],
+	baseURL: process.env.BETTER_AUTH_URL as string,
+	trustedOrigins: [process.env.FRONTEND_ORIGIN as string],
 	socialProviders: {
 		// This app was only designed to work with Google OAuth even though better-auth supports more.
 		// It is not recommended to use another provider, otherwise domain restrictions will not work.
 		// Domain restrictions are enforced in the restrictGoogleCallback middleware.
 		google: {
-			clientId: config.oauth.google.clientId,
-			clientSecret: config.oauth.google.clientSecret,
+			clientId: process.env.GOOGLE_CLIENT_ID as string,
+			clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
 		}
 	},
 	user: {

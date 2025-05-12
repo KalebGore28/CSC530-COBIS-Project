@@ -1,14 +1,15 @@
 {
   "name": "cobis-monorepo",
+  "type": "module",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
+    "start": "node --env-file=.env dist/server.js",
     "dev": "concurrently \"npm run dev --workspace=cobis-app\" \"npm run dev --workspace=cobis-server\"",
-    "build": "npm run build --workspace=cobis-app && npm run build --workspace=cobis-server",
-    "start": "concurrently \"npm run preview --workspace=cobis-app\" \"npm run start --workspace=cobis-server\"",
+    "build": "node esbuild.config.js",
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces",
     "db:push": "npm run db:push --workspace=cobis-server",
@@ -23,6 +24,8 @@
   },
   "devDependencies": {
     "concurrently": "^9.0.1",
+    "esbuild": "^0.25.4",
+    "esbuild-plugin-copy": "^2.1.1",
     "typescript": "~5.7.3"
   }
 }
