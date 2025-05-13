@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-
 import {
 	Select,
 	SelectContent,
@@ -17,14 +16,14 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
+import { Term } from "@cobis/types";
 
 // GraphQL imports
-import type { termSelectorListQuery } from "./__generated__/termSelectorListQuery.graphql";
+import type { termSelectorQuery } from "./__generated__/termSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
-export interface Term {
-	termCode: string;
-	termName: string;
+// Extend the base Term type for component-specific fields
+export interface ExtendedTerm extends Term {
 	year: number;
 	courseCount: number;
 	studentCount: number;
@@ -33,13 +32,12 @@ export interface Term {
 
 export interface TermSelectorProps {
 	mnumber: string | null;
-	onTermSelect?: (term: Term) => void;
-	onError?: (error: any) => void;
+	onTermSelect?: (term: ExtendedTerm) => void;
 	showStats?: boolean;
 }
 
-const termSelectorListQuery = graphql`
-  query termSelectorListQuery($mnumber: String!) {
+const termSelectorQuery = graphql`
+  query termSelectorQuery($mnumber: String!) {
     instructor(mnumber: $mnumber) {
       courses_taught {
         year
@@ -64,22 +62,22 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		return <SkeletonCard />;
 	}
 
-	const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
+	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 
-	const data = useLazyLoadQuery<termSelectorListQuery>(
-		termSelectorListQuery,
+	const data = useLazyLoadQuery<termSelectorQuery>(
+		termSelectorQuery,
 		{ mnumber },
 		{ fetchPolicy: "store-or-network" }
 	);
 
 	// Create a deduplicated list of terms for the dropdown
-	const terms: Term[] = Array.from(
+	const terms: ExtendedTerm[] = Array.from(
 		new Map(
 			data.instructor?.courses_taught?.map((course) => [
 				`${course.term.code}-${course.year}`,
 				{
-					termCode: course.term.code,
-					termName: course.term.description,
+					code: course.term.code,
+					description: course.term.description,
 					year: course.year,
 					courseCount: 0, // Will be calculated later
 					studentCount: 0,
@@ -88,13 +86,13 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 			]) || []
 		).values()
 	).sort((a, b) =>
-		b.year !== a.year ? b.year - a.year : b.termCode.localeCompare(a.termCode)
+		b.year !== a.year ? b.year - a.year : b.code.localeCompare(a.code)
 	);
 
 	// Calculate stats for each term
-	const calculateTermStats = (termCode: string, year: number): Term => {
+	const calculateTermStats = (code: string, year: number): ExtendedTerm => {
 		const coursesInTerm = data.instructor?.courses_taught?.filter(
-			(course) => course.term.code === termCode && course.year === year
+			(course) => course.term.code === code && course.year === year
 		) || [];
 
 		const courseCount = coursesInTerm.length;
@@ -113,9 +111,8 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		);
 
 		return {
-			termCode,
-			termName:
-				coursesInTerm[0]?.term.description || "Unknown Term",
+			code,
+			description: coursesInTerm[0]?.term.description || "Unknown Term",
 			year,
 			courseCount,
 			studentCount,
@@ -125,7 +122,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 
 	// Update terms with calculated stats
 	const termsWithStats = terms.map((term) =>
-		calculateTermStats(term.termCode, term.year)
+		calculateTermStats(term.code, term.year)
 	);
 
 	// Select the first term by default
@@ -138,9 +135,9 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 	}, [termsWithStats, onTermSelect]);
 
 	const handleTermSelect = (termCodeAndYear: string) => {
-		const [termCode, year] = termCodeAndYear.split("-");
+		const [code, year] = termCodeAndYear.split("-");
 		const term = termsWithStats.find(
-			(t) => t.termCode === termCode && t.year === Number(year)
+			(t) => t.code === code && t.year === Number(year)
 		);
 		if (term) {
 			setSelectedTerm(term);
@@ -156,9 +153,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 			</CardHeader>
 			<CardContent>
 				<Select
-					value={
-						selectedTerm ? `${selectedTerm.termCode}-${selectedTerm.year}` : ""
-					}
+					value={selectedTerm ? `${selectedTerm.code}-${selectedTerm.year}` : ""}
 					onValueChange={handleTermSelect}
 				>
 					<SelectTrigger className="w-full">
@@ -167,10 +162,10 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 					<SelectContent>
 						{termsWithStats.map((term) => (
 							<SelectItem
-								key={`${term.termCode}-${term.year}`}
-								value={`${term.termCode}-${term.year}`}
+								key={`${term.code}-${term.year}`}
+								value={`${term.code}-${term.year}`}
 							>
-								{term.termName} ({term.year})
+								{term.description} ({term.year})
 							</SelectItem>
 						))}
 					</SelectContent>

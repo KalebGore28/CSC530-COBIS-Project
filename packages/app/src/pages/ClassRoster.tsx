@@ -1,33 +1,29 @@
 import React, { useState } from "react";
 import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
-import { TermSelector, Term } from "@/components/selectors/term-selector";
-import { CourseSelector, Course } from "@/components/selectors/course-selector";
+import { TermSelector } from "@/components/selectors/term-selector";
+import { CourseSelector } from "@/components/selectors/course-selector";
 import Roster from "@/components/roster"; // Assuming Student type is exported here
 import { Separator } from "@/components/ui/separator";
 
+import { ExtendedTerm } from "@/components/selectors/term-selector";
+import { ExtendedCourse } from "@/components/selectors/course-selector";
+
 const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
-	const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
-	const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
+	const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const handleTermSelect = (term: Term) => {
+	const handleTermSelect = (term: ExtendedTerm) => {
 		setSelectedTerm(term);
 		setSelectedCourse(null);
 	};
 
-	const handleCourseSelect = (course: Course) => {
+	const handleCourseSelect = (course: ExtendedCourse) => {
 		setSelectedCourse(course);
 		setError(null);
 	};
-
-	const handleError = (err: any) => {
-		console.error("Error:", err);
-		setError("Failed to load data. Please try again.");
-	};
-
-
 
 	return (
 		<div className="container p-6 mx-auto space-y-6">
@@ -43,7 +39,6 @@ const ClassRosterPage: React.FC = () => {
 							<TermSelector
 								mnumber={session.info.mnumber}
 								onTermSelect={handleTermSelect}
-								onError={handleError}
 							/>
 						</div>
 						{/* Course Selector */}
@@ -53,7 +48,6 @@ const ClassRosterPage: React.FC = () => {
 									mnumber={session.info.mnumber}
 									selectedTerm={selectedTerm}
 									onCourseSelect={handleCourseSelect}
-									onError={handleError}
 								/>
 							)}
 						</div>
@@ -68,10 +62,10 @@ const ClassRosterPage: React.FC = () => {
 						<>
 							<Separator className="my-6" />
 							{/* Pass the modal opening handler to the ClassRosterComponent */}
-							<Roster
+							{/* <Roster
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
-							/>
+							/> */}
 						</>
 					)}
 				</>

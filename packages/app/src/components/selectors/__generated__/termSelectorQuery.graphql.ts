@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8a7cfce57cbeb5bc4862d40e658b7ba7>>
+ * @generated SignedSource<<1b9cf1a19609d12cfbb4f77f83981ad4>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,10 +9,10 @@
 // @ts-nocheck
 
 import { ConcreteRequest } from 'relay-runtime';
-export type termSelectorListQuery$variables = {
+export type termSelectorQuery$variables = {
   mnumber: string;
 };
-export type termSelectorListQuery$data = {
+export type termSelectorQuery$data = {
   readonly instructor: {
     readonly courses_taught: ReadonlyArray<{
       readonly students: ReadonlyArray<{
@@ -26,9 +26,9 @@ export type termSelectorListQuery$data = {
     }>;
   } | null | undefined;
 };
-export type termSelectorListQuery = {
-  response: termSelectorListQuery$data;
-  variables: termSelectorListQuery$variables;
+export type termSelectorQuery = {
+  response: termSelectorQuery$data;
+  variables: termSelectorQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -124,7 +124,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "termSelectorListQuery",
+    "name": "termSelectorQuery",
     "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
@@ -133,20 +133,20 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "termSelectorListQuery",
+    "name": "termSelectorQuery",
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "8b5ac945a063a13c84a8e038c24f030c",
+    "cacheID": "260679fcbd5ed5d964bc538fdac548df",
     "id": null,
     "metadata": {},
-    "name": "termSelectorListQuery",
+    "name": "termSelectorQuery",
     "operationKind": "query",
-    "text": "query termSelectorListQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n      }\n      students {\n        course_hours\n      }\n    }\n  }\n}\n"
+    "text": "query termSelectorQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n      }\n      students {\n        course_hours\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "714e93d0845c96a3466778e66a89e70d";
+(node as any).hash = "aa787f4b9ed49bfb7f2b520600d3798d";
 
 export default node;
