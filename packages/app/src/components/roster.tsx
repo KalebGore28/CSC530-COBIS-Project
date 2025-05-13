@@ -173,7 +173,14 @@ query GetClassRoster(
 `;
 
 
-
+const getGradeColorClass = (grade: string) => {
+	if (grade === "N/A" || null) return "";
+	if (grade.startsWith("A")) return "bg-green-100 text-green-800 border-green-300";
+	if (grade.startsWith("B")) return "bg-blue-100 text-blue-800 border-blue-300";
+	if (grade.startsWith("C")) return "bg-yellow-100 text-yellow-800 border-yellow-300";
+	if (grade.startsWith("D")) return "bg-orange-100 text-orange-800 border-orange-300";
+	return "bg-red-100 text-red-800 border-red-300";
+};
 
 /**
  * Roster
@@ -184,8 +191,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	mnumber,
 	selectedCourse,
 }) => {
-	const [loading, setLoading] = useState<boolean>(true);
-	const [error, setError] = useState<string | null>(null);
 	const [courseInfo, setRosterCourse] = useState<RosterCourse | null>(null);
 	const [students, setStudents] = useState<Student[]>([]);
 	const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
@@ -218,198 +223,8 @@ export const Roster: React.FC<ClassRosterProps> = ({
 		[gradeDistributionFromStudents]
 	);
 
-	useEffect(() => {
-		const fetchRosterData = async () => {
-			if (!mnumber || !selectedCourse) return;
-
-			setLoading(true);
-			setError(null);
-
-			try {
-				// 1️⃣ Load “current term” to mark Active/Completed
-				const termData = await fetchGraphQL(GET_CURRENT_TERM, {});
-				setCurrentTerm(termData.getCurrentYearTerm as CurrentTermResponse);
-
-				// 2️⃣ Load roster via GraphQL
-				const data = await fetchGraphQL(GET_CLASS_ROSTER, {
-					mnumber,
-					subject: selectedCourse.courseSubject,
-					number: selectedCourse.courseNumber,
-					suffix: selectedCourse.courseSuffix || null,
-					section: selectedCourse.courseSection,
-					startTerm: selectedCourse.termCode,
-					startYear: selectedCourse.year,
-				});
-
-				// unwrap the array — should be length 1
-				const taught = data.instructor.courses_taught as any[];
-				if (!taught.length) {
-					throw new Error("No matching course found for this term");
-				}
-
-				const node = taught[0];
-
-				// 3️⃣ Set course info
-				setRosterCourse({
-					courseId: `${node.course.subject}${node.course.number}${node.course.suffix}`,
-					courseSubject: node.course.subject,
-					courseNumber: String(node.course.number),
-					courseSuffix: node.course.suffix,
-					courseSection: node.course_section,
-					courseTitle: node.course.title,
-					termCode: node.term.code,
-					termName: node.term.description,
-					year: selectedCourse.year,
-					creditHours: selectedCourse.creditHours,
-				});
-
-				// inside your fetchRosterData after `const node = taught[0];`
-
-				// 4️⃣ Normalize students
-				const normalized: Student[] = node.students.map((s: any) => {
-					// coerce nulls → "N/A"
-					const final = s.final_grade ?? "N/A";
-					const midt = s.midterm_grade ?? "N/A";
-
-					const info = s.student.academic_info || [];
-					const progList = s.student.programs || [];
-					const majorCode = progList.length > 0
-						? progList[0].program.code
-						: "Undeclared";
-
-					return {
-						mnumber: s.mnumber,
-						firstName: s.student.first_name,
-						middleName: s.student.middle_name,
-						lastName: s.student.last_name,
-						suffix: s.student.suffix,
-						name: `${s.student.first_name} ${s.student.last_name}`,
-						email: s.student.email || "N/A",
-						major: majorCode,
-						finalGrade: final,
-						midtermGrade: midt,
-						registrationStatus: s.registration_status.description,
-						instructionalMethod: s.instructional_method.description,
-						lastAttendance: s.last_attendance,
-						overallGpa: info[0]?.overall_gpa ?? 0,
-						overallEarnedHours: info[0]?.overall_earned_hours ?? 0,
-					};
-				});
 
 
-
-				setStudents(normalized);
-				setFilteredStudents(normalized);
-
-				// 5️⃣ Compute stats
-				const totalStudents = normalized.length;
-
-				// build your distribution directly:
-				const dist = normalized.reduce((acc, st) => {
-					const g = st.finalGrade === "N/A" ? st.midtermGrade : st.finalGrade;
-					if (g !== "N/A") {
-						acc[g] = (acc[g] || 0) + 1;
-					}
-					return acc;
-				}, {} as Record<string, number>);
-
-				const totalGraded = Object.values(dist).reduce((sum, c) => sum + c, 0);
-
-				const overallGpa = totalStudents
-					? normalized.reduce((sum, st) => sum + st.overallGpa, 0) / totalStudents
-					: 0;
-
-				// now average on a 0–4 scale:
-				const GRADE_POINTS: Record<string, number> = { A: 4, B: 3, C: 2, D: 1, E: 0 };
-				const averageGradeValue = totalGraded
-					? Object.entries(dist).reduce((sum, [grade, count]) => {
-						const pts = GRADE_POINTS[grade] ?? 0;
-						return sum + pts * count;
-					}, 0) / totalGraded
-					: 0;
-
-				setStats({
-					totalStudents,
-					totalGraded,
-					overallGpa,
-					gradeDistribution: dist,
-					averageGradeValue,
-				});
-			} catch (err: any) {
-				console.error(err);
-				setError(err.message || "Failed to load class roster");
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		fetchRosterData();
-	}, [mnumber, selectedCourse]);
-
-
-	// Apply filters and sorting
-	useEffect(() => {
-		let result = [...students];
-
-		// Apply search filter
-		if (searchQuery) {
-			const query = searchQuery.toLowerCase();
-			result = result.filter(
-				(student) =>
-					student.firstName.toLowerCase().includes(query) ||
-					student.lastName.toLowerCase().includes(query) ||
-					student.mnumber.toLowerCase().includes(query) ||
-					student.email.toLowerCase().includes(query) ||
-					student.major.toLowerCase().includes(query)
-			);
-		}
-
-		// Apply grade filter
-		if (gradeFilter !== "all") {
-			result = result.filter((student) => {
-				const grade = student.finalGrade !== "N/A" ? student.finalGrade : student.midtermGrade;
-				if (grade === "N/A") return false;
-
-				// Simple matching for letter grades
-				return grade.startsWith(gradeFilter);
-			});
-		}
-
-		// Apply sorting
-		result.sort((a, b) => {
-			if (sortField === "name") {
-				const nameA = `${a.lastName}, ${a.firstName}`;
-				const nameB = `${b.lastName}, ${b.firstName}`;
-				return sortDirection === "asc" ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
-			} else {
-				// Simple grade sorting
-				const gradeA = a.finalGrade !== "N/A" ? a.finalGrade : a.midtermGrade;
-				const gradeB = b.finalGrade !== "N/A" ? b.finalGrade : b.midtermGrade;
-
-				// If both grades are "N/A", consider them equal
-				if (gradeA === "N/A" && gradeB === "N/A") return 0;
-				// If only one grade is "N/A", put it at the end
-				if (gradeA === "N/A") return sortDirection === "asc" ? 1 : -1;
-				if (gradeB === "N/A") return sortDirection === "asc" ? -1 : 1;
-
-				// Otherwise, compare the grades alphabetically
-				return sortDirection === "asc"
-					? gradeA.localeCompare(gradeB)
-					: gradeB.localeCompare(gradeA);
-			}
-		});
-
-		setFilteredStudents(result);
-	}, [students, searchQuery, sortField, sortDirection, gradeFilter]);
-
-	const getGradeColorClass = (grade: string) => {
-		if (grade === "N/A" || null) return "";
-		if (grade.startsWith("A")) return "bg-green-100 text-green-800 border-green-300";
-		if (grade.startsWith("B")) return "bg-blue-100 text-blue-800 border-blue-300";
-		if (grade.startsWith("C")) return "bg-yellow-100 text-yellow-800 border-yellow-300";
-		if (grade.startsWith("D")) return "bg-orange-100 text-orange-800 border-orange-300";
-		return "bg-red-100 text-red-800 border-red-300";
-	};
 
 	if (loading) {
 		return <SkeletonCard showTitle showDescription lines={5} />;
