@@ -22,7 +22,8 @@ import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.gr
 import { graphql, useLazyLoadQuery } from "react-relay";
 
 // Extend the base Course type for component-specific fields
-export interface ExtendedCourse extends Course {
+export interface ExtendedCourse
+	extends Omit<Course, "hours" | "fee" | "web_fee" | "last_updated" | "department" | "college"> {
 	course_section: string;
 	creditHours: number;
 	studentCount: number;
