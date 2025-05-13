@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import {
 	Select,
 	SelectContent,
@@ -15,17 +15,18 @@ import {
 	CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { Course } from "@cobis/types";
 import { ExtendedTerm } from "./term-selector";
-
-// GraphQL imports
 import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
-// Extend the base Course type for component-specific fields
 export interface ExtendedCourse
-	extends Omit<Course, "hours" | "fee" | "web_fee" | "last_updated" | "department" | "college"> {
+	extends Omit<
+		Course,
+		"hours" | "fee" | "web_fee" | "last_updated" | "department" | "college"
+	> {
 	course_section: string;
 	creditHours: number;
 	studentCount: number;
@@ -64,11 +65,20 @@ const courseSelectorQuery = graphql`
   }
 `;
 
-/**
- * CourseSelector Component
- *
- * A component that fetches and displays courses for a selected term.
- */
+// Custom skeleton for CourseSelectorContent
+const CourseSelectorSkeleton = () => (
+	<>
+		<CardContent>
+			<Skeleton className="h-8 w-full" /> {/* Mimics SelectTrigger */}
+		</CardContent>
+		<CardFooter className="flex flex-wrap gap-2">
+			<Skeleton className="h-5 w-24" /> {/* Mimics Badge */}
+			<Skeleton className="h-5 w-20" /> {/* Mimics Badge */}
+			<Skeleton className="h-5 w-28" /> {/* Mimics Badge */}
+		</CardFooter>
+	</>
+);
+
 export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	mnumber,
 	selectedTerm,
@@ -79,6 +89,51 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 		return <SkeletonCard />;
 	}
 
+	if (!selectedTerm) {
+		return (
+			<Card className="w-full">
+				<CardHeader>
+					<CardTitle>Course Selection</CardTitle>
+					<CardDescription>
+						Please select a term first to view available courses
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<SkeletonCard showDropdown={false} showTitle={false} showDescription />
+				</CardContent>
+			</Card>
+		);
+	}
+
+	return (
+		<Card className="w-full">
+			<CardHeader>
+				<CardTitle>Select Course</CardTitle>
+				<CardDescription>
+					Courses for {selectedTerm.description} {selectedTerm.year}
+				</CardDescription>
+			</CardHeader>
+			<Suspense fallback={<CourseSelectorSkeleton />}>
+				<CourseSelectorContent
+					mnumber={mnumber}
+					selectedTerm={selectedTerm}
+					onCourseSelect={onCourseSelect}
+					showStats={showStats}
+				/>
+			</Suspense>
+		</Card>
+	);
+};
+
+const CourseSelectorContent: React.FC<CourseSelectorProps> = ({
+	mnumber,
+	selectedTerm,
+	onCourseSelect,
+	showStats,
+}) => {
+	if (!mnumber) {
+		return <SkeletonCard />;
+	}
 	if (!selectedTerm) {
 		return (
 			<Card className="w-full">
@@ -107,15 +162,15 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	// Map courses_taught to ExtendedCourse
 	const courses: ExtendedCourse[] = (data.instructor?.courses_taught || [])
 		.map((courseTaught) => {
 			const studentCount = courseTaught.students?.length || 0;
-			const creditHours = courseTaught.students?.[0]?.course_hours || 0; // Assume course_hours is same for all students
-			const totalCreditHours = courseTaught.students?.reduce(
-				(sum, student) => sum + (student.course_hours || 0),
-				0
-			) || 0;
+			const creditHours = courseTaught.students?.[0]?.course_hours || 0;
+			const totalCreditHours =
+				courseTaught.students?.reduce(
+					(sum, student) => sum + (student.course_hours || 0),
+					0
+				) || 0;
 
 			return {
 				subject: courseTaught.course.subject,
@@ -130,11 +185,10 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 		})
 		.sort((a, b) => {
 			const aDisplay = `${a.subject}${a.number}${a.suffix}-${a.course_section}`;
-			const bDisplay = `${b.subject}${b.number}${b.suffix}-${b.course_section}`;
+			const bDisplay = `${b.subject}${b.number}${b.suffix}-${a.course_section}`;
 			return aDisplay.localeCompare(bDisplay);
 		});
 
-	// Select the first course by default when selectedTerm changes
 	useEffect(() => {
 		if (courses.length > 0) {
 			const firstCourse = courses[0];
@@ -145,7 +199,6 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 		}
 	}, [selectedTerm]);
 
-	// Handle course selection
 	const handleCourseChange = (courseId: string) => {
 		const course = courses.find((c) => getCourseId(c) === courseId);
 		if (course) {
@@ -154,24 +207,16 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 		}
 	};
 
-	// Format course for display: "SUBJ 1234-01: Course Title"
 	const formatCourseDisplay = (course: ExtendedCourse) => {
 		return `${course.subject} ${course.number}${course.suffix}-${course.course_section}: ${course.title}`;
 	};
 
-	// Create a unique ID for each course
 	const getCourseId = (course: ExtendedCourse) => {
 		return `${course.subject}|${course.number}|${course.suffix}|${course.course_section}`;
 	};
 
 	return (
-		<Card className="w-full">
-			<CardHeader>
-				<CardTitle>Select Course</CardTitle>
-				<CardDescription>
-					Courses for {selectedTerm.description} {selectedTerm.year}
-				</CardDescription>
-			</CardHeader>
+		<>
 			<CardContent>
 				<Select
 					value={selectedCourse ? getCourseId(selectedCourse) : ""}
@@ -182,17 +227,13 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 					</SelectTrigger>
 					<SelectContent>
 						{courses.map((course) => (
-							<SelectItem
-								key={getCourseId(course)}
-								value={getCourseId(course)}
-							>
+							<SelectItem key={getCourseId(course)} value={getCourseId(course)}>
 								{formatCourseDisplay(course)}
 							</SelectItem>
 						))}
 					</SelectContent>
 				</Select>
 			</CardContent>
-
 			{showStats && selectedCourse && (
 				<CardFooter className="flex flex-wrap gap-2">
 					<Badge variant="outline" className="bg-yellow-50 dark:bg-yellow-900">
@@ -207,7 +248,7 @@ export const CourseSelector: React.FC<CourseSelectorProps> = ({
 					</Badge>
 				</CardFooter>
 			)}
-		</Card>
+		</>
 	);
 };
 

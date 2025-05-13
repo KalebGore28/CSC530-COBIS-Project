@@ -62,10 +62,10 @@ const ClassRosterPage: React.FC = () => {
 						<>
 							<Separator className="my-6" />
 							{/* Pass the modal opening handler to the ClassRosterComponent */}
-							<Roster
+							{/* <Roster
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
-							/>
+							/> */}
 						</>
 					)}
 				</>
