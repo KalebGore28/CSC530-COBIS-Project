@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import {
 	Select,
 	SelectContent,
@@ -10,19 +10,17 @@ import {
 	Card,
 	CardContent,
 	CardDescription,
-	CardFooter,
 	CardHeader,
 	CardTitle,
+	CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { Term } from "@cobis/types";
-
-// GraphQL imports
 import type { termSelectorQuery } from "./__generated__/termSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
-// Extend the base Term type for component-specific fields
 export interface ExtendedTerm extends Term {
 	year: number;
 	courseCount: number;
@@ -53,10 +51,50 @@ const termSelectorQuery = graphql`
   }
 `;
 
+// Custom skeleton for TermSelectorContent
+const TermSelectorSkeleton = () => (
+	<>
+		<CardContent>
+			<Skeleton className="h-8 w-full" /> {/* Mimics SelectTrigger */}
+		</CardContent>
+		<CardFooter className="flex flex-wrap gap-2">
+			<Skeleton className="h-5 w-20" /> {/* Mimics Badge */}
+			<Skeleton className="h-5 w-24" /> {/* Mimics Badge */}
+			<Skeleton className="h-5 w-28" /> {/* Mimics Badge */}
+		</CardFooter>
+	</>
+);
+
 export const TermSelector: React.FC<TermSelectorProps> = ({
 	mnumber,
 	onTermSelect,
 	showStats = true,
+}) => {
+	if (!mnumber) {
+		return <SkeletonCard />;
+	}
+
+	return (
+		<Card className="w-full">
+			<CardHeader>
+				<CardTitle>Select Term</CardTitle>
+				<CardDescription>Choose a term to view course information</CardDescription>
+			</CardHeader>
+			<Suspense fallback={<TermSelectorSkeleton />}>
+				<TermSelectorContent
+					mnumber={mnumber}
+					onTermSelect={onTermSelect}
+					showStats={showStats}
+				/>
+			</Suspense>
+		</Card>
+	);
+};
+
+const TermSelectorContent: React.FC<TermSelectorProps> = ({
+	mnumber,
+	onTermSelect,
+	showStats,
 }) => {
 	if (!mnumber) {
 		return <SkeletonCard />;
@@ -70,7 +108,6 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	// Create a deduplicated list of terms for the dropdown
 	const terms: ExtendedTerm[] = Array.from(
 		new Map(
 			data.instructor?.courses_taught?.map((course) => [
@@ -79,7 +116,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 					code: course.term.code,
 					description: course.term.description,
 					year: course.year,
-					courseCount: 0, // Will be calculated later
+					courseCount: 0,
 					studentCount: 0,
 					creditHoursDelivered: 0,
 				},
@@ -89,11 +126,11 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		b.year !== a.year ? b.year - a.year : b.code.localeCompare(a.code)
 	);
 
-	// Calculate stats for each term
 	const calculateTermStats = (code: string, year: number): ExtendedTerm => {
-		const coursesInTerm = data.instructor?.courses_taught?.filter(
-			(course) => course.term.code === code && course.year === year
-		) || [];
+		const coursesInTerm =
+			data.instructor?.courses_taught?.filter(
+				(course) => course.term.code === code && course.year === year
+			) || [];
 
 		const courseCount = coursesInTerm.length;
 		const studentCount = coursesInTerm.reduce(
@@ -120,12 +157,10 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 		};
 	};
 
-	// Update terms with calculated stats
 	const termsWithStats = terms.map((term) =>
 		calculateTermStats(term.code, term.year)
 	);
 
-	// Select the first term by default
 	useEffect(() => {
 		if (termsWithStats.length > 0 && !selectedTerm) {
 			const firstTerm = termsWithStats[0];
@@ -146,11 +181,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 	};
 
 	return (
-		<Card className="w-full">
-			<CardHeader>
-				<CardTitle>Select Term</CardTitle>
-				<CardDescription>Choose a term to view course information</CardDescription>
-			</CardHeader>
+		<>
 			<CardContent>
 				<Select
 					value={selectedTerm ? `${selectedTerm.code}-${selectedTerm.year}` : ""}
@@ -171,7 +202,6 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 					</SelectContent>
 				</Select>
 			</CardContent>
-
 			{showStats && selectedTerm && (
 				<CardFooter className="flex flex-wrap gap-2">
 					<Badge variant="outline" className="bg-blue-50 dark:bg-blue-900">
@@ -187,7 +217,7 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 					</Badge>
 				</CardFooter>
 			)}
-		</Card>
+		</>
 	);
 };
 
