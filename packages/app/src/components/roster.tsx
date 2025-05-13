@@ -23,12 +23,21 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Course } from "@/components/selectors/course-selector";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
+
+
+
 import { gql } from "graphql-request";
 import { fetchGraphQL } from "@/utils/fetch-graphql";
+
+// GraphQL imports
+import { graphql, useLazyLoadQuery } from "react-relay";
+
+
+import { ExtendedCourse } from "./selectors/course-selector";
+import { Course } from "@cobis/types";
 
 /**
  * Student interface representing a student in the class roster
@@ -91,21 +100,9 @@ type CurrentTermResponse = {
  */
 export interface ClassRosterProps {
 	mnumber: string | null;
-	selectedCourse: Course;
+	selectedCourse: ExtendedCourse;
 	onStudentSelect?: (student: Student) => void;
 }
-
-const GET_CURRENT_TERM = gql`
-	query GetCurrentTerm {
-		getCurrentYearTerm {
-			year
-			term {
-			code
-			description
-			}
-		}
-	}
-`;
 
 const GET_CLASS_ROSTER = gql`
 query GetClassRoster(

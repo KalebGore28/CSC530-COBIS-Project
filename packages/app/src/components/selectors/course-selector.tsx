@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
 import { Course } from "@cobis/types";
 import { ExtendedTerm } from "./term-selector";
+
+// GraphQL imports
 import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
