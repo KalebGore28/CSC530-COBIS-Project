@@ -3,11 +3,13 @@ import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
 import { TermSelector } from "@/components/selectors/term-selector";
 import { CourseSelector } from "@/components/selectors/course-selector";
-import Roster from "@/components/roster"; // Assuming Student type is exported here
+import Roster from "@/components/roster";
 import { Separator } from "@/components/ui/separator";
+import { RosterInfoCard } from "@/components/roster/roster-info-card";
 
-import { ExtendedTerm } from "@/components/selectors/term-selector";
-import { ExtendedCourse } from "@/components/selectors/course-selector";
+// Import types
+import type { ExtendedTerm } from "@/components/selectors/term-selector";
+import type { ExtendedCourse } from "@/components/selectors/course-selector";
 
 const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
@@ -66,6 +68,7 @@ const ClassRosterPage: React.FC = () => {
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
 							/> */}
+							<RosterInfoCard course={selectedCourse} />
 						</>
 					)}
 				</>

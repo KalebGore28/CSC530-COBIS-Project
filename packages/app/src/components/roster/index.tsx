@@ -23,20 +23,17 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SkeletonCard } from "@/components/loading/selector-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ExportButton } from "@/components/common/export-button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
 
-
-import { gql } from "graphql-request";
-import { fetchGraphQL } from "@/utils/fetch-graphql";
-
 // GraphQL imports
+import type { rosterQuery } from "./__generated__/rosterQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
 
-import { ExtendedCourse } from "./selectors/course-selector";
+import { ExtendedCourse } from "../selectors/course-selector";
 import { Course } from "@cobis/types";
 
 /**
@@ -101,11 +98,10 @@ type CurrentTermResponse = {
 export interface ClassRosterProps {
 	mnumber: string | null;
 	selectedCourse: ExtendedCourse;
-	onStudentSelect?: (student: Student) => void;
 }
 
-const GET_CLASS_ROSTER = gql`
-query GetClassRoster(
+const rosterQuery = graphql`
+query rosterQuery(
   $mnumber: String!
   $subject: String!
   $number: Int!
@@ -222,30 +218,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 			),
 		[gradeDistributionFromStudents]
 	);
-
-
-
-
-	if (loading) {
-		return <SkeletonCard showTitle showDescription lines={5} />;
-	}
-
-	if (error) {
-		return (
-			<Card className="w-full">
-				<CardHeader>
-					<CardTitle>Class Roster</CardTitle>
-				</CardHeader>
-				<CardContent>
-					<Alert variant="destructive">
-						<AlertCircle className="h-4 w-4" />
-						<AlertTitle>Error</AlertTitle>
-						<AlertDescription>{error}</AlertDescription>
-					</Alert>
-				</CardContent>
-			</Card>
-		);
-	}
 
 	if (!courseInfo || !stats) {
 		return (

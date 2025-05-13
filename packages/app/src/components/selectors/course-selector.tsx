@@ -17,8 +17,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
-import { Course } from "@cobis/types";
-import { ExtendedTerm } from "./term-selector";
+
+// Import types
+import type { Course } from "@cobis/types";
+import type { ExtendedTerm } from "./term-selector";
+
+// GraphQL imports
 import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
@@ -31,14 +35,9 @@ export interface ExtendedCourse
 	creditHours: number;
 	studentCount: number;
 	totalCreditHours: number;
+	term: ExtendedTerm;
 }
 
-export interface CourseSelectorProps {
-	mnumber: string | null;
-	selectedTerm: ExtendedTerm | null;
-	onCourseSelect?: (course: ExtendedCourse) => void;
-	showStats?: boolean;
-}
 
 const courseSelectorQuery = graphql`
   query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {
@@ -78,6 +77,13 @@ const CourseSelectorSkeleton = () => (
 		</CardFooter>
 	</>
 );
+
+export interface CourseSelectorProps {
+	mnumber: string | null;
+	selectedTerm: ExtendedTerm | null;
+	onCourseSelect?: (course: ExtendedCourse) => void;
+	showStats?: boolean;
+}
 
 export const CourseSelector: React.FC<CourseSelectorProps> = ({
 	mnumber,
@@ -181,6 +187,7 @@ const CourseSelectorContent: React.FC<CourseSelectorProps> = ({
 				creditHours,
 				studentCount,
 				totalCreditHours,
+				term: selectedTerm,
 			};
 		})
 		.sort((a, b) => {
