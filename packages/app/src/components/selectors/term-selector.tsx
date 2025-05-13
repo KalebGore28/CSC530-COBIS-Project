@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 
 import {
@@ -19,8 +17,10 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
-import { gql } from "graphql-request";
-import { fetchGraphQL } from "@/utils/fetch-graphql";
+
+// GraphQL imports
+import type { termSelectorListQuery } from "./__generated__/termSelectorListQuery.graphql";
+import { graphql, useLazyLoadQuery } from "react-relay";
 
 export interface Term {
 	termCode: string;
@@ -38,39 +38,10 @@ export interface TermSelectorProps {
 	showStats?: boolean;
 }
 
-// 1️⃣ Query just year + code for dropdown
-const GET_TERMS = gql`
-  query GetInstructorTerms($mnumber: String!) {
+const termSelectorListQuery = graphql`
+  query termSelectorListQuery($mnumber: String!) {
     instructor(mnumber: $mnumber) {
       courses_taught {
-        year
-        term {
-          description
-          code
-        }
-      }
-    }
-  }
-`;
-
-// 2️⃣ Query detailed stats for one term
-const GET_TERM_STATS = gql`
-  query GetTermStats(
-    $mnumber: String!
-    $startTerm: String!
-    $startYear: Int!
-    $endTerm: String!
-    $endYear: Int!
-  ) {
-    instructor(
-      mnumber: $mnumber
-    ) {
-      courses_taught(
-        startTerm: $startTerm
-        startYear: $startYear
-        endTerm: $endTerm
-        endYear: $endYear
-      ) {
         year
         term {
           description
@@ -87,118 +58,95 @@ const GET_TERM_STATS = gql`
 export const TermSelector: React.FC<TermSelectorProps> = ({
 	mnumber,
 	onTermSelect,
-	onError,
 	showStats = true,
 }) => {
-	const [terms, setTerms] = useState<Term[]>([]);
+	if (!mnumber) {
+		return <SkeletonCard />;
+	}
+
 	const [selectedTerm, setSelectedTerm] = useState<Term | null>(null);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
-	const [statsLoading, setStatsLoading] = useState(false);
 
-	// Load just term/year list once
-	useEffect(() => {
-		if (!mnumber) return;
-		(async () => {
-			try {
-				setLoading(true);
-				const data = await fetchGraphQL(GET_TERMS, { mnumber });
-				// Map to Term shape (stats=0 for now)
-				const raw = data.instructor.courses_taught as Array<any>;
-				const uniq = raw
-					.map((ct) => ({
-						termCode: ct.term.code,
-						termName: ct.term.description,
-						year: ct.year,
-						courseCount: 0,
-						studentCount: 0,
-						creditHoursDelivered: 0,
-					}))
-					// dedupe by code+year
-					.filter(
-						(t, i, arr) =>
-							arr.findIndex((x) => x.termCode === t.termCode && x.year === t.year) === i
-					)
-					// sort desc
-					.sort((a, b) =>
-						b.year !== a.year
-							? b.year - a.year
-							: b.termCode.localeCompare(a.termCode)
-					);
+	const data = useLazyLoadQuery<termSelectorListQuery>(
+		termSelectorListQuery,
+		{ mnumber },
+		{ fetchPolicy: "store-or-network" }
+	);
 
-				setTerms(uniq);
+	// Create a deduplicated list of terms for the dropdown
+	const terms: Term[] = Array.from(
+		new Map(
+			data.instructor?.courses_taught?.map((course) => [
+				`${course.term.code}-${course.year}`,
+				{
+					termCode: course.term.code,
+					termName: course.term.description,
+					year: course.year,
+					courseCount: 0, // Will be calculated later
+					studentCount: 0,
+					creditHoursDelivered: 0,
+				},
+			]) || []
+		).values()
+	).sort((a, b) =>
+		b.year !== a.year ? b.year - a.year : b.termCode.localeCompare(a.termCode)
+	);
 
-				// select first term by default
-				if (uniq.length) {
-					handleTermChange(`${uniq[0].termCode}-${uniq[0].year}`, uniq[0]);
-				}
-			} catch (err: any) {
-				setError(err.message);
-				onError?.(err);
-			} finally {
-				setLoading(false);
-			}
-		})();
-	}, [mnumber]);
+	// Calculate stats for each term
+	const calculateTermStats = (termCode: string, year: number): Term => {
+		const coursesInTerm = data.instructor?.courses_taught?.filter(
+			(course) => course.term.code === termCode && course.year === year
+		) || [];
 
-	// Fetch stats for one term
-	const handleTermChange = async (
-		termId: string,
-		baseTerm?: Term
-	) => {
-		const [termCode, yearStr] = termId.split("-");
-		const year = parseInt(yearStr);
-		const term = baseTerm || terms.find((t) => t.termCode === termCode && t.year === year)!;
-		setSelectedTerm(term);
-		onTermSelect?.(term);
-
-		// now fetch counts/sums
-		try {
-			setStatsLoading(true);
-			const data = await fetchGraphQL(GET_TERM_STATS, {
-				mnumber,
-				startTerm: term.termCode,
-				startYear: term.year,
-				endTerm: term.termCode,
-				endYear: term.year,
-			});
-			const taught = data.instructor.courses_taught as Array<any>;
-			const courseCount = taught.length;
-			let studentCount = 0;
-			let creditHoursDelivered = 0;
-			for (const c of taught) {
-				studentCount += c.students.length;
-				creditHoursDelivered += c.students.reduce(
-					(sum: number, s: any) => sum + s.course_hours,
+		const courseCount = coursesInTerm.length;
+		const studentCount = coursesInTerm.reduce(
+			(sum, course) => sum + (course.students?.length || 0),
+			0
+		);
+		const creditHoursDelivered = coursesInTerm.reduce(
+			(sum, course) =>
+				sum +
+				(course.students?.reduce(
+					(hours, student) => hours + (student.course_hours || 0),
 					0
-				);
-			}
+				) || 0),
+			0
+		);
 
-			const full: Term = {
-				...term,
-				courseCount,
-				studentCount,
-				creditHoursDelivered,
-			};
-			setSelectedTerm(full);
-			onTermSelect?.(full);
-		} catch (err: any) {
-			onError?.(err);
-		} finally {
-			setStatsLoading(false);
-		}
+		return {
+			termCode,
+			termName:
+				coursesInTerm[0]?.term.description || "Unknown Term",
+			year,
+			courseCount,
+			studentCount,
+			creditHoursDelivered,
+		};
 	};
 
-	if (loading) return <SkeletonCard showTitle showDescription showDropdown />;
-	if (error)
-		return (
-			<Card className="w-full border-red-200 bg-red-50">
-				<CardHeader>
-					<CardTitle className="text-red-700">Error Loading Terms</CardTitle>
-					<CardDescription className="text-red-600">{error}</CardDescription>
-				</CardHeader>
-			</Card>
+	// Update terms with calculated stats
+	const termsWithStats = terms.map((term) =>
+		calculateTermStats(term.termCode, term.year)
+	);
+
+	// Select the first term by default
+	useEffect(() => {
+		if (termsWithStats.length > 0 && !selectedTerm) {
+			const firstTerm = termsWithStats[0];
+			setSelectedTerm(firstTerm);
+			onTermSelect?.(firstTerm);
+		}
+	}, [termsWithStats, onTermSelect]);
+
+	const handleTermSelect = (termCodeAndYear: string) => {
+		const [termCode, year] = termCodeAndYear.split("-");
+		const term = termsWithStats.find(
+			(t) => t.termCode === termCode && t.year === Number(year)
 		);
+		if (term) {
+			setSelectedTerm(term);
+			onTermSelect?.(term);
+		}
+	};
 
 	return (
 		<Card className="w-full">
@@ -208,16 +156,21 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 			</CardHeader>
 			<CardContent>
 				<Select
-					value={selectedTerm ? `${selectedTerm.termCode}-${selectedTerm.year}` : ""}
-					onValueChange={(val) => handleTermChange(val)}
+					value={
+						selectedTerm ? `${selectedTerm.termCode}-${selectedTerm.year}` : ""
+					}
+					onValueChange={handleTermSelect}
 				>
 					<SelectTrigger className="w-full">
 						<SelectValue placeholder="Select a term" />
 					</SelectTrigger>
 					<SelectContent>
-						{terms.map((t) => (
-							<SelectItem key={`${t.termCode}-${t.year}`} value={`${t.termCode}-${t.year}`}>
-								{t.termName} {t.year}
+						{termsWithStats.map((term) => (
+							<SelectItem
+								key={`${term.termCode}-${term.year}`}
+								value={`${term.termCode}-${term.year}`}
+							>
+								{term.termName} ({term.year})
 							</SelectItem>
 						))}
 					</SelectContent>
@@ -226,21 +179,17 @@ export const TermSelector: React.FC<TermSelectorProps> = ({
 
 			{showStats && selectedTerm && (
 				<CardFooter className="flex flex-wrap gap-2">
-					{statsLoading ? (
-						<SkeletonCard showDropdown={false} showTitle={false} showDescription />
-					) : (
-						<>
-							<Badge variant="outline" className="bg-blue-50 dark:bg-blue-900">
-								{selectedTerm.courseCount} {selectedTerm.courseCount === 1 ? "Course" : "Courses"}
-							</Badge>
-							<Badge variant="outline" className="bg-green-50 dark:bg-green-900">
-								{selectedTerm.studentCount} {selectedTerm.studentCount === 1 ? "Student" : "Students"}
-							</Badge>
-							<Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
-								{selectedTerm.creditHoursDelivered} Credit Hours
-							</Badge>
-						</>
-					)}
+					<Badge variant="outline" className="bg-blue-50 dark:bg-blue-900">
+						{selectedTerm.courseCount}{" "}
+						{selectedTerm.courseCount === 1 ? "Course" : "Courses"}
+					</Badge>
+					<Badge variant="outline" className="bg-green-50 dark:bg-green-900">
+						{selectedTerm.studentCount}{" "}
+						{selectedTerm.studentCount === 1 ? "Student" : "Students"}
+					</Badge>
+					<Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
+						{selectedTerm.creditHoursDelivered} Credit Hours
+					</Badge>
 				</CardFooter>
 			)}
 		</Card>

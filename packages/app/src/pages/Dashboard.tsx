@@ -8,12 +8,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
-import { useRoleContext } from "@/context/role"; // Still need context for other cards
+import { useRoleContext } from "@/context/role";
 import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Users,
-  // Database,
   LineChart,
   BarChart3,
   FileText,
@@ -25,7 +24,7 @@ import { toast } from "sonner";
 import {
   GradeDistributions,
   GradeDistributionData,
-} from "@/components/charts/term-grade-distributions"; // Adjust path if needed
+} from "@/components/charts/term-grade-distributions";
 
 type CurrentTermResponse = {
   term: string;
@@ -33,7 +32,6 @@ type CurrentTermResponse = {
   termName: string;
 };
 
-// --- RE-INTRODUCE constant for Grade Distribution roles ---
 const gradeDistributionRoles = ["Faculty", "Department Chair"];
 
 // Define dashboard cards structure - uses routePermissions for visibility
@@ -113,7 +111,6 @@ const dashboardCardsStructure = [
 
 export default function Dashboard() {
   const { session } = useSession();
-  // Get selectedRole AND routePermissions from context
   const { selectedRole, routePermissions } = useRoleContext();
 
   const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(
