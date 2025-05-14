@@ -31,7 +31,7 @@ export interface CSVExportOptions<T> {
 	/** Lines to insert before the actual CSV table */
 	preHeader?: string[];
 	/** Optional transformation functions for specific fields */
-	fieldTransformers?: Partial<Record<keyof T | string, (value: any, item: T) => string>>;
+	fieldTransformers?: { [key: string]: (value: any, item: T) => string };
 	/** Separator for nested field flattening (default: '.') */
 	nestedFieldSeparator?: string;
 }
