@@ -9,34 +9,12 @@ import { RosterStudents } from "@/components/roster/roster-students";
 // Import types
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
 import type { RosterStudent } from "@/components/roster/roster-students";
+import type { Grade, GradeDistribution } from "@/components/charts/pie-chart-donut";
+import { VALID_GRADES } from "@/components/charts/pie-chart-donut";
 
 // GraphQL imports
 import type { rosterQuery } from "./__generated__/rosterQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
-
-
-const studentData: RosterStudent[] = [
-	{
-		mnumber: "123456789",
-		first_name: "John",
-		last_name: "Doe",
-		email: "johndoe@example.com",
-		programs: [
-			{
-				code: "CS",
-				description: "Computer Science",
-			},
-			{
-				code: "MATH",
-				description: "Mathematics",
-			},
-		],
-		middle_name: "",
-		suffix: "",
-		midterm_grade: "A",
-		final_grade: "A",
-	},
-]
 
 export interface ClassRosterProps {
 	mnumber: string | null;
@@ -87,6 +65,8 @@ const rosterQuery = graphql`
 				student {
 					first_name
 					last_name
+					middle_name
+					suffix
 					email
 					programs {
 						program {
@@ -154,42 +134,75 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	console.log("Roster data", data);
+	console.log("Roster Data: ", data);
+
+	// Extract course data
+	const courseData = data?.instructor?.courses_taught?.[0];
+	if (!courseData) {
+		return <div>No course data available</div>;
+	}
+
+	// Map students data to RosterStudent type
+	const students: RosterStudent[] = courseData.students?.map((s) => ({
+		mnumber: s.student.email, // Assuming email is unique; adjust if mnumber is available
+		first_name: s.student.first_name,
+		last_name: s.student.last_name,
+		email: s.student.email,
+		programs: s.student.programs?.map((p) => ({
+			code: p.program.code,
+			description: p.program.description,
+		})) || [],
+		middle_name: "", // Not available in schema
+		suffix: "", // Not available in schema
+		midterm_grade: s.midterm_grade || "N/A",
+		final_grade: s.final_grade || "N/A",
+	})) || [];
+
+	// Calculate grade distributions
+	const gradeCounts = (grades: (string | null | undefined)[]): GradeDistribution[] => {
+		const gradeMap: { [key in Grade]: number } = {
+			A: 0,
+			B: 0,
+			C: 0,
+			D: 0,
+			E: 0,
+			"N/A": 0,
+		};
+		grades.forEach((grade) => {
+			const key = grade && VALID_GRADES.includes(grade as Grade) ? grade : "N/A";
+			gradeMap[key as Grade]++;
+		});
+		return VALID_GRADES.map((grade) => ({
+			grade,
+			count: gradeMap[grade],
+		}));
+	};
+
+	const midtermGrades = courseData.students?.map((s) => s.midterm_grade) || [];
+	const finalGrades = courseData.students?.map((s) => s.final_grade) || [];
+
+	console.log("Midterm Grades: ", midtermGrades);
+	console.log("Final Grades: ", finalGrades);
 
 	return (
 		<div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${className}`}>
 			<RosterGradeDistributions
 				gradesData={{
-					final_grades: [
-						{ grade: "A", count: 10 },
-						{ grade: "B", count: 5 },
-						{ grade: "C", count: 3 },
-						{ grade: "D", count: 2 },
-						{ grade: "E", count: 1 },
-						{ grade: "N/A", count: 0 },
-					],
-					midterm_grades: [
-						{ grade: "A", count: 8 },
-						{ grade: "B", count: 6 },
-						{ grade: "C", count: 4 },
-						{ grade: "D", count: 1 },
-						{ grade: "E", count: 0 },
-						{ grade: "N/A", count: 0 },
-					],
+					final_grades: gradeCounts(finalGrades),
+					midterm_grades: gradeCounts(midtermGrades),
 				}}
 			/>
 			<RosterSummaryCard
-				totalStudents={21}
-				classGPA={3.5}
-				midtermAverage={3.2}
-				finalAverage={3.6}
+				totalStudents={courseData.total_students || 0}
+				classGPA={courseData.class_gpa || 0}
+				midtermAverage={courseData.midterm_average || 0}
+				finalAverage={courseData.final_average || 0}
 			/>
 			<RosterStudents
-				students={studentData}
+				students={students}
 				course={selectedCourse}
 				className="col-span-2"
 			/>
 		</div>
-	)
-
-}
+	);
+};

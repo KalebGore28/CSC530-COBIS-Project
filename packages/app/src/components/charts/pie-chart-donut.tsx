@@ -30,7 +30,7 @@ const DEFAULT_COLORS: Record<Grade, string> = {
 };
 
 // Define valid grades
-const VALID_GRADES = ['A', 'B', 'C', 'D', 'E', 'N/A'] as const;
+export const VALID_GRADES = ['A', 'B', 'C', 'D', 'E', 'N/A'] as const;
 export type Grade = typeof VALID_GRADES[number];
 
 export type GradeDistribution = {

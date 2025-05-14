@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<4b187bd9cfb5a228c92af67783b8fca9>>
+ * @generated SignedSource<<5a300c1ec2f2124207ce8f6370535e90>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,6 +21,7 @@ export type rosterQuery$variables = {
 export type rosterQuery$data = {
   readonly instructor: {
     readonly courses_taught: ReadonlyArray<{
+      readonly class_gpa: number;
       readonly course: {
         readonly number: number;
         readonly subject: string;
@@ -28,20 +29,13 @@ export type rosterQuery$data = {
         readonly title: string;
       };
       readonly course_section: string;
+      readonly credit_hour: number;
       readonly crn: string;
+      readonly final_average: number;
+      readonly midterm_average: number;
       readonly students: ReadonlyArray<{
         readonly final_grade: string | null | undefined;
-        readonly instructional_method: {
-          readonly code: string;
-          readonly description: string;
-        };
-        readonly last_attendance: string | null | undefined;
         readonly midterm_grade: string | null | undefined;
-        readonly mnumber: string;
-        readonly registration_status: {
-          readonly code: string;
-          readonly description: string;
-        };
         readonly student: {
           readonly email: string;
           readonly first_name: string;
@@ -60,6 +54,8 @@ export type rosterQuery$data = {
         readonly code: string;
         readonly description: string;
       };
+      readonly total_credit_hours: number;
+      readonly total_students: number;
     }>;
   } | null | undefined;
 };
@@ -251,18 +247,53 @@ v9 = [
           {
             "alias": null,
             "args": null,
+            "kind": "ScalarField",
+            "name": "total_students",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "total_credit_hours",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "credit_hour",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "class_gpa",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "midterm_average",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "final_average",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
             "concreteType": "StudentCourse",
             "kind": "LinkedField",
             "name": "students",
             "plural": true,
             "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "mnumber",
-                "storageKey": null
-              },
               {
                 "alias": null,
                 "args": null,
@@ -282,14 +313,14 @@ v9 = [
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "middle_name",
+                    "name": "last_name",
                     "storageKey": null
                   },
                   {
                     "alias": null,
                     "args": null,
                     "kind": "ScalarField",
-                    "name": "last_name",
+                    "name": "middle_name",
                     "storageKey": null
                   },
                   (v7/*: any*/),
@@ -328,41 +359,14 @@ v9 = [
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "final_grade",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
                 "name": "midterm_grade",
                 "storageKey": null
               },
               {
                 "alias": null,
                 "args": null,
-                "concreteType": "RegistrationStatus",
-                "kind": "LinkedField",
-                "name": "registration_status",
-                "plural": false,
-                "selections": (v8/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "concreteType": "InstructionalMethod",
-                "kind": "LinkedField",
-                "name": "instructional_method",
-                "plural": false,
-                "selections": (v8/*: any*/),
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
                 "kind": "ScalarField",
-                "name": "last_attendance",
+                "name": "final_grade",
                 "storageKey": null
               }
             ],
@@ -409,16 +413,16 @@ return {
     "selections": (v9/*: any*/)
   },
   "params": {
-    "cacheID": "9f4cfb63075eb7c79e7f72cda229f57d",
+    "cacheID": "e7711ff4ec7a3382ba40f1d5889acb75",
     "id": null,
     "metadata": {},
     "name": "rosterQuery",
     "operationKind": "query",
-    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      students {\n        mnumber\n        student {\n          first_name\n          middle_name\n          last_name\n          suffix\n          email\n          programs {\n            program {\n              code\n              description\n            }\n          }\n        }\n        final_grade\n        midterm_grade\n        registration_status {\n          code\n          description\n        }\n        instructional_method {\n          code\n          description\n        }\n        last_attendance\n      }\n    }\n  }\n}\n"
+    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      total_students\n      total_credit_hours\n      credit_hour\n      class_gpa\n      midterm_average\n      final_average\n      students {\n        student {\n          first_name\n          last_name\n          middle_name\n          suffix\n          email\n          programs {\n            program {\n              code\n              description\n            }\n          }\n        }\n        midterm_grade\n        final_grade\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "d7f55736373c15d322bc269f3554383a";
+(node as any).hash = "9e5c3c836dfb4fa57e5190f2689acb2c";
 
 export default node;
