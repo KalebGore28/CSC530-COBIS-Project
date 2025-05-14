@@ -103,7 +103,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<RosterInfoCard course={selectedCourse} className="col-span-2" />
 			<Suspense fallback={<RosterSkeleton className="col-span-2" />}>
 				<RosterContent mnumber={mnumber} selectedCourse={selectedCourse} className={"col-span-2"} />
 			</Suspense>
@@ -133,8 +132,6 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 		},
 		{ fetchPolicy: "store-or-network" }
 	);
-
-	console.log("Roster Data: ", data);
 
 	// Extract course data
 	const courseData = data?.instructor?.courses_taught?.[0];
@@ -181,11 +178,27 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 	const midtermGrades = courseData.students?.map((s) => s.midterm_grade) || [];
 	const finalGrades = courseData.students?.map((s) => s.final_grade) || [];
 
-	console.log("Midterm Grades: ", midtermGrades);
-	console.log("Final Grades: ", finalGrades);
+	// map the courseData to a course object as ExtendedCourse
+	const course = {
+		subject: courseData.course.subject,
+		number: courseData.course.number,
+		suffix: courseData.course.suffix,
+		title: courseData.course.title,
+		course_section: courseData.course_section,
+		creditHours: courseData.credit_hour,
+		studentCount: courseData.total_students,
+		totalCreditHours: courseData.total_credit_hours,
+		term: {
+			code: courseData.term.code,
+			description: courseData.term.description,
+			year: selectedCourse.term.year,
+		},
+	} as ExtendedCourse;
 
 	return (
 		<div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${className}`}>
+			<RosterInfoCard course={course} className="col-span-2" />
+
 			<RosterGradeDistributions
 				gradesData={{
 					final_grades: gradeCounts(finalGrades),

@@ -11,53 +11,6 @@ import type { ExtendedCourse } from "@/components/selectors/course-selector";
 
 
 /**
- * Student interface representing a student in the class roster
- */
-export interface Student {
-	mnumber: string;
-	name: string;
-	firstName: string;
-	middleName: string;
-	lastName: string;
-	suffix: string;
-	email: string;
-	major: string;
-	finalGrade: string;
-	midtermGrade: string;
-	registrationStatus: string;
-	instructionalMethod: string;
-	lastAttendance: string | null;
-	overallGpa: number;
-	overallEarnedHours: number;
-}
-
-/**
- * Course info from roster response
- */
-export interface RosterCourse {
-	courseId: string;
-	courseSubject: string;
-	courseNumber: string;
-	courseSuffix: string;
-	courseSection: string;
-	courseTitle: string;
-	termCode: string;
-	termName: string;
-	year: number;
-	creditHours: number;
-}
-
-/**
- * Stats from roster response
- */
-export interface RosterStats {
-	totalStudents: number;
-	totalGraded: number;
-	overallGpa: number;
-	gradeDistribution: Record<string, number>;
-}
-
-/**
  * Course Roster Page
  * 
  * This component displays a class roster for a specific course
