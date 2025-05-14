@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
@@ -137,6 +137,22 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 	if (!mnumber) {
 		return <Skeleton className="h-8 w-full" />;
 	}
+
+	const data = useLazyLoadQuery<rosterQuery>(
+		rosterQuery,
+		{
+			mnumber: mnumber,
+			subject: selectedCourse.subject,
+			number: selectedCourse.number,
+			suffix: selectedCourse.suffix,
+			section: selectedCourse.course_section,
+			startTerm: selectedCourse.term.code,
+			startYear: selectedCourse.term.year,
+		},
+		{ fetchPolicy: "store-or-network" }
+	);
+
+	console.log("Roster data", data);
 
 	return (
 		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
