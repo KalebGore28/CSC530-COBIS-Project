@@ -38,12 +38,10 @@ const studentData: RosterStudent[] = [
 	},
 ]
 
-/**
- * Props for the ClassRosterComponent
- */
 export interface ClassRosterProps {
 	mnumber: string | null;
 	selectedCourse: ExtendedCourse;
+	className?: string;
 }
 
 const rosterQuery = graphql`
@@ -106,8 +104,8 @@ const rosterQuery = graphql`
 `;
 
 // Custom skeleton for the Roster component
-const RosterSkeleton = () => (
-	<div className="container p-6 mx-auto space-y-6">
+const RosterSkeleton: React.FC<{ className?: string }> = ({ className }) => (
+	<div className={`container p-6 mx-auto space-y-6 ${className}`}>
 		<Skeleton className="h-8 w-full" />
 		<Skeleton className="h-8 w-full" />
 		<Skeleton className="h-8 w-full" />
@@ -124,15 +122,19 @@ export const Roster: React.FC<ClassRosterProps> = ({
 	}
 
 	return (
-		<Suspense fallback={<RosterSkeleton />}>
-			<RosterContent mnumber={mnumber} selectedCourse={selectedCourse} />
-		</Suspense>
+		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+			<RosterInfoCard course={selectedCourse} className="col-span-2" />
+			<Suspense fallback={<RosterSkeleton className="col-span-2" />}>
+				<RosterContent mnumber={mnumber} selectedCourse={selectedCourse} className={"col-span-2"} />
+			</Suspense>
+		</div>
 	)
 };
 
 const RosterContent: React.FC<ClassRosterProps> = ({
 	mnumber,
 	selectedCourse,
+	className,
 }) => {
 	if (!mnumber) {
 		return <Skeleton className="h-8 w-full" />;
@@ -155,8 +157,7 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 	console.log("Roster data", data);
 
 	return (
-		<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<RosterInfoCard course={selectedCourse} className="col-span-2" />
+		<div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${className}`}>
 			<RosterGradeDistributions
 				gradesData={{
 					final_grades: [
