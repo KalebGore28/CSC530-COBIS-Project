@@ -23,19 +23,19 @@ const rosterInfoCardQuery = graphql`
 `;
 
 // Custom skeleton for RosterInfoCard
-const RosterInfoCardSkeleton = () => (
-	<Card className="w-full">
-		<CardContent className="p-6">
+const RosterInfoCardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
+	<Card className={className}>
+		<CardContent>
 			<div className="flex flex-col md:flex-row justify-between gap-6">
-				<div className="space-y-2">
-					<Skeleton className="h-8 w-[300px]" /> {/* Mimics course title */}
-					<Skeleton className="h-7 w-[250px]" /> {/* Mimics course description */}
-					<Skeleton className="h-5 w-[220px]" /> {/* Mimics term and credit hours */}
+				<div>
+					<Skeleton className="h-8 w-[300px] mb-2" /> {/* Mimics course title (text-2xl) */}
+					<Skeleton className="h-7 w-[250px] mb-2" /> {/* Mimics course title (text-xl) */}
+					<Skeleton className="h-5 w-[220px]" /> {/* Mimics term and credit hours (text-sm) */}
 				</div>
 				<div className="flex flex-col justify-between items-end h-full gap-4">
-					<Skeleton className="h-6 w-16 rounded-full" /> {/* Mimics status badge */}
+					<Skeleton className="h-6 w-16 rounded-full" /> {/* Mimics badge */}
 					<div className="text-right">
-						<Skeleton className="h-8 w-32" /> {/* Mimics student count */}
+						<Skeleton className="h-8 w-32" /> {/* Mimics student count (text-2xl) */}
 					</div>
 				</div>
 			</div>
@@ -45,17 +45,18 @@ const RosterInfoCardSkeleton = () => (
 
 export interface RosterInfoCardProps {
 	course: ExtendedCourse;
+	className?: string;
 }
 
-export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course }) => {
+export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course, className }) => {
 	return (
-		<Suspense fallback={<RosterInfoCardSkeleton />}>
-			<RosterInfoContent course={course} />
+		<Suspense fallback={<RosterInfoCardSkeleton className={className} />}>
+			<RosterInfoContent course={course} className={className} />
 		</Suspense>
 	);
 };
 
-const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course }) => {
+const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, className }) => {
 	const { getCurrentYearTerm } = useLazyLoadQuery<rosterInfoCardQuery>(
 		rosterInfoCardQuery,
 		{},
@@ -65,7 +66,7 @@ const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course }) => {
 	const isActive = course.term.year === getCurrentYearTerm.year && course.term.code === getCurrentYearTerm.term.code;
 
 	return (
-		<Card className="w-full">
+		<Card className={className}>
 			<CardContent>
 				<div className="flex flex-col md:flex-row justify-between gap-6">
 					<div>

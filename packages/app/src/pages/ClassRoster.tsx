@@ -5,7 +5,11 @@ import { TermSelector } from "@/components/selectors/term-selector";
 import { CourseSelector } from "@/components/selectors/course-selector";
 import Roster from "@/components/roster";
 import { Separator } from "@/components/ui/separator";
+
+//temp
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
+import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
+import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
@@ -63,12 +67,34 @@ const ClassRosterPage: React.FC = () => {
 					{session && selectedCourse && (
 						<>
 							<Separator className="my-6" />
-							{/* Pass the modal opening handler to the ClassRosterComponent */}
-							{/* <Roster
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+								{/* Pass the modal opening handler to the ClassRosterComponent */}
+								{/* <Roster
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
 							/> */}
-							<RosterInfoCard course={selectedCourse} />
+								<RosterInfoCard course={selectedCourse} className="col-span-2" />
+								<RosterGradeDistributions
+									gradesData={{
+										final_grades: [
+											{ grade: "A", count: 10 },
+											{ grade: "B", count: 5 },
+											{ grade: "C", count: 3 },
+											{ grade: "D", count: 2 },
+											{ grade: "E", count: 1 },
+											{ grade: "N/A", count: 0 },
+										],
+										midterm_grades: [
+											{ grade: "A", count: 8 },
+											{ grade: "B", count: 6 },
+											{ grade: "C", count: 4 },
+											{ grade: "D", count: 1 },
+											{ grade: "E", count: 0 },
+											{ grade: "N/A", count: 0 },
+										],
+									}}
+								/>
+							</div>
 						</>
 					)}
 				</>
