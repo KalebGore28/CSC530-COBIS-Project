@@ -57,11 +57,15 @@ export const RosterSummaryCard: React.FC<RosterSummaryCardProps> = ({
 						</div>
 						<div className="flex items-center justify-between">
 							<dt className="text-muted-foreground">Midterm Average</dt>
-							<dd className="font-medium">{midtermAverage.toFixed(2)}</dd>
+							<dd className="font-medium">
+								{midtermAverage > 0 ? midtermAverage.toFixed(2) : 'N/A'}
+							</dd>
 						</div>
 						<div className="flex items-center justify-between">
 							<dt className="text-muted-foreground">Final Average</dt>
-							<dd className="font-medium">{finalAverage.toFixed(2)}</dd>
+							<dd className="font-medium">
+								{finalAverage > 0 ? finalAverage.toFixed(2) : 'N/A'}
+							</dd>
 						</div>
 					</dl>
 

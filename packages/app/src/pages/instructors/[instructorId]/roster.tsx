@@ -87,7 +87,7 @@ const CourseRosterPage: React.FC = () => {
 					subject: match[1],
 					number: parseInt(match[2]),
 					suffix: match[3] || '',
-					title: '',
+					title: 'Title Not Available',
 					course_section: match[4],
 					creditHours: 0,
 					studentCount: 0,
