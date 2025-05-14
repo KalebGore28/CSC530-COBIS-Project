@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Student, Program } from "@cobis/types";
 import {
 	Card,
@@ -19,31 +20,18 @@ import {
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
-	SelectValue
+	SelectValue,
 } from "@/components/ui/select";
-import {
-	Tabs,
-	TabsContent,
-	TabsList,
-	TabsTrigger
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ExportButton } from "@/components/common/export-button";
-import {
-	Filter,
-	Search,
-	SortAsc,
-	SortDesc,
-	UserRound
-} from "lucide-react";
-
-// Import types
+import { Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
 
 const getGradeColorClass = (grade: string) => {
-	if (grade === "N/A" || null) return "";
+	if (grade === "N/A" || !grade) return "";
 	if (grade.startsWith("A")) return "bg-green-100 text-green-800 border-green-300";
 	if (grade.startsWith("B")) return "bg-blue-100 text-blue-800 border-blue-300";
 	if (grade.startsWith("C")) return "bg-yellow-100 text-yellow-800 border-yellow-300";
@@ -52,45 +40,98 @@ const getGradeColorClass = (grade: string) => {
 };
 
 interface RosterProgram
-	extends Omit<Program,
-		"cip_code" |
-		"is_major" |
-		"is_minor" |
-		"has_concentration" |
-		"is_discontinued" |
-		"is_aacsb" |
-		"department" |
-		"college" |
-		"added_on"
+	extends Omit<
+		Program,
+		| "cip_code"
+		| "is_major"
+		| "is_minor"
+		| "has_concentration"
+		| "is_discontinued"
+		| "is_aacsb"
+		| "department"
+		| "college"
+		| "added_on"
 	> { }
 
 export interface RosterStudent
-	extends Omit<Student,
-		"gender" |
-		"birthdate" |
-		"citizenship" |
-		"race_code" |
-		"race_description" |
-		"residency_code" |
-		"residency_description" |
-		"age" |
-		"cell_phone"
+	extends Omit<
+		Student,
+		| "gender"
+		| "birthdate"
+		| "citizenship"
+		| "race_code"
+		| "race_description"
+		| "residency_code"
+		| "residency_description"
+		| "age"
+		| "cell_phone"
 	> {
 	programs: RosterProgram[];
-
+	midterm_grade?: string;
+	final_grade?: string;
 }
 
 export interface RosterStudentsProps {
 	students: RosterStudent[];
 	course: ExtendedCourse;
+	className?: string;
 }
 
-export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course }) => {
+export const RosterStudents: React.FC<RosterStudentsProps> = ({
+	students,
+	course,
+	className,
+}) => {
+	const [searchQuery, setSearchQuery] = useState("");
+	const [gradeFilter, setGradeFilter] = useState("all");
+	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+	const [sortField, setSortField] = useState<"name" | "midterm" | "final">("name");
 
 	const exportFilename = `${course.subject}${course.number}${course.suffix}-${course.course_section}_${course.term.description}_${course.term.year}`;
 
+	// Filter and sort students
+	const filteredStudents = students
+		.filter((student) => {
+			const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
+			const matchesSearch = fullName.includes(searchQuery.toLowerCase()) ||
+				student.mnumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+				student.email.toLowerCase().includes(searchQuery.toLowerCase());
+
+			const matchesGrade = gradeFilter === "all" ||
+				student.final_grade?.startsWith(gradeFilter) ||
+				(!student.final_grade && gradeFilter === "E");
+
+			return matchesSearch && matchesGrade;
+		})
+		.sort((a, b) => {
+			const multiplier = sortDirection === "asc" ? 1 : -1;
+
+			if (sortField === "name") {
+				const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
+				const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
+				return multiplier * nameA.localeCompare(nameB);
+			} else if (sortField === "midterm") {
+				const gradeA = a.midterm_grade || "Z";
+				const gradeB = b.midterm_grade || "Z";
+				return multiplier * gradeA.localeCompare(gradeB);
+			} else {
+				const gradeA = a.final_grade || "Z";
+				const gradeB = b.final_grade || "Z";
+				return multiplier * gradeA.localeCompare(gradeB);
+			}
+		});
+
+	const handleHeaderClick = (field: "name" | "midterm" | "final") => {
+		if (sortField === field) {
+			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+		} else {
+			setSortField(field);
+			setSortDirection("asc");
+		}
+	};
+
 	return (
-		<Card>
+		<Card className={className}>
 			<CardHeader>
 				<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 					<div>
@@ -124,7 +165,10 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course
 								<SelectItem value="E">E</SelectItem>
 							</SelectContent>
 						</Select>
-						<Button variant="outline" onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}>
+						<Button
+							variant="outline"
+							onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
+						>
 							{sortDirection === "asc" ? (
 								<SortAsc className="mr-2 h-4 w-4" />
 							) : (
@@ -132,12 +176,7 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course
 							)}
 							Sort
 						</Button>
-
-						{/* Export Dropdown Button */}
-						<ExportButton
-							data={filteredStudents}
-							filename={exportFilename}
-						/>
+						<ExportButton data={filteredStudents} filename={exportFilename} />
 					</div>
 				</div>
 			</CardHeader>
@@ -155,29 +194,71 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course
 									<TableRow>
 										<TableHead
 											className="w-[200px] cursor-pointer"
+											onClick={() => handleHeaderClick("name")}
 										>
 											Student Name
+											{sortField === "name" && (
+												sortDirection === "asc" ? <SortAsc className="inline ml-2 h-4 w-4" /> :
+													<SortDesc className="inline ml-2 h-4 w-4" />
+											)}
 										</TableHead>
 										<TableHead>M-Number</TableHead>
 										<TableHead>Email</TableHead>
-										<TableHead>Major</TableHead>
+										<TableHead>Major/Minor(s)</TableHead>
 										<TableHead
 											className="cursor-pointer"
+											onClick={() => handleHeaderClick("midterm")}
 										>
 											Midterm Grade
-
+											{sortField === "midterm" && (
+												sortDirection === "asc" ? <SortAsc className="inline ml-2 h-4 w-4" /> :
+													<SortDesc className="inline ml-2 h-4 w-4" />
+											)}
 										</TableHead>
 										<TableHead
-											className="cursor-pointer"
-
+											className="cursor-table"
+											onClick={() => handleHeaderClick("final")}
 										>
 											Final Grade
-
+											{sortField === "final" && (
+												sortDirection === "asc" ? <SortAsc className="inline ml-2 h-4 w-4" /> :
+													<SortDesc className="inline ml-2 h-4 w-4" />
+											)}
 										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>
-
+									{filteredStudents.map((student) => (
+										<TableRow key={student.mnumber}>
+											<TableCell className="font-medium">
+												{student.last_name}, {student.first_name}
+												{student.suffix && ` ${student.suffix}`}
+											</TableCell>
+											<TableCell>{student.mnumber}</TableCell>
+											<TableCell>{student.email}</TableCell>
+											<TableCell>
+												{student.programs
+													.map((program) => program.description)
+													.join(", ") || "Undeclared"}
+											</TableCell>
+											<TableCell>
+												<Badge
+													variant="outline"
+													className={getGradeColorClass(student.midterm_grade || "N/A")}
+												>
+													{student.midterm_grade || "N/A"}
+												</Badge>
+											</TableCell>
+											<TableCell>
+												<Badge
+													variant="outline"
+													className={getGradeColorClass(student.final_grade || "N/A")}
+												>
+													{student.final_grade || "N/A"}
+												</Badge>
+											</TableCell>
+										</TableRow>
+									))}
 								</TableBody>
 							</Table>
 						</div>
@@ -185,11 +266,52 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course
 
 					<TabsContent value="grid" className="max-w-full overflow-x-auto">
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-
+							{filteredStudents.map((student) => (
+								<Card key={student.mnumber} className="p-4">
+									<CardHeader className="p-0">
+										<div className="flex items-center gap-2">
+											<UserRound className="h-6 w-6 text-muted-foreground" />
+											<CardTitle className="text-lg">
+												{student.last_name}, {student.first_name}
+												{student.suffix && ` ${student.suffix}`}
+											</CardTitle>
+										</div>
+										<CardDescription>{student.mnumber}</CardDescription>
+									</CardHeader>
+									<CardContent className="p-0 mt-2">
+										<div className="space-y-2">
+											<div>
+												<span className="font-medium">Email: </span>
+												{student.email}
+											</div>
+											<div>
+												<span className="font-medium">Major/Minor(s): </span>
+												{student.programs
+													.map((program) => program.description)
+													.join(", ") || "Undeclared"}
+											</div>
+											<div className="flex gap-2">
+												<Badge
+													variant="outline"
+													className={getGradeColorClass(student.midterm_grade || "N/A")}
+												>
+													Mid: {student.midterm_grade || "N/A"}
+												</Badge>
+												<Badge
+													variant="outline"
+													className={getGradeColorClass(student.final_grade || "N/A")}
+												>
+													Final: {student.final_grade || "N/A"}
+												</Badge>
+											</div>
+										</div>
+									</CardContent>
+								</Card>
+							))}
 						</div>
 					</TabsContent>
 				</Tabs>
 			</CardContent>
 		</Card>
 	);
-}
+};

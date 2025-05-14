@@ -10,6 +10,30 @@ import { Separator } from "@/components/ui/separator";
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
 import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
+import { RosterStudents, type RosterStudent } from "@/components/roster/roster-students";
+
+const studentData: RosterStudent[] = [
+	{
+		mnumber: "123456789",
+		first_name: "John",
+		last_name: "Doe",
+		email: "johndoe@example.com",
+		programs: [
+			{
+				code: "CS",
+				description: "Computer Science",
+			},
+			{
+				code: "MATH",
+				description: "Mathematics",
+			},
+		],
+		middle_name: "",
+		suffix: "",
+		midterm_grade: "A",
+		final_grade: "A",
+	},
+]
 
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
@@ -66,7 +90,6 @@ const ClassRosterPage: React.FC = () => {
 					{/* Class Roster Component */}
 					{session && selectedCourse && (
 						<>
-							<Separator className="my-6" />
 							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 								{/* Pass the modal opening handler to the ClassRosterComponent */}
 								{/* <Roster
@@ -99,6 +122,11 @@ const ClassRosterPage: React.FC = () => {
 									classGPA={3.5}
 									midtermAverage={3.2}
 									finalAverage={3.6}
+								/>
+								<RosterStudents
+									students={studentData}
+									course={selectedCourse}
+									className="col-span-2"
 								/>
 							</div>
 						</>
