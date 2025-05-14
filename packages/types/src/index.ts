@@ -51,3 +51,26 @@ export type StudentAcademicInfo = {
 	overall_quality_points: number;
 	overall_gpa: number;
 }
+
+export type Program = {
+	code: string;
+	description: string;
+	cip_code: string;
+	is_major: boolean;
+	is_minor: boolean;
+	has_concentration: boolean;
+	is_discontinued: boolean;
+	is_aacsb: boolean;
+	department: string;
+	college: string;
+	added_on: string;
+}
+
+export type StudentProgram = {
+	mnumber: string;
+	term: string;
+	year: number;
+	type: string;
+	level: string;
+	program: string;
+}

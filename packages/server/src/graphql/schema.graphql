@@ -83,6 +83,9 @@ type InstructorCourse {
   total_students: Int!
   total_credit_hours: Int!
   credit_hour: Int!
+  class_gpa: Float!
+  midterm_average: Float!
+  final_average: Float!
   # Relationships
   students: [StudentCourse!]!
 }

@@ -43,7 +43,7 @@ const RosterInfoCardSkeleton: React.FC<{ className?: string }> = ({ className })
 	</Card>
 );
 
-export interface RosterInfoCardProps {
+export type RosterInfoCardProps = {
 	course: ExtendedCourse;
 	className?: string;
 }

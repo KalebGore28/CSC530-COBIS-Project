@@ -1,6 +1,5 @@
 /**
- * @generated SignedSource<<38d257f2a1ca6c7a9cc2d877c092dc43>>
- * @relayHash a0924b725005f27654fa7eabe939f33d
+ * @generated SignedSource<<3d06d345a354c6dcdab161174512ef3c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,8 +7,6 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
-
-// @relayRequestID a0924b725005f27654fa7eabe939f33d
 
 import { ConcreteRequest } from 'relay-runtime';
 export type termSelectorQuery$variables = {
@@ -135,11 +132,12 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "a0924b725005f27654fa7eabe939f33d",
+    "cacheID": "a0924b725005f27654fa7eabe939f33d",
+    "id": null,
     "metadata": {},
     "name": "termSelectorQuery",
     "operationKind": "query",
-    "text": null
+    "text": "query termSelectorQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n      }\n      total_students\n      total_credit_hours\n    }\n  }\n}\n"
   }
 };
 })();

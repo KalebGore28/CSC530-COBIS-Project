@@ -144,12 +144,8 @@ query rosterQuery(
           programs {
             program {
               code
+			  description
             }
-          }
-          academic_info(term: $startTerm, year: $startYear) {
-            overall_gpa
-            overall_earned_hours
-			overall_quality_points
           }
         }
         final_grade
@@ -372,7 +368,6 @@ export const Roster: React.FC<ClassRosterProps> = ({
 									<SelectItem value="C">C</SelectItem>
 									<SelectItem value="D">D</SelectItem>
 									<SelectItem value="E">E</SelectItem>
-									<SelectItem value="W">W</SelectItem>
 								</SelectContent>
 							</Select>
 							<Button variant="outline" onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}>

@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 //temp
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
+import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
 
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
@@ -92,6 +93,12 @@ const ClassRosterPage: React.FC = () => {
 											{ grade: "N/A", count: 0 },
 										],
 									}}
+								/>
+								<RosterSummaryCard
+									totalStudents={21}
+									classGPA={3.5}
+									midtermAverage={3.2}
+									finalAverage={3.6}
 								/>
 							</div>
 						</>

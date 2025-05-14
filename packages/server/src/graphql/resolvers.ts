@@ -9,6 +9,14 @@ import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
 type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
 
+const gradePoints: Record<GradeValue, number> = {
+	A: 4.0,
+	B: 3.0,
+	C: 2.0,
+	D: 1.0,
+	E: 0.0,
+}
+
 interface CourseFilterInput {
 	course: string;
 	taken: boolean;
@@ -700,8 +708,6 @@ export const resolvers = {
 					)
 				)
 				.then((result: any) => result[0]?.sum ?? 0),
-		// We only need one credit hour value from one student
-		// to get the course's credit hours
 		credit_hour: (row: any, _: any, { db }: any) =>
 			db
 				.select({
@@ -719,6 +725,102 @@ export const resolvers = {
 				)
 				.limit(1)
 				.then((result: any) => result[0]?.hours ?? 0),
+		// we need to get the GPA for each student in the course
+		// so we need to join the studentCourses table with the studentAcademicInfo table
+		// and get the overall_gpa for each student
+		// and then we need to get the average of the overall_gpa for each student
+		class_gpa: async (row: any, _: any, { db }: any) =>
+			db
+				.select({
+					avg: sql<number>`AVG(${tables.studentAcademicInfo.overall_gpa})`
+				})
+				.from(tables.studentCourses)
+				.innerJoin(
+					tables.studentAcademicInfo,
+					and(
+						eq(tables.studentCourses.mnumber, tables.studentAcademicInfo.mnumber),
+						eq(tables.studentCourses.term, tables.studentAcademicInfo.term),
+						eq(tables.studentCourses.year, tables.studentAcademicInfo.year)
+					)
+				)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.then((result: any) => parseFloat(Number(result[0]?.avg ?? 0).toFixed(2))),
+		midterm_average: async (row: any, _: any, { db }: any) => {
+			const midtermGrades = await db
+				.select({
+					midterm_grade: tables.studentCourses.midterm_grade
+				})
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.then((result: any) => result.map((r: any) => r.midterm_grade));
+
+			const totalPoints = midtermGrades.reduce((acc: number, grade: string) => {
+				const points = gradePoints[grade as GradeValue];
+				if (points !== undefined) {
+					return acc + points;
+				} else {
+					return acc;
+				}
+			}, 0);
+
+			if (totalPoints === 0) {
+				return 0;
+			}
+
+			const average = totalPoints / midtermGrades.length;
+
+			return parseFloat(Number(average ?? 0).toFixed(2));
+		},
+		final_average: async (row: any, _: any, { db }: any) => {
+			const finalGrades = await db
+				.select({
+					final_grade: tables.studentCourses.final_grade
+				})
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.then((result: any) => result.map((r: any) => r.final_grade));
+
+			const totalPoints = finalGrades.reduce((acc: number, grade: string) => {
+				const points = gradePoints[grade as GradeValue];
+				if (points !== undefined) {
+					return acc + points;
+				} else {
+					return acc;
+				}
+			}, 0);
+
+			if (totalPoints === 0) {
+				return 0;
+			}
+
+			const average = totalPoints / finalGrades.length;
+
+			return parseFloat(Number(average ?? 0).toFixed(2));
+		},
 	},
 
 	Program: {

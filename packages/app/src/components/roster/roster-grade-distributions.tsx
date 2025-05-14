@@ -12,7 +12,7 @@ import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 // Import types
 import type { GradeDistribution } from "@/components/charts/pie-chart-donut";
 
-type GradesData = {
+export type GradesData = {
 	final_grades: GradeDistribution[];
 	midterm_grades: GradeDistribution[];
 };
