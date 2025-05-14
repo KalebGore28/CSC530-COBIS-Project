@@ -149,6 +149,7 @@ query rosterQuery(
           academic_info(term: $startTerm, year: $startYear) {
             overall_gpa
             overall_earned_hours
+			overall_quality_points
           }
         }
         final_grade

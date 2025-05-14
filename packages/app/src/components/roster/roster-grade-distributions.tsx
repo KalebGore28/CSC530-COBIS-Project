@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"; // Add useState import
+import React, { useMemo, useState } from "react";
 import {
 	Card,
 	CardContent,
@@ -26,7 +26,6 @@ export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> =
 }) => {
 	const { final_grades, midterm_grades } = gradesData;
 
-	// Add state to manage grade type
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("midterm");
 
 	// Memoize the data to avoid unnecessary re-renders

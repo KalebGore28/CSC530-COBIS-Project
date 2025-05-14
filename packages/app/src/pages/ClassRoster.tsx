@@ -9,7 +9,6 @@ import { Separator } from "@/components/ui/separator";
 //temp
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
-import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";

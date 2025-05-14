@@ -56,9 +56,9 @@ const courseSelectorQuery = graphql`
         }
         course_section
         crn
-        students {
-          course_hours
-        }
+        total_students
+		total_credit_hours
+		credit_hour
       }
     }
   }
@@ -170,13 +170,10 @@ const CourseSelectorContent: React.FC<CourseSelectorProps> = ({
 
 	const courses: ExtendedCourse[] = (data.instructor?.courses_taught || [])
 		.map((courseTaught) => {
-			const studentCount = courseTaught.students?.length || 0;
-			const creditHours = courseTaught.students?.[0]?.course_hours || 0;
+			const studentCount = courseTaught.total_students || 0;
+			const creditHours = courseTaught.credit_hour || 0;
 			const totalCreditHours =
-				courseTaught.students?.reduce(
-					(sum, student) => sum + (student.course_hours || 0),
-					0
-				) || 0;
+				courseTaught.total_credit_hours || creditHours * studentCount;
 
 			return {
 				subject: courseTaught.course.subject,

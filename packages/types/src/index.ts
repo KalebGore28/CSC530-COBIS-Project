@@ -33,3 +33,21 @@ export type Student = {
 	cell_phone: string;
 	email: string;
 }
+
+export type StudentAcademicInfo = {
+	mnumber: string;
+	term: string;
+	year: number;
+	admit_term: string;
+	admit_year: number;
+	admit_code: string;
+	academic_standing: string;
+	msu_attempted_hours: number;
+	msu_earned_hours: number;
+	msu_quality_points: number;
+	msu_gpa: number;
+	overall_attempted_hours: number;
+	overall_earned_hours: number;
+	overall_quality_points: number;
+	overall_gpa: number;
+}

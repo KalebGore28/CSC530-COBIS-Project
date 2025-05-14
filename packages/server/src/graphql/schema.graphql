@@ -80,6 +80,9 @@ type InstructorCourse {
   course: Course!
   course_section: String!
   role: String!
+  total_students: Int!
+  total_credit_hours: Int!
+  credit_hour: Int!
   # Relationships
   students: [StudentCourse!]!
 }

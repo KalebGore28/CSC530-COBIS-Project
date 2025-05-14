@@ -28,14 +28,14 @@ const RosterInfoCardSkeleton: React.FC<{ className?: string }> = ({ className })
 		<CardContent>
 			<div className="flex flex-col md:flex-row justify-between gap-6">
 				<div>
-					<Skeleton className="h-8 w-[300px] mb-2" /> {/* Mimics course title (text-2xl) */}
-					<Skeleton className="h-7 w-[250px] mb-2" /> {/* Mimics course title (text-xl) */}
-					<Skeleton className="h-5 w-[220px]" /> {/* Mimics term and credit hours (text-sm) */}
+					<Skeleton className="h-8 w-[300px] mb-2" />
+					<Skeleton className="h-7 w-[250px] mb-2" />
+					<Skeleton className="h-5 w-[220px]" />
 				</div>
 				<div className="flex flex-col justify-between items-end h-full gap-4">
-					<Skeleton className="h-6 w-16 rounded-full" /> {/* Mimics badge */}
+					<Skeleton className="h-6 w-16 rounded-full" />
 					<div className="text-right">
-						<Skeleton className="h-8 w-32" /> {/* Mimics student count (text-2xl) */}
+						<Skeleton className="h-8 w-32" />
 					</div>
 				</div>
 			</div>

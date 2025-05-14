@@ -43,9 +43,8 @@ const termSelectorQuery = graphql`
           description
           code
         }
-        students {
-          course_hours
-        }
+        total_students
+		total_credit_hours
       }
     }
   }
@@ -134,16 +133,12 @@ const TermSelectorContent: React.FC<TermSelectorProps> = ({
 
 		const courseCount = coursesInTerm.length;
 		const studentCount = coursesInTerm.reduce(
-			(sum, course) => sum + (course.students?.length || 0),
+			(sum, course) => sum + (course.total_students || 0),
 			0
 		);
+
 		const creditHoursDelivered = coursesInTerm.reduce(
-			(sum, course) =>
-				sum +
-				(course.students?.reduce(
-					(hours, student) => hours + (student.course_hours || 0),
-					0
-				) || 0),
+			(sum, course) => sum + (course.total_credit_hours || 0),
 			0
 		);
 

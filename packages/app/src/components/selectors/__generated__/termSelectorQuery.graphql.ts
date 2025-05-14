@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1b9cf1a19609d12cfbb4f77f83981ad4>>
+ * @generated SignedSource<<3d06d345a354c6dcdab161174512ef3c>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,13 +15,12 @@ export type termSelectorQuery$variables = {
 export type termSelectorQuery$data = {
   readonly instructor: {
     readonly courses_taught: ReadonlyArray<{
-      readonly students: ReadonlyArray<{
-        readonly course_hours: number;
-      }>;
       readonly term: {
         readonly code: string;
         readonly description: string;
       };
+      readonly total_credit_hours: number;
+      readonly total_students: number;
       readonly year: number;
     }>;
   } | null | undefined;
@@ -97,19 +96,15 @@ v1 = [
           {
             "alias": null,
             "args": null,
-            "concreteType": "StudentCourse",
-            "kind": "LinkedField",
-            "name": "students",
-            "plural": true,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "course_hours",
-                "storageKey": null
-              }
-            ],
+            "kind": "ScalarField",
+            "name": "total_students",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "total_credit_hours",
             "storageKey": null
           }
         ],
@@ -137,16 +132,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "260679fcbd5ed5d964bc538fdac548df",
+    "cacheID": "a0924b725005f27654fa7eabe939f33d",
     "id": null,
     "metadata": {},
     "name": "termSelectorQuery",
     "operationKind": "query",
-    "text": "query termSelectorQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n      }\n      students {\n        course_hours\n      }\n    }\n  }\n}\n"
+    "text": "query termSelectorQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n      }\n      total_students\n      total_credit_hours\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "aa787f4b9ed49bfb7f2b520600d3798d";
+(node as any).hash = "7b8621184897447464a08eae2d6547bd";
 
 export default node;

@@ -1,4 +1,4 @@
-import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, exists, SQL, desc } from 'drizzle-orm'
+import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, SQL, count } from 'drizzle-orm'
 
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
@@ -443,7 +443,7 @@ export const resolvers = {
 					}
 				});
 
-						whereClauses.push(sql`
+				whereClauses.push(sql`
 				EXISTS (
 					SELECT 1
 					FROM ${tables.studentAcademicInfo} AS sai1
@@ -669,7 +669,56 @@ export const resolvers = {
 				)
 				.orderBy(
 					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
+				),
+		total_students: async (row: any, _: any, { db }: any) =>
+			db
+				.select({ count: count() })
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
 				)
+				.then((result: any) => result[0]?.count ?? 0),
+		total_credit_hours: async (row: any, _: any, { db }: any) =>
+			db
+				.select({
+					sum: sql<number>`SUM(${tables.studentCourses.course_hours})`
+				})
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.then((result: any) => result[0]?.sum ?? 0),
+		// We only need one credit hour value from one student
+		// to get the course's credit hours
+		credit_hour: (row: any, _: any, { db }: any) =>
+			db
+				.select({
+					hours: tables.studentCourses.course_hours
+				})
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.term, row.term),
+						eq(tables.studentCourses.year, row.year),
+						eq(tables.studentCourses.course_subject, row.course_subject),
+						eq(tables.studentCourses.course_number, row.course_number),
+						eq(tables.studentCourses.course_suffix, row.course_suffix)
+					)
+				)
+				.limit(1)
+				.then((result: any) => result[0]?.hours ?? 0),
 	},
 
 	Program: {
