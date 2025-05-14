@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<179271a8b41999528beba2ac0820e9bd>>
+ * @generated SignedSource<<d2d3f832d09fecefbe231bca551a5fd4>>
+ * @relayHash a8861c7baccd59abce29ad5816a6f982
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID a8861c7baccd59abce29ad5816a6f982
 
 import { ConcreteRequest } from 'relay-runtime';
 export type courseSelectorQuery$variables = {
@@ -197,12 +200,11 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "a8861c7baccd59abce29ad5816a6f982",
-    "id": null,
+    "id": "a8861c7baccd59abce29ad5816a6f982",
     "metadata": {},
     "name": "courseSelectorQuery",
     "operationKind": "query",
-    "text": "query courseSelectorQuery(\n  $mnumber: String!\n  $term: String!\n  $year: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $term, startYear: $year, endTerm: $term, endYear: $year) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      total_students\n      total_credit_hours\n      credit_hour\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

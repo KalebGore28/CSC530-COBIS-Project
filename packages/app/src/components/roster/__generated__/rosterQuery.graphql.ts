@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<659a806a706c272f52022b57a1372f16>>
+ * @generated SignedSource<<46f8ad3153b264db8d6d64b90d620488>>
+ * @relayHash 2efbdd4aa93d98154629fa1afb9dd7f7
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 2efbdd4aa93d98154629fa1afb9dd7f7
 
 import { ConcreteRequest } from 'relay-runtime';
 export type rosterQuery$variables = {
@@ -459,12 +462,11 @@ return {
     "selections": (v10/*: any*/)
   },
   "params": {
-    "cacheID": "2efbdd4aa93d98154629fa1afb9dd7f7",
-    "id": null,
+    "id": "2efbdd4aa93d98154629fa1afb9dd7f7",
     "metadata": {},
     "name": "rosterQuery",
     "operationKind": "query",
-    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      students {\n        mnumber\n        student {\n          first_name\n          middle_name\n          last_name\n          suffix\n          email\n          programs {\n            program {\n              code\n            }\n          }\n          academic_info(term: $startTerm, year: $startYear) {\n            overall_gpa\n            overall_earned_hours\n            overall_quality_points\n          }\n        }\n        final_grade\n        midterm_grade\n        registration_status {\n          code\n          description\n        }\n        instructional_method {\n          code\n          description\n        }\n        last_attendance\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

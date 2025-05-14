@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<9bafe536d5830ddb95c3747e1c4f94a9>>
+ * @generated SignedSource<<eb4a9a0ef705d1697edce620d7d3c59b>>
+ * @relayHash 6d4ec4709e9a8f6e93c520316a1fade1
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 6d4ec4709e9a8f6e93c520316a1fade1
 
 import { ConcreteRequest } from 'relay-runtime';
 export type rosterInfoCardQuery$variables = Record<PropertyKey, never>;
@@ -88,12 +91,11 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "6d4ec4709e9a8f6e93c520316a1fade1",
-    "id": null,
+    "id": "6d4ec4709e9a8f6e93c520316a1fade1",
     "metadata": {},
     "name": "rosterInfoCardQuery",
     "operationKind": "query",
-    "text": "query rosterInfoCardQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

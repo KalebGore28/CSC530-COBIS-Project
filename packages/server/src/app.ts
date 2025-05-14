@@ -60,7 +60,6 @@ app.all(
     getUserInfo,
     async (req, res, next) => {
         const { db, loaders } = await buildContext()
-        // ← make sure you actually pull roles off of req here!
         const ctx = {
             db,
             loaders,
