@@ -81,13 +81,17 @@ const CourseRosterPage: React.FC = () => {
 		if (courseId) {
 			const match = courseId.match(/^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/);
 
+			// TODO: find a way to populate the missing data
 			if (match) {
-				// @ts-ignore
 				setCourseParams({
 					subject: match[1],
 					number: parseInt(match[2]),
 					suffix: match[3] || '',
+					title: '',
 					course_section: match[4],
+					creditHours: 0,
+					studentCount: 0,
+					totalCreditHours: 0,
 					term: {
 						code: termCode || '',
 						description: '',
@@ -95,7 +99,7 @@ const CourseRosterPage: React.FC = () => {
 						courseCount: 0,
 						studentCount: 0,
 						creditHoursDelivered: 0
-					}
+					},
 				});
 			}
 		}
