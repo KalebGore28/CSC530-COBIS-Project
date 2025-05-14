@@ -68,12 +68,12 @@ const courseSelectorQuery = graphql`
 const CourseSelectorSkeleton = () => (
 	<>
 		<CardContent>
-			<Skeleton className="h-8 w-full" /> {/* Mimics SelectTrigger */}
+			<Skeleton className="h-8 w-full" />
 		</CardContent>
 		<CardFooter className="flex flex-wrap gap-2">
-			<Skeleton className="h-5 w-24" /> {/* Mimics Badge */}
-			<Skeleton className="h-5 w-20" /> {/* Mimics Badge */}
-			<Skeleton className="h-5 w-28" /> {/* Mimics Badge */}
+			<Skeleton className="h-5 w-24" />
+			<Skeleton className="h-5 w-20" />
+			<Skeleton className="h-5 w-28" />
 		</CardFooter>
 	</>
 );

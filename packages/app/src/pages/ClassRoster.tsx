@@ -3,37 +3,8 @@ import { Alert } from "@/components/ui/alert";
 import { useSession } from "@/context/session";
 import { TermSelector } from "@/components/selectors/term-selector";
 import { CourseSelector } from "@/components/selectors/course-selector";
-import Roster from "@/components/roster";
-import { Separator } from "@/components/ui/separator";
+import { Roster } from "@/components/roster";
 
-//temp
-import { RosterInfoCard } from "@/components/roster/roster-info-card";
-import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
-import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
-import { RosterStudents, type RosterStudent } from "@/components/roster/roster-students";
-
-const studentData: RosterStudent[] = [
-	{
-		mnumber: "123456789",
-		first_name: "John",
-		last_name: "Doe",
-		email: "johndoe@example.com",
-		programs: [
-			{
-				code: "CS",
-				description: "Computer Science",
-			},
-			{
-				code: "MATH",
-				description: "Mathematics",
-			},
-		],
-		middle_name: "",
-		suffix: "",
-		midterm_grade: "A",
-		final_grade: "A",
-	},
-]
 
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
@@ -43,7 +14,6 @@ const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
 	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 	const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
-	const [error, setError] = useState<string | null>(null);
 
 	const handleTermSelect = (term: ExtendedTerm) => {
 		setSelectedTerm(term);
@@ -52,7 +22,6 @@ const ClassRosterPage: React.FC = () => {
 
 	const handleCourseSelect = (course: ExtendedCourse) => {
 		setSelectedCourse(course);
-		setError(null);
 	};
 
 	return (
@@ -65,70 +34,26 @@ const ClassRosterPage: React.FC = () => {
 				<>
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 						{/* Term Selector */}
-						<div>
-							<TermSelector
-								mnumber={session.info.mnumber}
-								onTermSelect={handleTermSelect}
-							/>
-						</div>
+						<TermSelector
+							mnumber={session.info.mnumber}
+							onTermSelect={handleTermSelect}
+						/>
 						{/* Course Selector */}
-						<div>
-							{selectedTerm && (
-								<CourseSelector
-									mnumber={session.info.mnumber}
-									selectedTerm={selectedTerm}
-									onCourseSelect={handleCourseSelect}
-								/>
-							)}
-						</div>
+						{selectedTerm && (
+							<CourseSelector
+								mnumber={session.info.mnumber}
+								selectedTerm={selectedTerm}
+								onCourseSelect={handleCourseSelect}
+							/>
+						)}
 					</div>
 
-					{error && (
-						<Alert variant="destructive">{/* ... Error Display ... */}</Alert>
-					)}
-
-					{/* Class Roster Component */}
 					{session && selectedCourse && (
 						<>
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-								{/* Pass the modal opening handler to the ClassRosterComponent */}
-								{/* <Roster
+							<Roster
 								mnumber={session.info.mnumber}
 								selectedCourse={selectedCourse}
-							/> */}
-								<RosterInfoCard course={selectedCourse} className="col-span-2" />
-								<RosterGradeDistributions
-									gradesData={{
-										final_grades: [
-											{ grade: "A", count: 10 },
-											{ grade: "B", count: 5 },
-											{ grade: "C", count: 3 },
-											{ grade: "D", count: 2 },
-											{ grade: "E", count: 1 },
-											{ grade: "N/A", count: 0 },
-										],
-										midterm_grades: [
-											{ grade: "A", count: 8 },
-											{ grade: "B", count: 6 },
-											{ grade: "C", count: 4 },
-											{ grade: "D", count: 1 },
-											{ grade: "E", count: 0 },
-											{ grade: "N/A", count: 0 },
-										],
-									}}
-								/>
-								<RosterSummaryCard
-									totalStudents={21}
-									classGPA={3.5}
-									midtermAverage={3.2}
-									finalAverage={3.6}
-								/>
-								<RosterStudents
-									students={studentData}
-									course={selectedCourse}
-									className="col-span-2"
-								/>
-							</div>
+							/>
 						</>
 					)}
 				</>

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<659a806a706c272f52022b57a1372f16>>
+ * @generated SignedSource<<4b187bd9cfb5a228c92af67783b8fca9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -43,11 +43,6 @@ export type rosterQuery$data = {
           readonly description: string;
         };
         readonly student: {
-          readonly academic_info: ReadonlyArray<{
-            readonly overall_earned_hours: number;
-            readonly overall_gpa: number;
-            readonly overall_quality_points: number;
-          }>;
           readonly email: string;
           readonly first_name: string;
           readonly last_name: string;
@@ -55,6 +50,7 @@ export type rosterQuery$data = {
           readonly programs: ReadonlyArray<{
             readonly program: {
               readonly code: string;
+              readonly description: string;
             };
           }>;
           readonly suffix: string;
@@ -115,15 +111,14 @@ v7 = {
   "name": "suffix",
   "storageKey": null
 },
-v8 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "code",
-  "storageKey": null
-},
-v9 = [
-  (v8/*: any*/),
+v8 = [
+  {
+    "alias": null,
+    "args": null,
+    "kind": "ScalarField",
+    "name": "code",
+    "storageKey": null
+  },
   {
     "alias": null,
     "args": null,
@@ -132,7 +127,7 @@ v9 = [
     "storageKey": null
   }
 ],
-v10 = [
+v9 = [
   {
     "alias": null,
     "args": [
@@ -250,7 +245,7 @@ v10 = [
             "kind": "LinkedField",
             "name": "term",
             "plural": false,
-            "selections": (v9/*: any*/),
+            "selections": (v8/*: any*/),
             "storageKey": null
           },
           {
@@ -320,52 +315,7 @@ v10 = [
                         "kind": "LinkedField",
                         "name": "program",
                         "plural": false,
-                        "selections": [
-                          (v8/*: any*/)
-                        ],
-                        "storageKey": null
-                      }
-                    ],
-                    "storageKey": null
-                  },
-                  {
-                    "alias": null,
-                    "args": [
-                      {
-                        "kind": "Variable",
-                        "name": "term",
-                        "variableName": "startTerm"
-                      },
-                      {
-                        "kind": "Variable",
-                        "name": "year",
-                        "variableName": "startYear"
-                      }
-                    ],
-                    "concreteType": "StudentAcademicInfo",
-                    "kind": "LinkedField",
-                    "name": "academic_info",
-                    "plural": true,
-                    "selections": [
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "overall_gpa",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "overall_earned_hours",
-                        "storageKey": null
-                      },
-                      {
-                        "alias": null,
-                        "args": null,
-                        "kind": "ScalarField",
-                        "name": "overall_quality_points",
+                        "selections": (v8/*: any*/),
                         "storageKey": null
                       }
                     ],
@@ -395,7 +345,7 @@ v10 = [
                 "kind": "LinkedField",
                 "name": "registration_status",
                 "plural": false,
-                "selections": (v9/*: any*/),
+                "selections": (v8/*: any*/),
                 "storageKey": null
               },
               {
@@ -405,7 +355,7 @@ v10 = [
                 "kind": "LinkedField",
                 "name": "instructional_method",
                 "plural": false,
-                "selections": (v9/*: any*/),
+                "selections": (v8/*: any*/),
                 "storageKey": null
               },
               {
@@ -439,7 +389,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "rosterQuery",
-    "selections": (v10/*: any*/),
+    "selections": (v9/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -456,19 +406,19 @@ return {
     ],
     "kind": "Operation",
     "name": "rosterQuery",
-    "selections": (v10/*: any*/)
+    "selections": (v9/*: any*/)
   },
   "params": {
-    "cacheID": "2efbdd4aa93d98154629fa1afb9dd7f7",
+    "cacheID": "9f4cfb63075eb7c79e7f72cda229f57d",
     "id": null,
     "metadata": {},
     "name": "rosterQuery",
     "operationKind": "query",
-    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      students {\n        mnumber\n        student {\n          first_name\n          middle_name\n          last_name\n          suffix\n          email\n          programs {\n            program {\n              code\n            }\n          }\n          academic_info(term: $startTerm, year: $startYear) {\n            overall_gpa\n            overall_earned_hours\n            overall_quality_points\n          }\n        }\n        final_grade\n        midterm_grade\n        registration_status {\n          code\n          description\n        }\n        instructional_method {\n          code\n          description\n        }\n        last_attendance\n      }\n    }\n  }\n}\n"
+    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      students {\n        mnumber\n        student {\n          first_name\n          middle_name\n          last_name\n          suffix\n          email\n          programs {\n            program {\n              code\n              description\n            }\n          }\n        }\n        final_grade\n        midterm_grade\n        registration_status {\n          code\n          description\n        }\n        instructional_method {\n          code\n          description\n        }\n        last_attendance\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "6b0a2efc6c67e5ce616a18e5dcd71e0a";
+(node as any).hash = "d7f55736373c15d322bc269f3554383a";
 
 export default node;
