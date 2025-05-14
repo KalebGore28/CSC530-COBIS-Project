@@ -1,5 +1,3 @@
-
-
 import { Student, Program } from "@cobis/types";
 import {
 	Card,
@@ -43,7 +41,6 @@ import {
 
 // Import types
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
-import type { ExtendedTerm } from "@/components/selectors/term-selector";
 
 const getGradeColorClass = (grade: string) => {
 	if (grade === "N/A" || null) return "";
@@ -86,13 +83,11 @@ export interface RosterStudent
 export interface RosterStudentsProps {
 	students: RosterStudent[];
 	course: ExtendedCourse;
-	term: ExtendedTerm;
 }
 
-export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course, term }) => {
+export const RosterStudents: React.FC<RosterStudentsProps> = ({ students, course }) => {
 
-	const exportFilename = `${course.subject}${course.number}${course.suffix}-${course.course_section}_${term.description}_${term.year}`;
-
+	const exportFilename = `${course.subject}${course.number}${course.suffix}-${course.course_section}_${course.term.description}_${course.term.year}`;
 
 	return (
 		<Card>
