@@ -26,9 +26,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ExportButton } from "@/components/common/export-button";
-import { Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
+import { Download, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
+import { exportToCSV } from "@/utils/csv-export";
 
 const getGradeColorClass = (grade: string) => {
 	if (grade === "N/A" || !grade) return "";
@@ -176,7 +176,47 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 							)}
 							Sort
 						</Button>
-						<ExportButton data={filteredStudents} filename={exportFilename} />
+						<Button
+							variant="outline"
+							onClick={() => {
+								if (filteredStudents.length) {
+									exportToCSV<RosterStudent>(filteredStudents, {
+										filename: exportFilename,
+										fields: [
+											'mnumber',
+											'first_name',
+											'last_name',
+											'middle_name',
+											'suffix',
+											'email',
+											'programs',
+											'midterm_grade',
+											'final_grade',
+										],
+										headers: [
+											'mnumber',
+											'first_name',
+											'last_name',
+											'middle_name',
+											'suffix',
+											'email',
+											'programs',
+											'midterm_grade',
+											'final_grade',
+										],
+										fieldTransformers: {
+											programs: (value: Program[]) =>
+												Array.isArray(value)
+													? value.map((p) => `${p.code}: ${p.description}`).join(', ')
+													: String(value),
+										},
+									});
+								}
+							}}
+						>
+							<Download className="mr-2 h-4 w-4" />
+							Export as CSV
+						</Button>
 					</div>
 				</div>
 			</CardHeader>

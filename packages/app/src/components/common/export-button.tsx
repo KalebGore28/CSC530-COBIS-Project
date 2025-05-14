@@ -32,7 +32,14 @@ export const ExportButton: React.FC<ExportButtonProps> = ({
 				toast.error("No data available to export");
 				return;
 			}
-			exportToCSV(data, { filename, preHeader });
+			exportToCSV(data, {
+				filename: filename,
+				preHeader: preHeader,
+				fieldTransformers: {
+					programs: (value) => (Array.isArray(value) ? value.join(', ') : String(value)),
+					'address.city': (value) => value?.toUpperCase() || '',
+				},
+			});
 			toast.success("Data has been exported as CSV");
 		} catch (error) {
 			console.error("Export error:", error);

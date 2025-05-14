@@ -144,13 +144,13 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 		mnumber: s.student.email, // Assuming email is unique; adjust if mnumber is available
 		first_name: s.student.first_name,
 		last_name: s.student.last_name,
+		middle_name: s.student.middle_name || "",
+		suffix: s.student.suffix || "",
 		email: s.student.email,
 		programs: s.student.programs?.map((p) => ({
 			code: p.program.code,
 			description: p.program.description,
 		})) || [],
-		middle_name: "", // Not available in schema
-		suffix: "", // Not available in schema
 		midterm_grade: s.midterm_grade || "N/A",
 		final_grade: s.final_grade || "N/A",
 	})) || [];
