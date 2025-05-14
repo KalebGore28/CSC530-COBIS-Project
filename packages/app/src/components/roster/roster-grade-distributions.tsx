@@ -19,10 +19,12 @@ export type GradesData = {
 
 type RosterGradeDistributionsProps = {
 	gradesData: GradesData;
+	className?: string;
 };
 
 export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> = ({
 	gradesData,
+	className,
 }) => {
 	const { final_grades, midterm_grades } = gradesData;
 
@@ -33,7 +35,7 @@ export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> =
 	const midtermGradesData = useMemo(() => midterm_grades, [midterm_grades]);
 
 	return (
-		<Card>
+		<Card className={className}>
 			<CardHeader className="flex items-center justify-between">
 				<div>
 					<CardTitle>Grade Distributions</CardTitle>

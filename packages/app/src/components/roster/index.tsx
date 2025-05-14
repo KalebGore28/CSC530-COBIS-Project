@@ -196,25 +196,28 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 	} as ExtendedCourse;
 
 	return (
-		<div className={`grid grid-cols-1 md:grid-cols-2 gap-6 ${className}`}>
+		<div className={`grid grid-cols-2 gap-6 ${className}`}>
 			<RosterInfoCard course={course} className="col-span-2" />
 
 			<RosterGradeDistributions
+				className="col-span-2 md:col-span-1"
 				gradesData={{
 					final_grades: gradeCounts(finalGrades),
 					midterm_grades: gradeCounts(midtermGrades),
 				}}
+				
 			/>
 			<RosterSummaryCard
+				className="col-span-2 md:col-span-1"
 				totalStudents={courseData.total_students || 0}
 				classGPA={courseData.class_gpa || 0}
 				midtermAverage={courseData.midterm_average || 0}
 				finalAverage={courseData.final_average || 0}
 			/>
 			<RosterStudents
+				className="col-span-2"
 				students={students}
 				course={selectedCourse}
-				className="col-span-2"
 			/>
 		</div>
 	);
