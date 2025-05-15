@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,6 +17,7 @@ import {
 	Course,
 	searchCourses
 } from "@/utils/search";
+import { Switch } from "@/components/ui/switch";
 
 enum ComparisonOperator {
 	EQ = "Equal",
@@ -357,41 +356,27 @@ export const StudentFilters = ({
 					</div>
 
 					{/* Course Filters */}
-					<div className="col-span-1 md:col-span-2 my-4">
+					<div className="col-span-1 md:col-span-2">
 						<Label>Course Filters</Label>
 						<Card className="w-full mt-2">
 							<CardContent>
-								{selectedCourses.length === 0 ? (
-									<p className="text-sm text-muted-foreground">
-										No courses selected
-									</p>
+								{!selectedCourses.length ? (
+									<p className="text-sm text-muted-foreground">No courses selected</p>
 								) : (
 									<div className="space-y-2">
 										{selectedCourses.map(c => {
 											const key = courseKey(c);
-											const {
-												taken,
-												gradeOperator,
-												grade,
-											} = courseFilters[key] || { taken: false };
+											const { taken, gradeOperator, grade } = courseFilters[key] || { taken: false };
 
 											return (
-												<div
-													key={key}
-													className="w-full grid grid-cols-3 items-center gap-x-4"
-												>
-													{/* 1) Course label */}
+												<div key={key} className="w-full flex flex-wrap items-center justify-between gap-2 border rounded-lg p-2">
 													<span className="text-sm font-medium truncate">
 														{c.subject} {c.number}{c.suffix} — {c.title}
 													</span>
 
-													{/* 2) Grade selectors when “taken” */}
-													{taken ? (
-														<div className="flex items-center gap-x-2 justify-center">
-															<Select
-																value={gradeOperator}
-																onValueChange={v => setCourseGradeOperator(key, v as OperatorKey)}
-															>
+													{taken &&
+														<div className="flex flex-wrap justify-start gap-2">
+															<Select value={gradeOperator} onValueChange={v => setCourseGradeOperator(key, v as OperatorKey)}>
 																<SelectTrigger className="min-w-[70px]">
 																	<SelectValue placeholder="Op" />
 																</SelectTrigger>
@@ -404,36 +389,26 @@ export const StudentFilters = ({
 																</SelectContent>
 															</Select>
 
-															<Select
-																value={grade}
-																onValueChange={v => setCourseGrade(key, v)}
-															>
+															<Select value={grade} onValueChange={v => setCourseGrade(key, v)}>
 																<SelectTrigger className="min-w-[70px]">
 																	<SelectValue placeholder="Grade" />
 																</SelectTrigger>
 																<SelectContent>
-																	{["A", "B", "C", "D", "E"].map(g => (
-																		<SelectItem key={g} value={g}>
-																			{g}
-																		</SelectItem>
+																	{['A', 'B', 'C', 'D', 'E'].map(g => (
+																		<SelectItem key={g} value={g}>{g}</SelectItem>
 																	))}
 																</SelectContent>
 															</Select>
 														</div>
-													) : (
-														<div />
-													)}
+													}
 
-													{/* 3) Single Taken toggle */}
 													<div className="flex items-center justify-self-end">
 														<label className="flex items-center space-x-1">
-															<Checkbox
+															<Switch
 																checked={taken}
 																onCheckedChange={() => toggleCourseTaken(key)}
 															/>
-															<span className="text-sm">
-																{taken ? "Taken" : "Not Taken"}
-															</span>
+															<span className="text-sm">{taken ? 'Taken' : 'Not Taken'}</span>
 														</label>
 													</div>
 												</div>
