@@ -231,7 +231,7 @@ export const StudentFilters = ({
 					{/* Academic Level */}
 					<div className="border rounded-lg p-4 shadow">
 						<Label>Academic Level</Label>
-						<div className="grid grid-cols-2 gap-2 mt-2">
+						<div className="mt-2 flex flex-wrap gap-4">
 							{academicLevelOptions.map((level) => (
 								<label key={level} className="flex items-center space-x-2">
 									<Checkbox
