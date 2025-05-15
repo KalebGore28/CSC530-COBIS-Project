@@ -263,7 +263,14 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 												{student.suffix && ` ${student.suffix}`}
 											</TableCell>
 											<TableCell>{student.mnumber}</TableCell>
-											<TableCell>{student.email}</TableCell>
+											<TableCell>
+												<a
+													href={`mailto:${student.email}`}
+													className="text-blue-500 hover:underline"
+												>
+													{student.email}
+												</a>
+											</TableCell>
 											<TableCell>
 												{student.programs
 													.map((program) => program.description)
@@ -310,7 +317,12 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 										<div className="space-y-2">
 											<div>
 												<span className="font-medium">Email: </span>
-												{student.email}
+												<a
+													href={`mailto:${student.email}`}
+													className="text-blue-500 hover:underline"
+												>
+													{student.email}
+												</a>
 											</div>
 											<div>
 												<span className="font-medium">Major/Minor(s): </span>
