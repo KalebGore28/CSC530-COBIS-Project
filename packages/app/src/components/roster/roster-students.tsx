@@ -132,93 +132,80 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 
 	return (
 		<Card className={className}>
-			<CardHeader>
-				<div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-					
-					<div>
-						<CardTitle>Student Roster</CardTitle>
-						<CardDescription>
-							{filteredStudents.length} of {students.length} students
-						</CardDescription>
+			<CardHeader className="flex flex-wrap items-center justify-between gap-4">
+				<div>
+					<CardTitle>Student Roster</CardTitle>
+					<CardDescription>
+						{filteredStudents.length} of {students.length} students
+					</CardDescription>
+				</div>
+				<div className="flex flex-wrap gap-4">
+
+					<div className="relative w-full sm:w-64">
+						<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+						<Input
+							type="search"
+							placeholder="Search students..."
+							className="pl-8 w-full"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
 					</div>
-					<div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-						<div className="relative w-full sm:w-64">
-							<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-							<Input
-								type="search"
-								placeholder="Search students..."
-								className="pl-8 w-full"
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-						<Select value={gradeFilter} onValueChange={setGradeFilter}>
-							<SelectTrigger className="w-full sm:w-40">
-								<Filter className="mr-2 h-4 w-4" />
-								<SelectValue placeholder="Filter" />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="all">All Grades</SelectItem>
-								<SelectItem value="A">A</SelectItem>
-								<SelectItem value="B">B</SelectItem>
-								<SelectItem value="C">C</SelectItem>
-								<SelectItem value="D">D</SelectItem>
-								<SelectItem value="E">E</SelectItem>
-							</SelectContent>
-						</Select>
-						<Button
-							variant="outline"
-							onClick={() => setSortDirection(sortDirection === "asc" ? "desc" : "asc")}
-						>
-							{sortDirection === "asc" ? (
-								<SortAsc className="mr-2 h-4 w-4" />
-							) : (
-								<SortDesc className="mr-2 h-4 w-4" />
-							)}
-							Sort
-						</Button>
-						<Button
-							variant="outline"
-							onClick={() => {
-								if (filteredStudents.length) {
-									exportToCSV<RosterStudent>(filteredStudents, {
-										filename: exportFilename,
-										fields: [
-											'mnumber',
-											'first_name',
-											'last_name',
-											'middle_name',
-											'suffix',
-											'email',
-											'programs',
-											'midterm_grade',
-											'final_grade',
-										],
-										headers: [
-											'mnumber',
-											'first_name',
-											'last_name',
-											'middle_name',
-											'suffix',
-											'email',
-											'programs',
-											'midterm_grade',
-											'final_grade',
-										],
-										fieldTransformers: {
-											programs: (value: Program[]) =>
-												Array.isArray(value)
-													? value.map((p) => `${p.code}: ${p.description}`).join(', ')
-													: String(value),
-										},
-									});
-								}
-							}}
-						>
-							<Download className="mr-2 h-4 w-4" />
-							Export as CSV
-						</Button>
-					</div>
+					<Select value={gradeFilter} onValueChange={setGradeFilter}>
+						<SelectTrigger className="w-full sm:w-40">
+							<Filter className="mr-2 h-4 w-4" />
+							<SelectValue placeholder="Filter" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="all">All Grades</SelectItem>
+							<SelectItem value="A">A</SelectItem>
+							<SelectItem value="B">B</SelectItem>
+							<SelectItem value="C">C</SelectItem>
+							<SelectItem value="D">D</SelectItem>
+							<SelectItem value="E">E</SelectItem>
+						</SelectContent>
+					</Select>
+					<Button
+						variant="outline"
+						onClick={() => {
+							if (filteredStudents.length) {
+								exportToCSV<RosterStudent>(filteredStudents, {
+									filename: exportFilename,
+									fields: [
+										'mnumber',
+										'first_name',
+										'last_name',
+										'middle_name',
+										'suffix',
+										'email',
+										'programs',
+										'midterm_grade',
+										'final_grade',
+									],
+									headers: [
+										'mnumber',
+										'first_name',
+										'last_name',
+										'middle_name',
+										'suffix',
+										'email',
+										'programs',
+										'midterm_grade',
+										'final_grade',
+									],
+									fieldTransformers: {
+										programs: (value: Program[]) =>
+											Array.isArray(value)
+												? value.map((p) => `${p.code}: ${p.description}`).join(', ')
+												: String(value),
+									},
+								});
+							}
+						}}
+					>
+						<Download className="mr-2 h-4 w-4" />
+						Export as CSV
+					</Button>
 				</div>
 			</CardHeader>
 			<CardContent className="overflow-x-auto">

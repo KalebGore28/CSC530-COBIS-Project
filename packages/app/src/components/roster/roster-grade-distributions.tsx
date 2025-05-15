@@ -36,16 +36,14 @@ export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> =
 
 	return (
 		<Card className={className}>
-			<CardHeader className="flex items-center justify-between">
+			<CardHeader className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<CardTitle>Grade Distributions</CardTitle>
 					<CardDescription className="text-sm text-muted-foreground">
-						{gradeType === "midterm"
-							? "Midterm grade distribution"
-							: "Final grade distribution"}
+						{gradeType === "midterm" ? "Midterm grade distribution" : "Final grade distribution"}
 					</CardDescription>
 				</div>
-				<div className="space-x-2">
+				<div className="space-x-2 flex-none">
 					<Button
 						size="sm"
 						variant={gradeType === "midterm" ? "default" : "outline"}
