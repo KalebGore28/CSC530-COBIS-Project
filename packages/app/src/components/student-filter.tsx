@@ -29,7 +29,7 @@ enum ComparisonOperator {
 	GTE = "Greater Than or Equal",
 }
 
-type OperatorKey = keyof typeof ComparisonOperator; // "EQ"|"NE"|…
+type OperatorKey = keyof typeof ComparisonOperator;
 
 
 export interface FilterState {
@@ -95,7 +95,7 @@ export const StudentFilters = ({
 			gpaRange: [vals[0], vals[1]] as [number, number],
 		}));
 
-	// Programs
+	// Program functions
 	const addProgram = (p: Program) => {
 		setSelectedPrograms((ps) =>
 			ps.some((x) => x.code === p.code) ? ps : [...ps, p]
@@ -132,7 +132,7 @@ export const StudentFilters = ({
 		}));
 	};
 
-	// Courses
+	// Course functions
 	const addCourse = (c: Course) => {
 		const key = courseKey(c);
 
@@ -145,8 +145,8 @@ export const StudentFilters = ({
 			return {
 				...maps,
 				[key]: {
-					taken: true,                              // ← start as “Taken”
-					gradeOperator: 'EQ' as keyof typeof ComparisonOperator, // ← default to EQ
+					taken: true,
+					gradeOperator: 'EQ' as keyof typeof ComparisonOperator,
 					grade: "A",
 				},
 			};
@@ -168,7 +168,6 @@ export const StudentFilters = ({
 				...maps,
 				[key]: {
 					taken,
-					// when turning ON, restore previous operator or default to "EQ"
 					...(taken
 						? {
 							gradeOperator: cur.gradeOperator ?? 'EQ',
@@ -186,8 +185,8 @@ export const StudentFilters = ({
 		setFilters({ academicLevels: [], gpaRange: [0, 4.0] });
 		setSelectedPrograms([]);
 		setProgramFilters({});
-		setSelectedCourses([]);           // ← clear courses
-		setCourseFilters({});             // ← clear course flags
+		setSelectedCourses([]);
+		setCourseFilters({});
 		onResetFilters?.();
 	};
 
@@ -199,7 +198,6 @@ export const StudentFilters = ({
 				[key]: {
 					...cur,
 					gradeOperator: op,
-					// if they haven’t picked a grade yet, default to “A”
 					grade: cur.grade ?? "A",
 				},
 			};
@@ -214,16 +212,16 @@ export const StudentFilters = ({
 				[key]: {
 					...cur,
 					grade,
-					// preserve existing operator, or default to EQ if somehow missing
 					gradeOperator: cur.gradeOperator ?? 'EQ',
 				},
 			};
 		});
 	};
 
-	const FILTERABLE: { key: keyof Program; label: string }[] = [
-		{ key: "is_major", label: "Major" },
-		{ key: "is_minor", label: "Minor" },
+	type FilterableProgramKeys = 'is_major' | 'is_minor';
+	const FILTERABLE: { key: FilterableProgramKeys; label: string }[] = [
+		{ key: 'is_major', label: 'Major' },
+		{ key: 'is_minor', label: 'Minor' },
 	];
 
 	return (
@@ -285,32 +283,20 @@ export const StudentFilters = ({
 						<Label>Program Filters</Label>
 						<Card className="w-full mt-2">
 							<CardContent>
-								{selectedPrograms.length === 0 ? (
-									<p className="text-sm text-muted-foreground">
-										No programs selected
-									</p>
+								{!selectedPrograms.length ? (
+									<p className="text-sm text-muted-foreground">No programs selected</p>
 								) : (
 									<div className="space-y-2">
-										{selectedPrograms.map((program) => (
-											<div
-												key={program.code}
-												className="flex items-center justify-between"
-											>
-												<span className="text-sm font-medium truncate max-w-[50%]">
-													{program.description}
-												</span>
-												<div className="flex items-center gap-4">
+										{selectedPrograms.map(({ code, description, ...program }) => (
+											<div key={code} className="flex flex-wrap items-center justify-between gap-2">
+												<span className="text-sm font-medium">{description}</span>
+												<div className="flex items-center gap-4 border rounded-lg p-2">
 													{FILTERABLE.map(({ key, label }) =>
 														program[key] ? (
-															<label
-																key={key}
-																className="flex items-center space-x-1"
-															>
+															<label key={key} className="flex items-center space-x-1">
 																<Checkbox
-																	checked={!!programFilters[program.code]?.[key]}
-																	onCheckedChange={() =>
-																		toggleProgramFlag(program.code, key)
-																	}
+																	checked={!!programFilters[code]?.[key]}
+																	onCheckedChange={() => toggleProgramFlag(code, key)}
 																/>
 																<span className="text-sm">{label}</span>
 															</label>
@@ -370,7 +356,6 @@ export const StudentFilters = ({
 						/>
 					</div>
 
-					{/* Course Filters */}
 					{/* Course Filters */}
 					<div className="col-span-1 md:col-span-2 my-4">
 						<Label>Course Filters</Label>

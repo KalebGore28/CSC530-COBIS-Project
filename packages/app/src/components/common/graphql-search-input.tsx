@@ -10,7 +10,6 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Program, Course } from "@/utils/search";
 
@@ -79,12 +78,6 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 			/>
 			<CommandList>
 				{loading && (
-					<div className="flex items-center justify-center py-2">
-						<Loader2 className="h-4 w-4 animate-spin text-gray-500" />
-					</div>
-				)}
-
-				{loading && (
 					<CommandGroup>
 						{[...Array(3)].map((_, i) => (
 							<CommandItem key={i} className="!pointer-events-none">
@@ -93,7 +86,6 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 						))}
 					</CommandGroup>
 				)}
-
 				{!loading && results.length === 0 && query.length >= 2 && (
 					<CommandEmpty>No results found.</CommandEmpty>
 				)}
@@ -102,7 +94,6 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 						{results.map((r, i) => (
 							<CommandItem
 								key={i}
-								// <— add a value here for the built-in filter to use:
 								value={`${r.code} ${r.description}`}
 								className="flex flex-col"
 								onSelect={() => {
@@ -119,11 +110,18 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 				{selectedItems.length > 0 && (
 					<CommandGroup heading="Selected">
 						{selectedItems.map((r, i) => (
-							<CommandItem key={i} className="flex justify-between items-center">
-								{renderResult(r)}
+							<CommandItem
+								key={i}
+								className="flex items-center w-full"
+							>
+								<div className="flex-1 min-w-0">
+									<div className="truncate">
+										{renderResult(r)}
+									</div>
+								</div>
 								<button
 									onClick={() => onRemove(r)}
-									className="text-red-500 ml-2"
+									className="text-red-500 ml-2 flex-shrink-0"
 								>
 									Remove
 								</button>
@@ -140,51 +138,52 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 
 export function renderProgram(program: Program) {
 	return (
-		<div className="flex items-center justify-start space-x-2 w-full">
+		<div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
 			<span className="flex-shrink-0 font-medium">
 				{program.code} — {program.description}
 			</span>
-
-			{program.is_major && (
-				<Badge
-					variant="outline"
-					className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
-				>
-					Major
-				</Badge>
-			)}
-			{program.is_minor && (
-				<Badge
-					variant="outline"
-					className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
-				>
-					Minor
-				</Badge>
-			)}
-			{program.has_concentration && (
-				<Badge
-					variant="outline"
-					className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
-				>
-					Concentration
-				</Badge>
-			)}
-			{program.is_discontinued && (
-				<Badge
-					variant="outline"
-					className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
-				>
-					Discontinued
-				</Badge>
-			)}
-			{program.is_aacsb && (
-				<Badge
-					variant="outline"
-					className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
-				>
-					AACSB
-				</Badge>
-			)}
+			<div className="space-x-2">
+				{program.is_major && (
+					<Badge
+						variant="outline"
+						className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
+					>
+						Major
+					</Badge>
+				)}
+				{program.is_minor && (
+					<Badge
+						variant="outline"
+						className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
+					>
+						Minor
+					</Badge>
+				)}
+				{program.has_concentration && (
+					<Badge
+						variant="outline"
+						className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
+					>
+						Concentration
+					</Badge>
+				)}
+				{program.is_discontinued && (
+					<Badge
+						variant="outline"
+						className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
+					>
+						Discontinued
+					</Badge>
+				)}
+				{program.is_aacsb && (
+					<Badge
+						variant="outline"
+						className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
+					>
+						AACSB
+					</Badge>
+				)}
+			</div>
 		</div>
 	);
 }
