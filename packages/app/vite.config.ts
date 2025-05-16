@@ -14,9 +14,16 @@ export default defineConfig({
     },
   },
   server: {
+    host: '0.0.0.0',
+    port: 5173,
+    hmr: {
+      host: '192.168.1.107', // Explicit WebSocket host for HMR
+      port: 5173,
+      protocol: 'ws', // Use ws (not wss, unless you have SSL)
+    },
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        target: 'http://192.168.1.107:4000',
         changeOrigin: true,
       }
     },

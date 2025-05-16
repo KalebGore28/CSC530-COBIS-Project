@@ -29,7 +29,6 @@ import {
 	Calculator
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { Course } from "@/components/selectors/course-selector";
 import AdvisorAdvisedStudents from '@/components/advisor-advised-students';
 
 // Types based on API response
@@ -37,7 +36,7 @@ type CourseResponse = {
 	mnumber: string;
 	termCode: string;
 	year: number;
-	courseDetails: Course[];
+	courseDetails: any[];
 };
 
 // Instructor type for the breadcrumb context

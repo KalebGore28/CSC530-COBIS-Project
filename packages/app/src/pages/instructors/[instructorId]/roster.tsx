@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
 	ArrowLeft
@@ -26,37 +26,32 @@ const CourseRosterPage: React.FC = () => {
 	// Parse the courseId parameter
 	// Expected format: {subject}{number}{optional_suffix}-{section}
 	// Example: CSC101-01
-	const [courseParams, setCourseParams] = useState<ExtendedCourse | null>(null);
+	// Parse courseId directly in state initialization
+	const [courseParams, _] = useState<ExtendedCourse | null>(() => {
+		if (!courseId) return null;
 
+		const match = courseId.match(/^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/);
+		if (!match) return null;
 
-	// Parse courseId on component mount
-	useEffect(() => {
-		if (courseId) {
-			const match = courseId.match(/^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/);
-
-			// TODO: find a way to populate the missing data
-			if (match) {
-				setCourseParams({
-					subject: match[1],
-					number: parseInt(match[2]),
-					suffix: match[3] || '',
-					title: 'Title Not Available',
-					course_section: match[4],
-					creditHours: 0,
-					studentCount: 0,
-					totalCreditHours: 0,
-					term: {
-						code: termCode || '',
-						description: '',
-						year: parseInt(year || '0'),
-						courseCount: 0,
-						studentCount: 0,
-						creditHoursDelivered: 0
-					},
-				});
-			}
-		}
-	}, [courseId]);
+		return {
+			subject: match[1],
+			number: parseInt(match[2]),
+			suffix: match[3] || "",
+			title: "Title Not Available",
+			course_section: match[4],
+			creditHours: 0,
+			studentCount: 0,
+			totalCreditHours: 0,
+			term: {
+				code: termCode || "",
+				description: "",
+				year: parseInt(year || "0"),
+				courseCount: 0,
+				studentCount: 0,
+				creditHoursDelivered: 0,
+			},
+		};
+	});
 
 	// Navigate back to term details
 	const handleBackToTerm = () => {

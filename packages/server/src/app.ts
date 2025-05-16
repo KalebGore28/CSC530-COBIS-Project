@@ -36,15 +36,21 @@ const staticDir = path.resolve(process.cwd(), 'dist', 'public')
 // Create an Express app
 const app = express()
 
-// Middleware
-// @ts-ignore
-app.use(
-    cors({
-        origin: process.env.FRONTEND_ORIGIN as string,
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
-    })
-)
+// Apply CORS only in development
+if (process.env.NODE_ENV !== 'production') {
+    console.log('CORS enabled')
+    app.use(
+        cors({
+            origin: [
+                process.env.FRONTEND_ORIGIN as string,
+                'http://192.168.1.107:5173',
+                'http://192.168.1.107:4000', // In case frontend is served from backend
+            ],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            credentials: true,
+        })
+    );
+}
 app.use('/api/auth/callback/google', restrictGoogleCallback) // Enforces only specific domains can sign in for google
 app.all("/api/auth/*", toNodeHandler(auth)) // Must be declared before express.json(). Required for better-auth.
 app.use(express.json({ limit: "10mb" }))
