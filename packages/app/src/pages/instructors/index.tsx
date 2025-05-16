@@ -39,7 +39,6 @@ type Instructor = {
 const InstructorsPage: React.FC = () => {
 	const navigate = useNavigate();
 	const [instructors, setInstructors] = useState<Instructor[]>([]);
-	const [filteredInstructors, setFilteredInstructors] = useState<Instructor[]>([]);
 	const [searchQuery, setSearchQuery] = useState('');
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -56,7 +55,6 @@ const InstructorsPage: React.FC = () => {
 
 				if (response.data && Array.isArray(response.data)) {
 					setInstructors(response.data);
-					setFilteredInstructors(response.data);
 				} else {
 					console.error('Invalid response format:', response.data);
 					setError('Received invalid data format from server.');
@@ -79,13 +77,9 @@ const InstructorsPage: React.FC = () => {
 		return ['All Departments', ...uniqueDepartments];
 	}, [instructors]);
 
-	// Filter instructors based on search query and department filter
-	useEffect(() => {
-		// Safety check to prevent filtering on empty data
-		if (!instructors || instructors.length === 0) {
-			setFilteredInstructors([]);
-			return;
-		}
+	// Compute filtered instructors
+	const getFilteredInstructors = () => {
+		if (!instructors || instructors.length === 0) return [];
 
 		let filtered = [...instructors];
 
@@ -106,8 +100,9 @@ const InstructorsPage: React.FC = () => {
 			);
 		}
 
-		setFilteredInstructors(filtered);
-	}, [searchQuery, departmentFilter, instructors]);
+		return filtered;
+	};
+	const filteredInstructors = getFilteredInstructors();
 
 	// Handle instructor selection
 	const handleSelectInstructor = (mnumber: string) => {

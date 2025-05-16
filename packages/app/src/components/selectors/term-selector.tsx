@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, Suspense } from "react";
 import {
 	Select,
 	SelectContent,
@@ -155,14 +155,6 @@ const TermSelectorContent: React.FC<TermSelectorProps> = ({
 	const termsWithStats = terms.map((term) =>
 		calculateTermStats(term.code, term.year)
 	);
-
-	useEffect(() => {
-		if (termsWithStats.length > 0 && !selectedTerm) {
-			const firstTerm = termsWithStats[0];
-			setSelectedTerm(firstTerm);
-			onTermSelect?.(firstTerm);
-		}
-	}, [termsWithStats, onTermSelect]);
 
 	const handleTermSelect = (termCodeAndYear: string) => {
 		const [code, year] = termCodeAndYear.split("-");
