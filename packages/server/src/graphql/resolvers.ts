@@ -761,6 +761,44 @@ export const resolvers = {
 
 			return result;
 		},
+		advisees: async (
+			fac: any,
+			{ term, year }: { term?: string; year?: number },
+			{ db }: any
+		) => {
+			const predicates: SQL[] = [
+				eq(tables.studentAdvisors.advisor_mnumber, fac.mnumber),
+			];
+
+			if (term) {
+				predicates.push(eq(tables.studentAdvisors.term, term));
+			}
+			if (year) {
+				predicates.push(eq(tables.studentAdvisors.year, year));
+			}
+
+			const data = await db
+				.select({
+					student_mnumber: tables.studentAdvisors.student_mnumber,
+					term: tables.studentAdvisors.term,
+					year: tables.studentAdvisors.year,
+					advisor_mnumber: tables.studentAdvisors.advisor_mnumber,
+					first_name: tables.students.first_name,
+					last_name: tables.students.last_name,
+				})
+				.from(tables.students)
+				.innerJoin(
+					tables.studentAdvisors,
+					eq(tables.students.mnumber, tables.studentAdvisors.student_mnumber)
+				)
+				.where(and(...predicates))
+				.orderBy(
+					sql`${tables.students.last_name} asc, ${tables.students.first_name} asc`
+				);
+
+			console.log('advisees', data);
+			return data;
+		}
 	},
 	InstructorCourse: {
 		term: (row: any, _: any, { loaders }: any) =>
@@ -964,6 +1002,8 @@ export const resolvers = {
 	StudentAdvisor: {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
+		student: (row: any, _: any, { loaders }: any) =>
+			loaders.student.load(row.student_mnumber),
 	},
 
 	StudentCourse: {

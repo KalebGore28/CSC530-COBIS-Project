@@ -71,6 +71,10 @@ type Faculty {
     endTerm: String,
     endYear: Int
   ): [GradeDistribution!]!
+  advisees(
+    term: String,
+    year: Int,
+  ): [StudentAdvisor!]!
 }
 
 type GradeDistribution {
@@ -190,6 +194,8 @@ type StudentAdvisor {
   term: Term!
   year: Int!
   advisor_mnumber: String! # FK → faculty.mnumber
+  # Relationships
+  student: Student!
 }
 
 type StudentCourse {
