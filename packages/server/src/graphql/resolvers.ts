@@ -661,10 +661,10 @@ export const resolvers = {
 				endTerm,
 				endYear,
 			}: {
-				startTerm: string;
-				startYear: number;
-				endTerm?: string;
-				endYear?: number;
+				startTerm: string; // e.g., "10" for Spring
+				startYear: number; // e.g., 2023
+				endTerm?: string;  // e.g., "80" for Fall
+				endYear?: number;  // e.g., 2024
 			},
 			{ db }: any
 		) => {
@@ -684,9 +684,11 @@ export const resolvers = {
 				finalEndYear = endYear ?? currentYearTerm.currentYear;
 			}
 
-			// Query grade distribution
+			// Query grade distribution, grouping by term, year, and grade
 			const gradeDistribution = await db
 				.select({
+					term: tables.instructorCourses.term,
+					year: tables.instructorCourses.year,
 					grade: tables.studentCourses.final_grade,
 					count: count(),
 				})
@@ -707,24 +709,57 @@ export const resolvers = {
 						lte(tables.instructorCourses.year, finalEndYear || 9999),
 						// Term range within years
 						sql`(
-							(${tables.instructorCourses.year} > ${startYear} OR ${tables.instructorCourses.term} >= ${startTerm})
-							AND
-							(${tables.instructorCourses.year} < ${finalEndYear} OR ${tables.instructorCourses.term} <= ${finalEndTerm})
-						)`
+            (${tables.instructorCourses.year} > ${startYear} OR ${tables.instructorCourses.term} >= ${startTerm})
+            AND
+            (${tables.instructorCourses.year} < ${finalEndYear} OR ${tables.instructorCourses.term} <= ${finalEndTerm})
+          )`
 					)
 				)
-				.groupBy(tables.studentCourses.final_grade);
+				.groupBy(
+					tables.instructorCourses.term,
+					tables.instructorCourses.year,
+					tables.studentCourses.final_grade
+				);
 
-			// Calculate total students and format distributions
-			const totalStudents = gradeDistribution.reduce((sum: number, g: { count: number }) => sum + g.count, 0);
+			// Map term codes to descriptions
+			const termDescriptions: { [key: string]: string } = {
+				'10': 'Spring',
+				'50': 'Summer',
+				'80': 'Fall',
+				'90': 'Winter',
+			};
 
-			const distributions = gradeDistribution.map((g: { grade: string | null; count: number }) => ({
-				grade: g.grade ?? 'N/A',
-				count: g.count,
-				percentage: totalStudents > 0 ? parseFloat(((g.count / totalStudents) * 100).toFixed(2)) : 0,
-			}));
+			// Group results by term and year
+			const groupedByTermYear: { [key: string]: any[] } = gradeDistribution.reduce((acc: { [x: string]: any[]; }, curr: { term: any; year: any; }) => {
+				const key = `${curr.term}-${curr.year}`;
+				if (!acc[key]) {
+					acc[key] = [];
+				}
+				acc[key].push(curr);
+				return acc;
+			}, {});
 
-			return { distributions };
+			// Format distributions for each term/year
+			const result = Object.entries(groupedByTermYear).map(([key, grades]) => {
+				const [term, year] = key.split('-');
+				const totalStudents = grades.reduce((sum: number, g: { count: number }) => sum + g.count, 0);
+				const distributions = grades.map((g: { grade: string | null; count: number }) => ({
+					grade: g.grade ?? 'N/A',
+					count: g.count,
+					percentage: totalStudents > 0 ? parseFloat(((g.count / totalStudents) * 100).toFixed(2)) : 0,
+				}));
+
+				return {
+					term: {
+						code: term,
+						description: termDescriptions[term] || 'Unknown',
+					},
+					year: parseInt(year),
+					distributions,
+				};
+			});
+
+			return result;
 		},
 	},
 	InstructorCourse: {

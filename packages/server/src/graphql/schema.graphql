@@ -70,10 +70,12 @@ type Faculty {
     startYear: Int!,
     endTerm: String,
     endYear: Int
-  ): GradeDistribution!
+  ): [GradeDistribution!]!
 }
 
 type GradeDistribution {
+  term: Term!
+  year: Int!
   distributions: [GradeEntry!]!
 }
 
@@ -262,8 +264,8 @@ type Student {
 }
 
 type Term {
-  code: String!            # PK
-  description: String!
+  code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
+  description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
 }
 
 type TestScore {

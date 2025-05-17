@@ -113,7 +113,6 @@ const FacultyProfilePage: React.FC = () => {
 	const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(null);
 	const [courses, setCourses] = useState<CourseDetail[]>([]);
 	const [termSummaries, setTermSummaries] = useState<TermSummary[]>([]);
-	const [gradeDistributions, setGradeDistributions] = useState<GradeDistributionData[]>([]);
 
 	useSetBreadcrumb(
 		mnumber as string,
@@ -189,58 +188,7 @@ const FacultyProfilePage: React.FC = () => {
 		}
 	};
 
-	const fetchGradeDistributions = async (offset: number) => {
-		try {
-			const response = await axios.get<{
-				mnumber: string;
-				start_year: number;
-				end_year: number;
-				gradeTrends: Array<{
-					term: string;
-					year: number;
-					totalStudents: number;
-					distribution: {
-						[grade: string]: {
-							count: number;
-							percentage: number;
-						}
-					}
-				}>
-			}>(`/api/instructor/${mnumber}/trend/grades`, {
-				params: {
-					start_year: currentTerm ? currentTerm.year + offset : undefined,
-					end_year: currentTerm ? currentTerm.year : undefined
-				},
-				withCredentials: true
-			});
 
-			// Transform the data to match GradeDistributionData type
-			const transformedData = response.data.gradeTrends.map(trend => {
-				// If distribution is empty, create a distribution with all zeros
-				const distribution = Object.keys(trend.distribution).length === 0 ? {
-					"A": { count: 0, percentage: 0 },
-					"B": { count: 0, percentage: 0 },
-					"C": { count: 0, percentage: 0 },
-					"D": { count: 0, percentage: 0 },
-					"F": { count: 0, percentage: 0 },
-					"N/A": { count: 0, percentage: 0 }
-				} : trend.distribution;
-
-				return {
-					term: trend.term,
-					year: trend.year,
-					totalStudents: trend.totalStudents,
-					distribution
-				};
-			});
-
-
-			setGradeDistributions(transformedData);
-		} catch (error) {
-			toast.error("Failed to load grade distributions")
-			setGradeDistributions([]);
-		}
-	};
 
 	// Initial data load
 	useEffect(() => {
@@ -255,12 +203,6 @@ const FacultyProfilePage: React.FC = () => {
 
 		loadData();
 	}, [mnumber]);
-
-	useEffect(() => {
-		if (currentTerm) {
-			fetchGradeDistributions(-1);
-		}
-	}, [currentTerm]);
 
 	// Pagination logic
 	const totalPages = Math.ceil(termSummaries.length / itemsPerPage);
@@ -580,14 +522,11 @@ const FacultyProfilePage: React.FC = () => {
 
 					{/* Grade Distributions Tab */}
 					<TabsContent value="grade-distributions">
-						{/* <GradeDistributions
+						<GradeDistribution
+							mnumber={mnumber as string}
 							title={`${instructor?.instructorInfo.name}'s Grade Distributions`}
 							description={`Showing grade distribution trends over time for ${instructor?.instructorInfo.name}`}
-							data={gradeDistributions}
-							onTimeRangeChange={(offset: number) => {
-								fetchGradeDistributions(offset);
-							}}
-						/> */}
+						/>
 					</TabsContent>
 				</Tabs>
 			</div>

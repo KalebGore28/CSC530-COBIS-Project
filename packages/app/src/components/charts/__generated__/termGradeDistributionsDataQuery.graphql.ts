@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<ef279e65cb4c871b040255e295aee1c8>>
+ * @generated SignedSource<<1c8a4dc221916b53eb309cbdc895fc23>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,13 +16,18 @@ export type termGradeDistributionsDataQuery$variables = {
 };
 export type termGradeDistributionsDataQuery$data = {
   readonly instructor: {
-    readonly grade_distribution: {
+    readonly grade_distribution: ReadonlyArray<{
       readonly distributions: ReadonlyArray<{
         readonly count: number;
         readonly grade: string;
         readonly percentage: number;
       }>;
-    };
+      readonly term: {
+        readonly code: string;
+        readonly description: string;
+      };
+      readonly year: number;
+    }>;
   } | null | undefined;
 };
 export type termGradeDistributionsDataQuery = {
@@ -80,7 +85,7 @@ v1 = [
         "concreteType": "GradeDistribution",
         "kind": "LinkedField",
         "name": "grade_distribution",
-        "plural": false,
+        "plural": true,
         "selections": [
           {
             "alias": null,
@@ -113,6 +118,38 @@ v1 = [
               }
             ],
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Term",
+            "kind": "LinkedField",
+            "name": "term",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "code",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "year",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -139,16 +176,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "9451b2157e3881d6381d4df274aae8d7",
+    "cacheID": "3b939e0b1b956ed42f24b0671e627b1c",
     "id": null,
     "metadata": {},
     "name": "termGradeDistributionsDataQuery",
     "operationKind": "query",
-    "text": "query termGradeDistributionsDataQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    grade_distribution(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n      }\n    }\n  }\n}\n"
+    "text": "query termGradeDistributionsDataQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    grade_distribution(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "5d4f4bacb1437e90c4bf710da3d07a27";
+(node as any).hash = "3b0bd92827881c5682f69bb8b1527851";
 
 export default node;

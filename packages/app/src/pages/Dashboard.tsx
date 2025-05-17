@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -19,7 +19,6 @@ import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
 import { useRoleContext } from "@/context/role";
 import { Separator } from "@/components/ui/separator";
-import { toast } from "sonner";
 import { GradeDistribution } from "@/components/charts/term-grade-distributions";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -168,6 +167,8 @@ const DashboardContent: React.FC = () => {
       {canViewGradeDistribution && (
         <>
           <GradeDistribution
+            title="Grade Distribution"
+            description="View the distribution of grades for the current term."
             mnumber={session?.info?.mnumber || ""}
           />
           <Separator className="my-6" />

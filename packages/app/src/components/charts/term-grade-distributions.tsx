@@ -1,4 +1,4 @@
-import React, { Suspense, useCallback, useState } from "react"
+import React, { Suspense, useEffect, useState } from "react"
 import { Area, AreaChart, XAxis, YAxis, LabelList } from "recharts"
 
 import {
@@ -28,7 +28,6 @@ import {
 import type { termGradeDistributionsCurrentTermQuery } from "./__generated__/termGradeDistributionsCurrentTermQuery.graphql"
 import type { termGradeDistributionsDataQuery, termGradeDistributionsDataQuery$data } from "./__generated__/termGradeDistributionsDataQuery.graphql"
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { off } from "process"
 
 
 const termGradeDistributionsCurrentTermQuery = graphql`
@@ -56,6 +55,11 @@ const termGradeDistributionsDataQuery = graphql`
 					grade
 					percentage
 				}
+				term {
+					code
+					description
+				}
+				year
 			}
 		}
 	}
@@ -111,8 +115,6 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 	const handleDataReturn = (data: termGradeDistributionsDataQuery$data) => {
 		if (data) {
 			setGradeDistributionData(data)
-		} else {
-			setGradeDistributionData(null)
 		}
 	}
 
@@ -165,7 +167,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 				</div>
 			</CardHeader>
 			<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-				{/* <div className="h-[400px]">
+				<div className="h-[400px]">
 					<div className="w-full h-full">
 						<ChartContainer
 							config={defaultChartConfig}
@@ -178,8 +180,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 							)}
 						</ChartContainer>
 					</div>
-				</div> */}
-
+				</div>
 			</CardContent>
 		</Card>
 	)
@@ -213,213 +214,164 @@ const GradeDistributionFetchData: React.FC<GradeDistributionFetchDataProps> = ({
 		}
 	)
 
-	// Check if the data is available
-	if (instructor) {
-		dataCallback?.({ instructor })
-	}
+	// Use useEffect to call dataCallback after render
+	useEffect(() => {
+		if (instructor && dataCallback) {
+			dataCallback({ instructor });
+		}
+	}, [instructor]); // Dependencies: run when these change
 
 	// Component doesn't render anything
 	return null;
 };
 
-// const GradeDistributionChart: React.FC<{
-// 	data: termGradeDistributionsDataQuery$data
-// }> = ({ data }) => { }
+const GradeDistributionChart: React.FC<{
+	data: termGradeDistributionsDataQuery$data
+}> = ({ data }) => {
 
+	// Map term codes to sort order for chronological sorting
+	const termSortOrder: { [key: string]: number } = {
+		'10': 1, // Spring
+		'50': 2, // Summer
+		'80': 3, // Fall
+		'90': 4, // Winter
+	};
 
-// export function GradeDistributions({
-// 	mnumber,
-// 	title = "Grade Distribution Trends",
-// 	description = "Showing grade distribution trends over time",
-// }: GradeDistributionsProps) {
-// 	const [timeRange, setTimeRange] = React.useState("1y")
+	const allGrades = ['A', 'B', 'C', 'D', 'E', 'N/A'];
 
-// 	// Handle time range change
-// 	const handleTimeRangeChange = (value: string) => {
-// 		setTimeRange(value)
-// 		// Emit the corresponding offset
-// 		const offset = value === "1y" ? -1 :
-// 			value === "2y" ? -2 :
-// 				value === "3y" ? -3 :
-// 					-5
-// 	}
+	// Transform the data into a format suitable for the chart
+	const transformedData = (data.instructor?.grade_distribution ?? [])
+		.map((item) => {
+			// Initialize gradeData with all grades set to 0
+			const gradeData = allGrades.reduce((acc, grade) => {
+				acc[grade] = 0; // Default to 0
+				return acc;
+			}, {} as Record<string, number>);
 
-// 	// Transform the data for the chart
-// 	const chartData = React.useMemo(() => {
-// 		return data.map(item => {
-// 			const termCode = item.term
-// 			const termName = termCode === "10" ? "Spring" :
-// 				termCode === "50" ? "Summer" :
-// 					termCode === "80" ? "Fall" : "Winter"
-// 			const date = `${termName} ${item.year}`
+			// Populate actual grade percentages
+			item.distributions.forEach((distribution) => {
+				const grade = distribution.grade;
+				const percentage = distribution.percentage;
+				gradeData[grade] = percentage;
+			});
 
-// 			// Ensure all grades have values (including zeros)
-// 			const distribution = {
-// 				"A": { count: 0, percentage: 0 },
-// 				"B": { count: 0, percentage: 0 },
-// 				"C": { count: 0, percentage: 0 },
-// 				"D": { count: 0, percentage: 0 },
-// 				"E": { count: 0, percentage: 0 },
-// 				"N/A": { count: 0, percentage: 0 },
-// 				...item.distribution
-// 			};
+			return {
+				date: `${item.term.description}-${item.year}`, // e.g., "Fall-2023"
+				termCode: item.term.code, // e.g., "80"
+				year: item.year, // e.g., 2023
+				...gradeData,
+			};
+		})
+		.sort((a, b) => {
+			// Sort by year first
+			if (a.year !== b.year) {
+				return a.year - b.year; // Ascending year (e.g., 2023 before 2024)
+			}
+			// If years are equal, sort by term code
+			return termSortOrder[a.termCode] - termSortOrder[b.termCode]; // Ascending term (Spring < Summer < Fall < Winter)
+		});
 
-// 			return {
-// 				date,
-// 				termCode,
-// 				year: item.year,
-// 				...Object.entries(distribution).reduce((acc, [grade, stats]) => {
-// 					acc[grade] = stats.percentage
-// 					return acc
-// 				}, {} as Record<string, number>)
-// 			}
-// 		})
-// 	}, [data])
+	return (
+		<ChartContainer
+			config={defaultChartConfig}
+			className="w-full h-full"
+		>
+			<AreaChart
+				data={transformedData}
+				margin={{
+					top: 20,
+					right: 20,
+					left: 20,
+					bottom: 20
+				}}
+			>
+				<defs>
+					{Object.entries(defaultChartConfig).map(([grade, config]) => (
+						<linearGradient
+							key={grade}
+							id={`fill${grade}`}
+							x1="0"
+							y1="0"
+							x2="0"
+							y2="1"
+						>
+							<stop
+								offset="5%"
+								stopColor={config.color}
+								stopOpacity={0.8}
+							/>
+							<stop
+								offset="95%"
+								stopColor={config.color}
+								stopOpacity={0.1}
+							/>
+						</linearGradient>
+					))}
+				</defs>
+				<XAxis
+					dataKey="date"
+					tickLine={false}
+					axisLine={false}
+					tickMargin={8}
+					minTickGap={32}
+					padding={{ left: 20 }}
+				/>
+				<YAxis
+					width={40}
+					tickLine={false}
+					axisLine={false}
+					tickCount={6}
+					tickFormatter={(value) => `${value.toFixed(0)}%`}
+					domain={[0, 100]}
+					label={{
+						value: "Percentage of Grades",
+						angle: -90,
+						position: "insideLeft",
+						offset: -5,
+						style: {
+							textAnchor: "middle",
+							fill: "var(--text-secondary)",
+							fontSize: 12,
+						},
+					}}
+				/>
+				<ChartTooltip
+					cursor={false}
+					content={
+						<ChartTooltipContent
+							indicator="dot"
+						/>
+					}
+				/>
+				{Object.entries(defaultChartConfig).map(([grade, config]) => (
+					<Area
+						key={grade}
+						dataKey={grade}
+						type="natural"
+						fill={`url(#fill${grade})`}
+						stroke={config.color}
+						stackId="a"
+					>
+						<LabelList
+							dataKey={grade}
+							position="bottom"               // try "inside", "insideBottom", "insideTopLeft", etc.
+							offset={0}
+							content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
 
-// 	const filteredData = React.useMemo(() => {
-// 		return chartData;
-// 	}, [chartData]);
+						/>
 
-// 	return (
-// 		<Card>
-// 			<CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-// 				<div className="grid flex-1 gap-1 text-center sm:text-left">
-// 					<CardTitle>{title}</CardTitle>
-// 					<CardDescription>{description}</CardDescription>
-// 				</div>
-// 				<div className="flex items-center gap-2">
-// 					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
-// 						<SelectTrigger
-// 							className="w-[160px] rounded-lg sm:ml-auto"
-// 							aria-label="Select time range"
-// 						>
-// 							<SelectValue placeholder="All time" />
-// 						</SelectTrigger>
-// 						<SelectContent className="rounded-xl">
-// 							<SelectItem value="all" className="rounded-lg">
-// 								Last 5 years
-// 							</SelectItem>
-// 							<SelectItem value="3y" className="rounded-lg">
-// 								Last 3 years
-// 							</SelectItem>
-// 							<SelectItem value="2y" className="rounded-lg">
-// 								Last 2 years
-// 							</SelectItem>
-// 							<SelectItem value="1y" className="rounded-lg">
-// 								Last year
-// 							</SelectItem>
-// 						</SelectContent>
-// 					</Select>
-// 				</div>
-// 			</CardHeader>
-// 			<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-// 				<div className="h-[400px]">
-// 					<div className="w-full h-full">
-// 						<ChartContainer
-// 							config={defaultChartConfig}
-// 							className="w-full h-full"
-// 						>
-// 							<AreaChart
-// 								data={filteredData}
-// 								margin={{
-// 									top: 20,
-// 									right: 20,
-// 									left: 20,
-// 									bottom: 20
-// 								}}
-// 							>
-// 								<defs>
-// 									{Object.entries(defaultChartConfig).map(([grade, config]) => (
-// 										<linearGradient
-// 											key={grade}
-// 											id={`fill${grade}`}
-// 											x1="0"
-// 											y1="0"
-// 											x2="0"
-// 											y2="1"
-// 										>
-// 											<stop
-// 												offset="5%"
-// 												stopColor={config.color}
-// 												stopOpacity={0.8}
-// 											/>
-// 											<stop
-// 												offset="95%"
-// 												stopColor={config.color}
-// 												stopOpacity={0.1}
-// 											/>
-// 										</linearGradient>
-// 									))}
-// 								</defs>
-// 								<XAxis
-// 									dataKey="date"
-// 									tickLine={false}
-// 									axisLine={false}
-// 									tickMargin={8}
-// 									minTickGap={32}
-// 									padding={{ left: 20 }}
-// 								/>
-// 								<YAxis
-// 									width={40}
-// 									tickLine={false}
-// 									axisLine={false}
-// 									tickCount={6}
-// 									tickFormatter={(value) => `${value.toFixed(0)}%`}
-// 									domain={[0, 100]}
-// 									label={{
-// 										value: "Percentage of Grades",
-// 										angle: -90,
-// 										position: "insideLeft",
-// 										offset: -5,
-// 										style: {
-// 											textAnchor: "middle",
-// 											fill: "var(--text-secondary)",
-// 											fontSize: 12,
-// 										},
-// 									}}
-// 								/>
-// 								<ChartTooltip
-// 									cursor={false}
-// 									content={
-// 										<ChartTooltipContent
-// 											indicator="dot"
-// 										/>
-// 									}
-// 								/>
-// 								{Object.entries(defaultChartConfig).map(([grade, config]) => (
-// 									<Area
-// 										key={grade}
-// 										dataKey={grade}
-// 										type="natural"
-// 										fill={`url(#fill${grade})`}
-// 										stroke={config.color}
-// 										stackId="a"
-// 									>
-// 										<LabelList
-// 											dataKey={grade}
-// 											position="bottom"               // try "inside", "insideBottom", "insideTopLeft", etc.
-// 											offset={0}
-// 											content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
-
-// 										/>
-
-// 									</Area>
-// 								))}
-// 								<ChartLegend
-// 									content={<ChartLegendContent />}
-// 									verticalAlign="top"
-// 								/>
-// 							</AreaChart>
-// 						</ChartContainer>
-// 					</div>
-// 				</div>
-// 			</CardContent>
-// 		</Card>
-// 	)
-// }
+					</Area>
+				))}
+				<ChartLegend
+					content={<ChartLegendContent />}
+					verticalAlign="top"
+				/>
+			</AreaChart>
+		</ChartContainer>
+	)
+}
 
 // Custom Label Component for LabelList
-
 const CustomizedLabel = (props: any) => {
 	// Extract props passed by LabelList
 	// x, y: Coordinates of the anchor point on the chart for the label
