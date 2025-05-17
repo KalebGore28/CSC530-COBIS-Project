@@ -10,7 +10,7 @@ import CobisTools from './pages/CobisTools';
 import CsvImport from './pages/CsvImport';
 import WaitingPage from './pages/auth/waiting';
 import OnboardingPage from './pages/auth/onboarding';
-import StudentLookup from './pages/StudentLookup';
+import { StudentLookup } from './pages/StudentLookup';
 import ClassRosterPage from './pages/ClassRoster';
 import InstructorsPage from './pages/instructors';
 import InstructorPage from './pages/instructors/[instructorId]';

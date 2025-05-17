@@ -1,18 +1,19 @@
-import { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { format } from "date-fns";
-import { fetchGraphQL } from "@/utils/fetch-graphql";
-import { toast } from "sonner";
 
 import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
-//
-// 1) GraphQL query string
-//
-const LOOKUP_STUDENTS_QUERY = `
-  query LookupStudents($filters: StudentLookupInput!) {
+
+// GraphQL imports
+import type { StudentLookupQuery } from "./__generated__/StudentLookupQuery.graphql";
+import { graphql, useLazyLoadQuery } from "react-relay";
+
+const StudentLookupQuery = graphql`
+  query StudentLookupQuery($filters: StudentLookupInput!) {
     lookupStudents(filters: $filters) {
       mnumber
       firstName
@@ -21,6 +22,8 @@ const LOOKUP_STUDENTS_QUERY = `
     }
   }
 `;
+
+// Custom skeleton for StudentLookupContent
 
 export interface Student {
 	mnumber: string;
@@ -69,127 +72,118 @@ const makePreHeader = (filters: FilterState): string[] => {
 	return lines;
 };
 
-const StudentLookup = () => {
-	const [results, setResults] = useState<Student[]>([]);
-	const [isLoading, setIsLoading] = useState(false);
-	const [currentFilters, setCurrentFilters] = useState<FilterState>({
-		academicLevels: [],
-		gpaRange: [0, 4],
-		programFilters: {},
-		courseFilters: {},
-	});
-
-	const fetchStudents = async (filters: FilterState) => {
-		setIsLoading(true);
-		try {
-			// 2) Build your GraphQL variables from FilterState
-			const gqlFilters: any = {};
-
-			if (filters.academicLevels.length) {
-				gqlFilters.academicLevels = filters.academicLevels;
-			}
-			// Only include GPA if user has narrowed the range off [0,4]
-			if (!(filters.gpaRange[0] === 0 && filters.gpaRange[1] === 4)) {
-				gqlFilters.gpaMin = filters.gpaRange[0];
-				gqlFilters.gpaMax = filters.gpaRange[1];
-			}
-
-			// programs: Record<string, { is_major?, is_minor? }>
-			const programEntries = Object.entries(filters.programFilters)
-				.filter(([, flags]) => flags.is_major || flags.is_minor)
-				.map(([program, flags]) => ({
-					program,
-					is_major: !!flags.is_major,
-					is_minor: !!flags.is_minor,
-				}));
-			if (programEntries.length) {
-				gqlFilters.programs = programEntries;
-			}
-
-			// courses: Record<string, { taken?, gradeOperator?, grade? }>
-			const courseEntries = Object.entries(filters.courseFilters)
-				.filter(([, cf]) => cf.taken !== undefined || cf.gradeOperator)
-				.map(([course, cf]) => ({
-					course,
-					taken: cf.taken ?? false,
-					operator: cf.gradeOperator,
-					grade: cf.grade,
-				}));
-			if (courseEntries.length) {
-				gqlFilters.courses = courseEntries;
-			}
-
-			// 3) Fire off GraphQL
-			const data = await fetchGraphQL(
-				LOOKUP_STUDENTS_QUERY,
-				{ filters: gqlFilters }
-			);
-			if (data?.lookupStudents) {
-				setResults(data.lookupStudents);
-			} else {
-				setResults([]);
-			}
-
-			// keep for CSV export
-			setCurrentFilters(filters);
-		} catch (err: any) {
-			console.error("GraphQL error:", err);
-			toast.error("Failed to fetch students");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	// if no results (and not loading) show filters + “no students found”
-	if (!isLoading && results.length === 0) {
-		return (
-			<div className="p-6">
-				<StudentFilters onApplyFilters={fetchStudents} />
-				<div className="mt-6">
-					<p>No students found.</p>
-				</div>
-			</div>
-		);
-	}
+export const StudentLookup: React.FC = () => {
+	const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
 
 	return (
 		<div className="p-6">
 			<StudentFilters
-				onApplyFilters={fetchStudents}
+				onApplyFilters={setCurrentFilters}
 				onResetFilters={() => {
-					setResults([]);
+					setCurrentFilters(null);
 				}}
 			/>
 
 			<div className="mt-6">
-				<Card>
-					<CardHeader>
-						<CardTitle>Student Results</CardTitle>
-					</CardHeader>
-					<CardContent className="p-4">
-						<PaginatedTable<Student>
-							isLoading={isLoading}
-							className="border"
-							data={results}
-							columns={[
-								{ key: "mnumber", label: "MNumber" },
-								{ key: "firstName", label: "First Name" },
-								{ key: "lastName", label: "Last Name" },
-								{
-									key: "email",
-									label: "Email",
-									transform: (val) => val.toLowerCase(),
-								},
-							]}
-							rowsPerPage={10}
-							fileName="student-lookup"
-							preHeader={makePreHeader(currentFilters)}
-						/>
-					</CardContent>
-				</Card>
+				<Suspense fallback={<Skeleton className="h-4 w-1/2" />}>
+					<StudentLookupContent filters={currentFilters} />
+				</Suspense>
 			</div>
 		</div>
 	);
 };
 
-export default StudentLookup;
+type StudentLookupContentProps = {
+	filters: FilterState | null;
+}
+
+const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) => {
+	if (!filters) {
+		return (
+			<CardContent>
+				<p className="text-sm text-muted-foreground">
+					Select filters and click "Run Search" to view students.
+				</p>
+			</CardContent>
+		);
+	}
+
+	const formatFilterState = (filters: FilterState) => {
+		// Build your GraphQL variables from FilterState
+		const gqlFilters: any = {};
+
+		if (filters.academicLevels.length) {
+			gqlFilters.academicLevels = filters.academicLevels;
+		}
+		// Only include GPA if user has narrowed the range off [0,4]
+		if (!(filters.gpaRange[0] === 0 && filters.gpaRange[1] === 4)) {
+			gqlFilters.gpaMin = filters.gpaRange[0];
+			gqlFilters.gpaMax = filters.gpaRange[1];
+		}
+
+		// programs: Record<string, { is_major?, is_minor? }>
+		const programEntries = Object.entries(filters.programFilters)
+			.filter(([, flags]) => flags.is_major || flags.is_minor)
+			.map(([program, flags]) => ({
+				program,
+				is_major: !!flags.is_major,
+				is_minor: !!flags.is_minor,
+			}));
+		if (programEntries.length) {
+			gqlFilters.programs = programEntries;
+		}
+
+		// courses: Record<string, { taken?, gradeOperator?, grade? }>
+		const courseEntries = Object.entries(filters.courseFilters)
+			.filter(([, cf]) => cf.taken !== undefined || cf.gradeOperator)
+			.map(([course, cf]) => ({
+				course,
+				taken: cf.taken ?? false,
+				operator: cf.gradeOperator,
+				grade: cf.grade,
+			}));
+		if (courseEntries.length) {
+			gqlFilters.courses = courseEntries;
+		}
+
+		// keep for CSV export
+		return gqlFilters;
+	};
+
+	const data = useLazyLoadQuery<StudentLookupQuery>(
+		StudentLookupQuery,
+		{ filters: formatFilterState(filters) },
+		{ fetchPolicy: "store-or-network" }
+	);
+
+	if (!data.lookupStudents) {
+		return (
+			<CardContent>
+				<p className="text-sm text-muted-foreground">
+					No students found.
+				</p>
+			</CardContent>
+		);
+	}
+
+	return (
+		<CardContent>
+			<PaginatedTable<Student>
+				className="border"
+				data={[...data.lookupStudents]}
+				columns={[
+					{ key: "mnumber", label: "MNumber" },
+					{ key: "firstName", label: "First Name" },
+					{ key: "lastName", label: "Last Name" },
+					{
+						key: "email",
+						label: "Email",
+						transform: (val) => val.toLowerCase(),
+					},
+				]}
+				rowsPerPage={10}
+				preHeader={makePreHeader(filters)}
+			/>
+		</CardContent>
+	);
+}
