@@ -415,7 +415,7 @@ export const resolvers = {
 				  WHERE sai.mnumber = ${tables.students.mnumber}
 					AND sai.overall_gpa >= ${gpaMin}
 				)
-			  `);
+			`);
 			}
 			if (gpaMax != null) {
 				whereClauses.push(sql`
@@ -424,7 +424,7 @@ export const resolvers = {
 				  WHERE sai.mnumber = ${tables.students.mnumber}
 					AND sai.overall_gpa <= ${gpaMax}
 				)
-			  `);
+			`);
 			}
 
 			// 2) Academic‐level filters (latest‐row + correct ranges)
@@ -767,7 +767,7 @@ export const resolvers = {
 			loaders.term.load(row.term),
 		course: (row: any, _: any, { loaders }: any) =>
 			loaders.course.load(
-				`${row.course_subject} | ${row.course_number}| ${row.course_suffix} `
+				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
 			),
 		students: (row: any, _: any, { db }: any) =>
 			db
@@ -973,7 +973,7 @@ export const resolvers = {
 			loaders.partOfTerm.load(row.part_of_term),
 		course: (row: any, _: any, { loaders }: any) =>
 			loaders.course.load(
-				`${row.course_subject}| ${row.course_number}| ${row.course_suffix} `
+				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
 			),
 		registration_status: (row: any, _: any, { loaders }: any) =>
 			loaders.registrationStatus.load(row.registration_status),
@@ -1005,12 +1005,12 @@ export const resolvers = {
 
 			if (args.term != null) {
 				predicates.push(
-					sql`${tables.studentAcademicInfo.term} = ${args.term} `
+					sql`${tables.studentAcademicInfo.term} = ${args.term}`
 				)
 			}
 			if (args.year != null) {
 				predicates.push(
-					sql`${tables.studentAcademicInfo.year} = ${args.year} `
+					sql`${tables.studentAcademicInfo.year} = ${args.year}`
 				)
 			}
 
@@ -1054,22 +1054,22 @@ export const resolvers = {
 
 			if (args.startTerm != null) {
 				predicates.push(
-					sql`${tables.studentCourses.term} >= ${args.startTerm} `
+					sql`${tables.studentCourses.term} >= ${args.startTerm}`
 				)
 			}
 			if (args.endTerm != null) {
 				predicates.push(
-					sql`${tables.studentCourses.term} <= ${args.endTerm} `
+					sql`${tables.studentCourses.term} <= ${args.endTerm}`
 				)
 			}
 			if (args.startYear != null) {
 				predicates.push(
-					sql`${tables.studentCourses.year} >= ${args.startYear} `
+					sql`${tables.studentCourses.year} >= ${args.startYear}`
 				)
 			}
 			if (args.endYear != null) {
 				predicates.push(
-					sql`${tables.studentCourses.year} <= ${args.endYear} `
+					sql`${tables.studentCourses.year} <= ${args.endYear}`
 				)
 			}
 

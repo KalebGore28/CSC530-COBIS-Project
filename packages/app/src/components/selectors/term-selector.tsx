@@ -17,7 +17,11 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCard } from "@/components/loading/selector-skeleton";
-import { Term } from "@cobis/types";
+
+// Import types
+import type { Term } from "@cobis/types";
+
+// GraphQL imports
 import type { termSelectorQuery } from "./__generated__/termSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
@@ -106,6 +110,15 @@ const TermSelectorContent: React.FC<TermSelectorProps> = ({
 		{ mnumber },
 		{ fetchPolicy: "store-or-network" }
 	);
+
+
+	if (!data.instructor?.courses_taught) {
+		return (
+			<CardContent>
+				<p>No courses found for the selected instructor.</p>
+			</CardContent>
+		);
+	}
 
 	const terms: ExtendedTerm[] = Array.from(
 		new Map(
