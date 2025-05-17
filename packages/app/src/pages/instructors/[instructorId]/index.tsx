@@ -35,7 +35,7 @@ import {
 import { useParams, useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner"
-import { GradeDistributions, GradeDistributionData } from '@/components/charts/term-grade-distributions';
+import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 // Types based on API responses
 type InstructorResponse = {
 	mnumber: string;
@@ -580,14 +580,14 @@ const FacultyProfilePage: React.FC = () => {
 
 					{/* Grade Distributions Tab */}
 					<TabsContent value="grade-distributions">
-						<GradeDistributions
+						{/* <GradeDistributions
 							title={`${instructor?.instructorInfo.name}'s Grade Distributions`}
 							description={`Showing grade distribution trends over time for ${instructor?.instructorInfo.name}`}
 							data={gradeDistributions}
 							onTimeRangeChange={(offset: number) => {
 								fetchGradeDistributions(offset);
 							}}
-						/>
+						/> */}
 					</TabsContent>
 				</Tabs>
 			</div>

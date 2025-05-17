@@ -65,6 +65,22 @@ type Faculty {
     suffix: String,
     section: String,
   ): [InstructorCourse!]!
+  grade_distribution(
+    startTerm: String!,
+    startYear: Int!,
+    endTerm: String,
+    endYear: Int
+  ): GradeDistribution!
+}
+
+type GradeDistribution {
+  distributions: [GradeEntry!]!
+}
+
+type GradeEntry {
+  grade: String!
+  count: Int!
+  percentage: Float!
 }
 
 type InstructionalMethod {

@@ -653,14 +653,86 @@ export const resolvers = {
 					sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`
 				)
 		},
-	},
+		grade_distribution: async (
+			fac: { mnumber: string },
+			{
+				startTerm,
+				startYear,
+				endTerm,
+				endYear,
+			}: {
+				startTerm: string;
+				startYear: number;
+				endTerm?: string;
+				endYear?: number;
+			},
+			{ db }: any
+		) => {
+			// If endTerm or endYear is not provided, use the current term/year
+			let finalEndTerm = endTerm;
+			let finalEndYear = endYear;
 
+			if (!endTerm || !endYear) {
+				const [currentYearTerm] = await db
+					.select({
+						currentYear: sql<number>`MAX(${tables.instructorCourses.year})`,
+						currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`,
+					})
+					.from(tables.instructorCourses);
+
+				finalEndTerm = endTerm ?? currentYearTerm.currentTerm;
+				finalEndYear = endYear ?? currentYearTerm.currentYear;
+			}
+
+			// Query grade distribution
+			const gradeDistribution = await db
+				.select({
+					grade: tables.studentCourses.final_grade,
+					count: count(),
+				})
+				.from(tables.instructorCourses)
+				.innerJoin(
+					tables.studentCourses,
+					and(
+						eq(tables.instructorCourses.crn, tables.studentCourses.crn),
+						eq(tables.instructorCourses.term, tables.studentCourses.term),
+						eq(tables.instructorCourses.year, tables.studentCourses.year)
+					)
+				)
+				.where(
+					and(
+						eq(tables.instructorCourses.mnumber, fac.mnumber),
+						// Year range
+						gte(tables.instructorCourses.year, startYear),
+						lte(tables.instructorCourses.year, finalEndYear || 9999),
+						// Term range within years
+						sql`(
+							(${tables.instructorCourses.year} > ${startYear} OR ${tables.instructorCourses.term} >= ${startTerm})
+							AND
+							(${tables.instructorCourses.year} < ${finalEndYear} OR ${tables.instructorCourses.term} <= ${finalEndTerm})
+						)`
+					)
+				)
+				.groupBy(tables.studentCourses.final_grade);
+
+			// Calculate total students and format distributions
+			const totalStudents = gradeDistribution.reduce((sum: number, g: { count: number }) => sum + g.count, 0);
+
+			const distributions = gradeDistribution.map((g: { grade: string | null; count: number }) => ({
+				grade: g.grade ?? 'N/A',
+				count: g.count,
+				percentage: totalStudents > 0 ? parseFloat(((g.count / totalStudents) * 100).toFixed(2)) : 0,
+			}));
+
+			return { distributions };
+		},
+	},
 	InstructorCourse: {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
 		course: (row: any, _: any, { loaders }: any) =>
 			loaders.course.load(
-				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
+				`${row.course_subject} | ${row.course_number}| ${row.course_suffix} `
 			),
 		students: (row: any, _: any, { db }: any) =>
 			db
@@ -866,7 +938,7 @@ export const resolvers = {
 			loaders.partOfTerm.load(row.part_of_term),
 		course: (row: any, _: any, { loaders }: any) =>
 			loaders.course.load(
-				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
+				`${row.course_subject}| ${row.course_number}| ${row.course_suffix} `
 			),
 		registration_status: (row: any, _: any, { loaders }: any) =>
 			loaders.registrationStatus.load(row.registration_status),
@@ -898,12 +970,12 @@ export const resolvers = {
 
 			if (args.term != null) {
 				predicates.push(
-					sql`${tables.studentAcademicInfo.term} = ${args.term}`
+					sql`${tables.studentAcademicInfo.term} = ${args.term} `
 				)
 			}
 			if (args.year != null) {
 				predicates.push(
-					sql`${tables.studentAcademicInfo.year} = ${args.year}`
+					sql`${tables.studentAcademicInfo.year} = ${args.year} `
 				)
 			}
 
@@ -947,22 +1019,22 @@ export const resolvers = {
 
 			if (args.startTerm != null) {
 				predicates.push(
-					sql`${tables.studentCourses.term} >= ${args.startTerm}`
+					sql`${tables.studentCourses.term} >= ${args.startTerm} `
 				)
 			}
 			if (args.endTerm != null) {
 				predicates.push(
-					sql`${tables.studentCourses.term} <= ${args.endTerm}`
+					sql`${tables.studentCourses.term} <= ${args.endTerm} `
 				)
 			}
 			if (args.startYear != null) {
 				predicates.push(
-					sql`${tables.studentCourses.year} >= ${args.startYear}`
+					sql`${tables.studentCourses.year} >= ${args.startYear} `
 				)
 			}
 			if (args.endYear != null) {
 				predicates.push(
-					sql`${tables.studentCourses.year} <= ${args.endYear}`
+					sql`${tables.studentCourses.year} <= ${args.endYear} `
 				)
 			}
 

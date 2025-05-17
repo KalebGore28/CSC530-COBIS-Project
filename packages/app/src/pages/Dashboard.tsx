@@ -19,30 +19,10 @@ import { Link } from "react-router-dom";
 import { useSession } from "@/context/session";
 import { useRoleContext } from "@/context/role";
 import { Separator } from "@/components/ui/separator";
-import axios from "axios";
 import { toast } from "sonner";
-import {
-  GradeDistributions,
-  GradeDistributionData,
-} from "@/components/charts/term-grade-distributions";
+import { GradeDistribution } from "@/components/charts/term-grade-distributions";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
-// GraphQL imports
-import type { DashboardQuery } from "./__generated__/DashboardQuery.graphql";
-import { graphql, useLazyLoadQuery } from "react-relay";
-
-const DashboardQuery = graphql`
-  query DashboardQuery {
-		getCurrentYearTerm {
-			year
-			term {
-				code
-				description
-			}
-		}
-  }
-`;
 
 // Custom skeleton for Dashboard
 const DashboardSkeleton: React.FC = () => (
@@ -158,86 +138,6 @@ const DashboardContent: React.FC = () => {
   const { session } = useSession();
   const { selectedRole, routePermissions } = useRoleContext();
 
-  const { getCurrentYearTerm } = useLazyLoadQuery<DashboardQuery>(
-    DashboardQuery,
-    {},
-    { fetchPolicy: "store-or-network" }
-  );
-
-
-  const [gradeDistributions, setGradeDistributions] = useState<
-    GradeDistributionData[]
-  >([]);
-
-  const fetchGradeDistributions = async (offset: number) => {
-    if (!session?.info?.mnumber || !getCurrentYearTerm) {
-      console.warn(
-        "Skipping grade distribution fetch: Missing M-number or current term.",
-      );
-      setGradeDistributions([]);
-      return;
-    }
-    try {
-      const response = await axios.get<{ gradeTrends: Array<any> }>(
-        `/api/instructor/${session.info.mnumber}/trend/grades`,
-        {
-          params: {
-            start_year: getCurrentYearTerm.year + offset,
-            end_year: getCurrentYearTerm.year,
-          },
-          withCredentials: true,
-        },
-      );
-
-      // --- Data Transformation ---
-      const transformedData = response.data.gradeTrends.map((trend: any) => {
-        const defaultDist = {
-          A: { count: 0, percentage: 0 },
-          B: { count: 0, percentage: 0 },
-          C: { count: 0, percentage: 0 },
-          D: { count: 0, percentage: 0 },
-          F: { count: 0, percentage: 0 },
-          "N/A": { count: 0, percentage: 0 },
-        };
-        const distribution =
-          Object.keys(trend.distribution || {}).length === 0
-            ? defaultDist
-            : trend.distribution;
-        return {
-          term: trend.term,
-          year: trend.year,
-          totalStudents: trend.totalStudents || 0,
-          distribution: distribution,
-        };
-      });
-      setGradeDistributions(transformedData);
-    } catch (error) {
-      toast.error("Failed to load grade distributions");
-      setGradeDistributions([]);
-    }
-  };
-
-  // --- useEffect Hooks ---
-  useEffect(() => {
-    // Fetch current term data
-    const fetchData = async () => {
-      if (getCurrentYearTerm) {
-        // Determine if the user should see the grade component based on the local constant
-        const shouldViewGrades =
-          selectedRole && gradeDistributionRoles.includes(selectedRole.name);
-
-        // Fetch grades only if term is known AND the user's role is allowed
-        if (shouldViewGrades) {
-          await fetchGradeDistributions(-1);
-        } else {
-          // Clear data if user shouldn't see it, role isn't selected, or term unknown
-          setGradeDistributions([]);
-        }
-      }
-    };
-    fetchData();
-
-  }, [selectedRole]); // Depend on role change
 
   // --- Visibility Logic ---
 
@@ -267,11 +167,8 @@ const DashboardContent: React.FC = () => {
       {/* Conditionally Render Grade Distribution (uses local constant check) */}
       {canViewGradeDistribution && (
         <>
-          <GradeDistributions
-            data={gradeDistributions}
-            onTimeRangeChange={(offset: number) => {
-              fetchGradeDistributions(offset);
-            }}
+          <GradeDistribution
+            mnumber={session?.info?.mnumber || ""}
           />
           <Separator className="my-6" />
         </>
