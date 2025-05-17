@@ -2,7 +2,7 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Page Imports
-import Dashboard from './pages/Dashboard';
+import { Dashboard } from './pages/Dashboard';
 import LoginPage from './pages/auth/login';
 import Layout from './Layout';
 import QueryBuilderPage from './pages/QueryBuilder';

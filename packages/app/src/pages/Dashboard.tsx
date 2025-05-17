@@ -1,3 +1,4 @@
+import React, { useState, useEffect, Suspense } from "react";
 import {
   Card,
   CardContent,
@@ -5,11 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { useSession } from "@/context/session";
-import { useRoleContext } from "@/context/role";
-import { Separator } from "@/components/ui/separator";
 import {
   BookOpen,
   Users,
@@ -18,19 +14,68 @@ import {
   FileText,
   Telescope
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useSession } from "@/context/session";
+import { useRoleContext } from "@/context/role";
+import { Separator } from "@/components/ui/separator";
 import axios from "axios";
 import { toast } from "sonner";
 import {
   GradeDistributions,
   GradeDistributionData,
 } from "@/components/charts/term-grade-distributions";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type CurrentTermResponse = {
-  term: string;
-  year: number;
-  termName: string;
-};
+
+// GraphQL imports
+import type { DashboardQuery } from "./__generated__/DashboardQuery.graphql";
+import { graphql, useLazyLoadQuery } from "react-relay";
+
+const DashboardQuery = graphql`
+  query DashboardQuery {
+		getCurrentYearTerm {
+			year
+			term {
+				code
+				description
+			}
+		}
+  }
+`;
+
+// Custom skeleton for Dashboard
+const DashboardSkeleton: React.FC = () => (
+  <div className="p-6">
+    <div className="flex flex-col items-center space-y-2 mb-8">
+      <Skeleton className="h-10 w-[300px] mb-2" />
+      <Skeleton className="h-7 w-[250px] mb-2" />
+      <Skeleton className="h-5 w-[220px]" />
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {Array.from({ length: 6 }, (_, index) => (
+        <Card key={index} className="transition-all hover:shadow-md">
+          <CardHeader className="text-center pt-6">
+            <Skeleton className="h-8 w-[100px] mb-4" />
+            <Skeleton className="h-8 w-[200px] mb-4" />
+          </CardHeader>
+          <CardContent className="flex justify-center pb-6">
+            <Skeleton className="h-8 w-[150px]" />
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  </div>
+);
+
+
+export const Dashboard: React.FC = () => {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
 
 const gradeDistributionRoles = ["Faculty", "Department Chair"];
 
@@ -109,34 +154,23 @@ const dashboardCardsStructure = [
   }
 ];
 
-export default function Dashboard() {
+const DashboardContent: React.FC = () => {
   const { session } = useSession();
   const { selectedRole, routePermissions } = useRoleContext();
 
-  const [currentTerm, setCurrentTerm] = useState<CurrentTermResponse | null>(
-    null,
+  const { getCurrentYearTerm } = useLazyLoadQuery<DashboardQuery>(
+    DashboardQuery,
+    {},
+    { fetchPolicy: "store-or-network" }
   );
+
+
   const [gradeDistributions, setGradeDistributions] = useState<
     GradeDistributionData[]
   >([]);
 
-  // --- API Fetching Logic ---
-  const fetchCurrentTerm = async () => {
-    try {
-      const response = await axios.get<CurrentTermResponse>(
-        "/api/utility/current-term",
-        { withCredentials: true },
-      );
-      setCurrentTerm(response.data);
-      return response.data;
-    } catch (error) {
-      toast.error("Failed to load current term information");
-      return null;
-    }
-  };
-
   const fetchGradeDistributions = async (offset: number) => {
-    if (!session?.info?.mnumber || !currentTerm) {
+    if (!session?.info?.mnumber || !getCurrentYearTerm) {
       console.warn(
         "Skipping grade distribution fetch: Missing M-number or current term.",
       );
@@ -148,8 +182,8 @@ export default function Dashboard() {
         `/api/instructor/${session.info.mnumber}/trend/grades`,
         {
           params: {
-            start_year: currentTerm.year + offset,
-            end_year: currentTerm.year,
+            start_year: getCurrentYearTerm.year + offset,
+            end_year: getCurrentYearTerm.year,
           },
           withCredentials: true,
         },
@@ -185,22 +219,25 @@ export default function Dashboard() {
 
   // --- useEffect Hooks ---
   useEffect(() => {
-    fetchCurrentTerm();
-  }, []);
+    // Fetch current term data
+    const fetchData = async () => {
+      if (getCurrentYearTerm) {
+        // Determine if the user should see the grade component based on the local constant
+        const shouldViewGrades =
+          selectedRole && gradeDistributionRoles.includes(selectedRole.name);
 
-  useEffect(() => {
-    // Determine if the user should see the grade component based on the local constant
-    const shouldViewGrades =
-      selectedRole && gradeDistributionRoles.includes(selectedRole.name);
+        // Fetch grades only if term is known AND the user's role is allowed
+        if (shouldViewGrades) {
+          await fetchGradeDistributions(-1);
+        } else {
+          // Clear data if user shouldn't see it, role isn't selected, or term unknown
+          setGradeDistributions([]);
+        }
+      }
+    };
+    fetchData();
 
-    // Fetch grades only if term is known AND the user's role is allowed
-    if (currentTerm && shouldViewGrades) {
-      fetchGradeDistributions(-1);
-    } else {
-      // Clear data if user shouldn't see it, role isn't selected, or term unknown
-      setGradeDistributions([]);
-    }
-  }, [currentTerm, selectedRole]); // Depend on role change
+  }, [selectedRole]); // Depend on role change
 
   // --- Visibility Logic ---
 
