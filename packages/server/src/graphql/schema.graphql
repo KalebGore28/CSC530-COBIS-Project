@@ -1,34 +1,23 @@
+# Lookup Tables
 type AcademicStanding {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
-type Account {
-  id: String!                  # PK
-  account_id: String!
-  provider_id: String!
-  user_id: String!              # FK → user.id
-  access_token: String
-  refresh_token: String
-  id_token: String
-  access_token_expires_at: Int
-  refresh_token_expires_at: Int
-  scope: String
-  password: String
-  created_at: Int!
-  updated_at: Int!
-  # Relationships
-  user: User!              # FK → user.id
-}
-
 type AdmitCode {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
 type College {
-  code: String!            # PK
+  code: String!
   description: String!
+}
+
+type CoursePrefix {
+  prefix: String!
+  department: Department!
+  college: College!
 }
 
 type Course {
@@ -43,87 +32,28 @@ type Course {
 }
 
 type Department {
-  code: String!            # PK
+  code: String!
   description: String!
-  college: College!         # FK → colleges.code
-}
-
-type Faculty {
-  mnumber: String!             # PK
-  first_name: String!
-  last_name: String!
-  college: College!         # FK → colleges.code
-  department: Department!   # FK → departments.code
-  # Relationships
-  courses_taught(
-    startTerm: String,
-    endTerm: String,
-    startYear: Int,
-    endYear: Int,
-    subject: String,
-    number: Int,
-    suffix: String,
-    section: String,
-  ): [InstructorCourse!]!
-  grade_distribution(
-    startTerm: String!,
-    startYear: Int!,
-    endTerm: String,
-    endYear: Int
-  ): [GradeDistribution!]!
-  advisees(
-    term: String,
-    year: Int,
-  ): [StudentAdvisor!]!
-}
-
-type GradeDistribution {
-  term: Term!
-  year: Int!
-  distributions: [GradeEntry!]!
-}
-
-type GradeEntry {
-  grade: String!
-  count: Int!
-  percentage: Float!
+  college: College!
 }
 
 type InstructionalMethod {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
-type InstructorCourse {
-  mnumber: String!
-  term: Term!
-  year: Int!
-  crn: String!
-  course: Course!
-  course_section: String!
-  role: String!
-  total_students: Int!
-  total_credit_hours: Int!
-  credit_hour: Int!
-  class_gpa: Float!
-  midterm_average: Float!
-  final_average: Float!
-  # Relationships
-  students: [StudentCourse!]!
-}
-
 type Nation {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
 type PartOfTerm {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
 type Program {
-  code: String!            # PK
+  code: String!
   description: String!
   cip_code: String
   is_major: Boolean!
@@ -131,101 +61,27 @@ type Program {
   has_concentration: Boolean!
   is_discontinued: Boolean!
   is_aacsb: Boolean!
-  department: Department!  # FK → departments.code
-  college: College!        # FK → colleges.code
+  department: Department!
+  college: College!
   added_on: String!
 }
 
 type RegistrationStatus {
-  code: String!            # PK
+  code: String!
   description: String!
 }
 
 type Role {
-  id: Int!                 # PK
+  id: Int!
   name: String!
 }
 
-type Session {
-  id: String!                 # PK
-  token: String!
-  expires_at: Int!
-  created_at: Int!
-  updated_at: Int!
-  ip_address: String
-  user_agent: String
-  user_id: String!              # FK → user.id
-  # Relationships
-  user: User!
+type Term {
+  code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
+  description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
 }
 
-type StudentAcademicInfo {
-  mnumber: String!         # FK → students.mnumber
-  term: Term!
-  year: Int!
-  admit_term: Term!
-  admit_year: Int!
-  admit_code: AdmitCode!
-  academic_standing: AcademicStanding!
-  msu_attempted_hours: Float!
-  msu_earned_hours: Float!
-  msu_quality_points: Float!
-  msu_gpa: Float!
-  overall_attempted_hours: Float!
-  overall_earned_hours: Float!
-  overall_quality_points: Float!
-  overall_gpa: Float!
-}
-
-type StudentAddress {
-  mnumber: String!         # FK → students.mnumber
-  type: String!
-  street1: String!
-  street2: String
-  city: String!
-  state: String!
-  zip: String!
-  nation: Nation!
-  phone: String!
-}
-
-type StudentAdvisor {
-  student_mnumber: String! # FK → students.mnumber
-  term: Term!
-  year: Int!
-  advisor_mnumber: String! # FK → faculty.mnumber
-  # Relationships
-  student: Student!
-}
-
-type StudentCourse {
-  mnumber: String!         # FK → students.mnumber
-  term: Term!
-  year: Int!
-  part_of_term: PartOfTerm!
-  crn: String!
-  course: Course!
-  course_section: String!
-  course_hours: Int!
-  course_level: String!
-  registration_status: RegistrationStatus!
-  instructional_method: InstructionalMethod!
-  last_attendance: String
-  midterm_grade: String
-  final_grade: String
-  # Relationships
-  student: Student!         # FK → students.mnumber
-}
-
-type StudentProgram {
-  mnumber: String!         # FK → students.mnumber
-  term: Term!
-  year: Int!
-  type: String!
-  level: String!
-  program: Program!
-}
-
+# Student Types
 type Student {
   mnumber: String!
   first_name: String!
@@ -265,14 +121,115 @@ type Student {
   programs: [StudentProgram!]!
 }
 
-type Term {
-  code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
-  description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
+type StudentAcademicInfo {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  admit_term: Term!
+  admit_year: Int!
+  admit_code: AdmitCode!
+  academic_standing: AcademicStanding!
+  msu_attempted_hours: Float!
+  msu_earned_hours: Float!
+  msu_quality_points: Float!
+  msu_gpa: Float!
+  overall_attempted_hours: Float!
+  overall_earned_hours: Float!
+  overall_quality_points: Float!
+  overall_gpa: Float!
+  # Relationships
+  student: Student!
+}
+
+type StudentAddress {
+  mnumber: String!
+  type: String!
+  street1: String!
+  street2: String
+  city: String!
+  state: String!
+  zip: String!
+  nation: Nation!
+  phone: String!
+  # Relationships
+  student: Student!
+}
+
+type StudentAdvisor {
+  student_mnumber: String!
+  term: Term!
+  year: Int!
+  advisor_mnumber: String!
+  # Relationships
+  student: Student!
+  advisor: Faculty!
+}
+
+type StudentCourse {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  part_of_term: PartOfTerm!
+  crn: String!
+  course: Course!
+  course_section: String!
+  course_hours: Int!
+  course_level: String!
+  registration_status: RegistrationStatus!
+  instructional_method: InstructionalMethod!
+  last_attendance: String
+  midterm_grade: String
+  final_grade: String
+  # Relationships
+  student: Student!
+}
+
+type StudentProgram {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  type: String!
+  level: String!
+  program: Program!
+  # Relationships
+  student: Student!
+}
+
+# Better Auth Types
+type Account {
+  id: String!
+  account_id: String!
+  provider_id: String!
+  user_id: String!
+  access_token: String
+  refresh_token: String
+  id_token: String
+  access_token_expires_at: Int
+  refresh_token_expires_at: Int
+  scope: String
+  password: String
+  created_at: Int!
+  updated_at: Int!
+  # Relationships
+  user: User!
+}
+
+type Session {
+  id: String!
+  token: String!
+  expires_at: Int!
+  created_at: Int!
+  updated_at: Int!
+  ip_address: String
+  user_agent: String
+  user_id: String!
+  # Relationships
+  user: User!
 }
 
 type User {
-  id: String!                  # PK
-  mnumber: String          # unique, FK → students.mnumber or faculty.mnumber
+  id: String!
+  mnumber: String!
   name: String!
   email: String!
   email_verified: Boolean!
@@ -282,8 +239,78 @@ type User {
   is_enabled: Boolean!
   last_login: String!
   # Relationships
-  roles: [Role!]!          # via user_roles
+  roles: [Role!]!
 }
+
+type Verification {
+  id: String!
+  identifier: String!
+  value: String!
+  expires_at: Int!
+  created_at: Int
+  updated_at: Int
+}
+
+# Instructor Types
+type Faculty {
+  mnumber: String!
+  first_name: String!
+  last_name: String!
+  college: College!
+  department: Department!
+  # Relationships
+  courses_taught(
+    startTerm: String,
+    endTerm: String,
+    startYear: Int,
+    endYear: Int,
+    subject: String,
+    number: Int,
+    suffix: String,
+    section: String,
+  ): [InstructorCourse!]!
+  grade_distribution(
+    startTerm: String!,
+    startYear: Int!,
+    endTerm: String,
+    endYear: Int
+  ): [GradeDistribution!]!
+  advisees(
+    term: String,
+    year: Int,
+  ): [StudentAdvisor!]!
+}
+
+type InstructorCourse {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  crn: String!
+  course: Course!
+  course_section: String!
+  role: String!
+  total_students: Int!
+  total_credit_hours: Int!
+  credit_hour: Int!
+  class_gpa: Float!
+  midterm_average: Float!
+  final_average: Float!
+  # Relationships
+  students: [StudentCourse!]!
+}
+
+type GradeDistribution {
+  term: Term!
+  year: Int!
+  distributions: [GradeEntry!]!
+}
+
+type GradeEntry {
+  grade: String!
+  count: Int!
+  percentage: Float!
+}
+
 
 type UserRole {
   user_id: String!              # FK → user.id
@@ -293,14 +320,6 @@ type UserRole {
   role: Role!              # FK → roles.id
 }
 
-type Verification {
-  id: String!                  # PK
-  identifier: String!
-  value: String!
-  expires_at: Int!
-  created_at: Int
-  updated_at: Int
-}
 
 type YearTerm {
   term: Term!

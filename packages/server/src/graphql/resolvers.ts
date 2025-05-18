@@ -10,14 +10,6 @@ import { ApolloContext } from '../app';
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
 type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
 
-const gradePoints: Record<GradeValue, number> = {
-	A: 4.0,
-	B: 3.0,
-	C: 2.0,
-	D: 1.0,
-	E: 0.0,
-}
-
 interface CourseFilterInput {
 	course: string;
 	taken: boolean;
@@ -576,438 +568,7 @@ export const resolvers = {
 		},
 	},
 
-	Faculty: {
-		college: (fac: any, _: any, { loaders }: any) =>
-			loaders.college.load(fac.college),
-		department: (fac: any, _: any, { loaders }: any) =>
-			loaders.department.load(fac.department),
-		courses_taught: async (
-			fac: any,
-			args: {
-				startTerm?: string
-				endTerm?: string
-				startYear?: number
-				endYear?: number
-				subject?: string
-				number?: number
-				suffix?: string
-				section?: string
-			},
-			{ db }: any
-		) => {
-			const predicates: any[] = [
-				eq(tables.instructorCourses.mnumber, fac.mnumber),
-			]
-
-			if (args.startTerm != null) {
-				predicates.push(
-					sql`${tables.instructorCourses.term} >= ${args.startTerm}`
-				)
-			}
-			if (args.endTerm != null) {
-				predicates.push(
-					sql`${tables.instructorCourses.term} <= ${args.endTerm}`
-				)
-			}
-			if (args.startYear != null) {
-				predicates.push(
-					sql`${tables.instructorCourses.year} >= ${args.startYear}`
-				)
-			}
-			if (args.endYear != null) {
-				predicates.push(
-					sql`${tables.instructorCourses.year} <= ${args.endYear}`
-				)
-			}
-			if (args.subject != null) {
-				predicates.push(
-					eq(tables.instructorCourses.course_subject, args.subject)
-				)
-			}
-			if (args.number != null) {
-				predicates.push(
-					eq(tables.instructorCourses.course_number, args.number)
-				)
-			}
-			if (args.suffix != null) {
-				predicates.push(
-					eq(tables.instructorCourses.course_suffix, args.suffix)
-				)
-			}
-			if (args.section != null) {
-				predicates.push(
-					eq(tables.instructorCourses.course_section, args.section)
-				)
-			}
-
-			return db
-				.select()
-				.from(tables.instructorCourses)
-				.where(and(...predicates))
-				.orderBy(
-					sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`
-				)
-		},
-		grade_distribution: async (
-			fac: { mnumber: string },
-			{
-				startTerm,
-				startYear,
-				endTerm,
-				endYear,
-			}: {
-				startTerm: string; // e.g., "10" for Spring
-				startYear: number; // e.g., 2023
-				endTerm?: string;  // e.g., "80" for Fall
-				endYear?: number;  // e.g., 2024
-			},
-			{ db }: any
-		) => {
-			// If endTerm or endYear is not provided, use the current term/year
-			let finalEndTerm = endTerm;
-			let finalEndYear = endYear;
-
-			if (!endTerm || !endYear) {
-				const [currentYearTerm] = await db
-					.select({
-						currentYear: sql<number>`MAX(${tables.instructorCourses.year})`,
-						currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`,
-					})
-					.from(tables.instructorCourses);
-
-				finalEndTerm = endTerm ?? currentYearTerm.currentTerm;
-				finalEndYear = endYear ?? currentYearTerm.currentYear;
-			}
-
-			// Query grade distribution, grouping by term, year, and grade
-			const gradeDistribution = await db
-				.select({
-					term: tables.instructorCourses.term,
-					year: tables.instructorCourses.year,
-					grade: tables.studentCourses.final_grade,
-					count: count(),
-				})
-				.from(tables.instructorCourses)
-				.innerJoin(
-					tables.studentCourses,
-					and(
-						eq(tables.instructorCourses.crn, tables.studentCourses.crn),
-						eq(tables.instructorCourses.term, tables.studentCourses.term),
-						eq(tables.instructorCourses.year, tables.studentCourses.year)
-					)
-				)
-				.where(
-					and(
-						eq(tables.instructorCourses.mnumber, fac.mnumber),
-						// Year range
-						gte(tables.instructorCourses.year, startYear),
-						lte(tables.instructorCourses.year, finalEndYear || 9999),
-						// Term range within years
-						sql`(
-            (${tables.instructorCourses.year} > ${startYear} OR ${tables.instructorCourses.term} >= ${startTerm})
-            AND
-            (${tables.instructorCourses.year} < ${finalEndYear} OR ${tables.instructorCourses.term} <= ${finalEndTerm})
-          )`
-					)
-				)
-				.groupBy(
-					tables.instructorCourses.term,
-					tables.instructorCourses.year,
-					tables.studentCourses.final_grade
-				);
-
-			// Map term codes to descriptions
-			const termDescriptions: { [key: string]: string } = {
-				'10': 'Spring',
-				'50': 'Summer',
-				'80': 'Fall',
-				'90': 'Winter',
-			};
-
-			// Group results by term and year
-			const groupedByTermYear: { [key: string]: any[] } = gradeDistribution.reduce((acc: { [x: string]: any[]; }, curr: { term: any; year: any; }) => {
-				const key = `${curr.term}-${curr.year}`;
-				if (!acc[key]) {
-					acc[key] = [];
-				}
-				acc[key].push(curr);
-				return acc;
-			}, {});
-
-			// Format distributions for each term/year
-			const result = Object.entries(groupedByTermYear).map(([key, grades]) => {
-				const [term, year] = key.split('-');
-				const totalStudents = grades.reduce((sum: number, g: { count: number }) => sum + g.count, 0);
-				const distributions = grades.map((g: { grade: string | null; count: number }) => ({
-					grade: g.grade ?? 'N/A',
-					count: g.count,
-					percentage: totalStudents > 0 ? parseFloat(((g.count / totalStudents) * 100).toFixed(2)) : 0,
-				}));
-
-				return {
-					term: {
-						code: term,
-						description: termDescriptions[term] || 'Unknown',
-					},
-					year: parseInt(year),
-					distributions,
-				};
-			});
-
-			return result;
-		},
-		advisees: async (
-			fac: any,
-			{ term, year }: { term?: string; year?: number },
-			{ db }: any
-		) => {
-			const predicates: SQL[] = [
-				eq(tables.studentAdvisors.advisor_mnumber, fac.mnumber),
-			];
-
-			if (term) {
-				predicates.push(eq(tables.studentAdvisors.term, term));
-			}
-			if (year) {
-				predicates.push(eq(tables.studentAdvisors.year, year));
-			}
-
-			const data = await db
-				.select({
-					student_mnumber: tables.studentAdvisors.student_mnumber,
-					term: tables.studentAdvisors.term,
-					year: tables.studentAdvisors.year,
-					advisor_mnumber: tables.studentAdvisors.advisor_mnumber,
-					first_name: tables.students.first_name,
-					last_name: tables.students.last_name,
-				})
-				.from(tables.students)
-				.innerJoin(
-					tables.studentAdvisors,
-					eq(tables.students.mnumber, tables.studentAdvisors.student_mnumber)
-				)
-				.where(and(...predicates))
-				.orderBy(
-					sql`${tables.students.last_name} asc, ${tables.students.first_name} asc`
-				);
-
-			console.log('advisees', data);
-			return data;
-		}
-	},
-
-	InstructorCourse: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-		course: (row: any, _: any, { loaders }: any) =>
-			loaders.course.load(
-				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
-			),
-		students: (row: any, _: any, { db }: any) =>
-			db
-				.select()
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.orderBy(
-					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
-				),
-		total_students: async (row: any, _: any, { db }: any) =>
-			db
-				.select({ count: count() })
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.then((result: any) => result[0]?.count ?? 0),
-		total_credit_hours: async (row: any, _: any, { db }: any) =>
-			db
-				.select({
-					sum: sql<number>`SUM(${tables.studentCourses.course_hours})`
-				})
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.then((result: any) => result[0]?.sum ?? 0),
-		credit_hour: (row: any, _: any, { db }: any) =>
-			db
-				.select({
-					hours: tables.studentCourses.course_hours
-				})
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.limit(1)
-				.then((result: any) => result[0]?.hours ?? 0),
-		// we need to get the GPA for each student in the course
-		// so we need to join the studentCourses table with the studentAcademicInfo table
-		// and get the overall_gpa for each student
-		// and then we need to get the average of the overall_gpa for each student
-		class_gpa: async (row: any, _: any, { db }: any) =>
-			db
-				.select({
-					avg: sql<number>`AVG(${tables.studentAcademicInfo.overall_gpa})`
-				})
-				.from(tables.studentCourses)
-				.innerJoin(
-					tables.studentAcademicInfo,
-					and(
-						eq(tables.studentCourses.mnumber, tables.studentAcademicInfo.mnumber),
-						eq(tables.studentCourses.term, tables.studentAcademicInfo.term),
-						eq(tables.studentCourses.year, tables.studentAcademicInfo.year)
-					)
-				)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.then((result: any) => parseFloat(Number(result[0]?.avg ?? 0).toFixed(2))),
-		midterm_average: async (row: any, _: any, { db }: any) => {
-			const midtermGrades = await db
-				.select({
-					midterm_grade: tables.studentCourses.midterm_grade
-				})
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.then((result: any) => result.map((r: any) => r.midterm_grade));
-
-			const totalPoints = midtermGrades.reduce((acc: number, grade: string) => {
-				const points = gradePoints[grade as GradeValue];
-				if (points !== undefined) {
-					return acc + points;
-				} else {
-					return acc;
-				}
-			}, 0);
-
-			if (totalPoints === 0) {
-				return 0;
-			}
-
-			const average = totalPoints / midtermGrades.length;
-
-			return parseFloat(Number(average ?? 0).toFixed(2));
-		},
-		final_average: async (row: any, _: any, { db }: any) => {
-			const finalGrades = await db
-				.select({
-					final_grade: tables.studentCourses.final_grade
-				})
-				.from(tables.studentCourses)
-				.where(
-					and(
-						eq(tables.studentCourses.term, row.term),
-						eq(tables.studentCourses.year, row.year),
-						eq(tables.studentCourses.course_subject, row.course_subject),
-						eq(tables.studentCourses.course_number, row.course_number),
-						eq(tables.studentCourses.course_suffix, row.course_suffix)
-					)
-				)
-				.then((result: any) => result.map((r: any) => r.final_grade));
-
-			const totalPoints = finalGrades.reduce((acc: number, grade: string) => {
-				const points = gradePoints[grade as GradeValue];
-				if (points !== undefined) {
-					return acc + points;
-				} else {
-					return acc;
-				}
-			}, 0);
-
-			if (totalPoints === 0) {
-				return 0;
-			}
-
-			const average = totalPoints / finalGrades.length;
-
-			return parseFloat(Number(average ?? 0).toFixed(2));
-		},
-	},
-
-	StudentAcademicInfo: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-
-		admit_term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.admit_term),
-
-		admit_code: (row: any, _: any, { loaders }: any) =>
-			loaders.admitCode.load(row.admit_code),
-
-		academic_standing: (row: any, _args: any, { loaders }: any) =>
-			loaders.academicStanding.load(row.academic_standing),
-	},
-
-	StudentAddress: {
-		nation: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
-			loaders.nation.load(address.nation),
-	},
-
-	StudentAdvisor: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-		student: (row: any, _: any, { loaders }: any) =>
-			loaders.student.load(row.student_mnumber),
-	},
-
-	// Confirmed finished
-	StudentCourse: {
-		term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(studentCourse.term),
-		part_of_term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.partOfTerm.load(studentCourse.part_of_term),
-		course: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.course.load(
-				`${studentCourse.course_subject}|${studentCourse.course_number}|${studentCourse.course_suffix}`
-			),
-		registration_status: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.registrationStatus.load(studentCourse.registration_status),
-		instructional_method: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.instructionalMethod.load(studentCourse.instructional_method),
-		student: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(studentCourse.mnumber),
-	},
-
+	// Lookup resolvers
 	Department: {
 		college: (department: tables.Department, _args: any, { loaders }: ApolloContext) =>
 			loaders.college.load(department.college),
@@ -1020,13 +581,7 @@ export const resolvers = {
 			loaders.college.load(program.college),
 	},
 
-	StudentProgram: {
-		term: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(studentProgram.term),
-		program: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
-			loaders.program.load(studentProgram.program),
-	},
-
+	// Student resolvers
 	Student: {
 		addresses: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
 			loaders.address.load(student.mnumber),
@@ -1034,7 +589,34 @@ export const resolvers = {
 			loaders.advisor.load(student.mnumber),
 		programs: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
 			loaders.studentProgram.load(student.mnumber),
+		academic_info: (student: tables.Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
+			const { term, year } = args;
 
+			if (term == null && year == null) {
+				// all academic info
+				return loaders.academicInfo.load(student.mnumber);
+			}
+
+			if (term != null && year == null) {
+				// filter by term only
+				return loaders.academicInfoByTerm.load(
+					`${student.mnumber}|${term}`
+				);
+			}
+
+			if (term == null && year != null) {
+				// filter by year only
+				return loaders.academicInfoByYear.load(
+					`${student.mnumber}|${year}`
+				);
+			}
+
+			// both term + year
+			return loaders.academicInfoByYearAndTerm.load(
+				`${student.mnumber}|${year}|${term}`
+			);
+		},
+		// TODO: Revisit
 		courses: (
 			student: tables.Student,
 			args: {
@@ -1128,6 +710,370 @@ export const resolvers = {
 					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
 				)
 		},
+	},
+
+	StudentAcademicInfo: {
+		term: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(academicInfo.term),
+		admit_term: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(academicInfo.admit_term),
+		admit_code: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
+			loaders.admitCode.load(academicInfo.admit_code),
+		academic_standing: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
+			loaders.academicStanding.load(academicInfo.academic_standing),
+		student: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(academicInfo.mnumber),
+	},
+
+	StudentAddress: {
+		nation: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
+			loaders.nation.load(address.nation),
+		student: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(address.mnumber),
+	},
+
+	StudentAdvisor: {
+		term: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(studentAdvisor.term),
+		student: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(studentAdvisor.student_mnumber),
+		advisor: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
+			loaders.faculty.load(studentAdvisor.advisor_mnumber),
+	},
+
+	StudentCourse: {
+		term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(studentCourse.term),
+		part_of_term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.partOfTerm.load(studentCourse.part_of_term),
+		course: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.course.load(
+				`${studentCourse.course_subject}|${studentCourse.course_number}|${studentCourse.course_suffix}`
+			),
+		registration_status: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.registrationStatus.load(studentCourse.registration_status),
+		instructional_method: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.instructionalMethod.load(studentCourse.instructional_method),
+		student: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(studentCourse.mnumber),
+	},
+
+	StudentProgram: {
+		term: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(studentProgram.term),
+		program: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
+			loaders.program.load(studentProgram.program),
+		student: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(studentProgram.mnumber),
+	},
+
+	// Other resolvers
+	Faculty: {
+		college: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
+			faculty.college ? loaders.college.load(faculty.college) : null,
+		department: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
+			faculty.department ? loaders.department.load(faculty.department) : null,
+		// TODO: Revisit
+		courses_taught: async (
+			fac: tables.Faculty,
+			args: {
+				startTerm?: string
+				endTerm?: string
+				startYear?: number
+				endYear?: number
+				subject?: string
+				number?: number
+				suffix?: string
+				section?: string
+			},
+			{ db }: ApolloContext
+		) => {
+			const predicates: any[] = [
+				eq(tables.instructorCourses.mnumber, fac.mnumber),
+			]
+
+			if (args.startTerm != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.term} >= ${args.startTerm}`
+				)
+			}
+			if (args.endTerm != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.term} <= ${args.endTerm}`
+				)
+			}
+			if (args.startYear != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.year} >= ${args.startYear}`
+				)
+			}
+			if (args.endYear != null) {
+				predicates.push(
+					sql`${tables.instructorCourses.year} <= ${args.endYear}`
+				)
+			}
+			if (args.subject != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_subject, args.subject)
+				)
+			}
+			if (args.number != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_number, args.number)
+				)
+			}
+			if (args.suffix != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_suffix, args.suffix)
+				)
+			}
+			if (args.section != null) {
+				predicates.push(
+					eq(tables.instructorCourses.course_section, args.section)
+				)
+			}
+
+			return db
+				.select()
+				.from(tables.instructorCourses)
+				.where(and(...predicates))
+				.orderBy(
+					sql`${tables.instructorCourses.year} desc, ${tables.instructorCourses.term} desc`
+				)
+		},
+		grade_distribution: async (
+			faculty: tables.Faculty,
+			args: {
+				startTerm?: string
+				endTerm?: string
+				startYear: number
+				endYear?: number
+			},
+			{ db }: ApolloContext
+		) => {
+			// If endTerm or endYear is not provided, use the current term/year
+			let finalEndTerm = args.endTerm;
+			let finalEndYear = args.endYear;
+
+			if (!args.endTerm || !args.endYear) {
+				const [currentYearTerm] = await db
+					.select({
+						currentYear: sql<number>`MAX(${tables.instructorCourses.year})`,
+						currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`,
+					})
+					.from(tables.instructorCourses);
+
+				finalEndTerm = args.endTerm ?? currentYearTerm.currentTerm;
+				finalEndYear = args.endYear ?? currentYearTerm.currentYear;
+			}
+
+			// Query grade distribution, grouping by term, year, and grade
+			const gradeDistribution = await db
+				.select({
+					term: tables.instructorCourses.term,
+					year: tables.instructorCourses.year,
+					grade: tables.studentCourses.final_grade,
+					count: count(),
+				})
+				.from(tables.instructorCourses)
+				.innerJoin(
+					tables.studentCourses,
+					and(
+						eq(tables.instructorCourses.crn, tables.studentCourses.crn),
+						eq(tables.instructorCourses.term, tables.studentCourses.term),
+						eq(tables.instructorCourses.year, tables.studentCourses.year)
+					)
+				)
+				.where(
+					and(
+						eq(tables.instructorCourses.mnumber, faculty.mnumber),
+						// Year range
+						gte(tables.instructorCourses.year, args.startYear),
+						lte(tables.instructorCourses.year, finalEndYear || 9999),
+						// Term range within years
+						sql`(
+            (${tables.instructorCourses.year} > ${args.startYear} OR ${tables.instructorCourses.term} >= ${args.startTerm})
+            AND
+            (${tables.instructorCourses.year} < ${finalEndYear} OR ${tables.instructorCourses.term} <= ${finalEndTerm})
+          )`
+					)
+				)
+				.groupBy(
+					tables.instructorCourses.term,
+					tables.instructorCourses.year,
+					tables.studentCourses.final_grade
+				);
+
+			// Map term codes to descriptions
+			const termDescriptions: { [key: string]: string } = {
+				'10': 'Spring',
+				'50': 'Summer',
+				'80': 'Fall',
+				'90': 'Winter',
+			};
+
+			// Group results by term and year
+			const groupedByTermYear: { [key: string]: any[] } = gradeDistribution.reduce((acc: { [x: string]: any[]; }, curr: { term: any; year: any; }) => {
+				const key = `${curr.term}-${curr.year}`;
+				if (!acc[key]) {
+					acc[key] = [];
+				}
+				acc[key].push(curr);
+				return acc;
+			}, {});
+
+			// Format distributions for each term/year
+			const result = Object.entries(groupedByTermYear).map(([key, grades]) => {
+				const [term, year] = key.split('-');
+				const totalStudents = grades.reduce((sum: number, g: { count: number }) => sum + g.count, 0);
+				const distributions = grades.map((g: { grade: string | null; count: number }) => ({
+					grade: g.grade ?? 'N/A',
+					count: g.count,
+					percentage: totalStudents > 0 ? parseFloat(((g.count / totalStudents) * 100).toFixed(2)) : 0,
+				}));
+
+				return {
+					term: {
+						code: term,
+						description: termDescriptions[term] || 'Unknown',
+					},
+					year: parseInt(year),
+					distributions,
+				};
+			});
+
+			return result;
+		},
+		advisees: async (
+			faculty: tables.Faculty,
+			args: {
+				term?: string;
+				year?: number;
+			},
+			{ db, loaders }: ApolloContext
+		) => {
+			// If no args, use cached loader for all advisees
+			if (args.term == null && args.year == null) {
+				// return loaders.studentAdvisor.load(faculty.mnumber);
+			}
+
+			const predicates: SQL[] = [
+				eq(tables.studentAdvisors.advisor_mnumber, faculty.mnumber),
+			];
+
+			if (args.term) {
+				predicates.push(eq(tables.studentAdvisors.term, args.term));
+			}
+			if (args.year) {
+				predicates.push(eq(tables.studentAdvisors.year, args.year));
+			}
+
+			const data = await db
+				.select({
+					student_mnumber: tables.studentAdvisors.student_mnumber,
+					term: tables.studentAdvisors.term,
+					year: tables.studentAdvisors.year,
+					advisor_mnumber: tables.studentAdvisors.advisor_mnumber,
+					first_name: tables.students.first_name,
+					last_name: tables.students.last_name,
+				})
+				.from(tables.students)
+				.innerJoin(
+					tables.studentAdvisors,
+					eq(tables.students.mnumber, tables.studentAdvisors.student_mnumber)
+				)
+				.where(and(...predicates))
+				.orderBy(
+					sql`${tables.students.last_name} asc, ${tables.students.first_name} asc`
+				);
+
+			console.log('advisees', data);
+			return data;
+		}
+	},
+
+	InstructorCourse: {
+		term: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(instructorCourse.term),
+		course: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.course.load(
+				[
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		students: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.studentsByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		total_students: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.totalStudentsByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+
+		total_credit_hours: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.totalCreditHoursByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		credit_hour: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.creditHourByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		class_gpa: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.classGpaByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		midterm_average: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.midtermAverageByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
+		final_average: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.finalAverageByCourse.load(
+				[
+					instructorCourse.term,
+					instructorCourse.year,
+					instructorCourse.course_subject,
+					instructorCourse.course_number,
+					instructorCourse.course_suffix,
+				].join('|')
+			),
 	},
 
 	YearTerm: {
