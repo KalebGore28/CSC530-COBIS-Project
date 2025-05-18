@@ -28,10 +28,18 @@ import { createCreditHourByCourseLoader } from './creditHourByCourseLoader';
 import { createClassGpaByCourseLoader } from './classGpaByCourseLoader';
 import { createMidtermAverageByCourseLoader } from './midtermAverageByCourseLoader';
 import { createFinalAverageByCourseLoader } from './finalAverageByCourseLoader';
+import { createInstructorCoursesLoader } from './instructorCoursesLoader';
+import { createCurrentTermLoader } from './currentTermLoader';
+import { createFacultyCourseGradeDistributionLoader } from './facultyCourseGradeDistributionLoader';
+import {
+	createFinalGradeDistributionByCourseLoader,
+	createMidtermGradeDistributionByCourseLoader
+} from './gradeDistributionByCourse';
 
 export function createLoaders(db: DbConnection['orm']) {
 	return {
 		term: createTermLoader(db),
+		currentTerm: createCurrentTermLoader(db),
 		address: createAddressesLoader(db),
 		advisor: createAdvisorLoader(db),
 		studentProgram: createStudentProgramLoader(db),
@@ -46,14 +54,21 @@ export function createLoaders(db: DbConnection['orm']) {
 		course: createCourseLoader(db),
 		admitCode: createAdmitCodeLoader(db),
 		academicStanding: createAcademicStandingLoader(db),
-		faculty: createFacultyLoader(db),
+		instructorCourses: createInstructorCoursesLoader(db),
 		
+		// Loaders for faculty
+		faculty: createFacultyLoader(db),
+		facultyCourseGradeDistribution: createFacultyCourseGradeDistributionLoader(
+			db,
+			createCurrentTermLoader(db)
+		),
+
 		// Loaders for academic info
 		academicInfo: createAcademicInfoLoader(db),
 		academicInfoByTerm: createAcademicInfoByTermLoader(db),
 		academicInfoByYear: createAcademicInfoByYearLoader(db),
 		academicInfoByYearAndTerm: createAcademicInfoByYearAndTermLoader(db),
-		
+
 		// Loaders for course-related data
 		studentsByCourse: createStudentsByCourseLoader(db),
 		totalStudentsByCourse: createTotalStudentsByCourseLoader(db),
@@ -62,6 +77,8 @@ export function createLoaders(db: DbConnection['orm']) {
 		classGpaByCourse: createClassGpaByCourseLoader(db),
 		midtermAverageByCourse: createMidtermAverageByCourseLoader(db),
 		finalAverageByCourse: createFinalAverageByCourseLoader(db),
+		finalGradeDistributionByCourse: createFinalGradeDistributionByCourseLoader(db),
+		midtermGradeDistributionByCourse: createMidtermGradeDistributionByCourseLoader(db)
 	};
 }
 

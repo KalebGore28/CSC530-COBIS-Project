@@ -295,6 +295,8 @@ type InstructorCourse {
   class_gpa: Float!
   midterm_average: Float!
   final_average: Float!
+  midterm_grade_distribution: [GradeEntry!]!
+  final_grade_distribution: [GradeEntry!]!
   # Relationships
   students: [StudentCourse!]!
 }
@@ -425,6 +427,7 @@ type Query {
 
   student(mnumber: String!): Student
   instructor(mnumber: String!): Faculty
+  instructors: [Faculty!]!
   lookupStudents(filters: StudentLookupInput!): [StudentBasic!]!
   
 }
