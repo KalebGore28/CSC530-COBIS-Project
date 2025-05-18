@@ -12,6 +12,8 @@ export const terms = sqliteTable("terms", {
 	description: text().notNull(),
 });
 
+export type Term = typeof terms.$inferSelect;
+
 export const termsRelations = relations(terms, ({ many }) => ({
 	studentAcademicInfo: many(studentAcademicInfo),
 	instructorCourses: many(instructorCourses),

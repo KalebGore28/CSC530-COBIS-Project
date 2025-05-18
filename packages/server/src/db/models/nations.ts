@@ -8,6 +8,8 @@ export const nations = sqliteTable("nations", {
 	description: text("description").notNull(),
 });
 
+export type Nation = typeof nations.$inferSelect;
+
 export const nationsRelations = relations(nations, ({ many }) => ({
 	studentAddresses: many(studentAddresses)
 }));

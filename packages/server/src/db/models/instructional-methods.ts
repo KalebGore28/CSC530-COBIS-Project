@@ -8,6 +8,8 @@ export const instructionalMethods = sqliteTable("instructional_methods", {
 	description: text("description").notNull(),
 });
 
+export type InstructionalMethod = typeof instructionalMethods.$inferSelect;
+
 // Define relationships for DBML generation
 export const instructionalMethodsRelations = relations(instructionalMethods, ({ many }) => ({
 	studentCourses: many(studentCourses),

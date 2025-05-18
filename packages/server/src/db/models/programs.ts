@@ -19,6 +19,8 @@ export const programs = sqliteTable("programs", {
 	added_on: text().notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export type Program = typeof programs.$inferSelect;
+
 // Define relationships for DBML generation
 export const programsOne = relations(programs, ({ one, many }) => ({
 	studentPrograms: many(studentPrograms),

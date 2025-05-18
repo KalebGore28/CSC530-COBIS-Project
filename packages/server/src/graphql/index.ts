@@ -1,6 +1,8 @@
+
+
+
 import { readFileSync } from 'fs'
 import path, { dirname } from 'path'
-import { makeExecutableSchema } from '@graphql-tools/schema'
 import { resolvers } from './resolvers'
 import { fileURLToPath } from 'url';
 
@@ -12,4 +14,4 @@ const typeDefs = readFileSync(
 	'utf8'
 )
 
-export const schema = makeExecutableSchema({ typeDefs, resolvers })
+export { typeDefs, resolvers }

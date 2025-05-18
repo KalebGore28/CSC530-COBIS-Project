@@ -8,6 +8,8 @@ export const registrationStatus = sqliteTable("registration_status", {
 	description: text().notNull(),
 });
 
+export type RegistrationStatus = typeof registrationStatus.$inferSelect;
+
 export const registrationStatusRelations = relations(registrationStatus, ({ many }) => ({
 	studentCourses: many(studentCourses),
 }));

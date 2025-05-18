@@ -3,6 +3,7 @@ import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, SQL, count } from '
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
+import { ApolloContext } from '../app';
 
 // --- TypeScript types for your GraphQL inputs ---
 
@@ -289,7 +290,7 @@ export const resolvers = {
 				.limit(10);
 		},
 		// Get all lookup tables
-		getAcademicStandings: async (_: any, __: any, { db }: any) => {
+		getAcademicStandings: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.academicStanding)
 				.orderBy(tables.academicStanding.code)
 			return rows || []
@@ -351,11 +352,11 @@ export const resolvers = {
 		},
 		// Other queries
 		student: checkStudentAccess(
-			async (_: any, { mnumber }: { mnumber: string }, ctx: any) => {
+			async (_parent: any, args: { mnumber: string }, ctx: ApolloContext) => {
 				const [stud] = await ctx.db
 					.select()
 					.from(tables.students)
-					.where(eq(tables.students.mnumber, mnumber))
+					.where(eq(tables.students.mnumber, args.mnumber))
 					.limit(1)
 				return stud || null
 			}
@@ -371,7 +372,8 @@ export const resolvers = {
 			}
 		),
 		// Utility queries
-		getCurrentYearTerm: async (_: any, __: any, { db }: any) => {
+		getCurrentYearTerm: async (_parent: any, _args: any, { db }: ApolloContext) => {
+
 			const [currentYear] = await db
 				.select({
 					currentYear: sql<number>`MAX(${tables.instructorCourses.year})`
@@ -385,11 +387,14 @@ export const resolvers = {
 				.from(tables.instructorCourses)
 				.where(sql`${tables.instructorCourses.year} = ${currentYear?.currentYear}`);
 
+
+
 			return {
 				year: currentYear?.currentYear,
 				term: currentTerm?.currentTerm,
 			}
 		},
+
 
 		// Lookup Query
 		lookupStudents: async (
@@ -569,16 +574,6 @@ export const resolvers = {
 
 			return await q.all();
 		},
-	},
-
-	Account: {
-		user: (acc: any, _: any, { loaders }: any) =>
-			loaders.user.load(acc.user_id),
-	},
-
-	Department: {
-		college: (dept: any, _: any, { loaders }: any) =>
-			loaders.college.load(dept.college),
 	},
 
 	Faculty: {
@@ -800,6 +795,7 @@ export const resolvers = {
 			return data;
 		}
 	},
+
 	InstructorCourse: {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
@@ -968,18 +964,6 @@ export const resolvers = {
 		},
 	},
 
-	Program: {
-		department: (prog: any, _: any, { loaders }: any) =>
-			loaders.department.load(prog.department),
-		college: (prog: any, _: any, { loaders }: any) =>
-			loaders.college.load(prog.college),
-	},
-
-	Session: {
-		user: (sess: any, _: any, { loaders }: any) =>
-			loaders.user.load(sess.user_id),
-	},
-
 	StudentAcademicInfo: {
 		term: (row: any, _: any, { loaders }: any) =>
 			loaders.term.load(row.term),
@@ -995,8 +979,8 @@ export const resolvers = {
 	},
 
 	StudentAddress: {
-		nation: (addr: any, _: any, { loaders }: any) =>
-			loaders.nation.load(addr.nation),
+		nation: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
+			loaders.nation.load(address.nation),
 	},
 
 	StudentAdvisor: {
@@ -1006,72 +990,53 @@ export const resolvers = {
 			loaders.student.load(row.student_mnumber),
 	},
 
+	// Confirmed finished
 	StudentCourse: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-		part_of_term: (row: any, _: any, { loaders }: any) =>
-			loaders.partOfTerm.load(row.part_of_term),
-		course: (row: any, _: any, { loaders }: any) =>
+		term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(studentCourse.term),
+		part_of_term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.partOfTerm.load(studentCourse.part_of_term),
+		course: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
 			loaders.course.load(
-				`${row.course_subject}|${row.course_number}|${row.course_suffix}`
+				`${studentCourse.course_subject}|${studentCourse.course_number}|${studentCourse.course_suffix}`
 			),
-		registration_status: (row: any, _: any, { loaders }: any) =>
-			loaders.registrationStatus.load(row.registration_status),
-		instructional_method: (row: any, _: any, { loaders }: any) =>
-			loaders.instructionalMethod.load(row.instructional_method),
-		student: (row: any, _: any, { loaders }: any) =>
-			loaders.student.load(row.mnumber),
+		registration_status: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.registrationStatus.load(studentCourse.registration_status),
+		instructional_method: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.instructionalMethod.load(studentCourse.instructional_method),
+		student: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
+			loaders.student.load(studentCourse.mnumber),
+	},
+
+	Department: {
+		college: (department: tables.Department, _args: any, { loaders }: ApolloContext) =>
+			loaders.college.load(department.college),
+	},
+
+	Program: {
+		department: (program: tables.Program, _args: any, { loaders }: ApolloContext) =>
+			loaders.department.load(program.department),
+		college: (program: tables.Program, _args: any, { loaders }: ApolloContext) =>
+			loaders.college.load(program.college),
 	},
 
 	StudentProgram: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
-		program: (row: any, _: any, { loaders }: any) =>
-			loaders.program.load(row.program),
+		term: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(studentProgram.term),
+		program: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
+			loaders.program.load(studentProgram.program),
 	},
 
 	Student: {
-		academic_info: async (
-			stud: any,
-			args: {
-				term?: string;
-				year?: number;
-			},
-			{ db }: any
-		) => {
-			const predicates: any[] = [
-				eq(tables.studentAcademicInfo.mnumber, stud.mnumber)
-			]
+		addresses: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
+			loaders.address.load(student.mnumber),
+		advisors: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
+			loaders.advisor.load(student.mnumber),
+		programs: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
+			loaders.studentProgram.load(student.mnumber),
 
-			if (args.term != null) {
-				predicates.push(
-					sql`${tables.studentAcademicInfo.term} = ${args.term}`
-				)
-			}
-			if (args.year != null) {
-				predicates.push(
-					sql`${tables.studentAcademicInfo.year} = ${args.year}`
-				)
-			}
-
-			return db
-				.select()
-				.from(tables.studentAcademicInfo)
-				.where(and(...predicates))
-				.orderBy(sql`${tables.studentAcademicInfo.year} desc, ${tables.studentAcademicInfo.term} desc`)
-		},
-
-		addresses: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.studentAddresses)
-				.where(eq(tables.studentAddresses.mnumber, stud.mnumber)),
-
-		advisors: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.studentAdvisors)
-				.where(eq(tables.studentAdvisors.student_mnumber, stud.mnumber))
-				.orderBy(sql`${tables.studentAdvisors.year} desc, ${tables.studentAdvisors.term} desc`),
-
-		courses: async (
-			stud: any,
+		courses: (
+			student: tables.Student,
 			args: {
 				startTerm?: string;
 				endTerm?: string;
@@ -1085,11 +1050,11 @@ export const resolvers = {
 				suffix?: string;
 				section?: string;
 			},
-			{ db }: any
+			{ db }: ApolloContext
 		) => {
 			// always filter by the student’s mnumber
 			const predicates: any[] = [
-				eq(tables.studentCourses.mnumber, stud.mnumber)
+				eq(tables.studentCourses.mnumber, student.mnumber)
 			]
 
 			if (args.startTerm != null) {
@@ -1163,18 +1128,10 @@ export const resolvers = {
 					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
 				)
 		},
-
-		programs: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.studentPrograms)
-				.where(eq(tables.studentPrograms.mnumber, stud.mnumber)),
-
-		test_scores: (stud: any, _: any, { db }: any) =>
-			db.select().from(tables.testScores)
-				.where(eq(tables.testScores.mnumber, stud.mnumber))
 	},
 
 	YearTerm: {
-		term: (row: any, _: any, { loaders }: any) =>
-			loaders.term.load(row.term),
+		term: (_parent: any, _args: any, { loaders }: ApolloContext) =>
+			loaders.term.load(_parent.term),
 	},
 }

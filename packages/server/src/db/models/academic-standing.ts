@@ -8,6 +8,8 @@ export const academicStanding = sqliteTable("academic_standing", {
 	description: text("description").notNull(),
 });
 
+export type AcademicStanding = typeof academicStanding.$inferSelect;
+
 // Define relationships for DBML generation
 export const academicStandingRelations = relations(academicStanding, ({ many }) => ({
 	studentAcademicInfo: many(studentAcademicInfo)

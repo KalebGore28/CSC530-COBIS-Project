@@ -10,8 +10,10 @@ export const colleges = sqliteTable("colleges", {
 	description: text("description").notNull(),
 });
 
+export type College = typeof colleges.$inferSelect;
+
 // Define relationships for DBML generation
-export const collegesRelations = relations(colleges, ({ one, many }) => ({
+export const collegesRelations = relations(colleges, ({ many }) => ({
 	departments: many(departments),
 	programs: many(programs),
 	faculty: many(faculty),

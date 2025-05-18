@@ -13,6 +13,8 @@ export const studentAdvisors = sqliteTable("student_advisors", {
 	primaryKey({ columns: [table.student_mnumber, table.term, table.year, table.advisor_mnumber] }),
 ]);
 
+export type StudentAdvisor = typeof studentAdvisors.$inferSelect;
+
 // Define relationships for DBML generation
 export const studentAdvisorRelations = relations(studentAdvisors, ({ one }) => ({
 	student: one(students, { // Student advisors have a student

@@ -8,6 +8,8 @@ export const partOfTerm = sqliteTable("part_of_term", {
 	description: text("description").notNull(),
 });
 
+export type PartOfTerm = typeof partOfTerm.$inferSelect;
+
 export const partOfTermRelations = relations(partOfTerm, ({ many }) => ({
 	studentCourses: many(studentCourses),
 }));

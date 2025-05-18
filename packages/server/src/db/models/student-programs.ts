@@ -18,6 +18,8 @@ export const studentPrograms = sqliteTable("student_programs", {
 	check("program_level", sql`${table.level} IN ('UG', 'GR', 'PB')`),
 ]);
 
+export type StudentProgram = typeof studentPrograms.$inferSelect;
+
 // Define relationships for DBML generation
 export const studentProgramRelations = relations(studentPrograms, ({ one, many }) => ({
 	students: many(students), // There can be multiple rows for each student with different programs/types

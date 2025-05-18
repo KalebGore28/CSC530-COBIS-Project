@@ -36,28 +36,10 @@ router.get('/:mnumber/courses',
 	StudentController.getStudentCourses
 )
 
-// Academic summary (GPA, credits earned, etc.)
-router.get('/:mnumber/academic-summary',
-	// StudentController.checkAccess,
-	// StudentController.getAcademicSummary
-);
-
 // Advisor information
 router.get('/:mnumber/advisors',
 	StudentController.checkAccess,
 	StudentController.getStudentAdvisors
-);
-
-// Get student's GPA trend over terms
-router.get('/:mnumber/gpa-trend',
-	// StudentController.checkAccess,
-	// StudentController.getGpaTrend
-);
-
-// Get academic performance metrics
-router.get('/performance-metrics',
-	// StudentController.checkAccess,
-	// StudentController.getPerformanceMetrics
 );
 
 // Current enrollment status

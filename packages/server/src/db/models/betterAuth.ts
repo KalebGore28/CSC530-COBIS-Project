@@ -20,6 +20,8 @@ export const user = sqliteTable("user", {
 	lastLogin: integer('last_login', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
 });
 
+export type User = typeof user.$inferSelect;
+
 // Define relationships for DBML generation
 export const usersRelations = relations(user, ({ many }) => ({
 	instructor_courses: many(instructorCourses),
@@ -41,6 +43,8 @@ export const session = sqliteTable("session", {
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' })
 });
 
+export type Session = typeof session.$inferSelect;
+
 export const account = sqliteTable("account", {
 	id: text("id").primaryKey(),
 	accountId: text('account_id').notNull(),
@@ -57,6 +61,8 @@ export const account = sqliteTable("account", {
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
 });
 
+export type Account = typeof account.$inferSelect;
+
 export const verification = sqliteTable("verification", {
 	id: text("id").primaryKey(),
 	identifier: text('identifier').notNull(),
@@ -65,3 +71,5 @@ export const verification = sqliteTable("verification", {
 	createdAt: integer('created_at', { mode: 'timestamp' }),
 	updatedAt: integer('updated_at', { mode: 'timestamp' })
 });
+
+export type Verification = typeof verification.$inferSelect;

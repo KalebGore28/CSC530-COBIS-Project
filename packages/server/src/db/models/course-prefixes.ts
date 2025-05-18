@@ -8,3 +8,5 @@ export const coursePrefixes = sqliteTable("course_prefixes", {
 	department: text("department").notNull().references(() => departments.code),
 	college: text("college").notNull().references(() => colleges.code),
 });
+
+export type CoursePrefix = typeof coursePrefixes.$inferSelect;

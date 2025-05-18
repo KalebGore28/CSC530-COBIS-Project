@@ -262,24 +262,12 @@ type Student {
     suffix: String,
     section: String,
   ): [StudentCourse!]!
-  programs(
-    term: String,
-    year: Int,
-  ): [StudentProgram!]!
-  test_scores: [TestScore!]!
+  programs: [StudentProgram!]!
 }
 
 type Term {
   code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
   description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
-}
-
-type TestScore {
-  mnumber: String!         # FK → students.mnumber
-  code: String!
-  description: String!
-  score: Float!
-  date: String!
 }
 
 type User {

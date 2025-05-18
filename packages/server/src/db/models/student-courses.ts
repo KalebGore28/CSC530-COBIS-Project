@@ -30,6 +30,8 @@ export const studentCourses = sqliteTable("student_courses", {
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),
 ]);
 
+export type StudentCourse = typeof studentCourses.$inferSelect;
+
 // Define relationships for DBML generation
 export const studentCourseRelations = relations(studentCourses, ({ one }) => ({
 	student: one(students, {

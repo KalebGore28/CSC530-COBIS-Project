@@ -19,6 +19,8 @@ export const studentAddresses = sqliteTable("student_addresses", {
 	check("address_type", sql`${table.type} IN ('HOME', 'LOCAL')`),
 ]);
 
+export type StudentAddress = typeof studentAddresses.$inferSelect;
+
 // Define relationships for DBML generation
 export const studentAddressRelations = relations(studentAddresses, ({ one }) => ({
 	student: one(students, { // Student addresses have a student

@@ -8,6 +8,8 @@ export const roles = sqliteTable("roles", {
 	name: text("name").notNull(),
 });
 
+export type Role = typeof roles.$inferSelect;
+
 export const roleRelations = relations(roles, ({ many }) => ({
 	userRoles: many(userRoles),
 }));

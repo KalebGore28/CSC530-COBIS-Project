@@ -11,6 +11,8 @@ export const userRoles = sqliteTable("user_roles", {
 	primaryKey({ columns: [table.user_id, table.role_id] }),
 ]);
 
+export type UserRoles = typeof userRoles.$inferSelect;
+
 // Define relationships for DBML generation
 export const userRolesOne = relations(userRoles, ({ one }) => ({
 	user: one(user, { // User roles have a user

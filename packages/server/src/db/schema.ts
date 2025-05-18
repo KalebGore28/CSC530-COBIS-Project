@@ -1,5 +1,3 @@
-// src/db/schema.ts
-
 import * as academicStanding from './models/academic-standing';
 import * as admitCodes from './models/admit-codes';
 import * as colleges from './models/colleges';

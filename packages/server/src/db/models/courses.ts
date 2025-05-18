@@ -21,6 +21,8 @@ export const courses = sqliteTable("courses", {
 	primaryKey({ columns: [table.subject, table.number, table.suffix] }),
 ]);
 
+export type Course = typeof courses.$inferSelect;
+
 export const coursesRelations = relations(courses, ({ many }) => ({
 	instructor_courses: many(instructorCourses),
 	student_courses: many(studentCourses),
