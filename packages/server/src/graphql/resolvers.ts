@@ -404,8 +404,6 @@ export const resolvers = {
 				term: currentTerm?.currentTerm,
 			}
 		},
-
-
 		// Lookup Query
 		lookupStudents: async (
 			_parent: any,
@@ -635,7 +633,6 @@ export const resolvers = {
 				info.filter((ai) => ai.term === term && ai.year === year)
 			);
 		},
-		// TODO: Revisit
 		courses: (
 			student: tables.Student,
 			args: {
@@ -643,91 +640,59 @@ export const resolvers = {
 				endTerm?: string;
 				startYear?: number;
 				endYear?: number;
-				instructionalMethod?: string;
-				registrationStatus?: string;
-				partOfTerm?: string;
-				subject?: string;
-				number?: number;
-				suffix?: string;
-				section?: string;
 			},
-			{ db }: ApolloContext
+			{ loaders }: ApolloContext
 		) => {
-			// always filter by the student’s mnumber
-			const predicates: any[] = [
-				eq(tables.studentCourses.mnumber, student.mnumber)
-			]
+			// fetch all courses for the student
+			const allCourses = loaders.studentCourse.load(student.mnumber);
 
-			if (args.startTerm != null) {
-				predicates.push(
-					sql`${tables.studentCourses.term} >= ${args.startTerm}`
-				)
-			}
-			if (args.endTerm != null) {
-				predicates.push(
-					sql`${tables.studentCourses.term} <= ${args.endTerm}`
-				)
-			}
-			if (args.startYear != null) {
-				predicates.push(
-					sql`${tables.studentCourses.year} >= ${args.startYear}`
-				)
-			}
-			if (args.endYear != null) {
-				predicates.push(
-					sql`${tables.studentCourses.year} <= ${args.endYear}`
-				)
+			// enforce “both or neither” for start‐range and end‐range
+			if ((args.startTerm != null) !== (args.startYear != null)) {
+				throw new Error(
+					'If you filter by startTerm you must also supply startYear, and vice versa.'
+				);
 			}
 
-			if (args.instructionalMethod != null) {
-				predicates.push(
-					eq(tables.studentCourses.instructional_method, args.instructionalMethod)
-				)
+			if ((args.endTerm != null) !== (args.endYear != null)) {
+				throw new Error(
+					'If you filter by endTerm you must also supply endYear, and vice versa.'
+				);
 			}
 
-			if (args.registrationStatus != null) {
-				predicates.push(
-					eq(tables.studentCourses.registration_status, args.registrationStatus)
-				)
+			// if no arguments are provided, return all courses
+			if (args.startTerm == null && args.startYear == null && args.endTerm == null && args.endYear == null) {
+				return allCourses;
 			}
 
-			if (args.partOfTerm != null) {
-				predicates.push(
-					eq(tables.studentCourses.part_of_term, args.partOfTerm)
-				)
+			// if only a start term and year are provided, return all courses for that term and year
+			if (args.startTerm != null && args.startYear != null && args.endTerm == null && args.endYear == null) {
+				return allCourses.then((courses) =>
+					courses.filter((course) => course.term === args.startTerm && course.year === args.startYear)
+				);
 			}
 
-			if (args.subject != null) {
-				predicates.push(
-					eq(tables.studentCourses.course_subject, args.subject)
-				)
+			// if only an end term and year are provided, return all courses for that term and year
+			if (args.startTerm == null && args.startYear == null && args.endTerm != null && args.endYear != null) {
+				return allCourses.then((courses) =>
+					courses.filter((course) => course.term === args.endTerm && course.year === args.endYear)
+				);
 			}
 
-			if (args.number != null) {
-				predicates.push(
-					eq(tables.studentCourses.course_number, args.number)
-				)
-			}
+			// if both start and end terms and years are provided, return all courses for that range
+			if (args.startTerm != null && args.startYear != null && args.endTerm != null && args.endYear != null) {
+				return allCourses.then((courses) =>
+					courses.filter((course) => {
+						const courseTerm = termMap[course.term as keyof typeof termMap];
+						const courseYear = course.year;
 
-			if (args.suffix != null) {
-				predicates.push(
-					eq(tables.studentCourses.course_suffix, args.suffix)
-				)
+						// check if the course is within the specified range
+						return (
+							(courseTerm >= args.startTerm! && courseYear >= args.startYear!) &&
+							(courseTerm <= args.endTerm! && courseYear <= args.endYear!)
+						);
+					})
+				);
 			}
-
-			if (args.section != null) {
-				predicates.push(
-					eq(tables.studentCourses.course_section, args.section)
-				)
-			}
-
-			return db
-				.select()
-				.from(tables.studentCourses)
-				.where(and(...predicates))
-				.orderBy(
-					sql`${tables.studentCourses.year} desc, ${tables.studentCourses.term} desc`
-				)
 		},
 	},
 

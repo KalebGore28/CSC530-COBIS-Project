@@ -110,13 +110,6 @@ type Student {
     endTerm: String,
     startYear: Int,
     endYear: Int,
-    instructionalMethod: String,
-    registrationStatus: String,
-    partOfTerm: String,
-    subject: String,
-    number: Int,
-    suffix: String,
-    section: String,
   ): [StudentCourse!]!
   programs: [StudentProgram!]!
 }

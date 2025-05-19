@@ -31,6 +31,8 @@ import {
 	createMidtermGradeDistributionByCourseLoader
 } from './gradeDistributionByCourse';
 import { createFacultyAdviseesLoader } from './facultyAdviseesLoader';
+import { createStudentCourseLoader } from './studentCourseLoader';
+
 
 export function createLoaders(db: DbConnection['orm']) {
 	return {
@@ -39,6 +41,7 @@ export function createLoaders(db: DbConnection['orm']) {
 		address: createAddressesLoader(db),
 		advisor: createAdvisorLoader(db),
 		studentProgram: createStudentProgramLoader(db),
+		studentCourse: createStudentCourseLoader(db),
 		program: createProgramLoader(db),
 		nation: createNationsLoader(db),
 		college: createCollegeLoader(db),
