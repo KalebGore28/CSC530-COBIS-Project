@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from "react"
-import { Area, AreaChart, XAxis, YAxis, LabelList } from "recharts"
+import { Area, AreaChart, XAxis, YAxis, LabelList, CartesianGrid } from "recharts"
 
 import {
 	Card,
@@ -130,9 +130,9 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 	}
 
 	return (
-		<Card>
-			<CardHeader className="flex items-center gap-2 space-y-0 border-b py-5 sm:flex-row">
-				<div className="grid flex-1 gap-1 text-center sm:text-left">
+		<Card className="gap-0">
+			<CardHeader className="flex items-center space-y-0 border-b sm:flex-row">
+				<div className="grid flex-1 text-center sm:text-left">
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
 				</div>
@@ -141,7 +141,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 						<GradeDistributionFetchData mnumber={mnumber} offset={offset} dataCallback={handleDataReturn} />
 					</Suspense>
 				</div>
-				<div className="flex items-center gap-2">
+				<div className="flex items-center gap-1">
 					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
 						<SelectTrigger
 							className="w-[160px] rounded-lg sm:ml-auto"
@@ -166,25 +166,19 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 					</Select>
 				</div>
 			</CardHeader>
-			<CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
-				<div className="h-[400px]">
-					<div className="w-full h-full">
-						<ChartContainer
-							config={defaultChartConfig}
-							className="w-full h-full"
-						>
-							{gradeDistributionData ? (
-								<GradeDistributionChart data={gradeDistributionData} />
-							) : (
-								<p>No data available</p>
-							)}
-						</ChartContainer>
-					</div>
+			<CardContent>
+				<div className="w-full h-full">
+					{gradeDistributionData ? (
+						<GradeDistributionChart
+							data={gradeDistributionData}
+						/>
+					) : (
+						<p>No data available</p>
+					)}
 				</div>
 			</CardContent>
 		</Card>
 	)
-
 }
 
 interface GradeDistributionFetchDataProps {
@@ -274,7 +268,7 @@ const GradeDistributionChart: React.FC<{
 	return (
 		<ChartContainer
 			config={defaultChartConfig}
-			className="w-full h-full"
+			className="aspect-auto h-[400px] w-full"
 		>
 			<AreaChart
 				data={transformedData}
@@ -308,13 +302,15 @@ const GradeDistributionChart: React.FC<{
 						</linearGradient>
 					))}
 				</defs>
+				<CartesianGrid vertical={false} />
+
 				<XAxis
 					dataKey="date"
 					tickLine={false}
 					axisLine={false}
 					tickMargin={8}
 					minTickGap={32}
-					padding={{ left: 20 }}
+					padding={{ left: 20, right: 20 }}
 				/>
 				<YAxis
 					width={40}
@@ -357,7 +353,6 @@ const GradeDistributionChart: React.FC<{
 							position="bottom"               // try "inside", "insideBottom", "insideTopLeft", etc.
 							offset={0}
 							content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
-
 						/>
 
 					</Area>
@@ -365,6 +360,7 @@ const GradeDistributionChart: React.FC<{
 				<ChartLegend
 					content={<ChartLegendContent />}
 					verticalAlign="top"
+					className="mb-6"
 				/>
 			</AreaChart>
 		</ChartContainer>

@@ -153,12 +153,13 @@ const DashboardContent: React.FC = () => {
     selectedRole && gradeDistributionRoles.includes(selectedRole.name);
 
   return (
-    <div className="p-6">
-      <div className="flex flex-col items-center space-y-2 mb-8">
-        <h2 className="text-3xl font-bold tracking-tight">
+    <div className="container p-6 mx-auto space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
+
+        <h2 className="col-span-full text-center font-bold text-2xl">
           Welcome Back, {session?.session.data?.user.name}
         </h2>
-        <p className="text-muted-foreground text-lg max-w-2xl text-center">
+        <p className="text-muted-foreground col-span-full text-center">
           Access your tools and information from this dashboard
         </p>
       </div>
