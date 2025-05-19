@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1c8a4dc221916b53eb309cbdc895fc23>>
+ * @generated SignedSource<<88cf1c67db87c0aa11fe1c34200299d8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,7 +16,7 @@ export type termGradeDistributionsDataQuery$variables = {
 };
 export type termGradeDistributionsDataQuery$data = {
   readonly instructor: {
-    readonly grade_distribution: ReadonlyArray<{
+    readonly grade_distribution_trend: ReadonlyArray<{
       readonly distributions: ReadonlyArray<{
         readonly count: number;
         readonly grade: string;
@@ -84,7 +84,7 @@ v1 = [
         ],
         "concreteType": "GradeDistribution",
         "kind": "LinkedField",
-        "name": "grade_distribution",
+        "name": "grade_distribution_trend",
         "plural": true,
         "selections": [
           {
@@ -176,16 +176,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "3b939e0b1b956ed42f24b0671e627b1c",
+    "cacheID": "a3e10c66be14d212382706be788cdb38",
     "id": null,
     "metadata": {},
     "name": "termGradeDistributionsDataQuery",
     "operationKind": "query",
-    "text": "query termGradeDistributionsDataQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    grade_distribution(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
+    "text": "query termGradeDistributionsDataQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "3b0bd92827881c5682f69bb8b1527851";
+(node as any).hash = "5b210a9dbc23cebe612080ad2339a988";
 
 export default node;

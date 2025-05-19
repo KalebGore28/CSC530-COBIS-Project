@@ -269,7 +269,7 @@ type Faculty {
     suffix: String,
     section: String,
   ): [InstructorCourse!]!
-  grade_distribution(
+  grade_distribution_trend(
     startTerm: String!,
     startYear: Int!,
     endTerm: String,

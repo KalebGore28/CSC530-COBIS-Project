@@ -28,7 +28,6 @@ function courseKey({
 
 export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm']) {
   return new DataLoader<string, GradeCount[]>(async (keys) => {
-    console.log('keys', keys);
     // split each composite key back into its parts
     const parts = keys.map(k => k.split('|'));
     // build an IN list of tuples: ((term, year, subj, num, suf), …)
@@ -88,7 +87,8 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
       const total = grades.reduce((sum, g) => sum + g.count, 0);
       if (total > 0) {
         grades.forEach(g => {
-          g.percentage = Math.round((g.count / total) * 100);
+          const rawPercent = (g.count / total) * 100;
+          g.percentage = parseFloat(rawPercent.toFixed(2));
         });
       }
     }
@@ -159,7 +159,8 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
       const total = grades.reduce((sum, g) => sum + g.count, 0);
       if (total > 0) {
         grades.forEach(g => {
-          g.percentage = Math.round((g.count / total) * 100);
+          const rawPercent = (g.count / total) * 100;
+          g.percentage = parseFloat(rawPercent.toFixed(2));
         });
       }
     }

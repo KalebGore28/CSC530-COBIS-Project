@@ -49,7 +49,7 @@ const termGradeDistributionsDataQuery = graphql`
 		$startYear: Int!
 	) {
 		instructor(mnumber: $mnumber) {
-			grade_distribution(startTerm: $startTerm, startYear: $startYear) {
+			grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {
 				distributions {
 					count
 					grade
@@ -240,7 +240,7 @@ const GradeDistributionChart: React.FC<{
 	const allGrades = ['A', 'B', 'C', 'D', 'E', 'N/A'];
 
 	// Transform the data into a format suitable for the chart
-	const transformedData = (data.instructor?.grade_distribution ?? [])
+	const transformedData = (data.instructor?.grade_distribution_trend ?? [])
 		.map((item) => {
 			// Initialize gradeData with all grades set to 0
 			const gradeData = allGrades.reduce((acc, grade) => {
