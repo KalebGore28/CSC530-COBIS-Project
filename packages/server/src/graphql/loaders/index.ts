@@ -12,12 +12,7 @@ import { createRegistrationStatusLoader } from './registrationStatusLoader';
 import { createInstructionalMethodLoader } from './instructionalMethodLoader';
 import { createStudentLoader } from './studentLoader';
 import { createCourseLoader } from './courseLoader';
-import {
-	createAcademicInfoLoader,
-	createAcademicInfoByTermLoader,
-	createAcademicInfoByYearLoader,
-	createAcademicInfoByYearAndTermLoader
-} from './academicInfoLoader';
+import { createAcademicInfoLoader } from './academicInfoLoader';
 import { createAdmitCodeLoader } from './admitCodeLoader';
 import { createAcademicStandingLoader } from './academicStandingLoader';
 import { createFacultyLoader } from './facultyLoader';
@@ -35,6 +30,7 @@ import {
 	createFinalGradeDistributionByCourseLoader,
 	createMidtermGradeDistributionByCourseLoader
 } from './gradeDistributionByCourse';
+import { createFacultyAdviseesLoader } from './facultyAdviseesLoader';
 
 export function createLoaders(db: DbConnection['orm']) {
 	return {
@@ -52,22 +48,19 @@ export function createLoaders(db: DbConnection['orm']) {
 		instructionalMethod: createInstructionalMethodLoader(db),
 		student: createStudentLoader(db),
 		course: createCourseLoader(db),
+		academicInfo: createAcademicInfoLoader(db),
 		admitCode: createAdmitCodeLoader(db),
 		academicStanding: createAcademicStandingLoader(db),
 		instructorCourses: createInstructorCoursesLoader(db),
-		
+
 		// Loaders for faculty
 		faculty: createFacultyLoader(db),
 		facultyCourseGradeDistribution: createFacultyCourseGradeDistributionLoader(
 			db,
 			createCurrentTermLoader(db)
 		),
+		facultyAdvisees: createFacultyAdviseesLoader(db),
 
-		// Loaders for academic info
-		academicInfo: createAcademicInfoLoader(db),
-		academicInfoByTerm: createAcademicInfoByTermLoader(db),
-		academicInfoByYear: createAcademicInfoByYearLoader(db),
-		academicInfoByYearAndTerm: createAcademicInfoByYearAndTermLoader(db),
 
 		// Loaders for course-related data
 		studentsByCourse: createStudentsByCourseLoader(db),

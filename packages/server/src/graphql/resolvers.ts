@@ -610,28 +610,29 @@ export const resolvers = {
 		academic_info: (student: tables.Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
 			const { term, year } = args;
 
-			if (term == null && year == null) {
-				// all academic info
-				return loaders.academicInfo.load(student.mnumber);
-			}
+			// fetch all academic info for the student
+			const allAcademicInfo = loaders.academicInfo.load(student.mnumber);
 
+			// if no term or year is provided, return all academic info
+			if (term == null && year == null) return allAcademicInfo;
+
+			// if only a term is provided, return all academic info for that term
 			if (term != null && year == null) {
-				// filter by term only
-				return loaders.academicInfoByTerm.load(
-					`${student.mnumber}|${term}`
+				return allAcademicInfo.then((info) =>
+					info.filter((ai) => ai.term === term)
 				);
 			}
 
+			// if only a year is provided, return all academic info for that year
 			if (term == null && year != null) {
-				// filter by year only
-				return loaders.academicInfoByYear.load(
-					`${student.mnumber}|${year}`
+				return allAcademicInfo.then((info) =>
+					info.filter((ai) => ai.year === year)
 				);
 			}
 
-			// both term + year
-			return loaders.academicInfoByYearAndTerm.load(
-				`${student.mnumber}|${year}|${term}`
+			// if both term and year are provided, return all academic info for that term and year
+			return allAcademicInfo.then((info) =>
+				info.filter((ai) => ai.term === term && ai.year === year)
 			);
 		},
 		// TODO: Revisit
@@ -950,45 +951,27 @@ export const resolvers = {
 				term?: string;
 				year?: number;
 			},
-			{ db, loaders }: ApolloContext
+			{ loaders }: ApolloContext
 		) => {
-			// If no args, use cached loader for all advisees
-			if (args.term == null && args.year == null) {
-				// return loaders.studentAdvisor.load(faculty.mnumber);
-			}
+			// fetch all students for this faculty member (cached per request)
+			const all = await loaders.facultyAdvisees.load(faculty.mnumber);
 
-			const predicates: SQL[] = [
-				eq(tables.studentAdvisors.advisor_mnumber, faculty.mnumber),
-			];
+			// if no filters, return all
+			if (!args.term && !args.year) return all;
 
-			if (args.term) {
-				predicates.push(eq(tables.studentAdvisors.term, args.term));
-			}
-			if (args.year) {
-				predicates.push(eq(tables.studentAdvisors.year, args.year));
-			}
-
-			const data = await db
-				.select({
-					student_mnumber: tables.studentAdvisors.student_mnumber,
-					term: tables.studentAdvisors.term,
-					year: tables.studentAdvisors.year,
-					advisor_mnumber: tables.studentAdvisors.advisor_mnumber,
-					first_name: tables.students.first_name,
-					last_name: tables.students.last_name,
-				})
-				.from(tables.students)
-				.innerJoin(
-					tables.studentAdvisors,
-					eq(tables.students.mnumber, tables.studentAdvisors.student_mnumber)
-				)
-				.where(and(...predicates))
-				.orderBy(
-					sql`${tables.students.last_name} asc, ${tables.students.first_name} asc`
-				);
-
-			console.log('advisees', data);
-			return data;
+			// otherwise, filter by term/year
+			return all.filter((student) => {
+				if (args.term && args.year) {
+					return student.term === args.term && student.year === args.year;
+				}
+				if (args.term) {
+					return student.term === args.term;
+				}
+				if (args.year) {
+					return student.year === args.year;
+				}
+				return true;
+			});
 		}
 	},
 
