@@ -17,9 +17,6 @@ import userRoute from "./routes/user-router";
 import instructorRouter from "./routes/instructor-router";
 import studentRouter from "./routes/student-router";
 import enrollmentRouter from "./routes/enrollment-router";
-import searchRoute from "./routes/search-router";
-import studentLookupRoute from "./routes/student-lookup-router";
-import utilityRouter from "./routes/utility-router";
 import advisorRouter from "./routes/advisor-router";
 import lookupRouter from "./routes/lookup-router";
 
@@ -103,9 +100,6 @@ app.use("/api/import", importRoutes);
 app.use("/api/instructor", instructorRouter);
 app.use("/api/student", studentRouter);
 app.use("/api/enrollment", enrollmentRouter);
-app.use("/api/search", searchRoute);
-app.use("/api/student-lookup", studentLookupRoute);
-app.use("/api/utility", utilityRouter);
 app.use("/api/advisor", advisorRouter);
 app.use("/api/lookup", lookupRouter);
 

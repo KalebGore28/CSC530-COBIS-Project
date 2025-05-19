@@ -605,7 +605,7 @@ export const resolvers = {
 			loaders.advisor.load(student.mnumber),
 		programs: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
 			loaders.studentProgram.load(student.mnumber),
-		academic_info: (student: tables.Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
+		academic_info: async (student: tables.Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
 			const { term, year } = args;
 
 			// fetch all academic info for the student
