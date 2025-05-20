@@ -116,7 +116,7 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 	};
 
 	return (
-		<Card>
+		<Card className='w-full'>
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
 				<CardDescription>
@@ -125,7 +125,7 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 						: 'Current term & year'}
 				</CardDescription>
 			</CardHeader>
-			<CardContent>
+			<CardContent className='px-4'>
 				{error && (
 					<Alert variant="destructive" className="mb-4">
 						<Terminal className="h-4 w-4" />
@@ -155,12 +155,14 @@ const AdvisorAdvisedStudents: React.FC<AdvisorAdvisedStudentsProps> = ({
 											className="cursor-pointer hover:bg-muted/50 transition"
 										>
 											<TableCell>{s.mnumber}</TableCell>
-											<TableCell>
+											<TableCell className='truncate max-w-[120px]'>
 												{`${s.lastName}, ${s.firstName}${s.middleName ? ' ' + s.middleName : ''}${s.suffix ? ' ' + s.suffix : ''}`}
 											</TableCell>
-											<TableCell>{s.email.toLowerCase()}</TableCell>
+											<TableCell className='truncate max-w-[120px]'>{s.email.toLowerCase()}</TableCell>
 											<TableCell>{s.age}</TableCell>
-											<TableCell>{s.gender === 'M' ? 'Male' : 'Female'}</TableCell>
+											<TableCell>
+												{s.gender === 'M' ? 'Male' : 'Female'}
+											</TableCell>
 										</TableRow>
 									))
 									: (

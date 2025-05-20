@@ -8,6 +8,7 @@ import {
 	PersonStanding,
 	BookOpen,
 	Telescope,
+	BarChart,
 } from "lucide-react"
 
 import { NavMain } from "@/components/core/nav-main"
@@ -60,6 +61,16 @@ const data = {
 			items: [
 				{ title: "Importing", url: "/cobis-tools/imports" },
 				{ title: "Users", url: "/cobis-tools/users" },
+			],
+		},
+		{
+			title: "Enrollment Metrics",
+			url: "/enrollment",
+			icon: BarChart,
+			items: [
+				{ title: "Programs", url: "/enrollment/programs" },
+				{ title: "Courses", url: "/enrollment/courses" },
+				{ title: "Faculty", url: "/enrollment/faculty" },
 			],
 		},
 		{

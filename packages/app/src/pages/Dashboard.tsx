@@ -10,7 +10,6 @@ import {
   Users,
   LineChart,
   BarChart3,
-  FileText,
   Telescope,
   BarChart,
   School,
