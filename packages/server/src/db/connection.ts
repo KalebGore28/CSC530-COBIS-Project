@@ -61,7 +61,10 @@ export const createDb = async (
 	}
 
 	// 3) Initialize Drizzle **with** your schema definitions:
-	const orm = drizzle(db, { schema: tables });
+	const orm = drizzle(db, {
+					schema: tables,
+					casing: 'snake_case',
+	});
 
 	return { db, orm };
 };
