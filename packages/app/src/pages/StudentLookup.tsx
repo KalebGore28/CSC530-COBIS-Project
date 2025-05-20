@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
-import { CardContent } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 // GraphQL imports
@@ -33,6 +33,15 @@ interface StudentBasic
 		"residency_description" | "age" | "cell_phone"
 	> {
 }
+
+// Custom skeleton component
+const SkeletonTable = () => (
+	<Card className="flex flex-col space-y-2">
+		<Skeleton className="h-4 w-1/2" />
+		<Skeleton className="h-4 w-1/2" />
+		<Skeleton className="h-4 w-1/2" />
+	</Card>
+)
 
 const makePreHeader = (filters: FilterState): string[] => {
 	const lines: string[] = [];
@@ -87,7 +96,7 @@ export const StudentLookup: React.FC = () => {
 			/>
 
 			<div className="mt-6">
-				<Suspense fallback={<Skeleton className="h-4 w-1/2" />}>
+				<Suspense fallback={<SkeletonTable />}>
 					<StudentLookupContent filters={currentFilters} />
 				</Suspense>
 			</div>
@@ -102,11 +111,11 @@ type StudentLookupContentProps = {
 const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) => {
 	if (!filters) {
 		return (
-			<CardContent>
+			<Card className="w-full text-center">
 				<p className="text-sm text-muted-foreground">
 					Select filters and click "Run Search" to view students.
 				</p>
-			</CardContent>
+			</Card>
 		);
 	}
 
@@ -158,34 +167,36 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	if (!data.lookupStudents) {
+	if (!data.lookupStudents || data.lookupStudents.length === 0) {
 		return (
-			<CardContent>
+			<Card className="w-full text-center">
 				<p className="text-sm text-muted-foreground">
 					No students found.
 				</p>
-			</CardContent>
+			</Card>
 		);
 	}
 
 	return (
-		<CardContent>
-			<PaginatedTable<StudentBasic>
-				className="border"
-				data={[...data.lookupStudents]}
-				columns={[
-					{ key: "mnumber", label: "MNumber" },
-					{ key: "first_name", label: "First Name" },
-					{ key: "last_name", label: "Last Name" },
-					{
-						key: "email",
-						label: "Email",
-						transform: (val) => val.toLowerCase(),
-					},
-				]}
-				rowsPerPage={10}
-				preHeader={makePreHeader(filters)}
-			/>
-		</CardContent>
+		<Card>
+			<CardContent>
+				<PaginatedTable<StudentBasic>
+					className="border"
+					data={[...data.lookupStudents]}
+					columns={[
+						{ key: "mnumber", label: "MNumber" },
+						{ key: "first_name", label: "First Name" },
+						{ key: "last_name", label: "Last Name" },
+						{
+							key: "email",
+							label: "Email",
+							transform: (val) => val.toLowerCase(),
+						},
+					]}
+					rowsPerPage={10}
+					preHeader={makePreHeader(filters)}
+				/>
+			</CardContent>
+		</Card>
 	);
 }

@@ -8,54 +8,7 @@ import {
 	TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { ExportButton } from '@/components/common/export-button';
-
-const DOTS = '...';
-
-function range(start: number, end: number): number[] {
-	return Array.from({ length: end - start + 1 }, (_, i) => start + i);
-}
-
-function getPaginationItems(
-	currentPage: number,
-	totalPages: number,
-	siblingCount: number
-): (number | string)[] {
-	const totalPageNumbers = siblingCount * 2 + 5;
-	if (totalPages <= totalPageNumbers) {
-		return range(1, totalPages);
-	}
-
-	const leftSiblingIndex = Math.max(currentPage - siblingCount, 1);
-	const rightSiblingIndex = Math.min(currentPage + siblingCount, totalPages);
-	const shouldShowLeftDots = leftSiblingIndex > 2;
-	const shouldShowRightDots = rightSiblingIndex < totalPages - 2;
-	const firstPageIndex = 1;
-	const lastPageIndex = totalPages;
-
-	if (!shouldShowLeftDots && shouldShowRightDots) {
-		const leftItemCount = 3 + 2 * siblingCount;
-		return [...range(1, leftItemCount), DOTS, totalPages];
-	}
-
-	if (shouldShowLeftDots && !shouldShowRightDots) {
-		const itemCount = 3 + 2 * siblingCount;
-		return [firstPageIndex, DOTS, ...range(lastPageIndex - itemCount + 1, lastPageIndex)];
-	}
-
-	if (shouldShowLeftDots && shouldShowRightDots) {
-		return [
-			firstPageIndex,
-			DOTS,
-			...range(leftSiblingIndex, rightSiblingIndex),
-			DOTS,
-			lastPageIndex,
-		];
-	}
-
-	return range(1, totalPages);
-}
 
 /**
  * Column definition for PaginatedTable.
@@ -74,7 +27,6 @@ interface PaginatedTableProps<T> {
 	columns: Column<T>[];
 	rowsPerPage?: number;
 	onRowClick?: (row: T) => void;
-	isLoading?: boolean;
 	className?: string;
 	fileName?: string;
 	preHeader?: string[];
@@ -86,7 +38,6 @@ export function PaginatedTable<T>({
 	columns,
 	rowsPerPage = 10,
 	onRowClick,
-	isLoading = false,
 	className,
 	fileName = 'export',
 	preHeader = [],
@@ -94,21 +45,12 @@ export function PaginatedTable<T>({
 }: PaginatedTableProps<T>) {
 	const [currentPage, setCurrentPage] = useState(1);
 	const totalPages = Math.ceil(data.length / rowsPerPage);
-	const siblingCount = 1;
 
 	const currentData = useMemo(() => {
 		const start = (currentPage - 1) * rowsPerPage;
 		return data.slice(start, start + rowsPerPage);
 	}, [data, currentPage, rowsPerPage]);
 
-	const paginationItems = useMemo(
-		() => getPaginationItems(currentPage, totalPages, siblingCount),
-		[currentPage, totalPages, siblingCount]
-	);
-
-	const handlePageChange = useCallback((page: number) => {
-		setCurrentPage(page);
-	}, []);
 
 	const handlePrevious = useCallback(() => {
 		setCurrentPage((prev) => Math.max(prev - 1, 1));
@@ -120,7 +62,7 @@ export function PaginatedTable<T>({
 
 	return (
 		<div className="space-y-4">
-			{data.length > 0 && !isLoading && (
+			{data.length > 0 && (
 				<div className="flex items-center justify-between text-sm text-muted-foreground">
 					<div>
 						Showing{' '}
@@ -143,67 +85,41 @@ export function PaginatedTable<T>({
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{isLoading
-						? Array.from({ length: rowsPerPage }).map((_, i) => (
-							<TableRow key={`skeleton-${i}`}>
-								{columns.map((col) => (
-									<TableCell key={String(col.key)}>
-										<Skeleton className="h-4 w-full" />
-									</TableCell>
-								))}
+					{currentData.length > 0
+						? currentData.map((row, rowIndex) => (
+							<TableRow
+								key={rowIndex}
+								onClick={onRowClick ? () => onRowClick(row) : undefined}
+								className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
+							>
+								{columns.map((col) => {
+									const cellValue = row[col.key];
+									// Ensure display value is always a renderable type (string or number)
+									const display = col.transform ? col.transform(cellValue, row) : String(cellValue);
+									return (
+										<TableCell key={String(col.key)} className="truncate max-w-[120px]">
+											{display}
+										</TableCell>
+									);
+								})}
 							</TableRow>
 						))
-						: currentData.length > 0
-							? currentData.map((row, rowIndex) => (
-								<TableRow
-									key={rowIndex}
-									onClick={onRowClick ? () => onRowClick(row) : undefined}
-									className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
-								>
-									{columns.map((col) => {
-										const cellValue = row[col.key];
-										// Ensure display value is always a renderable type (string or number)
-										const display = col.transform ? col.transform(cellValue, row) : String(cellValue);
-										return (
-											<TableCell key={String(col.key)}>
-												{display}
-											</TableCell>
-										);
-									})}
-								</TableRow>
-							))
-							: (
-								<TableRow>
-									<TableCell colSpan={columns.length} className="h-24 text-center">
-										No results found.
-									</TableCell>
-								</TableRow>
-							)}
+						: (
+							<TableRow>
+								<TableCell colSpan={columns.length} className="h-24 text-center">
+									No results found.
+								</TableCell>
+							</TableRow>
+						)}
 				</TableBody>
 			</Table>
 
-			{!isLoading && totalPages > 1 && (
+			{totalPages > 1 && (
 				<div className="flex justify-end items-center gap-2">
-					<Button variant="outline" size="sm" onClick={handlePrevious} disabled={currentPage === 1}>
+					<Button variant="outline" size="sm" onClick={handlePrevious} disabled={currentPage === 1} className={currentPage === 1 ? 'hidden' : ''}>
 						← Previous
 					</Button>
-					{paginationItems.map((item, idx) =>
-						item === DOTS ? (
-							<span key={`dots-${idx}`} className="px-2 py-1 text-muted-foreground">
-								{DOTS}
-							</span>
-						) : (
-							<Button
-								key={`page-${item}-${idx}`}
-								variant={item === currentPage ? 'default' : 'outline'}
-								size="sm"
-								onClick={() => handlePageChange(item as number)}
-							>
-								{item}
-							</Button>
-						)
-					)}
-					<Button variant="outline" size="sm" onClick={handleNext} disabled={currentPage === totalPages}>
+					<Button variant="outline" size="sm" onClick={handleNext} disabled={currentPage === totalPages} className={currentPage === totalPages ? 'hidden' : ''}>
 						Next →
 					</Button>
 				</div>
