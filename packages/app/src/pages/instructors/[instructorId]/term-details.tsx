@@ -29,7 +29,7 @@ import {
 	Calculator
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import AdvisorAdvisedStudents from '@/components/advisor-advised-students';
+import { AdvisedStudents} from '@/components/advised-students';
 
 // Types based on API response
 type CourseResponse = {
@@ -322,7 +322,7 @@ const TermDetailsPage: React.FC = () => {
 
 						{/* Faculty advisees - Render only if termCode and year are defined */}
 						{termCode && year && mnumber && (
-							<AdvisorAdvisedStudents
+							<AdvisedStudents
 								mnumber={mnumber}
 								title='Advised Students'
 								term={termCode}

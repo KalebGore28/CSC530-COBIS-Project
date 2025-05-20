@@ -11,9 +11,9 @@ import {
   LineChart,
   BarChart3,
   Telescope,
-  BarChart,
   School,
-  Contact
+  Contact,
+  ChartColumnIncreasing
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -119,7 +119,7 @@ const dashboardCardsStructure = [
   {
     title: "Enrollments",
     description: "See enrollment reports for programs, courses, and faculty.",
-    icon: <BarChart className="h-8 w-8 mb-4 text-primary" />,
+    icon: <ChartColumnIncreasing className="h-8 w-8 mb-4 text-primary" />,
     link: "/enrollment",
     buttonText: "View Enrollments",
   }

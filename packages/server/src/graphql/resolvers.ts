@@ -36,8 +36,8 @@ interface ProgramFilterInput {
 
 type StudentBasic = {
 	mnumber: string;
-	firstName: string;
-	lastName: string;
+	first_name: string;
+	last_name: string;
 	email: string;
 };
 
@@ -570,8 +570,8 @@ export const resolvers = {
 			let q = db
 				.select({
 					mnumber: tables.students.mnumber,
-					firstName: tables.students.first_name,
-					lastName: tables.students.last_name,
+					first_name: tables.students.first_name,
+					last_name: tables.students.last_name,
 					email: tables.students.email,
 				})
 				.from(tables.students);

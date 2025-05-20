@@ -7,29 +7,31 @@ import { PaginatedTable } from "@/components/common/paginated-table";
 import { CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
-
 // GraphQL imports
 import type { StudentLookupQuery } from "./__generated__/StudentLookupQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
+
+// Import types
+import type { Student } from "@cobis/types";
 
 const StudentLookupQuery = graphql`
   query StudentLookupQuery($filters: StudentLookupInput!) {
     lookupStudents(filters: $filters) {
       mnumber
-      firstName
-      lastName
+      first_name
+      last_name
       email
     }
   }
 `;
 
-// Custom skeleton for StudentLookupContent
-
-export interface Student {
-	mnumber: string;
-	firstName: string;
-	lastName: string;
-	email: string;
+interface StudentBasic
+	extends Omit<
+		Student,
+		"middle_name" | "suffix" | "gender" | "birthdate" | "citizenship" |
+		"race_code" | "race_description" | "residency_code" |
+		"residency_description" | "age" | "cell_phone"
+	> {
 }
 
 const makePreHeader = (filters: FilterState): string[] => {
@@ -168,13 +170,13 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 
 	return (
 		<CardContent>
-			<PaginatedTable<Student>
+			<PaginatedTable<StudentBasic>
 				className="border"
 				data={[...data.lookupStudents]}
 				columns={[
 					{ key: "mnumber", label: "MNumber" },
-					{ key: "firstName", label: "First Name" },
-					{ key: "lastName", label: "Last Name" },
+					{ key: "first_name", label: "First Name" },
+					{ key: "last_name", label: "Last Name" },
 					{
 						key: "email",
 						label: "Email",

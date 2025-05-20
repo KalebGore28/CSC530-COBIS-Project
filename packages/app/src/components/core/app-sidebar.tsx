@@ -8,7 +8,7 @@ import {
 	PersonStanding,
 	BookOpen,
 	Telescope,
-	BarChart,
+	ChartColumnIncreasing,
 } from "lucide-react"
 
 import { NavMain } from "@/components/core/nav-main"
@@ -66,7 +66,7 @@ const data = {
 		{
 			title: "Enrollment Metrics",
 			url: "/enrollment",
-			icon: BarChart,
+			icon: ChartColumnIncreasing,
 			items: [
 				{ title: "Programs", url: "/enrollment/programs" },
 				{ title: "Courses", url: "/enrollment/courses" },

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<bf415ae0bf609c9d5b51ca1e1425d8c6>>
+ * @generated SignedSource<<726d03771cc28736aaac13d7cfd95c76>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -36,8 +36,8 @@ export type StudentLookupQuery$variables = {
 export type StudentLookupQuery$data = {
   readonly lookupStudents: ReadonlyArray<{
     readonly email: string;
-    readonly firstName: string;
-    readonly lastName: string;
+    readonly first_name: string;
+    readonly last_name: string;
     readonly mnumber: string;
   }>;
 };
@@ -80,14 +80,14 @@ v1 = [
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "firstName",
+        "name": "first_name",
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "lastName",
+        "name": "last_name",
         "storageKey": null
       },
       {
@@ -119,16 +119,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "c85ad11e1746559478f6a5f1a82d7722",
+    "cacheID": "1b6854c2d8b9f2936a574dcdc9f92a9c",
     "id": null,
     "metadata": {},
     "name": "StudentLookupQuery",
     "operationKind": "query",
-    "text": "query StudentLookupQuery(\n  $filters: StudentLookupInput!\n) {\n  lookupStudents(filters: $filters) {\n    mnumber\n    firstName\n    lastName\n    email\n  }\n}\n"
+    "text": "query StudentLookupQuery(\n  $filters: StudentLookupInput!\n) {\n  lookupStudents(filters: $filters) {\n    mnumber\n    first_name\n    last_name\n    email\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "6a50b76d96b79d35037fc8778674e883";
+(node as any).hash = "fc9536b667c77f37445c015ebf771182";
 
 export default node;

@@ -1,12 +1,12 @@
 import React from 'react';
-import AdvisorAdvisedStudents from '@/components/advisor-advised-students';
+import { AdvisedStudents } from '@/components/advised-students';
 import { useSession } from '@/context/session';
 
 const AdvisedStudentsPage: React.FC = () => {
 	const { session } = useSession();
 	return (
 		<div className="mx-auto p-6 w-full">
-			<AdvisorAdvisedStudents
+			<AdvisedStudents
 				title='My Advised Students'
 				mnumber={session?.info.mnumber || ''}
 			/>
