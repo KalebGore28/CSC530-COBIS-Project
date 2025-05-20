@@ -45,10 +45,14 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		"/cobis-tools/query-builder": ["COBIS Admin"],
 		"/cobis-tools/imports": ["COBIS Admin"],
 		"/cobis-tools/users": ["COBIS Admin"],
-		"/students/lookup": ["Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
+		"/student-lookup": ["Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/instructors": ["Department Chair", "Administrator", "COBIS Admin"],
 		"/class-roster": ["Faculty", "Advisor", "Department Chair", "COBIS Admin"],
 		"/advisor-page": ["Faculty", "Advisor", "Department Chair", "COBIS Admin"],
+		"/enrollment": ["Department Chair", "Administrator", "COBIS Admin"],
+		"/enrollment/programs": ["Department Chair", "Administrator", "COBIS Admin"],
+		"/enrollment/courses": ["Department Chair", "Administrator", "COBIS Admin"],
+		"/enrollment/faculty": ["Department Chair", "Administrator", "COBIS Admin"],
 	});
 
 	// 1. Fetch roles from session

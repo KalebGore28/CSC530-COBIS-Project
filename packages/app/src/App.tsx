@@ -5,7 +5,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { Dashboard } from './pages/Dashboard';
 import LoginPage from './pages/auth/login';
 import Layout from './Layout';
-import QueryBuilderPage from './pages/QueryBuilder';
 import CobisTools from './pages/CobisTools';
 import CsvImport from './pages/CsvImport';
 import WaitingPage from './pages/auth/waiting';
@@ -55,8 +54,8 @@ export const App: React.FC = () => {
         </Route>
 
         {/* Student Lookup: Use permissions from context */}
-        <Route path="students/lookup" element={
-          <ProtectedRoute allowedRoles={routePermissions['/students/lookup'] || []}>
+        <Route path="student-lookup" element={
+          <ProtectedRoute allowedRoles={routePermissions['/student-lookup'] || []}>
             <StudentLookup />
           </ProtectedRoute>
         } />
@@ -64,7 +63,6 @@ export const App: React.FC = () => {
         {/* COBIS Tools: Use permissions from context */}
         <Route element={<ProtectedRoute allowedRoles={routePermissions['/cobis-tools'] || []} />}>
           <Route path="cobis-tools" element={<CobisTools />}>
-            <Route path="query-builder" element={<QueryBuilderPage />} />
             <Route path="imports" element={<CsvImport />} />
             <Route path="users" element={<UserList />} />
           </Route>

@@ -7,12 +7,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  BookOpen,
   Users,
   LineChart,
   BarChart3,
   FileText,
-  Telescope
+  Telescope,
+  BarChart,
+  School,
+  Contact
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -65,14 +67,14 @@ const dashboardCardsStructure = [
     description:
       "Search for students by name, ID, department, major, minor, GPA, or previous classes.",
     icon: <Users className="h-8 w-8 mb-4 text-primary" />,
-    link: "/students/lookup",
+    link: "/student-lookup",
     buttonText: "Search Students",
   },
   {
     title: "Class Roster",
     description:
       "View and manage class rosters, including attendance and grades.",
-    icon: <Users className="h-8 w-8 mb-4 text-primary" />,
+    icon: <School className="h-8 w-8 mb-4 text-primary" />,
     link: "/class-roster",
     buttonText: "View Roster",
   },
@@ -80,26 +82,10 @@ const dashboardCardsStructure = [
     title: "Faculty Information",
     description:
       "View teaching loads, course enrollment, and student counts for faculty in your department.",
-    icon: <BookOpen className="h-8 w-8 mb-4 text-primary" />,
+    icon: <Contact className="h-8 w-8 mb-4 text-primary" />,
     link: "/instructors",
     buttonText: "View Faculty",
   },
-  {
-    title: "Student Reports",
-    description:
-      "Generate and view reports on student performance, enrollment, and academic progress.",
-    icon: <FileText className="h-8 w-8 mb-4 text-primary" />,
-    link: "/reports/students",
-    buttonText: "View Reports",
-  },
-  // {
-  //   title: "Query Builder",
-  //   description:
-  //     "Create custom database queries for advanced data analysis and reporting.",
-  //   icon: <Database className="h-8 w-8 mb-4 text-primary" />,
-  //   link: "/cobis-tools/query-builder",
-  //   buttonText: "Open Query Builder",
-  // },
   {
     title: "Data Import Tools",
     description:
@@ -130,6 +116,13 @@ const dashboardCardsStructure = [
     icon: <Users className="h-8 w-8 mb-4 text-primary" />,
     link: "/cobis-tools/users",
     buttonText: "Manage Users",
+  },
+  {
+    title: "Enrollments",
+    description: "See enrollment reports for programs, courses, and faculty.",
+    icon: <BarChart className="h-8 w-8 mb-4 text-primary" />,
+    link: "/enrollment",
+    buttonText: "View Enrollments",
   }
 ];
 

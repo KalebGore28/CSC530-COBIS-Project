@@ -40,7 +40,7 @@ const data = {
 		},
 		{
 			title: " Student Lookup",
-			url: "/students/lookup",
+			url: "/student-lookup",
 			icon: ScanSearch,
 		},
 		{
@@ -58,7 +58,6 @@ const data = {
 			url: "/cobis-tools",
 			icon: TerminalSquareIcon,
 			items: [
-				// { title: "Query Builder", url: "/cobis-tools/query-builder" },
 				{ title: "Importing", url: "/cobis-tools/imports" },
 				{ title: "Users", url: "/cobis-tools/users" },
 			],
