@@ -275,8 +275,8 @@ const GradeDistributionChart: React.FC<{
 				data={transformedData}
 				margin={{
 					top: 40,
-					right: 20,
-					left: 20,
+					right: 30,
+					left: 30,
 				}}
 			>
 				<defs>
@@ -322,13 +322,14 @@ const GradeDistributionChart: React.FC<{
 						value: "Percentage of Grades",
 						angle: -90,
 						position: "insideLeft",
-						offset: -5,
+						offset: -20,
 						style: {
 							textAnchor: "middle",
 							fill: "var(--text-secondary)",
 							fontSize: 12,
 						},
 					}}
+					tickMargin={15}
 				/>
 				<ChartTooltip
 					cursor={false}
