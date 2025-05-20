@@ -112,6 +112,7 @@ interface AdvisedStudentsProps {
 	term?: string;
 	year?: number;
 	title?: string;
+	modalOpen?: boolean;
 }
 
 export const AdvisedStudents: React.FC<AdvisedStudentsProps> = ({
@@ -119,6 +120,7 @@ export const AdvisedStudents: React.FC<AdvisedStudentsProps> = ({
 	term,
 	year,
 	title = 'My Advised Students',
+	modalOpen = false,
 }) => {
 	return (
 		<Suspense fallback={<AdvisedStudentsSkeleton />}>
@@ -127,6 +129,7 @@ export const AdvisedStudents: React.FC<AdvisedStudentsProps> = ({
 				term={term}
 				year={year}
 				title={title}
+				modalOpen={modalOpen}
 			/>
 		</Suspense>
 	);
@@ -137,6 +140,7 @@ export const AdvisedStudentContent: React.FC<AdvisedStudentsProps> = ({
 	term,
 	year,
 	title,
+	modalOpen,
 }) => {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedStudent, setSelectedStudent] = useState<ExtendedStudent | null>(null);
@@ -221,7 +225,7 @@ export const AdvisedStudentContent: React.FC<AdvisedStudentsProps> = ({
 					</Table>
 				</div>
 			</CardContent>
-			<Modal
+			{modalOpen && <Modal
 				isOpen={isModalOpen}
 				onClose={() => setIsModalOpen(false)}
 				title={`Student Detail: ${selectedStudent?.last_name}, ${selectedStudent?.first_name}`}
@@ -230,7 +234,7 @@ export const AdvisedStudentContent: React.FC<AdvisedStudentsProps> = ({
 				{selectedStudent?.mnumber && (
 					<StudentDetail mnumber={selectedStudent?.mnumber} />
 				)}
-			</Modal>
+			</Modal>}
 		</Card>
 	);
 }

@@ -9,6 +9,7 @@ const AdvisedStudentsPage: React.FC = () => {
 			<AdvisedStudents
 				title='My Advised Students'
 				mnumber={session?.info.mnumber || ''}
+				modalOpen={true}
 			/>
 		</div>
 	);

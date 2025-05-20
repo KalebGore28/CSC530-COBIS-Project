@@ -132,20 +132,32 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 
 	return (
 		<Card className="gap-0">
-			<CardHeader className="flex items-center space-y-0 border-b sm:flex-row">
-				<div className="grid flex-1 text-center sm:text-left">
+			<CardHeader className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center border-b gap-4 py-4">
+				{/* Left column: title + description */}
+				<div className="text-center sm:text-left">
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>{description}</CardDescription>
 				</div>
-				<div>
-					<Suspense fallback={<p>Loading...</p>}>
-						<GradeDistributionFetchData mnumber={mnumber} offset={offset} dataCallback={handleDataReturn} />
+
+				{/* Right column: fetch / select controls */}
+				<div className="flex items-center justify-center sm:justify-end space-x-2">
+					<Suspense
+						fallback={
+							<p className="h-5 w-24 text-sm text-muted-foreground animate-pulse">
+								Loading…
+							</p>
+						}
+					>
+						<GradeDistributionFetchData
+							mnumber={mnumber}
+							offset={offset}
+							dataCallback={handleDataReturn}
+						/>
 					</Suspense>
-				</div>
-				<div className="flex items-center gap-1">
+
 					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
 						<SelectTrigger
-							className="w-[160px] rounded-lg sm:ml-auto"
+							className="w-[160px] rounded-lg"
 							aria-label="Select time range"
 						>
 							<SelectValue placeholder="All time" />
@@ -170,6 +182,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 					</Select>
 				</div>
 			</CardHeader>
+
 			<CardContent className="mx-4 px-0">
 				{gradeDistributionData ? (
 					<GradeDistributionChart
