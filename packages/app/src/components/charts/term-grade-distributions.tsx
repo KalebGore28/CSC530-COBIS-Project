@@ -125,7 +125,8 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 			value === "1y" ? 1 :
 				value === "2y" ? 2 :
 					value === "3y" ? 3 :
-						5
+						value === "5y" ? 5 :
+							value === "10y" ? 10 : 1
 		)
 	}
 
@@ -150,7 +151,10 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 							<SelectValue placeholder="All time" />
 						</SelectTrigger>
 						<SelectContent className="rounded-xl">
-							<SelectItem value="all" className="rounded-lg">
+							<SelectItem value="10y" className="rounded-lg">
+								Last 10 years
+							</SelectItem>
+							<SelectItem value="5y" className="rounded-lg">
 								Last 5 years
 							</SelectItem>
 							<SelectItem value="3y" className="rounded-lg">
@@ -166,16 +170,14 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 					</Select>
 				</div>
 			</CardHeader>
-			<CardContent>
-				<div className="w-full h-full">
-					{gradeDistributionData ? (
-						<GradeDistributionChart
-							data={gradeDistributionData}
-						/>
-					) : (
-						<p>No data available</p>
-					)}
-				</div>
+			<CardContent className="mx-4 px-0">
+				{gradeDistributionData ? (
+					<GradeDistributionChart
+						data={gradeDistributionData}
+					/>
+				) : (
+					<p>No data available</p>
+				)}
 			</CardContent>
 		</Card>
 	)
@@ -208,7 +210,6 @@ const GradeDistributionFetchData: React.FC<GradeDistributionFetchDataProps> = ({
 		}
 	)
 
-	// Use useEffect to call dataCallback after render
 	useEffect(() => {
 		if (instructor && dataCallback) {
 			dataCallback({ instructor });
@@ -273,10 +274,9 @@ const GradeDistributionChart: React.FC<{
 			<AreaChart
 				data={transformedData}
 				margin={{
-					top: 20,
+					top: 40,
 					right: 20,
 					left: 20,
-					bottom: 20
 				}}
 			>
 				<defs>
@@ -310,7 +310,6 @@ const GradeDistributionChart: React.FC<{
 					axisLine={false}
 					tickMargin={8}
 					minTickGap={32}
-					padding={{ left: 20, right: 20 }}
 				/>
 				<YAxis
 					width={40}
@@ -350,7 +349,7 @@ const GradeDistributionChart: React.FC<{
 					>
 						<LabelList
 							dataKey={grade}
-							position="bottom"               // try "inside", "insideBottom", "insideTopLeft", etc.
+							position="bottom"
 							offset={0}
 							content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
 						/>
@@ -359,8 +358,7 @@ const GradeDistributionChart: React.FC<{
 				))}
 				<ChartLegend
 					content={<ChartLegendContent />}
-					verticalAlign="top"
-					className="mb-6"
+					verticalAlign="bottom"
 				/>
 			</AreaChart>
 		</ChartContainer>
@@ -368,51 +366,19 @@ const GradeDistributionChart: React.FC<{
 }
 
 // Custom Label Component for LabelList
-const CustomizedLabel = (props: any) => {
-	// Extract props passed by LabelList
-	// x, y: Coordinates of the anchor point on the chart for the label
-	// value: The data value for this label
-	// dataKey: The key associated with this data (e.g., "A", "B")
-	// index: The index of the data point in the dataset
-	const { x, y, value, dataKey } = props;
-
-	// --- Configuration ---
-	const MIN_PERCENTAGE_TO_SHOW = 5; // Only show labels for >= 5%
-	const VERTICAL_OFFSET = 15;       // How far below the point to place the label
-	const FONT_SIZE = 10;
-
-	// --- Logic ---
-	// 1. Basic Validation: Ensure coordinates are valid numbers
-	if (typeof x !== 'number' || typeof y !== 'number' || isNaN(x) || isNaN(y)) {
-		return null; // Don't render if position is invalid
-	}
-
-	// 2. Threshold Check: Hide label if the value is too small
-	if (value < MIN_PERCENTAGE_TO_SHOW) {
-		return null;
-	}
-
-	// 3. Format the Label Text
-	const labelText = `${dataKey}-${value.toFixed(0)}%`;
-
-	// --- Rendering ---
-	// Render a <text> SVG element
-	// x, y: Position attributes
-	// dy: Vertical shift from the 'y' coordinate
-	// textAnchor="middle": Center the text horizontally at the 'x' coordinate
-	// dominantBaseline="middle": Helps center text vertically (adjust if needed)
-	// fill, fontSize: Styling
+const CustomizedLabel: React.FC<any> = ({ x, y, value, dataKey }) => {
+	const MIN_PERCENTAGE_TO_SHOW = 5;
+	if (value < MIN_PERCENTAGE_TO_SHOW || isNaN(x) || isNaN(y)) return null;
 	return (
 		<text
 			x={x}
-			y={y}
-			dy={VERTICAL_OFFSET} // Apply the vertical offset
-			fill="var(--primary)"      // ← use your CSS var
-			fontSize={FONT_SIZE}
+			y={y + 15}
+			fill="var(--primary)"
+			fontSize={10}
 			textAnchor="middle"
-			dominantBaseline="middle" // Try 'hanging' or remove if vertical alignment is off
+			dominantBaseline="middle"
 		>
-			{labelText}
+			{`${dataKey}-${value.toFixed(0)}%`}
 		</text>
 	);
 };
