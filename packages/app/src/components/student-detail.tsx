@@ -15,6 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
+import { Skeleton } from './ui/skeleton';
 
 
 // GraphQL imports
@@ -115,6 +116,29 @@ const studentDetailQuery = graphql`
     }
 `;
 
+// Custom skeleton component for loading state
+const StudentDetailSkeleton = () => {
+    return (
+        <div className='flex flex-col gap-4'>
+            <Card className='w-full'>
+                <CardHeader>
+                    <CardTitle>
+                        <Skeleton className="h-6 w-1/2" />
+                    </CardTitle>
+                    <CardDescription>
+                        <Skeleton className="h-4 w-3/4" />
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                        <Skeleton key={index} className="h-4 w-full" />
+                    ))}
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
 // Define the props for the component
 interface StudentDetailProps {
     mnumber: string; // The M-Number passed to the component
@@ -122,7 +146,7 @@ interface StudentDetailProps {
 
 export const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<StudentDetailSkeleton />}>
             <StudentDetailContent mnumber={mnumber} />
         </Suspense>
     )
