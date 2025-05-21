@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 
 import { Modal } from '@/components/modals/modal';
-import StudentDetail from '@/components/student-detail';
+import { StudentDetail } from '@/components/student-detail';
 
 // Import types
 import type { Student } from '@cobis/types';
