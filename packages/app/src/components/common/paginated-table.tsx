@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import {
 	Table,
 	TableHeader,
@@ -8,12 +8,7 @@ import {
 	TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { ExportButton } from '@/components/common/export-button';
 
-/**
- * Column definition for PaginatedTable.
- * Generates a distinct type for each keyof T, so transform gets the correct value type.
- */
 export type Column<T> = {
 	[K in keyof T]: {
 		key: K;
@@ -26,57 +21,59 @@ interface PaginatedTableProps<T> {
 	data: T[];
 	columns: Column<T>[];
 	rowsPerPage?: number;
+	totalRows?: number;
 	onRowClick?: (row: T) => void;
+	handlePreviousCallback?: () => void;
+	handleNextCallback?: () => void;
 	className?: string;
-	fileName?: string;
-	preHeader?: string[];
-	[key: string]: any;
 }
 
 export function PaginatedTable<T>({
 	data,
 	columns,
 	rowsPerPage = 10,
+	totalRows,
 	onRowClick,
+	handlePreviousCallback,
+	handleNextCallback,
 	className,
-	fileName = 'export',
-	preHeader = [],
-	...tableProps
 }: PaginatedTableProps<T>) {
 	const [currentPage, setCurrentPage] = useState(1);
-	const totalPages = Math.ceil(data.length / rowsPerPage);
+	const effectiveTotal = totalRows ?? data.length;
 
-	const currentData = useMemo(() => {
-		const start = (currentPage - 1) * rowsPerPage;
-		return data.slice(start, start + rowsPerPage);
-	}, [data, currentPage, rowsPerPage]);
-
+	const totalPages = Math.ceil(effectiveTotal / rowsPerPage);
 
 	const handlePrevious = useCallback(() => {
-		setCurrentPage((prev) => Math.max(prev - 1, 1));
-	}, []);
+		if (currentPage > 1) {
+			setCurrentPage((p) => p - 1);
+			handlePreviousCallback?.();
+		}
+	}, [currentPage, handlePreviousCallback]);
 
 	const handleNext = useCallback(() => {
-		setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-	}, [totalPages]);
+		if (currentPage < totalPages) {
+			setCurrentPage((p) => p + 1);
+			handleNextCallback?.();
+		}
+	}, [currentPage, totalPages, handleNextCallback]);
+
+	const startCount = (currentPage - 1) * rowsPerPage + 1;
+	const endCount = Math.min(currentPage * rowsPerPage, effectiveTotal);
 
 	return (
 		<div className="space-y-4">
-			{data.length > 0 && (
+			{effectiveTotal > 0 && (
 				<div className="flex items-center justify-between text-sm text-muted-foreground">
 					<div>
 						Showing{' '}
-						<strong>{Math.min((currentPage - 1) * rowsPerPage + 1, data.length)}</strong>-
-						<strong>{Math.min(currentPage * rowsPerPage, data.length)}</strong> of{' '}
-						<strong>{data.length}</strong> rows
+						<strong>{startCount}</strong> to{' '}
+						<strong>{endCount}</strong> of{' '}
+						<strong>{effectiveTotal}</strong> rows
 					</div>
-					<ExportButton data={data} filename={fileName} preHeader={preHeader} />
 				</div>
 			)}
 
-			{/* Table */}
-
-			<Table className={className} {...tableProps}>
+			<Table className={className}>
 				<TableHeader>
 					<TableRow>
 						{columns.map((col) => (
@@ -85,8 +82,8 @@ export function PaginatedTable<T>({
 					</TableRow>
 				</TableHeader>
 				<TableBody>
-					{currentData.length > 0
-						? currentData.map((row, rowIndex) => (
+					{data.length > 0 ? (
+						data.map((row, rowIndex) => (
 							<TableRow
 								key={rowIndex}
 								onClick={onRowClick ? () => onRowClick(row) : undefined}
@@ -94,36 +91,50 @@ export function PaginatedTable<T>({
 							>
 								{columns.map((col) => {
 									const cellValue = row[col.key];
-									// Ensure display value is always a renderable type (string or number)
-									const display = col.transform ? col.transform(cellValue, row) : String(cellValue);
+									const display = col.transform
+										? col.transform(cellValue, row)
+										: String(cellValue);
 									return (
-										<TableCell key={String(col.key)} className="truncate max-w-[120px]">
+										<TableCell
+											key={String(col.key)}
+											className="truncate max-w-[120px]"
+										>
 											{display}
 										</TableCell>
 									);
 								})}
 							</TableRow>
 						))
-						: (
-							<TableRow>
-								<TableCell colSpan={columns.length} className="h-24 text-center">
-									No results found.
-								</TableCell>
-							</TableRow>
-						)}
+					) : (
+						<TableRow>
+							<TableCell colSpan={columns.length} className="h-24 text-center">
+								No results found.
+							</TableCell>
+						</TableRow>
+					)}
 				</TableBody>
 			</Table>
 
-			{totalPages > 1 && (
-				<div className="flex justify-end items-center gap-2">
-					<Button variant="outline" size="sm" onClick={handlePrevious} disabled={currentPage === 1} className={currentPage === 1 ? 'hidden' : ''}>
-						← Previous
-					</Button>
-					<Button variant="outline" size="sm" onClick={handleNext} disabled={currentPage === totalPages} className={currentPage === totalPages ? 'hidden' : ''}>
-						Next →
-					</Button>
-				</div>
-			)}
+			<div className="flex justify-end items-center gap-2">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={handlePrevious}
+					disabled={currentPage === 1}
+					className={currentPage === 1 ? 'hidden' : ''}
+				>
+					← Previous
+				</Button>
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={handleNext}
+					disabled={currentPage === totalPages}
+					className={currentPage === totalPages ? 'hidden' : ''}
+				>
+					Next →
+				</Button>
+			</div>
 		</div>
 	);
 }

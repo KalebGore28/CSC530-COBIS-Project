@@ -192,7 +192,7 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 										'programs',
 										'midterm_grade',
 										'final_grade',
-									],
+									], // these must match the fields. most likely didn't initially make it for the headers to be different.
 									fieldTransformers: {
 										programs: (value: Program[]) =>
 											Array.isArray(value)

@@ -376,6 +376,11 @@ type StudentBasic {
   email:     String!
 }
 
+type StudentLookupPage {
+  students:   [StudentBasic!]!
+  totalCount: Int!
+}
+
 # Root query type
 
 type Query {
@@ -421,6 +426,10 @@ type Query {
   student(mnumber: String!): Student
   instructor(mnumber: String!): Faculty
   instructors: [Faculty!]!
-  lookupStudents(filters: StudentLookupInput!): [StudentBasic!]!
+  lookupStudents(
+    filters: StudentLookupInput!
+    offset:  Int = 0
+    limit:   Int = 10
+  ): StudentLookupPage!
   
 }

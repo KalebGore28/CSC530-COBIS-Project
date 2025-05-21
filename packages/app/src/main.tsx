@@ -29,7 +29,7 @@ const fetchGraphQL: FetchFunction = async (request, variables) => {
     return await resp.json();
 };
 
-const environment = new Environment({
+export const environment = new Environment({
     network: Network.create(fetchGraphQL),
 });
 

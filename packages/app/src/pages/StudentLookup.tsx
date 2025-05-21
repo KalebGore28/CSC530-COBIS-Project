@@ -1,29 +1,44 @@
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect, useMemo } from "react";
 import { format } from "date-fns";
 
 import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { exportToCSV } from "@/utils/csv-export";
 
 // GraphQL imports
 import type { StudentLookupQuery } from "./__generated__/StudentLookupQuery.graphql";
-import { graphql, useLazyLoadQuery } from "react-relay";
+import { fetchQuery, graphql, useLazyLoadQuery } from 'react-relay';
+import { environment } from "@/main";
+
 
 // Import types
 import type { Student } from "@cobis/types";
+import { Button } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const StudentLookupQuery = graphql`
-  query StudentLookupQuery($filters: StudentLookupInput!) {
-    lookupStudents(filters: $filters) {
-      mnumber
-      first_name
-      last_name
-      email
+  query StudentLookupQuery(
+    $filters: StudentLookupInput!
+    $offset: Int!
+    $limit: Int!
+  ) {
+    lookupStudents(filters: $filters, offset: $offset, limit: $limit) {
+      students {
+        mnumber
+        first_name
+        last_name
+        email
+      }
+      totalCount
     }
   }
 `;
+
+const PAGE_LIMIT = 10;
 
 interface StudentBasic
 	extends Omit<
@@ -34,14 +49,56 @@ interface StudentBasic
 	> {
 }
 
+interface SkeletonTableProps {
+	rows?: number;
+	columns?: number;
+}
 // Custom skeleton component
-const SkeletonTable = () => (
-	<Card className="flex flex-col space-y-2">
-		<Skeleton className="h-4 w-1/2" />
-		<Skeleton className="h-4 w-1/2" />
-		<Skeleton className="h-4 w-1/2" />
+export const SkeletonTable: React.FC<SkeletonTableProps> = ({
+	rows = 10,
+	columns = 4,
+}) => (
+	<Card className="w-full animate-pulse">
+		<CardHeader className="flex items-center justify-between">
+			<Skeleton className="h-6 w-1/4" />
+			<Skeleton className="h-8 w-24" />
+		</CardHeader>
+		<CardContent>
+			{/* Info line */}
+			<div className="mb-2">
+				<Skeleton className="h-4 w-1/3" />
+			</div>
+			<Table>
+				<TableHeader>
+					<TableRow>
+						{Array.from({ length: columns }).map((_, idx) => (
+							<TableHead key={idx}>
+								<Skeleton className="h-4 w-20" />
+							</TableHead>
+						))}
+					</TableRow>
+				</TableHeader>
+				<TableBody>
+					{Array.from({ length: rows }).map((_, rowIdx) => (
+						<TableRow key={rowIdx}>
+							{Array.from({ length: columns }).map((__, cellIdx) => (
+								<TableCell key={cellIdx} className="p-2">
+									<Skeleton className="h-4 w-full" />
+								</TableCell>
+							))}
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+			{/* Pagination buttons */}
+			<div className="flex justify-end items-center gap-2 mt-4">
+				<Skeleton className="h-8 w-20" />
+				<Skeleton className="h-8 w-20" />
+			</div>
+		</CardContent>
 	</Card>
-)
+);
+
 
 const makePreHeader = (filters: FilterState): string[] => {
 	const lines: string[] = [];
@@ -96,7 +153,7 @@ export const StudentLookup: React.FC = () => {
 			/>
 
 			<div className="mt-6">
-				<Suspense fallback={<SkeletonTable />}>
+				<Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} columns={4} />}>
 					<StudentLookupContent filters={currentFilters} />
 				</Suspense>
 			</div>
@@ -161,13 +218,21 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 		return gqlFilters;
 	};
 
+	const [offset, setOffset] = useState(0);
+
+	// reset to first page when filters change
+	const gqlFilters = useMemo(() => formatFilterState(filters!), [filters]);
+	useEffect(() => {
+		setOffset(0);
+	}, [gqlFilters]);
+
 	const data = useLazyLoadQuery<StudentLookupQuery>(
 		StudentLookupQuery,
-		{ filters: formatFilterState(filters) },
+		{ filters: gqlFilters, offset, limit: PAGE_LIMIT },
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	if (!data.lookupStudents || data.lookupStudents.length === 0) {
+	if (data.lookupStudents.students.length === 0) {
 		return (
 			<Card className="w-full text-center">
 				<p className="text-sm text-muted-foreground">
@@ -178,11 +243,59 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 	}
 
 	return (
-		<Card>
+		<Card className="w-full">
+			<CardHeader className="flex items-center justify-between">
+				<h2 className="text-lg font-semibold">Student Lookup</h2>
+				<Suspense fallback={
+					<Button variant="outline" disabled>
+						<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+						Export as CSV
+					</Button>
+				}>
+					<Button
+						variant="outline"
+						onClick={async () => {
+							// 1. figure out how many rows you actually need:
+							const total = data.lookupStudents.totalCount;
+
+							// 2. run an imperative fetch for all rows
+							const fullPayload = await fetchQuery<StudentLookupQuery>(
+								environment,
+								StudentLookupQuery,
+								{
+									filters: gqlFilters,
+									offset: 0,
+									limit: total,
+								}
+							).toPromise(); // returns a Promise of your query result
+
+							// 3. guard
+							if (!fullPayload?.lookupStudents?.students) {
+								console.error('Export failed, no data');
+								return;
+							}
+
+							// 4. export to CSV
+							exportToCSV<StudentBasic>(
+								[...fullPayload.lookupStudents.students],
+								{
+									filename: `students_${format(new Date(), 'yyyyMMdd_HHmmss')}`,
+									fields: ['mnumber', 'first_name', 'last_name', 'email'],
+									headers: ['mnumber', 'first_name', 'last_name', 'email'], // these must match the fields. most likely didn't initially make it for the headers to be different.
+									preHeader: makePreHeader(filters),
+								}
+							);
+						}}
+					>
+						<Download className="mr-2 h-4 w-4" />
+						Export as CSV
+					</Button>
+				</Suspense>
+			</CardHeader>
 			<CardContent>
 				<PaginatedTable<StudentBasic>
 					className="border"
-					data={[...data.lookupStudents]}
+					data={[...data.lookupStudents.students]}
 					columns={[
 						{ key: "mnumber", label: "MNumber" },
 						{ key: "first_name", label: "First Name" },
@@ -193,8 +306,18 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 							transform: (val) => val.toLowerCase(),
 						},
 					]}
-					rowsPerPage={10}
-					preHeader={makePreHeader(filters)}
+					rowsPerPage={PAGE_LIMIT}
+					totalRows={data.lookupStudents.totalCount}
+					handlePreviousCallback={() =>
+						setOffset((prev) => Math.max(prev - PAGE_LIMIT, 0))
+					}
+					handleNextCallback={() =>
+						setOffset((prev) =>
+							prev + PAGE_LIMIT < data.lookupStudents.totalCount
+								? prev + PAGE_LIMIT
+								: prev
+						)
+					}
 				/>
 			</CardContent>
 		</Card>

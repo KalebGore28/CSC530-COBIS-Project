@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<726d03771cc28736aaac13d7cfd95c76>>
+ * @generated SignedSource<<466471ba4cf5ee63100e0d58816239a8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -32,14 +32,19 @@ export type CourseFilter = {
 };
 export type StudentLookupQuery$variables = {
   filters: StudentLookupInput;
+  limit: number;
+  offset: number;
 };
 export type StudentLookupQuery$data = {
-  readonly lookupStudents: ReadonlyArray<{
-    readonly email: string;
-    readonly first_name: string;
-    readonly last_name: string;
-    readonly mnumber: string;
-  }>;
+  readonly lookupStudents: {
+    readonly students: ReadonlyArray<{
+      readonly email: string;
+      readonly first_name: string;
+      readonly last_name: string;
+      readonly mnumber: string;
+    }>;
+    readonly totalCount: number;
+  };
 };
 export type StudentLookupQuery = {
   response: StudentLookupQuery$data;
@@ -47,14 +52,22 @@ export type StudentLookupQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "filters"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "filters"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "limit"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "offset"
+},
+v3 = [
   {
     "alias": null,
     "args": [
@@ -62,39 +75,67 @@ v1 = [
         "kind": "Variable",
         "name": "filters",
         "variableName": "filters"
+      },
+      {
+        "kind": "Variable",
+        "name": "limit",
+        "variableName": "limit"
+      },
+      {
+        "kind": "Variable",
+        "name": "offset",
+        "variableName": "offset"
       }
     ],
-    "concreteType": "StudentBasic",
+    "concreteType": "StudentLookupPage",
     "kind": "LinkedField",
     "name": "lookupStudents",
-    "plural": true,
+    "plural": false,
     "selections": [
       {
         "alias": null,
         "args": null,
-        "kind": "ScalarField",
-        "name": "mnumber",
+        "concreteType": "StudentBasic",
+        "kind": "LinkedField",
+        "name": "students",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "mnumber",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "first_name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "last_name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "email",
+            "storageKey": null
+          }
+        ],
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "first_name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "last_name",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "email",
+        "name": "totalCount",
         "storageKey": null
       }
     ],
@@ -103,32 +144,40 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
     "name": "StudentLookupQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v3/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v2/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Operation",
     "name": "StudentLookupQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "1b6854c2d8b9f2936a574dcdc9f92a9c",
+    "cacheID": "7d1d417414460638b1a0a26554f7a7dc",
     "id": null,
     "metadata": {},
     "name": "StudentLookupQuery",
     "operationKind": "query",
-    "text": "query StudentLookupQuery(\n  $filters: StudentLookupInput!\n) {\n  lookupStudents(filters: $filters) {\n    mnumber\n    first_name\n    last_name\n    email\n  }\n}\n"
+    "text": "query StudentLookupQuery(\n  $filters: StudentLookupInput!\n  $offset: Int!\n  $limit: Int!\n) {\n  lookupStudents(filters: $filters, offset: $offset, limit: $limit) {\n    students {\n      mnumber\n      first_name\n      last_name\n      email\n    }\n    totalCount\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "fc9536b667c77f37445c015ebf771182";
+(node as any).hash = "5eaeb742b3e12bcc28e6d49e11f44bf0";
 
 export default node;

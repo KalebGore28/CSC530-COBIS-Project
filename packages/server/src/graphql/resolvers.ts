@@ -407,9 +407,13 @@ export const resolvers = {
 		// Lookup Query
 		lookupStudents: async (
 			_parent: any,
-			{ filters }: { filters: StudentLookupInput },
-			{ db }: any
-		): Promise<StudentBasic[]> => {
+			{ filters, offset = 0, limit = 10 }: {
+				filters: StudentLookupInput;
+				offset?: number;
+				limit?: number;
+			},
+			{ db }: ApolloContext
+		): Promise<{ students: StudentBasic[]; totalCount: number }> => {
 			const {
 				academicLevels,
 				gpaMin,
@@ -487,9 +491,6 @@ export const resolvers = {
 			`);
 			}
 
-
-
-
 			// 3) Program filters (new)
 			programs?.forEach(({ program, is_major, is_minor }) => {
 				if (is_major) {
@@ -566,21 +567,31 @@ export const resolvers = {
 				}
 			});
 
-			// 5) Assemble & execute
-			let q = db
+			// 5) Build base select to count total rows
+			const [{ count: totalCount }] = await db
+				.select({ count: sql<number>`count(*)` })
+				.from(tables.students)
+				.where(and(...whereClauses))
+				.all();
+
+			// Build paginated fetch
+			const studentRows = await db
 				.select({
 					mnumber: tables.students.mnumber,
 					first_name: tables.students.first_name,
 					last_name: tables.students.last_name,
 					email: tables.students.email,
 				})
-				.from(tables.students);
+				.from(tables.students)
+				.where(and(...whereClauses))
+				.offset(offset)
+				.limit(limit)
+				.all();
 
-			if (whereClauses.length) {
-				q = q.where(and(...whereClauses));
-			}
-
-			return await q.all();
+			return {
+				students: studentRows,
+				totalCount,
+			};
 		},
 	},
 
