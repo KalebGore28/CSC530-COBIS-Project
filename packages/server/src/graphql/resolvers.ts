@@ -1,25 +1,12 @@
 import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, SQL } from 'drizzle-orm'
-
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 import { ApolloContext } from '../app';
 
 // --- TypeScript types for your GraphQL inputs ---
-
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
 type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
-
-function makeKey(course: tables.InstructorCourse) {
-	return [course.term, course.year].join('|');
-}
-
-const termMap = {
-	'10': 'Spring',
-	'50': 'Summer',
-	'80': 'Fall',
-	'90': 'Winter',
-}
 
 interface CourseFilterInput {
 	course: string;
@@ -50,23 +37,28 @@ interface StudentLookupInput {
 }
 
 // --- Helpers ---
-
 const parseCourseId = (cid: string) => {
 	const m = /^([A-Za-z]+)(\d+)([A-Za-z]*)$/.exec(cid);
 	if (!m) throw new Error(`Invalid course ID: ${cid}`);
 	return { subject: m[1], number: +m[2], suffix: m[3] };
 };
 
+function makeKey(course: tables.InstructorCourse) {
+	return [course.term, course.year].join('|');
+}
+
+const termMap = {
+	'10': 'Spring',
+	'50': 'Summer',
+	'80': 'Fall',
+	'90': 'Winter',
+}
 
 export const resolvers = {
 	Query: {
 		// Search lookup tables
-		searchAcademicStandings: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchAcademicStandings: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.academicStanding)
@@ -78,12 +70,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchAdmitCodes: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchAdmitCodes: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.admitCodes)
@@ -95,12 +83,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchColleges: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchColleges: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.colleges)
@@ -112,12 +96,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchCourses: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchCourses: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.courses)
@@ -129,12 +109,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchDepartments: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchDepartments: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.departments)
@@ -146,12 +122,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchInstructionalMethods: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchInstructionalMethods: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.instructionalMethods)
@@ -163,12 +135,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchNations: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchNations: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.nations)
@@ -180,12 +148,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchPartOfTerms: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchPartOfTerms: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.partOfTerm)
@@ -207,7 +171,7 @@ export const resolvers = {
 				is_discontinued?: boolean;
 				is_aacsb?: boolean;
 			},
-			{ db }: any
+			{ db }: ApolloContext
 		) => {
 			const up = args.query.toUpperCase();
 
@@ -241,12 +205,8 @@ export const resolvers = {
 				.where(and(...filters))
 				.limit(10);
 		},
-		searchRegistrationStatuses: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchRegistrationStatuses: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.registrationStatus)
@@ -258,12 +218,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchRoles: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchRoles: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.roles)
@@ -275,12 +231,8 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchTerms: async (
-			_parent: any,
-			{ query }: { query: string },
-			{ db }: any
-		) => {
-			const up = query.toUpperCase();
+		searchTerms: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
+			const up = args.query.toUpperCase();
 			return await db
 				.select()
 				.from(tables.terms)
@@ -298,81 +250,79 @@ export const resolvers = {
 				.orderBy(tables.academicStanding.code)
 			return rows || []
 		},
-		getAdmitCodes: async (_: any, __: any, { db }: any) => {
+		getAdmitCodes: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.admitCodes)
 				.orderBy(tables.admitCodes.code)
 			return rows || []
 		},
-		getColleges: async (_: any, __: any, { db }: any) => {
+		getColleges: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.colleges)
 				.orderBy(tables.colleges.code)
 			return rows || []
 		},
-		getCourses: async (_: any, __: any, { db }: any) => {
+		getCourses: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.courses)
 				.orderBy(tables.courses.subject, tables.courses.number, tables.courses.suffix)
 			return rows || []
 		},
-		getDepartments: async (_: any, __: any, { db }: any) => {
+		getDepartments: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.departments)
 				.orderBy(tables.departments.code)
 			return rows || []
 		},
-		getInstructionalMethods: async (_: any, __: any, { db }: any) => {
+		getInstructionalMethods: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.instructionalMethods)
 				.orderBy(tables.instructionalMethods.code)
 			return rows || []
 		},
-		getNations: async (_: any, __: any, { db }: any) => {
+		getNations: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.nations)
 				.orderBy(tables.nations.code)
 			return rows || []
 		},
-		getPartOfTerms: async (_: any, __: any, { db }: any) => {
+		getPartOfTerms: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.partOfTerm)
 				.orderBy(tables.partOfTerm.code)
 			return rows || []
 		},
-		getPrograms: async (_: any, __: any, { db }: any) => {
+		getPrograms: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.programs)
 				.orderBy(tables.programs.code)
 			return rows || []
 		},
-		getRegistrationStatuses: async (_: any, __: any, { db }: any) => {
+		getRegistrationStatuses: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.registrationStatus)
 				.orderBy(tables.registrationStatus.code)
 			return rows || []
 		},
-		getRoles: async (_: any, __: any, { db }: any) => {
+		getRoles: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.roles)
 				.orderBy(tables.roles.id)
 			return rows || []
 		},
-		getTerms: async (_: any, __: any, { db }: any) => {
+		getTerms: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.terms)
 				.orderBy(tables.terms.code)
 			return rows || []
 		},
 		// Other queries
-		student: checkStudentAccess(
-			async (_parent: any, args: { mnumber: string }, ctx: ApolloContext) => {
-				const [stud] = await ctx.db
-					.select()
-					.from(tables.students)
-					.where(eq(tables.students.mnumber, args.mnumber))
-					.limit(1)
-				return stud || null
-			}
+		student: checkStudentAccess(async (_parent: any, args: { mnumber: string }, { db }: ApolloContext) => {
+			const [stud] = await db
+				.select()
+				.from(tables.students)
+				.where(eq(tables.students.mnumber, args.mnumber))
+				.limit(1)
+			return stud || null
+		}
 		),
-		instructor: checkInstructorAccess(
-			async (_: any, { mnumber }: { mnumber: string }, ctx: any) => {
-				const [fac] = await ctx.db
-					.select()
-					.from(tables.faculty)
-					.where(eq(tables.faculty.mnumber, mnumber))
-					.limit(1)
-				return fac || null
-			}
+		instructor: checkInstructorAccess(async (_parent: any, args: { mnumber: string }, { db }: ApolloContext) => {
+			const [fac] = await db
+				.select()
+				.from(tables.faculty)
+				.where(eq(tables.faculty.mnumber, args.mnumber))
+				.limit(1)
+			return fac || null
+		}
 		),
 		instructors: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db
