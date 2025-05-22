@@ -32,6 +32,7 @@ import {
 } from './gradeDistributionByCourse';
 import { createFacultyAdviseesLoader } from './facultyAdviseesLoader';
 import { createStudentCourseLoader } from './studentCourseLoader';
+import { createUserLoader } from './userLoader';
 
 
 export function createLoaders(db: DbConnection['orm']) {
@@ -63,6 +64,7 @@ export function createLoaders(db: DbConnection['orm']) {
 			createCurrentTermLoader(db)
 		),
 		facultyAdvisees: createFacultyAdviseesLoader(db),
+		user: createUserLoader(db),
 
 
 		// Loaders for course-related data

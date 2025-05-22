@@ -898,7 +898,34 @@ export const resolvers = {
 				}
 				return true;
 			});
+		},
+		user: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
+			loaders.user.load(faculty.mnumber),
+	},
+
+	User: {
+		updatedAt(user: tables.User, _args: any, _context: ApolloContext) {
+			// if user.updatedAt is a JS Date or number in ms
+			const ms = typeof user.updatedAt === 'number'
+				? user.updatedAt
+				: user.updatedAt.getTime();
+			return Math.floor(ms / 1000);
+		},
+		createdAt(user: tables.User, _args: any, _context: ApolloContext) {
+			// if user.createdAt is a JS Date or number in ms
+			const ms = typeof user.createdAt === 'number'
+				? user.createdAt
+				: user.createdAt.getTime();
+			return Math.floor(ms / 1000);
+		},
+		lastLogin(user: tables.User, _args: any, _context: ApolloContext) {
+			// if user.lastLogin is a JS Date or number in ms
+			const ms = typeof user.lastLogin === 'number'
+				? user.lastLogin
+				: user.lastLogin.getTime();
+			return Math.floor(ms / 1000);
 		}
+
 	},
 
 	InstructorCourse: {

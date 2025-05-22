@@ -220,19 +220,21 @@ type Session {
   user: User!
 }
 
-type User {
+# NOTE: Param naming style difference because beter-auth
+# Uses and expects camelCase for params
+type User { 
   id: String!
   mnumber: String!
   name: String!
   email: String!
-  email_verified: Boolean!
+  emailVerified: Boolean!
   image: String
-  created_at: Int!
-  updated_at: Int!
-  is_enabled: Boolean!
-  last_login: String!
+  createdAt: Int!
+  updatedAt: Int!
+  isEnabled: Boolean!
+  lastLogin: String!
   # Relationships
-  roles: [Role!]!
+  # roles: [Role!]!
 }
 
 type Verification {
@@ -272,6 +274,9 @@ type Faculty {
     term: String,
     year: Int,
   ): [StudentAdvisor!]!
+  # A faculty member is not guaranteed to be in the system
+  # So this relationship has an optional user
+  user: User
 }
 
 type InstructorCourse {
