@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from '../ui/skeleton';
 
+// GraphQL imports
 import type { currentTermTableQuery } from "./__generated__/currentTermTableQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 

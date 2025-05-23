@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 import { CurrentTermTable } from '@/components/instructor/current-term-table';
@@ -95,7 +95,6 @@ export const InstructorPage: React.FC = () => {
 
 const InstructorPageContent: React.FC = () => {
 	const { mnumber } = useParams();
-	const navigate = useNavigate();
 
 	const { getCurrentYearTerm } = useLazyLoadQuery<InstructorIdGetCurrentTermQuery>(
 		InstructorIdGetCurrentTermQuery,
@@ -214,149 +213,6 @@ const InstructorPageContent: React.FC = () => {
 
 
 
-
-// 	// Pagination logic
-// 	const totalPages = Math.ceil(termSummaries.length / itemsPerPage);
-// 	const indexOfLastItem = currentPage * itemsPerPage;
-// 	const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-// 	const currentItems = termSummaries.slice(indexOfFirstItem, indexOfLastItem);
-
-// 	const paginate = (pageNumber: number) => {
-// 		setCurrentPage(pageNumber);
-// 	};
-
-// 	const goToNextPage = () => {
-// 		if (currentPage < totalPages) {
-// 			setCurrentPage(currentPage + 1);
-// 		}
-// 	};
-
-// 	const goToPrevPage = () => {
-// 		if (currentPage > 1) {
-// 			setCurrentPage(currentPage - 1);
-// 		}
-// 	};
-
-// 	const handleViewDetails = (termCode: string, year: number) => {
-// 		navigate(`/instructors/${mnumber}/${year}${termCode}`);
-// 	};
-
-// 	// Loading state
-// 	if (loadingInstructor && loadingCourses && loadingTerms) {
-// 		return (
-// 			<div className="flex items-center justify-center h-screen">
-// 				<div className="flex flex-col items-center gap-2">
-// 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-// 					<p className="text-muted-foreground">Loading faculty information...</p>
-// 				</div>
-// 			</div>
-// 		);
-// 	}
-
-// 	return (
-// 		<div className="container mx-auto py-6 max-w-5xl">
-// 			<div className="grid gap-6">
-// 				{/* Header section with profile info */}
-// 				<div className="flex flex-col md:flex-row gap-6 items-start">
-// 					<div className="flex-shrink-0">
-// 						{loadingInstructor ? (
-// 							<div className="h-24 w-24 rounded-full flex items-center justify-center bg-muted">
-// 								<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-// 							</div>
-// 						) : instructor ? (
-// 							<Avatar className="h-24 w-24 border-2 border-primary">
-// 								<AvatarImage src={instructor.instructorInfo.image} alt={instructor.instructorInfo.name} />
-// 								<AvatarFallback className="text-2xl">
-// 									{getInitials(instructor.instructorInfo.name)}
-// 								</AvatarFallback>
-// 							</Avatar>
-// 						) : (
-// 							<Avatar className="h-24 w-24 border-2 border-primary">
-// 								<AvatarFallback className="text-2xl">
-// 									<AlertCircle className="h-8 w-8" />
-// 								</AvatarFallback>
-// 							</Avatar>
-// 						)}
-// 					</div>
-
-// 					<div className="flex-grow space-y-2">
-// 						<div className="flex flex-col md:flex-row md:items-center gap-2 justify-between">
-// 							<div>
-// 								{loadingInstructor ? (
-// 									<div className="space-y-2">
-// 										<div className="h-8 w-48 bg-muted rounded animate-pulse"></div>
-// 										<div className="h-6 w-36 bg-muted rounded animate-pulse"></div>
-// 										<div className="h-4 w-28 bg-muted rounded animate-pulse"></div>
-// 									</div>
-// 								) : instructor ? (
-// 									<>
-// 										<h1 className="text-3xl font-bold">{instructor.instructorInfo.name}</h1>
-// 										<p className="text-xl text-muted-foreground">{instructor.instructorInfo.department}</p>
-// 										<p className="text-sm text-muted-foreground">{instructor.instructorInfo.college}</p>
-// 									</>
-// 								) : (
-// 									<div className="space-y-1">
-// 										<p className="text-3xl font-bold text-muted">No data available</p>
-// 										<p className="text-sm text-muted-foreground">Instructor information could not be loaded</p>
-// 									</div>
-// 								)}
-// 							</div>
-
-// 							<div className="flex flex-col gap-2">
-// 								{loadingCourses ? (
-// 									<div className="h-6 w-32 bg-muted rounded animate-pulse"></div>
-// 								) : courses && courses.length > 0 ? (
-// 									<Badge className="self-start" variant="outline">Currently Teaching</Badge>
-// 								) : (
-// 									<Badge className="self-start" variant="outline">Not Currently Teaching</Badge>
-// 								)}
-
-// 								{instructor && (
-// 									<div className="flex items-center gap-2">
-// 										<Mail className="h-4 w-4 text-muted-foreground" />
-// 										<a href={`mailto:${instructor.instructorInfo.email}`} className="text-sm hover:underline">
-// 											{instructor.instructorInfo.email || 'N/A'}
-// 										</a>
-// 									</div>
-// 								)}
-// 							</div>
-// 						</div>
-
-// 						<Separator />
-
-// 						{/* Quick Stats */}
-// 						<div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-2">
-// 							<div className="flex flex-col">
-// 								<span className="text-sm text-muted-foreground">Current Term</span>
-// 								{loadingCourses ? (
-// 									<div className="h-5 w-24 bg-muted rounded animate-pulse mt-1"></div>
-// 								) : currentTerm ? (
-// 									<span className="font-medium">{currentTerm.termName} {currentTerm.year}</span>
-// 								) : (
-// 									<span className="text-muted">Not available</span>
-// 								)}
-// 							</div>
-// 							<div className="flex flex-col">
-// 								<span className="text-sm text-muted-foreground">Current Courses</span>
-// 								{loadingCourses ? (
-// 									<div className="h-5 w-8 bg-muted rounded animate-pulse mt-1"></div>
-// 								) : (
-// 									<span className="font-medium">{courses ? courses.length : 0}</span>
-// 								)}
-// 							</div>
-// 							<div className="flex flex-col">
-// 								<span className="text-sm text-muted-foreground">Department Code</span>
-// 								{loadingInstructor ? (
-// 									<div className="h-5 w-12 bg-muted rounded animate-pulse mt-1"></div>
-// 								) : instructor ? (
-// 									<span className="font-medium">{instructor.instructorInfo.departmentCode}</span>
-// 								) : (
-// 									<span className="text-muted">Not available</span>
-// 								)}
-// 							</div>
-// 						</div>
-// 					</div>
-// 				</div>
 
 // 				{/* Additional Information Tabs */}
 // 				<Tabs defaultValue="current" className="w-full">
