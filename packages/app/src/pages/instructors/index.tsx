@@ -89,7 +89,6 @@ const InstructorsPageSkeleton: React.FC = () => (
 	</Card>
 )
 
-
 const instructorsQuery = graphql`
 	query instructorsQuery {
 		instructors {
@@ -109,11 +108,12 @@ const instructorsQuery = graphql`
 				image
 			}
 		}
-	}`;
+	}
+`;
 
 export const InstructorsPage: React.FC = () => {
 	return (
-		<div className="container p-6 mx-auto space-y-6">
+		<div className="w-full p-6 mx-auto space-y-6">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
 				<h2 className="col-span-full text-center font-bold text-2xl">
 					Instructors
@@ -178,12 +178,12 @@ const InstructorsPageContent: React.FC = () => {
 	const handleSelectInstructor = (mnumber: string) => {
 		navigate(`/instructors/${mnumber}`);
 	};
-	// 
+
 	// Handle search input change with debounce
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setSearchQuery(e.target.value);
 	};
-	// 
+
 	// Helper function to get initials from name
 	const getInitials = (name: string): string => {
 		if (!name) return 'N/A';
@@ -198,7 +198,7 @@ const InstructorsPageContent: React.FC = () => {
 		<Card>
 			<CardHeader className="pb-3">
 				<div className="flex flex-wrap justify-between items-center">
-					<div>
+					<div className='pr-4 pb-4'>
 						<CardTitle className="text-xl flex items-center gap-2">
 							<Users className="h-5 w-5" />
 							Instructor Directory
@@ -208,13 +208,13 @@ const InstructorsPageContent: React.FC = () => {
 						</CardDescription>
 					</div>
 					{/* Search and Filter Controls*/}
-					<div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+					<div className="flex flex-wrap gap-2 sm:gap-4">
 						<div className="relative">
 							<Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
 							<Input
 								type="search"
 								placeholder="Search instructors..."
-								className="pl-8 w-full sm:w-[250px] md:w-[300px]"
+								className="pl-8 w-full"
 								value={searchQuery}
 								onChange={handleSearchChange}
 							/>
@@ -249,7 +249,7 @@ const InstructorsPageContent: React.FC = () => {
 									className="cursor-pointer hover:bg-muted/50"
 									onClick={() => handleSelectInstructor(instructor.mnumber)}
 								>
-									<TableCell>
+									<TableCell className="truncate max-w-[120px]">
 										<div className="flex items-center gap-3">
 											<Avatar>
 												<AvatarImage src={instructor.user?.image ?? undefined} alt={instructor.first_name || ''} />
@@ -261,7 +261,7 @@ const InstructorsPageContent: React.FC = () => {
 											</div>
 										</div>
 									</TableCell>
-									<TableCell>
+									<TableCell className="truncate max-w-[120px]">
 										<div className="flex flex-col">
 											<span>{instructor.department.description}</span>
 											<Badge variant="outline" className="w-fit text-xs">
@@ -269,7 +269,7 @@ const InstructorsPageContent: React.FC = () => {
 											</Badge>
 										</div>
 									</TableCell>
-									<TableCell>
+									<TableCell className="truncate max-w-[120px]">
 										<div className="flex items-center gap-2">
 											<Mail className="h-4 w-4 text-muted-foreground" />
 											<a
