@@ -1,6 +1,5 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { useSetBreadcrumb } from '@/context/breadcrumb';
-import axios from 'axios';
 import {
 	Card,
 	CardContent,
@@ -15,28 +14,11 @@ import {
 	TabsTrigger,
 } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow
-} from "@/components/ui/table";
-import {
-	Mail,
-	ChevronLeft,
-	ChevronRight,
-	AlertCircle,
-	Loader2
-} from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
 import { Skeleton } from '@/components/ui/skeleton';
-import { toast } from "sonner"
 import { GradeDistribution } from '@/components/charts/term-grade-distributions';
+import { CurrentTermTable } from '@/components/instructor/current-term-table';
 
 // GraphQL imports
 import type { InstructorIdGetCurrentTermQuery } from "./__generated__/InstructorIdGetCurrentTermQuery.graphql";
@@ -138,6 +120,11 @@ const InstructorPageContent: React.FC = () => {
 		);
 	}
 
+	useSetBreadcrumb(
+		mnumber as string,
+		instructor?.first_name + " " + instructor?.last_name,
+	);
+
 	return (
 		<div>
 			{/* Profile picture and info */}
@@ -187,7 +174,11 @@ const InstructorPageContent: React.FC = () => {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<p className="text-sm text-muted-foreground">No courses scheduled for this term.</p>
+							<CurrentTermTable
+								mnumber={mnumber as string}
+								startTerm={getCurrentYearTerm.term.code}
+								startYear={getCurrentYearTerm.year}
+							/>
 						</CardContent>
 					</Card>
 				</TabsContent>
