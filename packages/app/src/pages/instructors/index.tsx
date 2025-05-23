@@ -18,13 +18,44 @@ import {
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Users, Mail } from 'lucide-react';
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // GraphQL imports
 import type { instructorsQuery } from "./__generated__/instructorsQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
+
+const instructorsQuery = graphql`
+	query instructorsQuery {
+		instructors {
+			first_name
+			last_name
+			mnumber
+			college {
+				code
+				description
+			}
+			department {
+				code
+				description
+			}
+			user {
+				email
+				image
+			}
+		}
+	}
+`;
+
+// Helper function to get initials from name
+const getInitials = (name: string): string => {
+	if (!name) return 'N/A';
+	return name
+		.split(' ')
+		.map(part => part.charAt(0))
+		.join('')
+		.toUpperCase();
+};
 
 // Custom skeleton for InstructorsPage
 const InstructorsPageSkeleton: React.FC = () => (
@@ -87,29 +118,7 @@ const InstructorsPageSkeleton: React.FC = () => (
 			</Table>
 		</CardContent>
 	</Card>
-)
-
-const instructorsQuery = graphql`
-	query instructorsQuery {
-		instructors {
-			first_name
-			last_name
-			mnumber
-			college {
-				code
-				description
-			}
-			department {
-				code
-				description
-			}
-			user {
-				email
-				image
-			}
-		}
-	}
-`;
+);
 
 export const InstructorsPage: React.FC = () => {
 	return (
@@ -184,16 +193,6 @@ const InstructorsPageContent: React.FC = () => {
 		setSearchQuery(e.target.value);
 	};
 
-	// Helper function to get initials from name
-	const getInitials = (name: string): string => {
-		if (!name) return 'N/A';
-		return name
-			.split(' ')
-			.map(part => part.charAt(0))
-			.join('')
-			.toUpperCase();
-	};
-
 	return (
 		<Card>
 			<CardHeader className="pb-3">
@@ -264,9 +263,6 @@ const InstructorsPageContent: React.FC = () => {
 									<TableCell className="truncate max-w-[120px]">
 										<div className="flex flex-col">
 											<span>{instructor.department.description}</span>
-											<Badge variant="outline" className="w-fit text-xs">
-												{instructor.college.code}
-											</Badge>
 										</div>
 									</TableCell>
 									<TableCell className="truncate max-w-[120px]">

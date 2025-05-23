@@ -10,7 +10,7 @@ import { Roster } from "@/components/roster";
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
 
-const ClassRosterPage: React.FC = () => {
+export const ClassRosterPage: React.FC = () => {
 	const { session } = useSession();
 	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 	const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
@@ -61,5 +61,3 @@ const ClassRosterPage: React.FC = () => {
 		</div>
 	);
 };
-
-export default ClassRosterPage;
