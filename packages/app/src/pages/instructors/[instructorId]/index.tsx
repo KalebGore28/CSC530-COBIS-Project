@@ -168,110 +168,61 @@ const InstructorPageContent: React.FC = () => {
 					</div>
 				</CardContent>
 			</Card>
+
+			{/* Tabs */}
+			<Tabs defaultValue="current" className="w-full mt-6">
+				<TabsList className="grid w-full grid-cols-3">
+					<TabsTrigger value="current">Current Term</TabsTrigger>
+					<TabsTrigger value="history">Teaching History</TabsTrigger>
+					<TabsTrigger value="grade-distributions">Grade Distributions</TabsTrigger>
+				</TabsList>
+
+				{/* Current Term Tab */}
+				<TabsContent value="current">
+					<Card>
+						<CardHeader>
+							<CardTitle>Current Term</CardTitle>
+							<CardDescription>
+								{getCurrentYearTerm.term.description} {getCurrentYearTerm.year}
+							</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<p className="text-sm text-muted-foreground">No courses scheduled for this term.</p>
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				{/* Teaching History Tab */}
+				<TabsContent value="history">
+					<Card>
+						<CardHeader>
+							<CardTitle>Teaching History</CardTitle>
+							<CardDescription>Summary of courses taught across terms</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<p className="text-sm text-muted-foreground">No teaching history available.</p>
+						</CardContent>
+					</Card>
+				</TabsContent>
+
+				{/* Grade Distributions Tab */}
+				<TabsContent value="grade-distributions">
+					<GradeDistribution
+						mnumber={mnumber as string}
+						title={`${instructor.first_name} ${instructor.last_name}'s Grade Distributions`}
+						description={`Showing grade distribution trends over time for ${instructor.first_name} ${instructor.last_name}`}
+					/>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }
 
 
-// const FacultyProfilePageOld: React.FC = () => {
-// 	const { mnumber } = useParams();
-// 	const navigate = useNavigate();
-
-// 	// State for data
-// 	const [instructor, setInstructor] = useState<any | null>(null);
-// 	const [currentTerm, setCurrentTerm] = useState<any | null>(null);
-// 	const [courses, setCourses] = useState<any[]>([]);
-// 	const [termSummaries, setTermSummaries] = useState<any[]>([]);
-
-// 	useSetBreadcrumb(
-// 		mnumber as string,
-// 		instructor?.instructorInfo?.name || null
-// 	);
-
-// 	// State for loading
-// 	const [loadingInstructor, setLoadingInstructor] = useState(true);
-// 	const [loadingCourses, setLoadingCourses] = useState(true);
-// 	const [loadingTerms, setLoadingTerms] = useState(true);
-// 	// State for pagination
-// 	const [currentPage, setCurrentPage] = useState(1);
-// 	const [itemsPerPage] = useState(5);
-
-// 	// API fetch functions
-// 	const fetchInstructorData = async () => {
-// 		try {
-// 			setLoadingInstructor(true);
-// 			const response = await axios.get<InstructorResponse>(`/api/instructor/${mnumber}`, {
-// 				withCredentials: true
-// 			});
-// 			setInstructor(response.data);
-// 		} catch (error) {
-// 			toast.error("Failed to load instructor information")
-// 		} finally {
-// 			setLoadingInstructor(false);
-// 		}
-// 	};
-
-// 	const fetchCurrentTerm = async () => {
-// 		try {
-// 			const response = await axios.get<CurrentTermResponse>('/api/utility/current-term', {
-// 				withCredentials: true
-// 			});
-// 			setCurrentTerm(response.data);
-// 			return response.data;
-// 		} catch (error) {
-// 			toast.error("Failed to load current term information")
-// 			return null;
-// 		}
-// 	};
-
-// 	const fetchCourses = async (term: string, year: number) => {
-// 		try {
-// 			setLoadingCourses(true);
-// 			const response = await axios.get<CourseResponse>(
-// 				`/api/instructor/${mnumber}/courses`, {
-// 				params: { term, year },
-// 				withCredentials: true
-// 			}
-// 			);
-// 			setCourses(response.data.courseDetails);
-// 		} catch (error) {
-// 			toast.error("Failed to load course information")
-// 			setCourses([]);
-// 		} finally {
-// 			setLoadingCourses(false);
-// 		}
-// 	};
-
-// 	const fetchTermSummaries = async () => {
-// 		try {
-// 			setLoadingTerms(true);
-// 			const response = await axios.get<TermSummariesResponse>(`/api/instructor/${mnumber}/terms`, {
-// 				withCredentials: true
-// 			});
-// 			setTermSummaries(response.data.termSummaries);
-// 		} catch (error) {
-// 			toast.error("Failed to load teaching history")
-// 			setTermSummaries([]);
-// 		} finally {
-// 			setLoadingTerms(false);
-// 		}
-// 	};
 
 
 
-// 	// Initial data load
-// 	useEffect(() => {
-// 		const loadData = async () => {
-// 			await fetchInstructorData();
-// 			const termData = await fetchCurrentTerm();
-// 			if (termData) {
-// 				await fetchCourses(termData.term, termData.year);
-// 			}
-// 			await fetchTermSummaries();
-// 		};
 
-// 		loadData();
-// 	}, [mnumber]);
 
 // 	// Pagination logic
 // 	const totalPages = Math.ceil(termSummaries.length / itemsPerPage);

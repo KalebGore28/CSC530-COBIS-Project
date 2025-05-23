@@ -1,9 +1,6 @@
 // src/graphql/middleware/checkInstructorAccess.ts
 import { GraphQLError } from 'graphql'
-import { eq, and, count } from 'drizzle-orm'
-import * as tables from '../../db/schema'
 import type { ApolloContext } from '../../app';
-
 
 export function checkInstructorAccess<
 	TParent = any,

@@ -28,6 +28,7 @@ import {
 import type { termGradeDistributionsCurrentTermQuery } from "./__generated__/termGradeDistributionsCurrentTermQuery.graphql"
 import type { termGradeDistributionsDataQuery, termGradeDistributionsDataQuery$data } from "./__generated__/termGradeDistributionsDataQuery.graphql"
 import { graphql, useLazyLoadQuery } from "react-relay";
+import { Loader2 } from "lucide-react"
 
 
 const termGradeDistributionsCurrentTermQuery = graphql`
@@ -111,6 +112,14 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 	const [timeRange, setTimeRange] = useState("1y")
 	const [offset, setOffset] = useState(1)
 
+	const yearMap: Record<string, number> = {
+		"1y": 1,
+		"2y": 2,
+		"3y": 3,
+		"5y": 5,
+		"10y": 10,
+	};
+
 	// Handle data return
 	const handleDataReturn = (data: termGradeDistributionsDataQuery$data) => {
 		if (data) {
@@ -121,13 +130,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 	// Handle time range change
 	const handleTimeRangeChange = (value: string) => {
 		setTimeRange(value)
-		setOffset(
-			value === "1y" ? 1 :
-				value === "2y" ? 2 :
-					value === "3y" ? 3 :
-						value === "5y" ? 5 :
-							value === "10y" ? 10 : 1
-		)
+		setOffset(yearMap[value] ?? 1);
 	}
 
 	return (
@@ -143,9 +146,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 				<div className="flex items-center justify-center sm:justify-end space-x-2">
 					<Suspense
 						fallback={
-							<p className="h-5 w-24 text-sm text-muted-foreground animate-pulse">
-								Loading…
-							</p>
+							<Loader2 className="h-4 w-4 animate-spin" />
 						}
 					>
 						<GradeDistributionFetchData
@@ -189,7 +190,7 @@ export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
 						data={gradeDistributionData}
 					/>
 				) : (
-					<p>No data available</p>
+					<p className="p-2">No data available</p>
 				)}
 			</CardContent>
 		</Card>
