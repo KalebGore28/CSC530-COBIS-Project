@@ -97,6 +97,9 @@ const studentDetailQuery = graphql`
                 first_name
                 last_name
                 mnumber
+                user {
+                    email
+                }
             }
         }
         programs {
@@ -393,6 +396,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                             <TableRow>
                                 <TableHead>M-Number</TableHead>
                                 <TableHead>Name</TableHead>
+                                <TableHead>Email</TableHead>
                                 <TableHead>Term</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -402,6 +406,11 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                                     <TableCell>{advisor.advisor_mnumber}</TableCell>
                                     <TableCell>
                                         {advisor.advisor.first_name} {advisor.advisor.last_name}
+                                    </TableCell>
+                                    <TableCell>
+                                        <a href={`mailto:${advisor.advisor.user?.email || null}`} className='hover:underline'>
+                                            {advisor.advisor.user?.email || 'N/A'}
+                                        </a>
                                     </TableCell>
                                     <TableCell>
                                         {advisor.term.description} {advisor.year}

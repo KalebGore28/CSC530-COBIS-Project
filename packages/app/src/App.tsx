@@ -11,7 +11,7 @@ import WaitingPage from './pages/auth/waiting';
 import OnboardingPage from './pages/auth/onboarding';
 import { StudentLookup } from './pages/StudentLookup';
 import ClassRosterPage from './pages/ClassRoster';
-import InstructorsPage from './pages/instructors';
+import { InstructorsPage } from './pages/instructors';
 import InstructorPage from './pages/instructors/[instructorId]';
 import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';

@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<334def9fbcbde952a7016dbe0c85f8bf>>
+ * @generated SignedSource<<24b147bd6a63b6b3dc05987050a05d79>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,6 +21,9 @@ export type studentDetailQuery$data = {
         readonly first_name: string;
         readonly last_name: string;
         readonly mnumber: string;
+        readonly user: {
+          readonly email: string;
+        } | null | undefined;
       };
       readonly advisor_mnumber: string;
       readonly term: {
@@ -127,7 +130,14 @@ v2 = {
   "name": "last_name",
   "storageKey": null
 },
-v3 = [
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "email",
+  "storageKey": null
+},
+v4 = [
   {
     "alias": null,
     "args": null,
@@ -143,38 +153,38 @@ v3 = [
     "storageKey": null
   }
 ],
-v4 = {
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "msu_gpa",
   "storageKey": null
 },
-v5 = {
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "overall_gpa",
   "storageKey": null
 },
-v6 = {
+v7 = {
   "alias": null,
   "args": null,
   "concreteType": "Term",
   "kind": "LinkedField",
   "name": "term",
   "plural": false,
-  "selections": (v3/*: any*/),
+  "selections": (v4/*: any*/),
   "storageKey": null
 },
-v7 = {
+v8 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "year",
   "storageKey": null
 },
-v8 = [
+v9 = [
   {
     "alias": null,
     "args": [
@@ -205,13 +215,7 @@ v8 = [
         "name": "suffix",
         "storageKey": null
       },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "email",
-        "storageKey": null
-      },
+      (v3/*: any*/),
       {
         "alias": null,
         "args": null,
@@ -301,7 +305,7 @@ v8 = [
             "kind": "LinkedField",
             "name": "admit_code",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v4/*: any*/),
             "storageKey": null
           },
           {
@@ -311,7 +315,7 @@ v8 = [
             "kind": "LinkedField",
             "name": "academic_standing",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v4/*: any*/),
             "storageKey": null
           },
           {
@@ -321,7 +325,7 @@ v8 = [
             "kind": "LinkedField",
             "name": "admit_term",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v4/*: any*/),
             "storageKey": null
           },
           {
@@ -345,7 +349,7 @@ v8 = [
             "name": "msu_earned_hours",
             "storageKey": null
           },
-          (v4/*: any*/),
+          (v5/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -367,7 +371,7 @@ v8 = [
             "name": "overall_earned_hours",
             "storageKey": null
           },
-          (v5/*: any*/),
+          (v6/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -386,10 +390,10 @@ v8 = [
         "name": "academic_info",
         "plural": true,
         "selections": [
-          (v4/*: any*/),
           (v5/*: any*/),
           (v6/*: any*/),
-          (v7/*: any*/)
+          (v7/*: any*/),
+          (v8/*: any*/)
         ],
         "storageKey": null
       },
@@ -408,8 +412,8 @@ v8 = [
             "name": "advisor_mnumber",
             "storageKey": null
           },
-          (v6/*: any*/),
           (v7/*: any*/),
+          (v8/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -426,6 +430,18 @@ v8 = [
                 "kind": "ScalarField",
                 "name": "mnumber",
                 "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "concreteType": "User",
+                "kind": "LinkedField",
+                "name": "user",
+                "plural": false,
+                "selections": [
+                  (v3/*: any*/)
+                ],
+                "storageKey": null
               }
             ],
             "storageKey": null
@@ -441,8 +457,8 @@ v8 = [
         "name": "programs",
         "plural": true,
         "selections": [
-          (v6/*: any*/),
           (v7/*: any*/),
+          (v8/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -464,7 +480,7 @@ v8 = [
             "kind": "LinkedField",
             "name": "program",
             "plural": false,
-            "selections": (v3/*: any*/),
+            "selections": (v4/*: any*/),
             "storageKey": null
           }
         ],
@@ -480,7 +496,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "studentDetailQuery",
-    "selections": (v8/*: any*/),
+    "selections": (v9/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -489,19 +505,19 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "studentDetailQuery",
-    "selections": (v8/*: any*/)
+    "selections": (v9/*: any*/)
   },
   "params": {
-    "cacheID": "b926b616695e69894dc63ceaf1cb29c3",
+    "cacheID": "912fb7465c5bb2a146d28a921d643471",
     "id": null,
     "metadata": {},
     "name": "studentDetailQuery",
     "operationKind": "query",
-    "text": "query studentDetailQuery(\n  $mnumber: String!\n  $term: String\n  $year: Int\n) {\n  student(mnumber: $mnumber) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    age\n    gender\n    cell_phone\n    race_code\n    race_description\n    residency_code\n    residency_description\n    citizenship\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code {\n        code\n        description\n      }\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n"
+    "text": "query studentDetailQuery(\n  $mnumber: String!\n  $term: String\n  $year: Int\n) {\n  student(mnumber: $mnumber) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    age\n    gender\n    cell_phone\n    race_code\n    race_description\n    residency_code\n    residency_description\n    citizenship\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code {\n        code\n        description\n      }\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n        }\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "072421539b986f1b6df0b05d9de427af";
+(node as any).hash = "3927b9a551ebe24b2d93a2fe2ab36f04";
 
 export default node;
