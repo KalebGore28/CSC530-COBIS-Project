@@ -1,87 +1,41 @@
 // src/graphql/middleware/checkInstructorAccess.ts
 import { GraphQLError } from 'graphql'
-import { z } from 'zod'
-import { eq, and, count as sqlCount } from 'drizzle-orm'
+import { eq, and, count } from 'drizzle-orm'
 import * as tables from '../../db/schema'
+import type { ApolloContext } from '../../app';
 
-const instructorIdSchema = z
-	.string()
-	.regex(/^[Mm]\d+$/i, 'Invalid M-number format')
-	.transform((val) => val.toUpperCase())
 
-/**
- * Wraps a resolver so it only runs if the user passes all of:
- * - authenticated,
- * - valid M-number,
- * - COBIS-admin OR own record OR dept-chair in dept,
- * - instructor exists
- */
 export function checkInstructorAccess<
-	P = any,
-	A extends { mnumber: string } = { mnumber: string },
-	C = any,
-	R = any
+	TParent = any,
+	TArgs extends { mnumber: string } = { mnumber: string },
+	TResult = any
 >(
-	resolver: (parent: P, args: A, ctx: C, info: any) => Promise<R> | R
-) {
-	return async (parent: P, args: A, ctx: any, info: any): Promise<R> => {
-		// 1) Authenticated?
-		if (!ctx.user) {
-			throw new GraphQLError('Not authenticated', {
-				extensions: { code: 'UNAUTHENTICATED' },
-			})
-		}
+	resolver: (
+		parent: any,
+		args: TArgs,
+		ctx: ApolloContext
+	) => Promise<TResult>
+): (parent: any, args: TArgs, ctx: ApolloContext) => Promise<TResult> {
+	return async (parent: TParent, args: TArgs, ctx: ApolloContext) => {
+		const mnum = args.mnumber;
 
-		// 2) Validate M-number format
-		const parsed = instructorIdSchema.safeParse(args.mnumber)
-		if (!parsed.success) {
-			throw new GraphQLError(parsed.error.errors[0].message, {
-				extensions: { code: 'BAD_USER_INPUT' },
-			})
-		}
-		const mnum = parsed.data  // e.g. "M94325996"
-
-		const roles: string[] = Array.isArray(ctx.roles) ? ctx.roles : []
-		const hasRole = (r: string) => roles.includes(r)
-
-		// 3) COBIS administrators see all
-		if (hasRole('cobis_administrator')) {
-			return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
-		}
-
-		// 4) Users see their own record
+		// 1) self-access
 		if (ctx.mnumber === mnum) {
-			return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
+			return resolver(parent, args, ctx);
 		}
 
-		// 5) Department chairs see all instructors in their department
-		if (hasRole('department_chair') && ctx.department) {
-			const deptCount = await ctx.db
-				.select({ cnt: sqlCount() })
-				.from(tables.faculty)
-				.where(
-					and(
-						eq(tables.faculty.mnumber, mnum),
-						eq(tables.faculty.department, ctx.department)
-					)
-				)
-			if (Number(deptCount[0]?.cnt || 0) > 0) {
-				return resolver(parent, { ...args, mnumber: mnum }, ctx, info)
-			}
+		// 2) admin / super role
+		if (ctx.roles.some(r => r.role_name === 'cobis_administrator')) {
+			console.log('admin access');
+			return resolver(parent, args, ctx);
 		}
 
-		// 6) If they don’t exist → 404
-		const existsCount = await ctx.db
-			.select({ cnt: sqlCount() })
-			.from(tables.faculty)
-			.where(eq(tables.faculty.mnumber, mnum))
-		if (Number(existsCount[0]?.cnt || 0) === 0) {
-			throw new GraphQLError('Instructor not found', {
-				extensions: { code: 'NOT_FOUND' },
-			})
+		// 3) Department chair check
+		if (ctx.roles.some(r => r.role_name === 'department_chair')) {
+			return resolver(parent, args, ctx);
 		}
 
-		// 7) Otherwise → deny
+		// 4) no access
 		throw new GraphQLError('Access denied. Insufficient permissions.', {
 			extensions: { code: 'FORBIDDEN' },
 		})

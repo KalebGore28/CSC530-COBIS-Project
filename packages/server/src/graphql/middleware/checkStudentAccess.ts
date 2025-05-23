@@ -24,11 +24,11 @@ export function checkStudentAccess<
 		}
 
 		// 2) admin / super role
-		if (ctx.roles.includes('admin')) {
+		if (ctx.roles.some(r => r.role_name === 'cobis_administrator')) {
 			return resolver(parent, args, ctx);
 		}
 
-		// 3) advisor access
+		// 3) advisor access to specific student
 		const [{ cnt }] = await ctx.db
 			.select({ cnt: count(tables.studentAdvisors.advisor_mnumber) })
 			.from(tables.studentAdvisors)

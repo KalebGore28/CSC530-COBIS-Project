@@ -26,11 +26,17 @@ import { expressMiddleware } from "@as-integrations/express5";
 import { createLoaders, Loaders } from "./graphql/loaders";
 import { typeDefs, resolvers } from "./graphql";
 
+
+type Role = {
+    role_id: number;
+    role_name: string;
+};
+
 export interface ApolloContext {
     db: DbConnection["orm"];
     loaders: Loaders;
     user: any;
-    roles: any;
+    roles: Role[];
     mnumber: string | null;
     department: string | null;
     college: string | null;

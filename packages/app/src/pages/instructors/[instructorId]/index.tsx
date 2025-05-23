@@ -40,6 +40,7 @@ import { GradeDistribution } from '@/components/charts/term-grade-distributions'
 
 // GraphQL imports
 import type { InstructorIdGetCurrentTermQuery } from "./__generated__/InstructorIdGetCurrentTermQuery.graphql";
+import type { InstructorIdQuery } from "./__generated__/InstructorIdQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
 const InstructorIdGetCurrentTermQuery = graphql`
@@ -49,6 +50,27 @@ const InstructorIdGetCurrentTermQuery = graphql`
 			term {
 				code
 				description
+			}
+		}
+	}
+`;
+
+const InstructorIdQuery = graphql`
+	query InstructorIdQuery($mnumber: String!) {
+		instructor(mnumber: $mnumber) {
+			first_name
+			last_name
+			college {
+				code
+				description
+			}
+			department {
+				code
+				description
+			}
+			user {
+				email
+				image
 			}
 		}
 	}
@@ -98,9 +120,56 @@ const InstructorPageContent: React.FC = () => {
 		{},
 		{ fetchPolicy: "store-or-network" }
 	);
-	console.log(getCurrentYearTerm);
 
-	return (<div></div>)
+	const { instructor } = useLazyLoadQuery<InstructorIdQuery>(
+		InstructorIdQuery,
+		{ mnumber: mnumber as string },
+		{ fetchPolicy: "store-or-network" }
+	);
+
+	if (!instructor) {
+		return (
+			<div className="flex items-center justify-center h-screen">
+				<div className="flex flex-col items-center gap-2">
+					<AlertCircle className="h-8 w-8 text-red-500" />
+					<p className="text-muted-foreground">Instructor not found</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div>
+			{/* Profile picture and info */}
+			<Card>
+				<CardContent>
+					<div className="flex items-center gap-4">
+						<Avatar className="h-24 w-24 border-2 border-primary">
+							<AvatarImage src={instructor.user?.image || undefined} alt={instructor.first_name} />
+							<AvatarFallback className="text-2xl">
+								{getInitials(`${instructor.first_name} ${instructor.last_name}`)}
+							</AvatarFallback>
+						</Avatar>
+						<div>
+							<h1 className="text-3xl font-bold">{`${instructor.first_name} ${instructor.last_name}`}</h1>
+							<p className="text-xl text-muted-foreground">{instructor.department?.description}</p>
+							<p className="text-sm text-muted-foreground">{instructor.college?.description}</p>
+							<span className="inline-flex items-center text-sm space-x-1">
+								{instructor.user?.email && (
+									<a
+										href={`mailto:${instructor.user.email}`}
+										className="hover:underline"
+									>
+										<span>{instructor.user?.email}</span>
+									</a>
+								)}
+							</span>
+						</div>
+					</div>
+				</CardContent>
+			</Card>
+		</div>
+	);
 }
 
 
