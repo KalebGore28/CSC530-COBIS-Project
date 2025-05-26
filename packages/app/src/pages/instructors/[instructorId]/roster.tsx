@@ -16,7 +16,7 @@ import type { ExtendedCourse } from "@/components/selectors/course-selector";
  * This component displays a class roster for a specific course
  * It uses URL parameters to fetch the roster data
  */
-const CourseRosterPage: React.FC = () => {
+export const CourseRosterPage: React.FC = () => {
 	// Get URL parameters
 	const { mnumber, yearTerm, courseId } = useParams();
 	const navigate = useNavigate();
@@ -82,5 +82,3 @@ const CourseRosterPage: React.FC = () => {
 		</div>
 	);
 };
-
-export default CourseRosterPage;

@@ -1,4 +1,4 @@
-import React, { Suspense } from "react";
+import React from "react";
 import {
   Card,
   CardContent,
@@ -21,41 +21,6 @@ import { useSession } from "@/context/session";
 import { useRoleContext } from "@/context/role";
 import { Separator } from "@/components/ui/separator";
 import { GradeDistribution } from "@/components/charts/term-grade-distributions";
-import { Skeleton } from "@/components/ui/skeleton";
-
-
-// Custom skeleton for Dashboard
-const DashboardSkeleton: React.FC = () => (
-  <div className="p-6">
-    <div className="flex flex-col items-center space-y-2 mb-8">
-      <Skeleton className="h-10 w-[300px] mb-2" />
-      <Skeleton className="h-7 w-[250px] mb-2" />
-      <Skeleton className="h-5 w-[220px]" />
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {Array.from({ length: 6 }, (_, index) => (
-        <Card key={index} className="transition-all hover:shadow-md">
-          <CardHeader className="text-center pt-6">
-            <Skeleton className="h-8 w-[100px] mb-4" />
-            <Skeleton className="h-8 w-[200px] mb-4" />
-          </CardHeader>
-          <CardContent className="flex justify-center pb-6">
-            <Skeleton className="h-8 w-[150px]" />
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  </div>
-);
-
-
-export const Dashboard: React.FC = () => {
-  return (
-    <Suspense fallback={<DashboardSkeleton />}>
-      <DashboardContent />
-    </Suspense>
-  );
-}
 
 const gradeDistributionRoles = ["Faculty", "Department Chair"];
 
@@ -125,10 +90,9 @@ const dashboardCardsStructure = [
   }
 ];
 
-const DashboardContent: React.FC = () => {
+export const Dashboard: React.FC = () => {
   const { session } = useSession();
   const { selectedRole, routePermissions } = useRoleContext();
-
 
   // --- Visibility Logic ---
 

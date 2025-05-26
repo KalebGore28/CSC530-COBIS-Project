@@ -14,14 +14,15 @@ import { ClassRosterPage } from './pages/ClassRoster';
 import { InstructorsPage } from './pages/instructors';
 import { InstructorPage } from './pages/instructors/[instructorId]';
 import { TermDetails } from './pages/instructors/[instructorId]/term-details';
-import InstructorRoster from './pages/instructors/[instructorId]/roster';
-import AdvisorPage from './pages/AdvisorPage';
-import { UserList } from '@/pages/UserPage'; // Adjust path if needed
+import { CourseRosterPage } from './pages/instructors/[instructorId]/roster';
+import { EnrollmentPage } from './pages/enrollment';
+import { AdvisedStudentsPage } from './pages/AdvisorPage';
+import { UserList } from './pages/UserPage';
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
-import { useRoleContext } from '@/context/role'; // Import useRoleContext
-import ProtectedRoute from '@/components/auth/protected-route'; // Adjust path if needed
+import { useRoleContext } from '@/context/role';
+import ProtectedRoute from '@/components/auth/protected-route';
 
 export const App: React.FC = () => {
   const { session, refetchSession } = useSession();
@@ -50,7 +51,7 @@ export const App: React.FC = () => {
           <Route path="instructors" element={<InstructorsPage />} />
           <Route path="instructors/:mnumber" element={<InstructorPage />} />
           <Route path="instructors/:mnumber/:yearTerm" element={<TermDetails />} />
-          <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<InstructorRoster />} />
+          <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<CourseRosterPage />} />
         </Route>
 
         {/* Student Lookup: Use permissions from context */}
@@ -71,9 +72,15 @@ export const App: React.FC = () => {
         {/* Advisor Page: Use permissions from context */}
         <Route path="advisor-page" element={
           <ProtectedRoute allowedRoles={routePermissions['/advisor-page'] || []}>
-            <AdvisorPage />
+            <AdvisedStudentsPage />
           </ProtectedRoute>
         } />
+
+        {/* Enrollment Page: Use permissions from context */}
+        <Route element={<ProtectedRoute allowedRoles={routePermissions['/enrollment'] || []} />}>
+          <Route path="enrollment" element={<EnrollmentPage />}>
+          </Route>
+        </Route>
 
         {/* Catch-all inside Layout */}
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
