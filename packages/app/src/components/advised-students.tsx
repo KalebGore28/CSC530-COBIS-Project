@@ -220,7 +220,11 @@ export const AdvisedStudentContent: React.FC<{
 											<TableCell className='truncate max-w-[120px]'>
 												{`${s.last_name}, ${s.first_name}${s.middle_name ? ' ' + s.middle_name : ''}${s.suffix ? ' ' + s.suffix : ''}`}
 											</TableCell>
-											<TableCell className='truncate max-w-[120px]'>{s.email.toLowerCase()}</TableCell>
+											<TableCell className='truncate max-w-[120px]'>
+												<a href={`mailto:${s.email.toLowerCase()}`} className="hover:underline">
+													{s.email.toLowerCase()}
+												</a>
+											</TableCell>
 											<TableCell>{s.age}</TableCell>
 											<TableCell>
 												{s.gender === 'M' ? 'Male' : 'Female'}
