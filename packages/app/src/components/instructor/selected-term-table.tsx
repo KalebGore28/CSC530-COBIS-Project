@@ -110,23 +110,23 @@ const SelectedTermTableContent: React.FC<{ mnumber: string, startTerm: string, s
 			<Table>
 				<TableHeader>
 					<TableRow>
-						<TableHead className='max-w-[120px] truncate'>Course</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Title</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Students</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Credit Hours</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Action</TableHead>
+						<TableHead className='max-w-[100px] truncate'>Course</TableHead>
+						<TableHead className='max-w-[100px] truncate'>Title</TableHead>
+						<TableHead className='max-w-[100px] truncate'>Students</TableHead>
+						<TableHead className='max-w-[100px] truncate'>Credit Hours</TableHead>
+						<TableHead className='max-w-[100px] truncate'>Action</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
 					{data.instructor?.courses_taught.map((course) => (
 						<TableRow key={course.course_section}>
-							<TableCell className='max-w-[120px] truncate'>
+							<TableCell className='max-w-[100px] truncate'>
 								{`${course.course.subject} ${course.course.number}${course.course.suffix}`}
 							</TableCell>
-							<TableCell className='max-w-[120px] truncate'>{course.course.title}</TableCell>
-							<TableCell className='max-w-[120px] truncate'>{course.total_students}</TableCell>
-							<TableCell className='max-w-[120px] truncate'>{course.total_credit_hours}</TableCell>
-							<TableCell className='max-w-[120px] truncate'>
+							<TableCell className='max-w-[100px] truncate'>{course.course.title}</TableCell>
+							<TableCell className='max-w-[100px] truncate'>{course.total_students}</TableCell>
+							<TableCell className='max-w-[100px] truncate'>{course.total_credit_hours}</TableCell>
+							<TableCell className='max-w-[100px] truncate'>
 								<Button
 									variant='outline'
 									size='sm'

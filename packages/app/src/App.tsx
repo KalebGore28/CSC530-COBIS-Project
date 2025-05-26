@@ -13,7 +13,7 @@ import { StudentLookup } from './pages/StudentLookup';
 import { ClassRosterPage } from './pages/ClassRoster';
 import { InstructorsPage } from './pages/instructors';
 import { InstructorPage } from './pages/instructors/[instructorId]';
-import InstructorTermDetails from './pages/instructors/[instructorId]/term-details';
+import { TermDetails } from './pages/instructors/[instructorId]/term-details';
 import InstructorRoster from './pages/instructors/[instructorId]/roster';
 import AdvisorPage from './pages/AdvisorPage';
 import { UserList } from '@/pages/UserPage'; // Adjust path if needed
@@ -49,7 +49,7 @@ export const App: React.FC = () => {
         <Route element={<ProtectedRoute allowedRoles={routePermissions['/instructors'] || []} />}>
           <Route path="instructors" element={<InstructorsPage />} />
           <Route path="instructors/:mnumber" element={<InstructorPage />} />
-          <Route path="instructors/:mnumber/:yearTerm" element={<InstructorTermDetails />} />
+          <Route path="instructors/:mnumber/:yearTerm" element={<TermDetails />} />
           <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<InstructorRoster />} />
         </Route>
 

@@ -59,8 +59,8 @@ const CourseRosterPage: React.FC = () => {
 	};
 
 	return (
-		<div className="container mx-auto p-6">
-			<div className="flex flex-col space-y-6 pb-2">
+		<div className="w-full mx-auto p-6 space-y-6 ">
+			<div className="flex flex-col">
 				{/* Back button */}
 				<Button
 					variant="outline"

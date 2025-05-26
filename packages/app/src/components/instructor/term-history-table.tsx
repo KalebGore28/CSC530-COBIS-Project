@@ -15,10 +15,6 @@ import { useNavigate } from 'react-router-dom';
 import type { termHistoryTableQuery } from "./__generated__/termHistoryTableQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
-// 	const handleViewDetails = (termCode: string, year: number) => {
-// 		navigate(`/instructors/${mnumber}/${year}${termCode}`);
-// 	};
-
 const termHistoryTableQuery = graphql`
 	query termHistoryTableQuery($mnumber: String!) {
 		instructor(mnumber: $mnumber) {
