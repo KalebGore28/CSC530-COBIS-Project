@@ -11,11 +11,19 @@ import WaitingPage from './pages/auth/waiting';
 import OnboardingPage from './pages/auth/onboarding';
 import { StudentLookup } from './pages/StudentLookup';
 import { ClassRosterPage } from './pages/ClassRoster';
+
+// Instructor Imports
 import { InstructorsPage } from './pages/instructors';
 import { InstructorPage } from './pages/instructors/[instructorId]';
 import { TermDetails } from './pages/instructors/[instructorId]/term-details';
 import { CourseRosterPage } from './pages/instructors/[instructorId]/roster';
+
+// Enrollment Imports
 import { EnrollmentPage } from './pages/enrollment';
+import { ProgramsPage } from './pages/enrollment/programs';
+import { CoursesPage } from './pages/enrollment/courses';
+import { FacultyPage } from './pages/enrollment/faculty';
+
 import { AdvisedStudentsPage } from './pages/AdvisorPage';
 import { UserList } from './pages/UserPage';
 
@@ -79,6 +87,10 @@ export const App: React.FC = () => {
         {/* Enrollment Page: Use permissions from context */}
         <Route element={<ProtectedRoute allowedRoles={routePermissions['/enrollment'] || []} />}>
           <Route path="enrollment" element={<EnrollmentPage />}>
+            <Route index element={<Navigate to="programs" replace />} />
+            <Route path="programs" element={<ProgramsPage />} />
+            <Route path="courses" element={<CoursesPage />} />
+            <Route path="faculty" element={<FacultyPage />} />
           </Route>
         </Route>
 
