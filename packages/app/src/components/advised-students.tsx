@@ -53,14 +53,14 @@ const advisedStudentsQuery = graphql`
 	instructor(mnumber: $mnumber) {
 	  advisees(term: $term, year: $year) {
 		student {
-		  mnumber
-		  first_name
-		  middle_name
-		  last_name
-		  suffix
-		  email
-		  gender
-		  age
+			mnumber
+			first_name
+			middle_name
+			last_name
+			suffix
+			email
+			gender
+			age
 		}
 	  }
 	}
@@ -107,135 +107,148 @@ const AdvisedStudentsSkeleton = () => (
 	</Card>
 );
 
-interface AdvisedStudentsProps {
+export const AdvisedStudents: React.FC<{
 	mnumber: string;
 	term?: string;
 	year?: number;
 	title?: string;
 	modalOpen?: boolean;
-}
-
-export const AdvisedStudents: React.FC<AdvisedStudentsProps> = ({
+}> = ({
 	mnumber,
 	term,
 	year,
 	title = 'My Advised Students',
 	modalOpen = false,
 }) => {
-	return (
-		<Suspense fallback={<AdvisedStudentsSkeleton />}>
-			<AdvisedStudentContent
-				mnumber={mnumber}
-				term={term}
-				year={year}
-				title={title}
-				modalOpen={modalOpen}
-			/>
-		</Suspense>
-	);
-}
+		return (
+			<Suspense fallback={<AdvisedStudentsSkeleton />}>
+				<AdvisedStudentContent
+					mnumber={mnumber}
+					term={term}
+					year={year}
+					title={title}
+					modalOpen={modalOpen}
+				/>
+			</Suspense>
+		);
+	}
 
-export const AdvisedStudentContent: React.FC<AdvisedStudentsProps> = ({
+export const AdvisedStudentContent: React.FC<{
+	mnumber: string;
+	term?: string;
+	year?: number;
+	title?: string;
+	modalOpen?: boolean;
+}> = ({
 	mnumber,
 	term,
 	year,
 	title,
 	modalOpen,
 }) => {
-	const [isModalOpen, setIsModalOpen] = useState(false);
-	const [selectedStudent, setSelectedStudent] = useState<ExtendedStudent | null>(null);
+		const [isModalOpen, setIsModalOpen] = useState(false);
+		const [selectedStudent, setSelectedStudent] = useState<ExtendedStudent | null>(null);
 
-	const { getCurrentYearTerm } = useLazyLoadQuery<advisedStudentsGetCurrentTermQuery>(
-		advisedStudentsGetCurrentTermQuery,
-		{},
-		{ fetchPolicy: "store-or-network" }
-	);
+		const { getCurrentYearTerm } = useLazyLoadQuery<advisedStudentsGetCurrentTermQuery>(
+			advisedStudentsGetCurrentTermQuery,
+			{},
+			{ fetchPolicy: "store-or-network" }
+		);
 
-	const data = useLazyLoadQuery<advisedStudentsQuery>(
-		advisedStudentsQuery,
-		{
-			mnumber,
-			term: term || getCurrentYearTerm.term.code,
-			year: year || getCurrentYearTerm.year,
-		},
-		{ fetchPolicy: "store-or-network" }
-	);
+		const data = useLazyLoadQuery<advisedStudentsQuery>(
+			advisedStudentsQuery,
+			{
+				mnumber,
+				term: term ? term : getCurrentYearTerm.term.code,
+				year: year ? year : getCurrentYearTerm.year,
+			},
+			{ fetchPolicy: "store-or-network" }
+		);
 
-	const students = data.instructor?.advisees.map((advisee) => ({
-		mnumber: advisee.student.mnumber,
-		first_name: advisee.student.first_name,
-		middle_name: advisee.student.middle_name,
-		last_name: advisee.student.last_name,
-		suffix: advisee.student.suffix,
-		email: advisee.student.email,
-		age: advisee.student.age,
-		gender: advisee.student.gender,
-	}));
+		const termMappings: Record<string, string> = {
+			'10': 'Spring',
+			'50': 'Summer',
+			'80': 'Fall',
+			'90': 'Winter'
+		};
 
-	return (
-		<Card className='w-full'>
-			<CardHeader>
-				<CardTitle>{title}</CardTitle>
-				<CardDescription>
-					Term: {getCurrentYearTerm.term.description} {getCurrentYearTerm.year}
-				</CardDescription>
-			</CardHeader>
-			<CardContent className='px-4'>
-				<div className="overflow-auto rounded-md border">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>M-Number</TableHead>
-								<TableHead>Name</TableHead>
-								<TableHead>Email</TableHead>
-								<TableHead>Age</TableHead>
-								<TableHead>Gender</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{students && students.length > 0 ? (
-								students.map((s) => (
-									<TableRow
-										key={s.mnumber}
-										className="cursor-pointer hover:bg-muted/50 transition"
-										onClick={() => {
-											setSelectedStudent(s);
-											setIsModalOpen(true);
-										}}
-									>
-										<TableCell>{s.mnumber}</TableCell>
-										<TableCell className='truncate max-w-[120px]'>
-											{`${s.last_name}, ${s.first_name}${s.middle_name ? ' ' + s.middle_name : ''}${s.suffix ? ' ' + s.suffix : ''}`}
-										</TableCell>
-										<TableCell className='truncate max-w-[120px]'>{s.email.toLowerCase()}</TableCell>
-										<TableCell>{s.age}</TableCell>
-										<TableCell>
-											{s.gender === 'M' ? 'Male' : 'Female'}
-										</TableCell>
-									</TableRow>
-								)))
-								: (
-									<TableRow>
-										<TableCell colSpan={5} className="text-center py-8">
-											No advised students found.
-										</TableCell>
-									</TableRow>
-								)}
-						</TableBody>
-					</Table>
-				</div>
-			</CardContent>
-			{modalOpen && <Modal
-				isOpen={isModalOpen}
-				onClose={() => setIsModalOpen(false)}
-				title={`Student Detail: ${selectedStudent?.last_name}, ${selectedStudent?.first_name}`}
-				size='5xl'
-			>
-				{selectedStudent?.mnumber && (
-					<StudentDetail mnumber={selectedStudent?.mnumber} />
-				)}
-			</Modal>}
-		</Card>
-	);
-}
+		console.log('Advised Students Data:', data);
+
+		const students = data.instructor?.advisees.map((advisee) => ({
+			mnumber: advisee.student.mnumber,
+			first_name: advisee.student.first_name,
+			middle_name: advisee.student.middle_name,
+			last_name: advisee.student.last_name,
+			suffix: advisee.student.suffix,
+			email: advisee.student.email,
+			age: advisee.student.age,
+			gender: advisee.student.gender,
+		}));
+
+		return (
+			<Card className='w-full'>
+				<CardHeader>
+					<CardTitle>{title}</CardTitle>
+					<CardDescription>
+						Term: {term ? `${termMappings[term]} ${year}` : `${getCurrentYearTerm.term.code} ${getCurrentYearTerm.year}`}
+					</CardDescription>
+				</CardHeader>
+				<CardContent className='px-4'>
+					<div className="overflow-auto rounded-md border">
+						<Table>
+							<TableHeader>
+								<TableRow>
+									<TableHead>M-Number</TableHead>
+									<TableHead>Name</TableHead>
+									<TableHead>Email</TableHead>
+									<TableHead>Age</TableHead>
+									<TableHead>Gender</TableHead>
+								</TableRow>
+							</TableHeader>
+							<TableBody>
+								{students && students.length > 0 ? (
+									students.map((s) => (
+										<TableRow
+											key={s.mnumber}
+											className="cursor-pointer hover:bg-muted/50 transition"
+											onClick={() => {
+												setSelectedStudent(s);
+												setIsModalOpen(true);
+											}}
+										>
+											<TableCell>{s.mnumber}</TableCell>
+											<TableCell className='truncate max-w-[120px]'>
+												{`${s.last_name}, ${s.first_name}${s.middle_name ? ' ' + s.middle_name : ''}${s.suffix ? ' ' + s.suffix : ''}`}
+											</TableCell>
+											<TableCell className='truncate max-w-[120px]'>{s.email.toLowerCase()}</TableCell>
+											<TableCell>{s.age}</TableCell>
+											<TableCell>
+												{s.gender === 'M' ? 'Male' : 'Female'}
+											</TableCell>
+										</TableRow>
+									)))
+									: (
+										<TableRow>
+											<TableCell colSpan={5} className="text-center py-8">
+												No advised students found.
+											</TableCell>
+										</TableRow>
+									)}
+							</TableBody>
+						</Table>
+					</div>
+				</CardContent>
+				{modalOpen && <Modal
+					isOpen={isModalOpen}
+					onClose={() => setIsModalOpen(false)}
+					title={`Student Detail: ${selectedStudent?.last_name}, ${selectedStudent?.first_name}`}
+					size='5xl'
+				>
+					{selectedStudent?.mnumber && (
+						<StudentDetail mnumber={selectedStudent?.mnumber} />
+					)}
+				</Modal>}
+			</Card>
+		);
+	}
 
