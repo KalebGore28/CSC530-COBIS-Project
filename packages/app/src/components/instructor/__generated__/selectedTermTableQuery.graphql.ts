@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<daeb334b50fcabd2e7944251e004339a>>
+ * @generated SignedSource<<a37191501b922c557dc12603e50693e1>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,12 +9,14 @@
 // @ts-nocheck
 
 import { ConcreteRequest } from 'relay-runtime';
-export type currentTermTableQuery$variables = {
+export type selectedTermTableQuery$variables = {
+  endTerm?: string | null | undefined;
+  endYear?: number | null | undefined;
   mnumber: string;
   startTerm?: string | null | undefined;
   startYear?: number | null | undefined;
 };
-export type currentTermTableQuery$data = {
+export type selectedTermTableQuery$data = {
   readonly instructor: {
     readonly courses_taught: ReadonlyArray<{
       readonly course: {
@@ -30,30 +32,38 @@ export type currentTermTableQuery$data = {
     }>;
   } | null | undefined;
 };
-export type currentTermTableQuery = {
-  response: currentTermTableQuery$data;
-  variables: currentTermTableQuery$variables;
+export type selectedTermTableQuery = {
+  response: selectedTermTableQuery$data;
+  variables: selectedTermTableQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "mnumber"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "startTerm"
-  },
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "startYear"
-  }
-],
-v1 = [
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "endTerm"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "endYear"
+},
+v2 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "mnumber"
+},
+v3 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "startTerm"
+},
+v4 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "startYear"
+},
+v5 = [
   {
     "alias": null,
     "args": [
@@ -71,6 +81,16 @@ v1 = [
       {
         "alias": null,
         "args": [
+          {
+            "kind": "Variable",
+            "name": "endTerm",
+            "variableName": "endTerm"
+          },
+          {
+            "kind": "Variable",
+            "name": "endYear",
+            "variableName": "endYear"
+          },
           {
             "kind": "Variable",
             "name": "startTerm",
@@ -163,32 +183,44 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/),
+      (v2/*: any*/),
+      (v3/*: any*/),
+      (v4/*: any*/)
+    ],
     "kind": "Fragment",
     "metadata": null,
-    "name": "currentTermTableQuery",
-    "selections": (v1/*: any*/),
+    "name": "selectedTermTableQuery",
+    "selections": (v5/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v2/*: any*/),
+      (v3/*: any*/),
+      (v4/*: any*/),
+      (v0/*: any*/),
+      (v1/*: any*/)
+    ],
     "kind": "Operation",
-    "name": "currentTermTableQuery",
-    "selections": (v1/*: any*/)
+    "name": "selectedTermTableQuery",
+    "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "1a7bbbd4db8c2166b5cd777d508987df",
+    "cacheID": "183bd66071f5c7f57c50cae1153e5c1e",
     "id": null,
     "metadata": {},
-    "name": "currentTermTableQuery",
+    "name": "selectedTermTableQuery",
     "operationKind": "query",
-    "text": "query currentTermTableQuery(\n  $mnumber: String!\n  $startTerm: String\n  $startYear: Int\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $startTerm, startYear: $startYear) {\n      course {\n        title\n        subject\n        number\n        suffix\n      }\n      credit_hour\n      course_section\n      total_students\n      total_credit_hours\n    }\n  }\n}\n"
+    "text": "query selectedTermTableQuery(\n  $mnumber: String!\n  $startTerm: String\n  $startYear: Int\n  $endTerm: String\n  $endYear: Int\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $startTerm, startYear: $startYear, endTerm: $endTerm, endYear: $endYear) {\n      course {\n        title\n        subject\n        number\n        suffix\n      }\n      credit_hour\n      course_section\n      total_students\n      total_credit_hours\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "af5d85055f7c866996a4943991373f42";
+(node as any).hash = "6a2fa1bd297f698165263dc90950d31b";
 
 export default node;

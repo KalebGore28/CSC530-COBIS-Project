@@ -11,14 +11,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate } from 'react-router-dom';
 
 // GraphQL imports
-import type { currentTermTableQuery } from "./__generated__/currentTermTableQuery.graphql";
+import type { selectedTermTableQuery } from "./__generated__/selectedTermTableQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 import { Button } from '../ui/button';
 
-const currentTermTableQuery = graphql`
-	query currentTermTableQuery($mnumber: String!, $startTerm: String, $startYear: Int) {
+const selectedTermTableQuery = graphql`
+	query selectedTermTableQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {
 		instructor(mnumber: $mnumber) {
-			courses_taught(startTerm: $startTerm, startYear: $startYear) {
+			courses_taught(startTerm: $startTerm, startYear: $startYear, endTerm: $endTerm, endYear: $endYear) {
 				course {
 					title
 					subject
@@ -34,8 +34,8 @@ const currentTermTableQuery = graphql`
 	}
 `;
 
-// Custom skeleton for CurrentTermTable
-const CurrentTermTableSkeleton: React.FC = () => {
+// Custom skeleton for SelectedTermTable
+const SelectedTermTableSkeleton: React.FC = () => {
 	return (
 		<Table>
 			<TableHeader>
@@ -62,44 +62,44 @@ const CurrentTermTableSkeleton: React.FC = () => {
 	);
 }
 
-export const CurrentTermTable: React.FC<{ mnumber: string, startTerm: string, startYear: number }> = ({
+export const SelectedTermTable: React.FC<{ mnumber: string, startTerm: string, startYear: number }> = ({
 	mnumber,
 	startTerm,
 	startYear
 }) => {
 	return (
-		<Suspense fallback={<CurrentTermTableSkeleton />}>
-			<CurrentTermTableContent mnumber={mnumber} startTerm={startTerm} startYear={startYear} />
+		<Suspense fallback={<SelectedTermTableSkeleton />}>
+			<SelectedTermTableContent mnumber={mnumber} startTerm={startTerm} startYear={startYear} />
 		</Suspense>
 	);
 }
 
-const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, startYear: number }> = ({
+const SelectedTermTableContent: React.FC<{ mnumber: string, startTerm: string, startYear: number }> = ({
 	mnumber,
 	startTerm,
 	startYear
 }) => {
 	const navigate = useNavigate();
 
-	const data = useLazyLoadQuery<currentTermTableQuery>(
-		currentTermTableQuery,
+	const data = useLazyLoadQuery<selectedTermTableQuery>(
+		selectedTermTableQuery,
 		{
 			mnumber,
 			startTerm,
-			startYear
+			startYear,
+			endTerm: startTerm,
+			endYear: startYear
 		},
 		{ fetchPolicy: "store-or-network" }
 	);
+
+
 
 	if (!data.instructor?.courses_taught || data.instructor.courses_taught.length === 0) {
 		return (
 			<div className='border rounded-lg'>
 				<p className='p-4 text-center text-muted-foreground'>
-					No courses taught in the current term.
-					<br />
-					Please check back later.
-					<br />
-					Or contact the COBIS admin for more information.
+					No courses taught in the selected term.
 				</p>
 			</div>
 		);

@@ -17,7 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CurrentTermTable } from '@/components/instructor/current-term-table';
+import { SelectedTermTable } from '@/components/instructor/selected-term-table';
 import { TermHistoryTable } from '@/components/instructor/term-history-table';
 import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 
@@ -174,7 +174,7 @@ const InstructorPageContent: React.FC = () => {
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<CurrentTermTable
+							<SelectedTermTable
 								mnumber={mnumber as string}
 								startTerm={getCurrentYearTerm.term.code}
 								startYear={getCurrentYearTerm.year}

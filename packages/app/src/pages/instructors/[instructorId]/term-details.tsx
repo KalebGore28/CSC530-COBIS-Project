@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSetBreadcrumb } from '@/context/breadcrumb';
+import { SelectedTermTable } from '@/components/instructor/selected-term-table';
 import { CourseGradeChart } from '@/components/charts/course-grade-distributions';
 
 import axios from 'axios';
@@ -257,59 +258,11 @@ const TermDetailsPage: React.FC = () => {
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
-								{courseData.courseDetails.length > 0 ? (
-									<div className="rounded-md border">
-										<Table>
-											<TableHeader>
-												<TableRow>
-													<TableHead>Course</TableHead>
-													<TableHead>Title</TableHead>
-													<TableHead>Section</TableHead>
-													<TableHead>CRN</TableHead>
-													<TableHead>Credit Hours</TableHead>
-													<TableHead>Students</TableHead>
-													<TableHead className="text-right">Actions</TableHead>
-												</TableRow>
-											</TableHeader>
-											<TableBody>
-												{courseData.courseDetails.map((course, index) => (
-													<TableRow key={index}>
-														<TableCell className="font-medium">
-															{course.courseSubject} {course.courseNumber}{course.courseSuffix}
-														</TableCell>
-														<TableCell>{course.courseTitle}</TableCell>
-														<TableCell>{course.courseSection}</TableCell>
-														<TableCell>{course.crn}</TableCell>
-														<TableCell>{course.creditHours}</TableCell>
-														<TableCell>
-															<Badge variant="outline" className="font-normal">
-																{course.studentCount} student{course.studentCount !== 1 ? 's' : ''}
-															</Badge>
-														</TableCell>
-														<TableCell className="text-right">
-															<Button
-																variant="ghost"
-																size="sm"
-																// @ts-ignore
-																onClick={() => handleViewRoster(course.courseId)}
-															>
-																View Roster
-															</Button>
-														</TableCell>
-													</TableRow>
-												))}
-											</TableBody>
-										</Table>
-									</div>
-								) : (
-									<div className="flex flex-col items-center justify-center py-12 text-center">
-										<BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-										<h3 className="text-lg font-medium">No courses found</h3>
-										<p className="text-muted-foreground mt-1">
-											The instructor was not teaching any courses during this term.
-										</p>
-									</div>
-								)}
+								<SelectedTermTable
+									mnumber={mnumber as string}
+									startTerm={termCode as string}
+									startYear={parseInt(year as string)}
+								/>
 							</CardContent>
 						</Card>
 
