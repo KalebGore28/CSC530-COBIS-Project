@@ -121,6 +121,8 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 			}
 		});
 
+	console.log("Filtered and sorted students:", filteredStudents);
+
 	const handleHeaderClick = (field: "name" | "midterm" | "final") => {
 		if (sortField === field) {
 			setSortDirection(sortDirection === "asc" ? "desc" : "asc");

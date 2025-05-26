@@ -68,6 +68,7 @@ const rosterQuery = graphql`
 					middle_name
 					suffix
 					email
+					mnumber
 					programs {
 						program {
 							code
@@ -141,7 +142,7 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 
 	// Map students data to RosterStudent type
 	const students: RosterStudent[] = courseData.students?.map((s) => ({
-		mnumber: s.student.email, // Assuming email is unique; adjust if mnumber is available
+		mnumber: s.student.mnumber,
 		first_name: s.student.first_name,
 		last_name: s.student.last_name,
 		middle_name: s.student.middle_name || "",

@@ -7,11 +7,13 @@ import {
 	TableHeader,
 	TableRow
 } from "@/components/ui/table";
-import { Skeleton } from '../ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useNavigate } from 'react-router-dom';
 
 // GraphQL imports
 import type { currentTermTableQuery } from "./__generated__/currentTermTableQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
+import { Button } from '../ui/button';
 
 const currentTermTableQuery = graphql`
 	query currentTermTableQuery($mnumber: String!, $startTerm: String, $startYear: Int) {
@@ -77,6 +79,7 @@ const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, st
 	startTerm,
 	startYear
 }) => {
+	const navigate = useNavigate();
 
 	const data = useLazyLoadQuery<currentTermTableQuery>(
 		currentTermTableQuery,
@@ -111,6 +114,7 @@ const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, st
 						<TableHead className='max-w-[120px] truncate'>Title</TableHead>
 						<TableHead className='max-w-[120px] truncate'>Total Students</TableHead>
 						<TableHead className='max-w-[120px] truncate'>Total Credit Hours</TableHead>
+						<TableHead className='max-w-[120px] truncate'>Actions</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -122,6 +126,16 @@ const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, st
 							<TableCell className='max-w-[120px] truncate'>{course.course.title}</TableCell>
 							<TableCell className='max-w-[120px] truncate'>{course.total_students}</TableCell>
 							<TableCell className='max-w-[120px] truncate'>{course.total_credit_hours}</TableCell>
+							<TableCell className='max-w-[120px] truncate'>
+								<Button
+									variant='outline'
+									onClick={() => {
+										navigate(`/instructors/${mnumber}/${startYear}${startTerm}/${course.course.subject}${course.course.number}${course.course.suffix}-${course.course_section}`);
+									}}
+								>
+									View Roster
+								</Button>
+							</TableCell>
 						</TableRow>
 					))}
 				</TableBody>

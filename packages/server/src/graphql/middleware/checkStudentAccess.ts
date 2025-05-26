@@ -38,7 +38,6 @@ export function checkStudentAccess<
 					eq(tables.studentAdvisors.advisor_mnumber, ctx.mnumber || ''),
 				)
 			)
-			.all();
 
 		if (cnt > 0) {
 			return resolver(parent, args, ctx);

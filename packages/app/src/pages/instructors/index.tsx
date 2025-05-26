@@ -1,5 +1,4 @@
 import React, { useState, useMemo, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
 	Card,
 	CardContent,
@@ -20,6 +19,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Search, Users, Mail } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useNavigate } from 'react-router-dom';
+import { useSession } from '@/context/session';
 
 // GraphQL imports
 import type { instructorsQuery } from "./__generated__/instructorsQuery.graphql";
@@ -140,11 +141,14 @@ export const InstructorsPage: React.FC = () => {
 
 const InstructorsPageContent: React.FC = () => {
 	const navigate = useNavigate();
+	const { session } = useSession();
 	const data = useLazyLoadQuery<instructorsQuery>(
 		instructorsQuery,
 		{},
 		{ fetchPolicy: 'store-or-network' }
 	);
+
+	console.log('Session:', session?.info.department);
 
 	const instructors = data.instructors || [];
 	const [searchQuery, setSearchQuery] = useState('');
@@ -245,8 +249,12 @@ const InstructorsPageContent: React.FC = () => {
 							{filteredInstructors.map((instructor) => (
 								<TableRow
 									key={instructor.mnumber}
-									className="cursor-pointer hover:bg-muted/50"
-									onClick={() => handleSelectInstructor(instructor.mnumber)}
+									className={`cursor-pointer hover:bg-muted/50 ${session?.info.department !== instructor.department.code ? 'opacity-50 cursor-not-allowed' : ''}`}
+									onClick={() => {
+										if (session?.info.department === instructor.department.code) {
+											handleSelectInstructor(instructor.mnumber);
+										}
+									}}
 								>
 									<TableCell className="truncate max-w-[120px]">
 										<div className="flex items-center gap-3">

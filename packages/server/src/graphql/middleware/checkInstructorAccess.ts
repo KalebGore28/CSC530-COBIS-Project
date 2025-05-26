@@ -1,5 +1,7 @@
 // src/graphql/middleware/checkInstructorAccess.ts
 import { GraphQLError } from 'graphql'
+import { eq, and, count } from 'drizzle-orm';
+import * as tables from '../../db/schema';
 import type { ApolloContext } from '../../app';
 
 export function checkInstructorAccess<
@@ -23,13 +25,24 @@ export function checkInstructorAccess<
 
 		// 2) admin / super role
 		if (ctx.roles.some(r => r.role_name === 'cobis_administrator')) {
-			console.log('admin access');
 			return resolver(parent, args, ctx);
 		}
 
 		// 3) Department chair check
 		if (ctx.roles.some(r => r.role_name === 'department_chair')) {
-			return resolver(parent, args, ctx);
+			// check and make sure the requested instructor is in the same department
+			const [{ cnt }] = await ctx.db
+				.select({ cnt: count(tables.faculty.mnumber) })
+				.from(tables.faculty)
+				.where(
+					and(
+						eq(tables.faculty.mnumber, mnum),
+						eq(tables.faculty.department, ctx.department || ''),
+					)
+				)
+			if (cnt > 0) {
+				return resolver(parent, args, ctx);
+			}
 		}
 
 		// 4) no access

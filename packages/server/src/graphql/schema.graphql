@@ -234,7 +234,7 @@ type User {
   isEnabled: Boolean!
   lastLogin: String!
   # Relationships
-  # roles: [Role!]!
+  # roles: [Role!]! opted not to use this.
 }
 
 type Verification {

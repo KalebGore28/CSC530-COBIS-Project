@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<5a300c1ec2f2124207ce8f6370535e90>>
+ * @generated SignedSource<<aa5039ef959c5f8f0ca001be629fbc42>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -41,6 +41,7 @@ export type rosterQuery$data = {
           readonly first_name: string;
           readonly last_name: string;
           readonly middle_name: string;
+          readonly mnumber: string;
           readonly programs: ReadonlyArray<{
             readonly program: {
               readonly code: string;
@@ -334,6 +335,13 @@ v9 = [
                   {
                     "alias": null,
                     "args": null,
+                    "kind": "ScalarField",
+                    "name": "mnumber",
+                    "storageKey": null
+                  },
+                  {
+                    "alias": null,
+                    "args": null,
                     "concreteType": "StudentProgram",
                     "kind": "LinkedField",
                     "name": "programs",
@@ -413,16 +421,16 @@ return {
     "selections": (v9/*: any*/)
   },
   "params": {
-    "cacheID": "e7711ff4ec7a3382ba40f1d5889acb75",
+    "cacheID": "7c5bc3ac484484af61f1d5adce71f63c",
     "id": null,
     "metadata": {},
     "name": "rosterQuery",
     "operationKind": "query",
-    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      total_students\n      total_credit_hours\n      credit_hour\n      class_gpa\n      midterm_average\n      final_average\n      students {\n        student {\n          first_name\n          last_name\n          middle_name\n          suffix\n          email\n          programs {\n            program {\n              code\n              description\n            }\n          }\n        }\n        midterm_grade\n        final_grade\n      }\n    }\n  }\n}\n"
+    "text": "query rosterQuery(\n  $mnumber: String!\n  $subject: String!\n  $number: Int!\n  $suffix: String\n  $section: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(subject: $subject, number: $number, suffix: $suffix, section: $section, startTerm: $startTerm, endTerm: $startTerm, startYear: $startYear, endYear: $startYear) {\n      course {\n        subject\n        number\n        suffix\n        title\n      }\n      course_section\n      crn\n      term {\n        code\n        description\n      }\n      total_students\n      total_credit_hours\n      credit_hour\n      class_gpa\n      midterm_average\n      final_average\n      students {\n        student {\n          first_name\n          last_name\n          middle_name\n          suffix\n          email\n          mnumber\n          programs {\n            program {\n              code\n              description\n            }\n          }\n        }\n        midterm_grade\n        final_grade\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "9e5c3c836dfb4fa57e5190f2689acb2c";
+(node as any).hash = "6c05956e31ef7491d44044c59fd3f08a";
 
 export default node;
