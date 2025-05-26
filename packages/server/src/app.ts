@@ -14,18 +14,12 @@ import type { AuthAndPermissionsRequest } from "./types/requests";
 
 import importRoutes from "./routes/import-router";
 import userRoute from "./routes/user-router";
-import instructorRouter from "./routes/instructor-router";
-import studentRouter from "./routes/student-router";
-import enrollmentRouter from "./routes/enrollment-router";
-import advisorRouter from "./routes/advisor-router";
-import lookupRouter from "./routes/lookup-router";
 
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import { expressMiddleware } from "@as-integrations/express5";
 import { createLoaders, Loaders } from "./graphql/loaders";
 import { typeDefs, resolvers } from "./graphql";
-
 
 type Role = {
     role_id: number;
@@ -103,11 +97,6 @@ app.use(express.static(staticDir));
 // 7. Protect your REST APIs
 app.use("/api/user", userRoute);
 app.use("/api/import", importRoutes);
-app.use("/api/instructor", instructorRouter);
-app.use("/api/student", studentRouter);
-app.use("/api/enrollment", enrollmentRouter);
-app.use("/api/advisor", advisorRouter);
-app.use("/api/lookup", lookupRouter);
 
 // 8. SPA fallback
 app.get("*splat", (req, res, next) => {

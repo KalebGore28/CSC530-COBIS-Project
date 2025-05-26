@@ -7,7 +7,7 @@ import { getDbConnection } from "../db/connection";
 // Supports both data tables (with strict file naming patterns) and
 // Lookup tables (with more flexible naming but requiring explicit designation)
 
-import { convertDateMMDDYYYY, convertDateDDMMYYYY } from "../utils/convert-dates";
+import { convertDateMMDDYYYY } from "../utils/convert-dates";
 import { parseTermCode } from "../utils/convert-term-code";
 import { parseCourseCode } from "../utils/convert-course-code";
 

@@ -53,7 +53,7 @@ export class ImportController {
 	/**
 	 * Get all import information including tables and file patterns
 	 */
-	static async getImportInfo(req: Request, res: Response) {
+	static async getImportInfo(_req: Request, res: Response) {
 		try {
 			const importInfo = ImportService.getImportInfo();
 			res.json(importInfo);
