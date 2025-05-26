@@ -55,7 +55,7 @@ export const CourseRosterPage: React.FC = () => {
 
 	// Navigate back to term details
 	const handleBackToTerm = () => {
-		navigate(`/instructors/${mnumber}/${yearTerm}`);
+		navigate(`/instructors/${mnumber}/term-history/${yearTerm}`);
 	};
 
 	return (

@@ -78,10 +78,10 @@ export const TermDetails: React.FC = () => {
 				variant="outline"
 				size="sm"
 				className="w-fit"
-				onClick={() => navigate(`/instructors/${mnumber}`)}
+				onClick={() => navigate(`/instructors/${mnumber}/term-history`)}
 			>
 				<ArrowLeft className="mr-2 h-4 w-4" />
-				Back to Instructor Profile
+				Back to Term History
 			</Button>
 			<Suspense fallback={<TermDetailsSkeleton />}>
 				<TermDetailsContent mnumber={mnumber as string} year={year as string} termCode={termCode as string} />

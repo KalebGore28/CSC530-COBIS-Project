@@ -129,7 +129,7 @@ const SelectedTermTableContent: React.FC<{ mnumber: string, startTerm: string, s
 									variant='outline'
 									size='sm'
 									onClick={() => {
-										navigate(`/instructors/${mnumber}/${startYear}${startTerm}/${course.course.subject}${course.course.number}${course.course.suffix}-${course.course_section}`);
+										navigate(`/instructors/${mnumber}/term-history/${startYear}${startTerm}/${course.course.subject}${course.course.number}${course.course.suffix}-${course.course_section}`);
 									}}
 								>
 									View Roster

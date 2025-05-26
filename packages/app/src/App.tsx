@@ -15,8 +15,12 @@ import { ClassRosterPage } from './pages/ClassRoster';
 // Instructor Imports
 import { InstructorsPage } from './pages/instructors';
 import { InstructorPage } from './pages/instructors/[instructorId]';
-import { TermDetails } from './pages/instructors/[instructorId]/term-details';
-import { CourseRosterPage } from './pages/instructors/[instructorId]/roster';
+import { CurrentTermTab } from './pages/instructors/[instructorId]/current-term';
+import { TermHistoryTab } from './pages/instructors/[instructorId]/term-history';
+import { TermDetails } from './pages/instructors/[instructorId]/term-history/term-details';
+import { CourseRosterPage } from './pages/instructors/[instructorId]/term-history/roster';
+import { GradeDistributionTab } from './pages/instructors/[instructorId]/grade-distribution';
+
 
 // Enrollment Imports
 import { EnrollmentPage } from './pages/enrollment';
@@ -57,9 +61,17 @@ export const App: React.FC = () => {
         {/* Instructor Pages: Use permissions from context */}
         <Route element={<ProtectedRoute allowedRoles={routePermissions['/instructors'] || []} />}>
           <Route path="instructors" element={<InstructorsPage />} />
-          <Route path="instructors/:mnumber" element={<InstructorPage />} />
-          <Route path="instructors/:mnumber/:yearTerm" element={<TermDetails />} />
-          <Route path="instructors/:mnumber/:yearTerm/:courseId" element={<CourseRosterPage />} />
+
+          <Route path="instructors/:mnumber" element={<InstructorPage />}>
+            <Route index element={<Navigate to="current-term" replace />} />
+            <Route path="current-term" element={<CurrentTermTab />} />
+            <Route path="term-history" element={<TermHistoryTab />} />
+            <Route path="grade-distribution" element={<GradeDistributionTab />} />
+          </Route>
+          
+          {/* Children of TermHistoryTab but are not rendered within the TermHistoryTab layout */}
+          <Route path="instructors/:mnumber/term-history/:yearTerm" element={<TermDetails />} />
+          <Route path="instructors/:mnumber/term-history/:yearTerm/:courseId" element={<CourseRosterPage />} />
         </Route>
 
         {/* Student Lookup: Use permissions from context */}

@@ -124,7 +124,7 @@ export const TermHistoryTableContent: React.FC<{ mnumber: string }> = ({ mnumber
 							<TableCell className='max-w-[120px] truncate'>
 								<Button
 									variant="outline"
-									onClick={() => navigate(`/instructors/${mnumber}/${year}${term.code}`)}
+									onClick={() => navigate(`/instructors/${mnumber}/term-history/${year}${term.code}`)}
 								>
 									View Details
 								</Button>

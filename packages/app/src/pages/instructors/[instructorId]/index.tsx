@@ -1,16 +1,13 @@
 import React, { Suspense } from 'react';
 import { useSetBreadcrumb } from '@/context/breadcrumb';
-
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
 	Card,
 	CardContent,
-	CardDescription,
 	CardHeader,
-	CardTitle,
 } from "@/components/ui/card";
 import {
 	Tabs,
-	TabsContent,
 	TabsList,
 	TabsTrigger,
 } from "@/components/ui/tabs";
@@ -18,9 +15,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { SelectedTermTable } from '@/components/instructor/selected-term-table';
-import { TermHistoryTable } from '@/components/instructor/term-history-table';
-import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 
 // GraphQL imports
 import type { InstructorIdGetCurrentTermQuery } from "./__generated__/InstructorIdGetCurrentTermQuery.graphql";
@@ -92,11 +86,17 @@ export const InstructorPage: React.FC = () => {
 			</Suspense>
 		</div>
 	);
-
 }
 
 const InstructorPageContent: React.FC = () => {
 	const { mnumber } = useParams();
+	console.log("InstructorPageContent Rendered", mnumber);
+	const { pathname } = useLocation();
+	const navigate = useNavigate();
+
+	const activeTab = pathname.split("/").pop() || "current-term";
+
+	console.log(activeTab)
 
 	const { getCurrentYearTerm } = useLazyLoadQuery<InstructorIdGetCurrentTermQuery>(
 		InstructorIdGetCurrentTermQuery,
@@ -127,7 +127,7 @@ const InstructorPageContent: React.FC = () => {
 	);
 
 	return (
-		<div>
+		<div className='space-y-6'>
 			{/* Profile picture and info */}
 			<Card>
 				<CardContent>
@@ -158,54 +158,23 @@ const InstructorPageContent: React.FC = () => {
 			</Card>
 
 			{/* Tabs */}
-			<Tabs defaultValue="current" className="w-full mt-6">
-				<TabsList className="grid w-full grid-cols-3">
-					<TabsTrigger value="current">Current Term</TabsTrigger>
-					<TabsTrigger value="history">Teaching History</TabsTrigger>
-					<TabsTrigger value="grade-distributions">Grade Distributions</TabsTrigger>
+			<Tabs
+				value={activeTab}
+				onValueChange={(value) => {
+					console.log("Navigating to tab:", value);
+					navigate(value)
+				}}
+				className="w-full"
+			>
+				<TabsList className="grid grid-cols-3">
+					<TabsTrigger value="current-term">Current Term</TabsTrigger>
+					<TabsTrigger value="term-history">Teaching History</TabsTrigger>
+					<TabsTrigger value="grade-distribution">Grade Distributions</TabsTrigger>
 				</TabsList>
-
-				{/* Current Term Tab */}
-				<TabsContent value="current">
-					<Card>
-						<CardHeader>
-							<CardTitle>Current Term</CardTitle>
-							<CardDescription>
-								{getCurrentYearTerm.term.description} {getCurrentYearTerm.year}
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<SelectedTermTable
-								mnumber={mnumber as string}
-								startTerm={getCurrentYearTerm.term.code}
-								startYear={getCurrentYearTerm.year}
-							/>
-						</CardContent>
-					</Card>
-				</TabsContent>
-
-				{/* Teaching History Tab */}
-				<TabsContent value="history">
-					<Card>
-						<CardHeader>
-							<CardTitle>Teaching History</CardTitle>
-							<CardDescription>Summary of courses taught across terms</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<TermHistoryTable mnumber={mnumber as string} />
-						</CardContent>
-					</Card>
-				</TabsContent>
-
-				{/* Grade Distributions Tab */}
-				<TabsContent value="grade-distributions">
-					<GradeDistribution
-						mnumber={mnumber as string}
-						title={`${instructor.first_name} ${instructor.last_name}'s Grade Distributions`}
-						description={`Showing grade distribution trends over time for ${instructor.first_name} ${instructor.last_name}`}
-					/>
-				</TabsContent>
 			</Tabs>
+
+			{/* Nested routes render here */}
+			<Outlet context={{ mnumber, getCurrentYearTerm }} />
 		</div>
 	);
 }
