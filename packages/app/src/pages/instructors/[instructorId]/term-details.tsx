@@ -29,7 +29,7 @@ import {
 	Calculator
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { AdvisedStudents} from '@/components/advised-students';
+import { AdvisedStudents } from '@/components/advised-students';
 
 // Types based on API response
 type CourseResponse = {

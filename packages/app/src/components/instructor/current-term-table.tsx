@@ -112,9 +112,9 @@ const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, st
 					<TableRow>
 						<TableHead className='max-w-[120px] truncate'>Course</TableHead>
 						<TableHead className='max-w-[120px] truncate'>Title</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Total Students</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Total Credit Hours</TableHead>
-						<TableHead className='max-w-[120px] truncate'>Actions</TableHead>
+						<TableHead className='max-w-[120px] truncate'>Students</TableHead>
+						<TableHead className='max-w-[120px] truncate'>Credit Hours</TableHead>
+						<TableHead className='max-w-[120px] truncate'>Action</TableHead>
 					</TableRow>
 				</TableHeader>
 				<TableBody>
@@ -129,6 +129,7 @@ const CurrentTermTableContent: React.FC<{ mnumber: string, startTerm: string, st
 							<TableCell className='max-w-[120px] truncate'>
 								<Button
 									variant='outline'
+									size='sm'
 									onClick={() => {
 										navigate(`/instructors/${mnumber}/${startYear}${startTerm}/${course.course.subject}${course.course.number}${course.course.suffix}-${course.course_section}`);
 									}}

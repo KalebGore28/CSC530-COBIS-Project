@@ -17,8 +17,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { AlertCircle } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 import { CurrentTermTable } from '@/components/instructor/current-term-table';
+import { TermHistoryTable } from '@/components/instructor/term-history-table';
+import { GradeDistribution } from '@/components/charts/term-grade-distributions';
 
 // GraphQL imports
 import type { InstructorIdGetCurrentTermQuery } from "./__generated__/InstructorIdGetCurrentTermQuery.graphql";
@@ -190,7 +191,7 @@ const InstructorPageContent: React.FC = () => {
 							<CardDescription>Summary of courses taught across terms</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<p className="text-sm text-muted-foreground">No teaching history available.</p>
+							<TermHistoryTable mnumber={mnumber as string} />
 						</CardContent>
 					</Card>
 				</TabsContent>
