@@ -148,8 +148,6 @@ const InstructorsPageContent: React.FC = () => {
 		{ fetchPolicy: 'store-or-network' }
 	);
 
-	console.log('Session:', session?.info.department);
-
 	const instructors = data.instructors || [];
 	const [searchQuery, setSearchQuery] = useState('');
 	const [departmentFilter, setDepartmentFilter] = useState<string>('All Departments');

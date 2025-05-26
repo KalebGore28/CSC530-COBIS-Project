@@ -93,8 +93,6 @@ const SelectedTermTableContent: React.FC<{ mnumber: string, startTerm: string, s
 		{ fetchPolicy: "store-or-network" }
 	);
 
-
-
 	if (!data.instructor?.courses_taught || data.instructor.courses_taught.length === 0) {
 		return (
 			<div className='border rounded-lg'>

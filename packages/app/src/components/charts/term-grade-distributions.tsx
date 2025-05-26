@@ -1,6 +1,5 @@
 import React, { Suspense, useEffect, useState } from "react"
 import { Area, AreaChart, XAxis, YAxis, LabelList, CartesianGrid } from "recharts"
-
 import {
 	Card,
 	CardContent,
@@ -23,12 +22,21 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select"
+import { Loader2 } from "lucide-react"
 
 // GraphQL imports
 import type { termGradeDistributionsCurrentTermQuery } from "./__generated__/termGradeDistributionsCurrentTermQuery.graphql"
 import type { termGradeDistributionsDataQuery, termGradeDistributionsDataQuery$data } from "./__generated__/termGradeDistributionsDataQuery.graphql"
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { Loader2 } from "lucide-react"
+
+const defaultChartConfig = {
+	A: { label: "A", color: "hsl(var(--chart-1))" },
+	B: { label: "B", color: "hsl(var(--chart-2))" },
+	C: { label: "C", color: "hsl(var(--chart-3))" },
+	D: { label: "D", color: "hsl(var(--chart-4))" },
+	E: { label: "E", color: "hsl(var(--chart-5))" },
+	"N/A": { label: "N/A", color: "hsl(var(--chart-6))" },
+} satisfies ChartConfig
 
 
 const termGradeDistributionsCurrentTermQuery = graphql`
@@ -66,43 +74,11 @@ const termGradeDistributionsDataQuery = graphql`
 	}
 `;
 
-// Define the props for the component
-interface GradeDistributionsProps {
+export const GradeDistribution: React.FC<{
 	mnumber: string
 	title?: string
 	description?: string
-}
-
-// Default chart configuration for grade distributions
-const defaultChartConfig = {
-	A: {
-		label: "A",
-		color: "hsl(var(--chart-1))",
-	},
-	B: {
-		label: "B",
-		color: "hsl(var(--chart-2))",
-	},
-	C: {
-		label: "C",
-		color: "hsl(var(--chart-3))",
-	},
-	D: {
-		label: "D",
-		color: "hsl(var(--chart-4))",
-	},
-	E: {
-		label: "E",
-		color: "hsl(var(--chart-5))",
-	},
-	"N/A": {
-		label: "N/A",
-		color: "hsl(var(--chart-6))",
-	},
-} satisfies ChartConfig
-
-
-export const GradeDistribution: React.FC<GradeDistributionsProps> = ({
+}> = ({
 	mnumber,
 	title = "Grade Distribution Trends",
 	description = "Showing grade distribution trends over time",

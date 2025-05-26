@@ -1,15 +1,10 @@
-"use client"
-
-import React, { useState, useEffect } from "react"
-import axios from "axios"
-import { TrendingUp } from "lucide-react"
+import React, { useState, Suspense, useMemo } from "react"
 import {
 	Card,
 	CardHeader,
 	CardTitle,
 	CardDescription,
 	CardContent,
-	CardFooter,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ChartContainer } from "@/components/ui/chart"
@@ -29,6 +24,10 @@ import {
 } from "@/components/ui/chart"
 import type { ChartConfig } from "@/components/ui/chart"
 
+// GraphQL imports
+import type { courseGradeDistributionsQuery } from "./__generated__/courseGradeDistributionsQuery.graphql"
+import { graphql, useLazyLoadQuery } from "react-relay";
+
 const defaultChartConfig = {
 	A: { label: "A", color: "hsl(var(--chart-1))" },
 	B: { label: "B", color: "hsl(var(--chart-2))" },
@@ -38,53 +37,53 @@ const defaultChartConfig = {
 	"N/A": { label: "N/A", color: "hsl(var(--chart-6))" },
 } satisfies ChartConfig
 
-interface CourseDetail {
-	courseId: string
-	studentCount: number
-	midtermDistribution: Record<string, number>
-	finalDistribution: Record<string, number>
-}
 
-interface CourseGradeChartProps {
+const courseGradeDistributionsQuery = graphql`
+	query courseGradeDistributionsQuery(
+		$mnumber: String!
+		$startTerm: String!
+		$startYear: Int!
+		$endTerm: String!
+		$endYear: Int!
+	) {
+		instructor(mnumber: $mnumber) {
+			courses_taught(startTerm: $startTerm, endTerm: $endTerm, startYear: $startYear, endYear: $endYear) {
+				final_grade_distribution {
+					grade
+					count
+					percentage
+				}
+				midterm_grade_distribution {
+					grade
+					count
+					percentage
+				}
+				course {
+					number
+					subject
+					suffix
+					title
+				}
+				course_section
+			}
+		}
+	}
+`;
+
+
+export const CourseGradeChart: React.FC<{
 	mnumber: string
 	term: string
 	year: number
-}
-
-export const CourseGradeChart: React.FC<CourseGradeChartProps> = ({
-	mnumber,
-	term,
-	year,
-}) => {
-	const [data, setData] = useState<CourseDetail[]>([])
-	const [loading, setLoading] = useState(false)
-	const [error, setError] = useState<string | null>(null)
+}> = ({ mnumber, term, year }) => {
 	const [view, setView] = useState<"midterm" | "final">("final")
 
-	useEffect(() => {
-		setLoading(true)
-		axios
-			.get(`/api/instructor/${mnumber}/courses`, { params: { term, year } })
-			.then((resp) => setData(resp.data.courseDetails))
-			.catch((err) => setError(err.message))
-			.finally(() => setLoading(false))
-	}, [mnumber, term, year])
-
-	if (loading) return <div>Loading…</div>
-	if (error) return <div>Error: {error}</div>
-	if (!data.length) return <div>No courses found.</div>
-
-	const chartData = data.map((course) => {
-		const dist = view === "final" ? course.finalDistribution : course.midtermDistribution
-		return Object.entries(defaultChartConfig).reduce(
-			(acc, [grade]) => {
-				const count = dist[grade] ?? 0
-				acc[grade] = +((count / course.studentCount) * 100).toFixed(1)
-				return acc
-			},
-			{ course: course.courseId } as Record<string, number | string>
-		)
-	})
+	const termMappings: Record<string, string> = {
+		'10': 'Spring',
+		'50': 'Summer',
+		'80': 'Fall',
+		'90': 'Winter'
+	};
 
 	return (
 		<Card>
@@ -95,7 +94,7 @@ export const CourseGradeChart: React.FC<CourseGradeChartProps> = ({
 							{view === "final" ? "Final" : "Midterm"} Grade Distribution
 						</CardTitle>
 						<CardDescription>
-							Term {term} {year} — Instructor {mnumber}
+							Term: {termMappings[term]} {year}
 						</CardDescription>
 					</div>
 					<div className="flex gap-2">
@@ -116,63 +115,105 @@ export const CourseGradeChart: React.FC<CourseGradeChartProps> = ({
 					</div>
 				</div>
 			</CardHeader>
-
 			<CardContent>
-				<ChartContainer
-					config={defaultChartConfig}
-					className="w-full h-60"
-				>
-					<ResponsiveContainer width="100%" height="100%">
-						<BarChart
-							data={chartData}
-							accessibilityLayer
-							barCategoryGap="30%"
-						>
-							<CartesianGrid vertical={false} />
-							<XAxis
-								dataKey="course"
-								tickLine={false}
-								axisLine={false}
-								tickMargin={8}
-								angle={0}
-								textAnchor="middle"
-								interval={0}
-							/>
-							<YAxis
-								domain={[0, 100]}
-								ticks={[0, 25, 50, 75, 100]}
-								tickFormatter={(v) => `${v}%`}
-								axisLine={false}
-								tickLine={false}
-							/>
-							<ChartTooltip content={<ChartTooltipContent />} />
-							<ChartLegend content={<ChartLegendContent />} />
-							{Object.entries(defaultChartConfig).map(
-								([grade, cfg]) => (
-									<Bar
-										key={grade}
-										dataKey={grade}
-										stackId="a"
-										fill={cfg.color}
-										fillOpacity={0.6}
-										radius={2}
-									/>
-								)
-							)}
-						</BarChart>
-					</ResponsiveContainer>
-				</ChartContainer>
+				<Suspense fallback={<div>Loading chart...</div>}>
+					<CourseGradeChartContent mnumber={mnumber} term={term} year={year} view={view} />
+				</Suspense>
 			</CardContent>
-
-			<CardFooter className="flex-col items-start gap-1 text-sm">
-				<div className="flex gap-1 font-medium">
-					Showing {view === "final" ? "final" : "midterm"} grades for {data.length} courses
-					<TrendingUp className="h-4 w-4" />
-				</div>
-				<div className="text-muted-foreground">
-					Hover over segments for details
-				</div>
-			</CardFooter>
 		</Card>
+	);
+}
+
+export const CourseGradeChartContent: React.FC<{
+	mnumber: string
+	term: string
+	year: number
+	view?: "midterm" | "final"
+}> = ({ mnumber, term, year, view }) => {
+	const data = useLazyLoadQuery<courseGradeDistributionsQuery>(
+		courseGradeDistributionsQuery,
+		{
+			mnumber,
+			startTerm: term,
+			startYear: year,
+			endTerm: term,
+			endYear: year,
+		},
+		{ fetchPolicy: "store-and-network" }
 	)
+
+	if (!data.instructor) {
+		return <div>No data found for this instructor.</div>
+	}
+
+	const allGrades = ["A", "B", "C", "D", "E", "N/A"] as const
+
+	const chartData = useMemo(() => {
+		return data.instructor?.courses_taught.map((ct) => {
+			// pick the right distribution based on view
+			const dist = view === "final"
+				? ct.final_grade_distribution
+				: ct.midterm_grade_distribution
+
+			// build the base record with a label for X axis
+			const record: Record<string, string | number> = {
+				course: `${ct.course.subject}${ct.course.number}${ct.course.suffix}-${ct.course_section}`,
+			}
+
+			// fill in each grade — defaulting to 0 if missing
+			allGrades.forEach((g) => {
+				const bucket = dist.find((d) => d.grade === g)
+				record[g] = bucket ? bucket.percentage : 0
+			})
+
+			return record
+		})
+	}, [data.instructor.courses_taught, view])
+
+	return (
+		<ChartContainer
+			config={defaultChartConfig}
+			className="w-full h-60"
+		>
+			<ResponsiveContainer width="100%" height="100%">
+				<BarChart
+					data={chartData}
+					accessibilityLayer
+					barCategoryGap="30%"
+				>
+					<CartesianGrid vertical={false} />
+					<XAxis
+						dataKey="course"
+						tickLine={false}
+						axisLine={false}
+						tickMargin={8}
+						angle={0}
+						textAnchor="middle"
+						interval={0}
+					/>
+					<YAxis
+						domain={[0, 100]}
+						ticks={[0, 25, 50, 75, 100]}
+						tickFormatter={(v) => `${v}%`}
+						axisLine={false}
+						tickLine={false}
+					/>
+					<ChartTooltip content={<ChartTooltipContent />} />
+					<ChartLegend content={<ChartLegendContent />} />
+					{Object.entries(defaultChartConfig).map(
+						([grade, cfg]) => (
+							<Bar
+								key={grade}
+								dataKey={grade}
+								stackId="a"
+								fill={cfg.color}
+								fillOpacity={0.6}
+								radius={2}
+							/>
+						)
+					)}
+				</BarChart>
+			</ResponsiveContainer>
+		</ChartContainer>
+	);
 }
