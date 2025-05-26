@@ -28,7 +28,7 @@ export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> =
 }) => {
 	const { final_grades, midterm_grades } = gradesData;
 
-	const [gradeType, setGradeType] = useState<"midterm" | "final">("midterm");
+	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
 
 	// Memoize the data to avoid unnecessary re-renders
 	const finalGradesData = useMemo(() => final_grades, [final_grades]);
