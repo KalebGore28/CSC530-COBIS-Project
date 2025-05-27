@@ -1,7 +1,8 @@
-import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte, SQL } from 'drizzle-orm'
+import { eq, sql, and, or, SQLWrapper, ne, lt, lte, gt, gte } from 'drizzle-orm'
 import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
+import { checkEnrollmentAccess } from './middleware/checkEnrollmentAccess';
 import { ApolloContext } from '../app';
 
 // --- TypeScript types for your GraphQL inputs ---
@@ -372,7 +373,7 @@ export const resolvers = {
 				courses
 			} = filters;
 
-			const whereClauses: SQL[] = [];
+			const whereClauses: SQLWrapper[] = [];
 
 			// 1) GPA filters (unchanged) …
 			if (gpaMin != null) {
@@ -396,7 +397,7 @@ export const resolvers = {
 
 			// 2) Academic‐level filters (latest‐row + correct ranges)
 			if (academicLevels?.length) {
-				const levelClauses: SQL[] = academicLevels.map(level => {
+				const levelClauses: SQLWrapper[] = academicLevels.map(level => {
 					switch (level) {
 						case 'Freshman':
 							// < 30
@@ -473,7 +474,7 @@ export const resolvers = {
 
 				if (taken) {
 					// build base match clauses
-					const base: SQL[] = [
+					const base: SQLWrapper[] = [
 						eq(tables.studentCourses.mnumber, tables.students.mnumber),
 						eq(tables.studentCourses.course_subject, subject),
 						eq(tables.studentCourses.course_number, number),
@@ -543,6 +544,82 @@ export const resolvers = {
 				totalCount,
 			};
 		},
+
+		// Enrollment queries
+		programs: checkEnrollmentAccess(async (
+			_parent: any,
+			args: {
+				term?: string;
+				year?: number;
+			},
+			{ db }: ApolloContext) => {
+			// 1) collect only the filters we actually need
+			const filters: SQLWrapper[] = [];
+			if (args.term) {
+				filters.push(eq(tables.studentPrograms.term, args.term));
+			}
+			if (args.year) {
+				filters.push(eq(tables.studentPrograms.year, args.year));
+			}
+
+			// 2) the “base” select
+			const baseQuery = db
+				.select()
+				.from(tables.studentPrograms);
+
+			// 3) either apply our filters, or leave it untouched
+			const filteredQuery =
+				filters.length > 0
+					? baseQuery.where(and(...filters))
+					: baseQuery;
+
+			// 4) finally add ordering and execute
+			const rows = await filteredQuery
+				.orderBy(
+					tables.studentPrograms.mnumber,
+					tables.studentPrograms.program
+				);
+
+			return rows;
+		}),
+		courses: checkEnrollmentAccess(async (
+			_parent: any,
+			args: {
+				term?: string;
+				year?: number;
+			},
+			{ db }: ApolloContext) => {
+			// 1) collect only the filters we actually need
+			const filters: SQLWrapper[] = [];
+			if (args.term) {
+				filters.push(eq(tables.studentCourses.term, args.term));
+			}
+			if (args.year) {
+				filters.push(eq(tables.studentCourses.year, args.year));
+			}
+
+			// 2) the “base” select
+			const baseQuery = db
+				.select()
+				.from(tables.studentCourses);
+
+			// 3) either apply our filters, or leave it untouched
+			const filteredQuery =
+				filters.length > 0
+					? baseQuery.where(and(...filters))
+					: baseQuery;
+
+			// 4) finally add ordering and execute
+			const rows = await filteredQuery
+				.orderBy(
+					tables.studentCourses.mnumber,
+					tables.studentCourses.course_subject,
+					tables.studentCourses.course_number,
+					tables.studentCourses.course_suffix
+				);
+
+			return rows;
+		}),
 	},
 
 	// Lookup resolvers

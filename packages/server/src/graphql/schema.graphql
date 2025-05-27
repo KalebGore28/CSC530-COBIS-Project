@@ -427,7 +427,7 @@ type Query {
   # Utility
   getCurrentYearTerm: YearTerm!
 
-
+  # Student and Faculty Queries
   student(mnumber: String!): Student
   instructor(mnumber: String!): Faculty
   instructors: [Faculty!]!
@@ -436,5 +436,15 @@ type Query {
     offset:  Int = 0
     limit:   Int = 10
   ): StudentLookupPage!
+
+  # Enrollment Queries
+  programs(
+    term: String
+    year: Int
+  ): [StudentProgram!]!
+  courses(
+    term: String
+    year: Int
+  ): [StudentCourse!]!
   
 }
