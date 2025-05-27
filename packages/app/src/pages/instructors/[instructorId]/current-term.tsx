@@ -24,7 +24,7 @@ export const CurrentTermTab: React.FC = () => {
 	const { mnumber, getCurrentYearTerm } = useOutletContext<EnrollmentContext>();
 
 	return (
-		<Card>
+		<Card className='p-4 px-0'>
 			<CardHeader>
 				<CardTitle>Current Term</CardTitle>
 				<CardDescription>

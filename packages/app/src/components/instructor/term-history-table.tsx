@@ -33,28 +33,30 @@ const termHistoryTableQuery = graphql`
 
 // Custom skeleton for TermHistoryTable
 const TermHistoryTableSkeleton: React.FC = () => (
-	<Table>
-		<TableHeader>
-			<TableRow>
-				<TableHead className="w-1/4">Term</TableHead>
-				<TableHead className="w-1/4">Total Courses</TableHead>
-				<TableHead className="w-1/4">Total Students</TableHead>
-				<TableHead className="w-1/4">Total Credit Hours</TableHead>
-				<TableHead className="w-1/4">Action</TableHead>
-			</TableRow>
-		</TableHeader>
-		<TableBody>
-			{Array.from({ length: 4 }).map((_, index) => (
-				<TableRow key={index}>
-					<TableCell><Skeleton className="h-6 w-full" /></TableCell>
-					<TableCell><Skeleton className="h-6 w-full" /></TableCell>
-					<TableCell><Skeleton className="h-6 w-full" /></TableCell>
-					<TableCell><Skeleton className="h-6 w-full" /></TableCell>
-					<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+	<div className='border rounded-lg'>
+		<Table>
+			<TableHeader>
+				<TableRow>
+					<TableHead className="w-1/4">Term</TableHead>
+					<TableHead className="w-1/4">Total Courses</TableHead>
+					<TableHead className="w-1/4">Total Students</TableHead>
+					<TableHead className="w-1/4">Total Credit Hours</TableHead>
+					<TableHead className="w-1/4">Action</TableHead>
 				</TableRow>
-			))}
-		</TableBody>
-	</Table>
+			</TableHeader>
+			<TableBody>
+				{Array.from({ length: 4 }).map((_, index) => (
+					<TableRow key={index}>
+						<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+						<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+						<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+						<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+						<TableCell><Skeleton className="h-6 w-full" /></TableCell>
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
+	</div>
 );
 
 export const TermHistoryTable: React.FC<{ mnumber: string }> = ({ mnumber }) => {

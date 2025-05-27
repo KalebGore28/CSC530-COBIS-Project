@@ -267,10 +267,10 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 											<TableCell>{student.mnumber}</TableCell>
 											<TableCell>
 												<a
-													href={`mailto:${student.email}`}
-													className="text-blue-500 hover:underline"
+													href={`mailto:${student.email.toLowerCase()}`}
+													className="hover:underline"
 												>
-													{student.email}
+													{student.email.toLowerCase()}
 												</a>
 											</TableCell>
 											<TableCell>
@@ -320,10 +320,10 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 											<div>
 												<span className="font-medium">Email: </span>
 												<a
-													href={`mailto:${student.email}`}
-													className="text-blue-500 hover:underline"
+													href={`mailto:${student.email.toLowerCase()}`}
+													className="hover:underline"
 												>
-													{student.email}
+													{student.email.toLowerCase()}
 												</a>
 											</div>
 											<div>
