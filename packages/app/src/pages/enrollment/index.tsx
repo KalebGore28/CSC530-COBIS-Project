@@ -24,7 +24,7 @@ export const EnrollmentPage: React.FC = () => {
 		<div className="p-4 space-y-6">
 			<Card>
 				<CardHeader>
-					<CardTitle>Enrollment Management</CardTitle>
+					<CardTitle>Enrollment Metrics</CardTitle>
 					<CardDescription>
 						View programs, courses, and faculty enrollments.
 					</CardDescription>
