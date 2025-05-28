@@ -2,7 +2,10 @@ import type { DbConnection } from '../../db/connection';
 import { createTermLoader } from './termLoader';
 import { createAddressesLoader } from './addressLoader';
 import { createAdvisorLoader } from './advisorLoader';
-import { createStudentProgramLoader } from './studentProgramLoader';
+import {
+	createStudentProgramLoader,
+	createStudentProgramByCodeLoader
+} from './studentProgramLoader';
 import { createNationsLoader } from './nationLoader';
 import { createProgramLoader } from './programLoader';
 import { createCollegeLoader } from './collegeLoader';
@@ -42,6 +45,7 @@ export function createLoaders(db: DbConnection['orm']) {
 		address: createAddressesLoader(db),
 		advisor: createAdvisorLoader(db),
 		studentProgram: createStudentProgramLoader(db),
+		studentProgramByCode: createStudentProgramByCodeLoader(db),
 		studentCourse: createStudentCourseLoader(db),
 		program: createProgramLoader(db),
 		nation: createNationsLoader(db),

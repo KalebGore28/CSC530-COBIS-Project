@@ -5,6 +5,8 @@ import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 import { checkEnrollmentAccess } from './middleware/checkEnrollmentAccess';
 import { ApolloContext } from '../app';
 
+import { ProgramResolver } from './resolvers/program';
+
 // --- TypeScript types for your GraphQL inputs ---
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
 type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
@@ -55,8 +57,41 @@ const termMap = {
 	'90': 'Winter',
 }
 
+const typeToTable: Record<string, any> = {
+	Program: tables.programs,
+	Department: tables.departments,
+	College: tables.colleges,
+};
+
+
 export const resolvers = {
 	Query: {
+		node: async (_: any, { id }: { id: string }, { db }: ApolloContext) => {
+			// "Program:CS" → ["Program","CS"]
+			const decoded = Buffer.from(id, 'base64').toString('utf8');
+			const [typeName, key] = decoded.split(':');
+			const table = typeToTable[typeName];
+			if (!table) return null;
+
+			// figure out which column is the key (you might always use `code` or sometimes `id`)
+			const pkColumn = table.code ?? table.id;
+
+			// fetch the row
+			const rows = await db
+				.select()
+				.from(table)
+				.where(eq(pkColumn, key))
+				.limit(1);
+
+			if (rows.length === 0) {
+				return null;
+			}
+
+			// 3) Attach __typename so GraphQL knows what type it is
+			const row = rows[0];
+			(row as any).__typename = typeName;
+			return row;
+		},
 		// Search lookup tables
 		searchAcademicStandings: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
 			const up = args.query.toUpperCase();
@@ -162,48 +197,17 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
-		searchPrograms: async (
-			_parent: any,
-			args: {
-				query: string;
-				is_major?: boolean;
-				is_minor?: boolean;
-				has_concentration?: boolean;
-				is_discontinued?: boolean;
-				is_aacsb?: boolean;
-			},
-			{ db }: ApolloContext
-		) => {
+		searchPrograms: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
 			const up = args.query.toUpperCase();
-
-			const filters: SQLWrapper[] = [];
-
-			// start with the text‐match condition
-			filters.push(or(
-				sql`UPPER(${tables.programs.code}) LIKE ${up + "%"}`,
-				sql`UPPER(${tables.programs.description}) LIKE ${"%" + up + "%"}`
-			) as SQLWrapper)
-
-			if (args.is_major !== undefined) {
-				filters.push(eq(tables.programs.is_major, args.is_major));
-			}
-			if (args.is_minor !== undefined) {
-				filters.push(eq(tables.programs.is_minor, args.is_minor));
-			}
-			if (args.has_concentration !== undefined) {
-				filters.push(eq(tables.programs.has_concentration, args.has_concentration));
-			}
-			if (args.is_discontinued !== undefined) {
-				filters.push(eq(tables.programs.is_discontinued, args.is_discontinued));
-			}
-			if (args.is_aacsb !== undefined) {
-				filters.push(eq(tables.programs.is_aacsb, args.is_aacsb));
-			}
-
 			return await db
 				.select()
 				.from(tables.programs)
-				.where(and(...filters))
+				.where(
+					or(
+						sql`UPPER(${tables.programs.code}) LIKE ${up + "%"}`,
+						sql`UPPER(${tables.programs.description}) LIKE ${"%" + up + "%"}`
+					)
+				)
 				.limit(10);
 		},
 		searchRegistrationStatuses: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
@@ -245,6 +249,7 @@ export const resolvers = {
 				)
 				.limit(10);
 		},
+
 		// Get all lookup tables
 		getAcademicStandings: async (_parent: any, _args: any, { db }: ApolloContext) => {
 			const rows = await db.select().from(tables.academicStanding)
@@ -306,7 +311,31 @@ export const resolvers = {
 				.orderBy(tables.terms.code)
 			return rows || []
 		},
-		// Other queries
+
+		// Utility queries
+		getCurrentYearTerm: async (_parent: any, _args: any, { db }: ApolloContext) => {
+			const [currentYear] = await db
+				.select({
+					currentYear: sql<number>`MAX(${tables.instructorCourses.year})`
+				})
+				.from(tables.instructorCourses);
+
+			const [currentTerm] = await db
+				.select({
+					currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`
+				})
+				.from(tables.instructorCourses)
+				.where(sql`${tables.instructorCourses.year} = ${currentYear?.currentYear}`);
+
+
+
+			return {
+				year: currentYear?.currentYear,
+				term: currentTerm?.currentTerm,
+			}
+		},
+
+		// --- Protected Queries ---
 		student: checkStudentAccess(async (_parent: any, args: { mnumber: string }, { db }: ApolloContext) => {
 			const [stud] = await db
 				.select()
@@ -332,29 +361,7 @@ export const resolvers = {
 				.orderBy(tables.faculty.last_name, tables.faculty.first_name)
 			return rows || []
 		},
-		// Utility queries
-		getCurrentYearTerm: async (_parent: any, _args: any, { db }: ApolloContext) => {
 
-			const [currentYear] = await db
-				.select({
-					currentYear: sql<number>`MAX(${tables.instructorCourses.year})`
-				})
-				.from(tables.instructorCourses);
-
-			const [currentTerm] = await db
-				.select({
-					currentTerm: sql<string>`MAX(${tables.instructorCourses.term})`
-				})
-				.from(tables.instructorCourses)
-				.where(sql`${tables.instructorCourses.year} = ${currentYear?.currentYear}`);
-
-
-
-			return {
-				year: currentYear?.currentYear,
-				term: currentTerm?.currentTerm,
-			}
-		},
 		// Lookup Query
 		lookupStudents: async (
 			_parent: any,
@@ -546,79 +553,59 @@ export const resolvers = {
 		},
 
 		// Enrollment queries
-		programs: checkEnrollmentAccess(async (
-			_parent: any,
-			args: {
-				term?: string;
-				year?: number;
-			},
-			{ db }: ApolloContext) => {
-			// 1) collect only the filters we actually need
-			const filters: SQLWrapper[] = [];
-			if (args.term) {
-				filters.push(eq(tables.studentPrograms.term, args.term));
-			}
-			if (args.year) {
-				filters.push(eq(tables.studentPrograms.year, args.year));
-			}
-
-			// 2) the “base” select
-			const baseQuery = db
+		programs: checkEnrollmentAccess(async (_parent: any, _args: any, { db }: ApolloContext) => {
+			return db
 				.select()
-				.from(tables.studentPrograms);
-
-			// 3) either apply our filters, or leave it untouched
-			const filteredQuery =
-				filters.length > 0
-					? baseQuery.where(and(...filters))
-					: baseQuery;
-
-			// 4) finally add ordering and execute
-			const rows = await filteredQuery
-				.orderBy(
-					tables.studentPrograms.mnumber,
-					tables.studentPrograms.program
-				);
-
-			return rows;
+				.from(tables.programs)
+				.orderBy(tables.programs.code)
+				.all();
 		}),
 		courses: checkEnrollmentAccess(async (
 			_parent: any,
 			args: {
-				term?: string;
-				year?: number;
+				startTerm: string;
+				startYear: number;
+				endTerm?: string;
+				endYear?: number;
 			},
 			{ db }: ApolloContext) => {
-			// 1) collect only the filters we actually need
-			const filters: SQLWrapper[] = [];
-			if (args.term) {
-				filters.push(eq(tables.studentCourses.term, args.term));
-			}
-			if (args.year) {
-				filters.push(eq(tables.studentCourses.year, args.year));
-			}
+			// build the “>= (startYear,startTerm)” clause
+			const lower = or(
+				gt(tables.studentCourses.year, args.startYear),
+				and(
+					eq(tables.studentCourses.year, args.startYear),
+					gte(tables.studentCourses.term, args.startTerm)
+				)
+			)
 
-			// 2) the “base” select
-			const baseQuery = db
+			// optional “<= (endYear,endTerm)” clause
+			const upper = args.endYear && args.endTerm
+				? or(
+					lt(tables.studentCourses.year, args.endYear),
+					and(
+						eq(tables.studentCourses.year, args.endYear),
+						lte(tables.studentCourses.term, args.endTerm)
+					)
+				)
+				: undefined
+
+			// assemble WHERE … AND … AND (maybe upper)
+			const whereClause = upper
+				? and(lower, upper)
+				: lower
+
+			return db
 				.select()
-				.from(tables.studentCourses);
-
-			// 3) either apply our filters, or leave it untouched
-			const filteredQuery =
-				filters.length > 0
-					? baseQuery.where(and(...filters))
-					: baseQuery;
-
-			// 4) finally add ordering and execute
-			const rows = await filteredQuery
+				.from(tables.studentCourses)
+				.where(whereClause)
 				.orderBy(
-					tables.studentCourses.mnumber,
+					tables.studentCourses.year,
+					tables.studentCourses.term,
 					tables.studentCourses.course_subject,
 					tables.studentCourses.course_number,
 					tables.studentCourses.course_suffix
-				);
+				)
 
-			return rows;
 		}),
 	},
 
@@ -628,12 +615,7 @@ export const resolvers = {
 			loaders.college.load(department.college),
 	},
 
-	Program: {
-		department: (program: tables.Program, _args: any, { loaders }: ApolloContext) =>
-			loaders.department.load(program.department),
-		college: (program: tables.Program, _args: any, { loaders }: ApolloContext) =>
-			loaders.college.load(program.college),
-	},
+	Program: ProgramResolver,
 
 	// Student resolvers
 	Student: {

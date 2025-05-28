@@ -19,3 +19,20 @@ export function createStudentProgramLoader(db: DbConnection['orm']) {
     return mnumbers.map(m => map[m] ?? []);
   });
 }
+
+export function createStudentProgramByCodeLoader(db: DbConnection['orm']) {
+  return new DataLoader<string, StudentProgram[]>(async (codes) => {
+    const rows = await db
+      .select()
+      .from(studentPrograms)
+      .where(inArray(studentPrograms.program, codes as string[]))
+      .all();
+
+    const map = rows.reduce<Record<string, StudentProgram[]>>((acc, row) => {
+      (acc[row.program] ||= []).push(row);
+      return acc;
+    }, {});
+
+    return codes.map(code => map[code] ?? []);
+  });
+}

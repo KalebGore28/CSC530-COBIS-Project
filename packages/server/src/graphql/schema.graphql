@@ -1,3 +1,15 @@
+# Relay Types
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
 # Lookup Tables
 type AcademicStanding {
   code: String!
@@ -52,7 +64,8 @@ type PartOfTerm {
   description: String!
 }
 
-type Program {
+type Program implements Node {
+  id: ID!
   code: String!
   description: String!
   cip_code: String
@@ -64,6 +77,21 @@ type Program {
   department: Department!
   college: College!
   added_on: String!
+  # Relationships
+  student_programs(
+    first: Int!
+    after: String
+  ): StudentProgramConnection!
+}
+
+type StudentProgramConnection {
+  edges: [StudentProgramEdge!]!
+  pageInfo: PageInfo!
+}
+
+type StudentProgramEdge {
+  cursor: String!
+  node: StudentProgram
 }
 
 type RegistrationStatus {
@@ -389,6 +417,7 @@ type StudentLookupPage {
 # Root query type
 
 type Query {
+  node(id: ID!): Node
   # Search lookup tables
   searchAcademicStandings(query: String!): [AcademicStanding!]!
   searchAdmitCodes(query: String!): [AdmitCode!]!
@@ -398,14 +427,7 @@ type Query {
   searchInstructionalMethods(query: String!): [InstructionalMethod!]!
   searchNations(query: String!): [Nation!]!
   searchPartOfTerms(query: String!): [PartOfTerm!]!
-  searchPrograms(
-    query: String!
-    is_major: Boolean
-    is_minor: Boolean
-    has_concentration: Boolean
-    is_discontinued: Boolean
-    is_aacsb: Boolean
-    ): [Program!]!
+  searchPrograms(query: String!): [Program!]!
   searchRegistrationStatuses(query: String!): [RegistrationStatus!]!
   searchRoles(query: String!): [Role!]!
   searchTerms(query: String!): [Term!]!
@@ -438,13 +460,12 @@ type Query {
   ): StudentLookupPage!
 
   # Enrollment Queries
-  programs(
-    term: String
-    year: Int
-  ): [StudentProgram!]!
+  programs: [Program!]!
   courses(
-    term: String
-    year: Int
+    startTerm: String!
+    startYear: Int!
+    endTerm: String
+    endYear: Int
   ): [StudentCourse!]!
   
 }
