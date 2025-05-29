@@ -7,7 +7,6 @@ import { auth } from "./lib/auth";
 import { toNodeHandler } from "better-auth/node";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 import { authenticateAndLoadUser } from "./middleware/authenticate-user";
-import { getUserInfo } from "./middleware/get-user-info";
 
 import { getDbConnection, DbConnection } from "./db/connection";
 import type { AuthAndPermissionsRequest } from "./types/requests";
