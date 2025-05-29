@@ -2,7 +2,6 @@
 import React, { Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ProgramMetrics } from '@/fragments/program-metrics';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import type { programsQuery } from './__generated__/programsQuery.graphql';
 
@@ -38,9 +37,7 @@ const ProgramMetricsContent: React.FC = () => {
 
 	return (
 		<div className="space-y-4">
-			{data.programs.map(program => (
-				<ProgramMetrics key={program.code} program={program} />
-			))}
+
 		</div>
 	);
 };

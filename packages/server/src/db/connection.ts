@@ -1,4 +1,5 @@
 // src/db/connection.ts
+import { DefaultLogger } from 'drizzle-orm/logger';
 
 import fs from 'fs';
 import Database, { Database as DatabaseType } from 'better-sqlite3';
@@ -62,8 +63,9 @@ export const createDb = async (
 
 	// 3) Initialize Drizzle **with** your schema definitions:
 	const orm = drizzle(db, {
-					schema: tables,
-					casing: 'snake_case',
+		schema: tables,
+		casing: 'snake_case',
+		logger: (process.env.NODE_ENV === 'development' ? new DefaultLogger() : undefined),
 	});
 
 	return { db, orm };
