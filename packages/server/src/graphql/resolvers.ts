@@ -57,41 +57,9 @@ const termMap = {
 	'90': 'Winter',
 }
 
-const typeToTable: Record<string, any> = {
-	Program: tables.programs,
-	Department: tables.departments,
-	College: tables.colleges,
-};
-
 
 export const resolvers = {
 	Query: {
-		node: async (_: any, { id }: { id: string }, { db }: ApolloContext) => {
-			// "Program:CS" → ["Program","CS"]
-			const decoded = Buffer.from(id, 'base64').toString('utf8');
-			const [typeName, key] = decoded.split(':');
-			const table = typeToTable[typeName];
-			if (!table) return null;
-
-			// figure out which column is the key (you might always use `code` or sometimes `id`)
-			const pkColumn = table.code ?? table.id;
-
-			// fetch the row
-			const rows = await db
-				.select()
-				.from(table)
-				.where(eq(pkColumn, key))
-				.limit(1);
-
-			if (rows.length === 0) {
-				return null;
-			}
-
-			// 3) Attach __typename so GraphQL knows what type it is
-			const row = rows[0];
-			(row as any).__typename = typeName;
-			return row;
-		},
 		// Search lookup tables
 		searchAcademicStandings: async (_parent: any, args: { query: string }, { db }: ApolloContext) => {
 			const up = args.query.toUpperCase();

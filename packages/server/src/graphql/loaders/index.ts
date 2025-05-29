@@ -6,6 +6,7 @@ import {
 	createStudentProgramLoader,
 	createStudentProgramByCodeLoader
 } from './studentProgramLoader';
+import { createStudentProgramsByTermLoader } from './studentProgramByTermLoader';
 import { createNationsLoader } from './nationLoader';
 import { createProgramLoader } from './programLoader';
 import { createCollegeLoader } from './collegeLoader';
@@ -39,6 +40,8 @@ import { createUserLoader } from './userLoader';
 
 
 export function createLoaders(db: DbConnection['orm']) {
+	const studentProgramsByTermLoaderCache = new Map<string, ReturnType<typeof createStudentProgramsByTermLoader>>()
+
 	return {
 		term: createTermLoader(db),
 		currentTerm: createCurrentTermLoader(db),
@@ -80,7 +83,26 @@ export function createLoaders(db: DbConnection['orm']) {
 		midtermAverageByCourse: createMidtermAverageByCourseLoader(db),
 		finalAverageByCourse: createFinalAverageByCourseLoader(db),
 		finalGradeDistributionByCourse: createFinalGradeDistributionByCourseLoader(db),
-		midtermGradeDistributionByCourse: createMidtermGradeDistributionByCourseLoader(db)
+		midtermGradeDistributionByCourse: createMidtermGradeDistributionByCourseLoader(db),
+		/**
+		 * Given a start/end range, returns (and caches) a DataLoader
+		 * that batches all program-code loads into one SQL query.
+		 */
+		getStudentProgramsLoader(
+			startTerm: string,
+			startYear: number,
+			endTerm: string,
+			endYear: number
+		) {
+			const key = `${startYear}-${startTerm}→${endYear}-${endTerm}`
+			if (!studentProgramsByTermLoaderCache.has(key)) {
+				studentProgramsByTermLoaderCache.set(
+					key,
+					createStudentProgramsByTermLoader(db, startTerm, startYear, endTerm, endYear)
+				)
+			}
+			return studentProgramsByTermLoaderCache.get(key)!
+		}
 	};
 }
 

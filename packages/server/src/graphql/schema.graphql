@@ -1,15 +1,3 @@
-# Relay Types
-interface Node {
-  id: ID!
-}
-
-type PageInfo {
-  hasNextPage: Boolean!
-  hasPreviousPage: Boolean!
-  startCursor: String
-  endCursor: String
-}
-
 # Lookup Tables
 type AcademicStanding {
   code: String!
@@ -64,8 +52,7 @@ type PartOfTerm {
   description: String!
 }
 
-type Program implements Node {
-  id: ID!
+type Program {
   code: String!
   description: String!
   cip_code: String
@@ -79,19 +66,11 @@ type Program implements Node {
   added_on: String!
   # Relationships
   student_programs(
-    first: Int!
-    after: String
-  ): StudentProgramConnection!
-}
-
-type StudentProgramConnection {
-  edges: [StudentProgramEdge!]!
-  pageInfo: PageInfo!
-}
-
-type StudentProgramEdge {
-  cursor: String!
-  node: StudentProgram
+    startTerm: String!,
+    startYear: Int!,
+    endTerm: String!,
+    endYear: Int!,
+  ): [StudentProgram!]!
 }
 
 type RegistrationStatus {
@@ -417,7 +396,6 @@ type StudentLookupPage {
 # Root query type
 
 type Query {
-  node(id: ID!): Node
   # Search lookup tables
   searchAcademicStandings(query: String!): [AcademicStanding!]!
   searchAdmitCodes(query: String!): [AdmitCode!]!
