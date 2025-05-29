@@ -6,7 +6,7 @@ import path from "path";
 import { auth } from "./lib/auth";
 import { toNodeHandler } from "better-auth/node";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
-import { authenticateUser } from "./middleware/authenticate-user";
+import { authenticateAndLoadUser } from "./middleware/authenticate-user";
 import { getUserInfo } from "./middleware/get-user-info";
 
 import { getDbConnection, DbConnection } from "./db/connection";
@@ -81,7 +81,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // 5. Mount your GraphQL endpoint
-app.use("/api", authenticateUser, getUserInfo);
+app.use("/api", authenticateAndLoadUser);
 app.use(
     "/api/graphql",
     express.json(),
