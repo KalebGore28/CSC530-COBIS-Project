@@ -29,7 +29,7 @@ export const ProgramsPage: React.FC = () => (
 	<div className="space-y-4">
 		<Card>
 			<CardHeader>
-				<CardTitle>Programs Management</CardTitle>
+				<CardTitle>Programs</CardTitle>
 			</CardHeader>
 			<CardContent>
 				<Suspense fallback={<Skeleton className="h-6 w-1/2" />}>

@@ -118,7 +118,7 @@ const ProgramDetailsContent: React.FC<{ programCode?: string }> = ({
 			<CardHeader>
 				<CardTitle>Program Details</CardTitle>
 				<CardDescription>
-					Details for program code: {data.program.code}
+					Details for program code: ({data.program.code}) : {data.program.description || 'N/A'}
 				</CardDescription>
 			</CardHeader>
 			<CardContent className="space-y-4">
