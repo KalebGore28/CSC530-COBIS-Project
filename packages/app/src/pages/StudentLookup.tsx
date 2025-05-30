@@ -154,7 +154,14 @@ export const StudentLookup: React.FC = () => {
 
 			<div className="mt-6">
 				<Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} columns={4} />}>
-					<StudentLookupContent filters={currentFilters} />
+					{currentFilters ?
+						<StudentLookupContent filters={currentFilters} />
+						: <Card className="w-full text-center">
+							<p className="text-sm text-muted-foreground">
+								Select filters and click "Run Search" to view students.
+							</p>
+						</Card>
+					}
 				</Suspense>
 			</div>
 		</div>
@@ -162,19 +169,10 @@ export const StudentLookup: React.FC = () => {
 };
 
 type StudentLookupContentProps = {
-	filters: FilterState | null;
+	filters: FilterState;
 }
 
 const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) => {
-	if (!filters) {
-		return (
-			<Card className="w-full text-center">
-				<p className="text-sm text-muted-foreground">
-					Select filters and click "Run Search" to view students.
-				</p>
-			</Card>
-		);
-	}
 
 	const formatFilterState = (filters: FilterState) => {
 		// Build your GraphQL variables from FilterState
