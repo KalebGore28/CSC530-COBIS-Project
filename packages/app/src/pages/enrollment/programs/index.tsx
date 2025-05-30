@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { FixedSizeList as List } from 'react-window';
+
 
 // GraphQL imports
 import type { programsPageQuery } from './__generated__/programsPageQuery.graphql';
@@ -71,66 +73,78 @@ const ProgramList: React.FC = () => {
 				Showing {filtered.length} of {programs.length} programs
 			</div>
 
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-				{filtered.map((program) => (
-					<Card
-						key={program.code}
-						className="h-28 hover:shadow-lg transition-shadow hover:scale-105"
-						onClick={() => navigate(`/enrollment/programs/${program.code}`)}
-						role="button"
-						tabIndex={0}
+			<List
+				height={530}
+				itemCount={filtered.length}
+				itemSize={120}             // each row is 120px high (match your Card height + gap)
+				width="100%"
+			>
+				{({ index, style }) => {
+					const program = filtered[index];
+					return (
+						<div
+							style={style}
+							className="p-8"  // approximate your grid-gap
 						>
-						<CardHeader>
-							{/* small, truncated title */}
-							<CardTitle className="text-sm truncate">
-								{program.code}: {program.description}
-							</CardTitle>
-						</CardHeader>
-						<CardContent className="flex flex-wrap gap-1">
-							{program.has_concentration && (
-								<Badge
-									variant="outline"
-									className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
-								>
-									Concentration
-								</Badge>
-							)}
-							{program.is_aacsb && (
-								<Badge
-									variant="outline"
-									className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
-								>
-									AACSB
-								</Badge>
-							)}
-							{program.is_discontinued && (
-								<Badge
-									variant="outline"
-									className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
-								>
-									Discontinued
-								</Badge>
-							)}
-							{program.is_major && (
-								<Badge
-									variant="outline"
-									className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
-								>
-									Major
-								</Badge>
-							)}
-							{program.is_minor && (
-								<Badge
-									variant="outline"
-									className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
-								>
-									Minor
-								</Badge>
-							)}
-						</CardContent>
-					</Card>
-				))}
-			</div>
+							<Card
+								key={program.code}
+								className="h-28 hover:shadow-lg transition-shadow hover:scale-105"
+								onClick={() => navigate(`/enrollment/programs/${program.code}`)}
+								role="button"
+								tabIndex={0}
+							>
+								<CardHeader>
+									<CardTitle className="text-sm truncate">
+										{program.code}: {program.description}
+									</CardTitle>
+								</CardHeader>
+								<CardContent className="flex flex-wrap gap-1">
+									{program.is_major && (
+										<Badge
+											variant="outline"
+											className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
+										>
+											Major
+										</Badge>
+									)}
+									{program.is_minor && (
+										<Badge
+											variant="outline"
+											className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
+										>
+											Minor
+										</Badge>
+									)}
+									{program.has_concentration && (
+										<Badge
+											variant="outline"
+											className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
+										>
+											Concentration
+										</Badge>
+									)}
+									{program.is_discontinued && (
+										<Badge
+											variant="outline"
+											className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
+										>
+											Discontinued
+										</Badge>
+									)}
+									{program.is_aacsb && (
+										<Badge
+											variant="outline"
+											className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
+										>
+											AACSB
+										</Badge>
+									)}
+								</CardContent>
+							</Card>
+						</div>
+					);
+				}}
+			</List>
 		</div>
 	);
 };
