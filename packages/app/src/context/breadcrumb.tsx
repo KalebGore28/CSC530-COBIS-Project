@@ -75,8 +75,6 @@ export function useSetBreadcrumb(segment: string, title: string | null | undefin
 			setSegmentTitle(segment, title);
 		}
 
-		// We're not cleaning up on unmount anymore, to persist breadcrumbs across navigations
-		// Only clean up if title becomes null
 		if (title === null) {
 			setSegmentTitle(segment, undefined);
 		}

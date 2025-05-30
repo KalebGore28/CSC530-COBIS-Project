@@ -528,52 +528,43 @@ export const resolvers = {
 				.orderBy(tables.programs.code)
 				.all();
 		}),
-		courses: checkEnrollmentAccess(async (
-			_parent: any,
-			args: {
-				startTerm: string;
-				startYear: number;
-				endTerm?: string;
-				endYear?: number;
-			},
-			{ db }: ApolloContext) => {
-			// build the “>= (startYear,startTerm)” clause
-			const lower = or(
-				gt(tables.studentCourses.year, args.startYear),
-				and(
-					eq(tables.studentCourses.year, args.startYear),
-					gte(tables.studentCourses.term, args.startTerm)
-				)
-			)
-
-			// optional “<= (endYear,endTerm)” clause
-			const upper = args.endYear && args.endTerm
-				? or(
-					lt(tables.studentCourses.year, args.endYear),
-					and(
-						eq(tables.studentCourses.year, args.endYear),
-						lte(tables.studentCourses.term, args.endTerm)
-					)
-				)
-				: undefined
-
-			// assemble WHERE … AND … AND (maybe upper)
-			const whereClause = upper
-				? and(lower, upper)
-				: lower
-
+		program: checkEnrollmentAccess(async (_parent: any, args: { code: string }, { db }: ApolloContext) => {
+			const [program] = await db
+				.select()
+				.from(tables.programs)
+				.where(eq(tables.programs.code, args.code))
+				.limit(1);
+			return program || null;
+		}),
+		courses: checkEnrollmentAccess(async (_parent: any, _args: any, { db }: ApolloContext) => {
 			return db
 				.select()
 				.from(tables.studentCourses)
-				.where(whereClause)
-				.orderBy(
-					tables.studentCourses.year,
-					tables.studentCourses.term,
-					tables.studentCourses.course_subject,
-					tables.studentCourses.course_number,
-					tables.studentCourses.course_suffix
+				.orderBy(tables.studentCourses.course_subject, tables.studentCourses.course_number, tables.studentCourses.course_suffix)
+				.all();
+		}),
+		course: checkEnrollmentAccess(async (
+			_parent: any,
+			args: {
+				subject: string,
+				number: number,
+				suffix: string,
+				section: string
+			}, { db }: ApolloContext) => {
+			const { subject, number, suffix = '' } = args;
+			const [studentCourse] = await db
+				.select()
+				.from(tables.studentCourses)
+				.where(
+					and(
+						eq(tables.studentCourses.course_subject, subject),
+						eq(tables.studentCourses.course_number, number),
+						sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`,
+						eq(tables.studentCourses.course_section, args.section)
+					)
 				)
-
+				.limit(1);
+			return studentCourse || null;
 		}),
 	},
 

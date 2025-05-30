@@ -21,10 +21,10 @@ import { TermDetails } from './pages/instructors/[instructorId]/term-history/ter
 import { CourseRosterPage } from './pages/instructors/[instructorId]/term-history/roster';
 import { GradeDistributionTab } from './pages/instructors/[instructorId]/grade-distribution';
 
-
 // Enrollment Imports
 import { EnrollmentPage } from './pages/enrollment';
 import { ProgramsPage } from './pages/enrollment/programs';
+import { ProgramDetails } from './pages/enrollment/programs/details';
 import { CoursesPage } from './pages/enrollment/courses';
 import { FacultyPage } from './pages/enrollment/faculty';
 
@@ -104,6 +104,8 @@ export const App: React.FC = () => {
                         <Route path="courses" element={<CoursesPage />} />
                         <Route path="faculty" element={<FacultyPage />} />
                     </Route>
+
+                    <Route path="enrollment/programs/:programCode" element={<ProgramDetails />} />
                 </Route>
 
                 {/* Catch-all inside Layout */}

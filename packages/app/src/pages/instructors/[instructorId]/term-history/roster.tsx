@@ -9,7 +9,6 @@ import { Roster } from "@/components/roster";
 // Import types
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
 
-
 /**
  * Course Roster Page
  * 

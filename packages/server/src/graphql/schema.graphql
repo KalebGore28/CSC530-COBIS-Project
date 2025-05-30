@@ -439,11 +439,12 @@ type Query {
 
   # Enrollment Queries
   programs: [Program!]!
-  courses(
-    startTerm: String!
-    startYear: Int!
-    endTerm: String
-    endYear: Int
-  ): [StudentCourse!]!
-  
+  program(code: String!): Program
+  courses: [StudentCourse!]!
+  course(
+    subject: String!
+    number: Int!
+    suffix: String!
+    section: String!
+  ): StudentCourse
 }
