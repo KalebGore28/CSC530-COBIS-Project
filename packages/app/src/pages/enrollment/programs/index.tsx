@@ -89,7 +89,7 @@ const ProgramList: React.FC = () => {
 						>
 							<Card
 								key={program.code}
-								className="h-28 hover:shadow-lg transition-shadow hover:scale-105"
+								className="h-28 hover:shadow-lg transition-shadow hover:scale-102 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
 								onClick={() => navigate(`/enrollment/programs/${program.code}`)}
 								role="button"
 								tabIndex={0}
