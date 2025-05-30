@@ -8,6 +8,7 @@ import {
 	TableCell,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export type Column<T> = {
 	[K in keyof T]: {
@@ -16,6 +17,58 @@ export type Column<T> = {
 		transform?: (value: T[K], row: T) => string | number;
 	}
 }[keyof T];
+
+interface PaginatedTableSkeletonProps {
+	columns: { key: string; label: string }[];
+	rowCount?: number;
+	className?: string;
+}
+
+export const PaginatedTableSkeleton: React.FC<PaginatedTableSkeletonProps> = ({
+	columns,
+	rowCount = 5,
+	className = '',
+}) => {
+	return (
+		<div className="space-y-4">
+			{/* Info bar skeleton */}
+			<div className="flex items-center justify-between text-sm text-muted-foreground">
+				<Skeleton className="h-4 w-32" />
+			</div>
+
+			{/* Table skeleton */}
+			<Table className={className}>
+				<TableHeader>
+					<TableRow>
+						{columns.map((col) => (
+							<TableHead key={col.key}>
+								<Skeleton className="h-4 w-24" />
+							</TableHead>
+						))}
+					</TableRow>
+				</TableHeader>
+
+				<TableBody>
+					{Array.from({ length: rowCount }).map((_, rowIndex) => (
+						<TableRow key={rowIndex}>
+							{columns.map((col) => (
+								<TableCell key={col.key} className="truncate max-w-[120px]">
+									<Skeleton className="h-5 w-full" />
+								</TableCell>
+							))}
+						</TableRow>
+					))}
+				</TableBody>
+			</Table>
+
+			{/* Pagination controls skeleton */}
+			<div className="flex justify-end items-center gap-2">
+				<Skeleton className="h-8 w-20" />
+				<Skeleton className="h-8 w-20" />
+			</div>
+		</div>
+	);
+};
 
 interface PaginatedTableProps<T> {
 	data: T[];
@@ -27,6 +80,7 @@ interface PaginatedTableProps<T> {
 	handleNextCallback?: () => void;
 	className?: string;
 }
+
 
 export function PaginatedTable<T>({
 	data,

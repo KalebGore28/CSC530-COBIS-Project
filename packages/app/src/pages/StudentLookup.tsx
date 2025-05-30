@@ -5,8 +5,9 @@ import { StudentFilters } from "@/components/student-filter";
 import { FilterState } from "@/components/student-filter";
 import { PaginatedTable } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { exportToCSV } from "@/utils/csv-export";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PaginatedTableSkeleton } from "@/components/common/paginated-table";
 
 // GraphQL imports
 import type { StudentLookupQuery } from "./__generated__/StudentLookupQuery.graphql";
@@ -18,7 +19,6 @@ import { environment } from "@/main";
 import type { Student } from "@cobis/types";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 const StudentLookupQuery = graphql`
   query StudentLookupQuery(
@@ -51,50 +51,26 @@ interface StudentBasic
 
 interface SkeletonTableProps {
 	rows?: number;
-	columns?: number;
 }
 // Custom skeleton component
 export const SkeletonTable: React.FC<SkeletonTableProps> = ({
 	rows = 10,
-	columns = 4,
 }) => (
-	<Card className="w-full animate-pulse">
+	<Card className="w-full animate-pulse h-[600px]">
 		<CardHeader className="flex items-center justify-between">
 			<Skeleton className="h-6 w-1/4" />
 			<Skeleton className="h-8 w-24" />
 		</CardHeader>
 		<CardContent>
-			{/* Info line */}
-			<div className="mb-2">
-				<Skeleton className="h-4 w-1/3" />
-			</div>
-			<Table>
-				<TableHeader>
-					<TableRow>
-						{Array.from({ length: columns }).map((_, idx) => (
-							<TableHead key={idx}>
-								<Skeleton className="h-4 w-20" />
-							</TableHead>
-						))}
-					</TableRow>
-				</TableHeader>
-				<TableBody>
-					{Array.from({ length: rows }).map((_, rowIdx) => (
-						<TableRow key={rowIdx}>
-							{Array.from({ length: columns }).map((__, cellIdx) => (
-								<TableCell key={cellIdx} className="p-2">
-									<Skeleton className="h-4 w-full" />
-								</TableCell>
-							))}
-						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-			{/* Pagination buttons */}
-			<div className="flex justify-end items-center gap-2 mt-4">
-				<Skeleton className="h-8 w-20" />
-				<Skeleton className="h-8 w-20" />
-			</div>
+			<PaginatedTableSkeleton columns={[
+				{ key: "mnumber", label: "MNumber" },
+				{ key: "first_name", label: "First Name" },
+				{ key: "last_name", label: "Last Name" },
+				{ key: "email", label: "Email" },
+			]}
+				rowCount={rows}
+				className="border"
+			/>
 		</CardContent>
 	</Card>
 );
@@ -153,7 +129,7 @@ export const StudentLookup: React.FC = () => {
 			/>
 
 			<div className="mt-6">
-				<Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} columns={4} />}>
+				<Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} />}>
 					{currentFilters ?
 						<StudentLookupContent filters={currentFilters} />
 						: <Card className="w-full text-center">
@@ -241,7 +217,7 @@ const StudentLookupContent: React.FC<StudentLookupContentProps> = ({ filters }) 
 	}
 
 	return (
-		<Card className="w-full">
+		<Card className="w-full h-[600px]">
 			<CardHeader className="flex items-center justify-between">
 				<h2 className="text-lg font-semibold">Student Lookup</h2>
 				<Suspense fallback={
