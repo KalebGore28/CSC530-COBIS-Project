@@ -190,7 +190,7 @@ export const AdvisedStudentContent: React.FC<{
 				<CardHeader>
 					<CardTitle>{title}</CardTitle>
 					<CardDescription>
-						Term: {term ? `${termMappings[term]} ${year}` : `${getCurrentYearTerm.term.code} ${getCurrentYearTerm.year}`}
+						Term: {term ? `${termMappings[term]} ${year}` : `${termMappings[getCurrentYearTerm.term.code]} ${getCurrentYearTerm.year}`}
 					</CardDescription>
 				</CardHeader>
 				<CardContent className='px-4'>
