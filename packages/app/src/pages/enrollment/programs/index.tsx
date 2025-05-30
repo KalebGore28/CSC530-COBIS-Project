@@ -78,6 +78,7 @@ const ProgramList: React.FC = () => {
 				itemCount={filtered.length}
 				itemSize={120}             // each row is 120px high (match your Card height + gap)
 				width="100%"
+				className='border rounded-lg'
 			>
 				{({ index, style }) => {
 					const program = filtered[index];
