@@ -8,7 +8,7 @@ import { useSetBreadcrumb } from '@/context/breadcrumb';
 import { Badge } from "@/components/ui/badge";
 
 import { AgeHistogram } from '@/components/program/age-histogram';
-import { type StudentDatum, GenderEthnicity } from '@/components/program/gender-ethnicity-chart';
+import { type StudentDatum, GenderCitizenship } from '@/components/program/gender-citizenship-chart';
 
 // GraphQL imports
 import type { detailsQuery } from './__generated__/detailsQuery.graphql';
@@ -284,7 +284,7 @@ const ProgramDetailsContent: React.FC<{ programCode?: string }> = ({
 				binSize={5}
 			/>
 
-			<GenderEthnicity
+			<GenderCitizenship
 				className='col-span-2 md:col-span-1'
 				data={sampleData}
 			/>

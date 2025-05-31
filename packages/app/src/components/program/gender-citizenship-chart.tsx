@@ -26,12 +26,12 @@ export type StudentDatum = {
 	gender: "M" | "F";
 };
 
-interface GenderEthnicityProps {
+interface GenderCitizenshipProps {
 	data: StudentDatum[];
 	className?: string;
 }
 
-export const GenderEthnicity: React.FC<GenderEthnicityProps> = ({ data, className }) => {
+export const GenderCitizenship: React.FC<GenderCitizenshipProps> = ({ data, className }) => {
 	// Categories
 	const citizenshipCategories = ["US", "International"] as const;
 	const genderCategories = ["M", "F"] as const;
