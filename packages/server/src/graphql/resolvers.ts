@@ -6,6 +6,7 @@ import { checkEnrollmentAccess } from './middleware/checkEnrollmentAccess';
 import { ApolloContext } from '../app';
 
 import { ProgramResolver } from './resolvers/program';
+import { CourseResolver } from './resolvers/course';
 
 // --- TypeScript types for your GraphQL inputs ---
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
@@ -539,8 +540,8 @@ export const resolvers = {
 		courses: checkEnrollmentAccess(async (_parent: any, _args: any, { db }: ApolloContext) => {
 			return db
 				.select()
-				.from(tables.studentCourses)
-				.orderBy(tables.studentCourses.course_subject, tables.studentCourses.course_number, tables.studentCourses.course_suffix)
+				.from(tables.courses)
+				.orderBy(tables.courses.subject, tables.courses.number, tables.courses.suffix)
 				.all();
 		}),
 		course: checkEnrollmentAccess(async (
@@ -548,8 +549,7 @@ export const resolvers = {
 			args: {
 				subject: string,
 				number: number,
-				suffix: string,
-				section: string
+				suffix: string
 			}, { db }: ApolloContext) => {
 			const { subject, number, suffix = '' } = args;
 			const [studentCourse] = await db
@@ -560,7 +560,6 @@ export const resolvers = {
 						eq(tables.studentCourses.course_subject, subject),
 						eq(tables.studentCourses.course_number, number),
 						sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`,
-						eq(tables.studentCourses.course_section, args.section)
 					)
 				)
 				.limit(1);
@@ -575,6 +574,7 @@ export const resolvers = {
 	},
 
 	Program: ProgramResolver,
+	Course: CourseResolver,
 
 	// Student resolvers
 	Student: {

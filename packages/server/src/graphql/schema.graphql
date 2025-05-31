@@ -29,6 +29,13 @@ type Course {
   fee: Float!
   web_fee: Float!
   last_updated: String!
+  # Relationships
+  student_courses(
+    startTerm: String!,
+    endTerm: String!,
+    startYear: Int!,
+    endYear: Int!,
+  ): [StudentCourse!]!
 }
 
 type Department {
@@ -440,11 +447,10 @@ type Query {
   # Enrollment Queries
   programs: [Program!]!
   program(code: String!): Program
-  courses: [StudentCourse!]!
+  courses: [Course!]!
   course(
     subject: String!
     number: Int!
     suffix: String!
-    section: String!
-  ): StudentCourse
+  ): Course
 }

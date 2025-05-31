@@ -6,7 +6,7 @@ import {
 	createStudentProgramLoader,
 	createStudentProgramByCodeLoader
 } from './studentProgramLoader';
-import { createStudentProgramsByTermLoader } from './studentProgramByTermLoader';
+import { createStudentProgramsByTermLoader } from './studentProgramsByTermLoader';
 import { createNationsLoader } from './nationLoader';
 import { createProgramLoader } from './programLoader';
 import { createCollegeLoader } from './collegeLoader';
@@ -37,10 +37,12 @@ import {
 import { createFacultyAdviseesLoader } from './facultyAdviseesLoader';
 import { createStudentCourseLoader } from './studentCourseLoader';
 import { createUserLoader } from './userLoader';
+import { createStudentCoursesByTermLoader } from './studentCoursesByTermLoader';
 
 
 export function createLoaders(db: DbConnection['orm']) {
 	const studentProgramsByTermLoaderCache = new Map<string, ReturnType<typeof createStudentProgramsByTermLoader>>()
+	const studentCoursesByTermLoaderCache = new Map<string, ReturnType<typeof createStudentCoursesByTermLoader>>()
 
 	return {
 		term: createTermLoader(db),
@@ -102,6 +104,26 @@ export function createLoaders(db: DbConnection['orm']) {
 				)
 			}
 			return studentProgramsByTermLoaderCache.get(key)!
+		},
+
+		/**
+		 * Given a start/end range, returns (and caches) a DataLoader
+		 * that batches all student-mnumber loads into one SQL query.
+		 */
+		getStudentCoursesLoader(
+			startTerm: string,
+			startYear: number,
+			endTerm: string,
+			endYear: number
+		) {
+			const key = `${startYear}-${startTerm}→${endYear}-${endTerm}`
+			if (!studentCoursesByTermLoaderCache.has(key)) {
+				studentCoursesByTermLoaderCache.set(
+					key,
+					createStudentCoursesByTermLoader(db, startTerm, startYear, endTerm, endYear)
+				)
+			}
+			return studentCoursesByTermLoaderCache.get(key)!
 		}
 	};
 }

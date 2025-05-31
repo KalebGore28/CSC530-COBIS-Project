@@ -139,7 +139,12 @@ export const ProgramDetails: React.FC = () => {
 				</Suspense>
 
 				{termRange && (
-					<Suspense fallback={<Skeleton className="h-64 w-full col-span-2" />}>
+					<Suspense fallback={
+						<div className="col-span-2 space-y-4">
+							<Skeleton className="h-64 w-full" />
+							<Skeleton className="h-64 w-full" />
+						</div>
+					}>
 						<ProgramDetailsContent programCode={programCode} termRange={termRange} />
 					</Suspense>
 				)}
