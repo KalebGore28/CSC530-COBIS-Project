@@ -70,7 +70,6 @@ const data = {
 			items: [
 				{ title: "Programs", url: "/enrollment/programs" },
 				{ title: "Courses", url: "/enrollment/courses" },
-				{ title: "Faculty", url: "/enrollment/faculty" },
 			],
 		},
 		{

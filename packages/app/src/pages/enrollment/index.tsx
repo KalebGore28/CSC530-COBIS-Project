@@ -26,7 +26,7 @@ export const EnrollmentPage: React.FC = () => {
 				<CardHeader>
 					<CardTitle>Enrollment Metrics</CardTitle>
 					<CardDescription>
-						View programs, courses, and faculty enrollments.
+						View programs and course enrollments.
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
@@ -35,10 +35,9 @@ export const EnrollmentPage: React.FC = () => {
 						onValueChange={(value) => navigate(value)}
 						className="w-full"
 					>
-						<TabsList className="grid grid-cols-3">
+						<TabsList className="grid grid-cols-2">
 							<TabsTrigger value="programs">Programs</TabsTrigger>
 							<TabsTrigger value="courses">Courses</TabsTrigger>
-							<TabsTrigger value="faculty">Faculty</TabsTrigger>
 						</TabsList>
 					</Tabs>
 				</CardContent>
