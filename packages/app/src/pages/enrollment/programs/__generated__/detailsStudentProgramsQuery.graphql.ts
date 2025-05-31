@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<eb9007f79364c02f268ffda584b376f8>>
+ * @generated SignedSource<<653e0fc7a3c265036a434c24344d42e5>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -24,6 +24,11 @@ export type detailsStudentProgramsQuery$data = {
         readonly citizenship: string;
         readonly gender: string;
       };
+      readonly term: {
+        readonly code: string;
+        readonly description: string;
+      };
+      readonly year: number;
     }>;
   } | null | undefined;
 };
@@ -133,6 +138,38 @@ v5 = [
               }
             ],
             "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Term",
+            "kind": "LinkedField",
+            "name": "term",
+            "plural": false,
+            "selections": [
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "code",
+                "storageKey": null
+              },
+              {
+                "alias": null,
+                "args": null,
+                "kind": "ScalarField",
+                "name": "description",
+                "storageKey": null
+              }
+            ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "year",
+            "storageKey": null
           }
         ],
         "storageKey": null
@@ -171,16 +208,16 @@ return {
     "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "dd5a87c2b5738fd30c386a5f903cea27",
+    "cacheID": "635bbe8d097c2de85d10207d565be05a",
     "id": null,
     "metadata": {},
     "name": "detailsStudentProgramsQuery",
     "operationKind": "query",
-    "text": "query detailsStudentProgramsQuery(\n  $code: String!\n  $startYear: Int!\n  $endTerm: String!\n  $endYear: Int!\n  $startTerm: String!\n) {\n  program(code: $code) {\n    student_programs(startYear: $startYear, endTerm: $endTerm, endYear: $endYear, startTerm: $startTerm) {\n      student {\n        age\n        citizenship\n        gender\n      }\n    }\n  }\n}\n"
+    "text": "query detailsStudentProgramsQuery(\n  $code: String!\n  $startYear: Int!\n  $endTerm: String!\n  $endYear: Int!\n  $startTerm: String!\n) {\n  program(code: $code) {\n    student_programs(startYear: $startYear, endTerm: $endTerm, endYear: $endYear, startTerm: $startTerm) {\n      student {\n        age\n        citizenship\n        gender\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "b5be063648b80bba71bf11b2435b1c2d";
+(node as any).hash = "253000c517fab5b8ad1e831eeb08e66e";
 
 export default node;

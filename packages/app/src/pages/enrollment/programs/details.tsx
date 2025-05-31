@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { AgeHistogram } from '@/components/program/age-histogram';
 import { type StudentDatum, GenderCitizenship } from '@/components/program/gender-citizenship-chart';
 import { type TermRange, TermRangeSelector, TermRangeSelectorSkeleton } from '@/components/selectors/term-range-selector';
+import { type Enrollment, EnrollmentTrends } from '@/components/program/enrollment-trends';
 
 // GraphQL imports
 import type { detailsStudentProgramsQuery } from './__generated__/detailsStudentProgramsQuery.graphql';
@@ -62,6 +63,11 @@ const detailsStudentProgramsQuery = graphql`
 					citizenship
 					gender
 				}
+				term {
+					code
+					description
+				}
+				year
 			}
 		}
 	}
@@ -132,9 +138,11 @@ export const ProgramDetails: React.FC = () => {
 					<ProgramDetailsTermRangeSelector onChange={(range) => setTermRange(range)} />
 				</Suspense>
 
-				{termRange && <Suspense fallback={<Skeleton className="h-64 w-full" />}>
-					<ProgramDetailsContent programCode={programCode} termRange={termRange} />
-				</Suspense>}
+				{termRange && (
+					<Suspense fallback={<Skeleton className="h-64 w-full col-span-2" />}>
+						<ProgramDetailsContent programCode={programCode} termRange={termRange} />
+					</Suspense>
+				)}
 			</div>
 		</div>
 	)
@@ -304,15 +312,32 @@ const ProgramDetailsContent: React.FC<{ programCode: string, termRange: TermRang
 		(sp) => sp.student.age
 	);
 
-	const sampleData: StudentDatum[] = data.program.student_programs.map(
+	const genderCitizenship: StudentDatum[] = data.program.student_programs.map(
 		(sp) => ({
 			citizenship: sp.student.citizenship as 'US' | 'International',
 			gender: sp.student.gender as 'M' | 'F',
 		})
 	);
 
+	const enrollments: Enrollment[] = data.program.student_programs.map(
+		(sp) => ({
+			year: sp.year,
+			term: {
+				code: sp.term.code as '10' | '50' | '80' | '90',
+				description: sp.term.description,
+			},
+		})
+	);
+
 	return (
 		<>
+			<EnrollmentTrends
+				enrollments={enrollments}
+				title="Enrollment Trends"
+				className='col-span-2'
+			/>
+
+
 			<AgeHistogram
 				data={ages}
 				className='col-span-2 md:col-span-1'
@@ -320,8 +345,8 @@ const ProgramDetailsContent: React.FC<{ programCode: string, termRange: TermRang
 			/>
 
 			<GenderCitizenship
+				data={genderCitizenship}
 				className='col-span-2 md:col-span-1'
-				data={sampleData}
 			/>
 		</>
 	);
