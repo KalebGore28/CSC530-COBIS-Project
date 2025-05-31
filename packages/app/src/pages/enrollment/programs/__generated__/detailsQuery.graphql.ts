@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<a2769b8a447e937e42fd5f408280417f>>
+ * @generated SignedSource<<1c178081d0af36d2b6af8eaa8c13c6e8>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,7 +10,7 @@
 
 import { ConcreteRequest } from 'relay-runtime';
 export type detailsQuery$variables = {
-  programCode: string;
+  code: string;
 };
 export type detailsQuery$data = {
   readonly program: {
@@ -43,7 +43,7 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "programCode"
+    "name": "code"
   }
 ],
 v1 = {
@@ -71,7 +71,7 @@ v4 = [
       {
         "kind": "Variable",
         "name": "code",
-        "variableName": "programCode"
+        "variableName": "code"
       }
     ],
     "concreteType": "Program",
@@ -79,22 +79,17 @@ v4 = [
     "name": "program",
     "plural": false,
     "selections": [
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "cip_code",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "added_on",
-        "storageKey": null
-      },
       (v1/*: any*/),
-      (v2/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "Department",
+        "kind": "LinkedField",
+        "name": "department",
+        "plural": false,
+        "selections": (v3/*: any*/),
+        "storageKey": null
+      },
       {
         "alias": null,
         "args": null,
@@ -130,22 +125,27 @@ v4 = [
         "name": "is_minor",
         "storageKey": null
       },
+      (v2/*: any*/),
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "cip_code",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "added_on",
+        "storageKey": null
+      },
       {
         "alias": null,
         "args": null,
         "concreteType": "College",
         "kind": "LinkedField",
         "name": "college",
-        "plural": false,
-        "selections": (v3/*: any*/),
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Department",
-        "kind": "LinkedField",
-        "name": "department",
         "plural": false,
         "selections": (v3/*: any*/),
         "storageKey": null
@@ -172,16 +172,16 @@ return {
     "selections": (v4/*: any*/)
   },
   "params": {
-    "cacheID": "3fe674141244ad139c694935497bd2ed",
+    "cacheID": "5f22c95789065661135a1832a12d0d68",
     "id": null,
     "metadata": {},
     "name": "detailsQuery",
     "operationKind": "query",
-    "text": "query detailsQuery(\n  $programCode: String!\n) {\n  program(code: $programCode) {\n    cip_code\n    added_on\n    code\n    description\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n    college {\n      code\n      description\n    }\n    department {\n      code\n      description\n    }\n  }\n}\n"
+    "text": "query detailsQuery(\n  $code: String!\n) {\n  program(code: $code) {\n    code\n    department {\n      code\n      description\n    }\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n    description\n    cip_code\n    added_on\n    college {\n      code\n      description\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "00c280ecd48402e8f85b27718add82f7";
+(node as any).hash = "a40ccee7e873533e0fd159dde333f524";
 
 export default node;
