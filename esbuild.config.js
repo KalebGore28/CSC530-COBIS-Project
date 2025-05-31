@@ -42,6 +42,10 @@ async function build() {
 							from: ['packages/server/src/graphql/schema.graphql'],
 							to: ['dist/schema.graphql'],
 						},
+						{
+							from: ['packages/app/persisted_queries.json'],
+							to: ['dist/persisted_queries.json'],
+						}
 					],
 				}),
 			],
