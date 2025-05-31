@@ -191,7 +191,7 @@ const CourseDetailsHeader: React.FC<{ course: MinimumCourse, className?: string 
 	return (
 		<Card className='col-span-2'>
 			<CardHeader>
-				<CardTitle>{`${course.subject} ${course.number}${course.suffix} - ${title}`}</CardTitle>
+				<CardTitle>Course Details</CardTitle>
 				<CardDescription>
 					Details for course: {course.subject}{course.number}{course.suffix}
 				</CardDescription>
@@ -273,18 +273,7 @@ const CourseDetailsContent: React.FC<{ course: MinimumCourse, termRange: TermRan
 		{ fetchPolicy: 'store-or-network' }
 	);
 
-	if (!data.course) {
-		return (
-			<Card className="w-full">
-				<CardHeader>
-					<CardTitle>Course Not Found</CardTitle>
-					<CardDescription>
-						The requested course does not exist or is not available.
-					</CardDescription>
-				</CardHeader>
-			</Card>
-		);
-	}
+	if (!data.course) return null;
 
 	const ages: number[] = data.course.student_courses.map(
 		(sc) => sc.student.age

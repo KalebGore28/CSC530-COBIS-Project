@@ -309,9 +309,7 @@ const ProgramDetailsContent: React.FC<{ programCode: string, termRange: TermRang
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	if (!data.program) {
-		return null;
-	}
+	if (!data.program) return null;
 
 	const ages: number[] = data.program.student_programs.map(
 		(sp) => sp.student.age
