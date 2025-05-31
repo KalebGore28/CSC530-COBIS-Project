@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<b97cc47005285290b153d7016f325990>>
+ * @generated SignedSource<<50a612b3f163c2f0772cd4753659e6b0>>
+ * @relayHash 867f590ff5725d4d8be5e2cb08f079bc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 867f590ff5725d4d8be5e2cb08f079bc
 
 import { ConcreteRequest } from 'relay-runtime';
 export type advisedStudentsQuery$variables = {
@@ -179,12 +182,11 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "867f590ff5725d4d8be5e2cb08f079bc",
-    "id": null,
+    "id": "867f590ff5725d4d8be5e2cb08f079bc",
     "metadata": {},
     "name": "advisedStudentsQuery",
     "operationKind": "query",
-    "text": "query advisedStudentsQuery(\n  $mnumber: String!\n  $term: String\n  $year: Int\n) {\n  instructor(mnumber: $mnumber) {\n    advisees(term: $term, year: $year) {\n      student {\n        mnumber\n        first_name\n        middle_name\n        last_name\n        suffix\n        email\n        gender\n        age\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

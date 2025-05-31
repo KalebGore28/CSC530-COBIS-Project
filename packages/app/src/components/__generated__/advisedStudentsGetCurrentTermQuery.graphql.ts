@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<68a2b70be5500735bb02112ce0e040c8>>
+ * @generated SignedSource<<024bfa15c9c7c3623b04cec2f01d1ca2>>
+ * @relayHash d365aa4bb09327c607c9e350ae5b5d2d
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID d365aa4bb09327c607c9e350ae5b5d2d
 
 import { ConcreteRequest } from 'relay-runtime';
 export type advisedStudentsGetCurrentTermQuery$variables = Record<PropertyKey, never>;
@@ -88,12 +91,11 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "d365aa4bb09327c607c9e350ae5b5d2d",
-    "id": null,
+    "id": "d365aa4bb09327c607c9e350ae5b5d2d",
     "metadata": {},
     "name": "advisedStudentsGetCurrentTermQuery",
     "operationKind": "query",
-    "text": "query advisedStudentsGetCurrentTermQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

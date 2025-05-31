@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<88cf1c67db87c0aa11fe1c34200299d8>>
+ * @generated SignedSource<<17e9756d588b0c2f553623b8fa0c10f7>>
+ * @relayHash a3e10c66be14d212382706be788cdb38
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID a3e10c66be14d212382706be788cdb38
 
 import { ConcreteRequest } from 'relay-runtime';
 export type termGradeDistributionsDataQuery$variables = {
@@ -176,12 +179,11 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "a3e10c66be14d212382706be788cdb38",
-    "id": null,
+    "id": "a3e10c66be14d212382706be788cdb38",
     "metadata": {},
     "name": "termGradeDistributionsDataQuery",
     "operationKind": "query",
-    "text": "query termGradeDistributionsDataQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<e58f03f08917b774ef4618b54487d828>>
+ * @generated SignedSource<<c3a80eea6e2329afa68a31e5eaf757c4>>
+ * @relayHash 55b0da25cc7bfc9b6e205b5df61ad4ff
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 55b0da25cc7bfc9b6e205b5df61ad4ff
 
 import { ConcreteRequest } from 'relay-runtime';
 export type programsPageQuery$variables = Record<PropertyKey, never>;
@@ -107,12 +110,11 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "55b0da25cc7bfc9b6e205b5df61ad4ff",
-    "id": null,
+    "id": "55b0da25cc7bfc9b6e205b5df61ad4ff",
     "metadata": {},
     "name": "programsPageQuery",
     "operationKind": "query",
-    "text": "query programsPageQuery {\n  programs {\n    code\n    description\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n  }\n}\n"
+    "text": null
   }
 };
 })();

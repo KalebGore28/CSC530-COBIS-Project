@@ -7,6 +7,7 @@ import { auth } from "./lib/auth";
 import { toNodeHandler } from "better-auth/node";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 import { authenticateAndLoadUser } from "./middleware/authenticate-user";
+import { loadQueryMap } from "./utils/query-map-loader";
 
 import { getDbConnection, DbConnection } from "./db/connection";
 import type { AuthAndPermissionsRequest } from "./types/requests";
@@ -48,6 +49,8 @@ export async function buildContext(req: AuthAndPermissionsRequest): Promise<Apol
     };
 }
 
+const queryMap = await loadQueryMap();
+
 const app = express();
 const httpServer = http.createServer(app);
 
@@ -83,7 +86,42 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use("/api", authenticateAndLoadUser);
 app.use(
     "/api/graphql",
-    express.json(),
+    express.json(), // parse JSON bodies first
+    (req, res, next) => {
+        // Relay’s runtime will send { id: "<md5-hash>", variables: { … } }
+        // so look for `req.body.id` (you could also check `req.body.queryID` if your client uses that key).
+        const id = typeof req.body.doc_id === "string" ? req.body.doc_id : null;
+        if (id) {
+            const fullText = queryMap[id];
+            if (!fullText) {
+                // If this hash isn’t in our map, reject immediately
+                res
+                    .status(400)
+                    .json({ errors: [{ message: `Unknown persisted query ID: "${id}"` }] });
+                console.error(`Unknown persisted query ID: "${id}"`);
+                return;
+            }
+            // Overwrite the body so Apollo sees it as a "normal" GraphQL query
+            req.body = {
+                query: fullText,
+                variables: req.body.variables || {},
+                operationName: req.body.operationName || null,
+            };
+            // (If you want, you can also remove `id` at this point: delete req.body.id)
+        }
+        // If no `id` was sent, you can choose to:
+        //  – reject everything that isn’t persisted, or
+        //  – allow raw queries in dev (by calling next() without touching req.body).
+        //
+        // For a fully locked‐down persisted‐queries mode, you could do:
+        // if (!id) {
+        //   return res.status(400).json({ errors:[{ message: "Must provide persisted query ID." }] });
+        // }
+        //
+        // But here we simply “fall through” so Apollo will decide if `req.body.query` is missing.
+        next();
+    },
+    // Finally, hand off to Apollo’s Express integration:
     expressMiddleware(server, {
         context: async ({ req }) => buildContext(req as AuthAndPermissionsRequest),
     })

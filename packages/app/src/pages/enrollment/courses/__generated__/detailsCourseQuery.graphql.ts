@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<84d56a46ab1a46dacf4a1f6d5e435d4a>>
+ * @generated SignedSource<<64b60bdec80abf1630ab53a7735be0e2>>
+ * @relayHash 037a7b23f89544e9c7ed3413603ba36c
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 037a7b23f89544e9c7ed3413603ba36c
 
 import { ConcreteRequest } from 'relay-runtime';
 export type detailsCourseQuery$variables = {
@@ -158,12 +161,11 @@ return {
     "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "037a7b23f89544e9c7ed3413603ba36c",
-    "id": null,
+    "id": "037a7b23f89544e9c7ed3413603ba36c",
     "metadata": {},
     "name": "detailsCourseQuery",
     "operationKind": "query",
-    "text": "query detailsCourseQuery(\n  $subject: String!\n  $number: Int!\n  $suffix: String!\n) {\n  course(subject: $subject, number: $number, suffix: $suffix) {\n    subject\n    number\n    suffix\n    title\n    hours\n    fee\n    web_fee\n    last_updated\n  }\n}\n"
+    "text": null
   }
 };
 })();

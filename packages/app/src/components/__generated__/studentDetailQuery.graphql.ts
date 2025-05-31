@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<24b147bd6a63b6b3dc05987050a05d79>>
+ * @generated SignedSource<<6a23cb4cdfdcd52b5c417572da746efa>>
+ * @relayHash 912fb7465c5bb2a146d28a921d643471
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 912fb7465c5bb2a146d28a921d643471
 
 import { ConcreteRequest } from 'relay-runtime';
 export type studentDetailQuery$variables = {
@@ -508,12 +511,11 @@ return {
     "selections": (v9/*: any*/)
   },
   "params": {
-    "cacheID": "912fb7465c5bb2a146d28a921d643471",
-    "id": null,
+    "id": "912fb7465c5bb2a146d28a921d643471",
     "metadata": {},
     "name": "studentDetailQuery",
     "operationKind": "query",
-    "text": "query studentDetailQuery(\n  $mnumber: String!\n  $term: String\n  $year: Int\n) {\n  student(mnumber: $mnumber) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    age\n    gender\n    cell_phone\n    race_code\n    race_description\n    residency_code\n    residency_description\n    citizenship\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code {\n        code\n        description\n      }\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n        }\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

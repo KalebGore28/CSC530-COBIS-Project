@@ -77,5 +77,20 @@
     "typescript-eslint": "^8.26.0",
     "vite": "^6.2.1",
     "vite-plugin-relay": "^2.1.0"
+  },
+  "relay": {
+    "src": "./src",
+    "schema": "../server/src/graphql/schema.graphql",
+    "language": "typescript",
+    "eagerEsModules": true,
+    "exclude": [
+      "**/node_modules/**",
+      "**/__mocks__/**",
+      "**/__generated__/**"
+    ],
+    "persistConfig": {
+      "file": "./persisted_queries.json",
+      "algorithm": "MD5"
+    }
   }
 }

@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<ed0922fa8ab8cbfbad912272c304a9fd>>
+ * @generated SignedSource<<113ab5b363b57ea3bfbea123267412a9>>
+ * @relayHash 04839e60daad502c041a40f3c5aeb16e
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 04839e60daad502c041a40f3c5aeb16e
 
 import { ConcreteRequest } from 'relay-runtime';
 export type InstructorIdQuery$variables = {
@@ -155,12 +158,11 @@ return {
     "selections": (v2/*: any*/)
   },
   "params": {
-    "cacheID": "04839e60daad502c041a40f3c5aeb16e",
-    "id": null,
+    "id": "04839e60daad502c041a40f3c5aeb16e",
     "metadata": {},
     "name": "InstructorIdQuery",
     "operationKind": "query",
-    "text": "query InstructorIdQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    first_name\n    last_name\n    college {\n      code\n      description\n    }\n    department {\n      code\n      description\n    }\n    user {\n      email\n      image\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

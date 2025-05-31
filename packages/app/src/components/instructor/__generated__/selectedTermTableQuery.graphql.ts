@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<a37191501b922c557dc12603e50693e1>>
+ * @generated SignedSource<<e2e0200b3fab2d908a37f0f07b0487c2>>
+ * @relayHash 183bd66071f5c7f57c50cae1153e5c1e
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 183bd66071f5c7f57c50cae1153e5c1e
 
 import { ConcreteRequest } from 'relay-runtime';
 export type selectedTermTableQuery$variables = {
@@ -211,12 +214,11 @@ return {
     "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "183bd66071f5c7f57c50cae1153e5c1e",
-    "id": null,
+    "id": "183bd66071f5c7f57c50cae1153e5c1e",
     "metadata": {},
     "name": "selectedTermTableQuery",
     "operationKind": "query",
-    "text": "query selectedTermTableQuery(\n  $mnumber: String!\n  $startTerm: String\n  $startYear: Int\n  $endTerm: String\n  $endYear: Int\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $startTerm, startYear: $startYear, endTerm: $endTerm, endYear: $endYear) {\n      course {\n        title\n        subject\n        number\n        suffix\n      }\n      credit_hour\n      course_section\n      total_students\n      total_credit_hours\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<769f1eee22c456547e58f5432637a655>>
+ * @generated SignedSource<<ff916b57fc501d0ca0fbd6ddccd707e3>>
+ * @relayHash 8126dbd17c91b01de37905a7569a2664
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 8126dbd17c91b01de37905a7569a2664
 
 import { ConcreteRequest } from 'relay-runtime';
 export type coursesPageQuery$variables = Record<PropertyKey, never>;
@@ -115,12 +118,11 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "8126dbd17c91b01de37905a7569a2664",
-    "id": null,
+    "id": "8126dbd17c91b01de37905a7569a2664",
     "metadata": {},
     "name": "coursesPageQuery",
     "operationKind": "query",
-    "text": "query coursesPageQuery {\n  courses {\n    subject\n    suffix\n    number\n    title\n    last_updated\n    hours\n    fee\n    web_fee\n  }\n}\n"
+    "text": null
   }
 };
 })();

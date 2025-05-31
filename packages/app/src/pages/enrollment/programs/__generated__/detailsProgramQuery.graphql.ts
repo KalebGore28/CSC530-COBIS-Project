@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<511dc5795282ac99390d7d555b57fd73>>
+ * @generated SignedSource<<ae5f975e2223e76e5f30f837a7693946>>
+ * @relayHash d41dd4618a710119271574a70f6d2de6
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID d41dd4618a710119271574a70f6d2de6
 
 import { ConcreteRequest } from 'relay-runtime';
 export type detailsProgramQuery$variables = {
@@ -172,12 +175,11 @@ return {
     "selections": (v4/*: any*/)
   },
   "params": {
-    "cacheID": "d41dd4618a710119271574a70f6d2de6",
-    "id": null,
+    "id": "d41dd4618a710119271574a70f6d2de6",
     "metadata": {},
     "name": "detailsProgramQuery",
     "operationKind": "query",
-    "text": "query detailsProgramQuery(\n  $code: String!\n) {\n  program(code: $code) {\n    code\n    department {\n      code\n      description\n    }\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n    description\n    cip_code\n    added_on\n    college {\n      code\n      description\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

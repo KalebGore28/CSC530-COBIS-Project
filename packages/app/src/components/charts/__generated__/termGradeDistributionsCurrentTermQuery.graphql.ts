@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<c5f56d8ef8dbf4807ce8dde5b2a415fa>>
+ * @generated SignedSource<<0c9eb3dc60082023ddf9ff8a5846243f>>
+ * @relayHash eed3779444649d6782a7dd738ac805e5
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID eed3779444649d6782a7dd738ac805e5
 
 import { ConcreteRequest } from 'relay-runtime';
 export type termGradeDistributionsCurrentTermQuery$variables = Record<PropertyKey, never>;
@@ -88,12 +91,11 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "cacheID": "eed3779444649d6782a7dd738ac805e5",
-    "id": null,
+    "id": "eed3779444649d6782a7dd738ac805e5",
     "metadata": {},
     "name": "termGradeDistributionsCurrentTermQuery",
     "operationKind": "query",
-    "text": "query termGradeDistributionsCurrentTermQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

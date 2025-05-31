@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<bf4df95015c39e0965faf86df7d7e947>>
+ * @generated SignedSource<<9e38eff72e077b70a0ea2c4b0a2a0982>>
+ * @relayHash 8a67118e34cd871417517b2619b816f7
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 8a67118e34cd871417517b2619b816f7
 
 import { ConcreteRequest } from 'relay-runtime';
 export type courseGradeDistributionsQuery$variables = {
@@ -240,12 +243,11 @@ return {
     "selections": (v6/*: any*/)
   },
   "params": {
-    "cacheID": "8a67118e34cd871417517b2619b816f7",
-    "id": null,
+    "id": "8a67118e34cd871417517b2619b816f7",
     "metadata": {},
     "name": "courseGradeDistributionsQuery",
     "operationKind": "query",
-    "text": "query courseGradeDistributionsQuery(\n  $mnumber: String!\n  $startTerm: String!\n  $startYear: Int!\n  $endTerm: String!\n  $endYear: Int!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $startTerm, endTerm: $endTerm, startYear: $startYear, endYear: $endYear) {\n      final_grade_distribution {\n        grade\n        count\n        percentage\n      }\n      midterm_grade_distribution {\n        grade\n        count\n        percentage\n      }\n      course {\n        number\n        subject\n        suffix\n        title\n      }\n      course_section\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<653e0fc7a3c265036a434c24344d42e5>>
+ * @generated SignedSource<<f7f5823cbbe727eb7ca3e374cfd897e0>>
+ * @relayHash 635bbe8d097c2de85d10207d565be05a
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 635bbe8d097c2de85d10207d565be05a
 
 import { ConcreteRequest } from 'relay-runtime';
 export type detailsStudentProgramsQuery$variables = {
@@ -208,12 +211,11 @@ return {
     "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "635bbe8d097c2de85d10207d565be05a",
-    "id": null,
+    "id": "635bbe8d097c2de85d10207d565be05a",
     "metadata": {},
     "name": "detailsStudentProgramsQuery",
     "operationKind": "query",
-    "text": "query detailsStudentProgramsQuery(\n  $code: String!\n  $startYear: Int!\n  $endTerm: String!\n  $endYear: Int!\n  $startTerm: String!\n) {\n  program(code: $code) {\n    student_programs(startYear: $startYear, endTerm: $endTerm, endYear: $endYear, startTerm: $startTerm) {\n      student {\n        age\n        citizenship\n        gender\n      }\n      term {\n        code\n        description\n      }\n      year\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

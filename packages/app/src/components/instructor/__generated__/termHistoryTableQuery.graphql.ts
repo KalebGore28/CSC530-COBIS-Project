@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<0ff3848a0c6ac523387ef1ae6da8a064>>
+ * @generated SignedSource<<f4c6e85a945c90c50216426fce0ade77>>
+ * @relayHash 759401b949235ccc791d634149534377
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 759401b949235ccc791d634149534377
 
 import { ConcreteRequest } from 'relay-runtime';
 export type termHistoryTableQuery$variables = {
@@ -132,12 +135,11 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "759401b949235ccc791d634149534377",
-    "id": null,
+    "id": "759401b949235ccc791d634149534377",
     "metadata": {},
     "name": "termHistoryTableQuery",
     "operationKind": "query",
-    "text": "query termHistoryTableQuery(\n  $mnumber: String!\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught {\n      total_credit_hours\n      total_students\n      year\n      term {\n        code\n        description\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();

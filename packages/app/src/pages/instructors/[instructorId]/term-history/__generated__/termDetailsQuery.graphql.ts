@@ -1,5 +1,6 @@
 /**
- * @generated SignedSource<<3edd917a3a19b7718258e77f92657e2a>>
+ * @generated SignedSource<<3bb93baf9eac068ce91d1a0fe522356f>>
+ * @relayHash 662194db219957cea82254e1411aac1d
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -7,6 +8,8 @@
 /* tslint:disable */
 /* eslint-disable */
 // @ts-nocheck
+
+// @relayRequestID 662194db219957cea82254e1411aac1d
 
 import { ConcreteRequest } from 'relay-runtime';
 export type termDetailsQuery$variables = {
@@ -187,12 +190,11 @@ return {
     "selections": (v5/*: any*/)
   },
   "params": {
-    "cacheID": "662194db219957cea82254e1411aac1d",
-    "id": null,
+    "id": "662194db219957cea82254e1411aac1d",
     "metadata": {},
     "name": "termDetailsQuery",
     "operationKind": "query",
-    "text": "query termDetailsQuery(\n  $mnumber: String!\n  $startTerm: String\n  $startYear: Int\n  $endTerm: String\n  $endYear: Int\n) {\n  instructor(mnumber: $mnumber) {\n    courses_taught(startTerm: $startTerm, startYear: $startYear, endTerm: $endTerm, endYear: $endYear) {\n      total_credit_hours\n      total_students\n      year\n      term {\n        code\n        description\n      }\n    }\n  }\n}\n"
+    "text": null
   }
 };
 })();
