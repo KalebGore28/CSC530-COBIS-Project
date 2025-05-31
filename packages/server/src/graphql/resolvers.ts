@@ -552,18 +552,18 @@ export const resolvers = {
 				suffix: string
 			}, { db }: ApolloContext) => {
 			const { subject, number, suffix = '' } = args;
-			const [studentCourse] = await db
+			const [course] = await db
 				.select()
-				.from(tables.studentCourses)
+				.from(tables.courses)
 				.where(
 					and(
-						eq(tables.studentCourses.course_subject, subject),
-						eq(tables.studentCourses.course_number, number),
-						sql`COALESCE(${tables.studentCourses.course_suffix}, '') = ${suffix}`,
+						eq(tables.courses.subject, subject),
+						eq(tables.courses.number, number),
+						eq(tables.courses.suffix, suffix),
 					)
 				)
 				.limit(1);
-			return studentCourse || null;
+			return course || null;
 		}),
 	},
 

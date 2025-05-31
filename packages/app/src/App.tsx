@@ -26,6 +26,7 @@ import { EnrollmentPage } from './pages/enrollment';
 import { ProgramsPage } from './pages/enrollment/programs';
 import { ProgramDetails } from './pages/enrollment/programs/details';
 import { CoursesPage } from './pages/enrollment/courses';
+import { CourseDetails } from './pages/enrollment/courses/detail';
 import { FacultyPage } from './pages/enrollment/faculty';
 
 import { AdvisedStudentsPage } from './pages/AdvisorPage';
@@ -106,6 +107,7 @@ export const App: React.FC = () => {
                     </Route>
 
                     <Route path="enrollment/programs/:programCode" element={<ProgramDetails />} />
+                    <Route path="enrollment/courses/:courseId" element={<CourseDetails />} />
                 </Route>
 
                 {/* Catch-all inside Layout */}

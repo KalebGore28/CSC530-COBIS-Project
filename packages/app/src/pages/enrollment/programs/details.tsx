@@ -14,12 +14,12 @@ import { type Enrollment, EnrollmentTrends } from '@/components/program/enrollme
 
 // GraphQL imports
 import type { detailsStudentProgramsQuery } from './__generated__/detailsStudentProgramsQuery.graphql';
-import type { detailsCurrentTermQuery } from './__generated__/detailsCurrentTermQuery.graphql';
-import type { detailsQuery } from './__generated__/detailsQuery.graphql';
+import type { detailsProgramCurrentTermQuery } from './__generated__/detailsProgramCurrentTermQuery.graphql';
+import type { detailsProgramQuery } from './__generated__/detailsProgramQuery.graphql';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 
-const detailsCurrentTermQuery = graphql`
-	query detailsCurrentTermQuery {
+const detailsProgramCurrentTermQuery = graphql`
+	query detailsProgramCurrentTermQuery {
 		getCurrentYearTerm {
 			year
 			term {
@@ -30,8 +30,8 @@ const detailsCurrentTermQuery = graphql`
 	}
 `;
 
-const detailsQuery = graphql`
-	query detailsQuery($code: String!) {
+const detailsProgramQuery = graphql`
+	query detailsProgramQuery($code: String!) {
 		program(code: $code) {
 			code
 			department {
@@ -154,8 +154,8 @@ export const ProgramDetails: React.FC = () => {
 }
 
 const ProgramDetailsHeader: React.FC<{ programCode: string }> = ({ programCode }) => {
-	const data = useLazyLoadQuery<detailsQuery>(
-		detailsQuery,
+	const data = useLazyLoadQuery<detailsProgramQuery>(
+		detailsProgramQuery,
 		{ code: programCode },
 		{ fetchPolicy: "store-or-network" }
 	);
@@ -262,8 +262,8 @@ const ProgramDetailsHeader: React.FC<{ programCode: string }> = ({ programCode }
 }
 
 const ProgramDetailsTermRangeSelector: React.FC<{ onChange: (range: TermRange) => void }> = ({ onChange }) => {
-	const { getCurrentYearTerm } = useLazyLoadQuery<detailsCurrentTermQuery>(
-		detailsCurrentTermQuery,
+	const { getCurrentYearTerm } = useLazyLoadQuery<detailsProgramCurrentTermQuery>(
+		detailsProgramCurrentTermQuery,
 		{},
 		{ fetchPolicy: "store-or-network" }
 	);

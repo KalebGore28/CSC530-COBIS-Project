@@ -54,7 +54,7 @@ const CourseList: React.FC = () => {
 	const filtered = useMemo(
 		() =>
 			courses.filter((c) =>
-				`${c.subject} ${c.suffix} ${c.number} ${c.title}`
+				`${c.subject}${c.number}${c.suffix}-${c.title}`
 					.toLowerCase()
 					.includes(search.trim().toLowerCase())
 			),
@@ -85,16 +85,16 @@ const CourseList: React.FC = () => {
 					const course = filtered[index];
 					return (
 						<div
-							key={`${course.subject}-${course.suffix}-${course.number}`}
+							key={`${course.subject}-${course.number}-${course.suffix}`}
 							style={style}
 							className="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
 							onClick={() =>
-								navigate(`/courses/${course.subject}${course.suffix}${course.number}`)
+								navigate(`/enrollment/courses/${course.subject}${course.number}${course.suffix}`)
 							}
 						>
 							<div className="flex justify-between">
 								<span>
-									{course.subject} {course.suffix} {course.number} - {course.title}
+									{course.subject}{course.number}{course.suffix} - {course.title}
 								</span>
 								<span className="text-sm text-gray-500">
 									Hours: {course.hours}, Fee: ${course.fee}, Web Fee: ${course.web_fee}
@@ -104,7 +104,6 @@ const CourseList: React.FC = () => {
 					);
 				}}
 			</List>
-			{filtered.length === 0 && <p>No courses found.</p>}
 		</div>
 	);
 };
