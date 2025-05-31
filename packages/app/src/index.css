@@ -45,6 +45,10 @@ body {
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  --color-male: hsl(210, 60%, 50%);
+  --color-female: hsl(330, 60%, 50%);
+  --color-us: hsl(120, 60%, 40%);
+  --color-international: hsl(45, 70%, 55%);
 }
 
 .dark {
