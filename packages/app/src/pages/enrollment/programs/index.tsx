@@ -6,7 +6,6 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { FixedSizeList as List } from 'react-window';
 
-
 // GraphQL imports
 import type { programsPageQuery } from './__generated__/programsPageQuery.graphql';
 import { graphql, useLazyLoadQuery } from 'react-relay';
@@ -74,32 +73,25 @@ const ProgramList: React.FC = () => {
 			</div>
 
 			<List
-				height={530}
+				height={500}
 				itemCount={filtered.length}
-				itemSize={120}             // each row is 120px high (match your Card height + gap)
+				itemSize={50}             // each row is 120px high (match your Card height + gap)
 				width="100%"
-				className='border rounded-lg'
 			>
 				{({ index, style }) => {
 					const program = filtered[index];
 					return (
 						<div
+							key={program.code}
 							style={style}
-							className="p-8"  // approximate your grid-gap
+							className="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+							onClick={() => navigate(`/enrollment/programs/${program.code}`)}
 						>
-							<Card
-								key={program.code}
-								className="h-28 hover:shadow-lg transition-shadow hover:scale-102 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-								onClick={() => navigate(`/enrollment/programs/${program.code}`)}
-								role="button"
-								tabIndex={0}
-							>
-								<CardHeader>
-									<CardTitle className="text-sm truncate">
-										{program.code}: {program.description}
-									</CardTitle>
-								</CardHeader>
-								<CardContent className="flex flex-wrap gap-1">
+							<div className="flex justify-between">
+								<span>
+									{program.code} - {program.description}
+								</span>
+								<div className="flex items-center space-x-2">
 									{program.is_major && (
 										<Badge
 											variant="outline"
@@ -140,8 +132,9 @@ const ProgramList: React.FC = () => {
 											AACSB
 										</Badge>
 									)}
-								</CardContent>
-							</Card>
+								</div>
+
+							</div>
 						</div>
 					);
 				}}
