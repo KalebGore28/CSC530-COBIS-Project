@@ -87,39 +87,47 @@ app.use("/api", authenticateAndLoadUser);
 app.use(
     "/api/graphql",
     express.json(), // parse JSON bodies first
+
+    // Prevent users from getting access to the raw graphql api for security reasons.
+    // This middleware will only allow persisted queries to be executed.
     (req, res, next) => {
         // Relay’s runtime will send { id: "<md5-hash>", variables: { … } }
         // so look for `req.body.id` (you could also check `req.body.queryID` if your client uses that key).
-        const id = typeof req.body.doc_id === "string" ? req.body.doc_id : null;
-        if (id) {
-            const fullText = queryMap[id];
-            if (!fullText) {
-                // If this hash isn’t in our map, reject immediately
-                res
-                    .status(400)
-                    .json({ errors: [{ message: `Unknown persisted query ID: "${id}"` }] });
-                console.error(`Unknown persisted query ID: "${id}"`);
-                return;
+
+        try {
+            const id = typeof req.body.doc_id === "string" ? req.body.doc_id : null;
+
+            if (id) {
+                const fullText = queryMap[id];
+                if (!fullText) {
+                    // If this hash isn’t in our map, reject immediately
+                    res
+                        .status(400)
+                        .json({ errors: [{ message: `Unknown persisted query ID: "${id}"` }] });
+                    return;
+                }
+                // Overwrite the body so Apollo sees it as a "normal" GraphQL query
+                req.body = {
+                    query: fullText,
+                    variables: req.body.variables || {},
+                    operationName: req.body.operationName || null,
+                };
+                // (If you want, you can also remove `id` at this point: delete req.body.id)
             }
-            // Overwrite the body so Apollo sees it as a "normal" GraphQL query
-            req.body = {
-                query: fullText,
-                variables: req.body.variables || {},
-                operationName: req.body.operationName || null,
-            };
-            // (If you want, you can also remove `id` at this point: delete req.body.id)
+            // If no `id` was sent, you can choose to:
+            //  – reject everything that isn’t persisted, or
+            //  – allow raw queries in dev (by calling next() without touching req.body).
+            //
+            // For a fully locked‐down persisted‐queries mode, you could do:
+            // if (!id) {
+            //   return res.status(400).json({ errors:[{ message: "Must provide persisted query ID." }] });
+            // }
+            //
+            // But here we simply “fall through” so Apollo will decide if `req.body.query` is missing.
+            next();
+        } catch (error) {
+            res.status(500).json({ errors: [{ message: "Internal server error" }] });
         }
-        // If no `id` was sent, you can choose to:
-        //  – reject everything that isn’t persisted, or
-        //  – allow raw queries in dev (by calling next() without touching req.body).
-        //
-        // For a fully locked‐down persisted‐queries mode, you could do:
-        // if (!id) {
-        //   return res.status(400).json({ errors:[{ message: "Must provide persisted query ID." }] });
-        // }
-        //
-        // But here we simply “fall through” so Apollo will decide if `req.body.query` is missing.
-        next();
     },
     // Finally, hand off to Apollo’s Express integration:
     expressMiddleware(server, {
