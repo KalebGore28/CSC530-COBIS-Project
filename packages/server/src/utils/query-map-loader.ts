@@ -21,8 +21,6 @@ try {
   file_path = prodPath;
 }
 
-console.log("Loading persisted queries from:", file_path);
-
 type QueryMap = Record<string, string>;
 let queryMap: QueryMap = {};
 
