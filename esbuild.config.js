@@ -26,6 +26,10 @@ async function build() {
 				'drizzle-orm',
 				'dotenv',
 				'better-sqlite3',
+				'@apollo/server',
+				'@apollo/server/express4',
+				'@apollo/server/plugin/drainHttpServer',
+				'@as-integrations/express5',
 				// Add other dependencies from packages/server/package.json
 			],
 			tsconfig: 'packages/server/tsconfig.json',
