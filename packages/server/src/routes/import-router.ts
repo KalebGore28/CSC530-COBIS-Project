@@ -9,7 +9,7 @@ import { hasRole } from '../middleware/has-role';
  * @requires multer
  * @requires ../controllers/import-controller
  */
-const router = express.Router();
+const router: express.Router = express.Router();
 
 // Middleware to check if the user has the required role
 router.use(hasRole('cobis_administrator'));

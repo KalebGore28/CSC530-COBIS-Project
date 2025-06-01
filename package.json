@@ -9,7 +9,13 @@
   "scripts": {
     "start": "node --env-file=.env dist/server.js",
     "dev": "concurrently \"npm run dev --workspace=cobis-app\" \"npm run dev --workspace=cobis-server\"",
-    "build": "node esbuild.config.js"
+    "build": "node esbuild.config.js",
+    "db:push": "npm run db:push --workspace=cobis-server",
+    "db:generate": "npm run db:generate --workspace=cobis-server",
+    "db:migrate": "npm run db:migrate --workspace=cobis-server",
+    "db:reset": "npm run db:reset --workspace=cobis-server",
+    "db:studio": "npm run db:studio --workspace=cobis-server",
+    "db:seed": "npm run db:seed --workspace=cobis-server"
   },
   "dependencies": {
     "better-auth": "^1.2.8"
@@ -22,12 +28,6 @@
   },
   "not-finished-scripts": {
     "lint": "npm run lint --workspaces",
-    "test": "npm run test --workspaces",
-    "db:push": "npm run db:push --workspace=cobis-server",
-    "db:generate": "npm run db:generate --workspace=cobis-server",
-    "db:migrate": "npm run db:migrate --workspace=cobis-server",
-    "db:reset": "npm run db:reset --workspace=cobis-server",
-    "db:studio": "npm run db:studio --workspace=cobis-server",
-    "db:seed": "npm run db:seed --workspace=cobis-server"
+    "test": "npm run test --workspaces"
   }
 }

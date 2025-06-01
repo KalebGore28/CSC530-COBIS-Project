@@ -20,6 +20,7 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import { expressMiddleware } from "@as-integrations/express5";
 import { createLoaders, Loaders } from "./graphql/loaders";
 import { typeDefs, resolvers } from "./graphql";
+import { requireEnabled } from "./middleware/require-enabled";
 
 type Role = {
     role_id: number;
@@ -84,6 +85,13 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // 5. Mount your GraphQL endpoint
 app.use("/api", authenticateAndLoadUser);
+
+// 6. REST APIs
+app.use("/api/user", userRoute);
+app.use(requireEnabled); // INTENTIONAL PLACEMENT: Ensure user is enabled before accessing any further routes
+app.use("/api/import", importRoutes);
+
+// 7. GraphQL endpoint with persisted queries
 app.use(
     "/api/graphql",
     express.json(), // parse JSON bodies first
@@ -135,15 +143,11 @@ app.use(
     })
 );
 
-// 6. Static SPA assets
+// 8. Static SPA assets
 const staticDir = path.resolve(process.cwd(), "dist", "public");
 app.use(express.static(staticDir));
 
-// 7. Protect your REST APIs
-app.use("/api/user", userRoute);
-app.use("/api/import", importRoutes);
-
-// 8. SPA fallback
+// 9. Serve index.html for all non-API routes
 app.get("*splat", (req, res, next) => {
     if (req.path.startsWith("/api")) return next();
     res.sendFile(path.join(staticDir, "index.html"));

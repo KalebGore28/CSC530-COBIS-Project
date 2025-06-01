@@ -55,10 +55,6 @@ export const authenticateAndLoadUser = async (
 			res.status(403).json({ error: "Forbidden: User not found" });
 			return;
 		}
-		if (!userRow.isEnabled) {
-			res.status(403).json({ error: "Forbidden: User is disabled" });
-			return;
-		}
 
 		// Now fetch userRolesRows and facultyRow in parallel
 		const [userRolesRows, facultyRow] = await Promise.all([
