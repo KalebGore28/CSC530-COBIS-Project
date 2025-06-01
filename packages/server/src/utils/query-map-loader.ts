@@ -5,9 +5,22 @@ import fs from "fs/promises";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Because we copied `persisted_queries.json` to `<root>/dist/persisted_queries.json`,
-// and `<root>/dist/server.js` is our output, the JSON is one level up from __dirname:
-const file_path = path.join(__dirname, "persisted_queries.json");
+// Dev path (relative from server/src/utils → packages/app/persisted_queries.json)
+const devPath = path.resolve(__dirname, "../../../app/persisted_queries.json");
+// Prod path (built: server.js and JSON live together in dist/)
+const prodPath = path.resolve(__dirname, "persisted_queries.json");
+
+let file_path: string;
+
+// Try devPath first; if it exists, use it
+try {
+  await fs.access(devPath);
+  file_path = devPath;
+} catch {
+  // Otherwise, run from dist/, where JSON is next to server.js
+  file_path = prodPath;
+}
+
 console.log("Loading persisted queries from:", file_path);
 
 type QueryMap = Record<string, string>;
