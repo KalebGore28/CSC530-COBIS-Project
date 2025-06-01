@@ -1,0 +1,23 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"tsBuildInfoFile": "./.tsbuildinfo.app",
+		"target": "ESNext",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"allowImportingTsExtensions": true,
+		"isolatedModules": true,
+		"moduleDetection": "force",
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"useDefineForClassFields": true
+	},
+	"include": [
+		"src"
+	]
+}

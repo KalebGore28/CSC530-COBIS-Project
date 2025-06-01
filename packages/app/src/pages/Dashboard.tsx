@@ -1,0 +1,168 @@
+import React from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Users,
+  LineChart,
+  BarChart3,
+  Telescope,
+  School,
+  Contact,
+  ChartColumnIncreasing
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { useSession } from "@/context/session";
+import { useRoleContext } from "@/context/role";
+import { Separator } from "@/components/ui/separator";
+import { GradeDistribution } from "@/components/charts/term-grade-distributions";
+
+const gradeDistributionRoles = ["Faculty", "Department Chair"];
+
+// Define dashboard cards structure - uses routePermissions for visibility
+const dashboardCardsStructure = [
+  {
+    title: "Student Lookup",
+    description:
+      "Search for students by name, ID, department, major, minor, GPA, or previous classes.",
+    icon: <Users className="h-8 w-8 mb-4 text-primary" />,
+    link: "/student-lookup",
+    buttonText: "Search Students",
+  },
+  {
+    title: "Class Roster",
+    description:
+      "View and manage class rosters, including attendance and grades.",
+    icon: <School className="h-8 w-8 mb-4 text-primary" />,
+    link: "/class-roster",
+    buttonText: "View Roster",
+  },
+  {
+    title: "Faculty Information",
+    description:
+      "View teaching loads, course enrollment, and student counts for faculty in your department.",
+    icon: <Contact className="h-8 w-8 mb-4 text-primary" />,
+    link: "/instructors",
+    buttonText: "View Faculty",
+  },
+  {
+    title: "Data Import Tools",
+    description:
+      "Import and manage data from external sources for system integration.",
+    icon: <BarChart3 className="h-8 w-8 mb-4 text-primary" />,
+    link: "/cobis-tools/imports",
+    buttonText: "Access Import Tools",
+  },
+  {
+    title: "Academic Analytics",
+    description:
+      "Analyze student performance metrics and educational outcomes.",
+    icon: <LineChart className="h-8 w-8 mb-4 text-primary" />,
+    link: "/reports",
+    buttonText: "View Analytics",
+  },
+  {
+    title: "Advisor Page",
+    description:
+      "Access tools and information specific to academic advising.",
+    icon: <Telescope className="h-8 w-8 mb-4 text-primary" />,
+    link: "/advisor-page",
+    buttonText: "Go to Advisor Page",
+  },
+  {
+    title: "User Management",
+    description: "Manage user accounts, roles, and permissions.",
+    icon: <Users className="h-8 w-8 mb-4 text-primary" />,
+    link: "/cobis-tools/users",
+    buttonText: "Manage Users",
+  },
+  {
+    title: "Enrollments",
+    description: "See enrollment reports for programs, courses, and faculty.",
+    icon: <ChartColumnIncreasing className="h-8 w-8 mb-4 text-primary" />,
+    link: "/enrollment",
+    buttonText: "View Enrollments",
+  }
+];
+
+export const Dashboard: React.FC = () => {
+  const { session } = useSession();
+  const { selectedRole, routePermissions } = useRoleContext();
+
+  // --- Visibility Logic ---
+
+  // Filter standard cards based on routePermissions from context
+  const filteredCards = dashboardCardsStructure.filter((card) => {
+    // Ensure context data is available and the specific route has permissions defined
+    if (!selectedRole || !routePermissions || !routePermissions[card.link])
+      return false;
+    return routePermissions[card.link].includes(selectedRole.name);
+  });
+
+  // Determine Grade Distribution visibility based on the LOCAL constant
+  const canViewGradeDistribution =
+    selectedRole && gradeDistributionRoles.includes(selectedRole.name);
+
+  return (
+    <div className="container p-6 mx-auto space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
+
+        <h2 className="col-span-full text-center font-bold text-2xl">
+          Welcome Back, {session?.session.data?.user.name}
+        </h2>
+        <p className="text-muted-foreground col-span-full text-center">
+          Access your tools and information from this dashboard
+        </p>
+      </div>
+
+      {/* Conditionally Render Grade Distribution (uses local constant check) */}
+      {canViewGradeDistribution && (
+        <>
+          <GradeDistribution
+            title="Grade Distribution"
+            description="View the distribution of grades for the current term."
+            mnumber={session?.info?.mnumber || ""}
+          />
+          <Separator className="my-6" />
+        </>
+      )}
+
+      {/* Grid for standard cards (uses routePermissions check) */}
+      {filteredCards.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCards.map((card) => (
+            <Card key={card.link} className="transition-all hover:shadow-md">
+              <CardHeader className="text-center pt-6">
+                <div className="flex justify-center">{card.icon}</div>
+                <CardTitle>{card.title}</CardTitle>
+                <CardDescription>{card.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center pb-6">
+                <Link to={card.link}>
+                  <Button variant="default">{card.buttonText}</Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {/* Message if no cards are visible */}
+      {!canViewGradeDistribution && filteredCards.length === 0 && (
+        <div className="text-center p-12 text-muted-foreground mt-8">
+          <p className="text-lg">
+            No dashboard items are currently available for your selected role.
+          </p>
+          <p>
+            Please contact the administrator if you believe this is an error.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

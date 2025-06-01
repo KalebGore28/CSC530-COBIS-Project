@@ -1,0 +1,43 @@
+{
+	"name": "cobis-server",
+	"type": "module",
+	"version": "1.0.0",
+	"scripts": {
+		"dev": "npx nodemon --exec tsx src/index.ts",
+		"test": "vitest --coverage",
+		"db:push": "drizzle-kit push && tsx src/db/dbml.ts",
+		"db:generate": "drizzle-kit generate && tsx src/db/dbml.ts",
+		"db:migrate": "drizzle-kit migrate && tsx src/db/dbml.ts",
+		"db:reset": "rm -f src/db/dev.sqlite3 && drizzle-kit push && tsx src/db/dbml.ts",
+		"db:studio": "drizzle-kit studio",
+		"db:seed": "tsx src/seed/seed.ts"
+	},
+	"dependencies": {
+		"@apollo/server": "^4.12.1",
+		"@as-integrations/express5": "^1.0.0",
+		"@faker-js/faker": "^9.7.0",
+		"better-auth": "^1.2.8",
+		"better-sqlite3": "^11.8.1",
+		"cors": "^2.8.5",
+		"dataloader": "^2.2.3",
+		"dotenv": "^16.4.7",
+		"drizzle-orm": "^0.40.0",
+		"express": "^5.1.0",
+		"graphql": "^16.11.0",
+		"zod": "^3.24.2",
+		"zod-openapi": "^4.2.3"
+	},
+	"devDependencies": {
+		"@types/better-sqlite3": "^7.6.12",
+		"@types/cors": "^2.8.17",
+		"@types/express": "^5.0.0",
+		"@types/node": "^22.13.5",
+		"@types/supertest": "^6.0.2",
+		"drizzle-dbml-generator": "^0.10.0",
+		"drizzle-kit": "^0.30.5",
+		"nodemon": "^3.1.9",
+		"supertest": "^7.0.0",
+		"tsx": "^4.19.3",
+		"vitest": "^3.0.7"
+	}
+}

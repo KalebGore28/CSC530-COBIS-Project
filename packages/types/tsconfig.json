@@ -1,0 +1,17 @@
+{
+	"compilerOptions": {
+		"composite": true,
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "Node",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"emitDeclarationOnly": true
+	},
+	"include": [
+		"src",
+		"../server/src/db/schema.ts",
+	]
+}

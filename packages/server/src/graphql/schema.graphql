@@ -1,0 +1,456 @@
+# Lookup Tables
+type AcademicStanding {
+  code: String!
+  description: String!
+}
+
+type AdmitCode {
+  code: String!
+  description: String!
+}
+
+type College {
+  code: String!
+  description: String!
+}
+
+type CoursePrefix {
+  prefix: String!
+  department: Department!
+  college: College!
+}
+
+type Course {
+  subject: String!         # part of PK
+  number: Int!             # part of PK
+  suffix: String!          # part of PK
+  title: String!
+  hours: Int!
+  fee: Float!
+  web_fee: Float!
+  last_updated: String!
+  # Relationships
+  student_courses(
+    startTerm: String!,
+    endTerm: String!,
+    startYear: Int!,
+    endYear: Int!,
+  ): [StudentCourse!]!
+}
+
+type Department {
+  code: String!
+  description: String!
+  college: College!
+}
+
+type InstructionalMethod {
+  code: String!
+  description: String!
+}
+
+type Nation {
+  code: String!
+  description: String!
+}
+
+type PartOfTerm {
+  code: String!
+  description: String!
+}
+
+type Program {
+  code: String!
+  description: String!
+  cip_code: String
+  is_major: Boolean!
+  is_minor: Boolean!
+  has_concentration: Boolean!
+  is_discontinued: Boolean!
+  is_aacsb: Boolean!
+  department: Department!
+  college: College!
+  added_on: String!
+  # Relationships
+  student_programs(
+    startTerm: String!,
+    startYear: Int!,
+    endTerm: String!,
+    endYear: Int!,
+  ): [StudentProgram!]!
+}
+
+type RegistrationStatus {
+  code: String!
+  description: String!
+}
+
+type Role {
+  id: Int!
+  name: String!
+}
+
+type Term {
+  code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
+  description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
+}
+
+# Student Types
+type Student {
+  mnumber: String!
+  first_name: String!
+  middle_name: String!
+  last_name: String!
+  suffix: String!
+  gender: String!
+  birthdate: String!
+  citizenship: String!
+  race_code: String!
+  race_description: String!
+  residency_code: String!
+  residency_description: String!
+  age: Int!
+  cell_phone: String!
+  email: String!
+  # Relationships
+  academic_info(
+    term: String,
+    year: Int,
+  ): [StudentAcademicInfo!]!
+  addresses: [StudentAddress!]!
+  advisors: [StudentAdvisor!]!
+  courses(
+    startTerm: String,
+    endTerm: String,
+    startYear: Int,
+    endYear: Int,
+  ): [StudentCourse!]!
+  programs: [StudentProgram!]!
+}
+
+type StudentAcademicInfo {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  admit_term: Term!
+  admit_year: Int!
+  admit_code: AdmitCode!
+  academic_standing: AcademicStanding!
+  msu_attempted_hours: Float!
+  msu_earned_hours: Float!
+  msu_quality_points: Float!
+  msu_gpa: Float!
+  overall_attempted_hours: Float!
+  overall_earned_hours: Float!
+  overall_quality_points: Float!
+  overall_gpa: Float!
+  # Relationships
+  student: Student!
+}
+
+type StudentAddress {
+  mnumber: String!
+  type: String!
+  street1: String!
+  street2: String
+  city: String!
+  state: String!
+  zip: String!
+  nation: Nation!
+  phone: String!
+  # Relationships
+  student: Student!
+}
+
+type StudentAdvisor {
+  student_mnumber: String!
+  term: Term!
+  year: Int!
+  advisor_mnumber: String!
+  # Relationships
+  student: Student!
+  advisor: Faculty!
+}
+
+type StudentCourse {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  part_of_term: PartOfTerm!
+  crn: String!
+  course: Course!
+  course_section: String!
+  course_hours: Int!
+  course_level: String!
+  registration_status: RegistrationStatus!
+  instructional_method: InstructionalMethod!
+  last_attendance: String
+  midterm_grade: String
+  final_grade: String
+  # Relationships
+  student: Student!
+}
+
+type StudentProgram {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  type: String!
+  level: String!
+  program: Program!
+  # Relationships
+  student: Student!
+}
+
+# Better Auth Types
+type Account {
+  id: String!
+  account_id: String!
+  provider_id: String!
+  user_id: String!
+  access_token: String
+  refresh_token: String
+  id_token: String
+  access_token_expires_at: Int
+  refresh_token_expires_at: Int
+  scope: String
+  password: String
+  created_at: Int!
+  updated_at: Int!
+  # Relationships
+  user: User!
+}
+
+type Session {
+  id: String!
+  token: String!
+  expires_at: Int!
+  created_at: Int!
+  updated_at: Int!
+  ip_address: String
+  user_agent: String
+  user_id: String!
+  # Relationships
+  user: User!
+}
+
+# NOTE: Param naming style difference because beter-auth
+# Uses and expects camelCase for params
+type User { 
+  id: String!
+  mnumber: String!
+  name: String!
+  email: String!
+  emailVerified: Boolean!
+  image: String
+  createdAt: Int!
+  updatedAt: Int!
+  isEnabled: Boolean!
+  lastLogin: String!
+  # Relationships
+  # roles: [Role!]! opted not to use this.
+}
+
+type Verification {
+  id: String!
+  identifier: String!
+  value: String!
+  expires_at: Int!
+  created_at: Int
+  updated_at: Int
+}
+
+# Instructor Types
+type Faculty {
+  mnumber: String!
+  first_name: String!
+  last_name: String!
+  college: College!
+  department: Department!
+  # Relationships
+  courses_taught(
+    startTerm: String,
+    endTerm: String,
+    startYear: Int,
+    endYear: Int,
+    subject: String,
+    number: Int,
+    suffix: String,
+    section: String,
+  ): [InstructorCourse!]!
+  grade_distribution_trend(
+    startTerm: String!,
+    startYear: Int!,
+    endTerm: String,
+    endYear: Int
+  ): [GradeDistribution!]!
+  advisees(
+    term: String,
+    year: Int,
+  ): [StudentAdvisor!]!
+  # A faculty member is not guaranteed to be in the system
+  # So this relationship has an optional user
+  user: User
+}
+
+type InstructorCourse {
+  mnumber: String!
+  term: Term!
+  year: Int!
+  crn: String!
+  course: Course!
+  course_section: String!
+  role: String!
+  total_students: Int!
+  total_credit_hours: Int!
+  credit_hour: Int!
+  class_gpa: Float!
+  midterm_average: Float!
+  final_average: Float!
+  midterm_grade_distribution: [GradeEntry!]!
+  final_grade_distribution: [GradeEntry!]!
+  # Relationships
+  students: [StudentCourse!]!
+}
+
+type GradeDistribution {
+  term: Term!
+  year: Int!
+  distributions: [GradeEntry!]!
+}
+
+type GradeEntry {
+  grade: String!
+  count: Int!
+  percentage: Float!
+}
+
+
+type UserRole {
+  user_id: String!              # FK → user.id
+  role_id: Int!              # FK → roles.id
+  # Relationships
+  user: User!              # FK → user.id
+  role: Role!              # FK → roles.id
+}
+
+
+type YearTerm {
+  term: Term!
+  year: Int!
+}
+
+# Student Lookup Types and Enums
+
+enum AcademicLevel {
+  Freshman
+  Sophomore
+  Junior
+  Senior
+  Graduate
+}
+
+enum GradeValue {
+  A
+  B
+  C
+  D
+  E
+}
+
+enum ComparisonOperator {
+  EQ    # =
+  NE    # !=
+  LT    # <
+  LTE   # <=
+  GT    # >
+  GTE   # >=
+}
+
+input CourseFilter {
+  course: String!
+  taken: Boolean!
+  operator: ComparisonOperator
+  grade: GradeValue
+}
+
+input ProgramFilter {
+  program: String!
+  is_major: Boolean!
+  is_minor: Boolean!
+}
+
+input StudentLookupInput {
+  academicLevels: [AcademicLevel!]
+  gpaMin: Float
+  gpaMax: Float
+  programs: [ProgramFilter!]
+  courses: [CourseFilter!]
+}
+
+type StudentBasic {
+  mnumber:   String!
+  first_name: String!
+  last_name:  String!
+  email:     String!
+}
+
+type StudentLookupPage {
+  students:   [StudentBasic!]!
+  totalCount: Int!
+}
+
+# Root query type
+
+type Query {
+  # Search lookup tables
+  searchAcademicStandings(query: String!): [AcademicStanding!]!
+  searchAdmitCodes(query: String!): [AdmitCode!]!
+  searchColleges(query: String!): [College!]!
+  searchCourses(query: String!): [Course!]!
+  searchDepartments(query: String!): [Department!]!
+  searchInstructionalMethods(query: String!): [InstructionalMethod!]!
+  searchNations(query: String!): [Nation!]!
+  searchPartOfTerms(query: String!): [PartOfTerm!]!
+  searchPrograms(query: String!): [Program!]!
+  searchRegistrationStatuses(query: String!): [RegistrationStatus!]!
+  searchRoles(query: String!): [Role!]!
+  searchTerms(query: String!): [Term!]!
+
+  # Get lookup tables
+  getAcademicStandings: [AcademicStanding!]!
+  getAdmitCodes: [AdmitCode!]!
+  getColleges: [College!]!
+  getCourses: [Course!]!
+  getDepartments: [Department!]!
+  getInstructionalMethods: [InstructionalMethod!]!
+  getNations: [Nation!]!
+  getPartOfTerms: [PartOfTerm!]!
+  getPrograms: [Program!]!
+  getRegistrationStatuses: [RegistrationStatus!]!
+  getRoles: [Role!]!
+  getTerms: [Term!]!
+
+  # Utility
+  getCurrentYearTerm: YearTerm!
+
+  # Student and Faculty Queries
+  student(mnumber: String!): Student
+  instructor(mnumber: String!): Faculty
+  instructors: [Faculty!]!
+  lookupStudents(
+    filters: StudentLookupInput!
+    offset:  Int = 0
+    limit:   Int = 10
+  ): StudentLookupPage!
+
+  # Enrollment Queries
+  programs: [Program!]!
+  program(code: String!): Program
+  courses: [Course!]!
+  course(
+    subject: String!
+    number: Int!
+    suffix: String!
+  ): Course
+}
