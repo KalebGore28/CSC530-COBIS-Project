@@ -11,7 +11,6 @@ import { ClassRosterPage } from './pages/ClassRoster';
 // Auth Imports
 import { LoginPage } from './pages/auth/login';
 import { WaitingPage } from './pages/auth/waiting';
-import OnboardingPage from './pages/auth/onboarding';
 
 // Instructor Imports
 import { InstructorsPage } from './pages/instructors';
@@ -34,19 +33,17 @@ import { CobisToolsPage } from './pages/cobis-tools';
 import { CsvImport } from './pages/cobis-tools/imports';
 import { UserList } from './pages/cobis-tools/users';
 
-
 // Context/Provider Imports
 import { useSession } from '@/context/session';
 import { useRoleContext } from '@/context/role';
 import ProtectedRoute from '@/components/auth/protected-route';
 
 export const App: React.FC = () => {
-    const { session, refetchSession } = useSession();
+    const { session } = useSession();
     const { routePermissions } = useRoleContext();
 
     if (!session) return <LoginPage />;
-    if (!session.info.isEnabled) return <WaitingPage />;
-    // if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
+    if (!session.info.isEnabled || !session.info.mnumber) return <WaitingPage />;
 
     return (
         <Routes>

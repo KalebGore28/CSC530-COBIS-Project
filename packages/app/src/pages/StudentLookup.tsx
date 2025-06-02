@@ -14,7 +14,6 @@ import type { StudentLookupQuery } from "./__generated__/StudentLookupQuery.grap
 import { fetchQuery, graphql, useLazyLoadQuery } from 'react-relay';
 import { environment } from "@/main";
 
-
 // Import types
 import type { Student } from "@cobis/types";
 import { Button } from "@/components/ui/button";
