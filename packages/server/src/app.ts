@@ -102,16 +102,8 @@ app.use(
         // Relay’s runtime will send { id: "<md5-hash>", variables: { … } }
         // so look for `req.body.id` (you could also check `req.body.queryID` if your client uses that key).
 
-        // If is in dev mode, allow raw queries
-        if (process.env.NODE_ENV === "development") {
-            // If no `doc_id` is sent, we allow raw queries in dev mode
-            return next();
-        }
-
         try {
-            console.log("Persisted query middleware triggered");
             const id = typeof req.body.doc_id === "string" ? req.body.doc_id : null;
-
 
             if (id) {
                 const fullText = queryMap[id];
@@ -142,6 +134,11 @@ app.use(
             // But here we simply “fall through” so Apollo will decide if `req.body.query` is missing.
             next();
         } catch (error) {
+            // If is in dev mode, allow raw queries
+            if (process.env.NODE_ENV === "development") {
+                // If no `doc_id` is sent, we allow raw queries in dev mode
+                return next();
+            }
             res.status(500).json({ errors: [{ message: "Internal server error" }] });
         }
     },

@@ -17,12 +17,12 @@ import { BreadcrumbProvider } from './context/breadcrumb';
 // We use relative api path as we are hosting the app on the same server as the API
 const GRAPHQL_ENDPOINT = "/api/graphql";
 
-const fetchGraphQL: FetchFunction = async (request, variables) => {
+const fetchGraphQL: FetchFunction = async (operation, variables) => {
     const resp = await fetch(GRAPHQL_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            doc_id: request.id,
+            doc_id: operation.id,
             variables
         }),
     });
