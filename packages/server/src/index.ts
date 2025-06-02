@@ -11,3 +11,5 @@ const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
 await new Promise<void>(resolve =>
     httpServer.listen({ port: PORT }, resolve)
 );
+
+console.log(`Server is running on http://localhost:${PORT}`);

@@ -31,6 +31,7 @@ export const authenticateAndLoadUser = async (
 		}
 
 		const { session, user: betterUser } = sessionResult;
+
 		(req as AuthenticatedRequest).session = session;
 		(req as AuthenticatedRequest).user = betterUser;
 		const userId = betterUser.id;
@@ -78,18 +79,14 @@ export const authenticateAndLoadUser = async (
 		]);
 
 		// 3) Attach exactly the same shape you had before
-		const info = req as AuthAndPermissionsRequest;
-		info.roles = userRolesRows;
-		info.department = facultyRow?.department ?? null;
-		info.college = facultyRow?.college ?? null;
-		info.mnumber = userRow.mnumber;
-		info.isEnabled = userRow.isEnabled;
+		(req as AuthAndPermissionsRequest).roles = userRolesRows;
+		(req as AuthAndPermissionsRequest).department = facultyRow?.department ?? null;
+		(req as AuthAndPermissionsRequest).college = facultyRow?.college ?? null;
+		(req as AuthAndPermissionsRequest).mnumber = userRow.mnumber;
+		(req as AuthAndPermissionsRequest).isEnabled = userRow.isEnabled;
 
-		// 4) (Optional) lastLogin update should happen only on an explicit "login" action
-		//    — remove it from here so you don’t pay per-request.
 		next();
 	} catch (err) {
-		console.error("Authentication/permission error:", err);
 		res.status(500).json({ message: "Internal Server Error" });
 	}
 };
