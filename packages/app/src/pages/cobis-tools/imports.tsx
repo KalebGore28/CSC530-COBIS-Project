@@ -21,7 +21,7 @@ import {
 import CsvImportService from "@/services/csv-import-service";
 
 
-const CsvImport: React.FC = () => {
+export const CsvImport: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [importInfo, setImportInfo] = useState<ImportInfoResponse | null>(null);
   const [mapping, setMapping] = useState<DataCsvMapping | null>(null); // This is only the mapping for the data table.
@@ -203,5 +203,3 @@ const CsvImport: React.FC = () => {
     </div>
   );
 };
-
-export default CsvImport;

@@ -31,7 +31,7 @@ import { CourseDetails } from './pages/enrollment/courses/detail';
 
 // COBIS Imports
 import { CobisToolsPage } from './pages/cobis-tools';
-import CsvImport from './pages/cobis-tools/imports';
+import { CsvImport } from './pages/cobis-tools/imports';
 import { UserList } from './pages/cobis-tools/users';
 
 
