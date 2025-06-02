@@ -388,7 +388,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
             <Card>
                 <CardHeader>
                     <CardTitle>Advisors</CardTitle>
-                    <CardDescription>Advisors for {getCurrentYearTerm.term.description} {getCurrentYearTerm.year}</CardDescription>
+                    <CardDescription>All advisors for this student</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Table>
