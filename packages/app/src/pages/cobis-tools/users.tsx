@@ -172,8 +172,7 @@ export const UserList: React.FC = () => {
 	};
 
 	return (
-		<div className="container mx-auto p-4 space-y-6">
-			<h1 className="text-2xl font-bold">User Management</h1>
+		<div className="space-y-6">
 
 			{/* Filters */}
 			<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 border rounded-lg bg-card text-card-foreground">
