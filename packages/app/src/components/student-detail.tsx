@@ -243,7 +243,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                     </div>
                     <div>
                         <strong>Citizenship:</strong>{' '}
-                        {data.student.citizenship === 'Y' ? 'Yes' : 'No'}
+                        {data.student.citizenship}
                     </div>
                     <div>
                         <strong>Residency:</strong> {data.student.residency_description} ({data.student.residency_code})

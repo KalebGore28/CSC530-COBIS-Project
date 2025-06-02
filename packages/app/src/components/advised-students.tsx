@@ -172,8 +172,6 @@ export const AdvisedStudentContent: React.FC<{
 			'90': 'Winter'
 		};
 
-		console.log('Advised Students Data:', data);
-
 		const students = data.instructor?.advisees.map((advisee) => ({
 			mnumber: advisee.student.mnumber,
 			first_name: advisee.student.first_name,
