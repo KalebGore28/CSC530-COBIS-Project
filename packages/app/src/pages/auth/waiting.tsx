@@ -1,3 +1,4 @@
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { CardHeader } from "@/components/ui/card";
 import { CardTitle } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 import { signout } from "../../lib/auth-client";
 
-function WaitingPage() {
+export const WaitingPage: React.FC = () => {
 	const handleLogout = async () => {
 		await signout();
 		window.location.href = "/login";
@@ -29,5 +30,3 @@ function WaitingPage() {
 		</div>
 	);
 }
-
-export default WaitingPage;

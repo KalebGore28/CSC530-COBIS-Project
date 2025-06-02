@@ -17,7 +17,7 @@ import {
   DataCsvMapping,
   ImportResult,
   // ImportError
-} from "../types/csv-import-types";
+} from "../../types/csv-import-types";
 import CsvImportService from "@/services/csv-import-service";
 
 

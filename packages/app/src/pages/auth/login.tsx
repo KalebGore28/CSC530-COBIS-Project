@@ -1,8 +1,9 @@
+import React from "react";
 import { Wrench } from "lucide-react"
 import primaryLogo from "@/assets/primary_white.png"
 import { LoginForm } from "@/components/auth/login-form"
 
-export default function LoginPage() {
+export const LoginPage: React.FC = () => {
 	return (
 		<div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-secondary">
 			<div className="flex w-full max-w-sm flex-col gap-6">

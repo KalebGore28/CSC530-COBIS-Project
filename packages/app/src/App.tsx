@@ -1,16 +1,17 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-// Page Imports
+// Base Page Imports
+import { Layout } from './Layout';
 import { Dashboard } from './pages/Dashboard';
-import LoginPage from './pages/auth/login';
-import Layout from './Layout';
-import CobisTools from './pages/CobisTools';
-import CsvImport from './pages/CsvImport';
-import WaitingPage from './pages/auth/waiting';
-import OnboardingPage from './pages/auth/onboarding';
+import { AdvisedStudentsPage } from './pages/AdvisorPage';
 import { StudentLookup } from './pages/StudentLookup';
 import { ClassRosterPage } from './pages/ClassRoster';
+
+// Auth Imports
+import { LoginPage } from './pages/auth/login';
+import { WaitingPage } from './pages/auth/waiting';
+import OnboardingPage from './pages/auth/onboarding';
 
 // Instructor Imports
 import { InstructorsPage } from './pages/instructors';
@@ -28,8 +29,11 @@ import { ProgramDetails } from './pages/enrollment/programs/details';
 import { CoursesPage } from './pages/enrollment/courses';
 import { CourseDetails } from './pages/enrollment/courses/detail';
 
-import { AdvisedStudentsPage } from './pages/AdvisorPage';
-import { UserList } from './pages/UserPage';
+// COBIS Imports
+import { CobisToolsPage } from './pages/cobis-tools';
+import CsvImport from './pages/cobis-tools/imports';
+import { UserList } from './pages/cobis-tools/users';
+
 
 // Context/Provider Imports
 import { useSession } from '@/context/session';
@@ -42,7 +46,7 @@ export const App: React.FC = () => {
 
     if (!session) return <LoginPage />;
     if (!session.info.isEnabled) return <WaitingPage />;
-    if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
+    // if (!session.info.mnumber) return <OnboardingPage refetchSession={refetchSession} />;
 
     return (
         <Routes>
@@ -83,7 +87,8 @@ export const App: React.FC = () => {
 
                 {/* COBIS Tools: Use permissions from context */}
                 <Route element={<ProtectedRoute allowedRoles={routePermissions['/cobis-tools'] || []} />}>
-                    <Route path="cobis-tools" element={<CobisTools />}>
+                    <Route path="cobis-tools" element={<CobisToolsPage />}>
+                        <Route index element={<Navigate to="imports" replace />} />
                         <Route path="imports" element={<CsvImport />} />
                         <Route path="users" element={<UserList />} />
                     </Route>
