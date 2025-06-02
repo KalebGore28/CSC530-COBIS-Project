@@ -87,7 +87,7 @@ const CourseList: React.FC = () => {
 						<div
 							key={`${course.subject}-${course.number}-${course.suffix}`}
 							style={style}
-							className="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+							className="p-4 border-b border-gray-200 hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-800"
 							onClick={() =>
 								navigate(`/enrollment/courses/${course.subject}${course.number}${course.suffix}`)
 							}
