@@ -28,5 +28,6 @@
   "d365aa4bb09327c607c9e350ae5b5d2d": "query advisedStudentsGetCurrentTermQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n",
   "d41dd4618a710119271574a70f6d2de6": "query detailsProgramQuery(\n  $code: String!\n) {\n  program(code: $code) {\n    code\n    department {\n      code\n      description\n    }\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n    description\n    cip_code\n    added_on\n    college {\n      code\n      description\n    }\n  }\n}\n",
   "d86e199337ef516b02ca811fdd3ac04c": "query departmentSelectQuery {\n  getDepartments {\n    code\n    description\n  }\n}\n",
-  "eed3779444649d6782a7dd738ac805e5": "query termGradeDistributionsCurrentTermQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n"
+  "eed3779444649d6782a7dd738ac805e5": "query termGradeDistributionsCurrentTermQuery {\n  getCurrentYearTerm {\n    year\n    term {\n      code\n      description\n    }\n  }\n}\n",
+  "fa17530c455abce730014524b35259d5": "query facultySearchQuery {\n  faculty {\n    first_name\n    last_name\n    mnumber\n  }\n}\n"
 }

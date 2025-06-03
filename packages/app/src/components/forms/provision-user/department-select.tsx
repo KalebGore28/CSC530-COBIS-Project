@@ -2,10 +2,8 @@ import { Suspense, useState } from "react";
 import {
 	Command,
 	CommandEmpty,
-	CommandGroup,
 	CommandItem,
 	CommandList,
-	CommandShortcut,
 } from "@/components/ui/command"
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Department } from "@cobis/types";
@@ -63,23 +61,26 @@ const DepartmentSelectContent: React.FC<{
 		<div className="w-full border rounded-md shadow-sm">
 			<Command>
 				<CommandList>
-					{departments.length === 0 ? (
+					{selectedDepartment ? (
+						<CommandItem
+							onSelect={() => handleDepartmentToggle(selectedDepartment)}
+							className="flex justify-between cursor-pointer"
+						>
+							<span>{selectedDepartment.description}</span>
+							<span className="text-muted-foreground">✕</span>
+						</CommandItem>
+					) : departments.length === 0 ? (
 						<CommandEmpty>No departments found</CommandEmpty>
 					) : (
-						<CommandGroup>
-							{departments.map((department) => (
-								<CommandItem
-									key={department.code}
-									onSelect={() => handleDepartmentToggle(department)}
-									className="cursor-pointer"
-								>
-									{department.description}
-									{selectedDepartment?.code === department.code && (
-										<CommandShortcut>✓</CommandShortcut>
-									)}
-								</CommandItem>
-							))}
-						</CommandGroup>
+						departments.map((department) => (
+							<CommandItem
+								key={department.code}
+								onSelect={() => handleDepartmentToggle(department)}
+								className="cursor-pointer"
+							>
+								{department.description}
+							</CommandItem>
+						))
 					)}
 				</CommandList>
 			</Command>

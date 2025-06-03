@@ -2,10 +2,8 @@ import { Suspense, useState } from "react";
 import {
 	Command,
 	CommandEmpty,
-	CommandGroup,
 	CommandItem,
 	CommandList,
-	CommandShortcut,
 } from "@/components/ui/command"
 import { Skeleton } from "@/components/ui/skeleton";
 import type { College } from "@cobis/types";
@@ -34,14 +32,14 @@ export const CollegeSelect: React.FC<{
 };
 
 const CollegeSelectContent: React.FC<{
-	onChange: (selectedColleges: College | null) => void;
+	onChange: (selectedCollege: College | null) => void;
 }> = ({ onChange }) => {
 	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
 
 	const data = useLazyLoadQuery<collegeSelectQuery>(
 		collegeSelectQuery,
 		{},
-		{ fetchPolicy: 'store-or-network'}
+		{ fetchPolicy: 'store-or-network' }
 	);
 
 	const colleges = data.getColleges;
@@ -60,23 +58,26 @@ const CollegeSelectContent: React.FC<{
 		<div className="w-full border rounded-md shadow-sm">
 			<Command>
 				<CommandList>
-					{colleges.length === 0 ? (
+					{selectedCollege ? (
+						<CommandItem
+							onSelect={() => handleCollegeToggle(selectedCollege)}
+							className="flex justify-between cursor-pointer"
+						>
+							<span>{selectedCollege.description}</span>
+							<span className="text-muted-foreground">✕</span>
+						</CommandItem>
+					) : colleges.length === 0 ? (
 						<CommandEmpty>No colleges found</CommandEmpty>
 					) : (
-						<CommandGroup>
-							{colleges.map((college) => (
-								<CommandItem
-									key={college.code}
-									onSelect={() => handleCollegeToggle(college)}
-								>
-									{college.description}
-									<CommandShortcut>
-										{selectedCollege?.code === college.code
-											&& "✓"}
-									</CommandShortcut>
-								</CommandItem>
-							))}
-						</CommandGroup>
+						colleges.map((college) => (
+							<CommandItem
+								key={college.code}
+								onSelect={() => handleCollegeToggle(college)}
+								className="cursor-pointer"
+							>
+								{college.description}
+							</CommandItem>
+						))
 					)}
 				</CommandList>
 			</Command>

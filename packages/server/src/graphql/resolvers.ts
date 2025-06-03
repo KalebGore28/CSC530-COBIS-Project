@@ -59,6 +59,14 @@ const termMap = {
 	'90': 'Winter',
 }
 
+type CreateFacultyInput = {
+	mnumber: string;
+	first_name: string;
+	last_name: string;
+	college_code: string;
+	department_code: string;
+}
+
 export const resolvers = {
 	Query: {
 		// Search lookup tables
@@ -574,6 +582,20 @@ export const resolvers = {
 				.orderBy(tables.user.email)
 				.all();
 		}),
+		user: requireRoles(['cobis_administrator'], async (_parent: any, args: { id: string }, { db }: ApolloContext) => {
+			const [user] = await db
+				.select()
+				.from(tables.user)
+				.where(eq(tables.user.id, args.id))
+				.limit(1);
+			return user || null;
+		}),
+		faculty: requireRoles(['cobis_administrator'], async (_parent: any, _args: any, { db }: ApolloContext) => {
+			return db
+				.select()
+				.from(tables.faculty)
+				.orderBy(tables.faculty.last_name, tables.faculty.first_name)
+		}),
 	},
 
 	// Lookup resolvers
@@ -1078,4 +1100,41 @@ export const resolvers = {
 		term: (_parent: any, _args: any, { loaders }: ApolloContext) =>
 			loaders.term.load(_parent.term),
 	},
+
+	Mutation: {
+		addFaculty: requireRoles(['cobis_administrator'], async (_parent: any, args: { input: CreateFacultyInput }, { db }: ApolloContext) => {
+			const { mnumber, first_name, last_name, college_code, department_code } = args.input;
+
+			// Check if the faculty member already exists
+			const existingFaculty = await db
+				.select()
+				.from(tables.faculty)
+				.where(eq(tables.faculty.mnumber, mnumber))
+				.limit(1);
+
+			if (existingFaculty.length > 0) {
+				throw new Error(`Faculty member with MNumber ${mnumber} already exists.`);
+			}
+
+			// Create the new faculty member
+			const newFaculty = {
+				mnumber,
+				first_name,
+				last_name,
+				college: college_code,
+				department: department_code || null,
+			};
+
+			const [createdFaculty] = await db
+				.insert(tables.faculty)
+				.values(newFaculty)
+				.returning();
+			if (!createdFaculty) {
+				throw new Error('Failed to create faculty member.');
+			}
+
+			// Return the created faculty member
+			return createdFaculty;
+		})
+	}
 }

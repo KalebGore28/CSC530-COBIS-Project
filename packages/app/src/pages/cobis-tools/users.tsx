@@ -52,6 +52,8 @@ const usersQuery = graphql`
 	}
 `;
 
+export type QueryUser = usersQuery['response']['users'][number];
+
 const getInitials = (name: string | null | undefined): string => {
 	if (!name) {
 		return '??';
@@ -81,7 +83,7 @@ export const UserList: React.FC = () => {
 }
 
 const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId }) => {
-	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+	const [selectedUser, setSelectedUser] = useState<QueryUser | null>(null);
 	const [modalOpen, setModalOpen] = useState(false);
 	const [searchTerm, setSearchTerm] = useState("");
 
@@ -127,7 +129,7 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 						currentAdminId={currentAdminId}
 						user={u}
 						onOpenProvisionModal={() => {
-							setSelectedUserId(u.id);
+							setSelectedUser(u);
 							setModalOpen(true);
 						}}
 					/>
@@ -139,19 +141,19 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 				isOpen={modalOpen}
 				onClose={() => {
 					setModalOpen(false);
-					setSelectedUserId(null);
+					setSelectedUser(null);
 				}}
 				title="Provision User"
 				description="Fill in the details to provision this user."
 				size="lg"
 			>
 				<ProvisionUserForm
-					userId={selectedUserId}
+					user={selectedUser}
 					// TODO: finish this part
 					onSaveSuccess={() => { }}
 					onCancel={() => {
 						setModalOpen(false);
-						setSelectedUserId(null);
+						setSelectedUser(null);
 					}}
 				/>
 			</Modal>

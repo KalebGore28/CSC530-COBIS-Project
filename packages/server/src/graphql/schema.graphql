@@ -457,4 +457,18 @@ type Query {
 
   # Other Queries
   users: [User!]!
+  user(id: String!): User
+  faculty: [Faculty!]!
+}
+
+input CreateFacultyInput {
+  mnumber: String!
+  first_name: String!
+  last_name: String!
+  college_code: String!
+  department_code: String!
+}
+
+type Mutation {
+  addFaculty(input: CreateFacultyInput): Faculty!
 }

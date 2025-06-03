@@ -1,13 +1,29 @@
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
 
+// const facultySearchAddQuery = graphql`
+// 	mutation facultySearchAddQuery($input: CreateFacultyInput!) {
+// 		addFaculty(input: $input) {
+// 			mnumber
+// 			first_name
+// 			last_name
+// 			department {
+// 				code
+// 				description
+// 			}
+// 			college {
+// 				code
+// 				description
+// 			}
+// 		}
+// 	}
+// `;
+
 import axios from 'axios';
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { LookupSelector, LookupOption } from "@/components/selectors/lookup-selector";
-import { MultiLookupSelector } from "@/components/selectors/multi-lookup-selector";
 import SearchInput from "@/components/common/search-input";
 import { cn } from "@/lib/utils";
 // Import a spinner or loading component if you have one
@@ -16,6 +32,8 @@ import { cn } from "@/lib/utils";
 import { CollegeSelect } from './provision-user/college-select';
 import { DepartmentSelect } from './provision-user/department-select';
 import { MultiRoleSelect } from './provision-user/multi-role-select';
+import { FacultySearch } from './provision-user/faculty-search';
+import type { QueryUser } from '@/pages/cobis-tools/users';
 
 // --- Types ---
 interface Faculty {
@@ -26,7 +44,7 @@ interface Faculty {
 
 // Update Props: Remove initialUser
 interface ProvisionUserFormProps {
-	userId: string | null; // Allow null to handle cases where no user is selected yet
+	user: QueryUser | null; // Allow null to handle cases where no user is selected yet
 	onSaveSuccess: (updatedUser: UserData) => void; // Pass back UserData on success
 	onCancel: () => void;
 	className?: string;
@@ -35,7 +53,7 @@ interface ProvisionUserFormProps {
 // --- Component Implementation ---
 
 export function ProvisionUserForm({
-	userId,
+	user,
 	onSaveSuccess,
 	onCancel,
 	className,
@@ -56,10 +74,6 @@ export function ProvisionUserForm({
 	const [isFetchingInitialData, setIsFetchingInitialData] = useState<boolean>(false);
 	const [fetchInitialError, setFetchInitialError] = useState<string | null>(null);
 
-	// State for validation errors
-	const [collegeError, setCollegeError] = useState<string | null>(null);
-	const [departmentError, setDepartmentError] = useState<string | null>(null);
-	const [rolesError, setRolesError] = useState<string | null>(null);
 
 
 	// --- Effects ---
@@ -71,14 +85,11 @@ export function ProvisionUserForm({
 		setSelectedRoles([]);
 		setSelectedFaculty(null);
 		setIsEnabled(true); // Reset to default
-		setCollegeError(null);
-		setDepartmentError(null);
-		setRolesError(null);
 		setSubmitError(null);
 		setFetchInitialError(null);
 
 
-		if (!userId) {
+		if (!user) {
 			// If no userId, don't fetch, maybe reset form or show message
 			setIsFetchingInitialData(false);
 			// Optionally set an error or just leave the form blank/disabled
@@ -91,7 +102,7 @@ export function ProvisionUserForm({
 			setFetchInitialError(null); // Clear previous fetch error
 
 			try {
-				const response = await axios.get<UserData>(`/api/user/${userId}`, {
+				const response = await axios.get<UserData>(`/api/user/${user.id}`, {
 					withCredentials: true,
 				});
 				const userData = response.data;
@@ -137,7 +148,7 @@ export function ProvisionUserForm({
 
 		fetchUserData();
 
-	}, [userId]); // Re-run effect if userId changes
+	}, [user]); // Re-run effect if userId changes
 
 	const searchFaculty = useCallback(async (query: string): Promise<Faculty[]> => {
 		if (!query || query.trim().length < 2) return [];
@@ -156,18 +167,7 @@ export function ProvisionUserForm({
 	const handleFacultyRemove = () => {
 		setSelectedFaculty(null);
 	};
-	const handleCollegeChange = (option: LookupOption | null) => {
-		setSelectedCollege(option);
-		if (option && option.code !== "0") setCollegeError(null);
-	};
-	const handleDepartmentChange = (option: LookupOption | null) => {
-		setSelectedDepartment(option);
-		if (option && option.code !== "0000") setDepartmentError(null);
-	};
-	const handleRolesChange = (options: LookupOption[]) => {
-		setSelectedRoles(options);
-		if (options.length > 0) setRolesError(null);
-	};
+
 	const handleEnabledChange = (checked: boolean | 'indeterminate') => {
 		if (typeof checked === 'boolean') setIsEnabled(checked);
 	};
@@ -175,27 +175,14 @@ export function ProvisionUserForm({
 	// --- Manual Validation --- (Remains the same)
 	const validateForm = (): boolean => {
 		let isValid = true;
-		setCollegeError(null);
-		setDepartmentError(null);
-		setRolesError(null);
 		setSubmitError(null); // Clear previous API error on new validation attempt
-
-		if (!selectedCollege || selectedCollege.code === "0") {
-			setCollegeError("College selection is required."); isValid = false;
-		}
-		if (!selectedDepartment || selectedDepartment.code === "0000") {
-			setDepartmentError("Department selection is required."); isValid = false;
-		}
-		if (selectedRoles.length === 0) {
-			setRolesError("At least one role is required."); isValid = false;
-		}
 		return isValid;
 	};
 
 	// --- Form Submission --- (Remains mostly the same, uses isSubmitting state)
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
-		if (!userId) { // Should not happen if form is rendered, but good check
+		if (!user) { // Should not happen if form is rendered, but good check
 			toast.error("Cannot save, User ID is missing.");
 			return;
 		}
@@ -217,7 +204,7 @@ export function ProvisionUserForm({
 
 		try {
 			const response = await axios.put(
-				`/api/user/${userId}/provision`,
+				`/api/user/${user.id}/provision`,
 				payload,
 				{ withCredentials: true, headers: { 'Content-Type': 'application/json' } }
 			);
@@ -266,7 +253,7 @@ export function ProvisionUserForm({
 	}
 
 	// Handle case where userId is null/not provided after initial checks
-	if (!userId) {
+	if (!user) {
 		return (
 			<div className="p-4 text-center text-muted-foreground">
 				Please select a user to provision.
@@ -285,6 +272,10 @@ export function ProvisionUserForm({
 			/>
 
 			<DepartmentSelect
+				onChange={() => { }}
+			/>
+
+			<FacultySearch
 				onChange={() => { }}
 			/>
 
