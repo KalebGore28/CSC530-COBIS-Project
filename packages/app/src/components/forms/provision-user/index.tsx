@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useMutation } from "react-relay";
 
 // GraphQL mutation—note we renamed it to “provisionUserMutation”:
-import type { provisionUserMutation } from '../__generated__/provisionUserMutation.graphql';
+import type { provisionUserMutation } from './__generated__/provisionUserMutation.graphql';
 import { graphql } from "react-relay";
 
 const provisionUserMutation = graphql`
