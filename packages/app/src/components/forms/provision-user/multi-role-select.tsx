@@ -40,6 +40,7 @@ const MultiRoleSelectContent: React.FC<{
 	const data = useLazyLoadQuery<multiRoleSelectQuery>(
 		multiRoleSelectQuery,
 		{},
+		{ fetchPolicy: 'store-or-network' }
 	);
 
 	const roles = data.getRoles;

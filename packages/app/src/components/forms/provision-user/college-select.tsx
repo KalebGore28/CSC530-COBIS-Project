@@ -41,6 +41,7 @@ const CollegeSelectContent: React.FC<{
 	const data = useLazyLoadQuery<collegeSelectQuery>(
 		collegeSelectQuery,
 		{},
+		{ fetchPolicy: 'store-or-network'}
 	);
 
 	const colleges = data.getColleges;

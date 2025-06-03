@@ -1,3 +1,4 @@
+// Not happy with the current implementation.
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -5,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { Course } from "@cobis/types";
 
 import {
 	GraphQLSearchInput,
@@ -15,8 +15,9 @@ import {
 import {
 	Program,
 	searchPrograms,
+	Course,
 	searchCourses
-} from "@/utils/search"; // Why did i do this?
+} from "@/utils/search";
 import { Switch } from "@/components/ui/switch";
 
 enum ComparisonOperator {

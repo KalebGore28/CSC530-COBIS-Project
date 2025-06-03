@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 // import { Spinner } from "@/components/ui/spinner";
 
 import { CollegeSelect } from './provision-user/college-select';
+import { DepartmentSelect } from './provision-user/department-select';
 import { MultiRoleSelect } from './provision-user/multi-role-select';
 
 // --- Types ---
@@ -283,6 +284,10 @@ export function ProvisionUserForm({
 				onChange={() => { }}
 			/>
 
+			<DepartmentSelect
+				onChange={() => { }}
+			/>
+
 			{/* Faculty/M-Number Search */}
 			<div className="space-y-2">
 				<Label htmlFor="faculty-search">Faculty / M-Number (Optional)</Label>
@@ -298,58 +303,6 @@ export function ProvisionUserForm({
 				<p className="text-sm text-muted-foreground">
 					Select a faculty member to link their M-Number. Leave blank if not applicable.
 				</p>
-			</div>
-
-			{/* College Selector */}
-			<div className="space-y-2">
-				<Label htmlFor="college-selector">College</Label>
-				<LookupSelector
-					lookupType="colleges"
-					value={selectedCollege?.code}
-					onValueChange={handleCollegeChange}
-					placeholder="Select College..."
-					className="w-full"
-					// Disable while submitting
-					disabled={isSubmitting}
-				/>
-				{collegeError && (
-					<p className="text-sm font-medium text-destructive">{collegeError}</p>
-				)}
-			</div>
-
-			{/* Department Selector */}
-			<div className="space-y-2">
-				<Label htmlFor="department-selector">Department</Label>
-				<LookupSelector
-					lookupType="departments"
-					value={selectedDepartment?.code}
-					onValueChange={handleDepartmentChange}
-					placeholder="Select Department..."
-					className="w-full"
-					// Disable while submitting
-					disabled={isSubmitting}
-				/>
-				{departmentError && (
-					<p className="text-sm font-medium text-destructive">{departmentError}</p>
-				)}
-			</div>
-
-			{/* Roles Multi-Selector */}
-			<div className="space-y-2">
-				<Label htmlFor="roles-selector">Roles</Label>
-				<MultiLookupSelector
-					lookupType="roles"
-					value={selectedRoles.map(role => role.code)}
-					onValueChange={handleRolesChange}
-					placeholder="Select Roles..."
-					triggerClassName="w-full"
-					contentClassName="w-[--radix-popover-trigger-width]"
-					// Disable while submitting
-					disabled={isSubmitting}
-				/>
-				{rolesError && (
-					<p className="text-sm font-medium text-destructive">{rolesError}</p>
-				)}
 			</div>
 
 			{/* isEnabled Checkbox */}
