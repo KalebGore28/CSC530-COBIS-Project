@@ -194,7 +194,7 @@ const UserCard: React.FC<{
 				<p><strong className="text-foreground font-medium">Email Verified:</strong> {user.emailVerified ? 'Yes' : 'No'}</p>
 				<p className="truncate">
 					<strong className="text-foreground font-medium">Last Login:</strong>{' '}
-					{user.lastLogin ? new Date(parseInt(user.lastLogin) * 1000).toLocaleString() : 'Never'}
+					{user.lastLogin && user.lastLogin !== '0' ? new Date(parseInt(user.lastLogin) * 1000).toLocaleString() : 'Never'}
 				</p>
 			</CardContent>
 			<CardFooter className="flex flex-col gap-2 p-2">
