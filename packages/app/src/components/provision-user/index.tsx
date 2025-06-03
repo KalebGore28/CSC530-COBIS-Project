@@ -51,20 +51,37 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 	onSaveSuccess,
 	onCancel,
 }) => {
-	// Local state for each form field (you already had these):
-	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>({
-		mnumber: user?.mnumber || '',
-		first_name: user?.name.split(' ')[0] || '',
-		last_name: user?.name.split(' ')[1] || '',
-	});
-	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>({
-		code: user?.faculty?.department?.code || '',
-		description: user?.faculty?.department?.description || '',
-	});
-	const [selectedCollege, setSelectedCollege] = useState<College | null>({
-		code: user?.faculty?.college?.code || '',
-		description: user?.faculty?.college?.description || '',
-	});
+	// Faculty: only initialize if both user.mnumber and user.name exist
+	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(
+		user?.mnumber && user?.name
+			? {
+				mnumber: user.mnumber,
+				first_name: user.name.split(" ")[0],
+				last_name: user.name.split(" ")[1] || "",
+			}
+			: null
+	);
+
+	// Department: only initialize if user.faculty.department is non‐nullish
+	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>(
+		user?.faculty?.department
+			? {
+				code: user.faculty.department.code,
+				description: user.faculty.department.description,
+			}
+			: null
+	);
+
+	// College: only initialize if user.faculty.college is non‐nullish
+	const [selectedCollege, setSelectedCollege] = useState<College | null>(
+		user?.faculty?.college
+			? {
+				code: user.faculty.college.code,
+				description: user.faculty?.college?.description,
+			}
+			: null
+	);
+
 	const [selectedRoleNames, setSelectedRoleNames] = useState<Role[]>(
 		user?.roles?.map(r => ({ ...r.role, id: parseInt(r.role.id, 10) })) || []
 	);
