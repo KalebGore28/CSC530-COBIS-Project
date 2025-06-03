@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import {
 	Command,
 	CommandEmpty,
@@ -22,21 +22,23 @@ const collegeSelectQuery = graphql`
 `;
 
 export const CollegeSelect: React.FC<{
-	defaultCode?: string | null;
+	selectedCollege: College | null;
 	onChange: (selectedCollege: College | null) => void;
-}> = ({ onChange, defaultCode }) => {
+}> = ({ selectedCollege, onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<CollegeSelectContent onChange={onChange} defaultCode={defaultCode} />
+			<CollegeSelectContent
+				selectedCollege={selectedCollege}
+				onChange={onChange}
+			/>
 		</Suspense>
 	);
 };
 
 const CollegeSelectContent: React.FC<{
-	defaultCode?: string | null;
+	selectedCollege: College | null;
 	onChange: (selectedCollege: College | null) => void;
-}> = ({ onChange, defaultCode }) => {
-	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
+}> = ({ selectedCollege, onChange }) => {
 
 	const data = useLazyLoadQuery<collegeSelectQuery>(
 		collegeSelectQuery,
@@ -46,23 +48,10 @@ const CollegeSelectContent: React.FC<{
 
 	const colleges = data.getColleges;
 
-	// Initialize selected college from defaultCode if provided
-	if (defaultCode && !selectedCollege) {
-		const initialCollege = colleges.find(
-			(c) => c.code.toLowerCase() === defaultCode.toLowerCase()
-		);
-		if (initialCollege) {
-			setSelectedCollege(initialCollege);
-			onChange(initialCollege);
-		}
-	}
-
 	const handleCollegeToggle = (college: College) => {
 		if (selectedCollege?.code === college.code) {
-			setSelectedCollege(null);
 			onChange(null);
 		} else {
-			setSelectedCollege(college);
 			onChange(college);
 		}
 	};

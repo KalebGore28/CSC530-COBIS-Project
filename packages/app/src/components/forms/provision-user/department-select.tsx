@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import {
 	Command,
 	CommandEmpty,
@@ -8,7 +8,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Department } from "@cobis/types";
 
-type MinimalDepartment =
+export type MinimalDepartment =
 	Omit<Department, "college">;
 
 // GraphQL imports
@@ -25,21 +25,23 @@ const departmentSelectQuery = graphql`
 `;
 
 export const DepartmentSelect: React.FC<{
-	defaultCode?: string | null;
+	selectedDepartment: MinimalDepartment | null;
 	onChange: (selectedDepartment: MinimalDepartment | null) => void;
-}> = ({ onChange, defaultCode }) => {
+}> = ({ selectedDepartment, onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<DepartmentSelectContent onChange={onChange} defaultCode={defaultCode} />
+			<DepartmentSelectContent
+				selectedDepartment={selectedDepartment}
+				onChange={onChange}
+			/>
 		</Suspense>
 	);
 };
 
 const DepartmentSelectContent: React.FC<{
-	defaultCode?: string | null;
+	selectedDepartment: MinimalDepartment | null;
 	onChange: (selectedDepartment: MinimalDepartment | null) => void;
-}> = ({ onChange, defaultCode }) => {
-	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>(null);
+}> = ({ selectedDepartment, onChange }) => {
 
 	const data = useLazyLoadQuery<departmentSelectQuery>(
 		departmentSelectQuery,
@@ -49,23 +51,10 @@ const DepartmentSelectContent: React.FC<{
 
 	const departments = data.getDepartments;
 
-	// Initialize selected department from defaultCode if provided
-	if (defaultCode && !selectedDepartment) {
-		const initialDepartment = departments.find(
-			(d) => d.code.toLowerCase() === defaultCode.toLowerCase()
-		);
-		if (initialDepartment) {
-			setSelectedDepartment(initialDepartment);
-			onChange(initialDepartment);
-		}
-	}
-
 	const handleDepartmentToggle = (department: MinimalDepartment) => {
 		if (selectedDepartment?.code === department.code) {
-			setSelectedDepartment(null);
 			onChange(null);
 		} else {
-			setSelectedDepartment(department);
 			onChange(department);
 		}
 	};

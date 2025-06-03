@@ -13,7 +13,7 @@ import type { Faculty } from "@cobis/types";
 import type { facultySearchQuery } from "./__generated__/facultySearchQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
-type MinimalFaculty = Omit<Faculty, "department" | "college">;
+export type MinimalFaculty = Omit<Faculty, "department" | "college">;
 
 const facultySearchQuery = graphql`
   query facultySearchQuery {
@@ -26,21 +26,23 @@ const facultySearchQuery = graphql`
 `;
 
 export const FacultySearch: React.FC<{
-	defaultMnumber?: string | null;
+	selectedFaculty: MinimalFaculty | null;
 	onChange: (selectedFaculty: MinimalFaculty | null) => void;
-}> = ({ onChange, defaultMnumber }) => {
+}> = ({ selectedFaculty, onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<FacultySearchContent onChange={onChange} defaultMnumber={defaultMnumber} />
+			<FacultySearchContent
+				selectedFaculty={selectedFaculty}
+				onChange={onChange}
+			/>
 		</Suspense>
 	);
 };
 
 const FacultySearchContent: React.FC<{
-	defaultMnumber?: string | null;
+	selectedFaculty: MinimalFaculty | null;
 	onChange: (selectedFaculty: MinimalFaculty | null) => void;
-}> = ({ onChange, defaultMnumber }) => {
-	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(null);
+}> = ({ selectedFaculty, onChange }) => {
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const data = useLazyLoadQuery<facultySearchQuery>(
@@ -48,19 +50,8 @@ const FacultySearchContent: React.FC<{
 		{},
 		{ fetchPolicy: "store-or-network" }
 	);
-	
-	const facultyList = data.faculty;
 
-	// Initialize selected faculty from defaultMnumber if provided
-	if (defaultMnumber && !selectedFaculty) {
-		const initialFaculty = facultyList.find(
-			(f) => f.mnumber.toLowerCase() === defaultMnumber.toLowerCase()
-		);
-		if (initialFaculty) {
-			setSelectedFaculty(initialFaculty);
-			onChange(initialFaculty);
-		}
-	}
+	const facultyList = data.faculty;
 
 	const handleFacultyToggle = (faculty: MinimalFaculty) => {
 		if (
@@ -68,10 +59,8 @@ const FacultySearchContent: React.FC<{
 			selectedFaculty?.first_name === faculty.first_name &&
 			selectedFaculty?.last_name === faculty.last_name
 		) {
-			setSelectedFaculty(null);
 			onChange(null);
 		} else {
-			setSelectedFaculty(faculty);
 			onChange(faculty);
 		}
 	};
@@ -93,7 +82,6 @@ const FacultySearchContent: React.FC<{
 			first_name: "New",
 			last_name: "User",
 		};
-		setSelectedFaculty(newFaculty);
 		onChange(newFaculty);
 	};
 

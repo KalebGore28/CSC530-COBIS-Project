@@ -1,4 +1,4 @@
-import { Suspense, useState } from "react";
+import { Suspense } from "react";
 import {
 	Command,
 	CommandEmpty,
@@ -23,21 +23,23 @@ const multiRoleSelectQuery = graphql`
 `;
 
 export const MultiRoleSelect: React.FC<{
-	defaultRoles?: string[];
+	selectedRoles: string[];
 	onChange: (selectedRoles: string[]) => void;
-}> = ({ onChange, defaultRoles }) => {
+}> = ({ selectedRoles, onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<MultiRoleSelectContent onChange={onChange} defaultRoles={defaultRoles} />
+			<MultiRoleSelectContent
+				onChange={onChange}
+				selectedRoles={selectedRoles}
+			/>
 		</Suspense>
 	);
 }
 
 const MultiRoleSelectContent: React.FC<{
-	defaultRoles?: string[];
+	selectedRoles: string[];
 	onChange: (selectedRoles: string[]) => void;
-}> = ({ onChange, defaultRoles }) => {
-	const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+}> = ({ selectedRoles, onChange }) => {
 
 	const data = useLazyLoadQuery<multiRoleSelectQuery>(
 		multiRoleSelectQuery,
@@ -47,31 +49,12 @@ const MultiRoleSelectContent: React.FC<{
 
 	const roles = data.getRoles;
 
-	// Initialize selected roles from defaultRoles if provided
-	if (
-		defaultRoles &&
-		defaultRoles.length > 0 &&
-		selectedRoles.length === 0 &&
-		roles.length > 0
-	) {
-		// filter by name, then map to IDs
-		const initialIds = roles
-			.filter((role) => defaultRoles.includes(role.name))
-			.map((role) => role.id);
+	const handleRoleToggle = (roleName: string) => {
+		const newSelected = selectedRoles.includes(roleName)
+			? selectedRoles.filter((name) => name !== roleName)
+			: [...selectedRoles, roleName];
 
-		if (initialIds.length > 0) {
-			setSelectedRoles(initialIds);
-			onChange(initialIds);
-		}
-	}
-
-	const handleRoleToggle = (roleId: string) => {
-		setSelectedRoles((prev) =>
-			prev.includes(roleId)
-				? prev.filter((id) => id !== roleId)
-				: [...prev, roleId],
-		);
-		onChange(selectedRoles);
+		onChange(newSelected);
 	};
 
 	return (
@@ -85,11 +68,11 @@ const MultiRoleSelectContent: React.FC<{
 							{roles.map((role) => (
 								<CommandItem
 									key={role.id}
-									onSelect={() => handleRoleToggle(role.id)}
+									onSelect={() => handleRoleToggle(role.name)}
 									className="flex items-center justify-between"
 								>
 									{role.name}
-									{selectedRoles.includes(role.id) && (
+									{selectedRoles.includes(role.name) && (
 										<CommandShortcut>✓</CommandShortcut>
 									)}
 								</CommandItem>

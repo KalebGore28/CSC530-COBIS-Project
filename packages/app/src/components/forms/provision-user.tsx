@@ -28,10 +28,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 
 // 
+import { type MinimalFaculty, FacultySearch } from './provision-user/faculty-search';
+import { type MinimalDepartment, DepartmentSelect } from './provision-user/department-select';
+import { type College } from '@cobis/types';
 import { CollegeSelect } from './provision-user/college-select';
-import { DepartmentSelect } from './provision-user/department-select';
 import { MultiRoleSelect } from './provision-user/multi-role-select';
-import { FacultySearch } from './provision-user/faculty-search';
 
 
 import type { QueryUser } from '@/pages/cobis-tools/users';
@@ -52,30 +53,37 @@ export function ProvisionUserForm({
 	onCancel,
 	className,
 }: ProvisionUserFormProps) {
+	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(null);
+	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>(null);
+	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
+	const [selectedRoleNames, setSelectedRoleNames] = useState<string[]>([]);
 
 	return (
-		<>
+		<div className='space-y-4 p-6'>
+
+			<span className="text-md font-semibold">Search Faculty</span>
 			<FacultySearch
-				onChange={() => { }}
-				defaultMnumber={'M22106375'}
+				selectedFaculty={selectedFaculty}
+				onChange={(fac) => setSelectedFaculty(fac)}
 			/>
 
+			<span className="text-md font-semibold">Select Department</span>
 			<DepartmentSelect
-				onChange={() => { }}
-				defaultCode={'0000'}
+				selectedDepartment={selectedDepartment}
+				onChange={(dept) => setSelectedDepartment(dept)}
 			/>
 
+			{/*  */}
+			<span className="text-md font-semibold">Select College</span>
 			<CollegeSelect
-				onChange={() => { }}
-				defaultCode={'0'}
+				selectedCollege={selectedCollege}
+				onChange={(college) => setSelectedCollege(college)}
 			/>
 
+			<span className="text-md font-semibold">Assign Roles</span>
 			<MultiRoleSelect
-				onChange={() => { }}
-				defaultRoles={[
-					'faculty',
-					'advisor',
-				]}
+				selectedRoles={selectedRoleNames}
+				onChange={(roles) => setSelectedRoleNames(roles)}
 			/>
 
 			<div className="flex items-center space-x-2">
@@ -103,6 +111,6 @@ export function ProvisionUserForm({
 					{false ? 'Saving...' : 'Save Provision'}
 				</Button>
 			</div>
-		</>
+		</div>
 	)
 }
