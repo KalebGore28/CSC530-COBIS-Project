@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import axios from 'axios';
 import { User, UserFilters, UserData } from '@/types/user';
 import UserCard from '@/components/user-card';
@@ -15,6 +15,10 @@ import { toast } from "sonner";
 import { useSession } from '@/context/session';
 import { Modal } from '@/components/modals/modal';
 import { ProvisionUserForm } from '@/components/forms/provision-user';
+import { Skeleton } from "@/components/ui/skeleton";
+
+// GraphQL imports
+import { graphql, useLazyLoadQuery } from "react-relay";
 
 export const UserList: React.FC = () => {
 	const { session } = useSession();
