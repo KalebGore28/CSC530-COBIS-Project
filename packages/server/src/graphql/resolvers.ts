@@ -64,6 +64,8 @@ type CreateFacultyInput = {
 	mnumber: string;
 	college_code: string;
 	department_code: string;
+	role_names: string[];
+	enableUser: boolean;
 }
 
 export const resolvers = {
@@ -1102,7 +1104,7 @@ export const resolvers = {
 
 	Mutation: {
 		provisionFaculty: requireRoles(['cobis_administrator'], async (_parent: any, args: { input: CreateFacultyInput }, { db }: ApolloContext) => {
-			const { user_id, mnumber, college_code, department_code } = args.input;
+			const { user_id, mnumber, college_code, department_code, role_names, enableUser } = args.input;
 
 			// Check if the user exists
 			const [existingUser] = await db

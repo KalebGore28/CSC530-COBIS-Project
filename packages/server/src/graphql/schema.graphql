@@ -466,6 +466,8 @@ input CreateFacultyInput {
   mnumber: String!
   college_code: String!
   department_code: String!
+  role_names: [String!]!  # List of role names
+  enableUser: Boolean!  # Whether to enable the user account
 }
 
 type Mutation {

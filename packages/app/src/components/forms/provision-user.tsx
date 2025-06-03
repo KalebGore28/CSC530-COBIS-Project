@@ -26,7 +26,6 @@ const provisionUserQuery = graphql`
 `;
 
 
-
 // Interface Imports
 import { type MinimalFaculty, FacultySearch } from './provision-user/faculty-search';
 import { type MinimalDepartment, DepartmentSelect } from './provision-user/department-select';
@@ -40,7 +39,6 @@ interface ProvisionUserFormProps {
 	user: QueryUser | null; // Allow null to handle cases where no user is selected yet
 	onSaveSuccess: (updatedUser: any) => void; // Pass back UserData on success
 	onCancel: () => void;
-	className?: string;
 }
 
 // --- Component Implementation ---
@@ -49,7 +47,6 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 	user,
 	onSaveSuccess,
 	onCancel,
-	className,
 }: ProvisionUserFormProps) => {
 	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>({
 		mnumber: user?.mnumber || '',
