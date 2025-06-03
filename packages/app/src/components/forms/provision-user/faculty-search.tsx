@@ -26,21 +26,21 @@ const facultySearchQuery = graphql`
 `;
 
 export const FacultySearch: React.FC<{
+	defaultMnumber?: string | null;
 	onChange: (selectedFaculty: MinimalFaculty | null) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultMnumber }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<FacultySearchContent onChange={onChange} />
+			<FacultySearchContent onChange={onChange} defaultMnumber={defaultMnumber} />
 		</Suspense>
 	);
 };
 
 const FacultySearchContent: React.FC<{
+	defaultMnumber?: string | null;
 	onChange: (selectedFaculty: MinimalFaculty | null) => void;
-}> = ({ onChange }) => {
-	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(
-		null
-	);
+}> = ({ onChange, defaultMnumber }) => {
+	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(null);
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const data = useLazyLoadQuery<facultySearchQuery>(
@@ -48,7 +48,19 @@ const FacultySearchContent: React.FC<{
 		{},
 		{ fetchPolicy: "store-or-network" }
 	);
+	
 	const facultyList = data.faculty;
+
+	// Initialize selected faculty from defaultMnumber if provided
+	if (defaultMnumber && !selectedFaculty) {
+		const initialFaculty = facultyList.find(
+			(f) => f.mnumber.toLowerCase() === defaultMnumber.toLowerCase()
+		);
+		if (initialFaculty) {
+			setSelectedFaculty(initialFaculty);
+			onChange(initialFaculty);
+		}
+	}
 
 	const handleFacultyToggle = (faculty: MinimalFaculty) => {
 		if (

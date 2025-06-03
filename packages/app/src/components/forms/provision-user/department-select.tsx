@@ -25,18 +25,20 @@ const departmentSelectQuery = graphql`
 `;
 
 export const DepartmentSelect: React.FC<{
+	defaultCode?: string | null;
 	onChange: (selectedDepartment: MinimalDepartment | null) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultCode }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<DepartmentSelectContent onChange={onChange} />
+			<DepartmentSelectContent onChange={onChange} defaultCode={defaultCode} />
 		</Suspense>
 	);
 };
 
 const DepartmentSelectContent: React.FC<{
+	defaultCode?: string | null;
 	onChange: (selectedDepartment: MinimalDepartment | null) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultCode }) => {
 	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>(null);
 
 	const data = useLazyLoadQuery<departmentSelectQuery>(
@@ -46,6 +48,17 @@ const DepartmentSelectContent: React.FC<{
 	);
 
 	const departments = data.getDepartments;
+
+	// Initialize selected department from defaultCode if provided
+	if (defaultCode && !selectedDepartment) {
+		const initialDepartment = departments.find(
+			(d) => d.code.toLowerCase() === defaultCode.toLowerCase()
+		);
+		if (initialDepartment) {
+			setSelectedDepartment(initialDepartment);
+			onChange(initialDepartment);
+		}
+	}
 
 	const handleDepartmentToggle = (department: MinimalDepartment) => {
 		if (selectedDepartment?.code === department.code) {

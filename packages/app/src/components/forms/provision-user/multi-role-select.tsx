@@ -23,18 +23,20 @@ const multiRoleSelectQuery = graphql`
 `;
 
 export const MultiRoleSelect: React.FC<{
+	defaultRoles?: string[];
 	onChange: (selectedRoles: string[]) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultRoles }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<MultiRoleSelectContent onChange={onChange} />
+			<MultiRoleSelectContent onChange={onChange} defaultRoles={defaultRoles} />
 		</Suspense>
 	);
 }
 
 const MultiRoleSelectContent: React.FC<{
+	defaultRoles?: string[];
 	onChange: (selectedRoles: string[]) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultRoles }) => {
 	const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
 	const data = useLazyLoadQuery<multiRoleSelectQuery>(
@@ -44,6 +46,24 @@ const MultiRoleSelectContent: React.FC<{
 	);
 
 	const roles = data.getRoles;
+
+	// Initialize selected roles from defaultRoles if provided
+	if (
+		defaultRoles &&
+		defaultRoles.length > 0 &&
+		selectedRoles.length === 0 &&
+		roles.length > 0
+	) {
+		// filter by name, then map to IDs
+		const initialIds = roles
+			.filter((role) => defaultRoles.includes(role.name))
+			.map((role) => role.id);
+
+		if (initialIds.length > 0) {
+			setSelectedRoles(initialIds);
+			onChange(initialIds);
+		}
+	}
 
 	const handleRoleToggle = (roleId: string) => {
 		setSelectedRoles((prev) =>

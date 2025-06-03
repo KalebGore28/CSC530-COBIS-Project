@@ -22,18 +22,20 @@ const collegeSelectQuery = graphql`
 `;
 
 export const CollegeSelect: React.FC<{
+	defaultCode?: string | null;
 	onChange: (selectedCollege: College | null) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultCode }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
-			<CollegeSelectContent onChange={onChange} />
+			<CollegeSelectContent onChange={onChange} defaultCode={defaultCode} />
 		</Suspense>
 	);
 };
 
 const CollegeSelectContent: React.FC<{
+	defaultCode?: string | null;
 	onChange: (selectedCollege: College | null) => void;
-}> = ({ onChange }) => {
+}> = ({ onChange, defaultCode }) => {
 	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
 
 	const data = useLazyLoadQuery<collegeSelectQuery>(
@@ -43,6 +45,17 @@ const CollegeSelectContent: React.FC<{
 	);
 
 	const colleges = data.getColleges;
+
+	// Initialize selected college from defaultCode if provided
+	if (defaultCode && !selectedCollege) {
+		const initialCollege = colleges.find(
+			(c) => c.code.toLowerCase() === defaultCode.toLowerCase()
+		);
+		if (initialCollege) {
+			setSelectedCollege(initialCollege);
+			onChange(initialCollege);
+		}
+	}
 
 	const handleCollegeToggle = (college: College) => {
 		if (selectedCollege?.code === college.code) {
