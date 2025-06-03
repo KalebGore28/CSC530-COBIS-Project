@@ -263,21 +263,24 @@ export function ProvisionUserForm({
 
 	return (
 		<form onSubmit={handleSubmit} className={cn("space-y-6", className)}>
-			<MultiRoleSelect
-				onChange={() => { }}
-			/>
-
-			<CollegeSelect
+			<FacultySearch
 				onChange={() => { }}
 			/>
 
 			<DepartmentSelect
 				onChange={() => { }}
 			/>
-
-			<FacultySearch
+			
+			<CollegeSelect
 				onChange={() => { }}
 			/>
+
+			<MultiRoleSelect
+				onChange={() => { }}
+			/>
+
+
+
 
 			{/* Faculty/M-Number Search */}
 			<div className="space-y-2">
