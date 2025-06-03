@@ -40,7 +40,6 @@ export const CsvImport: React.FC = () => {
   useEffect(() => {
     const fetchImportInfo = async () => {
       const info = await CsvImportService.getImportInfo();
-      console.log("Import info:", info);
       setImportInfo(info);
     };
     fetchImportInfo();

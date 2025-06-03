@@ -138,19 +138,21 @@ const UserCard: React.FC<{
 				</p>
 			</CardContent>
 			<CardFooter className="flex flex-col gap-2 p-2">
-				<div className="flex justify-between w-full">
+				<div className="flex flex-wrap w-full gap-1">
 					<Label className="text-xs flex-shrink-0">Roles:</Label>
-					<div className="flex flex-wrap gap-1 max-w-[70%]">
-						{user.roles.map(role => (
-							<Label
+					{user.roles.length > 0 ? user.roles.map(role => (
+						<Label
 
-								key={role.role.id}
-								className="px-2 py-1 rounded text-xs whitespace-nowrap border bg-muted text-muted-foreground"
-								title={role.role.name}
-							>
-								{role.role.name}
-							</Label>
-						))}
+							key={role.role.id}
+							className="p-1 rounded text-xs whitespace-nowrap border bg-muted text-muted-foreground"
+							title={role.role.name}
+						>
+							{role.role.name}
+						</Label>
+					))
+						: <span className="text-muted-foreground text-xs">No roles assigned</span>
+					}
+					<div className="flex flex-wrap gap-1 max-w-[70%]">
 					</div>
 				</div>
 				{currentAdminId !== user.id && (
