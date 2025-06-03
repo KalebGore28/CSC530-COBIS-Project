@@ -60,9 +60,8 @@ const termMap = {
 }
 
 type CreateFacultyInput = {
+	user_id: string;
 	mnumber: string;
-	first_name: string;
-	last_name: string;
 	college_code: string;
 	department_code: string;
 }
@@ -1102,39 +1101,128 @@ export const resolvers = {
 	},
 
 	Mutation: {
-		addFaculty: requireRoles(['cobis_administrator'], async (_parent: any, args: { input: CreateFacultyInput }, { db }: ApolloContext) => {
-			const { mnumber, first_name, last_name, college_code, department_code } = args.input;
+		provisionFaculty: requireRoles(['cobis_administrator'], async (_parent: any, args: { input: CreateFacultyInput }, { db }: ApolloContext) => {
+			const { user_id, mnumber, college_code, department_code } = args.input;
 
-			// Check if the faculty member already exists
-			const existingFaculty = await db
+			// Check if the user exists
+			const [existingUser] = await db
+				.select()
+				.from(tables.user)
+				.where(eq(tables.user.id, user_id))
+				.limit(1);
+			if (!existingUser) {
+				throw new Error(`User with ID ${user_id} does not exist.`);
+			}
+
+			// Check if another user already has the provided mnumber
+			const existingMnumber = await db
+				.select()
+				.from(tables.user)
+				.where(eq(tables.user.mnumber, mnumber))
+				.limit(1);
+
+			// Check if the user already assigned the mnumber is not the same user
+			if (existingMnumber.length > 0 && existingMnumber[0].id !== existingUser.id) {
+				throw new Error(`Mnumber ${mnumber} is already assigned to another user.`);
+			}
+
+			// Check if the faculty row already exists, is so then we just assign the mnumber to the user
+			const [existingFaculty] = await db
 				.select()
 				.from(tables.faculty)
 				.where(eq(tables.faculty.mnumber, mnumber))
 				.limit(1);
 
-			if (existingFaculty.length > 0) {
-				throw new Error(`Faculty member with MNumber ${mnumber} already exists.`);
+			if (existingFaculty) {
+				//
+				// === CASE A: “There is already a faculty row with this mnumber” ===
+				// We want to:
+				//  a) Update the faculty row itself only if college_code or department_code came in.
+				//  b) Link that faculty’s mnumber onto the user, and only set
+				//     user.college_code / user.department_code if they were provided.
+				//
+
+				// 3a) Build an object of faculty‐fields to update (only include those that are non‐null)
+				const facultyUpdates: Partial<{
+					college: string;
+					department: string;
+				}> = {};
+				if (college_code != null) {
+					facultyUpdates.college = college_code;
+				}
+				if (department_code != null) {
+					facultyUpdates.department = department_code;
+				}
+
+				// If there is something in facultyUpdates, push an UPDATE to faculty table
+				if (Object.keys(facultyUpdates).length > 0) {
+					await db
+						.update(tables.faculty)
+						.set(facultyUpdates)
+						.where(eq(tables.faculty.mnumber, mnumber))
+						.returning(); // (optional) return the new faculty row if you need it
+				}
+
+				// 3b) Now link/update the user record:
+				// We always set mnumber = existingFaculty.mnumber,
+				// but only set college_code/department_code on user if they were provided.
+				const userUpdates: Partial<{
+					mnumber: string;
+					college_code: string;
+					department_code: string;
+				}> = { mnumber: existingFaculty.mnumber };
+				if (college_code != null) {
+					userUpdates.college_code = college_code;
+				}
+				if (department_code != null) {
+					userUpdates.department_code = department_code;
+				}
+
+				await db
+					.update(tables.user)
+					.set(userUpdates)
+					.where(eq(tables.user.id, user_id))
+					.returning();
+
+				// Fetch the (possibly updated) faculty row so we can return it:
+				const [updatedFaculty] = await db
+					.select()
+					.from(tables.faculty)
+					.where(eq(tables.faculty.mnumber, mnumber))
+					.limit(1);
+
+				return updatedFaculty;
 			}
 
-			// Create the new faculty member
-			const newFaculty = {
-				mnumber,
-				first_name,
-				last_name,
-				college: college_code,
-				department: department_code || null,
-			};
+			//
+			// === CASE B: “No faculty row exists yet” ===
+			// We need to create one using whatever fields were passed in.
+			// Then return that new faculty.
+			//
 
-			const [createdFaculty] = await db
+			// Split the user’s name into first / last.
+			const [firstName, ...lastNameParts] = existingUser.name.split(' ');
+			const lastName = lastNameParts.join(' ') || '';
+
+			// If the faculty member does not exist, create a new one
+			const newFaculty = await db
 				.insert(tables.faculty)
-				.values(newFaculty)
-				.returning();
-			if (!createdFaculty) {
-				throw new Error('Failed to create faculty member.');
+				.values({
+					mnumber,
+					college: college_code,
+					department: department_code,
+					first_name: firstName,
+					last_name: lastName,
+				})
+				.returning()
+				.all();
+
+			// If the insert failed, throw an error
+			if (newFaculty.length === 0) {
+				throw new Error('Failed to create new faculty member.');
 			}
 
-			// Return the created faculty member
-			return createdFaculty;
+			return newFaculty[0];
 		})
 	}
 }

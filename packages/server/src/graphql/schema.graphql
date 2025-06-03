@@ -462,13 +462,12 @@ type Query {
 }
 
 input CreateFacultyInput {
+  user_id: String!
   mnumber: String!
-  first_name: String!
-  last_name: String!
   college_code: String!
   department_code: String!
 }
 
 type Mutation {
-  addFaculty(input: CreateFacultyInput): Faculty!
+  provisionFaculty(input: CreateFacultyInput): Faculty!
 }
