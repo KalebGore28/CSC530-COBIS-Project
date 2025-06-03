@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useMutation } from "react-relay";
+import { toast } from 'sonner';
 
 // GraphQL mutation—note we renamed it to “provisionUserMutation”:
 import type { provisionUserMutation } from './__generated__/provisionUserMutation.graphql';
@@ -80,11 +81,11 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 	//    We do not need useEffect—this is a direct click‐handler approach.
 	const handleSaveClick = () => {
 		if (!user) {
-			// (Optionally) guard against no selected user
+			toast.error("No user selected for provisioning.");
 			return;
 		}
-		if (!selectedFaculty || !selectedDepartment || !selectedCollege) {
-			// (Optionally) show an error if some required field is missing
+		if (!selectedFaculty || !selectedDepartment || !selectedCollege || selectedFaculty.mnumber.trim() === '') {
+			toast.error("Please select a faculty member, department, and college.");
 			return;
 		}
 

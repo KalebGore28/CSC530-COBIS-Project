@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from '@/context/session';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/modals/modal';
-import { ProvisionUserForm } from '@/components/forms/provision-user';
+import { ProvisionUserForm } from '@/components/provision-user';
 
 // GraphQL imports
 import type { usersQuery } from "./__generated__/usersQuery.graphql";

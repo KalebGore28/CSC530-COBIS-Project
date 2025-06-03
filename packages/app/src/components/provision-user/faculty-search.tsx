@@ -87,7 +87,7 @@ const FacultySearchContent: React.FC<{
 
 	return (
 		<div className="w-full border rounded-md shadow-sm">
-			{selectedFaculty ? (
+			{selectedFaculty && selectedFaculty.mnumber ? (
 				// Collapsed view: use a regular div with padding to keep height
 				<div
 					className="flex justify-between items-center text-sm px-2 py-1.5 cursor-pointer"
