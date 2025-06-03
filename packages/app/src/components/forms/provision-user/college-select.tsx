@@ -24,7 +24,7 @@ const collegeSelectQuery = graphql`
 `;
 
 export const CollegeSelect: React.FC<{
-	onChange: (selectedCollege: College) => void;
+	onChange: (selectedCollege: College | null) => void;
 }> = ({ onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
@@ -34,7 +34,7 @@ export const CollegeSelect: React.FC<{
 };
 
 const CollegeSelectContent: React.FC<{
-	onChange: (selectedColleges: College[]) => void;
+	onChange: (selectedColleges: College | null) => void;
 }> = ({ onChange }) => {
 	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
 
@@ -48,10 +48,10 @@ const CollegeSelectContent: React.FC<{
 	const handleCollegeToggle = (college: College) => {
 		if (selectedCollege?.code === college.code) {
 			setSelectedCollege(null);
-			onChange([]);
+			onChange(null);
 		} else {
 			setSelectedCollege(college);
-			onChange([college]);
+			onChange(college);
 		}
 	};
 

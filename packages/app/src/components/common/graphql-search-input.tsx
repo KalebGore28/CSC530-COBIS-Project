@@ -1,4 +1,3 @@
-// src/components/GraphQLSearchInput.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import debounce from "lodash.debounce";
 import {
