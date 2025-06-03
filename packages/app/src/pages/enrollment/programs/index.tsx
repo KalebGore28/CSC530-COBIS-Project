@@ -88,7 +88,7 @@ const ProgramList: React.FC = () => {
 							onClick={() => navigate(`/enrollment/programs/${program.code}`)}
 						>
 							<div className="flex justify-between">
-								<span>
+								<span className='truncate'>
 									{program.code} - {program.description}
 								</span>
 								<div className="flex items-center space-x-2">

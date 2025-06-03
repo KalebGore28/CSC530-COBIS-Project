@@ -93,10 +93,10 @@ const CourseList: React.FC = () => {
 							}
 						>
 							<div className="flex justify-between">
-								<span>
+								<span className='truncate'>
 									{course.subject}{course.number}{course.suffix} - {course.title}
 								</span>
-								<span className="text-sm text-gray-500">
+								<span className="text-sm text-gray-500 truncate">
 									Hours: {course.hours}, Fee: ${course.fee}, Web Fee: ${course.web_fee}
 								</span>
 							</div>
