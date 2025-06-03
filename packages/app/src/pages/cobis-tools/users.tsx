@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState } from 'react';
 import {
 	Card,
 	CardContent,
@@ -11,8 +11,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from '@/context/session';
-// import { Modal } from '@/components/modals/modal';
-// import { ProvisionUserForm } from '@/components/forms/provision-user';
+import { Input } from '@/components/ui/input';
+import { Modal } from '@/components/modals/modal';
+import { ProvisionUserForm } from '@/components/forms/provision-user';
 
 // GraphQL imports
 import type { usersQuery } from "./__generated__/usersQuery.graphql";
@@ -80,6 +81,8 @@ export const UserList: React.FC = () => {
 }
 
 const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId }) => {
+	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+	const [modalOpen, setModalOpen] = useState(false);
 	const data = useLazyLoadQuery<usersQuery>(
 		usersQuery,
 		{},
@@ -95,9 +98,33 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 					key={u.id}
 					currentAdminId={currentAdminId}
 					user={u}
-					onOpenProvisionModal={() => { }}
+					onOpenProvisionModal={() => {
+						setSelectedUserId(u.id);
+						setModalOpen(true);
+					}}
 				/>
 			))}
+
+			{/* Modal */}
+			<Modal
+				isOpen={modalOpen}
+				onClose={() => {
+					setModalOpen(false);
+					setSelectedUserId(null);
+				}}
+				title="Provision User"
+				description="Fill in the details to provision this user."
+				size="lg"
+			>
+				<ProvisionUserForm
+					userId={selectedUserId}
+					onSaveSuccess={() => {}}
+					onCancel={() => {
+						setModalOpen(false);
+						setSelectedUserId(null);
+					}}
+				/>
+			</Modal>
 		</div>
 	);
 }
