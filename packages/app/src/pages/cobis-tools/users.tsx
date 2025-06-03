@@ -83,6 +83,8 @@ export const UserList: React.FC = () => {
 const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId }) => {
 	const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 	const [modalOpen, setModalOpen] = useState(false);
+	const [searchTerm, setSearchTerm] = useState("");
+
 	const data = useLazyLoadQuery<usersQuery>(
 		usersQuery,
 		{},
@@ -91,19 +93,46 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 
 	const users = data.users || [];
 
+	const filteredUsers = users.filter((user) => {
+		const term = searchTerm.toLowerCase();
+		return (
+			user.name?.toLowerCase().includes(term) ||
+			user.mnumber?.toLowerCase().includes(term) ||
+			user.email?.toLowerCase().includes(term)
+		);
+	});
+
 	return (
-		<div className="flex flex-wrap gap-4 justify-center">
-			{users.map(u => (
-				<UserCard
-					key={u.id}
-					currentAdminId={currentAdminId}
-					user={u}
-					onOpenProvisionModal={() => {
-						setSelectedUserId(u.id);
-						setModalOpen(true);
-					}}
-				/>
-			))}
+		<div className="space-y-4">
+			{/* Filter Card */}
+			<Card className="w-full max-w-3xl mx-auto">
+				<CardHeader>
+					<CardTitle>Filter Users</CardTitle>
+					<CardDescription>Search by name, M#, or email.</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Input
+						placeholder="Search users..."
+						value={searchTerm}
+						onChange={(e) => setSearchTerm(e.target.value)}
+					/>
+				</CardContent>
+			</Card>
+
+			{/* User Cards */}
+			<div className="flex flex-wrap gap-4 justify-center">
+				{filteredUsers.map((u) => (
+					<UserCard
+						key={u.id}
+						currentAdminId={currentAdminId}
+						user={u}
+						onOpenProvisionModal={() => {
+							setSelectedUserId(u.id);
+							setModalOpen(true);
+						}}
+					/>
+				))}
+			</div>
 
 			{/* Modal */}
 			<Modal
@@ -118,7 +147,7 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 			>
 				<ProvisionUserForm
 					userId={selectedUserId}
-					onSaveSuccess={() => {}}
+					onSaveSuccess={() => { }}
 					onCancel={() => {
 						setModalOpen(false);
 						setSelectedUserId(null);
@@ -127,7 +156,8 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 			</Modal>
 		</div>
 	);
-}
+};
+
 
 const UserCard: React.FC<{
 	user: usersQuery['response']['users'][number];
