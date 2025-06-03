@@ -86,7 +86,7 @@ type RegistrationStatus {
 }
 
 type Role {
-  id: Int!
+  id: String!
   name: String!
 }
 
@@ -248,6 +248,7 @@ type User {
   isEnabled: Boolean!
   lastLogin: String!
   # Relationships
+  faculty: Faculty
   roles: [UserRole!]!
 }
 

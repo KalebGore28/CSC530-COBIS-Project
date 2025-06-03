@@ -42,10 +42,10 @@ export const hasRole = (role_name: RoleName | RoleName[]): RequestHandler => {
 		let hasRequiredRole = false;
 		if (Array.isArray(role_name)) {
 			// If role_name is an array, check if any user role matches any role in the array
-			hasRequiredRole = userRoles.some((role) => role_name.includes(role.role_name));
+			hasRequiredRole = userRoles.some((role) => role_name.includes(role.name));
 		} else {
 			// If role_name is a single string, check if the user has that role
-			hasRequiredRole = userRoles.some((role) => role.role_name === role_name);
+			hasRequiredRole = userRoles.some((role) => role.name === role_name);
 		}
 
 		// If the user doesn't have the required role(s), return a 403 error

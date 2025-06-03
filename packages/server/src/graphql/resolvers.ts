@@ -930,6 +930,10 @@ export const resolvers = {
 			loaders.user.load(faculty.mnumber),
 	},
 
+	Role: {
+		id: (role: tables.Role, _args: any, _context: ApolloContext) => role.id.toString(),
+	},
+
 	User: {
 		updatedAt(user: tables.User, _args: any, _context: ApolloContext) {
 			// if user.updatedAt is a JS Date or number in ms
@@ -954,6 +958,8 @@ export const resolvers = {
 		},
 		roles: (user: tables.User, _args: any, { loaders }: ApolloContext) =>
 			loaders.userRoles.load(user.id),
+		faculty: (user: tables.User, _args: any, { loaders }: ApolloContext) =>
+			loaders.faculty.load(user.mnumber || ''),
 
 	},
 

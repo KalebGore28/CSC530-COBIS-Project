@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "start": "node --env-file=.env dist/server.js",
+    "relay": "npm run relay --workspace=cobis-app",
     "dev": "concurrently \"npm run dev --workspace=cobis-app\" \"npm run dev --workspace=cobis-server\"",
     "build": "node esbuild.config.js",
     "db:push": "npm run db:push --workspace=cobis-server",
