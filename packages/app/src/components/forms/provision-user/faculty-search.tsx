@@ -68,22 +68,34 @@ const FacultySearchContent: React.FC<{
 		<div className="w-full border rounded-md shadow-sm">
 			<Command>
 				<CommandList>
-					<CommandInput placeholder="Search faculty by name or MNumber..." />
-					<CommandGroup heading="Faculty">
-						{facultyList.length > 0 ? (
-							facultyList.map((faculty) => (
-								<CommandItem
-									key={faculty.mnumber}
-									onSelect={() => handleFacultyToggle(faculty)}
-								>
-									{`${faculty.first_name} ${faculty.last_name}`}
-									<CommandShortcut>{faculty.mnumber}</CommandShortcut>
-								</CommandItem>
-							))
-						) : (
-							<CommandEmpty>No faculty found</CommandEmpty>
-						)}
-					</CommandGroup>
+					{selectedFaculty ? (
+						<CommandItem
+							onSelect={() => handleFacultyToggle(selectedFaculty)}
+							className="flex justify-between cursor-pointer"
+						>
+							<span>{`${selectedFaculty.first_name} ${selectedFaculty.last_name}`}</span>
+							<span className="text-muted-foreground">✕</span>
+						</CommandItem>
+					) : (
+						<>
+							<CommandInput placeholder="Search faculty by name or MNumber..." />
+							<CommandGroup heading="Faculty">
+								{facultyList.length > 0 ? (
+									facultyList.map((faculty) => (
+										<CommandItem
+											key={faculty.mnumber}
+											onSelect={() => handleFacultyToggle(faculty)}
+										>
+											{`${faculty.first_name} ${faculty.last_name}`}
+											<CommandShortcut>{faculty.mnumber}</CommandShortcut>
+										</CommandItem>
+									))
+								) : (
+									<CommandEmpty>No faculty found</CommandEmpty>
+								)}
+							</CommandGroup>
+						</>
+					)}
 				</CommandList>
 			</Command>
 		</div>
