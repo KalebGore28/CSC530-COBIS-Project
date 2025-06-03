@@ -1,4 +1,7 @@
 import React, { useState, Suspense } from 'react';
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 //GraphQL imports
 import type { provisionUserQuery } from './__generated__/provisionUserQuery.graphql';
@@ -23,18 +26,13 @@ const provisionUserQuery = graphql`
 `;
 
 
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 
-// 
+// Interface Imports
 import { type MinimalFaculty, FacultySearch } from './provision-user/faculty-search';
 import { type MinimalDepartment, DepartmentSelect } from './provision-user/department-select';
 import { type College } from '@cobis/types';
 import { CollegeSelect } from './provision-user/college-select';
 import { MultiRoleSelect } from './provision-user/multi-role-select';
-
-
 import type { QueryUser } from '@/pages/cobis-tools/users';
 
 // Update Props: Remove initialUser
@@ -47,16 +45,28 @@ interface ProvisionUserFormProps {
 
 // --- Component Implementation ---
 
-export function ProvisionUserForm({
+export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 	user,
 	onSaveSuccess,
 	onCancel,
 	className,
-}: ProvisionUserFormProps) {
-	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>(null);
-	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>(null);
-	const [selectedCollege, setSelectedCollege] = useState<College | null>(null);
-	const [selectedRoleNames, setSelectedRoleNames] = useState<string[]>([]);
+}: ProvisionUserFormProps) => {
+	const [selectedFaculty, setSelectedFaculty] = useState<MinimalFaculty | null>({
+		mnumber: user?.mnumber || '',
+		first_name: user?.name.split(' ')[0] || '',
+		last_name: user?.name.split(' ')[1] || '',
+	});
+	const [selectedDepartment, setSelectedDepartment] = useState<MinimalDepartment | null>({
+		code: user?.faculty?.department?.code || '',
+		description: user?.faculty?.department?.description || '',
+	});
+	const [selectedCollege, setSelectedCollege] = useState<College | null>({
+		code: user?.faculty?.college?.code || '',
+		description: user?.faculty?.college?.description || '',
+	});
+	const [selectedRoleNames, setSelectedRoleNames] = useState<string[]>([
+		...(user?.roles?.map(role => role.role.name) || []),
+	]);
 
 	return (
 		<div className='space-y-4 p-6'>
