@@ -13,33 +13,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 export const TermRangeSelectorSkeleton: React.FC = () => (
 	<Card className="col-span-2">
 		<CardHeader>
-			{/* Skeleton for the title */}
 			<Skeleton className="h-6 w-40" />
-			{/* Skeleton for the description */}
 			<Skeleton className="h-4 w-[60%] mt-2" />
 		</CardHeader>
 		<CardContent className="space-y-4">
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-				{/* ────── Start Range Skeleton ────── */}
 				<div>
-					{/* Skeleton for "Start Term / Year" label */}
 					<Skeleton className="h-4 w-28 mb-1" />
 					<div className="flex space-x-2">
-						{/* Skeleton for start-year select */}
 						<Skeleton className="h-10 w-[100px]" />
-						{/* Skeleton for start-term select */}
 						<Skeleton className="h-10 w-[120px]" />
 					</div>
 				</div>
 
 				{/* ────── End Range Skeleton ────── */}
 				<div>
-					{/* Skeleton for "End Term / Year" label */}
 					<Skeleton className="h-4 w-28 mb-1" />
 					<div className="flex space-x-2">
-						{/* Skeleton for end-year select */}
 						<Skeleton className="h-10 w-[100px]" />
-						{/* Skeleton for end-term select */}
 						<Skeleton className="h-10 w-[120px]" />
 					</div>
 				</div>

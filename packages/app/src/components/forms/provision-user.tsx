@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { UserData } from '@/types/user';
+import React, { useState, useEffect, useCallback, Suspense } from 'react';
+
 import axios from 'axios';
 import { toast } from "sonner";
 
@@ -12,6 +12,9 @@ import SearchInput from "@/components/common/search-input";
 import { cn } from "@/lib/utils";
 // Import a spinner or loading component if you have one
 // import { Spinner } from "@/components/ui/spinner";
+
+import { CollegeSelect } from './provision-user/college-select';
+import { MultiRoleSelect } from './provision-user/multi-role-select';
 
 // --- Types ---
 interface Faculty {
@@ -272,6 +275,14 @@ export function ProvisionUserForm({
 
 	return (
 		<form onSubmit={handleSubmit} className={cn("space-y-6", className)}>
+			<MultiRoleSelect
+				onChange={() => { }}
+			/>
+
+			<CollegeSelect
+				onChange={() => { }}
+			/>
+
 			{/* Faculty/M-Number Search */}
 			<div className="space-y-2">
 				<Label htmlFor="faculty-search">Faculty / M-Number (Optional)</Label>

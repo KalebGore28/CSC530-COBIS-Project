@@ -15,7 +15,6 @@ import {
 	TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-
 import { Modal } from '@/components/modals/modal';
 import { StudentDetail } from '@/components/student-detail';
 
