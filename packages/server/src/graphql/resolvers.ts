@@ -1119,8 +1119,6 @@ export const resolvers = {
 					enableUser,      // ← ADDED (boolean to set user.isEnabled)
 				} = args.input;
 
-				console.log('Provisioning faculty with input:', args.input);
-
 				// 1) Check if the user exists
 				const [existingUser] = await db
 					.select()

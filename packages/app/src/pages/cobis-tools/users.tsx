@@ -149,8 +149,12 @@ const UserListContent: React.FC<{ currentAdminId: string }> = ({ currentAdminId 
 			>
 				<ProvisionUserForm
 					user={selectedUser}
-					// TODO: finish this part
-					onSaveSuccess={() => { }}
+					onSaveSuccess={() => {
+						setModalOpen(false);
+						setSelectedUser(null);
+
+						window.location.reload(); // Reload to reflect changes
+					}}
 					onCancel={() => {
 						setModalOpen(false);
 						setSelectedUser(null);

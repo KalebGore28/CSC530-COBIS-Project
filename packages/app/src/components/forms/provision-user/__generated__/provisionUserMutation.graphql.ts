@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<eb494140b2647d7dec868bfef92292c4>>
- * @relayHash 6042aa80bdb19578e347af3c9631960d
+ * @generated SignedSource<<854b139dc932b59d120ec9406726d3dd>>
+ * @relayHash 136da4ddb38e367bc5adce05780eaeb9
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 6042aa80bdb19578e347af3c9631960d
+// @relayRequestID 136da4ddb38e367bc5adce05780eaeb9
 
 import { ConcreteRequest } from 'relay-runtime';
 export type CreateFacultyInput = {
@@ -20,10 +20,10 @@ export type CreateFacultyInput = {
   role_ids: ReadonlyArray<number>;
   user_id: string;
 };
-export type provisionUserQuery$variables = {
+export type provisionUserMutation$variables = {
   input: CreateFacultyInput;
 };
-export type provisionUserQuery$data = {
+export type provisionUserMutation$data = {
   readonly provisionFaculty: {
     readonly college: {
       readonly code: string;
@@ -36,11 +36,14 @@ export type provisionUserQuery$data = {
     readonly first_name: string;
     readonly last_name: string;
     readonly mnumber: string;
+    readonly user: {
+      readonly id: string;
+    } | null | undefined;
   };
 };
-export type provisionUserQuery = {
-  response: provisionUserQuery$data;
-  variables: provisionUserQuery$variables;
+export type provisionUserMutation = {
+  response: provisionUserMutation$data;
+  variables: provisionUserMutation$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -122,6 +125,24 @@ v2 = [
         "plural": false,
         "selections": (v1/*: any*/),
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "User",
+        "kind": "LinkedField",
+        "name": "user",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -132,7 +153,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "provisionUserQuery",
+    "name": "provisionUserMutation",
     "selections": (v2/*: any*/),
     "type": "Mutation",
     "abstractKey": null
@@ -141,19 +162,19 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "provisionUserQuery",
+    "name": "provisionUserMutation",
     "selections": (v2/*: any*/)
   },
   "params": {
-    "id": "6042aa80bdb19578e347af3c9631960d",
+    "id": "136da4ddb38e367bc5adce05780eaeb9",
     "metadata": {},
-    "name": "provisionUserQuery",
+    "name": "provisionUserMutation",
     "operationKind": "mutation",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "329cb90fabcabc24c95f2ded6e0c0bbd";
+(node as any).hash = "0184b8f9a23a7f949e57f4408e2d6bf1";
 
 export default node;

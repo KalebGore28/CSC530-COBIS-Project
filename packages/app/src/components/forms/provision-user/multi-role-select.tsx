@@ -41,7 +41,6 @@ const MultiRoleSelectContent: React.FC<{
 	selectedRoles: Role[];
 	onChange: (selectedRoles: Role[]) => void;
 }> = ({ selectedRoles, onChange }) => {
-	console.log("MultiRoleSelectContent rendered with selectedRoles:", selectedRoles);
 
 	const data = useLazyLoadQuery<multiRoleSelectQuery>(
 		multiRoleSelectQuery,
@@ -52,7 +51,6 @@ const MultiRoleSelectContent: React.FC<{
 	const roles = data.getRoles;
 
 	const handleRoleToggle = (roleId: string) => {
-		console.log("Toggling role:", roleId);
 		const isSelected = selectedRoles.some(role => role.id === parseInt(roleId));
 		let updatedRoles: Role[];
 
@@ -70,7 +68,6 @@ const MultiRoleSelectContent: React.FC<{
 		}
 
 		onChange(updatedRoles);
-		console.log("Updated roles:", updatedRoles);
 	};
 
 	return (
