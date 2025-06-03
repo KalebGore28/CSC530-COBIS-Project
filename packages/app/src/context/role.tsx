@@ -8,18 +8,17 @@ import {
 	Settings,
 	Shield,
 } from "lucide-react";
+import type { Role } from '@cobis/types';
 
 // Define the Role type
-interface Role {
-	id: number;
-	name: string; // Display name (e.g., "COBIS Admin")
+interface ExtendedRole extends Role {
 	logo: React.ElementType;
 }
 
 interface RoleContextType {
-	roles: Role[];
-	selectedRole: Role | null;
-	setSelectedRole: (role: Role | null) => void;
+	roles: ExtendedRole[];
+	selectedRole: ExtendedRole | null;
+	setSelectedRole: (role: ExtendedRole | null) => void;
 	routePermissions: { [key: string]: string[] }; // Routes mapped to allowed display names
 }
 
@@ -37,8 +36,8 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const { session, isLoading: sessionLoading } = useSession();
-	const [roles, setRoles] = useState<Role[]>([]);
-	const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+	const [roles, setRoles] = useState<ExtendedRole[]>([]);
+	const [selectedRole, setSelectedRole] = useState<ExtendedRole | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
 		"/dashboard": ["Faculty", "Advisor", "Program Coordinator", "Department Chair", "Administrator", "COBIS Admin"],
 		"/cobis-tools": ["COBIS Admin"],
@@ -59,9 +58,9 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 	useEffect(() => {
 		if (!sessionLoading && session?.info.roles?.length) {
 			const fetched = session.info.roles.map(r => ({
-				id: r.role_id,
-				name: roleNameMap[r.role_name] ?? r.role_name,
-				logo: getLogoForRole(r.role_name),
+				id: r.id,
+				name: roleNameMap[r.name] ?? r.name,
+				logo: getLogoForRole(r.name),
 			}));
 			setRoles(fetched);
 		}

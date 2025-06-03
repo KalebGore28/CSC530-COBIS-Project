@@ -65,7 +65,7 @@ export const createDb = async (
 	const orm = drizzle(db, {
 		schema: tables,
 		casing: 'snake_case',
-		logger: (process.env.NODE_ENV === 'development' ? new DefaultLogger() : undefined),
+		// logger: (process.env.NODE_ENV === 'development' ? new DefaultLogger() : undefined),
 	});
 
 	return { db, orm };

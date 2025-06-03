@@ -16,17 +16,17 @@ export function checkEnrollmentAccess<
 ): (parent: TParent, args: TArgs, ctx: ApolloContext) => Promise<TResult> {
 	return async (parent: TParent, args: TArgs, ctx: ApolloContext) => {
 		// 1) admin / super role
-		if (ctx.roles.some(r => r.role_name === 'cobis_administrator')) {
+		if (ctx.roles.some(r => r.name === 'cobis_administrator')) {
 			return resolver(parent, args, ctx);
 		}
 
 		// 2) Department chair check
-		if (ctx.roles.some(r => r.role_name === 'department_chair')) {
+		if (ctx.roles.some(r => r.name === 'department_chair')) {
 			return resolver(parent, args, ctx);
 		}
 
 		// 3) Administrator check
-		if (ctx.roles.some(r => r.role_name === 'administrator')) {
+		if (ctx.roles.some(r => r.name === 'administrator')) {
 			return resolver(parent, args, ctx);
 		}
 

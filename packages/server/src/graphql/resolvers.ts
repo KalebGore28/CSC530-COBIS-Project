@@ -3,6 +3,7 @@ import * as tables from '../db/schema'
 import { checkStudentAccess } from './middleware/checkStudentAccess';
 import { checkInstructorAccess } from './middleware/checkInstructorAccess';
 import { checkEnrollmentAccess } from './middleware/checkEnrollmentAccess';
+import { requireRoles } from './middleware/requireRoles';
 import { ApolloContext } from '../app';
 
 import { ProgramResolver } from './resolvers/program';
@@ -57,7 +58,6 @@ const termMap = {
 	'80': 'Fall',
 	'90': 'Winter',
 }
-
 
 export const resolvers = {
 	Query: {
@@ -565,6 +565,15 @@ export const resolvers = {
 				.limit(1);
 			return course || null;
 		}),
+
+		// Other queries
+		users: requireRoles(['cobis_administrator'], async (_parent: any, _args: any, { db }: ApolloContext) => {
+			return db
+				.select()
+				.from(tables.user)
+				.orderBy(tables.user.email)
+				.all();
+		}),
 	},
 
 	// Lookup resolvers
@@ -942,8 +951,17 @@ export const resolvers = {
 				? user.lastLogin
 				: user.lastLogin.getTime();
 			return Math.floor(ms / 1000);
-		}
+		},
+		roles: (user: tables.User, _args: any, { loaders }: ApolloContext) =>
+			loaders.userRoles.load(user.id),
 
+	},
+
+	UserRole: {
+		user: (userRoles: tables.UserRole, _args: any, { loaders }: ApolloContext) =>
+			loaders.user.load(userRoles.user_id),
+		role: (userRoles: tables.UserRole, _args: any, { loaders }: ApolloContext) =>
+			loaders.role.load(userRoles.role_id),
 	},
 
 	InstructorCourse: {

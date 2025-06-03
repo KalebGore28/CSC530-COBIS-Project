@@ -7,13 +7,14 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import axios, { AxiosError } from 'axios'
 import { getSession as rawGetSession, signout } from '@/lib/auth-client'
+import type { Role } from '@cobis/types'
 
 export interface Session {
   session: Awaited<ReturnType<typeof rawGetSession>>
   info: UserInfo
 }
 export type UserInfo = {
-  roles: { role_id: number; role_name: string }[] | []
+  roles: Role[]
   department: string | null
   college: string | null
   mnumber: string | null

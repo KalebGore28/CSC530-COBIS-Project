@@ -1,35 +1,37 @@
 // src/graphql/middleware/requireRoles.ts
 import { GraphQLError } from 'graphql'
+import type { ApolloContext } from '../../app'
+import type { Role } from '../../db/schema'
 
 /**
  * Wraps a resolver so that only users with at least one of `allowedRoles`
  * may ever call it.
  */
-export function requireRoles<R = any, A = any, C = any>(
+export function requireRoles<
+	TParent = any,
+	TArgs = any,
+	TResult = any
+>(
 	allowedRoles: string[],
-	resolver: (parent: any, args: A, ctx: C, info: any) => Promise<R> | R
-) {
-	return async (parent: any, args: A, ctx: any, info: any): Promise<R> => {
-		// 1) Not signed in?
-		if (!ctx.user) {
-			throw new GraphQLError('Not authenticated', {
-				extensions: { code: 'UNAUTHENTICATED' },
-			})
-		}
+	resolver: (
+		parent: TParent,
+		args: TArgs,
+		ctx: ApolloContext
+	) => Promise<TResult>
+): (parent: TParent, args: TArgs, ctx: ApolloContext) => Promise<TResult> {
+	return async (parent: TParent, args: TArgs, ctx: ApolloContext) => {
 
-		// 2) No roles on context?
-		const userRoles: string[] = Array.isArray(ctx.roles)
-			? ctx.roles
-			: []
+		// 1) No roles on context?
+		const userRoles: Role[] = Array.isArray(ctx.roles) ? ctx.roles : []
 
 		// 3) Missing required role?
-		if (!userRoles.some(r => allowedRoles.includes(r))) {
+		if (!userRoles.some(r => allowedRoles.includes(r.name))) {
 			throw new GraphQLError('Forbidden: insufficient permissions', {
 				extensions: { code: 'FORBIDDEN' },
 			})
 		}
 
 		// 4) All good—call the real resolver
-		return resolver(parent, args, ctx, info)
+		return resolver(parent, args, ctx)
 	}
 }

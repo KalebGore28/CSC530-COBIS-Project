@@ -23,12 +23,12 @@ export function checkInstructorAccess<
 		}
 
 		// 2) admin / super role
-		if (ctx.roles.some(r => r.role_name === 'cobis_administrator')) {
+		if (ctx.roles.some(r => r.name === 'cobis_administrator')) {
 			return resolver(parent, args, ctx);
 		}
 
 		// 3) Department chair check
-		if (ctx.roles.some(r => r.role_name === 'department_chair')) {
+		if (ctx.roles.some(r => r.name === 'department_chair')) {
 			// check and make sure the requested instructor is in the same department
 			const [{ cnt }] = await ctx.db
 				.select({ cnt: count(tables.faculty.mnumber) })

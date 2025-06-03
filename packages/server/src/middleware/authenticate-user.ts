@@ -61,8 +61,8 @@ export const authenticateAndLoadUser = async (
 		const [userRolesRows, facultyRow] = await Promise.all([
 			db
 				.select({
-					role_id: userRoles.role_id,
-					role_name: roles.name,
+					id: userRoles.role_id,
+					name: roles.name,
 				})
 				.from(userRoles)
 				.innerJoin(roles, eq(roles.id, userRoles.role_id))

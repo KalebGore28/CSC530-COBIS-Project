@@ -238,7 +238,7 @@ type Session {
 # Uses and expects camelCase for params
 type User { 
   id: String!
-  mnumber: String!
+  mnumber: String
   name: String!
   email: String!
   emailVerified: Boolean!
@@ -248,7 +248,7 @@ type User {
   isEnabled: Boolean!
   lastLogin: String!
   # Relationships
-  # roles: [Role!]! opted not to use this.
+  roles: [UserRole!]!
 }
 
 type Verification {
@@ -453,4 +453,7 @@ type Query {
     number: Int!
     suffix: String!
   ): Course
+
+  # Other Queries
+  users: [User!]!
 }

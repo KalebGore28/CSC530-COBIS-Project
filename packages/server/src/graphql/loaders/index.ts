@@ -38,6 +38,8 @@ import { createFacultyAdviseesLoader } from './facultyAdviseesLoader';
 import { createStudentCourseLoader } from './studentCourseLoader';
 import { createUserLoader } from './userLoader';
 import { createStudentCoursesByTermLoader } from './studentCoursesByTermLoader';
+import { createUserRolesLoader } from './userRolesLoader';
+import { createRoleLoader } from './roleLoader';
 
 
 export function createLoaders(db: DbConnection['orm']) {
@@ -74,6 +76,8 @@ export function createLoaders(db: DbConnection['orm']) {
 		),
 		facultyAdvisees: createFacultyAdviseesLoader(db),
 		user: createUserLoader(db),
+		userRoles: createUserRolesLoader(db),
+		role: createRoleLoader(db),
 
 
 		// Loaders for course-related data

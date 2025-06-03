@@ -22,10 +22,7 @@ import { createLoaders, Loaders } from "./graphql/loaders";
 import { typeDefs, resolvers } from "./graphql";
 import { requireEnabled } from "./middleware/require-enabled";
 
-type Role = {
-    role_id: number;
-    role_name: string;
-};
+import type { Role } from "./db/schema";
 
 export interface ApolloContext {
     db: DbConnection["orm"];
@@ -99,9 +96,6 @@ app.use(
     // Prevent users from getting access to the raw graphql api for security reasons.
     // This middleware will only allow persisted queries to be executed.
     (req, res, next) => {
-        // Relay’s runtime will send { id: "<md5-hash>", variables: { … } }
-        // so look for `req.body.id` (you could also check `req.body.queryID` if your client uses that key).
-
         try {
             const id = typeof req.body.doc_id === "string" ? req.body.doc_id : null;
 
