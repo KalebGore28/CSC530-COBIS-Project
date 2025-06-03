@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<27200ab69585284c937c7190a9530670>>
+ * @generated SignedSource<<eb494140b2647d7dec868bfef92292c4>>
  * @relayHash 6042aa80bdb19578e347af3c9631960d
  * @lightSyntaxTransform
  * @nogrep
@@ -15,7 +15,9 @@ import { ConcreteRequest } from 'relay-runtime';
 export type CreateFacultyInput = {
   college_code: string;
   department_code: string;
+  enableUser: boolean;
   mnumber: string;
+  role_ids: ReadonlyArray<number>;
   user_id: string;
 };
 export type provisionUserQuery$variables = {

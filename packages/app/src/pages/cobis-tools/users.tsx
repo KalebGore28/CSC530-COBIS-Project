@@ -177,7 +177,12 @@ const UserCard: React.FC<{
 						{initials}
 					</div>
 					<div className="min-w-0">
-						<CardTitle className="text-sm font-medium truncate">{user.name}</CardTitle>
+						<CardTitle className="text-sm font-medium truncate">
+							{user.name}
+							{currentAdminId === user.id && (
+								<span className="text-xs text-muted-foreground ml-1">(You)</span>
+							)}
+						</CardTitle>
 						<CardDescription className="text-xs text-muted-foreground truncate">
 							{user.email}
 						</CardDescription>

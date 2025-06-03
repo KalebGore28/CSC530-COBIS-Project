@@ -29,7 +29,7 @@ const provisionUserQuery = graphql`
 // Interface Imports
 import { type MinimalFaculty, FacultySearch } from './provision-user/faculty-search';
 import { type MinimalDepartment, DepartmentSelect } from './provision-user/department-select';
-import { type College } from '@cobis/types';
+import { Role, type College } from '@cobis/types';
 import { CollegeSelect } from './provision-user/college-select';
 import { MultiRoleSelect } from './provision-user/multi-role-select';
 import type { QueryUser } from '@/pages/cobis-tools/users';
@@ -61,9 +61,10 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 		code: user?.faculty?.college?.code || '',
 		description: user?.faculty?.college?.description || '',
 	});
-	const [selectedRoleNames, setSelectedRoleNames] = useState<string[]>([
-		...(user?.roles?.map(role => role.role.name) || []),
-	]);
+	const [selectedRoleNames, setSelectedRoleNames] = useState<Role[]>(
+		user?.roles?.map(r => ({ ...r.role, id: parseInt(r.role.id, 10) })) || []
+	);
+	const [isEnabled, setIsEnabled] = useState<boolean>(user?.isEnabled || false);
 
 	return (
 		<div className='space-y-4 p-6'>
@@ -96,10 +97,8 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 			<div className="flex items-center space-x-2">
 				<Checkbox
 					id="isEnabled"
-					checked={false}
-					onCheckedChange={() => { }}
-					// Disable while submitting
-					disabled={false}
+					checked={isEnabled}
+					onCheckedChange={(checked) => setIsEnabled(!!checked)}
 				/>
 				<Label
 					htmlFor="isEnabled"
@@ -114,8 +113,8 @@ export const ProvisionUserForm: React.FC<ProvisionUserFormProps> = ({
 				<Button type="button" variant="outline" onClick={onCancel} disabled={false}>
 					Cancel
 				</Button>
-				<Button type="submit" disabled={false}>
-					{false ? 'Saving...' : 'Save Provision'}
+				<Button type="submit">
+					Save Provision
 				</Button>
 			</div>
 		</div>

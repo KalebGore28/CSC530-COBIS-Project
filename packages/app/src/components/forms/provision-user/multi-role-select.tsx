@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 // GraphQL imports
 import type { multiRoleSelectQuery } from "./__generated__/multiRoleSelectQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
+import { Role } from "@cobis/types";
 
 const multiRoleSelectQuery = graphql`
 	query multiRoleSelectQuery {
@@ -23,8 +24,8 @@ const multiRoleSelectQuery = graphql`
 `;
 
 export const MultiRoleSelect: React.FC<{
-	selectedRoles: string[];
-	onChange: (selectedRoles: string[]) => void;
+	selectedRoles: Role[];
+	onChange: (selectedRoles: Role[]) => void;
 }> = ({ selectedRoles, onChange }) => {
 	return (
 		<Suspense fallback={<Skeleton className="h-40 w-full" />}>
@@ -37,9 +38,10 @@ export const MultiRoleSelect: React.FC<{
 }
 
 const MultiRoleSelectContent: React.FC<{
-	selectedRoles: string[];
-	onChange: (selectedRoles: string[]) => void;
+	selectedRoles: Role[];
+	onChange: (selectedRoles: Role[]) => void;
 }> = ({ selectedRoles, onChange }) => {
+	console.log("MultiRoleSelectContent rendered with selectedRoles:", selectedRoles);
 
 	const data = useLazyLoadQuery<multiRoleSelectQuery>(
 		multiRoleSelectQuery,
@@ -49,12 +51,26 @@ const MultiRoleSelectContent: React.FC<{
 
 	const roles = data.getRoles;
 
-	const handleRoleToggle = (roleName: string) => {
-		const newSelected = selectedRoles.includes(roleName)
-			? selectedRoles.filter((name) => name !== roleName)
-			: [...selectedRoles, roleName];
+	const handleRoleToggle = (roleId: string) => {
+		console.log("Toggling role:", roleId);
+		const isSelected = selectedRoles.some(role => role.id === parseInt(roleId));
+		let updatedRoles: Role[];
 
-		onChange(newSelected);
+		if (isSelected) {
+			// Remove the role if it is already selected
+			updatedRoles = selectedRoles.filter(role => role.id !== parseInt(roleId));
+		} else {
+			// Add the role if it is not selected
+			const newRole = roles.find(role => role.id === roleId);
+			if (newRole) {
+				updatedRoles = [...selectedRoles, { ...newRole, id: parseInt(newRole.id) }];
+			} else {
+				return; // If the role is not found, do nothing
+			}
+		}
+
+		onChange(updatedRoles);
+		console.log("Updated roles:", updatedRoles);
 	};
 
 	return (
@@ -68,11 +84,11 @@ const MultiRoleSelectContent: React.FC<{
 							{roles.map((role) => (
 								<CommandItem
 									key={role.id}
-									onSelect={() => handleRoleToggle(role.name)}
+									onSelect={() => handleRoleToggle(role.id)}
 									className="flex items-center justify-between"
 								>
 									{role.name}
-									{selectedRoles.includes(role.name) && (
+									{selectedRoles.some(selectedRole => selectedRole.id === parseInt(role.id)) && (
 										<CommandShortcut>✓</CommandShortcut>
 									)}
 								</CommandItem>
