@@ -4,13 +4,10 @@ import { auth } from "../lib/auth";
 import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { z } from 'zod';
-import 'zod-openapi/extend';
 
 // --- Validation Schemas ---
 export const UserIdParamsSchema = z.object({
-	userId: z.string().min(1, { message: "User ID cannot be empty" }).openapi({
-		example: "user_2XQo9jk8JtYmIi3qSEoRYgVpnGn"
-	})
+	userId: z.string().min(1, { message: "User ID cannot be empty" })
 });
 
 export const GetAllUsersQuerySchema = z.object({
@@ -31,43 +28,13 @@ export const GetAllUsersQuerySchema = z.object({
 
 			// Return z.NEVER to indicate transform failure if the issue wasn't handled
 			return z.NEVER;
-		})
-		.openapi({
-			type: 'boolean',
-			description: "Filter by enabled status ('true' or 'false')",
-			example: "true",
 		}),
 
-	college: z.string().min(1).optional()
-		.openapi({
-			description: "Filter by college name",
-			example: "0"
-		}),
-
-	department: z.string().min(1).optional() // Optional string, non-empty if provided
-		.openapi({
-			description: "Filter by department name",
-			example: "0000"
-		}),
-
-	name: z.string().min(1).optional() // Optional string, non-empty if provided
-		.openapi({
-			description: "Filter by user name (partial match)",
-			example: "John"
-		}),
-
-	email: z.string().optional() // Optional, must be valid email format
-		.openapi({
-			description: "Filter by user email address",
-			example: "johndoe@example.com"
-		}),
-
+	college: z.string().min(1).optional(),
+	department: z.string().min(1).optional(), // Optional string, non-empty if provided
+	name: z.string().min(1).optional(), // Optional string, non-empty if provided
+	email: z.string().optional(), // Optional, must be valid email format
 	mnumber: z.string().min(1).optional() // Optional string, non-empty if provided
-		.openapi({
-			description: "Filter by user M-Number",
-			example: "M12345678"
-		}),
-
 });
 
 export const ProvisionUserBodySchema = z.object({
@@ -77,8 +44,7 @@ export const ProvisionUserBodySchema = z.object({
 		invalid_type_error: "role_ids must be an array of integers",
 	})
 		.min(1, { message: "At least one role ID must be provided in the role_ids array" }) // Ensure array is not empty
-		.transform(ids => [...new Set(ids)]) // Remove duplicates
-		.openapi({ description: "Array of role IDs to assign (must contain at least one unique integer ID)" }),
+		.transform(ids => [...new Set(ids)]), // Remove duplicates
 
 	// mnumber: Optional string, allowing null. Empty string is treated as null.
 	mnumber: z.preprocess(
@@ -86,23 +52,20 @@ export const ProvisionUserBodySchema = z.object({
 		z.string({ invalid_type_error: "mnumber must be a string or null" })
 			.nullable() // Allow null
 			.optional() // Allow undefined (key not present)
-	).openapi({ description: "User's M-Number (string or null)" }),
+	),
 
 	// isEnabled: Optional boolean
 	isEnabled: z.boolean({ invalid_type_error: "isEnabled must be a boolean" })
-		.optional()
-		.openapi({ description: "Set user account enabled status" }),
+		.optional(),
 
 	// college & department: Optional strings, but *must* be provided together if one is present.
 	college: z.string({ invalid_type_error: "college must be a string" })
 		.min(1, { message: "college cannot be empty if provided" }) // Optional: ensure non-empty if present
-		.optional()
-		.openapi({ description: "User's college (required if department is provided)", example: "0" }),
+		.optional(),
 
 	department: z.string({ invalid_type_error: "department must be a string" })
 		.min(1, { message: "department cannot be empty if provided" }) // Optional: ensure non-empty if present
-		.optional()
-		.openapi({ description: "User's department (required if college is provided)", example: "0000" }),
+		.optional(),
 
 	// `superRefine` allows cross-field validation after individual fields are parsed.
 }).superRefine((data, ctx) => {

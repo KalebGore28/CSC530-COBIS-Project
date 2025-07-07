@@ -12,29 +12,28 @@
 		"db:seed": "tsx src/seed/seed.ts"
 	},
 	"dependencies": {
-		"@apollo/server": "^4.12.1",
-		"@as-integrations/express5": "^1.0.0",
-		"@faker-js/faker": "^9.7.0",
-		"better-auth": "^1.2.8",
-		"better-sqlite3": "^11.8.1",
+		"@apollo/server": "^4.12.2",
+		"@as-integrations/express5": "^1.1.0",
+		"@faker-js/faker": "^9.9.0",
+		"better-auth": "^1.2.12",
+		"better-sqlite3": "^12.2.0",
 		"cors": "^2.8.5",
 		"dataloader": "^2.2.3",
-		"dotenv": "^16.4.7",
-		"drizzle-orm": "^0.40.0",
+		"dotenv": "^17.0.1",
+		"drizzle-orm": "^0.44.2",
 		"express": "^5.1.0",
 		"graphql": "^16.11.0",
-		"zod": "^3.24.2",
-		"zod-openapi": "^4.2.3"
+		"zod": "^3.25.75"
 	},
 	"devDependencies": {
-		"@types/better-sqlite3": "^7.6.12",
-		"@types/cors": "^2.8.17",
-		"@types/express": "^5.0.0",
-		"@types/node": "^22.13.5",
-		"@types/supertest": "^6.0.2",
+		"@types/better-sqlite3": "^7.6.13",
+		"@types/cors": "^2.8.19",
+		"@types/express": "^5.0.3",
+		"@types/node": "^24.0.10",
+		"@types/supertest": "^6.0.3",
 		"drizzle-dbml-generator": "^0.10.0",
 		"drizzle-kit": "^0.31.4",
-		"nodemon": "^3.1.9",
-		"tsx": "^4.19.3"
+		"nodemon": "^3.1.10",
+		"tsx": "^4.20.3"
 	}
 }
