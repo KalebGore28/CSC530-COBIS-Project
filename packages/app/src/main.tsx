@@ -54,7 +54,7 @@ createRoot(document.getElementById('root')!).render(
             }
         >
             <RelayEnvironmentProvider environment={environment}>
-                <Suspense fallback="Loading..."> {/* TODO: Replace this with a custom loading component */}
+                <Suspense fallback="Loading...">
                         <ThemeProvider>
                             <BrowserRouter>
                                 <SessionProvider>
