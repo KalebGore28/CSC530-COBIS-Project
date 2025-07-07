@@ -67,6 +67,7 @@ export type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
 
 let prefixMap: Map<string, { dept: string; coll: string }> = new Map();
 
+// Load the course prefixes into a map for quick lookup
 export async function loadPrefixMap() {
 	const { orm: db } = await getDbConnection();
 	const rows = await db.select().from(schema.coursePrefixes);
@@ -77,6 +78,31 @@ export async function loadPrefixMap() {
 loadPrefixMap().catch(err => {
 	console.error("Error loading prefix map:", err);
 });
+
+// Update the prefix map with a new prefix
+export async function updatePrefixMap(prefix: string, department: string, college: string) {
+	if (!prefix || !department || !college) {
+		throw new Error("Prefix, department, and college must all be provided");
+	}
+	if (prefixMap.has(prefix)) {
+		console.warn(`Prefix ${prefix} already exists in the map. Updating existing entry.`);
+	}
+	// Update the existing entry or add a new one
+	const { orm: db } = await getDbConnection();
+	await db.insert(schema.coursePrefixes).values({
+		prefix,
+		department,
+		college
+	}).onConflictDoUpdate({
+		target: schema.coursePrefixes.prefix,
+		set: {
+			department,
+			college
+		}
+	});
+
+	prefixMap.set(prefix, { dept: department, coll: college });
+}
 
 // Function that expands a single demographic row into multiple student program rows
 export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
@@ -208,7 +234,6 @@ export const expandStudentAddresses = (row: Record<string, any>): Record<string,
 export function expandCourses(row: Record<string, string>) {
 	const out: Record<string, any>[] = [];
 
-
 	const raw = row.course?.trim() || '';
 	const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
 	if (!m) return out;
@@ -224,7 +249,14 @@ export function expandCourses(row: Record<string, string>) {
 	const last_updated = row.lastChanged || new Date().toISOString();
 
 	// look up department/college, fallback if missing
-	const { dept, coll } = prefixMap.get(subject) || { dept: '0000', coll: '0' };
+	const { dept, coll } = prefixMap.get(subject) || {};
+
+	if (!dept || !coll) {
+		// If not found in prefixMap, assume it is a new prefix
+		updatePrefixMap(subject, '0000', '0').catch(err => {
+			console.error(`Error updating prefix map for ${subject}:`, err);
+		});
+	}
 	out.push({
 		subject,
 		number,
@@ -234,8 +266,8 @@ export function expandCourses(row: Record<string, string>) {
 		fee,
 		web_fee,
 		last_updated,
-		department: dept,
-		college: coll,
+		department: dept || '0000', // Default to '0000' if not found
+		college: coll || '0', // Default to '0' if not found
 	});
 
 	return out;
@@ -802,9 +834,6 @@ export const getAllDestinationTables = (): DestinationTable[] => {
 export const getImportInfo = () => {
 	return {
 		csvMappings: csvFileMappings.map(mapping => {
-			const destinations = mapping.category === "data"
-				? mapping.destinations
-				: [mapping.destination];
 
 			// Convert RegExp patterns to string format that can be reconstructed on the client
 			const patternStrings = mapping.category === "data"
