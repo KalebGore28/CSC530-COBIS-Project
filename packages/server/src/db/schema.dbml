@@ -11,12 +11,12 @@ table account {
   access_token text
   refresh_token text
   id_token text
-  access_token_expires_at integer
-  refresh_token_expires_at integer
+  access_token_expires_at int
+  refresh_token_expires_at int
   scope text
   password text
-  created_at integer [not null]
-  updated_at integer [not null]
+  created_at int [not null]
+  updated_at int [not null]
 }
 
 table admit_codes {
@@ -37,10 +37,10 @@ table course_prefixes {
 
 table courses {
   subject text [not null]
-  number integer [not null]
+  number int [not null]
   suffix text [not null, default: '']
   title text [not null]
-  hours integer [not null]
+  hours int [not null]
   fee real [not null, default: 0]
   web_fee real [not null, default: 0]
   last_updated text [not null, default: `CURRENT_TIMESTAMP`]
@@ -74,10 +74,10 @@ table instructional_methods {
 table instructor_courses {
   mnumber text [not null]
   term text [not null]
-  year integer [not null]
+  year int [not null]
   crn text [not null]
   course_subject text [not null]
-  course_number integer [not null]
+  course_number int [not null]
   course_suffix text [not null, default: '']
   course_section text [not null, default: '']
   role text [not null, default: 'Instructor']
@@ -102,11 +102,11 @@ table programs {
   code text [pk, not null]
   description text [not null]
   cip_code text
-  is_major integer [not null, default: false]
-  is_minor integer [not null, default: false]
-  has_concentration integer [not null, default: false]
-  is_discontinued integer [not null, default: false]
-  is_aacsb integer [not null, default: false]
+  is_major boolean [not null, default: false]
+  is_minor boolean [not null, default: false]
+  has_concentration boolean [not null, default: false]
+  is_discontinued boolean [not null, default: false]
+  is_aacsb boolean [not null, default: false]
   department text [not null]
   college text [not null]
   added_on text [not null, default: `CURRENT_TIMESTAMP`]
@@ -118,16 +118,16 @@ table registration_status {
 }
 
 table roles {
-  id integer [pk, not null]
+  id int [pk, not null]
   name text [not null]
 }
 
 table session {
   id text [pk, not null]
-  expires_at integer [not null]
+  expires_at int [not null]
   token text [not null, unique]
-  created_at integer [not null]
-  updated_at integer [not null]
+  created_at int [not null]
+  updated_at int [not null]
   ip_address text
   user_agent text
   user_id text [not null]
@@ -136,9 +136,9 @@ table session {
 table student_academic_info {
   mnumber text [not null]
   term text [not null]
-  year integer [not null]
+  year int [not null]
   admit_term text [not null]
-  admit_year integer [not null]
+  admit_year int [not null]
   admit_code text [not null]
   academic_standing text [not null]
   msu_attempted_hours real [not null]
@@ -175,7 +175,7 @@ table student_addresses {
 table student_advisors {
   student_mnumber text [not null]
   term text [not null]
-  year integer [not null]
+  year int [not null]
   advisor_mnumber text [not null]
 
   indexes {
@@ -186,14 +186,14 @@ table student_advisors {
 table student_courses {
   mnumber text [not null]
   term text [not null]
-  year integer [not null]
+  year int [not null]
   part_of_term text [not null]
   crn text [not null]
   course_subject text [not null]
-  course_number integer [not null]
+  course_number int [not null]
   course_suffix text [not null, default: '']
   course_section text [not null]
-  course_hours integer [not null]
+  course_hours int [not null]
   course_level text [not null]
   registration_status text [not null]
   instructional_method text [not null]
@@ -210,7 +210,7 @@ table student_courses {
 table student_programs {
   mnumber text [not null]
   term text [not null]
-  year integer [not null]
+  year int [not null]
   type text [not null]
   level text [not null]
   program text [not null]
@@ -235,7 +235,7 @@ table students {
   race_description text [not null]
   residency_code text [not null]
   residency_description text [not null]
-  age integer [not null]
+  age int [not null]
   cell_phone text [not null]
   email text [not null]
 }
@@ -245,34 +245,22 @@ table terms {
   description text [not null]
 }
 
-table test_scores {
-  mnumber text [not null]
-  code text [not null]
-  description text [not null]
-  score real [not null]
-  date text [not null]
-
-  indexes {
-    (mnumber, code, date) [pk]
-  }
-}
-
 table user {
   id text [pk, not null]
   mnumber text [unique]
   name text [not null]
   email text [not null, unique]
-  email_verified integer [not null]
+  email_verified boolean [not null]
   image text
-  created_at integer [not null]
-  updated_at integer [not null]
-  is_enabled integer [not null, default: false]
-  last_login integer [not null, default: `(strftime('%s','now'))`]
+  created_at int [not null]
+  updated_at int [not null]
+  is_enabled boolean [not null, default: false]
+  last_login int [not null, default: `(strftime('%s','now'))`]
 }
 
 table user_roles {
   user_id text [not null]
-  role_id integer [not null]
+  role_id int [not null]
 
   indexes {
     (user_id, role_id) [pk]
@@ -283,9 +271,9 @@ table verification {
   id text [pk, not null]
   identifier text [not null]
   value text [not null]
-  expires_at integer [not null]
-  created_at integer
-  updated_at integer
+  expires_at int [not null]
+  created_at int [not null]
+  updated_at int [not null]
 }
 
 ref: departments.college > colleges.code
@@ -335,8 +323,6 @@ ref: student_courses.instructional_method > instructional_methods.code
 ref: student_programs.term > terms.code
 
 ref: student_programs.program > programs.code
-
-ref: test_scores.mnumber > students.mnumber
 
 ref: user_roles.user_id > user.id
 

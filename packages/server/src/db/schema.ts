@@ -19,7 +19,6 @@ import * as studentCourses from './models/student-courses';
 import * as studentPrograms from './models/student-programs';
 import * as students from './models/students';
 import * as terms from './models/terms';
-import * as testScores from './models/test_scores';
 import * as userRoles from './models/user_roles';
 import * as betterAuth from './models/betterAuth';
 
@@ -44,7 +43,6 @@ export * from './models/student-courses';
 export * from './models/student-programs';
 export * from './models/students';
 export * from './models/terms';
-export * from './models/test_scores';
 export * from './models/user_roles';
 export * from './models/betterAuth';
 
@@ -70,7 +68,6 @@ export const schema = {
 	studentPrograms,
 	students,
 	terms,
-	testScores,
 	userRoles,
 	betterAuth,
 };
