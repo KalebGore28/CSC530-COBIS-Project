@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, use } from 'react';
 import { useSession } from '@/context/session';
 import {
 	Compass,
@@ -8,6 +8,7 @@ import {
 	Settings,
 	Shield,
 } from "lucide-react";
+import { WaitingPage } from '@/pages/auth/waiting';
 import type { Role } from '@cobis/types';
 
 // Define the Role type
@@ -36,6 +37,7 @@ const RoleContext = createContext<RoleContextType | undefined>(undefined);
 
 export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 	const { session, isLoading: sessionLoading } = useSession();
+	const [graceExpired, setGraceExpired] = useState(false);
 	const [roles, setRoles] = useState<ExtendedRole[]>([]);
 	const [selectedRole, setSelectedRole] = useState<ExtendedRole | null>(null);
 	const [routePermissions] = useState<{ [key: string]: string[] }>({
@@ -88,9 +90,18 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}
 	}, [selectedRole]);
 
-	// Delay until we have a session + at least one role
-	if (sessionLoading || (session && roles.length === 0)) {
+	useEffect(() => {
+		const timer = setTimeout(() => setGraceExpired(true), 1000);
+		return () => clearTimeout(timer);
+	}, []);
+
+	// Delay until we have a session + at least one role and grace period is not expired
+	if (sessionLoading || (session && roles.length === 0) && !graceExpired) {
 		return null;
+	}
+
+	if (roles.length === 0 && graceExpired) {
+		return <WaitingPage />
 	}
 
 	return (
