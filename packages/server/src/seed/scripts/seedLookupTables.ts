@@ -67,7 +67,7 @@ export const seedLookupTables = async () => {
 			tableId: 'terms'
 		},
 		{
-			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+			filePath: '../csvs/course_catalog.csv',
 			tableId: 'courses-catalog',
 			columnMapping: csvFileMappings.find(mapping => {
 				if (mapping.category === 'data') {

@@ -1,3 +1,6 @@
+// The goal of this file is to populate the application with core data
+// that is essential for its operation, such as lookup tables and roles.
+
 import { seedLookupTables } from "./scripts/seedLookupTables";
 import { seedRoles } from "./scripts/seedRoles";
 
