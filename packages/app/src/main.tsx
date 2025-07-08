@@ -55,17 +55,17 @@ createRoot(document.getElementById('root')!).render(
         >
             <RelayEnvironmentProvider environment={environment}>
                 <Suspense fallback="Loading...">
-                        <ThemeProvider>
-                            <BrowserRouter>
-                                <SessionProvider>
-                                    <RoleProvider>
-                                        <BreadcrumbProvider>
-                                            <App />
-                                        </BreadcrumbProvider>
-                                    </RoleProvider>
-                                </SessionProvider>
-                            </BrowserRouter>
-                        </ThemeProvider>
+                    <ThemeProvider>
+                        <BrowserRouter>
+                            <SessionProvider>
+                                <RoleProvider>
+                                    <BreadcrumbProvider>
+                                        <App />
+                                    </BreadcrumbProvider>
+                                </RoleProvider>
+                            </SessionProvider>
+                        </BrowserRouter>
+                    </ThemeProvider>
                 </Suspense>
             </RelayEnvironmentProvider>
         </ErrorBoundary>

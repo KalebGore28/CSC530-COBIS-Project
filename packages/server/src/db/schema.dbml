@@ -267,7 +267,7 @@ table user {
   created_at integer [not null]
   updated_at integer [not null]
   is_enabled integer [not null, default: false]
-  last_login integer [not null, default: `CURRENT_TIMESTAMP`]
+  last_login integer [not null, default: `(strftime('%s','now'))`]
 }
 
 table user_roles {

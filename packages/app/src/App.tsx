@@ -41,10 +41,10 @@ import ProtectedRoute from '@/components/auth/protected-route';
 export const App: React.FC = () => {
     const { session } = useSession();
     const { routePermissions } = useRoleContext();
-
+    
     if (!session) return <LoginPage />;
-    if (!session.info.isEnabled || !session.info.mnumber) return <WaitingPage />;
-
+    if (!session.info.isEnabled || !session.info.mnumber || session.info.roles.length === 0) return <WaitingPage />;
+    
     return (
         <Routes>
             <Route path="/" element={<Layout />}>

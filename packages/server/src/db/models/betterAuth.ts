@@ -17,7 +17,7 @@ export const user = sqliteTable("user", {
 	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
 	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 	isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(false), // For security reasons, we'll default to false
-	lastLogin: integer('last_login', { mode: 'timestamp' }).notNull().default(sql`CURRENT_TIMESTAMP`),
+	lastLogin: integer('last_login', { mode: 'timestamp' }).notNull().default(sql`(strftime('%s','now'))`),
 });
 
 export type User = typeof user.$inferSelect;

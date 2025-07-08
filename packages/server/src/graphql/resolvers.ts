@@ -305,7 +305,15 @@ export const resolvers = {
 				.from(tables.instructorCourses)
 				.where(sql`${tables.instructorCourses.year} = ${currentYear?.currentYear}`);
 
-
+			// This is a fallback for when the app is first initialized.
+			// So we set it to a conventional default.
+			// Once the admin imports the first data, this will be updated automatically.
+			if (!currentYear.currentYear || !currentTerm.currentTerm) {
+				return {
+					year: 1970,
+					term: '10',
+				}
+			}
 
 			return {
 				year: currentYear?.currentYear,
