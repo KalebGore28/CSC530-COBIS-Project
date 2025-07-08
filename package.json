@@ -16,7 +16,8 @@
     "db:migrate": "npm run db:migrate --workspace=cobis-server",
     "db:reset": "npm run db:reset --workspace=cobis-server",
     "db:studio": "npm run db:studio --workspace=cobis-server",
-    "db:seed": "npm run db:seed --workspace=cobis-server"
+    "db:seed": "npm run db:seed --workspace=cobis-server",
+    "db:seedgen": "npm run db:seedgen --workspace=cobis-server"
   },
   "dependencies": {
     "better-auth": "^1.2.8"
