@@ -17,7 +17,7 @@ const __dirname = dirname(__filename);
 /**
  * Seeds database with all of the csv files in the data/csvs directory.
  */
-export const seedDatabase = async () => {
+export const seedLookupTables = async () => {
 	// Set up Express app for seeding
 	const app = express()
 		.use(express.json({ limit: "10mb" }))
@@ -135,7 +135,7 @@ export const seedDatabase = async () => {
 
 // Check if this is the main module
 if (import.meta.url === `file://${process.argv[1]}`) {
-	seedDatabase()
+	seedLookupTables()
 		.then(() => {
 			console.log('Seed completed, exiting.');
 			process.exit(0);
