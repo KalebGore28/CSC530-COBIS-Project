@@ -26,43 +26,43 @@ export const seedDatabase = async () => {
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
 		{
-			filePath: '../csvs/academic_standing.csv',
+			filePath: '../csvs/lookup/academic_standing.csv',
 			tableId: 'academic-standing'
 		},
 		{
-			filePath: '../csvs/admit_codes.csv',
+			filePath: '../csvs/lookup/admit_codes.csv',
 			tableId: 'admit-codes'
 		},
 		{
-			filePath: '../csvs/colleges.csv',
+			filePath: '../csvs/lookup/colleges.csv',
 			tableId: 'colleges'
 		},
 		{
-			filePath: '../csvs/departments.csv',
+			filePath: '../csvs/lookup/departments.csv',
 			tableId: 'departments'
 		},
 		{
-			filePath: '../csvs/instructional_methods.csv',
+			filePath: '../csvs/lookup/instructional_methods.csv',
 			tableId: 'instructional-methods'
 		},
 		{
-			filePath: '../csvs/nations.csv',
+			filePath: '../csvs/lookup/nations.csv',
 			tableId: 'nations'
 		},
 		{
-			filePath: '../csvs/part_of_term.csv',
+			filePath: '../csvs/lookup/part_of_term.csv',
 			tableId: 'part-of-term'
 		},
 		{
-			filePath: '../csvs/major_minor.csv',
+			filePath: '../csvs/lookup/major_minor.csv',
 			tableId: 'programs'
 		},
 		{
-			filePath: '../csvs/registration_status.csv',
+			filePath: '../csvs/lookup/registration_status.csv',
 			tableId: 'registration-status'
 		},
 		{
-			filePath: '../csvs/terms.csv',
+			filePath: '../csvs/lookup/terms.csv',
 			tableId: 'terms'
 		}
 	];
@@ -70,7 +70,7 @@ export const seedDatabase = async () => {
 	// Define data tables (with specific filename patterns)
 	const dataTables = [
 		{
-			filePath: '../csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
+			filePath: '../csvs/data/reg_cuba_catalog_202510_20250117.csv',
 		},
 	];
 
