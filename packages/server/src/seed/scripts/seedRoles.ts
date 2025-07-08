@@ -11,16 +11,18 @@ const ROLE_DEFINITIONS = [
 ];
 
 export async function seedRoles() {
-  const { orm: db } = await getDbConnection();
+  const { orm: db, db: connection } = await getDbConnection();
   console.log("Seeding roles…");
 
   // Bulk insert, ignore conflicts if already present
   await db
     .insert(roles)
     .values(ROLE_DEFINITIONS)
-    .onConflictDoNothing();
+    .catch((err) => {})
 
   console.log(`✅ Inserted ${ROLE_DEFINITIONS.length} roles (or skipped existing).`);
+
+  connection.end(); // Close the database connection
 }
 
 // If you want to run this file directly with ts-node:

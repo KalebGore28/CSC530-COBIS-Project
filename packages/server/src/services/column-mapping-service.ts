@@ -1,5 +1,5 @@
 // src/services/columnMappingService.ts
-import { AnySQLiteTable } from "drizzle-orm/sqlite-core";
+import { AnyMySqlTable } from "drizzle-orm/mysql-core";
 import * as schema from "../db/schema"; // Import your database schema types here
 import { getDbConnection } from "../db/connection";
 
@@ -31,7 +31,7 @@ interface BaseDestination {
 	tableId: string;
 	primaryKeys: string[];
 	columns: ColumnMapping[];
-	schemaRef: AnySQLiteTable;
+	schemaRef: AnyMySqlTable;
 	rowExpander?: RowExpanderFunction;
 }
 
@@ -93,13 +93,7 @@ export async function updatePrefixMap(prefix: string, department: string, colleg
 		prefix,
 		department,
 		college
-	}).onConflictDoUpdate({
-		target: schema.coursePrefixes.prefix,
-		set: {
-			department,
-			college
-		}
-	});
+	})
 
 	prefixMap.set(prefix, { dept: department, coll: college });
 }

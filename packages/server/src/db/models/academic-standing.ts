@@ -1,11 +1,11 @@
-import { mysqlTable, text } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
 
 export const academicStanding = mysqlTable("academic_standing", {
-	code: text("code").primaryKey(),
-	description: text("description").notNull(),
+	code: varchar("code", { length: 50 }).primaryKey(),
+	description: varchar("description", { length: 255 }).notNull(),
 });
 
 export type AcademicStanding = typeof academicStanding.$inferSelect;

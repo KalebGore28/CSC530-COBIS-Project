@@ -1,4 +1,4 @@
-import { mysqlTable, text, int, primaryKey, foreignKey } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, primaryKey, foreignKey, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { terms } from "./terms";
@@ -9,22 +9,22 @@ import { instructionalMethods } from "./instructional-methods";
 import { registrationStatus } from "./registration-status";
 
 export const studentCourses = mysqlTable("student_courses", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade"}),
-	term: text("term").notNull().references(() => terms.code),
+	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => students.mnumber, { onDelete: "cascade" }),
+	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	part_of_term: text("part_of_term").notNull().references(() => partOfTerm.code),
-	crn: text("crn").notNull(),
-	course_subject: text("course_subject").notNull(),
+	part_of_term: varchar("part_of_term", { length: 50 }).notNull().references(() => partOfTerm.code),
+	crn: varchar("crn", { length: 50 }).notNull(),
+	course_subject: varchar("course_subject", { length: 50 }).notNull(),
 	course_number: int("course_number").notNull(),
-	course_suffix: text("course_suffix").notNull().default(""),
-	course_section: text("course_section").notNull(),
+	course_suffix: varchar("course_suffix", { length: 50 }).notNull().default(""),
+	course_section: varchar("course_section", { length: 50 }).notNull(),
 	course_hours: int("course_hours").notNull(),
-	course_level: text("course_level").notNull(),
-	registration_status: text("registration_status").notNull().references(() => registrationStatus.code),
-	instructional_method: text("instructional_method").notNull().references(() => instructionalMethods.code),
-	last_attendance: text("last_attendance"),
-	midterm_grade: text("midterm_grade"),
-	final_grade: text("final_grade"),
+	course_level: varchar("course_level", { length: 50 }).notNull(),
+	registration_status: varchar("registration_status", { length: 50 }).notNull().references(() => registrationStatus.code),
+	instructional_method: varchar("instructional_method", { length: 50 }).notNull().references(() => instructionalMethods.code),
+	last_attendance: varchar("last_attendance", { length: 50 }),
+	midterm_grade: varchar("midterm_grade", { length: 50 }),
+	final_grade: varchar("final_grade", { length: 50 }),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.term, table.year, table.crn] }),
 	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix] }),

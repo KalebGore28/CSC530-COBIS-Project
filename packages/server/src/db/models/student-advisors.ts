@@ -1,14 +1,14 @@
-import { mysqlTable, text, int, primaryKey } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, primaryKey, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { students } from "./students";
 import { terms } from "./terms";
 
 export const studentAdvisors = mysqlTable("student_advisors", {
-	student_mnumber: text("student_mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
-	term: text("term").notNull().references(() => terms.code),
+	student_mnumber: varchar("student_mnumber", { length: 10 }).notNull().references(() => students.mnumber, { onDelete: "cascade" }),
+	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	advisor_mnumber: text("advisor_mnumber").notNull(),
+	advisor_mnumber: varchar("advisor_mnumber", { length: 10 }).notNull(),
 }, (table) => [
 	primaryKey({ columns: [table.student_mnumber, table.term, table.year, table.advisor_mnumber] }),
 ]);

@@ -1,4 +1,4 @@
-import { mysqlTable, text } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { departments } from "./departments";
@@ -8,11 +8,11 @@ import { colleges } from "./colleges";
 // since the table is only populated with faculty teaching courses
 // from the reg_cuba_courses_during_term.csv file.
 export const faculty = mysqlTable("faculty", {
-	mnumber: text("mnumber").primaryKey(),
-	first_name: text("first_name").notNull(),
-	last_name: text("last_name").notNull(),
-	college: text('college').references(() => colleges.code).default("0"),
-	department: text('department').references(() => departments.code).default("0000"),
+	mnumber: varchar("mnumber", { length: 10 }).primaryKey(), // e.g
+	first_name: varchar("first_name", { length: 50 }).notNull(),
+	last_name: varchar("last_name", { length: 50 }).notNull(),
+	college: varchar('college', { length: 50 }).references(() => colleges.code).default("0"),
+	department: varchar('department', { length: 50 }).references(() => departments.code).default("0000"),
 });
 
 export type Faculty = typeof faculty.$inferSelect;

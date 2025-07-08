@@ -1,21 +1,28 @@
-import { AnySQLiteTable, SQLiteTable } from "drizzle-orm/sqlite-core";
+import { AnyMySqlTable, MySqlTable } from "drizzle-orm/mysql-core";
+import mysql from "mysql2/promise";
 import { eq, and } from "drizzle-orm";
 import { getDbConnection } from '../db/connection';
-import { Database } from "better-sqlite3";
 import { FKViolationError, type FKDef } from "../types/import-data";
 
-/** 
- * Fetch the FK definitions for a table. 
- */
-export function getForeignKeys(
-	conn: Database,
+export async function getForeignKeysMySQL(
+	conn: mysql.Pool | mysql.PoolConnection,
+	dbName: string,
 	tableName: string
-): FKDef[] {
-	return conn.pragma(
-		`foreign_key_list(${tableName})`,
-		{ simple: false }
-	) as FKDef[];
+): Promise<FKDef[]> {
+	const [rows] = await conn.query(`
+    SELECT
+      CONSTRAINT_NAME as constraintName,
+      TABLE_NAME as tableName,
+      COLUMN_NAME as columnName,
+      REFERENCED_TABLE_NAME as referencedTableName,
+      REFERENCED_COLUMN_NAME as referencedColumnName
+    FROM information_schema.KEY_COLUMN_USAGE
+    WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL
+  `, [dbName, tableName]);
+
+	return rows as FKDef[];
 }
+
 
 /**
  * We deliberately skip FK‐checks on these columns when the incoming value is undefined:
@@ -48,11 +55,11 @@ const ignoreFKs = [
  * - Skips validation for FKs in the ignore list if the value is undefined.
  */
 export async function validateFKs<T>(
-	conn: Database,
+	conn: any,
 	tableName: string,
 	row: T
 ) {
-	const fks = await getForeignKeys(conn, tableName);
+	const fks = await getForeignKeysMySQL(conn, 'mydb', tableName);
 
 	for (const fk of fks) {
 		const childVal = (row as any)[fk.from];
@@ -71,7 +78,7 @@ export async function validateFKs<T>(
 		}
 
 		// 2) Otherwise do the normal check
-		const stmt = conn.prepare(
+		const stmt = conn.execute(
 			`SELECT 1 FROM ${fk.table} WHERE ${fk.to} = ? LIMIT 1`
 		);
 		const found = stmt.get(childVal);
@@ -96,15 +103,15 @@ export async function validateFKs<T>(
  * - Skips pure-key-only tables on conflict
  */
 export async function importData<T extends Record<string, any>>(
-	table: AnySQLiteTable,
+	table: AnyMySqlTable,
 	primaryKeys: string[],
 	mappedData: T[],
 ) {
 	const { db: conn, orm: db } = await getDbConnection();
 	// @ts-ignore
-	const tableName = (table as unknown as SQLiteTable)[
+	const tableName = (table as unknown as MySqlTable)[
 		// @ts-ignore
-		SQLiteTable.Symbol.Name
+		MySqlTable.Symbol.Name
 	] as string;
 
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
@@ -131,12 +138,17 @@ export async function importData<T extends Record<string, any>>(
 
 			// Pure PK-only table: insert or skip
 			if (Object.keys(nonPkData).length === 0) {
-				const result = await db.insert(table)
+				await db.insert(table)
 					.values(row)
-					.onConflictDoNothing();
+					.then(res => {
+						inserted++;
+						return res;
+					})
+					.catch((err: any) => {
+						console.error(`Failed to insert row: ${JSON.stringify(row)}`, err);
+						skipped++;
+					});
 
-				// changes === 1 if inserted, 0 if skipped
-				result.changes === 1 ? inserted++ : skipped++;
 			} else {
 				// Check existence to distinguish insert vs update
 				const pkConditions = primaryKeys.map(pk => eq((table as any)[pk], row[pk]));
@@ -150,9 +162,8 @@ export async function importData<T extends Record<string, any>>(
 
 				await db.insert(table)
 					.values(row)
-					.onConflictDoUpdate({
-						target: targetCols,
-						set: nonPkData,
+					.catch((err: any) => {
+						console.error(`Failed to insert row: ${JSON.stringify(row)}`, err);
 					});
 
 				existing.length > 0 ? updated++ : inserted++;
@@ -160,6 +171,7 @@ export async function importData<T extends Record<string, any>>(
 		} catch (error: any) {
 			// preserve the real Error (so FKViolationError stays intact)
 			if (error instanceof Error) {
+				console.error(`Error processing row: ${JSON.stringify(row)}`, error);
 				errorDetails.push({ row, error });
 				/* v8 ignore next 3 */ //wrap non-Error throws just in case
 			} else {

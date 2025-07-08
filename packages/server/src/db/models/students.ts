@@ -1,4 +1,4 @@
-import { mysqlTable, text, int } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
@@ -8,21 +8,21 @@ import { studentCourses } from "./student-courses";
 import { studentPrograms } from "./student-programs";
 
 export const students = mysqlTable("students", {
-	mnumber: text("mnumber").primaryKey(),
-	first_name: text("first_name").notNull(),
-	middle_name: text("middle_name").notNull(),
-	last_name: text("last_name").notNull(),
-	suffix: text("suffix").notNull(),
-	gender: text("gender").notNull(),
-	birthdate: text("birthdate").notNull(),
-	citizenship: text("citizenship").notNull(),
-	race_code: text("race_code").notNull(),
-	race_description: text("race_description").notNull(),
-	residency_code: text("residency_code").notNull(),
-	residency_description: text("residency_description").notNull(),
+	mnumber: varchar("mnumber", { length: 10 }).primaryKey(),
+	first_name: varchar("first_name", { length: 50 }).notNull(),
+	middle_name: varchar("middle_name", { length: 50 }).notNull(),
+	last_name: varchar("last_name", { length: 50 }).notNull(),
+	suffix: varchar("suffix", { length: 10 }).notNull(),
+	gender: varchar("gender", { length: 10 }).notNull(),
+	birthdate: varchar("birthdate", { length: 10 }).notNull(),
+	citizenship: varchar("citizenship", { length: 50 }).notNull(),
+	race_code: varchar("race_code", { length: 50 }).notNull(),
+	race_description: varchar("race_description", { length: 50 }).notNull(),
+	residency_code: varchar("residency_code", { length: 50 }).notNull(),
+	residency_description: varchar("residency_description", { length: 50 }).notNull(),
 	age: int("age").notNull(),
-	cell_phone: text("cell_phone").notNull(),
-	email: text("email").notNull(),
+	cell_phone: varchar("cell_phone", { length: 15 }).notNull(),
+	email: varchar("email", { length: 100 }).notNull(),
 });
 
 export type Student = typeof students.$inferSelect;

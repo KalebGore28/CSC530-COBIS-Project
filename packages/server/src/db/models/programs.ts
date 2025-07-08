@@ -1,4 +1,4 @@
-import { mysqlTable, text, boolean } from 'drizzle-orm/mysql-core';
+import { mysqlTable, boolean, varchar, datetime } from 'drizzle-orm/mysql-core';
 import { sql, relations } from "drizzle-orm";
 
 import { colleges } from "./colleges";
@@ -6,17 +6,17 @@ import { departments } from "./departments";
 import { studentPrograms } from "./student-programs";
 
 export const programs = mysqlTable("programs", {
-	code: text("code").primaryKey(),
-	description: text("description").notNull(),
-	cip_code: text("cip_code"),
+	code: varchar("code", { length: 10 }).primaryKey(),
+	description: varchar("description", { length: 255 }).notNull(),
+	cip_code: varchar("cip_code", { length: 255 }),
 	is_major: boolean("is_major").notNull().default(false),
 	is_minor: boolean("is_minor").notNull().default(false),
 	has_concentration: boolean("has_concentration").notNull().default(false),
 	is_discontinued: boolean("is_discontinued").notNull().default(false),
 	is_aacsb: boolean("is_aacsb").notNull().default(false),
-	department: text().notNull().references(() => departments.code),
-	college: text().notNull().references(() => colleges.code),
-	added_on: text().notNull().default(sql`CURRENT_TIMESTAMP`),
+	department: varchar("department", { length: 50 }).notNull().references(() => departments.code),
+	college: varchar("college", { length: 50 }).notNull().references(() => colleges.code),
+	added_on: datetime().notNull().default(sql`NOW()`),
 });
 
 export type Program = typeof programs.$inferSelect;

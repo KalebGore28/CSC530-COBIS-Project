@@ -1,5 +1,5 @@
-import { mysqlTable, text, boolean, int } from 'drizzle-orm/mysql-core';
-import { sql, relations } from "drizzle-orm";
+import { mysqlTable, boolean, int, varchar } from 'drizzle-orm/mysql-core';
+import { relations } from "drizzle-orm";
 
 // All these tables are created by better-auth. Some columns are custom.
 // Look here for more info: https://www.better-auth.com/docs/concepts/database#core-schema
@@ -8,16 +8,16 @@ import { instructorCourses } from "./instructor-courses";
 import { userRoles } from "./user_roles";
 
 export const user = mysqlTable("user", {
-	id: text("id").primaryKey(), // Needed for BetterAuth
-	mnumber: text("mnumber").unique(), // Nullable initially, unique when set
-	name: text('name').notNull(),
-	email: text('email').notNull().unique(),
+	id: varchar("id", { length: 50 }).primaryKey(), // Needed for BetterAuth
+	mnumber: varchar("mnumber", { length: 10 }).unique(), // Nullable initially, unique when set
+	name: varchar('name', { length: 50 }).notNull(),
+	email: varchar('email', { length: 100 }).notNull().unique(),
 	emailVerified: boolean('email_verified').notNull(),
-	image: text('image'),
+	image: varchar('image', { length: 255 }).notNull().default(''), // Default to empty string if no image
 	createdAt: int('created_at').notNull(),
 	updatedAt: int('updated_at').notNull(),
 	isEnabled: boolean('is_enabled').notNull().default(false), // For security reasons, we'll default to false
-	lastLogin: int('last_login').notNull().default(sql`(strftime('%s','now'))`),
+	lastLogin: int('last_login').notNull().default(0),
 });
 
 export type User = typeof user.$inferSelect;
@@ -33,30 +33,29 @@ export const usersRelations = relations(user, ({ many }) => ({
 }));
 
 export const session = mysqlTable("session", {
-	id: text("id").primaryKey(),
+	id: varchar("id", { length: 50 }).primaryKey(),
 	expiresAt: int('expires_at').notNull(),
-	token: text('token').notNull().unique(),
+	token: varchar('token', { length: 255 }).notNull().unique(),
 	createdAt: int('created_at').notNull(),
 	updatedAt: int('updated_at').notNull(),
-	ipAddress: text('ip_address'),
-	userAgent: text('user_agent'),
-	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' })
+	ipAddress: varchar('ip_address', { length: 45 }),
+	userAgent: varchar('user_agent', { length: 255 }),
+	userId: varchar('user_id', { length: 50 }).notNull().references(() => user.id, { onDelete: 'cascade' })
 });
 
 export type Session = typeof session.$inferSelect;
 
 export const account = mysqlTable("account", {
-	id: text("id").primaryKey(),
-	accountId: text('account_id').notNull(),
-	providerId: text('provider_id').notNull(),
-	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' }),
-	accessToken: text('access_token'),
-	refreshToken: text('refresh_token'),
-	idToken: text('id_token'),
+	id: varchar("id", { length: 50 }).primaryKey(),
+	accountId: varchar('account_id', { length: 255 }).notNull(),
+	providerId: varchar('provider_id', { length: 255 }).notNull(),
+	userId: varchar('user_id', { length: 50 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
+	accessToken: varchar('access_token', { length: 255 }),
+	refreshToken: varchar('refresh_token', { length: 255 }),
+	idToken: varchar('id_token', { length: 255 }),
 	accessTokenExpiresAt: int('access_token_expires_at'),
 	refreshTokenExpiresAt: int('refresh_token_expires_at'),
-	scope: text('scope'),
-	password: text('password'),
+	scope: varchar('scope', { length: 255 }),
 	createdAt: int('created_at').notNull(),
 	updatedAt: int('updated_at').notNull()
 });
@@ -64,9 +63,9 @@ export const account = mysqlTable("account", {
 export type Account = typeof account.$inferSelect;
 
 export const verification = mysqlTable("verification", {
-	id: text("id").primaryKey(),
-	identifier: text('identifier').notNull(),
-	value: text('value').notNull(),
+	id: varchar("id", { length: 50 }).primaryKey(),
+	identifier: varchar('identifier', { length: 255 }).notNull(),
+	value: varchar('value', { length: 255 }).notNull(),
 	expiresAt: int('expires_at').notNull(),
 	createdAt: int('created_at').notNull(),
 	updatedAt: int('updated_at').notNull()

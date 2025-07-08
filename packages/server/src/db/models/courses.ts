@@ -1,4 +1,4 @@
-import { mysqlTable, text, real, int, primaryKey } from 'drizzle-orm/mysql-core';
+import { mysqlTable, real, int, primaryKey, varchar, datetime } from 'drizzle-orm/mysql-core';
 import { sql, relations } from "drizzle-orm";
 
 import { instructorCourses } from "./instructor-courses";
@@ -7,16 +7,16 @@ import { departments } from "./departments";
 import { colleges } from "./colleges";
 
 export const courses = mysqlTable("courses", {
-	subject: text("subject").notNull(),
+	subject: varchar("subject", { length: 50 }).notNull(), // e.g. "ACC"
 	number: int("number").notNull(),
-	suffix: text("suffix").notNull().default(""),
-	title: text("title").notNull(),
+	suffix: varchar("suffix", { length: 50 }).notNull().default(""),
+	title: varchar("title", { length: 255 }).notNull(),
 	hours: int("hours").notNull(),
 	fee: real("fee").notNull().default(0),
 	web_fee: real("web_fee").notNull().default(0),
-	last_updated: text("last_updated").notNull().default(sql`CURRENT_TIMESTAMP`),
-	department: text("department").default("0000").references(() => departments.code),
-	college: text("college").default("0").references(() => colleges.code),
+	last_updated: datetime("last_updated").notNull().default(sql`NOW()`),
+	department: varchar("department", { length: 50 }).default("0000").references(() => departments.code),
+	college: varchar("college", { length: 50 }).default("0").references(() => colleges.code),
 }, (table) => [
 	primaryKey({ columns: [table.subject, table.number, table.suffix] }),
 ]);

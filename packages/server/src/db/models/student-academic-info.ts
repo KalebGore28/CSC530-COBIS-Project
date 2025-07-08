@@ -1,4 +1,4 @@
-import { mysqlTable, text, int, real, primaryKey } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, real, primaryKey, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { students } from "./students";
@@ -7,13 +7,13 @@ import { terms } from "./terms";
 import { admitCodes } from "./admit-codes";
 
 export const studentAcademicInfo = mysqlTable("student_academic_info", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
-	term: text("term").notNull().references(() => terms.code),
+	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => students.mnumber, { onDelete: "cascade" }),
+	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	admit_term: text("admit_term").notNull().references(() => terms.code),
+	admit_term: varchar("admit_term", { length: 50 }).notNull().references(() => terms.code),
 	admit_year: int("admit_year").notNull(),
-	admit_code: text("admit_code").notNull().references(() => admitCodes.code),
-	academic_standing: text("academic_standing").notNull().references(() => academicStanding.code),
+	admit_code: varchar("admit_code", { length: 50 }).notNull().references(() => admitCodes.code),
+	academic_standing: varchar("academic_standing", { length: 50 }).notNull().references(() => academicStanding.code),
 	msu_attempted_hours: real("msu_attempted_hours").notNull(),
 	msu_earned_hours: real("msu_earned_hours").notNull(),
 	msu_quality_points: real("msu_quality_points").notNull(),

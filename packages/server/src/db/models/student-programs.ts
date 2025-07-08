@@ -1,4 +1,4 @@
-import { mysqlTable, text, int, primaryKey, check } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, primaryKey, check, varchar } from 'drizzle-orm/mysql-core';
 import { sql, relations } from "drizzle-orm";
 
 import { students } from "./students";
@@ -6,12 +6,12 @@ import { programs } from "./programs";
 import { terms } from "./terms";
 
 export const studentPrograms = mysqlTable("student_programs", {
-	mnumber: text("mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
-	term: text("term").notNull().references(() => terms.code),
+	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => students.mnumber, { onDelete: "cascade" }),
+	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
-	type: text("type").notNull(),
-	level: text("level").notNull(),
-	program: text("program").notNull().references(() => programs.code),
+	type: varchar("type", { length: 50 }).notNull(),
+	level: varchar("level", { length: 50 }).notNull(),
+	program: varchar("program", { length: 50 }).notNull().references(() => programs.code),
 }, (table) => [
 	primaryKey({ columns: [table.mnumber, table.type, table.program] }),
 	check("program_type", sql`${table.type} IN ('MAJOR', 'MINOR')`),

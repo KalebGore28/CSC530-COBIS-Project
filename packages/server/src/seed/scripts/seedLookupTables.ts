@@ -62,27 +62,27 @@ export const seedLookupTables = async () => {
 			filePath: '../csvs/registration_status.csv',
 			tableId: 'registration-status'
 		},
-		{
-			filePath: '../csvs/terms.csv',
-			tableId: 'terms'
-		},
-		{
-			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
-			tableId: 'courses-catalog',
-			columnMapping: csvFileMappings.find(mapping => {
-				if (mapping.category === 'data') {
-					// then look through destinations to find the one with the correct tableId
-					const found = mapping.destinations.find(dest => dest.tableId === 'courses-catalog');
-					if (found) {
-						return true;
-					}
-				}
-			})
-		},
-		{
-			filePath: '../csvs/dept_course_prefix.csv',
-			tableId: 'course-prefixes',
-		}
+		// {
+		// 	filePath: '../csvs/terms.csv',
+		// 	tableId: 'terms'
+		// },
+		// {
+		// 	filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+		// 	tableId: 'courses-catalog',
+		// 	columnMapping: csvFileMappings.find(mapping => {
+		// 		if (mapping.category === 'data') {
+		// 			// then look through destinations to find the one with the correct tableId
+		// 			const found = mapping.destinations.find(dest => dest.tableId === 'courses-catalog');
+		// 			if (found) {
+		// 				return true;
+		// 			}
+		// 		}
+		// 	})
+		// },
+		// {
+		// 	filePath: '../csvs/dept_course_prefix.csv',
+		// 	tableId: 'course-prefixes',
+		// }
 	];
 
 	const responses: any = [];

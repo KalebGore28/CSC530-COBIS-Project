@@ -1,4 +1,4 @@
-import { mysqlTable, text } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
@@ -8,8 +8,8 @@ import { studentCourses } from "./student-courses";
 import { studentPrograms } from "./student-programs";
 
 export const terms = mysqlTable("terms", {
-	code: text().primaryKey(),
-	description: text().notNull(),
+	code: varchar("code", { length: 10 }).primaryKey(),
+	description: varchar("description", { length: 255 }).notNull(),
 });
 
 export type Term = typeof terms.$inferSelect;
