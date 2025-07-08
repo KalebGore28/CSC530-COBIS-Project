@@ -6,7 +6,7 @@ import { seedCoursesDuringTerm } from "./scripts/seedCoursesDuringTerm";
 
 async function run() {
     await seedCourses();
-    await seedCoursesDuringTerm();
+    // await seedCoursesDuringTerm();
     console.log("🎉 All CSV gen seeders done!");
     console.log("Your application is now seeded with realistic course data and is ready to use!");
 }
