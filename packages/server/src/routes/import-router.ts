@@ -1,27 +1,23 @@
+// import-router.ts
 import express from 'express';
 import { ImportController } from '../controllers/import-controller';
 import { hasRole } from '../middleware/has-role';
 
 /**
- * Import router for handling CSV import operations
- * @module routes/import-router
- * @requires express
- * @requires multer
- * @requires ../controllers/import-controller
+ * Creates an Import router for handling CSV import operations.
+ * @param {boolean} useAuth - Whether to attach the role-checking middleware
+ * @returns {express.Router}
  */
-const router: express.Router = express.Router();
+export function createImportRouter(useAuth: boolean = true): express.Router {
+	const router = express.Router();
 
-// Middleware to check if the user has the required role
-router.use(hasRole('cobis_administrator'));
+	if (useAuth) {
+		// Only add role check if useAuth is true
+		router.use(hasRole('cobis_administrator'));
+	}
 
-// Process and import a CSV file
-router.post('/process',
-	ImportController.processImport
-);
+	router.post('/process', ImportController.processImport);
+	router.get('/info', ImportController.getImportInfo);
 
-// Get all import information (tables and file patterns)
-router.get('/info',
-	ImportController.getImportInfo
-);
-
-export default router; 
+	return router;
+}

@@ -11,7 +11,6 @@ export class ImportController {
 	 */
 	static async processImport(req: Request, res: Response) {
 		try {
-
 			const { csvData, tableId, columnMapping } = req.body;
 
 			let _columnMapping = columnMapping;

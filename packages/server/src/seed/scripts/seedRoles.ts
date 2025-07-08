@@ -1,5 +1,3 @@
-// scripts/seeds/seedRoles.ts
-
 import { getDbConnection } from "../../db/connection";
 import { roles } from "../../db/schema";
 
@@ -26,7 +24,7 @@ export async function seedRoles() {
 }
 
 // If you want to run this file directly with ts-node:
-if (require.main === module) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   seedRoles()
     .then(() => process.exit(0))
     .catch((err) => {

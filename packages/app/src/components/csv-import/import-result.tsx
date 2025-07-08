@@ -13,7 +13,6 @@ export const ImportResultDisplay: React.FC<ImportResultDisplayProps> = ({
   result
 }) => {
   if (!result) return null;
-  console.log("Import result:", result);
 
   // Ensure numeric values have defaults
   const totalRecords = result.results[0].totalRecords ?? 0;

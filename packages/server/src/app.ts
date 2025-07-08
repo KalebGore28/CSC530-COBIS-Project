@@ -12,7 +12,7 @@ import { loadQueryMap } from "./utils/query-map-loader";
 import { getDbConnection, DbConnection } from "./db/connection";
 import type { AuthAndPermissionsRequest } from "./types/requests";
 
-import importRoutes from "./routes/import-router";
+import { createImportRouter} from "./routes/import-router";
 import userRoute from "./routes/user-router";
 
 import { ApolloServer } from "@apollo/server";
@@ -85,7 +85,7 @@ app.use("/api", authenticateAndLoadUser);
 
 // 6. REST APIs
 app.use("/api/user", userRoute);
-app.use("/api/import", requireEnabled, importRoutes);
+app.use("/api/import", requireEnabled, createImportRouter(true)); // Use auth for import
 
 // 7. GraphQL endpoint with persisted queries
 app.use(

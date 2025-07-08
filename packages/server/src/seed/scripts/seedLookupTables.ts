@@ -6,7 +6,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import importRouter from '../../routes/import-router';
+import Papa from "papaparse";
+import { createImportRouter } from '../../routes/import-router';
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -16,56 +17,52 @@ const __dirname = dirname(__filename);
  * Seeds database with all of the csv files in the data/csvs directory.
  */
 export const seedDatabase = async () => {
-	// Set up Express app for testing
+	// Set up Express app for seeding
 	const app = express()
 		.use(express.json({ limit: "10mb" }))
 		.use(express.urlencoded({ extended: true, limit: "10mb" }))
-		.use('/api/import', importRouter);
+		.use('/api/import', createImportRouter(false)); // No auth for seeding
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
 		{
-			filePath: './csvs/academic_standing.csv',
+			filePath: '../csvs/academic_standing.csv',
 			tableId: 'academic-standing'
 		},
 		{
-			filePath: './csvs/admit_codes.csv',
+			filePath: '../csvs/admit_codes.csv',
 			tableId: 'admit-codes'
 		},
 		{
-			filePath: './csvs/college_codes.csv',
-			tableId: 'college-codes'
-		},
-		{
-			filePath: './csvs/colleges.csv',
+			filePath: '../csvs/colleges.csv',
 			tableId: 'colleges'
 		},
 		{
-			filePath: './csvs/departments.csv',
+			filePath: '../csvs/departments.csv',
 			tableId: 'departments'
 		},
 		{
-			filePath: './csvs/instructional_methods.csv',
+			filePath: '../csvs/instructional_methods.csv',
 			tableId: 'instructional-methods'
 		},
 		{
-			filePath: './csvs/nations.csv',
+			filePath: '../csvs/nations.csv',
 			tableId: 'nations'
 		},
 		{
-			filePath: './csvs/part_of_term.csv',
+			filePath: '../csvs/part_of_term.csv',
 			tableId: 'part-of-term'
 		},
 		{
-			filePath: './csvs/major_minor.csv',
+			filePath: '../csvs/major_minor.csv',
 			tableId: 'programs'
 		},
 		{
-			filePath: './csvs/registration_status.csv',
+			filePath: '../csvs/registration_status.csv',
 			tableId: 'registration-status'
 		},
 		{
-			filePath: './csvs/terms.csv',
+			filePath: '../csvs/terms.csv',
 			tableId: 'terms'
 		}
 	];
@@ -73,7 +70,7 @@ export const seedDatabase = async () => {
 	// Define data tables (with specific filename patterns)
 	const dataTables = [
 		{
-			filePath: './csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
+			filePath: '../csvs/prototype/reg_cuba_catalog_202510_20250117.csv',
 		},
 	];
 
@@ -82,39 +79,35 @@ export const seedDatabase = async () => {
 	// Process lookup tables
 	console.log('Importing lookup tables...');
 	for (const table of lookupTables) {
-		try {
-			console.log(`Importing ${path.basename(table.filePath)}...`);
+		console.log(`Importing ${path.basename(table.filePath)}...`);
 
-			//log full path of the file
-			console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
+		//log full path of the file
+		console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
 
-			const response = await request(app)
-				.post('/api/import/process')
-				.field('importedBy', 'seed script')
-				.field('tableId', table.tableId)  // Required for lookup tables
-				.attach('file', path.resolve(__dirname, table.filePath));
-
-			responses.push({
-				file: path.basename(table.filePath),
-				status: response.status,
-				success: response.body.success,
-				error: response.status !== 200 ? response.body.error : undefined
-			});
-
-			if (response.status !== 200) {
-				console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
-			} else {
-				console.log(`Successfully imported ${path.basename(table.filePath)}`);
+		Papa.parse(fs.readFileSync(path.resolve(__dirname, table.filePath), 'utf8'), {
+			header: true,
+			skipEmptyLines: true,
+			transformHeader: (header) => {
+				return header.toLowerCase();
+			},
+			complete: async (results) => {
+				const response = await request(app)
+					.post('/api/import/process')
+					.send({
+						tableId: table.tableId,
+						csvData: results.data,
+					});
+				responses.push({
+					file: path.basename(table.filePath),
+					status: response.status,
+					success: response.body.success,
+					error: response.status !== 200 ? response.body.error : undefined
+				});
+			},
+			error: (error: any) => {
+				console.error('Error parsing CSV:', error);
 			}
-		} catch (error: any) {
-			console.error(`Error importing ${path.basename(table.filePath)}:`, error);
-			responses.push({
-				file: path.basename(table.filePath),
-				status: 500,
-				success: false,
-				error: error.message
-			});
-		}
+		});
 	}
 
 	// Process data tables
