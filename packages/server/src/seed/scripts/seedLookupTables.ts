@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import Papa from "papaparse";
+import { csvFileMappings } from '../../services/column-mapping-service';
 import { createImportRouter } from '../../routes/import-router';
 
 // ES module compatibility
@@ -64,24 +65,31 @@ export const seedDatabase = async () => {
 		{
 			filePath: '../csvs/lookup/terms.csv',
 			tableId: 'terms'
+		},
+		{
+			filePath: '../csvs/lookup/reg_cuba_catalog_202510_20250117.csv',
+			tableId: 'courses-catalog',
+			columnMapping: csvFileMappings.find(mapping => {
+				if (mapping.category === 'data') {
+					// then look through destinations to find the one with the correct tableId
+					const found = mapping.destinations.find(dest => dest.tableId === 'courses-catalog');
+					if (found) {
+						return true;
+					}
+				}
+			})
+		},
+		{
+			filePath: '../csvs/lookup/dept_course_prefix.csv',
+			tableId: 'course-prefixes',
 		}
 	];
 
-	// Define data tables (with specific filename patterns)
-	const dataTables = [
-		{
-			filePath: '../csvs/data/reg_cuba_catalog_202510_20250117.csv',
-		},
-	];
+	const responses: any = [];
 
-	const responses = [];
-
-	// Process lookup tables
 	console.log('Importing lookup tables...');
 	for (const table of lookupTables) {
 		console.log(`Importing ${path.basename(table.filePath)}...`);
-
-		//log full path of the file
 		console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
 
 		Papa.parse(fs.readFileSync(path.resolve(__dirname, table.filePath), 'utf8'), {
@@ -96,6 +104,7 @@ export const seedDatabase = async () => {
 					.send({
 						tableId: table.tableId,
 						csvData: results.data,
+						columnMapping: table.columnMapping || undefined
 					});
 				responses.push({
 					file: path.basename(table.filePath),
@@ -110,58 +119,15 @@ export const seedDatabase = async () => {
 		});
 	}
 
-	// Process data tables
-	console.log('\nImporting data tables...');
-	for (const table of dataTables) {
-		try {
-			console.log(`Importing ${path.basename(table.filePath)}...`);
-
-			// Log full path of the file
-			console.log(`Full path: ${path.resolve(__dirname, table.filePath)}`);
-
-			// For data tables, we need to use the expected filename pattern
-			const response = await request(app)
-				.post('/api/import/process')
-				.field('importedBy', 'seed script')
-				.attach('file', fs.readFileSync(path.resolve(__dirname, table.filePath)), {
-					filename: path.basename(table.filePath),
-					contentType: 'text/csv'
-				});
-
-			responses.push({
-				file: path.basename(table.filePath),
-				status: response.status,
-				success: response.body.success,
-				error: response.status !== 200 ? response.body.error : undefined
-			});
-
-			console.log(`Response: ${response.status} - ${response.body.success}`);
-
-			if (response.status !== 200) {
-				console.error(`Failed to import ${path.basename(table.filePath)}: ${response.body.error}`);
-			} else {
-				console.log(`Successfully imported ${path.basename(table.filePath)}`);
-			}
-		} catch (error: any) {
-			console.error(`Error importing ${path.basename(table.filePath)}:`, error);
-			responses.push({
-				file: path.basename(table.filePath),
-				status: 500,
-				success: false,
-				error: error.message
-			});
-		}
-	}
-
 	// Check if any imports failed
-	const failedImports = responses.filter(r => !r.success);
-
+	await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for all requests to finish
+	const failedImports = responses.filter((r: { status: number; }) => r.status !== 200);
 	if (failedImports.length > 0) {
-		console.error('\nSome imports failed:');
-		failedImports.forEach(failure => {
-			console.error(`- ${failure.file}: ${failure.error}`);
+		console.error('Some imports failed:');
+		failedImports.forEach((r: { file: any; status: any; success: any; error: any; }) => {
+			console.error(`- ${r.file}: ${r.status} ${r.success ? 'Success' : 'Failed'}${r.error ? ` - Error: ${r.error}` : ''}`);
 		});
-		throw new Error('Failed to seed database completely');
+		throw new Error('Database seeding failed for some lookup tables');
 	}
 
 	console.log('\nDatabase seeding completed successfully');
