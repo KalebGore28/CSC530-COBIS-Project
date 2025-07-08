@@ -1,11 +1,11 @@
-import { sqliteTable, text, int, primaryKey, foreignKey } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, int, primaryKey, foreignKey } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { user } from "./betterAuth";
 import { courses } from "./courses";
 import { terms } from "./terms";
 
-export const instructorCourses = sqliteTable("instructor_courses", {
+export const instructorCourses = mysqlTable("instructor_courses", {
 	mnumber: text("mnumber").notNull(),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),

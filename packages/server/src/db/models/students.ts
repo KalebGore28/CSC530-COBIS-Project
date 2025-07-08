@@ -1,4 +1,4 @@
-import { sqliteTable, text, int } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, int } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
@@ -6,9 +6,8 @@ import { studentAddresses } from "./student-addresses";
 import { studentAdvisors } from "./student-advisors";
 import { studentCourses } from "./student-courses";
 import { studentPrograms } from "./student-programs";
-import { testScores } from "./test_scores";
 
-export const students = sqliteTable("students", {
+export const students = mysqlTable("students", {
 	mnumber: text("mnumber").primaryKey(),
 	first_name: text("first_name").notNull(),
 	middle_name: text("middle_name").notNull(),
@@ -34,5 +33,4 @@ export const studentsRelations = relations(students, ({ many }) => ({
 	studentAdvisors: many(studentAdvisors),
 	studentCourses: many(studentCourses),
 	studentPrograms: many(studentPrograms),
-	testScores: many(testScores),
 }));

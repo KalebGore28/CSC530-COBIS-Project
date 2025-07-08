@@ -1,4 +1,4 @@
-import { sqliteTable, text, real, int, primaryKey } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, real, int, primaryKey } from 'drizzle-orm/mysql-core';
 import { sql, relations } from "drizzle-orm";
 
 import { instructorCourses } from "./instructor-courses";
@@ -6,7 +6,7 @@ import { studentCourses } from "./student-courses";
 import { departments } from "./departments";
 import { colleges } from "./colleges";
 
-export const courses = sqliteTable("courses", {
+export const courses = mysqlTable("courses", {
 	subject: text("subject").notNull(),
 	number: int("number").notNull(),
 	suffix: text("suffix").notNull().default(""),

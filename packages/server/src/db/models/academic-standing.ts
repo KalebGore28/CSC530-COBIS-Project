@@ -1,9 +1,9 @@
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { studentAcademicInfo } from "./student-academic-info";
 
-export const academicStanding = sqliteTable("academic_standing", {
+export const academicStanding = mysqlTable("academic_standing", {
 	code: text("code").primaryKey(),
 	description: text("description").notNull(),
 });

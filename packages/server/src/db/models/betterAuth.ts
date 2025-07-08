@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, boolean, int } from 'drizzle-orm/mysql-core';
 import { sql, relations } from "drizzle-orm";
 
 // All these tables are created by better-auth. Some columns are custom.
@@ -7,17 +7,17 @@ import { sql, relations } from "drizzle-orm";
 import { instructorCourses } from "./instructor-courses";
 import { userRoles } from "./user_roles";
 
-export const user = sqliteTable("user", {
+export const user = mysqlTable("user", {
 	id: text("id").primaryKey(), // Needed for BetterAuth
 	mnumber: text("mnumber").unique(), // Nullable initially, unique when set
 	name: text('name').notNull(),
 	email: text('email').notNull().unique(),
-	emailVerified: integer('email_verified', { mode: 'boolean' }).notNull(),
+	emailVerified: boolean('email_verified').notNull(),
 	image: text('image'),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
-	isEnabled: integer('is_enabled', { mode: 'boolean' }).notNull().default(false), // For security reasons, we'll default to false
-	lastLogin: integer('last_login', { mode: 'timestamp' }).notNull().default(sql`(strftime('%s','now'))`),
+	createdAt: int('created_at').notNull(),
+	updatedAt: int('updated_at').notNull(),
+	isEnabled: boolean('is_enabled').notNull().default(false), // For security reasons, we'll default to false
+	lastLogin: int('last_login').notNull().default(sql`(strftime('%s','now'))`),
 });
 
 export type User = typeof user.$inferSelect;
@@ -32,12 +32,12 @@ export const usersRelations = relations(user, ({ many }) => ({
 	// manually link the two tables together by assigning an mnumber to the user.
 }));
 
-export const session = sqliteTable("session", {
+export const session = mysqlTable("session", {
 	id: text("id").primaryKey(),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+	expiresAt: int('expires_at').notNull(),
 	token: text('token').notNull().unique(),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+	createdAt: int('created_at').notNull(),
+	updatedAt: int('updated_at').notNull(),
 	ipAddress: text('ip_address'),
 	userAgent: text('user_agent'),
 	userId: text('user_id').notNull().references(() => user.id, { onDelete: 'cascade' })
@@ -45,7 +45,7 @@ export const session = sqliteTable("session", {
 
 export type Session = typeof session.$inferSelect;
 
-export const account = sqliteTable("account", {
+export const account = mysqlTable("account", {
 	id: text("id").primaryKey(),
 	accountId: text('account_id').notNull(),
 	providerId: text('provider_id').notNull(),
@@ -53,23 +53,23 @@ export const account = sqliteTable("account", {
 	accessToken: text('access_token'),
 	refreshToken: text('refresh_token'),
 	idToken: text('id_token'),
-	accessTokenExpiresAt: integer('access_token_expires_at', { mode: 'timestamp' }),
-	refreshTokenExpiresAt: integer('refresh_token_expires_at', { mode: 'timestamp' }),
+	accessTokenExpiresAt: int('access_token_expires_at'),
+	refreshTokenExpiresAt: int('refresh_token_expires_at'),
 	scope: text('scope'),
 	password: text('password'),
-	createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
-	updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull()
+	createdAt: int('created_at').notNull(),
+	updatedAt: int('updated_at').notNull()
 });
 
 export type Account = typeof account.$inferSelect;
 
-export const verification = sqliteTable("verification", {
+export const verification = mysqlTable("verification", {
 	id: text("id").primaryKey(),
 	identifier: text('identifier').notNull(),
 	value: text('value').notNull(),
-	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-	createdAt: integer('created_at', { mode: 'timestamp' }),
-	updatedAt: integer('updated_at', { mode: 'timestamp' })
+	expiresAt: int('expires_at').notNull(),
+	createdAt: int('created_at').notNull(),
+	updatedAt: int('updated_at').notNull()
 });
 
 export type Verification = typeof verification.$inferSelect;

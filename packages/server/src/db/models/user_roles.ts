@@ -1,10 +1,10 @@
-import { sqliteTable, text, int, primaryKey } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, int, primaryKey } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { user } from "./betterAuth";
 import { roles } from "./roles";
 
-export const userRoles = sqliteTable("user_roles", {
+export const userRoles = mysqlTable("user_roles", {
 	user_id: text("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
 	role_id: int("role_id").notNull().references(() => roles.id, { onDelete: "cascade" }),
 }, (table) => [

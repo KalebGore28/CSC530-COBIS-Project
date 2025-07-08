@@ -1,10 +1,10 @@
-import { sqliteTable, text, int, primaryKey } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text, int, primaryKey } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { students } from "./students";
 import { terms } from "./terms";
 
-export const studentAdvisors = sqliteTable("student_advisors", {
+export const studentAdvisors = mysqlTable("student_advisors", {
 	student_mnumber: text("student_mnumber").notNull().references(() => students.mnumber, { onDelete: "cascade" }),
 	term: text("term").notNull().references(() => terms.code),
 	year: int("year").notNull(),

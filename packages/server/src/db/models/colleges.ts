@@ -1,11 +1,11 @@
-import { sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { mysqlTable, text } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 import { departments } from "./departments";
 import { programs } from "./programs";
 import { faculty } from "./faculty";
 
-export const colleges = sqliteTable("colleges", {
+export const colleges = mysqlTable("colleges", {
 	code: text("code").primaryKey(),
 	description: text("description").notNull(),
 });
