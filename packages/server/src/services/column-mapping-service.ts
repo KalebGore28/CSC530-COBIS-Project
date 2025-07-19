@@ -1,16 +1,21 @@
 // src/services/columnMappingService.ts
 import { AnyMySqlTable } from "drizzle-orm/mysql-core";
-import * as schema from "../db/schema"; // Import your database schema types here
+import * as schema from "../db/schema";
 import { getDbConnection } from "../db/connection";
 
 // A comprehensive service for mapping CSV data to database tables
 // Supports both data tables (with strict file naming patterns) and
 // Lookup tables (with more flexible naming but requiring explicit designation)
 
+
+// --- HELPER FUNCTIONS ---
+
 import { convertDateMMDDYYYY } from "../utils/convert-dates";
 import { parseTermCode } from "../utils/convert-term-code";
 import { parseCourseCode } from "../utils/convert-course-code";
 
+
+// --- TYPE DEFINITIONS ---
 interface ColumnMapping {
 	csvColumn: string;
 	dbColumn: string;
@@ -20,7 +25,7 @@ interface ColumnMapping {
 /**
  * Function that transforms one CSV row into multiple DB rows
  */
-export type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
+type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
 
 
 /**

@@ -1,9 +1,8 @@
-import { AnyMySqlTable } from "drizzle-orm/mysql-core";
-import { sql } from "drizzle-orm";
-import { eq, and } from "drizzle-orm";
+import { sql, eq, and } from "drizzle-orm";
 import { getDbConnection } from '../db/connection';
+import type { MySql2Database } from "drizzle-orm/mysql2";
+import type { AnyMySqlTable } from "drizzle-orm/mysql-core";
 import { FKViolationError, type FKDef } from "../types/import-data";
-import { MySql2Database } from "drizzle-orm/mysql2";
 
 export async function getForeignKeys(
 	orm: MySql2Database<any>,
@@ -33,6 +32,16 @@ export async function getForeignKeys(
 	return result as unknown as FKDef[];
 }
 
+// --- HELPER FUNCTIONS ---
+function getDrizzleTableName(table: AnyMySqlTable): string | undefined {
+	for (const key of Object.getOwnPropertySymbols(table)) {
+		if (key.toString() === 'Symbol(drizzle:Name)') {
+			return (table as any)[key];
+		}
+	}
+	return undefined;
+}
+
 /**
  * We deliberately skip FK‐checks on these columns when the incoming value is undefined:
  *
@@ -57,6 +66,8 @@ const ignoreFKs = [
 	{ table: "faculty", from: "department", to: "code" },
 	{ table: "faculty", from: "college", to: "code" },
 ];
+
+
 
 /**
  * Validate foreign keys for a given row in a table.
@@ -102,15 +113,6 @@ export async function validateFKs<T>(
 			});
 		}
 	}
-}
-
-function getDrizzleTableName(table: AnyMySqlTable): string | undefined {
-	for (const key of Object.getOwnPropertySymbols(table)) {
-		if (key.toString() === 'Symbol(drizzle:Name)') {
-			return (table as any)[key];
-		}
-	}
-	return undefined;
 }
 
 /**
@@ -184,7 +186,7 @@ export async function importData<T extends Record<string, any>>(
 		} catch (error: any) {
 			// preserve the real Error (so FKViolationError stays intact)
 			if (error instanceof Error) {
-				// console.error(`Error processing row: ${JSON.stringify(row)}`, error);
+				console.error(`Error processing row: ${JSON.stringify(row)}`, error);
 				errorDetails.push({ row, error });
 				/* v8 ignore next 3 */ //wrap non-Error throws just in case
 			} else {
