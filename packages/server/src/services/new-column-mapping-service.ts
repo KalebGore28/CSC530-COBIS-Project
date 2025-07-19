@@ -169,9 +169,11 @@ export async function loadPrefixMap() {
         rows.map(r => [r.prefix, { dept: r.department, coll: r.college }])
     );
 }
-// loadPrefixMap().catch(err => {
-//     console.error("Error loading prefix map:", err);
-// });
+loadPrefixMap().catch(err => {
+    console.error("Error loading prefix map:", err);
+}).then(() => {
+    console.log("Prefix map loaded successfully");
+});
 
 // Update the prefix map with a new prefix
 export async function updatePrefixMap(prefix: string, department: string, college: string) {
@@ -319,48 +321,29 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
     return results;
 };
 
-// Function that expands a single course row into multiple course rows
-const expandCourses: RowExpanderFunction = (row) => {
-    const out: Record<string, any>[] = [];
+// // Function that expands a single course row into multiple course rows
+// const expandCourses: RowExpanderFunction = (row) => {
 
-    const raw = row.course?.trim() || '';
-    const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
-    if (!m) return out;
+//     const raw = row.course?.trim() || '';
+//     const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
+//     if (!m) return row; // If no match, return original row
 
-    const [, prefix, numStr, suffixRaw] = m;
-    const subject = prefix;
-    const number = parseInt(numStr, 10);
-    const suffix = suffixRaw || '';
-    const title = row.crsetitle?.trim() || '';
-    const hours = parseInt(row.crhrs, 10) || 0;
-    const fee = parseFloat(row.course_fee) || 0;
-    const web_fee = parseFloat(row.web_fee) || 0;
-    const last_updated = row.lastChanged || new Date().toISOString();
+//     const [, prefix, numStr, suffixRaw] = m;
+//     const subject = prefix;
 
-    // look up department/college, fallback if missing
-    const { dept, coll } = prefixMap.get(subject) || {};
+//     // look up department/college, fallback if missing
+//     const { dept, coll } = prefixMap.get(subject) || {};
 
-    if (!dept || !coll) {
-        // If not found in prefixMap, assume it is a new prefix
-        updatePrefixMap(subject, '0000', '0').catch(err => {
-            console.error(`Error updating prefix map for ${subject}:`, err);
-        });
-    }
-    out.push({
-        subject,
-        number,
-        suffix,
-        title,
-        hours,
-        fee,
-        web_fee,
-        last_updated,
-        department: dept || '0000', // Default to '0000' if not found
-        college: coll || '0', // Default to '0' if not found
-    });
+//     if (!dept || !coll) {
+//         // If not found in prefixMap, assume it is a new prefix
+//         updatePrefixMap(subject, '0000', '0').catch(err => {
+//             console.error(`Error updating prefix map for ${subject}:`, err);
+//         });
+//     }
 
-    return out;
-}
+
+//     return row;
+// };
 
 export const csvFileMappings: CSVFileMapping[] = [
     {
@@ -516,7 +499,6 @@ export const csvFileMappings: CSVFileMapping[] = [
                 { csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
             ],
         }
-
     },
     {
         mappingName: "academic-standing",
