@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../lib/auth";
+import { authPromise } from "../lib/auth";
 import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
 import { z } from 'zod';
@@ -101,6 +101,7 @@ export class UserController {
 		// await new Promise(resolve => setTimeout(resolve, 5000));
 		try {
 			// Get the session using better-auth
+			const auth = await authPromise();
 			const session = await auth.api.getSession({
 				headers: fromNodeHeaders(req.headers),
 			});

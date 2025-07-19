@@ -21,8 +21,11 @@ export const studentPrograms = mysqlTable("student_programs", {
 export type StudentProgram = typeof studentPrograms.$inferSelect;
 
 // Define relationships for DBML generation
-export const studentProgramRelations = relations(studentPrograms, ({ one, many }) => ({
-	students: many(students), // There can be multiple rows for each student with different programs/types
+export const studentProgramRelations = relations(studentPrograms, ({ one }) => ({
+	student: one(students, {
+		fields: [studentPrograms.mnumber],
+		references: [students.mnumber],
+	}), 
 	term: one(terms, { // Student programs have a term
 		fields: [studentPrograms.term],
 		references: [terms.code],

@@ -3,7 +3,7 @@ import cors from "cors";
 import http from "http";
 import path from "path";
 
-import { auth } from "./lib/auth";
+import { authPromise } from "./lib/auth";
 import { toNodeHandler } from "better-auth/node";
 import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 import { authenticateAndLoadUser } from "./middleware/authenticate-user";
@@ -74,7 +74,7 @@ if (process.env.NODE_ENV !== "production") {
 
 // 3. Auth callback routes
 app.use("/api/auth/callback/google", restrictGoogleCallback);
-app.all("/api/auth/*splat", toNodeHandler(auth));
+app.all("/api/auth/*splat", toNodeHandler(await authPromise()));
 
 // 4. Body parsing
 app.use(express.json({ limit: "10mb" }));

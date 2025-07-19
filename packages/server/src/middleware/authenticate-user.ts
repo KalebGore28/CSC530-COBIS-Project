@@ -1,6 +1,6 @@
 // src/middleware/authenticate-and-load-user.ts
 import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../lib/auth";
+import { authPromise } from "../lib/auth";
 import { Request, Response, NextFunction } from "express";
 import { getDbConnection } from "../db/connection";
 import { eq } from "drizzle-orm";
@@ -21,6 +21,7 @@ export const authenticateAndLoadUser = async (
 	next: NextFunction
 ) => {
 	try {
+		const auth = await authPromise();
 		// 1) Authenticate via Better Auth
 		const sessionResult = await auth.api.getSession({
 			headers: fromNodeHeaders(req.headers),
@@ -43,14 +44,15 @@ export const authenticateAndLoadUser = async (
 		const db = (await getDbConnection()).orm;
 
 		// Fetch userRow first
-		const userRow = await db
+		const userRowArr = await db
 			.select({
 				mnumber: user.mnumber,
 				isEnabled: user.isEnabled,
 			})
 			.from(user)
-			.where(eq(user.id, userId))
-			.get(); // returns single row or undefined
+			.where(eq(user.id, userId));
+
+		const userRow = userRowArr[0];
 
 		if (!userRow) {
 			res.status(403).json({ error: "Forbidden: User not found" });
@@ -66,22 +68,20 @@ export const authenticateAndLoadUser = async (
 				})
 				.from(userRoles)
 				.innerJoin(roles, eq(roles.id, userRoles.role_id))
-				.where(eq(userRoles.user_id, userId))
-				.all(), // returns array
+				.where(eq(userRoles.user_id, userId)),
 			db
 				.select({
 					department: faculty.department,
 					college: faculty.college,
 				})
 				.from(faculty)
-				.where(eq(faculty.mnumber, userRow.mnumber || "")) // Now userRow.mnumber is available
-				.get(),
+				.where(eq(faculty.mnumber, userRow.mnumber || "")), // Now userRow.mnumber is available
 		]);
 
 		// 3) Attach exactly the same shape you had before
 		(req as AuthAndPermissionsRequest).roles = userRolesRows;
-		(req as AuthAndPermissionsRequest).department = facultyRow?.department ?? null;
-		(req as AuthAndPermissionsRequest).college = facultyRow?.college ?? null;
+		(req as AuthAndPermissionsRequest).department = facultyRow?.[0]?.department ?? null;
+		(req as AuthAndPermissionsRequest).college = facultyRow?.[0]?.college ?? null;
 		(req as AuthAndPermissionsRequest).mnumber = userRow.mnumber;
 		(req as AuthAndPermissionsRequest).isEnabled = userRow.isEnabled;
 

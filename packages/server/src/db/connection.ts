@@ -11,17 +11,14 @@ export interface DbConnection {
 
 let _dbConnection: Promise<DbConnection> | null = null;
 
-export const createDb = async (
-	useInMemory = false
-): Promise<DbConnection> => {
+export const createDb = async (): Promise<DbConnection> => {
 
 	const poolConnection = mysql.createPool({
 		host: "localhost",
 		port: 3306,
 		user: "root",
 		password: "my-secret",
-		database: "mydb",
-		socketPath: "/tmp/mysql.sock",
+		database: "mydb"
 	});
 	const db = drizzle(poolConnection, { schema: tables, mode: 'default' });
 
@@ -30,15 +27,13 @@ export const createDb = async (
 
 export const getDbConnection = async (): Promise<DbConnection> => {
 	if (!_dbConnection) {
-		const useInMemory = process.env.NODE_ENV === 'test';
-		_dbConnection = createDb(useInMemory);
+		_dbConnection = createDb();
 	}
 	return _dbConnection;
 };
 
 export const resetDbConnection = async (): Promise<DbConnection> => {
-	const useInMemory = process.env.NODE_ENV === 'test';
-	_dbConnection = createDb(useInMemory);
+	_dbConnection = createDb();
 	return _dbConnection;
 };
 
