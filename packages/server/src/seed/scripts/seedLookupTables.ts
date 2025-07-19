@@ -25,54 +25,54 @@ export const seedLookupTables = async () => {
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
-		// {
-		// 	filePath: '../csvs/academic_standing.csv',
-		// 	mappingName: 'academic-standing'
-		// },
-		// {
-		// 	filePath: '../csvs/admit_codes.csv',
-		// 	tableId: 'admit-codes'
-		// },
-		// {
-		// 	filePath: '../csvs/colleges.csv',
-		// 	tableId: 'colleges'
-		// },
-		// {
-		// 	filePath: '../csvs/departments.csv',
-		// 	tableId: 'departments'
-		// },
-		// {
-		// 	filePath: '../csvs/instructional_methods.csv',
-		// 	tableId: 'instructional-methods'
-		// },
-		// {
-		// 	filePath: '../csvs/nations.csv',
-		// 	tableId: 'nations'
-		// },
-		// {
-		// 	filePath: '../csvs/part_of_term.csv',
-		// 	tableId: 'part-of-term'
-		// },
-		// {
-		// 	filePath: '../csvs/major_minor.csv',
-		// 	tableId: 'programs'
-		// },
-		// {
-		// 	filePath: '../csvs/registration_status.csv',
-		// 	tableId: 'registration-status'
-		// },
-		// {
-		// 	filePath: '../csvs/terms.csv',
-		// 	tableId: 'terms'
-		// },
 		{
-			mappingName: 'courses-catalog',
-			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+			filePath: '../csvs/academic_standing.csv',
+			mappingName: 'academic-standing'
 		},
-		// {
-		// 	filePath: '../csvs/dept_course_prefix.csv',
-		// 	tableId: 'course-prefixes',
-		// }
+		{
+			filePath: '../csvs/admit_codes.csv',
+			mappingName: 'admit-codes'
+		},
+		{
+			filePath: '../csvs/colleges.csv',
+			mappingName: 'colleges'
+		},
+		{
+			filePath: '../csvs/departments.csv',
+			mappingName: 'departments'
+		},
+		{
+			filePath: '../csvs/instructional_methods.csv',
+			mappingName: 'instructional-methods'
+		},
+		{
+			filePath: '../csvs/nations.csv',
+			mappingName: 'nations'
+		},
+		{
+			filePath: '../csvs/part_of_term.csv',
+			mappingName: 'part-of-term'
+		},
+		{
+			filePath: '../csvs/major_minor.csv',
+			mappingName: 'programs'
+		},
+		{
+			filePath: '../csvs/registration_status.csv',
+			mappingName: 'registration-status'
+		},
+		{
+			filePath: '../csvs/terms.csv',
+			mappingName: 'terms'
+		},
+		{
+			filePath: '../csvs/dept_course_prefix.csv',
+			mappingName: 'course-prefixes',
+		},
+		{
+			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+			mappingName: 'courses-catalog',
+		},
 	];
 
 	const responses: any = [];

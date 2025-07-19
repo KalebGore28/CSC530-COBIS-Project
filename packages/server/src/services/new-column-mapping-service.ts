@@ -1,6 +1,17 @@
 import { MySqlTable } from "drizzle-orm/mysql-core";
-import { getDbConnection } from "../db/connection";
+import { format } from 'date-fns';
 import * as schema from "../db/schema";
+
+import {
+  loadPrefixMap,
+  getPrefixMap,
+  updatePrefixMap,
+} from '../utils/prefixMap';
+
+await loadPrefixMap().catch(err => {
+    console.error("Error loading prefix map:", err);
+});
+
 
 // --- TYPE DEFINITIONS ---
 
@@ -54,6 +65,13 @@ export interface LookupCsvMapping extends BaseCsvMapping {
 type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
 
 export type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
+
+type DataDestinationOutput = {
+    table: string;
+    rows: Record<string, any>[];
+};
+
+export type MappedCSVData = DataDestinationOutput[];
 
 
 // --- HELPER FUNCTIONS ---
@@ -156,42 +174,6 @@ export function getTableForeignKeys(table: MySqlTable) {
             onUpdate: fk.onUpdate,
         };
     });
-}
-
-// --- HELPER DATA ---
-let prefixMap: Map<string, { dept: string; coll: string }> = new Map();
-
-// Load the course prefixes into a map for quick lookup
-export async function loadPrefixMap() {
-    const { orm: db } = await getDbConnection();
-    const rows = await db.select().from(schema.coursePrefixes);
-    prefixMap = new Map(
-        rows.map(r => [r.prefix, { dept: r.department, coll: r.college }])
-    );
-}
-loadPrefixMap().catch(err => {
-    console.error("Error loading prefix map:", err);
-}).then(() => {
-    console.log("Prefix map loaded successfully");
-});
-
-// Update the prefix map with a new prefix
-export async function updatePrefixMap(prefix: string, department: string, college: string) {
-    if (!prefix || !department || !college) {
-        throw new Error("Prefix, department, and college must all be provided");
-    }
-    if (prefixMap.has(prefix)) {
-        console.warn(`Prefix ${prefix} already exists in the map. Updating existing entry.`);
-    }
-    // Update the existing entry or add a new one
-    const { orm: db } = await getDbConnection();
-    await db.insert(schema.coursePrefixes).values({
-        prefix,
-        department,
-        college
-    })
-
-    prefixMap.set(prefix, { dept: department, coll: college });
 }
 
 // --- ROW EXPANDER FUNCTIONS ---
@@ -322,28 +304,36 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
 };
 
 // // Function that expands a single course row into multiple course rows
-// const expandCourses: RowExpanderFunction = (row) => {
+export function expandCourses(row: Record<string, string>) {
+    const prefixMap = getPrefixMap();
+    const out: Record<string, any>[] = [];
 
-//     const raw = row.course?.trim() || '';
-//     const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
-//     if (!m) return row; // If no match, return original row
+    const raw = row.course?.trim() || '';
+    const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
+    if (!m) return out;
 
-//     const [, prefix, numStr, suffixRaw] = m;
-//     const subject = prefix;
+    const [, prefix] = m;
+    const subject = prefix;
 
-//     // look up department/college, fallback if missing
-//     const { dept, coll } = prefixMap.get(subject) || {};
+    // look up department/college, fallback if missing
+    const { dept, coll } = prefixMap.get(subject) || {};
 
-//     if (!dept || !coll) {
-//         // If not found in prefixMap, assume it is a new prefix
-//         updatePrefixMap(subject, '0000', '0').catch(err => {
-//             console.error(`Error updating prefix map for ${subject}:`, err);
-//         });
-//     }
+    if (!dept || !coll) {
+        // If not found in prefixMap, assume it is a new prefix
+        updatePrefixMap(subject, '0000', '0').catch(err => {
+            console.error(`Error updating prefix map for ${subject}:`, err);
+        });
+    }
 
+    // Return the same row with the dept and coll added
+    out.push({
+        ...row,
+        department: dept || '0000',
+        college: coll || '0'
+    });
 
-//     return row;
-// };
+    return out;
+};
 
 export const csvFileMappings: CSVFileMapping[] = [
     {
@@ -496,8 +486,16 @@ export const csvFileMappings: CSVFileMapping[] = [
                 { csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
                 { csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
                 { csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-                { csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
+                {
+                    csvColumn: "lastchanged", dbColumn: "last_updated",
+                    transform: (value) => value === 'NULL'
+                        ? format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        : format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
+                },
+                { csvColumn: "department", dbColumn: "department" },
+                { csvColumn: "college", dbColumn: "college" },
             ],
+            rowExpander: expandCourses
         }
     },
     {
@@ -595,7 +593,12 @@ export const csvFileMappings: CSVFileMapping[] = [
                 { csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
                 { csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
                 { csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
-                { csvColumn: "added_on", dbColumn: "added_on", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Default to now if not provided
+                {
+                    csvColumn: "added_on", dbColumn: "added_on", transform: (value) =>
+                        value === 'NULL'
+                            ? format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                            : format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
+                }
             ]
         }
     },
@@ -649,14 +652,6 @@ export function getMappingsByFilePattern(fileName: string): CSVFileMapping[] {
         mapping.filePatterns?.some(pattern => pattern.test(fileName))
     );
 }
-
-type DataDestinationOutput = {
-    table: string;
-    rows: Record<string, any>[];
-};
-
-export type MappedCSVData = DataDestinationOutput[];
-
 
 /**
  * Process multiple CSV rows for a specific destination table
