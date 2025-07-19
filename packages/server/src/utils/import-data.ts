@@ -1,28 +1,37 @@
-import { AnyMySqlTable, MySqlTable } from "drizzle-orm/mysql-core";
-import mysql from "mysql2/promise";
+import { AnyMySqlTable } from "drizzle-orm/mysql-core";
+import { sql } from "drizzle-orm";
 import { eq, and } from "drizzle-orm";
 import { getDbConnection } from '../db/connection';
 import { FKViolationError, type FKDef } from "../types/import-data";
+import { MySql2Database } from "drizzle-orm/mysql2";
 
-export async function getForeignKeysMySQL(
-	conn: mysql.Pool | mysql.PoolConnection,
-	dbName: string,
-	tableName: string
+export async function getForeignKeys(
+	orm: MySql2Database<any>,
+	tableName: string,
+	schemaName: string
 ): Promise<FKDef[]> {
-	const [rows] = await conn.query(`
-    SELECT
-      CONSTRAINT_NAME as constraintName,
-      TABLE_NAME as tableName,
-      COLUMN_NAME as columnName,
-      REFERENCED_TABLE_NAME as referencedTableName,
-      REFERENCED_COLUMN_NAME as referencedColumnName
-    FROM information_schema.KEY_COLUMN_USAGE
-    WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND REFERENCED_TABLE_NAME IS NOT NULL
-  `, [dbName, tableName]);
+	const result = await orm.execute(sql`
+		SELECT
+			rc.CONSTRAINT_NAME AS id,
+			kcu.ORDINAL_POSITION AS seq,
+			kcu.REFERENCED_TABLE_NAME AS \`table\`,
+			kcu.COLUMN_NAME AS \`from\`,
+			kcu.REFERENCED_COLUMN_NAME AS \`to\`,
+			rc.UPDATE_RULE AS on_update,
+			rc.DELETE_RULE AS on_delete,
+			'' AS \`match\`
+		FROM information_schema.REFERENTIAL_CONSTRAINTS rc
+		JOIN information_schema.KEY_COLUMN_USAGE kcu
+			ON rc.CONSTRAINT_NAME = kcu.CONSTRAINT_NAME
+			AND rc.CONSTRAINT_SCHEMA = kcu.CONSTRAINT_SCHEMA
+		WHERE kcu.TABLE_NAME = ${sql.raw('CAST(? AS CHAR)'), [tableName]}
+			AND kcu.CONSTRAINT_SCHEMA = ${sql.raw('CAST(? AS CHAR)'), [schemaName]}
+		ORDER BY kcu.ORDINAL_POSITION;
+	`);
 
-	return rows as FKDef[];
+	// Drizzle returns an array of objects by default, safe to cast
+	return result as unknown as FKDef[];
 }
-
 
 /**
  * We deliberately skip FK‐checks on these columns when the incoming value is undefined:
@@ -59,7 +68,7 @@ export async function validateFKs<T>(
 	tableName: string,
 	row: T
 ) {
-	const fks = await getForeignKeysMySQL(conn, 'mydb', tableName);
+	const fks = await getForeignKeys(conn, tableName, 'mydb');
 
 	for (const fk of fks) {
 		const childVal = (row as any)[fk.from];
@@ -95,6 +104,14 @@ export async function validateFKs<T>(
 	}
 }
 
+function getDrizzleTableName(table: AnyMySqlTable): string | undefined {
+	for (const key of Object.getOwnPropertySymbols(table)) {
+		if (key.toString() === 'Symbol(drizzle:Name)') {
+			return (table as any)[key];
+		}
+	}
+	return undefined;
+}
 
 /**
  * Import data into a table using upsert logic.
@@ -108,11 +125,7 @@ export async function importData<T extends Record<string, any>>(
 	mappedData: T[],
 ) {
 	const { db: conn, orm: db } = await getDbConnection();
-	// @ts-ignore
-	const tableName = (table as unknown as MySqlTable)[
-		// @ts-ignore
-		MySqlTable.Symbol.Name
-	] as string;
+	const tableName = getDrizzleTableName(table);
 
 	if (!Array.isArray(mappedData) || mappedData.length === 0) {
 		throw new Error("Invalid data: No rows provided for import.");
@@ -171,7 +184,7 @@ export async function importData<T extends Record<string, any>>(
 		} catch (error: any) {
 			// preserve the real Error (so FKViolationError stays intact)
 			if (error instanceof Error) {
-				console.error(`Error processing row: ${JSON.stringify(row)}`, error);
+				// console.error(`Error processing row: ${JSON.stringify(row)}`, error);
 				errorDetails.push({ row, error });
 				/* v8 ignore next 3 */ //wrap non-Error throws just in case
 			} else {
