@@ -71,7 +71,7 @@ function getDrizzleSymbol(obj: any, symbolName: string): symbol | undefined {
  * @param table The MySQL table to inspect.
  * @returns An array of column names that make up the composite primary key.
  */
-function getCompositePrimaryKey(table: MySqlTable): string[] {
+export function getCompositePrimaryKey(table: MySqlTable): string[] {
     const extraConfigSymbol = getDrizzleSymbol(table, 'drizzle:ExtraConfigBuilder');
     if (!extraConfigSymbol) return [];
 
@@ -99,7 +99,7 @@ function getCompositePrimaryKey(table: MySqlTable): string[] {
     return pkConfig.columns.map((col: any) => col.name);
 }
 
-function getDrizzleTableName(table: MySqlTable): string | undefined {
+export function getDrizzleTableName(table: MySqlTable): string | undefined {
     for (const key of Object.getOwnPropertySymbols(table)) {
         if (key.toString() === 'Symbol(drizzle:Name)') {
             return (table as any)[key];
@@ -108,7 +108,7 @@ function getDrizzleTableName(table: MySqlTable): string | undefined {
     return undefined;
 }
 
-function getTableMetadata(table: MySqlTable) {
+export function getTableMetadata(table: MySqlTable) {
     const columnsSymbol = getDrizzleSymbol(table, 'drizzle:Columns');
 
     if (!columnsSymbol) throw new Error('Could not find columns symbol on table');
@@ -137,7 +137,7 @@ function getTableMetadata(table: MySqlTable) {
     return columnMetadata
 }
 
-function getTableForeignKeys(table: MySqlTable) {
+export function getTableForeignKeys(table: MySqlTable) {
     const fkSymbol = getDrizzleSymbol(table, 'drizzle:MySqlInlineForeignKeys');
     if (!fkSymbol) return [];
 
@@ -194,7 +194,7 @@ export async function updatePrefixMap(prefix: string, department: string, colleg
 
 // --- ROW EXPANDER FUNCTIONS ---
 // Function that expands a single demographic row into multiple address rows
-export const expandStudentAddresses: RowExpanderFunction = (row) => {
+const expandStudentAddresses: RowExpanderFunction = (row) => {
     const results: Record<string, any>[] = [];
     const { year, term, valid } = parseTermCode(row.term || '');
 
@@ -250,7 +250,7 @@ export const expandStudentAddresses: RowExpanderFunction = (row) => {
 };
 
 // Function that expands a single demographic row into multiple student program rows
-export const expandStudentPrograms: RowExpanderFunction = (row) => {
+const expandStudentPrograms: RowExpanderFunction = (row) => {
     const results: Record<string, any>[] = [];
     const { year, term, valid } = parseTermCode(row.term || '');
 
@@ -320,7 +320,7 @@ export const expandStudentPrograms: RowExpanderFunction = (row) => {
 };
 
 // Function that expands a single course row into multiple course rows
-export const expandCourses: RowExpanderFunction = (row) => {
+const expandCourses: RowExpanderFunction = (row) => {
     const out: Record<string, any>[] = [];
 
     const raw = row.course?.trim() || '';
@@ -515,7 +515,6 @@ export const csvFileMappings: CSVFileMapping[] = [
                 { csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
                 { csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
             ],
-            rowExpander: expandCourses
         }
 
     },
@@ -659,15 +658,63 @@ export const csvFileMappings: CSVFileMapping[] = [
  * @param mappingName The name of the mapping to retrieve
  * @returns The CSVFileMapping object or undefined if not found
  */
-function getMappingByName(mappingName: string): CSVFileMapping | undefined {
+export function getMappingByName(mappingName: string): CSVFileMapping | undefined {
     return csvFileMappings.find(mapping => mapping.mappingName === mappingName);
 }
 
-function getMappingsByFilePattern(fileName: string): CSVFileMapping[] {
-    return csvFileMappings.filter(mapping => 
+export function getMappingsByFilePattern(fileName: string): CSVFileMapping[] {
+    return csvFileMappings.filter(mapping =>
         mapping.filePatterns?.some(pattern => pattern.test(fileName))
     );
 }
 
+type DataDestinationOutput = {
+    table: string;
+    rows: Record<string, any>[];
+};
 
-console.log("Loaded mapping by file pattern:", getMappingsByFilePattern("reg_cuba_demographic_2023_01.csv"));
+type MappedCSVData = DataDestinationOutput[];
+
+
+/**
+ * Process multiple CSV rows for a specific destination table
+ */
+export const mapCSVData = (
+    rows: Record<string, any>[],
+    destinations: BaseDestination[] | BaseDestination
+): MappedCSVData => {
+    const dataDestinations: MappedCSVData = [];
+
+    // Normalize to array
+    const destArray = Array.isArray(destinations) ? destinations : [destinations];
+
+    for (const row of rows) {
+        for (const destination of destArray) {
+            const expandedRows = destination.rowExpander ? destination.rowExpander(row) : [row]; // RowExpanderFunction
+
+            const existing = dataDestinations.find(d => d.table === getDrizzleTableName(destination.schemaRef));
+
+            const mappedRows = expandedRows.map(expandedRow => {
+                const mapped: Record<string, any> = {};
+                for (const column of destination.columns) {
+                    const rawValue = expandedRow[column.csvColumn];
+                    mapped[column.dbColumn] = column.transform
+                        ? column.transform(rawValue)
+                        : rawValue;
+                }
+                return mapped;
+            });
+
+            if (existing) {
+                existing.rows.push(...mappedRows);
+            } else {
+                dataDestinations.push({
+                    table: getDrizzleTableName(destination.schemaRef) || '',
+                    rows: mappedRows
+                });
+            }
+        }
+    }
+
+    return dataDestinations;
+};

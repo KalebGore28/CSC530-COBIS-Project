@@ -276,28 +276,6 @@ export function expandCourses(row: Record<string, string>) {
  * Complete mapping configuration for all CSV files
  */
 export const csvFileMappings: CSVFileMapping[] = [
-	// Test Scores CSV
-	// {
-	// 	filePatterns: [/reg_cuba_test_scores_\d+_\d+\.csv$/i],
-	// 	description: "Test scores data",
-	// 	category: "data",
-	// 	destinations: [
-	// 		{
-	// 			tableName: "Test Scores",
-	// 			tableId: "test-scores",
-	// 			primaryKeys: ["mnumber", "code", "date"],
-	// 			schemaRef: schema.testScores,
-	// 			columns: [
-	// 				{ csvColumn: "mnumber", dbColumn: "mnumber" },
-	// 				{ csvColumn: "testcode", dbColumn: "code" },
-	// 				{ csvColumn: "testdesc", dbColumn: "description" },
-	// 				{ csvColumn: "testscore", dbColumn: "score", transform: (value) => Number(value) },
-	// 				{ csvColumn: "testdate", dbColumn: "date", transform: (value) => convertDateMMDDYYYY(value) }
-	// 			]
-	// 		}
-	// 	]
-	// },
-
 	// Demographics CSV - Maps to multiple tables
 	{
 		filePatterns: [
