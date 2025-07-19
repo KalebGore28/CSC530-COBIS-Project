@@ -655,7 +655,7 @@ type DataDestinationOutput = {
     rows: Record<string, any>[];
 };
 
-type MappedCSVData = DataDestinationOutput[];
+export type MappedCSVData = DataDestinationOutput[];
 
 
 /**

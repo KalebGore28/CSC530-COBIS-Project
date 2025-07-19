@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { ImportService } from '../services/import-service';
-import { getLookupTableByTableId } from '../services/column-mapping-service';
+
+import {
+	mapCSVData,
+	getMappingByName,
+} from '../services/new-column-mapping-service';
 
 /**
  * Controller for handling data import operations
@@ -11,35 +15,29 @@ export class ImportController {
 	 */
 	static async processImport(req: Request, res: Response) {
 		try {
-			const { csvData, tableId, columnMapping } = req.body;
+			const { csvData, mappingName } = req.body;
 
-			let _columnMapping = columnMapping;
-
-			// If columnMapping is not provided, try to find it based on the tableId
-			if (!_columnMapping && tableId) {
-				_columnMapping = getLookupTableByTableId(tableId);
-			}
-
-			try {
-				// Process the CSV import
-				const result = await ImportService.processImport(
-					csvData,
-					_columnMapping,
-					tableId
-				);
-
-				// Return the results
-				res.json(result);
-				return;
-			} catch (error: any) {
-				// Return a more detailed error response
-				res.status(400).json({
-					error: error.message,
-					category: tableId ? 'lookup' : 'data',
-					tableId: tableId || null
+			// Get the mapping by name
+			const columnMapping = getMappingByName(mappingName);
+			
+			if (!columnMapping) {
+				return res.status(400).json({
+					error: 'Invalid mapping name',
+					message: `No mapping found for name: ${mappingName}`
 				});
-				return;
 			}
+
+			// Map the data
+			const mappedData = columnMapping.category === 'data'
+				? mapCSVData(csvData, columnMapping.destinations)
+				: mapCSVData(csvData, columnMapping.destination);
+
+			// Process the CSV import
+			const result = await ImportService.processImport(mappingName, mappedData, columnMapping);
+
+			// Return the results
+			res.json(result);
+			return;
 		} catch (error: any) {
 			res.status(500).json({
 				error: 'Error processing import',

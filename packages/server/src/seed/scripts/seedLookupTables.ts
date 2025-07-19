@@ -7,7 +7,6 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import Papa from "papaparse";
-import { csvFileMappings } from '../../services/column-mapping-service';
 import { createImportRouter } from '../../routes/import-router';
 
 // ES module compatibility
@@ -26,59 +25,50 @@ export const seedLookupTables = async () => {
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [
-		{
-			filePath: '../csvs/academic_standing.csv',
-			tableId: 'academic-standing'
-		},
-		{
-			filePath: '../csvs/admit_codes.csv',
-			tableId: 'admit-codes'
-		},
-		{
-			filePath: '../csvs/colleges.csv',
-			tableId: 'colleges'
-		},
-		{
-			filePath: '../csvs/departments.csv',
-			tableId: 'departments'
-		},
-		{
-			filePath: '../csvs/instructional_methods.csv',
-			tableId: 'instructional-methods'
-		},
-		{
-			filePath: '../csvs/nations.csv',
-			tableId: 'nations'
-		},
-		{
-			filePath: '../csvs/part_of_term.csv',
-			tableId: 'part-of-term'
-		},
-		{
-			filePath: '../csvs/major_minor.csv',
-			tableId: 'programs'
-		},
-		{
-			filePath: '../csvs/registration_status.csv',
-			tableId: 'registration-status'
-		},
+		// {
+		// 	filePath: '../csvs/academic_standing.csv',
+		// 	mappingName: 'academic-standing'
+		// },
+		// {
+		// 	filePath: '../csvs/admit_codes.csv',
+		// 	tableId: 'admit-codes'
+		// },
+		// {
+		// 	filePath: '../csvs/colleges.csv',
+		// 	tableId: 'colleges'
+		// },
+		// {
+		// 	filePath: '../csvs/departments.csv',
+		// 	tableId: 'departments'
+		// },
+		// {
+		// 	filePath: '../csvs/instructional_methods.csv',
+		// 	tableId: 'instructional-methods'
+		// },
+		// {
+		// 	filePath: '../csvs/nations.csv',
+		// 	tableId: 'nations'
+		// },
+		// {
+		// 	filePath: '../csvs/part_of_term.csv',
+		// 	tableId: 'part-of-term'
+		// },
+		// {
+		// 	filePath: '../csvs/major_minor.csv',
+		// 	tableId: 'programs'
+		// },
+		// {
+		// 	filePath: '../csvs/registration_status.csv',
+		// 	tableId: 'registration-status'
+		// },
 		// {
 		// 	filePath: '../csvs/terms.csv',
 		// 	tableId: 'terms'
 		// },
-		// {
-		// 	filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
-		// 	tableId: 'courses-catalog',
-		// 	columnMapping: csvFileMappings.find(mapping => {
-		// 		if (mapping.category === 'data') {
-		// 			// then look through destinations to find the one with the correct tableId
-		// 			const found = mapping.destinations.find(dest => dest.tableId === 'courses-catalog');
-		// 			if (found) {
-		// 				return true;
-		// 			}
-		// 		}
-		// 	})
-		// },
+		{
+			mappingName: 'courses-catalog',
+			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+		},
 		// {
 		// 	filePath: '../csvs/dept_course_prefix.csv',
 		// 	tableId: 'course-prefixes',
@@ -102,9 +92,8 @@ export const seedLookupTables = async () => {
 				const response = await request(app)
 					.post('/api/import/process')
 					.send({
-						tableId: table.tableId,
+						mappingName: table.mappingName,
 						csvData: results.data,
-						columnMapping: table.columnMapping || undefined
 					});
 				responses.push({
 					file: path.basename(table.filePath),
