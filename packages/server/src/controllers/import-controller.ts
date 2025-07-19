@@ -33,7 +33,7 @@ export class ImportController {
 				: mapCSVData(csvData, columnMapping.destination);
 
 			// Process the CSV import
-			const result = await ImportService.processImport(mappingName, mappedData, columnMapping);
+			const result = await ImportService.processImport(mappedData);
 
 			// Return the results
 			res.json(result);
@@ -50,15 +50,15 @@ export class ImportController {
 	/**
 	 * Get all import information including tables and file patterns
 	 */
-	static async getImportInfo(_req: Request, res: Response) {
-		try {
-			const importInfo = ImportService.getImportInfo();
-			res.json(importInfo);
-		} catch (error: any) {
-			res.status(500).json({
-				error: 'Error fetching import information',
-				message: error.message
-			});
-		}
-	}
+	// static async getImportInfo(_req: Request, res: Response) {
+	// 	try {
+	// 		const importInfo = ImportService.getImportInfo();
+	// 		res.json(importInfo);
+	// 	} catch (error: any) {
+	// 		res.status(500).json({
+	// 			error: 'Error fetching import information',
+	// 			message: error.message
+	// 		});
+	// 	}
+	// }
 } 

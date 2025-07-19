@@ -17,7 +17,7 @@ export function createImportRouter(useAuth: boolean = true): express.Router {
 	}
 
 	router.post('/process', ImportController.processImport);
-	router.get('/info', ImportController.getImportInfo);
+	// router.get('/info', ImportController.getImportInfo);
 
 	return router;
 }

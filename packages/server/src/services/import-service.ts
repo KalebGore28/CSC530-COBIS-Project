@@ -3,7 +3,6 @@ import { getDbConnection } from '../db/connection';
 
 import {
 	MappedCSVData,
-	CSVFileMapping,
 } from '../services/new-column-mapping-service';
 
 
@@ -13,9 +12,7 @@ import {
 export class ImportService {
 
 	static async processImport(
-		mappingName: string,
 		mappedData: MappedCSVData,
-		columnMapping: CSVFileMapping,
 	) {
 		await importMappedCSVData(await getDbConnection(), mappedData);
 	}
