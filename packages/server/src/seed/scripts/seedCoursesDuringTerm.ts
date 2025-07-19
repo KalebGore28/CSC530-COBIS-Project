@@ -43,7 +43,7 @@ function randomSection(): string {
 
 /** ------------------------------------------------------------------------ */
 
-async function run(count: number = 200): Promise<void> {
+export const seedCoursesDuringTerm = async (count: number = 200): Promise<void> => {
 	const outDir = path.resolve(__dirname, "data");
 	fs.mkdirSync(outDir, { recursive: true });
 
@@ -199,9 +199,15 @@ async function run(count: number = 200): Promise<void> {
 	console.log("Next filename suggestion:", `${nextSuggestion}.csv`);
 }
 
-// allow ts-node invocation: `ts-node generateCoursesDuringTerm.ts [count]`
-const [, , countArg] = process.argv;
-run(countArg ? Number(countArg) : 200).catch((e) => {
-	console.error(e);
-	process.exit(1);
-});
+// Check if this is the main module
+if (import.meta.url === `file://${process.argv[1]}`) {
+	seedCoursesDuringTerm()
+		.then(() => {
+			console.log("Seed completed, exiting.");
+			process.exit(0);
+		})
+		.catch((err) => {
+			console.error("Error during seeding:", err);
+			process.exit(1);
+		});
+}

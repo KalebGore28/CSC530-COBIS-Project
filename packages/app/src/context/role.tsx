@@ -100,7 +100,7 @@ export const RoleProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		return null;
 	}
 
-	if (roles.length === 0 && graceExpired) {
+	if (session && roles.length === 0 && graceExpired) {
 		return <WaitingPage />
 	}
 
