@@ -30,6 +30,7 @@ async function build() {
 				'@apollo/server/express4',
 				'@apollo/server/plugin/drainHttpServer',
 				'@as-integrations/express5',
+				'mysql2',
 				// Add other dependencies from packages/server/package.json
 			],
 			tsconfig: 'packages/server/tsconfig.json',
