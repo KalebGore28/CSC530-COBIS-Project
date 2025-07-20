@@ -12,7 +12,7 @@ import { loadQueryMap } from "./utils/query-map-loader";
 import { getDbConnection, DbConnection } from "./db/connection";
 import type { AuthAndPermissionsRequest } from "./types/requests";
 
-import { createImportRouter} from "./routes/import-router";
+import { createImportRouter } from "./routes/import-router";
 import userRoute from "./routes/user-router";
 
 import { ApolloServer } from "@apollo/server";

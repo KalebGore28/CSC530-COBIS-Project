@@ -6,8 +6,20 @@ import { checkEnrollmentAccess } from './middleware/checkEnrollmentAccess';
 import { requireRoles } from './middleware/requireRoles';
 import { ApolloContext } from '../app';
 
-import { ProgramResolver } from './resolvers/program';
 import { CourseResolver } from './resolvers/course';
+import { DepartmentResolver } from './resolvers/department';
+import { ProgramResolver } from './resolvers/program';
+import { StudentResolver } from './resolvers/student';
+import { StudentAcademicInfoResolver } from './resolvers/student-academic-info';
+import { StudentAddressResolver } from './resolvers/student-address';
+import { StudentAdvisorResolver } from './resolvers/student-advisor';
+import { StudentCoursesResolver } from './resolvers/student-course';
+import { StudentProgramResolver } from './resolvers/student-program';
+import { FacultyResolver } from './resolvers/faculty';
+import { RoleResolver } from './resolvers/role';
+import { UserResolver } from './resolvers/user';
+import { UserRoleResolver } from './resolvers/user-role';
+import { InstructorCourseResolver } from './resolvers/instructor-course';
 
 // --- TypeScript types for your GraphQL inputs ---
 type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
@@ -48,16 +60,6 @@ const parseCourseId = (cid: string) => {
 	return { subject: m[1], number: +m[2], suffix: m[3] };
 };
 
-function makeKey(course: tables.InstructorCourse) {
-	return [course.term, course.year].join('|');
-}
-
-const termMap = {
-	'10': 'Spring',
-	'50': 'Summer',
-	'80': 'Fall',
-	'90': 'Winter',
-}
 
 type CreateFacultyInput = {
 	user_id: string;
@@ -515,8 +517,7 @@ export const resolvers = {
 			const [{ count: totalCount }] = await db
 				.select({ count: sql<number>`count(*)` })
 				.from(tables.students)
-				.where(and(...whereClauses))
-				.all();
+				.where(and(...whereClauses));
 
 			// Build paginated fetch
 			const studentRows = await db
@@ -529,8 +530,7 @@ export const resolvers = {
 				.from(tables.students)
 				.where(and(...whereClauses))
 				.offset(offset)
-				.limit(limit)
-				.all();
+				.limit(limit);
 
 			return {
 				students: studentRows,
@@ -543,8 +543,7 @@ export const resolvers = {
 			return db
 				.select()
 				.from(tables.programs)
-				.orderBy(tables.programs.code)
-				.all();
+				.orderBy(tables.programs.code);
 		}),
 		program: checkEnrollmentAccess(async (_parent: any, args: { code: string }, { db }: ApolloContext) => {
 			const [program] = await db
@@ -558,8 +557,7 @@ export const resolvers = {
 			return db
 				.select()
 				.from(tables.courses)
-				.orderBy(tables.courses.subject, tables.courses.number, tables.courses.suffix)
-				.all();
+				.orderBy(tables.courses.subject, tables.courses.number, tables.courses.suffix);
 		}),
 		course: checkEnrollmentAccess(async (
 			_parent: any,
@@ -588,8 +586,7 @@ export const resolvers = {
 			return db
 				.select()
 				.from(tables.user)
-				.orderBy(tables.user.email)
-				.all();
+				.orderBy(tables.user.email);
 		}),
 		user: requireRoles(['cobis_administrator'], async (_parent: any, args: { id: string }, { db }: ApolloContext) => {
 			const [user] = await db
@@ -607,503 +604,24 @@ export const resolvers = {
 		}),
 	},
 
-	// Lookup resolvers
-	Department: {
-		college: (department: tables.Department, _args: any, { loaders }: ApolloContext) =>
-			loaders.college.load(department.college),
-	},
-
-	Program: ProgramResolver,
 	Course: CourseResolver,
+	Department: DepartmentResolver,
+	Program: ProgramResolver,
 
 	// Student resolvers
-	Student: {
-		addresses: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
-			loaders.address.load(student.mnumber),
-		advisors: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
-			loaders.advisor.load(student.mnumber),
-		programs: (student: tables.Student, _args: any, { loaders }: ApolloContext) =>
-			loaders.studentProgram.load(student.mnumber),
-		academic_info: async (student: tables.Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
-			const { term, year } = args;
-
-			// fetch all academic info for the student
-			const allAcademicInfo = loaders.academicInfo.load(student.mnumber);
-
-			// if no term or year is provided, return all academic info
-			if (term == null && year == null) return allAcademicInfo;
-
-			// if only a term is provided, return all academic info for that term
-			if (term != null && year == null) {
-				return allAcademicInfo.then((info) =>
-					info.filter((ai) => ai.term === term)
-				);
-			}
-
-			// if only a year is provided, return all academic info for that year
-			if (term == null && year != null) {
-				return allAcademicInfo.then((info) =>
-					info.filter((ai) => ai.year === year)
-				);
-			}
-
-			// if both term and year are provided, return all academic info for that term and year
-			return allAcademicInfo.then((info) =>
-				info.filter((ai) => ai.term === term && ai.year === year)
-			);
-		},
-		courses: (
-			student: tables.Student,
-			args: {
-				startTerm?: string;
-				endTerm?: string;
-				startYear?: number;
-				endYear?: number;
-			},
-			{ loaders }: ApolloContext
-		) => {
-			// fetch all courses for the student
-			const allCourses = loaders.studentCourse.load(student.mnumber);
-
-			// enforce “both or neither” for start‐range and end‐range
-			if ((args.startTerm != null) !== (args.startYear != null)) {
-				throw new Error(
-					'If you filter by startTerm you must also supply startYear, and vice versa.'
-				);
-			}
-
-			if ((args.endTerm != null) !== (args.endYear != null)) {
-				throw new Error(
-					'If you filter by endTerm you must also supply endYear, and vice versa.'
-				);
-			}
-
-			// if no arguments are provided, return all courses
-			if (args.startTerm == null && args.startYear == null && args.endTerm == null && args.endYear == null) {
-				return allCourses;
-			}
-
-			// if only a start term and year are provided, return all courses for that term and year
-			if (args.startTerm != null && args.startYear != null && args.endTerm == null && args.endYear == null) {
-				return allCourses.then((courses) =>
-					courses.filter((course) => course.term === args.startTerm && course.year === args.startYear)
-				);
-			}
-
-			// if only an end term and year are provided, return all courses for that term and year
-			if (args.startTerm == null && args.startYear == null && args.endTerm != null && args.endYear != null) {
-				return allCourses.then((courses) =>
-					courses.filter((course) => course.term === args.endTerm && course.year === args.endYear)
-				);
-			}
-
-			// if both start and end terms and years are provided, return all courses for that range
-			if (args.startTerm != null && args.startYear != null && args.endTerm != null && args.endYear != null) {
-				return allCourses.then((courses) =>
-					courses.filter((course) => {
-						const courseTerm = termMap[course.term as keyof typeof termMap];
-						const courseYear = course.year;
-
-						// check if the course is within the specified range
-						return (
-							(courseTerm >= args.startTerm! && courseYear >= args.startYear!) &&
-							(courseTerm <= args.endTerm! && courseYear <= args.endYear!)
-						);
-					})
-				);
-			}
-		},
-	},
-
-	StudentAcademicInfo: {
-		term: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(academicInfo.term),
-		admit_term: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(academicInfo.admit_term),
-		admit_code: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
-			loaders.admitCode.load(academicInfo.admit_code),
-		academic_standing: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
-			loaders.academicStanding.load(academicInfo.academic_standing),
-		student: (academicInfo: tables.StudentAcademicInfo, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(academicInfo.mnumber),
-	},
-
-	StudentAddress: {
-		nation: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
-			loaders.nation.load(address.nation),
-		student: (address: tables.StudentAddress, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(address.mnumber),
-	},
-
-	StudentAdvisor: {
-		term: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(studentAdvisor.term),
-		student: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(studentAdvisor.student_mnumber),
-		advisor: (studentAdvisor: tables.StudentAdvisor, _args: any, { loaders }: ApolloContext) =>
-			loaders.faculty.load(studentAdvisor.advisor_mnumber),
-	},
-
-	StudentCourse: {
-		term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(studentCourse.term),
-		part_of_term: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.partOfTerm.load(studentCourse.part_of_term),
-		course: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.course.load(
-				`${studentCourse.course_subject}|${studentCourse.course_number}|${studentCourse.course_suffix}`
-			),
-		registration_status: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.registrationStatus.load(studentCourse.registration_status),
-		instructional_method: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.instructionalMethod.load(studentCourse.instructional_method),
-		student: (studentCourse: tables.StudentCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(studentCourse.mnumber),
-	},
-
-	StudentProgram: {
-		term: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(studentProgram.term),
-		program: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
-			loaders.program.load(studentProgram.program),
-		student: (studentProgram: tables.StudentProgram, _args: any, { loaders }: ApolloContext) =>
-			loaders.student.load(studentProgram.mnumber),
-	},
+	Student: StudentResolver,
+	StudentAcademicInfo: StudentAcademicInfoResolver,
+	StudentAddress: StudentAddressResolver,
+	StudentAdvisor: StudentAdvisorResolver,
+	StudentCourse: StudentCoursesResolver,
+	StudentProgram: StudentProgramResolver,
 
 	// Other resolvers
-	Faculty: {
-		college: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
-			faculty.college ? loaders.college.load(faculty.college) : null,
-		department: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
-			faculty.department ? loaders.department.load(faculty.department) : null,
-		courses_taught: async (
-			fac: tables.Faculty,
-			args: {
-				startTerm?: string
-				endTerm?: string
-				startYear?: number
-				endYear?: number
-				subject?: string
-				number?: number
-				suffix?: string
-			},
-			{ loaders }: ApolloContext
-		) => {
-			// enforce “both or neither” for start‐range and end‐range
-			if ((args.startTerm != null) !== (args.startYear != null)) {
-				throw new Error(
-					'If you filter by startTerm you must also supply startYear, and vice versa.'
-				);
-			}
-			if ((args.endTerm != null) !== (args.endYear != null)) {
-				throw new Error(
-					'If you filter by endTerm you must also supply endYear, and vice versa.'
-				);
-			}
-
-			// fetch ALL courses for this instructor (cached per request)
-			const all = await loaders.instructorCourses.load(fac.mnumber);
-
-			// simple compare helper
-			const termYearGE = (
-				course: tables.InstructorCourse,
-				term: string,
-				year: number
-			) =>
-				course.year > year ||
-				(course.year === year && course.term >= term);
-
-			const termYearLE = (
-				course: tables.InstructorCourse,
-				term: string,
-				year: number
-			) =>
-				course.year < year ||
-				(course.year === year && course.term <= term);
-
-			return all.filter((course) => {
-				if (args.startTerm && args.startYear) {
-					if (!termYearGE(course, args.startTerm, args.startYear)) return false;
-				}
-				if (args.endTerm && args.endYear) {
-					if (!termYearLE(course, args.endTerm, args.endYear)) return false;
-				}
-				if (args.subject && course.course_subject !== args.subject) return false;
-				if (args.number && course.course_number !== args.number) return false;
-				if (args.suffix && course.course_suffix !== args.suffix) return false;
-				return true;
-			});
-		},
-		grade_distribution_trend: async (
-			faculty: tables.Faculty,
-			args: {
-				startTerm: string;
-				startYear: number;
-				endTerm?: string;
-				endYear?: number;
-			},
-			{ loaders }: ApolloContext
-		): Promise<Array<{
-			term: tables.Term;
-			year: number;
-			distributions: Array<{ grade: string; count: number; percentage: number }>;
-		}>> => {
-			// 1. validate “both or neither” for start/end filters
-			if ((args.startTerm != null) !== (args.startYear != null)) {
-				throw new Error(
-					'If you filter by startTerm you must also supply startYear, and vice versa.'
-				);
-			}
-			if ((args.endTerm != null) !== (args.endYear != null)) {
-				throw new Error(
-					'If you filter by endTerm you must also supply endYear, and vice versa.'
-				);
-			}
-
-			// 2. pull in all instructor‐course rows (cached per request)
-			const allCourses = await loaders.instructorCourses.load(faculty.mnumber);
-
-			// 3. apply the exact same filtering logic you used for courses_taught
-			const inRange = (course: typeof allCourses[number]) => {
-				const ge = (t: string, y: number) =>
-					course.year > y || (course.year === y && course.term >= t);
-				const le = (t: string, y: number) =>
-					course.year < y || (course.year === y && course.term <= t);
-
-				if (args.startTerm && args.startYear && !ge(args.startTerm, args.startYear)) return false;
-				if (args.endTerm && args.endYear && !le(args.endTerm, args.endYear)) return false;
-				return true;
-			};
-			const filtered = allCourses.filter(inRange);
-
-			// 4. group by term+year
-			const groups = new Map<string, { term: tables.Term; year: number; courses: typeof allCourses }>();
-			for (const course of filtered) {
-				const key = makeKey(course);
-				if (!groups.has(key)) {
-					groups.set(key, {
-						term: { code: course.term, description: termMap[course.term as keyof typeof termMap] || '' },
-						year: course.year,
-						courses: [],
-					});
-				}
-				groups.get(key)!.courses.push(course);
-			}
-
-			// 5. for each group: pull each course’s final distribution, sum counts, compute percentages
-			const trend = await Promise.all(
-				Array.from(groups.values()).map(async ({ term, year, courses }) => {
-					// load all distributions in parallel
-					const allDists = await Promise.all(
-						courses.map((c) =>
-							loaders.finalGradeDistributionByCourse.load(
-								[c.term, c.year, c.course_subject, c.course_number, c.course_suffix].join('|')
-							)
-						)
-					);
-
-					// flatten and aggregate counts by grade
-					const countMap = new Map<string, number>();
-					for (const dist of allDists.flat()) {
-						countMap.set(dist.grade, (countMap.get(dist.grade) || 0) + dist.count);
-					}
-
-					const total = Array.from(countMap.values()).reduce((a, b) => a + b, 0) || 1;
-					const distributions = Array.from(countMap.entries()).map(([grade, count]) => {
-						const rawPercent = (count / total) * 100;
-						return {
-							grade,
-							count,
-							percentage: parseFloat(rawPercent.toFixed(2)),
-						};
-					});
-
-					return { term, year, distributions };
-				})
-			);
-
-			// 6. (optional) sort by year, then term code
-			trend.sort((a, b) =>
-				a.year !== b.year ? a.year - b.year : a.term.code.localeCompare(b.term.code)
-			);
-
-			return trend;
-		},
-		advisees: async (
-			faculty: tables.Faculty,
-			args: {
-				term?: string;
-				year?: number;
-			},
-			{ loaders }: ApolloContext
-		) => {
-			// fetch all students for this faculty member (cached per request)
-			const all = await loaders.facultyAdvisees.load(faculty.mnumber);
-
-			// if no filters, return all
-			if (!args.term && !args.year) return all;
-
-			// otherwise, filter by term/year
-			return all.filter((student) => {
-				if (args.term && args.year) {
-					return student.term === args.term && student.year === args.year;
-				}
-				if (args.term) {
-					return student.term === args.term;
-				}
-				if (args.year) {
-					return student.year === args.year;
-				}
-				return true;
-			});
-		},
-		user: (faculty: tables.Faculty, _args: any, { loaders }: ApolloContext) =>
-			loaders.user.load(faculty.mnumber),
-	},
-
-	Role: {
-		id: (role: tables.Role, _args: any, _context: ApolloContext) => role.id.toString(),
-	},
-
-	User: {
-		updatedAt(user: tables.User, _args: any, _context: ApolloContext) {
-			// if user.updatedAt is a JS Date or number in ms
-			const ms = typeof user.updatedAt === 'number'
-				? user.updatedAt
-				: user.updatedAt.getTime();
-			return Math.floor(ms / 1000);
-		},
-		createdAt(user: tables.User, _args: any, _context: ApolloContext) {
-			// if user.createdAt is a JS Date or number in ms
-			const ms = typeof user.createdAt === 'number'
-				? user.createdAt
-				: user.createdAt.getTime();
-			return Math.floor(ms / 1000);
-		},
-		lastLogin(user: tables.User, _args: any, _context: ApolloContext) {
-			// if user.lastLogin is a JS Date or number in ms
-			const ms = typeof user.lastLogin === 'number'
-				? user.lastLogin
-				: user.lastLogin.getTime();
-			return Math.floor(ms / 1000);
-		},
-		roles: (user: tables.User, _args: any, { loaders }: ApolloContext) =>
-			loaders.userRoles.load(user.id),
-		faculty: (user: tables.User, _args: any, { loaders }: ApolloContext) =>
-			loaders.faculty.load(user.mnumber || ''),
-
-	},
-
-	UserRole: {
-		user: (userRoles: tables.UserRole, _args: any, { loaders }: ApolloContext) =>
-			loaders.user.load(userRoles.user_id),
-		role: (userRoles: tables.UserRole, _args: any, { loaders }: ApolloContext) =>
-			loaders.role.load(userRoles.role_id),
-	},
-
-	InstructorCourse: {
-		term: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(instructorCourse.term),
-		course: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.course.load(
-				[
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		students: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.studentsByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		total_students: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.totalStudentsByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-
-		total_credit_hours: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.totalCreditHoursByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		credit_hour: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.creditHourByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		class_gpa: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.classGpaByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		midterm_average: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.midtermAverageByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		final_average: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.finalAverageByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		midterm_grade_distribution: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.midtermGradeDistributionByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-		final_grade_distribution: (instructorCourse: tables.InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-			loaders.finalGradeDistributionByCourse.load(
-				[
-					instructorCourse.term,
-					instructorCourse.year,
-					instructorCourse.course_subject,
-					instructorCourse.course_number,
-					instructorCourse.course_suffix,
-				].join('|')
-			),
-	},
+	Faculty: FacultyResolver,
+	Role: RoleResolver,
+	User: UserResolver,
+	UserRole: UserRoleResolver,
+	InstructorCourse: InstructorCourseResolver,
 
 	YearTerm: {
 		term: (_parent: any, _args: any, { loaders }: ApolloContext) =>
@@ -1175,8 +693,7 @@ export const resolvers = {
 						await db
 							.update(tables.faculty)
 							.set(facultyUpdates)
-							.where(eq(tables.faculty.mnumber, mnumber))
-							.returning();
+							.where(eq(tables.faculty.mnumber, mnumber));
 					}
 
 					// 3b) Now link/update the user record:
@@ -1200,8 +717,7 @@ export const resolvers = {
 					await db
 						.update(tables.user)
 						.set(userUpdates)
-						.where(eq(tables.user.id, user_id))
-						.returning();
+						.where(eq(tables.user.id, user_id));
 
 					// 3c) Sync user_roles for this user:
 					//      1) Delete all old role rows for this user
@@ -1247,11 +763,9 @@ export const resolvers = {
 						department: department_code,
 						first_name: firstName,
 						last_name: lastName,
-					})
-					.returning()
-					.all();
+					});
 
-				if (newFaculty.length === 0) {
+				if (!newFaculty) {
 					throw new Error('Failed to create new faculty member.');
 				}
 
@@ -1271,8 +785,7 @@ export const resolvers = {
 				await db
 					.update(tables.user)
 					.set(userUpdatesOnCreate)
-					.where(eq(tables.user.id, user_id))
-					.returning();
+					.where(eq(tables.user.id, user_id));
 
 				// 4d) Sync user_roles for this user (just like in CASE A):
 				await db

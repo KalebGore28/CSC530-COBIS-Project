@@ -1,6 +1,3 @@
-
-
-
 import { readFileSync } from 'fs'
 import path, { dirname } from 'path'
 import { resolvers } from './resolvers'
