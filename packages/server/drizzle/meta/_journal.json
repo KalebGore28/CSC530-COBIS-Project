@@ -8,6 +8,27 @@
       "when": 1751950739640,
       "tag": "0000_neat_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1752973400457,
+      "tag": "0001_damp_shockwave",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1752973654272,
+      "tag": "0002_spotty_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1752973768985,
+      "tag": "0003_secret_chimera",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import { mysqlTable, boolean, int, varchar } from 'drizzle-orm/mysql-core';
+import { mysqlTable, boolean, varchar, datetime } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
 // All these tables are created by better-auth. Some columns are custom.
@@ -14,10 +14,10 @@ export const user = mysqlTable("user", {
 	email: varchar('email', { length: 100 }).notNull().unique(),
 	emailVerified: boolean('email_verified').notNull(),
 	image: varchar('image', { length: 255 }).notNull().default(''), // Default to empty string if no image
-	createdAt: int('created_at').notNull(),
-	updatedAt: int('updated_at').notNull(),
+	createdAt: datetime('created_at').notNull(),
+	updatedAt: datetime('updated_at').notNull(),
 	isEnabled: boolean('is_enabled').notNull().default(false), // For security reasons, we'll default to false
-	lastLogin: int('last_login').notNull().default(0),
+	lastLogin: datetime('last_login'), // Default to current time
 });
 
 export type User = typeof user.$inferSelect;
@@ -34,10 +34,10 @@ export const usersRelations = relations(user, ({ many }) => ({
 
 export const session = mysqlTable("session", {
 	id: varchar("id", { length: 50 }).primaryKey(),
-	expiresAt: int('expires_at').notNull(),
+	expiresAt: datetime('expires_at').notNull(),
 	token: varchar('token', { length: 255 }).notNull().unique(),
-	createdAt: int('created_at').notNull(),
-	updatedAt: int('updated_at').notNull(),
+	createdAt: datetime('created_at').notNull(),
+	updatedAt: datetime('updated_at').notNull(),
 	ipAddress: varchar('ip_address', { length: 45 }),
 	userAgent: varchar('user_agent', { length: 255 }),
 	userId: varchar('user_id', { length: 50 }).notNull().references(() => user.id, { onDelete: 'cascade' })
@@ -52,12 +52,12 @@ export const account = mysqlTable("account", {
 	userId: varchar('user_id', { length: 50 }).notNull().references(() => user.id, { onDelete: 'cascade' }),
 	accessToken: varchar('access_token', { length: 255 }),
 	refreshToken: varchar('refresh_token', { length: 255 }),
-	idToken: varchar('id_token', { length: 255 }),
-	accessTokenExpiresAt: int('access_token_expires_at'),
-	refreshTokenExpiresAt: int('refresh_token_expires_at'),
+	idToken: varchar('id_token', { length: 2048 }),
+	accessTokenExpiresAt: datetime('access_token_expires_at'),
+	refreshTokenExpiresAt: datetime('refresh_token_expires_at'),
 	scope: varchar('scope', { length: 255 }),
-	createdAt: int('created_at').notNull(),
-	updatedAt: int('updated_at').notNull()
+	createdAt: datetime('created_at').notNull(),
+	updatedAt: datetime('updated_at').notNull()
 });
 
 export type Account = typeof account.$inferSelect;
@@ -66,9 +66,9 @@ export const verification = mysqlTable("verification", {
 	id: varchar("id", { length: 50 }).primaryKey(),
 	identifier: varchar('identifier', { length: 255 }).notNull(),
 	value: varchar('value', { length: 255 }).notNull(),
-	expiresAt: int('expires_at').notNull(),
-	createdAt: int('created_at').notNull(),
-	updatedAt: int('updated_at').notNull()
+	expiresAt: datetime('expires_at').notNull(),
+	createdAt: datetime('created_at').notNull(),
+	updatedAt: datetime('updated_at').notNull()
 });
 
 export type Verification = typeof verification.$inferSelect;

@@ -10,12 +10,12 @@ table account {
   user_id varchar(50) [not null]
   access_token varchar(255)
   refresh_token varchar(255)
-  id_token varchar(255)
-  access_token_expires_at int
-  refresh_token_expires_at int
+  id_token varchar(2048)
+  access_token_expires_at datetime
+  refresh_token_expires_at datetime
   scope varchar(255)
-  created_at int [not null]
-  updated_at int [not null]
+  created_at datetime [not null]
+  updated_at datetime [not null]
 }
 
 table admit_codes {
@@ -123,10 +123,10 @@ table roles {
 
 table session {
   id varchar(50) [pk, not null]
-  expires_at int [not null]
+  expires_at datetime [not null]
   token varchar(255) [not null, unique]
-  created_at int [not null]
-  updated_at int [not null]
+  created_at datetime [not null]
+  updated_at datetime [not null]
   ip_address varchar(45)
   user_agent varchar(255)
   user_id varchar(50) [not null]
@@ -251,10 +251,10 @@ table user {
   email varchar(100) [not null, unique]
   email_verified boolean [not null]
   image varchar(255) [not null, default: '']
-  created_at int [not null]
-  updated_at int [not null]
+  created_at datetime [not null]
+  updated_at datetime [not null]
   is_enabled boolean [not null, default: false]
-  last_login int [not null, default: 0]
+  last_login datetime
 }
 
 table user_roles {
@@ -270,9 +270,9 @@ table verification {
   id varchar(50) [pk, not null]
   identifier varchar(255) [not null]
   value varchar(255) [not null]
-  expires_at int [not null]
-  created_at int [not null]
-  updated_at int [not null]
+  expires_at datetime [not null]
+  created_at datetime [not null]
+  updated_at datetime [not null]
 }
 
 ref: departments.college > colleges.code
@@ -318,6 +318,8 @@ ref: student_courses.(course_subject, course_number, course_suffix) > courses.(s
 ref: student_courses.registration_status > registration_status.code
 
 ref: student_courses.instructional_method > instructional_methods.code
+
+ref: student_programs.mnumber > students.mnumber
 
 ref: student_programs.term > terms.code
 
