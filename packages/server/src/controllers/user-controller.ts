@@ -100,7 +100,6 @@ export class UserController {
 	 * Get the current user's session and user data
 	 */
 	static async getUserInfo(req: Request, res: Response) {
-		console.log("UserController.getUserInfo called");
 		// simulate a delay
 		// await new Promise(resolve => setTimeout(resolve, 5000));
 		try {
