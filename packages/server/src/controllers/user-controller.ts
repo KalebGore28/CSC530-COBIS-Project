@@ -3,7 +3,10 @@ import { fromNodeHeaders } from "better-auth/node";
 import { authPromise } from "../lib/auth";
 import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
+import { getDbConnection } from '../db/connection';
+import { user } from '../db/schema';
 import { z } from 'zod';
+import { eq } from 'drizzle-orm';
 
 // --- Validation Schemas ---
 export const UserIdParamsSchema = z.object({
@@ -97,6 +100,7 @@ export class UserController {
 	 * Get the current user's session and user data
 	 */
 	static async getUserInfo(req: Request, res: Response) {
+		console.log("UserController.getUserInfo called");
 		// simulate a delay
 		// await new Promise(resolve => setTimeout(resolve, 5000));
 		try {
@@ -115,6 +119,12 @@ export class UserController {
 					mnumber: (req as AuthAndPermissionsRequest).mnumber,
 					isEnabled: (req as AuthAndPermissionsRequest).isEnabled
 				};
+
+				// Update the lastLogin timestamp in the database
+				const { orm } = await getDbConnection();
+				await orm.update(user)
+					.set({ lastLogin: new Date() })
+					.where(eq(user.id, session.user.id))
 
 				// Enrich the session with user information
 				res.json(userInfo);

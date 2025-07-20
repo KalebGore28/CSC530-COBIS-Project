@@ -1,6 +1,6 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
-import { type Term, terms } from '../../db/schema';
+import { terms } from '../../db/schema';
 import type { DbConnection } from '../../db/connection';
 
 export function createTermLoader(db: DbConnection['orm']) {
