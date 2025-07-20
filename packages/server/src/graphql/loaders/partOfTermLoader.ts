@@ -9,8 +9,7 @@ export function createPartOfTermLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(partOfTerm)
-			.where(inArray(partOfTerm.code, codes as string[]))
-			.all();
+			.where(inArray(partOfTerm.code, codes as string[]));
 
 		// 2. Map code → PartOfTerm
 		const rowMap = new Map<string, PartOfTerm>(rows.map((row) => [row.code, row]));

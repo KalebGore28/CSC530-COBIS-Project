@@ -8,8 +8,7 @@ export function createUserRolesLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(userRoles)
-			.where(inArray(userRoles.user_id, ids as string[]))
-			.all();
+			.where(inArray(userRoles.user_id, ids as string[]));
 
 		const map = rows.reduce<Record<string, UserRole[]>>((acc, row) => {
 			(acc[row.user_id] ||= []).push(row);

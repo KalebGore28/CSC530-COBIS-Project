@@ -8,8 +8,7 @@ export function createUserLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(user)
-			.where(inArray(user.mnumber, mnumbers as string[]))
-			.all();
+			.where(inArray(user.mnumber, mnumbers as string[]));
 
 		const rowMap = new Map<string, User>(
 			rows.filter((row) => row.mnumber !== null).map((row) => [row.mnumber as string, row]),

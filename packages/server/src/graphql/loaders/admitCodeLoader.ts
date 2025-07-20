@@ -9,8 +9,7 @@ export function createAdmitCodeLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(admitCodes)
-			.where(inArray(admitCodes.code, codes as string[]))
-			.all();
+			.where(inArray(admitCodes.code, codes as string[]));
 
 		// 2. Map id → College
 		const rowMap = new Map<string, AdmitCode>(rows.map((row) => [row.code, row]));

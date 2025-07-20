@@ -8,8 +8,7 @@ export function createInstructionalMethodLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(instructionalMethods)
-			.where(inArray(instructionalMethods.code, codes as string[]))
-			.all();
+			.where(inArray(instructionalMethods.code, codes as string[]));
 
 		const rowMap = new Map<string, InstructionalMethod>(rows.map((row) => [row.code, row]));
 

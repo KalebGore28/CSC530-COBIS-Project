@@ -8,8 +8,7 @@ export function createDepartmentLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(departments)
-			.where(inArray(departments.code, codes as string[]))
-			.all();
+			.where(inArray(departments.code, codes as string[]));
 
 		const rowMap = new Map<string, Department>(rows.map((row) => [row.code, row]));
 

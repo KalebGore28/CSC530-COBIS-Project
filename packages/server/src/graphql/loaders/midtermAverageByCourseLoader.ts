@@ -75,8 +75,7 @@ export function createMidtermAverageByCourseLoader(
 				studentCourses.course_subject,
 				studentCourses.course_number,
 				studentCourses.course_suffix
-			)
-			.all();
+			);
 
 		// map & round to 2 decimals
 		const map: Record<string, number> = {};

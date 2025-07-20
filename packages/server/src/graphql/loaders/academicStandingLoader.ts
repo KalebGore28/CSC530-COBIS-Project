@@ -9,8 +9,7 @@ export function createAcademicStandingLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(academicStanding)
-			.where(inArray(academicStanding.code, codes as string[]))
-			.all();
+			.where(inArray(academicStanding.code, codes as string[]));
 
 		// 2. Map id → College
 		const rowMap = new Map<string, AcademicStanding>(rows.map((row) => [row.code, row]));

@@ -8,8 +8,7 @@ export function createAddressesLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(studentAddresses)
-			.where(inArray(studentAddresses.mnumber, mnumbers as string[]))
-			.all();
+			.where(inArray(studentAddresses.mnumber, mnumbers as string[]));
 
 		const map = rows.reduce<Record<string, StudentAddress[]>>((acc, row) => {
 			(acc[row.mnumber] ||= []).push(row);

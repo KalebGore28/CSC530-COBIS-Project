@@ -8,8 +8,7 @@ export function createStudentProgramLoader(db: DbConnection['orm']) {
     const rows = await db
       .select()
       .from(studentPrograms)
-      .where(inArray(studentPrograms.mnumber, mnumbers as string[]))
-      .all();
+      .where(inArray(studentPrograms.mnumber, mnumbers as string[]));
 
     const map = rows.reduce<Record<string, StudentProgram[]>>((acc, row) => {
       (acc[row.mnumber] ||= []).push(row);
@@ -25,8 +24,7 @@ export function createStudentProgramByCodeLoader(db: DbConnection['orm']) {
     const rows = await db
       .select()
       .from(studentPrograms)
-      .where(inArray(studentPrograms.program, codes as string[]))
-      .all();
+      .where(inArray(studentPrograms.program, codes as string[]));
 
     const map = rows.reduce<Record<string, StudentProgram[]>>((acc, row) => {
       (acc[row.program] ||= []).push(row);

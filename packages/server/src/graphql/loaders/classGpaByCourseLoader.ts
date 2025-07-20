@@ -74,8 +74,7 @@ export function createClassGpaByCourseLoader(
 				studentCourses.course_subject,
 				studentCourses.course_number,
 				studentCourses.course_suffix
-			)
-			.all();
+			);
 
 		// 3. map results back to keys
 		const map: Record<string, number> = {};

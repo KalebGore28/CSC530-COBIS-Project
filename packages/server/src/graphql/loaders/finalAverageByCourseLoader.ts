@@ -77,8 +77,7 @@ export function createFinalAverageByCourseLoader(
 				studentCourses.course_subject,
 				studentCourses.course_number,
 				studentCourses.course_suffix
-			)
-			.all();
+			);
 
 		// map & round
 		const map: Record<string, number> = {};

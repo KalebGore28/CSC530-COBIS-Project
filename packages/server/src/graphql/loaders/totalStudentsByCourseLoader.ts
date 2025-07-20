@@ -72,8 +72,7 @@ export function createTotalStudentsByCourseLoader(
 				studentCourses.course_subject,
 				studentCourses.course_number,
 				studentCourses.course_suffix
-			)
-			.all();
+			);
 
 		// 3. map rows back into a lookup
 		const map: Record<string, number> = {};

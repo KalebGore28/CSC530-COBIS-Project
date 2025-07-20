@@ -8,8 +8,7 @@ export function createRegistrationStatusLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(registrationStatus)
-			.where(inArray(registrationStatus.code, codes as string[]))
-			.all();
+			.where(inArray(registrationStatus.code, codes as string[]));
 
 		const rowMap = new Map<string, RegistrationStatus>(rows.map((row) => [row.code, row]));
 

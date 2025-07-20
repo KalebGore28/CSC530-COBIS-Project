@@ -9,8 +9,7 @@ export function createAdvisorLoader(db: DbConnection['orm']) {
       .select()
       .from(studentAdvisors)
       .where(inArray(studentAdvisors.student_mnumber, mnumbers as string[]))
-      .orderBy(sql`${studentAdvisors.year} DESC, ${studentAdvisors.term} DESC`)
-      .all();
+      .orderBy(sql`${studentAdvisors.year} DESC, ${studentAdvisors.term} DESC`);
 
     const map = rows.reduce<Record<string, StudentAdvisor[]>>((acc, row) => {
       (acc[row.student_mnumber] ||= []).push(row);

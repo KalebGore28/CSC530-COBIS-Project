@@ -10,8 +10,7 @@ export function createAcademicInfoLoader(
 		const rows = await db
 			.select()
 			.from(studentAcademicInfo)
-			.where(inArray(studentAcademicInfo.mnumber, mnumbers as string[]))
-			.all();
+			.where(inArray(studentAcademicInfo.mnumber, mnumbers as string[]));
 
 		const map = rows.reduce<Record<string, StudentAcademicInfo[]>>((acc, row) => {
 			(acc[row.mnumber] ||= []).push(row);

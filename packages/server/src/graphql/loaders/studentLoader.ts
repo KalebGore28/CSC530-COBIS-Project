@@ -8,8 +8,7 @@ export function createStudentLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(students)
-			.where(inArray(students.mnumber, mnumbers as string[]))
-			.all();
+			.where(inArray(students.mnumber, mnumbers as string[]));
 
 		const rowMap = new Map<string, Student>(rows.map((row) => [row.mnumber, row]));
 

@@ -9,8 +9,7 @@ export function createNationsLoader(db: DbConnection["orm"]) {
 		const rows = await db
 			.select()
 			.from(nations)
-			.where(inArray(nations.code, codes as string[]))
-			.all();
+			.where(inArray(nations.code, codes as string[]));
 
 		// 2. Map code → Nation
 		const rowMap = new Map<string, Nation>(

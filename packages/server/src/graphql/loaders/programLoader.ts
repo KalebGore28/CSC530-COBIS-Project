@@ -8,8 +8,7 @@ export function createProgramLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(programs)
-			.where(inArray(programs.code, codes as string[]))
-			.all();
+			.where(inArray(programs.code, codes as string[]));
 
 		const rowMap = new Map<string, Program>(
 			rows.map(row => [row.code, row])

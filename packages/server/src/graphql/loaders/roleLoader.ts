@@ -8,8 +8,7 @@ export function createRoleLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(roles)
-			.where(inArray(roles.id, [...ids] as number[]))
-			.all();
+			.where(inArray(roles.id, [...ids] as number[]));
 
 		const rowMap = new Map<number, Role>(
 			rows.filter((row) => row.id !== null).map((row) => [row.id as number, row]),

@@ -15,8 +15,7 @@ export function createInstructorCoursesLoader(
 			.orderBy(
 				desc(instructorCourses.year),
 				desc(instructorCourses.term)
-			)
-			.all();
+			);
 
 		const map = rows.reduce<Record<string, InstructorCourse[]>>((acc, row) => {
 			(acc[row.mnumber] ||= []).push(row);

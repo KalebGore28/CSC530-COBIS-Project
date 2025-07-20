@@ -66,8 +66,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
         studentCourses.course_suffix,
         studentCourses.final_grade
       )
-      .orderBy(studentCourses.final_grade)
-      .all();
+      .orderBy(studentCourses.final_grade);
 
     // first pass: group into a map keyed by the composite string
     const map = rows.reduce<Record<string, GradeCount[]>>((acc, row) => {
@@ -138,8 +137,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
         studentCourses.course_suffix,
         studentCourses.midterm_grade
       )
-      .orderBy(studentCourses.midterm_grade)
-      .all();
+      .orderBy(studentCourses.midterm_grade);
 
     // first pass: group into a map
     const map = rows.reduce<Record<string, GradeCount[]>>((acc, row) => {

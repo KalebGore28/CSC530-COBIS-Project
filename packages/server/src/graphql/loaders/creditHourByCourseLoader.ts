@@ -70,8 +70,7 @@ export function createCreditHourByCourseLoader(
         studentCourses.course_subject,
         studentCourses.course_number,
         studentCourses.course_suffix
-      )
-      .all();
+      );
 
     // Build a lookup map
     const map: Record<string, number> = {};

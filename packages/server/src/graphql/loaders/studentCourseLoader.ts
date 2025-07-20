@@ -10,8 +10,7 @@ export function createStudentCourseLoader(
 		const rows = await db
 			.select()
 			.from(studentCourses)
-			.where(inArray(studentCourses.mnumber, mnumbers as string[]))
-			.all();
+			.where(inArray(studentCourses.mnumber, mnumbers as string[]));
 
 		const map = rows.reduce<Record<string, StudentCourse[]>>((acc, row) => {
 			(acc[row.mnumber] ||= []).push(row);

@@ -31,8 +31,7 @@ export function createCourseLoader(db: DbConnection['orm']) {
 		const rows = await db
 			.select()
 			.from(courses)
-			.where(or(...predicates))
-			.all();
+			.where(or(...predicates));
 
 		// 4) map compositeKey → Course
 		const rowMap = new Map<string, Course>(

@@ -70,8 +70,7 @@ export function createTotalCreditHoursByCourseLoader(
 				studentCourses.course_subject,
 				studentCourses.course_number,
 				studentCourses.course_suffix
-			)
-			.all();
+			);
 
 		const map: Record<string, number> = {};
 		for (const r of rows) {

@@ -44,8 +44,7 @@ export function createStudentsByCourseLoader(db: DbConnection['orm']) {
 			.orderBy(
 				// preserve your ordering
 				sql`${studentCourses.year} DESC, ${studentCourses.term} DESC`
-			)
-			.all();
+			);
 
 		// group by composite key
 		const map = rows.reduce<Record<string, typeof rows>>((acc, row) => {

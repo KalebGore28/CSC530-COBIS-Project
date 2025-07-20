@@ -90,8 +90,7 @@ export function createFacultyCourseGradeDistributionLoader(
 							instructorCourses.term,
 							instructorCourses.year,
 							studentCourses.final_grade
-						)
-						.all();
+						);
 					// bucket by “term-year”
 					const buckets: Record<string, Array<{ grade: string | null; count: number }>> = {};
 					for (const r of rows) {
