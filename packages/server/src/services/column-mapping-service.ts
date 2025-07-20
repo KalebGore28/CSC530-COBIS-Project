@@ -1,25 +1,62 @@
-// src/services/columnMappingService.ts
-import { AnyMySqlTable } from "drizzle-orm/mysql-core";
+import { MySqlTable } from "drizzle-orm/mysql-core";
+import { format } from 'date-fns';
 import * as schema from "../db/schema";
-import { getDbConnection } from "../db/connection";
 
-// A comprehensive service for mapping CSV data to database tables
-// Supports both data tables (with strict file naming patterns) and
-// Lookup tables (with more flexible naming but requiring explicit designation)
+import {
+  loadPrefixMap,
+  getPrefixMap,
+  updatePrefixMap,
+} from '../utils/prefixMap';
 
-
-// --- HELPER FUNCTIONS ---
-
-import { convertDateMMDDYYYY } from "../utils/convert-dates";
-import { parseTermCode } from "../utils/convert-term-code";
-import { parseCourseCode } from "../utils/convert-course-code";
+await loadPrefixMap().catch(err => {
+    console.error("Error loading prefix map:", err);
+});
 
 
 // --- TYPE DEFINITIONS ---
-interface ColumnMapping {
-	csvColumn: string;
-	dbColumn: string;
-	transform?: (value: any) => any; // For the backend
+
+/**
+ * Base interface for column mapping
+ */
+interface ColumnMap {
+    csvColumn: string;
+    dbColumn: string;
+    transform?: (value: any) => any; // For the backend
+}
+
+/**
+ * Base interface for all CSV mappings
+ */
+interface BaseCsvMapping {
+    mappingName: string;
+    category: "data" | "lookup";
+}
+
+/**
+ * Base interface for all destinations
+ */
+interface BaseDestination {
+    schemaRef: MySqlTable;
+    columns: ColumnMap[];
+    rowExpander?: RowExpanderFunction;
+}
+
+/**
+ * Interface for data CSV mappings
+ */
+export interface DataCsvMapping extends BaseCsvMapping {
+    category: "data";
+    filePatterns: RegExp[];
+    destinations: BaseDestination[];
+}
+
+/**
+ * Interface for lookup CSV mappings
+ */
+export interface LookupCsvMapping extends BaseCsvMapping {
+    category: "lookup";
+    filePatterns?: RegExp[];
+    destination: BaseDestination;
 }
 
 /**
@@ -27,846 +64,634 @@ interface ColumnMapping {
  */
 type RowExpanderFunction = (csvRow: Record<string, any>) => Record<string, any>[];
 
-
-/**
- * Base interface for all destinations
- */
-interface BaseDestination {
-	tableName: string;
-	tableId: string;
-	primaryKeys: string[];
-	columns: ColumnMapping[];
-	schemaRef: AnyMySqlTable;
-	rowExpander?: RowExpanderFunction;
-}
-
-/**
- * Base interface for all CSV mappings
- */
-interface BaseCsvMapping {
-	description: string;
-	category: "data" | "lookup";
-}
-
-/**
- * Interface for data CSV mappings
- */
-export interface DataCsvMapping extends BaseCsvMapping {
-	category: "data";
-	filePatterns: RegExp[];
-	destinations: BaseDestination[];
-}
-
-/**
- * Interface for lookup CSV mappings
- */
-export interface LookupCsvMapping extends BaseCsvMapping {
-	category: "lookup";
-	destination: BaseDestination;
-}
-
-/**
- * Union type for all CSV mappings
- */
 export type CSVFileMapping = DataCsvMapping | LookupCsvMapping;
 
-let prefixMap: Map<string, { dept: string; coll: string }> = new Map();
+type DataDestinationOutput = {
+    table: string;
+    rows: Record<string, any>[];
+};
 
-// Load the course prefixes into a map for quick lookup
-export async function loadPrefixMap() {
-	const { orm: db } = await getDbConnection();
-	const rows = await db.select().from(schema.coursePrefixes);
-	prefixMap = new Map(
-		rows.map(r => [r.prefix, { dept: r.department, coll: r.college }])
-	);
+export type MappedCSVData = DataDestinationOutput[];
+
+
+// --- HELPER FUNCTIONS ---
+import { convertDateMMDDYYYY } from "../utils/convert-dates";
+import { parseTermCode } from "../utils/convert-term-code";
+import { parseCourseCode } from "../utils/convert-course-code";
+
+function getDrizzleSymbol(obj: any, symbolName: string): symbol | undefined {
+    return Object.getOwnPropertySymbols(obj)
+        .find(sym => sym.toString() === `Symbol(${symbolName})`);
 }
-loadPrefixMap().catch(err => {
-	console.error("Error loading prefix map:", err);
-});
 
-// Update the prefix map with a new prefix
-export async function updatePrefixMap(prefix: string, department: string, college: string) {
-	if (!prefix || !department || !college) {
-		throw new Error("Prefix, department, and college must all be provided");
-	}
-	if (prefixMap.has(prefix)) {
-		console.warn(`Prefix ${prefix} already exists in the map. Updating existing entry.`);
-	}
-	// Update the existing entry or add a new one
-	const { orm: db } = await getDbConnection();
-	await db.insert(schema.coursePrefixes).values({
-		prefix,
-		department,
-		college
-	})
+/**
+ * Get the composite or primary key of a MySQL table.
+ * @param table The MySQL table to inspect.
+ * @returns An array of column names that make up the composite primary key.
+ */
+export function getCompositePrimaryKey(table: MySqlTable): string[] {
+    const extraConfigSymbol = getDrizzleSymbol(table, 'drizzle:ExtraConfigBuilder');
+    if (!extraConfigSymbol) return [];
 
-	prefixMap.set(prefix, { dept: department, coll: college });
+    const configBuilder = (table as any)[extraConfigSymbol];
+
+    // If no composite key found, get simple primary key
+    if (typeof configBuilder !== 'function') {
+        const columnsSymbol = getDrizzleSymbol(table, 'drizzle:Columns');
+        if (!columnsSymbol) return [];
+
+        const columns = (table as any)[columnsSymbol];
+        const primaryKeyColumns = Object.values(columns).filter((col: any) => col.primary);
+        return primaryKeyColumns.map((col: any) => col.name);
+    }
+
+    const configs = configBuilder(table);
+
+    const pkConfig = configs.find((cfg: any) =>
+        typeof cfg === 'object' &&
+        cfg?.constructor?.name === 'PrimaryKeyBuilder'
+    );
+
+    if (!pkConfig || !Array.isArray(pkConfig.columns)) return [];
+
+    return pkConfig.columns.map((col: any) => col.name);
 }
+
+export function getDrizzleTableName(table: MySqlTable): string | undefined {
+    for (const key of Object.getOwnPropertySymbols(table)) {
+        if (key.toString() === 'Symbol(drizzle:Name)') {
+            return (table as any)[key];
+        }
+    }
+    return undefined;
+}
+
+export function getTableMetadata(table: MySqlTable) {
+    const columnsSymbol = getDrizzleSymbol(table, 'drizzle:Columns');
+
+    if (!columnsSymbol) throw new Error('Could not find columns symbol on table');
+
+    const columns = (table as any)[columnsSymbol];
+
+    const columnMetadata = Object.entries(columns).map(([_, col]) => {
+        const typedCol = col as {
+            name: string;
+            columnType: string;
+            notNull: boolean;
+            length?: number;
+            primary?: boolean;
+            isUnique?: boolean;
+        };
+        return {
+            name: typedCol.name,
+            type: typedCol.columnType,
+            notNull: typedCol.notNull,
+            length: typedCol.length,
+            isPrimaryKey: typedCol.primary === true,
+            isUnique: typedCol.isUnique === true,
+        };
+    });
+
+    return columnMetadata
+}
+
+export function getTableForeignKeys(table: MySqlTable) {
+    const fkSymbol = getDrizzleSymbol(table, 'drizzle:MySqlInlineForeignKeys');
+    if (!fkSymbol) return [];
+
+    const fks = (table as any)[fkSymbol];
+
+    return fks.map((fk: any) => {
+        const { columns, foreignTable, foreignColumns } = fk.reference();
+        const nameSymbol = getDrizzleSymbol(foreignTable, 'drizzle:Name');
+        const foreignTableName = nameSymbol ? foreignTable[nameSymbol] : undefined;
+
+        return {
+            columns: columns.map((c: any) => c.name),
+            foreignTable: foreignTableName,
+            foreignColumns: foreignColumns.map((c: any) => c.name),
+            onDelete: fk.onDelete,
+            onUpdate: fk.onUpdate,
+        };
+    });
+}
+
+// --- ROW EXPANDER FUNCTIONS ---
+// Function that expands a single demographic row into multiple address rows
+const expandStudentAddresses: RowExpanderFunction = (row) => {
+    const results: Record<string, any>[] = [];
+    const { year, term, valid } = parseTermCode(row.term || '');
+
+    if (!valid || !row.mnumber) {
+        return results; // Skip invalid rows
+    }
+
+    // Add home address if present
+    if (row.homestreet1 || row.homecity || row.homestate || row.homezip) {
+        results.push({
+            mnumber: row.mnumber,
+            term: term,
+            year: year,
+            type: 'HOME',
+            street1: row.homestreet1 || '',
+            street2: row.homestreet2 || '',
+            city: row.homecity || '',
+            state: row.homestate || '',
+            zip: row.homezip || '',
+            nation: row.homenation || 'USA',
+            phone: row.homephone || ''
+        });
+    }
+
+    // Add local address if present and different from home address
+    if (row.locstreet1 || row.loccity || row.locstate || row.loczip) {
+        // Check if local address is actually different from home address
+        const isSameAsHome =
+            row.locstreet1 === row.homestreet1 &&
+            row.locstreet2 === row.homestreet2 &&
+            row.loccity === row.homecity &&
+            row.locstate === row.homestate &&
+            row.loczip === row.homezip;
+
+        if (!isSameAsHome) {
+            results.push({
+                mnumber: row.mnumber,
+                term: term,
+                year: year,
+                type: 'LOCAL',
+                street1: row.locstreet1 || '',
+                street2: row.locstreet2 || '',
+                city: row.loccity || '',
+                state: row.locstate || '',
+                zip: row.loczip || '',
+                nation: row.locnation || 'USA',
+                phone: row.locphone || ''
+            });
+        }
+    }
+
+    return results;
+};
 
 // Function that expands a single demographic row into multiple student program rows
-export const expandStudentPrograms = (row: Record<string, any>): Record<string, any>[] => {
-	const results: Record<string, any>[] = [];
-	const { year, term, valid } = parseTermCode(row.term || '');
+const expandStudentPrograms: RowExpanderFunction = (row) => {
+    const results: Record<string, any>[] = [];
+    const { year, term, valid } = parseTermCode(row.term || '');
 
-	if (!valid || !row.mnumber) {
-		return results; // Skip invalid rows
-	}
+    if (!valid || !row.mnumber) {
+        return results; // Skip invalid rows
+    }
 
-	const level = row.levl || 'UG'; // Default level if not provided
+    const level = row.levl || 'UG'; // Default level if not provided
 
-	// Add Major 1 if present
-	if (row.major1) {
-		results.push({
-			mnumber: row.mnumber,
-			term: term,
-			year: year,
-			type: 'MAJOR',
-			level: level,
-			program: row.major1,
-			department: row.major1dept || '',
-			college: row.major1coll || ''
-		});
-	}
+    // Add Major 1 if present
+    if (row.major1) {
+        results.push({
+            mnumber: row.mnumber,
+            term: term,
+            year: year,
+            type: 'MAJOR',
+            level: level,
+            program: row.major1,
+            department: row.major1dept || '',
+            college: row.major1coll || ''
+        });
+    }
 
-	// Add Major 2 if present
-	if (row.major2) {
-		results.push({
-			mnumber: row.mnumber,
-			term: term,
-			year: year,
-			type: 'MAJOR',
-			level: level,
-			program: row.major2,
-			department: row.major2dept || '',
-			college: row.major2coll || ''
-		});
-	}
+    // Add Major 2 if present
+    if (row.major2) {
+        results.push({
+            mnumber: row.mnumber,
+            term: term,
+            year: year,
+            type: 'MAJOR',
+            level: level,
+            program: row.major2,
+            department: row.major2dept || '',
+            college: row.major2coll || ''
+        });
+    }
 
-	// Add Minor 1 if present
-	if (row.minor1) {
-		results.push({
-			mnumber: row.mnumber,
-			term: term,
-			year: year,
-			type: 'MINOR',
-			level: level,
-			program: row.minor1,
-			department: row.minor1dept || '',
-			college: '' // Minors don't have college assignments
-		});
-	}
+    // Add Minor 1 if present
+    if (row.minor1) {
+        results.push({
+            mnumber: row.mnumber,
+            term: term,
+            year: year,
+            type: 'MINOR',
+            level: level,
+            program: row.minor1,
+            department: row.minor1dept || '',
+            college: '' // Minors don't have college assignments
+        });
+    }
 
-	// Add Minor 2 if present
-	if (row.minor2) {
-		results.push({
-			mnumber: row.mnumber,
-			term: term,
-			year: year,
-			type: 'MINOR',
-			level: level,
-			program: row.minor2,
-			department: row.minor2dept || '',
-			college: '' // Minors don't have college assignments
-		});
-	}
+    // Add Minor 2 if present
+    if (row.minor2) {
+        results.push({
+            mnumber: row.mnumber,
+            term: term,
+            year: year,
+            type: 'MINOR',
+            level: level,
+            program: row.minor2,
+            department: row.minor2dept || '',
+            college: '' // Minors don't have college assignments
+        });
+    }
 
-	return results;
+    return results;
 };
 
-// Function that expands a single demographic row into multiple address rows
-export const expandStudentAddresses = (row: Record<string, any>): Record<string, any>[] => {
-	const results: Record<string, any>[] = [];
-	const { year, term, valid } = parseTermCode(row.term || '');
-
-	if (!valid || !row.mnumber) {
-		return results; // Skip invalid rows
-	}
-
-	// Add home address if present
-	if (row.homestreet1 || row.homecity || row.homestate || row.homezip) {
-		results.push({
-			mnumber: row.mnumber,
-			term: term,
-			year: year,
-			type: 'HOME',
-			street1: row.homestreet1 || '',
-			street2: row.homestreet2 || '',
-			city: row.homecity || '',
-			state: row.homestate || '',
-			zip: row.homezip || '',
-			nation: row.homenation || 'USA',
-			phone: row.homephone || ''
-		});
-	}
-
-	// Add local address if present and different from home address
-	if (row.locstreet1 || row.loccity || row.locstate || row.loczip) {
-		// Check if local address is actually different from home address
-		const isSameAsHome =
-			row.locstreet1 === row.homestreet1 &&
-			row.locstreet2 === row.homestreet2 &&
-			row.loccity === row.homecity &&
-			row.locstate === row.homestate &&
-			row.loczip === row.homezip;
-
-		if (!isSameAsHome) {
-			results.push({
-				mnumber: row.mnumber,
-				term: term,
-				year: year,
-				type: 'LOCAL',
-				street1: row.locstreet1 || '',
-				street2: row.locstreet2 || '',
-				city: row.loccity || '',
-				state: row.locstate || '',
-				zip: row.loczip || '',
-				nation: row.locnation || 'USA',
-				phone: row.locphone || ''
-			});
-		}
-	}
-
-	return results;
-};
-
-// Function that expands a single course row into multiple course rows
+// // Function that expands a single course row into multiple course rows
 export function expandCourses(row: Record<string, string>) {
-	const out: Record<string, any>[] = [];
+    const prefixMap = getPrefixMap();
+    const out: Record<string, any>[] = [];
 
-	const raw = row.course?.trim() || '';
-	const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
-	if (!m) return out;
+    const raw = row.course?.trim() || '';
+    const m = /^([A-Za-z]+)(\d+)(.*)$/.exec(raw);
+    if (!m) return out;
 
-	const [, prefix, numStr, suffixRaw] = m;
-	const subject = prefix;
-	const number = parseInt(numStr, 10);
-	const suffix = suffixRaw || '';
-	const title = row.crsetitle?.trim() || '';
-	const hours = parseInt(row.crhrs, 10) || 0;
-	const fee = parseFloat(row.course_fee) || 0;
-	const web_fee = parseFloat(row.web_fee) || 0;
-	const last_updated = row.lastChanged || new Date().toISOString();
+    const [, prefix] = m;
+    const subject = prefix;
 
-	// look up department/college, fallback if missing
-	const { dept, coll } = prefixMap.get(subject) || {};
+    // look up department/college, fallback if missing
+    const { dept, coll } = prefixMap.get(subject) || {};
 
-	if (!dept || !coll) {
-		// If not found in prefixMap, assume it is a new prefix
-		updatePrefixMap(subject, '0000', '0').catch(err => {
-			console.error(`Error updating prefix map for ${subject}:`, err);
-		});
-	}
-	out.push({
-		subject,
-		number,
-		suffix,
-		title,
-		hours,
-		fee,
-		web_fee,
-		last_updated,
-		department: dept || '0000', // Default to '0000' if not found
-		college: coll || '0', // Default to '0' if not found
-	});
+    if (!dept || !coll) {
+        // If not found in prefixMap, assume it is a new prefix
+        updatePrefixMap(subject, '0000', '0').catch(err => {
+            console.error(`Error updating prefix map for ${subject}:`, err);
+        });
+    }
 
-	return out;
-}
+    // Return the same row with the dept and coll added
+    out.push({
+        ...row,
+        department: dept || '0000',
+        college: coll || '0'
+    });
 
-/**
- * Complete mapping configuration for all CSV files
- */
+    return out;
+};
+
 export const csvFileMappings: CSVFileMapping[] = [
-	// Demographics CSV - Maps to multiple tables
-	{
-		filePatterns: [
-			/reg_cuba_demographic_\d+_\d+\.csv$/i,
-			/\d+_REG_CUBA_Demographic_Grade_Time_Extract_\d+\.csv$/i
-		],
-		description: "Student demographic information",
-		category: "data",
-		destinations: [
-			{
-				tableName: "Students",
-				tableId: "students",
-				primaryKeys: ["mnumber"],
-				schemaRef: schema.students,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "firstname", dbColumn: "first_name" },
-					{ csvColumn: "middlename", dbColumn: "middle_name" },
-					{ csvColumn: "lastname", dbColumn: "last_name" },
-					{ csvColumn: "suffix", dbColumn: "suffix" },
-					{ csvColumn: "gender", dbColumn: "gender" },
-					{ csvColumn: "birthdate", dbColumn: "birthdate", transform: (value) => convertDateMMDDYYYY(value) },
-					{ csvColumn: "citizen", dbColumn: "citizenship" },
-					{ csvColumn: "race", dbColumn: "race_code" },
-					{ csvColumn: "racedesc", dbColumn: "race_description" },
-					{ csvColumn: "residcode", dbColumn: "residency_code" },
-					{ csvColumn: "residdesc", dbColumn: "residency_description" },
-					{ csvColumn: "age", dbColumn: "age", transform: (value) => Number(value) },
-					{ csvColumn: "cellphone", dbColumn: "cell_phone" },
-					{ csvColumn: "msuemail", dbColumn: "email" }
-				]
-			},
-			{
-				tableName: "Student Addresses",
-				tableId: "student-addresses",
-				primaryKeys: ["mnumber", "type"],
-				schemaRef: schema.studentAddresses,
-				// These mappings are used for validation, but the actual transformation happens in rowExpander
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					// { csvColumn: "type", dbColumn: "type" },
-					// Include both home and local address fields for validation
-					{ csvColumn: "homestreet1", dbColumn: "street1-[row-1-home]" },
-					{ csvColumn: "homestreet2", dbColumn: "street2-[row-1-home]" },
-					{ csvColumn: "homecity", dbColumn: "city-[row-1-home]" },
-					{ csvColumn: "homestate", dbColumn: "state-[row-1-home]" },
-					{ csvColumn: "homezip", dbColumn: "zip-[row-1-home]" },
-					{ csvColumn: "homenation", dbColumn: "nation-[row-1-home]" },
-					{ csvColumn: "homephone", dbColumn: "phone-[row-1-home]" },
-					{ csvColumn: "locstreet1", dbColumn: "street1-[row-2-local]" },
-					{ csvColumn: "locstreet2", dbColumn: "street2-[row-2-local]" },
-					{ csvColumn: "loccity", dbColumn: "city-[row-2-local]" },
-					{ csvColumn: "locstate", dbColumn: "state-[row-2-local]" },
-					{ csvColumn: "loczip", dbColumn: "zip-[row-2-local]" },
-					{ csvColumn: "locnation", dbColumn: "nation-[row-2-local]" },
-					{ csvColumn: "locphone", dbColumn: "phone-[row-2-local]" }
-				],
-				// Use the row expander to create separate records for home and local addresses
-				rowExpander: expandStudentAddresses
-			},
-			{
-				tableName: "Student Academic Info",
-				tableId: "student-academic-info",
-				primaryKeys: ["mnumber", "term", "year"],
-				schemaRef: schema.studentAcademicInfo,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "admitterm", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "admitterm", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "admitcode", dbColumn: "admit_code" },
-					{ csvColumn: "acadstanding", dbColumn: "academic_standing" },
-					{ csvColumn: "msuatthours", dbColumn: "msu_attempted_hours", transform: (value) => Number(value) },
-					{ csvColumn: "msuearnhours", dbColumn: "msu_earned_hours", transform: (value) => Number(value) },
-					{ csvColumn: "msuqp", dbColumn: "msu_quality_points", transform: (value) => Number(value) },
-					{ csvColumn: "msugpa", dbColumn: "msu_gpa", transform: (value) => Number(value) },
-					{ csvColumn: "overatthours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
-					{ csvColumn: "overearnhours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
-					{ csvColumn: "overqp", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
-					{ csvColumn: "overgpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
-				]
-			},
-			{
-				tableName: "Student Programs",
-				tableId: "student-programs",
-				primaryKeys: ["mnumber", "type", "program"],
-				schemaRef: schema.studentPrograms,
-				// We're using a row expander instead of direct column mappings for this table
-				columns: [
-					// These mappings are used for validation, but the actual transformation happens in rowExpander
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					// { csvColumn: "type", dbColumn: "type" },
-					{ csvColumn: "levl", dbColumn: "level" },
-					{ csvColumn: "major1", dbColumn: "program-[row-1]" },
-					{ csvColumn: "major1dept", dbColumn: "program-[row-1-department]" },
-					{ csvColumn: "major1coll", dbColumn: "program-[row-1-college]" },
-					{ csvColumn: "major2", dbColumn: "program-[row-2]" },
-					{ csvColumn: "major2dept", dbColumn: "program-[row-2-department]" },
-					{ csvColumn: "major2coll", dbColumn: "program-[row-2-college]" },
-					{ csvColumn: "minor1", dbColumn: "program-[row-3]" },
-					{ csvColumn: "minor1dept", dbColumn: "program-[row-3-department]" },
-					{ csvColumn: "minor2", dbColumn: "program-[row-4]" },
-					{ csvColumn: "minor2dept", dbColumn: "program-[row-4-department]" },
-				],
-				// This is the key addition - a function that transforms one CSV row into multiple DB rows
-				rowExpander: expandStudentPrograms
-			},
-			{
-				tableName: "Student Advisors",
-				tableId: "student-advisors",
-				primaryKeys: ["student_mnumber", "term", "year", "advisor_mnumber"],
-				schemaRef: schema.studentAdvisors,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "student_mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "advnumb", dbColumn: "advisor_mnumber" },
-				]
-			}
-		]
-	},
+    {
+        mappingName: "demographics",
+        filePatterns: [
+            /reg_cuba_demographic_\d+_\d+\.csv$/i,
+            /\d+_REG_CUBA_Demographic_Grade_Time_Extract_\d+\.csv$/i
+        ],
+        category: "data",
+        destinations: [
+            {
+                schemaRef: schema.students,
+                columns: [
+                    { csvColumn: "mnumber", dbColumn: "mnumber" },
+                    { csvColumn: "firstname", dbColumn: "first_name" },
+                    { csvColumn: "middlename", dbColumn: "middle_name" },
+                    { csvColumn: "lastname", dbColumn: "last_name" },
+                    { csvColumn: "suffix", dbColumn: "suffix" },
+                    { csvColumn: "gender", dbColumn: "gender" },
+                    { csvColumn: "birthdate", dbColumn: "birthdate", transform: (value) => convertDateMMDDYYYY(value) },
+                    { csvColumn: "citizen", dbColumn: "citizenship" },
+                    { csvColumn: "race", dbColumn: "race_code" },
+                    { csvColumn: "racedesc", dbColumn: "race_description" },
+                    { csvColumn: "residcode", dbColumn: "residency_code" },
+                    { csvColumn: "residdesc", dbColumn: "residency_description" },
+                    { csvColumn: "age", dbColumn: "age", transform: (value) => Number(value) },
+                    { csvColumn: "cellphone", dbColumn: "cell_phone" },
+                    { csvColumn: "msuemail", dbColumn: "email" }
+                ]
+            },
+            {
+                schemaRef: schema.studentPrograms,
+                columns: [
+                    { csvColumn: "mnumber", dbColumn: "mnumber" },
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "homestreet1", dbColumn: "street1-[row-1-home]" },
+                    { csvColumn: "homestreet2", dbColumn: "street2-[row-1-home]" },
+                    { csvColumn: "homecity", dbColumn: "city-[row-1-home]" },
+                    { csvColumn: "homestate", dbColumn: "state-[row-1-home]" },
+                    { csvColumn: "homezip", dbColumn: "zip-[row-1-home]" },
+                    { csvColumn: "homenation", dbColumn: "nation-[row-1-home]" },
+                    { csvColumn: "homephone", dbColumn: "phone-[row-1-home]" },
+                    { csvColumn: "locstreet1", dbColumn: "street1-[row-2-local]" },
+                    { csvColumn: "locstreet2", dbColumn: "street2-[row-2-local]" },
+                    { csvColumn: "loccity", dbColumn: "city-[row-2-local]" },
+                    { csvColumn: "locstate", dbColumn: "state-[row-2-local]" },
+                    { csvColumn: "loczip", dbColumn: "zip-[row-2-local]" },
+                    { csvColumn: "locnation", dbColumn: "nation-[row-2-local]" },
+                    { csvColumn: "locphone", dbColumn: "phone-[row-2-local]" }
+                ],
+                // Use the row expander to create separate records for home and local addresses
+                rowExpander: expandStudentAddresses
+            },
+            {
+                schemaRef: schema.studentPrograms,
+                columns: [
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "levl", dbColumn: "level" },
+                    { csvColumn: "major1", dbColumn: "program-[row-1]" },
+                    { csvColumn: "major1dept", dbColumn: "program-[row-1-department]" },
+                    { csvColumn: "major1coll", dbColumn: "program-[row-1-college]" },
+                    { csvColumn: "major2", dbColumn: "program-[row-2]" },
+                    { csvColumn: "major2dept", dbColumn: "program-[row-2-department]" },
+                    { csvColumn: "major2coll", dbColumn: "program-[row-2-college]" },
+                    { csvColumn: "minor1", dbColumn: "program-[row-3]" },
+                    { csvColumn: "minor1dept", dbColumn: "program-[row-3-department]" },
+                    { csvColumn: "minor2", dbColumn: "program-[row-4]" },
+                    { csvColumn: "minor2dept", dbColumn: "program-[row-4-department]" },
+                ],
+                rowExpander: expandStudentPrograms
+            },
+            {
+                schemaRef: schema.studentAdvisors,
+                columns: [
+                    { csvColumn: "mnumber", dbColumn: "student_mnumber" },
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "advnumb", dbColumn: "advisor_mnumber" },
+                ]
+            }
+        ]
+    },
+    {
+        mappingName: "student-instructor-courses",
+        filePatterns: [
+            /reg_cuba_courses_during_term_\d+_\d+\.csv$/i,
+            /\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i
+        ],
+        category: "data",
+        destinations: [
+            {
+                schemaRef: schema.studentCourses,
+                columns: [
+                    { csvColumn: "mnumber", dbColumn: "mnumber" },
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "partofterm", dbColumn: "part_of_term" },
+                    { csvColumn: "crn", dbColumn: "crn" },
+                    { csvColumn: "crsesubj", dbColumn: "course_subject" },
+                    { csvColumn: "crsenumb", dbColumn: "course_number" },
+                    // For some reason the courses_during_term file doesn't have a suffix column
+                    { csvColumn: "section", dbColumn: "course_section" },
+                    { csvColumn: "crhrs", dbColumn: "course_hours", transform: (value) => Number(value) },
+                    { csvColumn: "levlcode", dbColumn: "course_level" },
+                    { csvColumn: "rstscode", dbColumn: "registration_status" },
+                    { csvColumn: "insmcode", dbColumn: "instructional_method" },
+                    { csvColumn: "lastattend", dbColumn: "last_attendance", transform: (value) => value ? convertDateMMDDYYYY(value) : null },
+                    { csvColumn: "midgrade", dbColumn: "midterm_grade" },
+                    { csvColumn: "fingrade", dbColumn: "final_grade" },
+                ]
+            },
+            {
+                schemaRef: schema.instructorCourses,
+                columns: [
+                    { csvColumn: "instmnumber", dbColumn: "mnumber" },
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "crn", dbColumn: "crn" },
+                    { csvColumn: "crsesubj", dbColumn: "course_subject" },
+                    { csvColumn: "crsenumb", dbColumn: "course_number" },
+                    { csvColumn: "section", dbColumn: "course_section" },
+                ]
 
-	// Student/Instructor Courses CSV
-	{
-		filePatterns: [
-			/reg_cuba_courses_during_term_\d+_\d+\.csv$/i,
-			/\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i
-		],
-		description: "Courses taken during term",
-		category: "data",
-		destinations: [
-			{
-				tableName: "Student Courses",
-				tableId: "student-courses",
-				primaryKeys: ["mnumber", "term", "year", "crn"],
-				schemaRef: schema.studentCourses,
-				columns: [
-					{ csvColumn: "mnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "partofterm", dbColumn: "part_of_term" },
-					{ csvColumn: "crn", dbColumn: "crn" },
-					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
-					{ csvColumn: "crsenumb", dbColumn: "course_number" },
-					// For some reason the courses_during_term file doesn't have a suffix column
-					{ csvColumn: "section", dbColumn: "course_section" },
-					{ csvColumn: "crhrs", dbColumn: "course_hours", transform: (value) => Number(value) },
-					{ csvColumn: "levlcode", dbColumn: "course_level" },
-					{ csvColumn: "rstscode", dbColumn: "registration_status" },
-					{ csvColumn: "insmcode", dbColumn: "instructional_method" },
-					{ csvColumn: "lastattend", dbColumn: "last_attendance", transform: (value) => value ? convertDateMMDDYYYY(value) : null },
-					{ csvColumn: "midgrade", dbColumn: "midterm_grade" },
-					{ csvColumn: "fingrade", dbColumn: "final_grade" },
-				]
-			},
-			{
-				tableName: "Instructor Courses",
-				tableId: "instructor-courses",
-				primaryKeys: ["mnumber", "term", "year", "crn"],
-				schemaRef: schema.instructorCourses,
-				columns: [
-					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
-					{ csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-					{ csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-					{ csvColumn: "crn", dbColumn: "crn" },
-					{ csvColumn: "crsesubj", dbColumn: "course_subject" },
-					{ csvColumn: "crsenumb", dbColumn: "course_number" },
-					{ csvColumn: "section", dbColumn: "course_section" },
-				]
+            },
+            {
+                schemaRef: schema.faculty,
+                columns: [
+                    { csvColumn: "instmnumber", dbColumn: "mnumber" },
+                    { csvColumn: "instfirstnm", dbColumn: "first_name" },
+                    { csvColumn: "instlastnm", dbColumn: "last_name" }
+                ]
+            }
+        ]
+    },
 
-			},
-			{
-				/**
-				 * This table exists solely to be as a fallback for instructor/faculty names.
-				 * Why: If an instructor has not signed in to the system before, their name will not be in the
-				 * user table. This table is used to store instructor names for those instructors.
-				 */
-				tableName: "Faculty",
-				tableId: "faculty",
-				primaryKeys: ["mnumber"],
-				schemaRef: schema.faculty,
-				columns: [
-					{ csvColumn: "instmnumber", dbColumn: "mnumber" },
-					{ csvColumn: "instfirstnm", dbColumn: "first_name" },
-					{ csvColumn: "instlastnm", dbColumn: "last_name" }
-				]
-			}
-		]
-	},
+    // Lookup tables
+    {
+        mappingName: "courses-catalog",
+        filePatterns: [/reg_cuba_catalog_\d+_\d+\.csv$/i],
+        category: "lookup",
+        destination: {
+            schemaRef: schema.courses,
+            columns: [
+                { csvColumn: "course", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
+                { csvColumn: "course", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
+                { csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
+                { csvColumn: "crsetitle", dbColumn: "title" },
+                { csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
+                { csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                {
+                    csvColumn: "lastchanged", dbColumn: "last_updated",
+                    transform: (value) => value === 'NULL'
+                        ? format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                        : format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
+                },
+                { csvColumn: "department", dbColumn: "department" },
+                { csvColumn: "college", dbColumn: "college" },
+            ],
+            rowExpander: expandCourses
+        }
+    },
+    {
+        mappingName: "academic-standing",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.academicStanding,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "admit-codes",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.admitCodes,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "colleges",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.colleges,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
 
-	// Courses Catalog CSV example file name: reg_cuba_catalog_202510_20250117.csv
-	{
-		filePatterns: [/reg_cuba_catalog_\d+_\d+\.csv$/i],
-		description: "Courses catalog data",
-		category: "data",
-		destinations: [
-			{
-				tableName: "Courses Catalog",
-				tableId: "courses-catalog",
-				primaryKeys: ["subject", "number", "suffix"],
-				schemaRef: schema.courses,
-				columns: [
-					{ csvColumn: "course", dbColumn: "subject", transform: (value) => parseCourseCode(value).subject },
-					{ csvColumn: "course", dbColumn: "number", transform: (value) => parseCourseCode(value).number },
-					{ csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
-					{ csvColumn: "crsetitle", dbColumn: "title" },
-					{ csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
-					{ csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-					{ csvColumn: "lastchanged", dbColumn: "last_updated", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Notice different date format according to Data Dictionary File.
-				],
-				rowExpander: expandCourses
-			}
-		]
-	},
-
-	// Lookup tables
-	{
-		description: "Academic standing codes",
-		category: "lookup",
-		destination: {
-			tableName: "Academic Standing",
-			tableId: "academic-standing",
-			primaryKeys: ["code"],
-			schemaRef: schema.academicStanding,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Admit type codes",
-		category: "lookup",
-		destination: {
-			tableName: "Admit Codes",
-			tableId: "admit-codes",
-			primaryKeys: ["code"],
-			schemaRef: schema.admitCodes,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Colleges data",
-		category: "lookup",
-		destination: {
-			tableName: "Colleges",
-			tableId: "colleges",
-			primaryKeys: ["code"],
-			schemaRef: schema.colleges,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-
-	},
-	{
-		description: "Departments data",
-		category: "lookup",
-		destination: {
-			tableName: "Departments",
-			tableId: "departments",
-			primaryKeys: ["code"],
-			schemaRef: schema.departments,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" },
-				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
-			],
-		}
-
-	},
-	{
-		description: "Instructional method codes",
-		category: "lookup",
-		destination: {
-			tableName: "Instructional Methods",
-			tableId: "instructional-methods",
-			primaryKeys: ["code"],
-			schemaRef: schema.instructionalMethods,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Nations data",
-		category: "lookup",
-		destination: {
-			tableName: "Nations",
-			tableId: "nations",
-			primaryKeys: ["code"],
-			schemaRef: schema.nations,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Part of term data",
-		category: "lookup",
-		destination: {
-			tableName: "Part of Term",
-			tableId: "part-of-term",
-			primaryKeys: ["code"],
-			schemaRef: schema.partOfTerm,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Major/Minor programs data",
-		category: "lookup",
-		destination: {
-			tableName: "Programs",
-			tableId: "programs",
-			primaryKeys: ["code"],
-			schemaRef: schema.programs,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" },
-				{ csvColumn: "cip_code", dbColumn: "cip_code" },
-				{ csvColumn: "is_major", dbColumn: "is_major", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-				{ csvColumn: "is_minor", dbColumn: "is_minor", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-				{ csvColumn: "has_concentration", dbColumn: "has_concentration", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-				{ csvColumn: "is_discontinued", dbColumn: "is_discontinued", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-				{ csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-				{ csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
-				{ csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
-				{ csvColumn: "added_on", dbColumn: "added_on", transform: (value) => value === 'NULL' ? new Date().toISOString() : new Date(value).toISOString() } // Default to now if not provided
-			]
-		}
-	},
-	{
-		description: "Registration status codes",
-		category: "lookup",
-		destination: {
-			tableName: "Registration Status",
-			tableId: "registration-status",
-			primaryKeys: ["code"],
-			schemaRef: schema.registrationStatus,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Terms data",
-		category: "lookup",
-		destination: {
-			tableName: "Terms",
-			tableId: "terms",
-			primaryKeys: ["code"],
-			schemaRef: schema.terms,
-			columns: [
-				{ csvColumn: "code", dbColumn: "code" },
-				{ csvColumn: "description", dbColumn: "description" }
-			]
-		}
-	},
-	{
-		description: "Course Prefixes",
-		category: "lookup",
-		destination: {
-			tableName: "Course Prefixes",
-			tableId: "course-prefixes",
-			primaryKeys: ["prefix"],
-			schemaRef: schema.coursePrefixes,
-			columns: [
-				{ csvColumn: "prefix", dbColumn: "prefix" },
-				{ csvColumn: "crsedept", dbColumn: "department" },
-				{ csvColumn: "crsecoll", dbColumn: "college" },
-			]
-		}
-	}
-];
-
-// Type alias for any destination table
-type DestinationTable = BaseDestination;
+    },
+    {
+        mappingName: "departments",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.departments,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" },
+                { csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value }
+            ],
+        }
+    },
+    {
+        mappingName: "instructional-methods",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.instructionalMethods,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "nations",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.nations,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "part-of-term",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.partOfTerm,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "programs",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.programs,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" },
+                { csvColumn: "cip_code", dbColumn: "cip_code" },
+                { csvColumn: "is_major", dbColumn: "is_major", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "is_minor", dbColumn: "is_minor", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "has_concentration", dbColumn: "has_concentration", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "is_discontinued", dbColumn: "is_discontinued", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "is_aacsb", dbColumn: "is_aacsb", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "department", dbColumn: "department", transform: (value) => value === 'NULL' ? '0000' : value },
+                { csvColumn: "college", dbColumn: "college", transform: (value) => value === 'NULL' ? '0' : value },
+                {
+                    csvColumn: "added_on", dbColumn: "added_on", transform: (value) =>
+                        value === 'NULL'
+                            ? format(new Date(), 'yyyy-MM-dd HH:mm:ss')
+                            : format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
+                }
+            ]
+        }
+    },
+    {
+        mappingName: "registration-status",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.registrationStatus,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "terms",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.terms,
+            columns: [
+                { csvColumn: "code", dbColumn: "code" },
+                { csvColumn: "description", dbColumn: "description" }
+            ]
+        }
+    },
+    {
+        mappingName: "course-prefixes",
+        category: "lookup",
+        destination: {
+            schemaRef: schema.coursePrefixes,
+            columns: [
+                { csvColumn: "prefix", dbColumn: "prefix" },
+                { csvColumn: "crsedept", dbColumn: "department" },
+                { csvColumn: "crsecoll", dbColumn: "college" },
+            ]
+        }
+    }
+]
 
 /**
- * Get mapping by table ID
+ * Get mapping by name
+ * @param mappingName The name of the mapping to retrieve
+ * @returns The CSVFileMapping object or undefined if not found
  */
-export const getDestinationByTableId = (tableId: string): DestinationTable | null => {
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "data") {
-			const found = mapping.destinations.find(d => d.tableId === tableId);
-			if (found) return found;
-		} else {
-			if (mapping.destination.tableId === tableId) {
-				return mapping.destination;
-			}
-		}
-	}
-	return null;
-};
-
-/**
- * Get mapping by specific mapping description
- */
-export const getMappingByDescription = (description: string): CSVFileMapping | null => {
-	for (const mapping of csvFileMappings) {
-		if (mapping.description === description) {
-			return mapping;
-		}
-	}
-	return null;
-};
-
-/**
- * Get mapping for lookup table by table ID
- */
-export const getLookupTableByTableId = (tableId: string): LookupCsvMapping | null => {
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "lookup" && mapping.destination.tableId === tableId) {
-			return mapping;
-		}
-	}
-	return null;
+export function getMappingByName(mappingName: string): CSVFileMapping | undefined {
+    return csvFileMappings.find(mapping => mapping.mappingName === mappingName);
 }
 
-/**
- * Find mappings for a filename (for data tables)
- */
-export const findMappingsForFilename = (fileName: string): DataCsvMapping | null => {
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "data") {
-			for (const pattern of mapping.filePatterns) {
-				if (pattern.test(fileName)) {
-					return mapping;
-				}
-			}
-		}
-	}
-	return null;
-};
-
-/**
- * Find mapping for a lookup table by ID
- */
-export const findMappingsForLookupTable = (tableId: string): LookupCsvMapping | null => {
-	if (!tableId) return null;
-
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "lookup" && mapping.destination.tableId === tableId) {
-			return mapping;
-		}
-	}
-	return null;
-};
-
-/**
- * Process a CSV row for a specific destination table
- */
-export const mapCsvRowToDbRow = (
-	row: Record<string, any>,
-	destination: DestinationTable
-): Record<string, any> => {
-	const result: Record<string, any> = {};
-
-	for (const column of destination.columns) {
-		if (row[column.csvColumn] !== undefined) {
-			try {
-				result[column.dbColumn] = column.transform
-					? column.transform(row[column.csvColumn])
-					: row[column.csvColumn];
-			} catch (error) {
-				console.warn(`Transform error for column ${column.csvColumn} -> ${column.dbColumn}:`, error);
-				result[column.dbColumn] = row[column.csvColumn];
-			}
-		}
-	}
-	return result;
-};
+export function getMappingsByFilePattern(fileName: string): CSVFileMapping[] {
+    return csvFileMappings.filter(mapping =>
+        mapping.filePatterns?.some(pattern => pattern.test(fileName))
+    );
+}
 
 /**
  * Process multiple CSV rows for a specific destination table
  */
-export const mapCsvDataToDbData = (
-	rows: Record<string, any>[],
-	destination: DestinationTable
-): Record<string, any>[] => {
-	if (destination.rowExpander) {
-		return rows.flatMap(row => {
-			try {
-				return destination.rowExpander!(row);
-			} catch (error) {
-				console.warn(`Error expanding row for ${destination.tableName}:`, error);
-				return [];
-			}
-		});
-	}
-	return rows.map(row => mapCsvRowToDbRow(row, destination))
-		.filter(row => Object.keys(row).length > 0);
-};
+export const mapCSVData = (
+    rows: Record<string, any>[],
+    destinations: BaseDestination[] | BaseDestination
+): MappedCSVData => {
+    const dataDestinations: MappedCSVData = [];
 
-/**
- * Get all destination tables across all mappings
- */
-export const getAllDestinationTables = (): DestinationTable[] => {
-	const destinations: DestinationTable[] = [];
+    // Normalize to array
+    const destArray = Array.isArray(destinations) ? destinations : [destinations];
 
-	for (const mapping of csvFileMappings) {
-		if (mapping.category === "data") {
-			destinations.push(...mapping.destinations);
-		} else {
-			destinations.push(mapping.destination);
-		}
-	}
-	return destinations;
-};
+    for (const row of rows) {
+        for (const destination of destArray) {
+            const expandedRows = destination.rowExpander ? destination.rowExpander(row) : [row]; // RowExpanderFunction
 
-/**
- * Get CSV mapping metadata for frontend
- */
-export const getImportInfo = () => {
-	return {
-		csvMappings: csvFileMappings.map(mapping => {
+            const existing = dataDestinations.find(d => d.table === getDrizzleTableName(destination.schemaRef));
 
-			// Convert RegExp patterns to string format that can be reconstructed on the client
-			const patternStrings = mapping.category === "data"
-				? mapping.filePatterns.map(pattern => {
-					// Get the actual pattern string and flags
-					const patternStr = pattern.toString();
-					// The regex toString() returns something like /pattern/flags
-					// Extract just the pattern part and flags
-					const match = /^\/(.*)\/([gimuy]*)$/.exec(patternStr);
-					if (match) {
-						const [_, patternBody, flags] = match;
-						// Return as a string with slashes and flags that can be parsed on client
-						return `/${patternBody}/${flags}`;
-					}
-					// Fallback to original string representation
-					return patternStr;
-				})
-				: [];
+            const mappedRows = expandedRows.map(expandedRow => {
+                const mapped: Record<string, any> = {};
+                for (const column of destination.columns) {
+                    const rawValue = expandedRow[column.csvColumn];
+                    mapped[column.dbColumn] = column.transform
+                        ? column.transform(rawValue)
+                        : rawValue;
+                }
+                return mapped;
+            });
 
-			return {
-				filePatterns: patternStrings,
-				description: mapping.description,
-				category: mapping.category,
-				destinations: mapping.category === "data"
-					? mapping.destinations.map(dest => ({
-						tableName: dest.tableName,
-						tableId: dest.tableId,
-						category: mapping.category,
-						primaryKeys: dest.primaryKeys,
-						hasRowExpander: !!dest.rowExpander,
-						columns: dest.columns.map(col => ({
-							dbColumn: col.dbColumn,
-							csvColumn: col.csvColumn,
-							isPrimaryKey: dest.primaryKeys.includes(col.dbColumn),
-							hasTransform: !!col.transform
-						}))
-					}))
-					: undefined,
-				destination: mapping.category === "lookup"
-					? {
-						tableName: mapping.destination.tableName,
-						tableId: mapping.destination.tableId,
-						category: mapping.category,
-						primaryKeys: mapping.destination.primaryKeys,
-						hasRowExpander: !!mapping.destination.rowExpander,
-						columns: mapping.destination.columns.map(col => ({
-							dbColumn: col.dbColumn,
-							csvColumn: col.csvColumn,
-							isPrimaryKey: mapping.destination.primaryKeys.includes(col.dbColumn),
-							hasTransform: !!col.transform
-						}))
-					}
-					: undefined
-			};
-		}),
+            if (existing) {
+                existing.rows.push(...mappedRows);
+            } else {
+                dataDestinations.push({
+                    table: getDrizzleTableName(destination.schemaRef) || '',
+                    rows: mappedRows
+                });
+            }
+        }
+    }
 
-		stats: {
-			csvMappingCount: csvFileMappings.length,
-			dataTableCount: csvFileMappings.filter(m => m.category === "data").length,
-			lookupTableCount: csvFileMappings.filter(m => m.category === "lookup").length
-		}
-	};
+    return dataDestinations;
 };

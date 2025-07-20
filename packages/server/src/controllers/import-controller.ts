@@ -4,7 +4,7 @@ import { ImportService } from '../services/import-service';
 import {
 	mapCSVData,
 	getMappingByName,
-} from '../services/new-column-mapping-service';
+} from '../services/column-mapping-service';
 
 /**
  * Controller for handling data import operations
@@ -19,12 +19,13 @@ export class ImportController {
 
 			// Get the mapping by name
 			const columnMapping = getMappingByName(mappingName);
-			
+
 			if (!columnMapping) {
-				return res.status(400).json({
+				res.status(400).json({
 					error: 'Invalid mapping name',
 					message: `No mapping found for name: ${mappingName}`
 				});
+				return;
 			}
 
 			// Map the data
@@ -36,7 +37,10 @@ export class ImportController {
 			const result = await ImportService.processImport(mappedData);
 
 			// Return the results
-			res.json(result);
+			res.status(200).json({
+				message: 'Import processed successfully',
+				result: result
+			});
 			return;
 		} catch (error: any) {
 			res.status(500).json({
@@ -46,19 +50,4 @@ export class ImportController {
 			return;
 		}
 	}
-
-	/**
-	 * Get all import information including tables and file patterns
-	 */
-	// static async getImportInfo(_req: Request, res: Response) {
-	// 	try {
-	// 		const importInfo = ImportService.getImportInfo();
-	// 		res.json(importInfo);
-	// 	} catch (error: any) {
-	// 		res.status(500).json({
-	// 			error: 'Error fetching import information',
-	// 			message: error.message
-	// 		});
-	// 	}
-	// }
 } 
