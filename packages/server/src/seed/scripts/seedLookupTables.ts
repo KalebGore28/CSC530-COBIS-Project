@@ -70,7 +70,7 @@ export const seedLookupTables = async () => {
 			mappingName: 'course-prefixes',
 		},
 		{
-			filePath: '../csvs/reg_cuba_catalog_202510_20250117.csv',
+			filePath: '../csvs/course_catalog.csv',
 			mappingName: 'courses-catalog',
 		},
 	];
