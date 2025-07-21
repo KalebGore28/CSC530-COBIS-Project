@@ -50,6 +50,7 @@ export class ImportController {
 				error: 'Error processing import',
 				message: error.message
 			});
+			console.error('Error processing import:', error);
 			return;
 		}
 	}

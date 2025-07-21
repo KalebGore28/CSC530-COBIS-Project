@@ -67,7 +67,7 @@ async function bulkUpsert(
         await conn.db.execute(sql, values);
     } catch (error: any) {
         console.error(`❌ Error importing into table "${table}"`);
-        console.error(`Failed SQL: ${sql.slice(0, 500)}...`); // truncate if needed
+        console.error(`Failed SQL: ${sql}...`); // truncate if needed
         console.error(`First row:`, rows[0]);
         console.error(`Error message:`, error?.message || error);
         throw error; // propagate it upward

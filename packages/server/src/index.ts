@@ -1,15 +1,27 @@
 import 'dotenv/config';
-
-import httpServer from './app';
 import { createDb } from "./db/connection";
+import httpServer from './app';
+import { loadPrefixMap } from './utils/prefixMap';
 
-createDb().then(() => {
-	console.log('Database connected');
-});
+const PORT = Number(process.env.PORT)
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
-await new Promise<void>(resolve =>
-    httpServer.listen({ port: PORT }, resolve)
-);
+async function start() {
+    try {
+        await createDb();
+        console.log('✅ DB connected');
 
-console.log(`Server is running on http://localhost:${PORT}`);
+        await loadPrefixMap();
+        console.log('✅ Prefix map loaded');
+
+        await new Promise<void>(resolve =>
+            httpServer.listen({ port: PORT }, resolve)
+        );
+
+        console.log(`🚀 Server is running at http://localhost:${PORT}`);
+    } catch (err) {
+        console.error('❌ Fatal startup error:', err);
+        process.exit(1);
+    }
+}
+
+start();

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import Papa from "papaparse";
 import { createImportRouter } from '../../routes/import-router';
+import { loadPrefixMap } from '../../utils/prefixMap';
 
 // ES module compatibility
 const __filename = fileURLToPath(import.meta.url);
@@ -22,6 +23,8 @@ export const seedLookupTables = async () => {
 		.use(express.json({ limit: "10mb" }))
 		.use(express.urlencoded({ extended: true, limit: "10mb" }))
 		.use('/api/import', createImportRouter(false)); // No auth for seeding
+
+	await loadPrefixMap();
 
 	// Define lookup tables that need explicit tableId
 	const lookupTables = [

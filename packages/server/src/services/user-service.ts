@@ -355,7 +355,7 @@ export class UserService {
 					const { firstName, lastName } = deriveNames(userName);
 					await tx.insert(faculty)
 						.values({ mnumber: finalMnumber, first_name: firstName, last_name: lastName, college: details.college, department: details.department })
-						.onConflictDoUpdate({ target: faculty.mnumber, set: { first_name: firstName, last_name: lastName, college: details.college, department: details.department } });
+					// .onConflictDoUpdate({ target: faculty.mnumber, set: { first_name: firstName, last_name: lastName, college: details.college, department: details.department } });
 				}
 
 				// --- 7. Handle Role Assignments (Now Always Executes) ---

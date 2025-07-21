@@ -5,8 +5,8 @@ import { seedLookupTables } from "./scripts/seedLookupTables";
 import { seedRoles } from "./scripts/seedRoles";
 
 async function run() {
-	await seedLookupTables();
 	await seedRoles();
+	await seedLookupTables();
 	console.log("🎉 All CSV seeders done!");
 	console.log("Your application is now seeded with core data and is ready to use!");
 }

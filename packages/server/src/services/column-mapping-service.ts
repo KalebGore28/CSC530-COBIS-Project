@@ -3,15 +3,9 @@ import { format } from 'date-fns';
 import * as schema from "../db/schema";
 
 import {
-    loadPrefixMap,
     getPrefixMap,
     updatePrefixMap,
 } from '../utils/prefixMap';
-
-await loadPrefixMap().catch(err => {
-    console.error("Error loading prefix map:", err);
-});
-
 
 // --- TYPE DEFINITIONS ---
 

@@ -17,7 +17,9 @@
     "db:reset": "npm run db:reset --workspace=cobis-server",
     "db:studio": "npm run db:studio --workspace=cobis-server",
     "db:seed": "npm run db:seed --workspace=cobis-server",
-    "db:seedgen": "npm run db:seedgen --workspace=cobis-server"
+    "db:seedgen": "npm run db:seedgen --workspace=cobis-server",
+    "docker:build": "docker build -t cobis-app .",
+    "docker:run": "docker run -p 8080:8080 -d --name cobis-app --network cobis-network --env-file .env cobis-app"
   },
   "dependencies": {
     "better-auth": "^1.2.8"

@@ -1,6 +1,8 @@
-// src/db/connection.ts
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
+import 'dotenv/config';
+
+console.log(process.env.DB_HOST)
 
 import * as tables from './schema';
 
@@ -14,14 +16,19 @@ let _dbConnection: Promise<DbConnection> | null = null;
 export const createDb = async (): Promise<DbConnection> => {
 
 	const poolConnection = mysql.createPool({
-		host: "localhost",
-		port: 3306,
-		user: "root",
-		password: "my-secret",
-		database: "mydb"
+		host: process.env.DB_HOST,
+		port: Number(process.env.DB_PORT),
+		user: process.env.DB_USER,
+		password: process.env.DB_ROOT_PASSWORD,
+		database: process.env.DB_NAME,
 	});
-	const db = drizzle(poolConnection, { schema: tables, mode: 'default' });
 
+	const db = drizzle(poolConnection, { schema: tables, mode: 'default' });
+	if (!poolConnection) {
+		throw new Error('❌ Failed to create database connection. Check DB_URL in .env');
+	}
+
+	console.log(`✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
 	return { orm: db, db: poolConnection };
 };
 
@@ -34,6 +41,7 @@ export const getDbConnection = async (): Promise<DbConnection> => {
 
 export const resetDbConnection = async (): Promise<DbConnection> => {
 	_dbConnection = createDb();
+
 	return _dbConnection;
 };
 

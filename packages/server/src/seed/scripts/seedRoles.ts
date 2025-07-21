@@ -11,19 +11,22 @@ const ROLE_DEFINITIONS = [
 ];
 
 export async function seedRoles() {
-  const { orm: db, db: connection } = await getDbConnection();
+  const { orm: db } = await getDbConnection();
   console.log("Seeding roles…");
 
-  // Bulk insert, ignore conflicts if already present
-  await db
-    .insert(roles)
-    .values(ROLE_DEFINITIONS)
-    .catch((err) => {})
-
-  console.log(`✅ Inserted ${ROLE_DEFINITIONS.length} roles (or skipped existing).`);
-
-  connection.end(); // Close the database connection
+  try {
+    await db.insert(roles).values(ROLE_DEFINITIONS);
+    console.log(`✅ Inserted ${ROLE_DEFINITIONS.length} roles.`);
+  } catch (err: any) {
+    if (err.cause.code === 'ER_DUP_ENTRY') {
+      console.warn("⚠️ Some roles already exist. Skipping duplicates.");
+    } else {
+      console.error("❌ Failed to insert roles:", err);
+      // throw err; // Re-throw unknown errors
+    }
+  }
 }
+
 
 // If you want to run this file directly with ts-node:
 if (import.meta.url === `file://${process.argv[1]}`) {
