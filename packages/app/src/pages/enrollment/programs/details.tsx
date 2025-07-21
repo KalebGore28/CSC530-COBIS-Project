@@ -201,7 +201,7 @@ const ProgramDetailsHeader: React.FC<{ programCode: string }> = ({ programCode }
 						<strong>Added On:</strong>{' '}
 						{
 							data.program.added_on
-								? new Date(data.program.added_on).toLocaleDateString()
+								? new Date(Number(data.program.added_on)).toLocaleString()
 								: 'N/A'
 						}
 					</div>
@@ -317,10 +317,12 @@ const ProgramDetailsContent: React.FC<{ programCode: string, termRange: TermRang
 
 	const genderCitizenship: StudentDatum[] = data.program.student_programs.map(
 		(sp) => ({
-			citizenship: sp.student.citizenship as 'US' | 'International',
+			citizenship: sp.student.citizenship as 'Y' | 'N' | 'R',
 			gender: sp.student.gender as 'M' | 'F',
 		})
 	);
+
+	console.log(genderCitizenship);
 
 	const enrollments: Enrollment[] = data.program.student_programs.map(
 		(sp) => ({

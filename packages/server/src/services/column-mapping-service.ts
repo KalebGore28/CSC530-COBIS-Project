@@ -372,6 +372,26 @@ export const csvFileMappings: CSVFileMapping[] = [
                 rowExpander: expandStudentAddresses
             },
             {
+                schemaRef: schema.studentAcademicInfo,
+                columns: [
+                    { csvColumn: "mnumber", dbColumn: "mnumber" },
+                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "admitterm", dbColumn: "admit_term", transform: (value) => parseTermCode(value).term },
+                    { csvColumn: "admitterm", dbColumn: "admit_year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "admitcode", dbColumn: "admit_code" },
+                    { csvColumn: "acadstanding", dbColumn: "academic_standing" },
+                    { csvColumn: "msuatthours", dbColumn: "msu_attempted_hours", transform: (value) => Number(value) },
+                    { csvColumn: "msuearnhours", dbColumn: "msu_earned_hours", transform: (value) => Number(value) },
+                    { csvColumn: "msuqp", dbColumn: "msu_quality_points", transform: (value) => Number(value) },
+                    { csvColumn: "msugpa", dbColumn: "msu_gpa", transform: (value) => Number(value) },
+                    { csvColumn: "overatthours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
+                    { csvColumn: "overearnhours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
+                    { csvColumn: "overqp", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
+                    { csvColumn: "overgpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
+                ]
+            },
+            {
                 schemaRef: schema.studentPrograms,
                 columns: [
                     { csvColumn: "mnumber", dbColumn: "mnumber" },

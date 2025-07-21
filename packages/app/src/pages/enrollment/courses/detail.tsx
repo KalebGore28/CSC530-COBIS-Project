@@ -214,7 +214,12 @@ const CourseDetailsHeader: React.FC<{ course: MinimumCourse, className?: string 
 						<strong>Web Fee:</strong> ${web_fee.toFixed(2)}
 					</div>
 					<div>
-						<strong>Last Updated:</strong> {last_updated ? new Date(last_updated).toLocaleDateString() : 'N/A'}
+						<strong>Last Updated:</strong>{' '}
+						{last_updated
+							? new Date(Number(last_updated)).toLocaleString()
+							: 'N/A'}
+
+
 					</div>
 				</div>
 			</CardContent>
@@ -281,7 +286,7 @@ const CourseDetailsContent: React.FC<{ course: MinimumCourse, termRange: TermRan
 
 	const genderCitizenship: StudentDatum[] = data.course.student_courses.map(
 		(sc) => ({
-			citizenship: sc.student.citizenship as 'US' | 'International',
+			citizenship: sc.student.citizenship as 'Y' | 'N' | 'R',
 			gender: sc.student.gender as 'M' | 'F',
 		})
 	);

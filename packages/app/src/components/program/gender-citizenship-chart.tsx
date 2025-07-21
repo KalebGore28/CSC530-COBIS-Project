@@ -22,7 +22,7 @@ import {
 } from "recharts";
 
 export type StudentDatum = {
-	citizenship: "US" | "International";
+	citizenship: "Y" | "N" | "R";
 	gender: "M" | "F";
 };
 
@@ -33,30 +33,31 @@ interface GenderCitizenshipProps {
 
 export const GenderCitizenship: React.FC<GenderCitizenshipProps> = ({ data, className }) => {
 	// Categories
-	const citizenshipCategories = ["US", "International"] as const;
+	const citizenshipCategories = ["Y", "N", "R"] as const;
 	const genderCategories = ["M", "F"] as const;
 
 	// Aggregate counts
 	const { citizenshipChartData } = useMemo(() => {
 		const countsByCitizenship: Record<
-			"US" | "International",
+			"Y" | "N" | "R",
 			Record<"M" | "F", number>
 		> = {
-			US: { M: 0, F: 0 },
-			International: { M: 0, F: 0 },
+			Y: { M: 0, F: 0 },
+			N: { M: 0, F: 0 },
+			R: { M: 0, F: 0 },
 		};
 		const countsByGender: Record<
 			"M" | "F",
-			Record<"US" | "International", number>
+			Record<"Y" | "N" | "R", number>
 		> = {
-			M: { US: 0, International: 0 },
-			F: { US: 0, International: 0 },
+			M: { Y: 0, N: 0, R: 0 },
+			F: { Y: 0, N: 0, R: 0 },
 		};
 
 		data.forEach((item) => {
 			const { citizenship, gender } = item;
 			if (
-				(citizenship === "US" || citizenship === "International") &&
+				(citizenship === "Y" || citizenship === "N" || citizenship === "R") &&
 				(gender === "M" || gender === "F")
 			) {
 				countsByCitizenship[citizenship][gender] += 1;
@@ -72,8 +73,9 @@ export const GenderCitizenship: React.FC<GenderCitizenshipProps> = ({ data, clas
 
 		const genderChartData = genderCategories.map((gen) => ({
 			gender: gen,
-			US: countsByGender[gen].US,
-			International: countsByGender[gen].International,
+			Y: countsByGender[gen].Y,
+			N: countsByGender[gen].N,
+			R: countsByGender[gen].R,
 		}));
 
 		return { citizenshipChartData, genderChartData };
@@ -117,6 +119,12 @@ export const GenderCitizenship: React.FC<GenderCitizenshipProps> = ({ data, clas
 							stackId="stack1"
 							fill="var(--color-female)"
 							radius={[4, 4, 0, 0]}
+						/>
+						<Bar
+							dataKey="R"
+							stackId="stack1"
+							fill="var(--color-resident)"
+							radius={[0, 0, 4, 4]}
 						/>
 					</BarChart>
 				</ChartContainer>
