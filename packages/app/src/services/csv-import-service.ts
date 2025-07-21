@@ -51,14 +51,12 @@ export type CSVFileMappingWithMetadata =
  */
 export async function processImport(
   csvData: Record<string, string>[],
-  tableId?: string,
-  columnMapping?: DataCsvMapping
-): Promise<ImportResult> {
+  mappingName: string,
+): Promise<void> {
   try {
     const response = await axios.post('/api/import/process', {
       csvData,
-      tableId,
-      columnMapping
+      mappingName
     }, {
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +64,7 @@ export async function processImport(
       withCredentials: true,
     });
 
-    return response.data;
+    // return response.data;
   } catch (error) {
     console.error('Error processing import:', error);
     throw error;
