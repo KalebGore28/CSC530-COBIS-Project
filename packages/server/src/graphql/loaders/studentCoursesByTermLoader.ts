@@ -17,7 +17,7 @@ export function createStudentCoursesByTermLoader(
 	endYear: number
 ) {
 	return new DataLoader<string, StudentCourse[]>(async (compositeKeys) => {
-		console.log(compositeKeys)
+		
 		// 1. Build the same start/end range conditions:
 		const startCond = or(
 			gt(studentCourses.year, startYear),
