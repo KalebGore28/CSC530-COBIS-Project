@@ -35,7 +35,15 @@ import type {
 	UserRole
 } from "../../server/src/db/schema";
 
+import type {
+	CSVFileMapping,
+	DataCsvMapping,
+	LookupCsvMapping,
+	BaseDestination
+} from "../../server/src/services/column-mapping-service";
+
 export type {
+	// Database types
 	AcademicStanding,
 	AdmitCode,
 	User,
@@ -60,5 +68,10 @@ export type {
 	StudentProgram,
 	Student,
 	Term,
-	UserRole
+	UserRole,
+	// CSV Mapping types
+	CSVFileMapping,
+	DataCsvMapping,
+	LookupCsvMapping,
+	BaseDestination
 };

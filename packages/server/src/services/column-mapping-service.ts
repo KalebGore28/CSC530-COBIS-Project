@@ -3,9 +3,9 @@ import { format } from 'date-fns';
 import * as schema from "../db/schema";
 
 import {
-  loadPrefixMap,
-  getPrefixMap,
-  updatePrefixMap,
+    loadPrefixMap,
+    getPrefixMap,
+    updatePrefixMap,
 } from '../utils/prefixMap';
 
 await loadPrefixMap().catch(err => {
@@ -35,7 +35,7 @@ interface BaseCsvMapping {
 /**
  * Base interface for all destinations
  */
-interface BaseDestination {
+export interface BaseDestination {
     schemaRef: MySqlTable;
     columns: ColumnMap[];
     rowExpander?: RowExpanderFunction;
@@ -72,6 +72,14 @@ type DataDestinationOutput = {
 };
 
 export type MappedCSVData = DataDestinationOutput[];
+
+type ForeignKeyReference = {
+    columns: string[];
+    foreignTable: string;
+    foreignColumns: string[];
+    onDelete: string;
+    onUpdate: string;
+};
 
 
 // --- HELPER FUNCTIONS ---
@@ -155,7 +163,7 @@ export function getTableMetadata(table: MySqlTable) {
     return columnMetadata
 }
 
-export function getTableForeignKeys(table: MySqlTable) {
+export function getTableForeignKeys(table: MySqlTable): ForeignKeyReference[] {
     const fkSymbol = getDrizzleSymbol(table, 'drizzle:MySqlInlineForeignKeys');
     if (!fkSymbol) return [];
 
@@ -167,11 +175,11 @@ export function getTableForeignKeys(table: MySqlTable) {
         const foreignTableName = nameSymbol ? foreignTable[nameSymbol] : undefined;
 
         return {
-            columns: columns.map((c: any) => c.name),
-            foreignTable: foreignTableName,
-            foreignColumns: foreignColumns.map((c: any) => c.name),
-            onDelete: fk.onDelete,
-            onUpdate: fk.onUpdate,
+            columns: columns.map((c: any) => c.name) as string[],
+            foreignTable: foreignTableName as string,
+            foreignColumns: foreignColumns.map((c: any) => c.name) as string[],
+            onDelete: fk.onDelete as string,
+            onUpdate: fk.onUpdate as string,
         };
     });
 }
@@ -647,8 +655,8 @@ export function getMappingByName(mappingName: string): CSVFileMapping | undefine
     return csvFileMappings.find(mapping => mapping.mappingName === mappingName);
 }
 
-export function getMappingsByFilePattern(fileName: string): CSVFileMapping[] {
-    return csvFileMappings.filter(mapping =>
+export function getMappingByFilePattern(fileName: string): CSVFileMapping | undefined {
+    return csvFileMappings.find(mapping =>
         mapping.filePatterns?.some(pattern => pattern.test(fileName))
     );
 }
@@ -695,3 +703,18 @@ export const mapCSVData = (
 
     return dataDestinations;
 };
+
+export const schemaRefToMetadata = (schemaRef: MySqlTable) => {
+    return {
+        name: getDrizzleTableName(schemaRef),
+        columns: getTableMetadata(schemaRef),
+        primaryKey: getCompositePrimaryKey(schemaRef),
+        foreignKeys: getTableForeignKeys(schemaRef)
+    };
+}
+
+export const getAllLookupMappingNames = (): string[] => {
+    return csvFileMappings
+        .filter(mapping => mapping.category === "lookup")
+        .map(mapping => mapping.mappingName);
+}

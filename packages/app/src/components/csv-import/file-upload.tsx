@@ -1,4 +1,3 @@
-// Enhanced version with clear/change options and Papa Parse integration
 import React, { ChangeEvent, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,9 @@ interface FileUploadProps {
   maxSizeInMB?: number;
 }
 
-// Utility function to format file size
+// --- UTILITY FUNCTIONS ---
+
+// Function to format file size in human-readable format
 const formatFileSize = (sizeInBytes: number) => {
   const units = ['B', 'KB', 'MB'];
   let size = sizeInBytes;
@@ -29,7 +30,7 @@ const formatFileSize = (sizeInBytes: number) => {
   return `${size.toFixed(2)} ${units[unitIndex]}`;
 };
 
-// Utility function to validate file
+// Function to validate file type and size
 const validateFile = (file: File | null, allowedExtensions: string[], maxSizeInMB: number) => {
   if (!file) return { isValid: true, errors: [] };
 

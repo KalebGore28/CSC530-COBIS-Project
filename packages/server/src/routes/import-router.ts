@@ -17,6 +17,9 @@ export function createImportRouter(useAuth: boolean = true): express.Router {
 	}
 
 	router.post('/process', ImportController.processImport);
+	router.post('/get-mapping-by-name', ImportController.getMappingByName);
+	router.post('/get-mapping-by-file-pattern', ImportController.getMappingByFilePattern);
+	router.post('/get-all-lookup-mapping-names', ImportController.getAllLookupMappingNames);
 
 	return router;
 }

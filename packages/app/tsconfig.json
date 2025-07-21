@@ -7,6 +7,9 @@
     },
     {
       "path": "./tsconfig.node.json"
+    },
+    {
+      "path": "../server"
     }
   ],
   "compilerOptions": {
@@ -15,7 +18,7 @@
     "paths": {
       "@/*": [
         "./src/*"
-      ]
+      ],
     }
   }
 }

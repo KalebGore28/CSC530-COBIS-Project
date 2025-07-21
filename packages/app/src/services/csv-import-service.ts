@@ -1,180 +1,126 @@
 import axios from 'axios';
 
-import {
-  ImportInfoResponse,
-  ImportResult,
-  TableConfig,
-  CsvMapping,
+import type {
   DataCsvMapping,
-  LookupCsvMapping
-} from '../types/csv-import-types';
+  LookupCsvMapping,
+  BaseDestination
+} from '@cobis/types';
 
-/**
- * CSV Import Service
- * 
- * Provides functionality for CSV import operations including:
- * - Getting import configuration information
- * - Processing CSV imports
- * - Finding matching tables and mappings
- */
-export const CsvImportService = {
-  /**
-   * Get import configuration information from the backend
-   */
-  async getImportInfo(): Promise<ImportInfoResponse> {
-    try {
-      const response = await axios.get('/api/import/info');
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching import info:', error);
-      throw error;
-    }
-  },
-
-  /**
-   * Process a CSV import
-   * @param csvData The CSV data to import
-   * @param tableId The ID of the table to import into
-   * @param columnMapping Optional column mapping override
-   */
-  async processImport(
-    csvData: Record<string, string>[],
-    tableId?: string,
-    columnMapping?: DataCsvMapping
-  ): Promise<ImportResult> {
-    try {
-      const response = await axios.post('/api/import/process', {
-        csvData,
-        tableId,
-        columnMapping
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-      });
-
-      return response.data;
-    } catch (error) {
-      console.error('Error processing import:', error);
-      throw error;
-    }
-  },
-
-
-  /**
-   * Find the matching CSV mapping for a file name
-   * @param fileName The name of the file to match
-   * @param mappings Array of CSV mappings from the API
-   * @returns The matching mapping if found
-   */
-  findMatchingMapping(fileName: string, mappings: CsvMapping[]): DataCsvMapping | undefined {
-    if (!fileName || !mappings.length) return undefined;
-
-    // Helper function to parse regex pattern strings from backend
-    const testPattern = (patternStr: string, testStr: string): boolean => {
-      try {
-        // Check if it's a regex pattern with delimiters and flags
-        const matches = /^\/(.*)\/([gimuy]*)$/.exec(patternStr);
-
-        if (matches) {
-          const [_, patternBody, flags] = matches;
-          const regex = new RegExp(patternBody, flags);
-          return regex.test(testStr);
-        }
-
-        // Simple string contains check as fallback
-        return testStr.toLowerCase().includes(patternStr.toLowerCase());
-      } catch (error) {
-        console.error(`Invalid pattern: ${patternStr}`, error);
-        return false;
-      }
-    };
-
-    // First try to match data mappings (they often have more specific patterns)
-    const dataMappings = mappings.filter((m): m is DataCsvMapping => m.category === 'data');
-    for (const mapping of dataMappings) {
-      if (mapping.filePatterns && mapping.filePatterns.length > 0) {
-        for (const pattern of mapping.filePatterns) {
-          if (testPattern(pattern, fileName)) {
-            return mapping;
-          }
-        }
-      }
-    }
-
-    return undefined;
-  },
-
-  /**
-   * Get all lookup tables from the mappings
-   * @param mappings Array of CSV mappings from the API
-   * @returns Array of lookup tables
-   */
-  getLookupTables(mappings: CsvMapping[]): LookupCsvMapping[] {
-    return mappings.filter((m): m is LookupCsvMapping => m.category === 'lookup');
-  },
-
-  /**
-   * Find the matching mapping and destination tables for a file
-   * This replaces the old findMatchingTable function with a more accurate implementation
-   * @param fileName The file name to match
-   * @param mappings Array of CSV mappings from the API
-   * @returns Object containing the mapping and tables
-   */
-  findMatchingMappingAndTables(
-    fileName: string,
-    mappings: CsvMapping[]
-  ): {
-    mapping: DataCsvMapping | undefined
-  } {
-    if (!fileName || !mappings.length) {
-      return { mapping: undefined };
-    }
-
-    // First find the matching mapping
-    const matchingMapping = this.findMatchingMapping(fileName, mappings)
-
-    if (!matchingMapping) {
-      return { mapping: undefined };
-    }
-
-    // Then extract the appropriate tables based on the mapping type
-    if (matchingMapping.category === 'data') {
-      return { mapping: matchingMapping };
-    } else {
-
-      return {
-        mapping: matchingMapping
-      };
-    }
-  },
-
-  /**
-   * Check if all required fields are mapped
-   * @param table The table configuration
-   * @param mapping The current column mapping
-   */
-  areAllRequiredFieldsMapped(
-    table: TableConfig | undefined,
-    mapping: Record<string, string>
-  ): boolean {
-    if (!table || !table.columns) return false;
-
-    // Get all required columns (primary keys are always required)
-    const requiredColumns = table.columns.filter(col => col && col.isPrimaryKey);
-
-    if (requiredColumns.length === 0) return true; // If no required columns, mapping is valid
-
-    // Check that all required columns are mapped
-    for (const column of requiredColumns) {
-      if (!column || !column.dbColumn || !mapping[column.dbColumn]) {
-        return false;
-      }
-    }
-
-    return true;
-  }
+// Doing type gymnastics to ensure the types are the expected return types
+export type SchemaRefMetadata = {
+  name?: string;
+  columns: {
+    name: string;
+    type: string;
+    notNull: boolean;
+    length?: number;
+    isPrimaryKey: boolean;
+    isUnique: boolean;
+  }[];
+  primaryKey: string[];
+  foreignKeys: {
+    columns: string[];
+    foreignTable: string;
+    foreignColumns: string[];
+    onDelete: string;
+    onUpdate: string;
+  }[];
 };
 
-export default CsvImportService;
+type DestinationWithMetadata = Omit<BaseDestination, 'schemaRef'> & {
+  schemaRef: SchemaRefMetadata;
+};
+
+export type DataCsvMappingWithMetadata = Omit<DataCsvMapping, 'destinations'> & {
+  destinations: DestinationWithMetadata[];
+};
+
+export type LookupCsvMappingWithMetadata = Omit<LookupCsvMapping, 'destination'> & {
+  destination: DestinationWithMetadata;
+};
+
+export type CSVFileMappingWithMetadata =
+  | DataCsvMappingWithMetadata
+  | LookupCsvMappingWithMetadata;
+
+/**
+ * Process a CSV import
+ * @param csvData The CSV data to import
+ * @param tableId The ID of the table to import into
+ * @param columnMapping Optional column mapping override
+ */
+export async function processImport(
+  csvData: Record<string, string>[],
+  tableId?: string,
+  columnMapping?: DataCsvMapping
+): Promise<ImportResult> {
+  try {
+    const response = await axios.post('/api/import/process', {
+      csvData,
+      tableId,
+      columnMapping
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error processing import:', error);
+    throw error;
+  }
+}
+
+export async function getMappingByName(mappingName: string): Promise<CSVFileMappingWithMetadata> {
+  try {
+    const response = await axios.post('/api/import/get-mapping-by-name', {
+      mappingName
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+
+    return response.data.result as CSVFileMappingWithMetadata;
+  } catch (error) {
+    console.error('Error getting mapping by name:', error);
+    throw error;
+  }
+}
+
+export async function getMappingByFilePattern(fileName: string): Promise<CSVFileMappingWithMetadata> {
+  try {
+    const response = await axios.post('/api/import/get-mapping-by-file-pattern', {
+      fileName
+    }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+
+    return response.data.result as CSVFileMappingWithMetadata;
+  } catch (error) {
+    console.error('Error getting mapping by file pattern:', error);
+    throw error;
+  }
+}
+
+export async function getAllLookupMappingNames(): Promise<string[]> {
+  try {
+    const response = await axios.post('/api/import/get-all-lookup-mapping-names', {}, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+
+    return response.data.result;
+  } catch (error) {
+    console.error('Error getting all lookup mapping names:', error);
+    throw error;
+  }
+}

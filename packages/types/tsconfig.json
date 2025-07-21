@@ -13,5 +13,6 @@
 	"include": [
 		"src",
 		"../server/src/db/schema.ts",
+		"../server/src/services/column-mapping-service.ts"
 	]
 }
