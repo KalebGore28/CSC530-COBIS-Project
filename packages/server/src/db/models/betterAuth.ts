@@ -4,7 +4,6 @@ import { relations } from "drizzle-orm";
 // All these tables are created by better-auth. Some columns are custom.
 // Look here for more info: https://www.better-auth.com/docs/concepts/database#core-schema
 
-import { instructorCourses } from "./instructor-courses";
 import { userRoles } from "./user_roles";
 
 export const user = mysqlTable("user", {
@@ -24,7 +23,6 @@ export type User = typeof user.$inferSelect;
 
 // Define relationships for DBML generation
 export const usersRelations = relations(user, ({ many }) => ({
-	instructor_courses: many(instructorCourses),
 	user_roles: many(userRoles),
 	// we leave out the faculty relationship as it isn't guaranteed to exist
 	// in the faculty table. the user table is automatically created by better-auth,
