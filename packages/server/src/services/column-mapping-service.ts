@@ -259,10 +259,8 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
             term: term,
             year: year,
             type: 'MAJOR',
-            level: level,
+            levl: level,
             program: row.major1,
-            department: row.major1dept || '',
-            college: row.major1coll || ''
         });
     }
 
@@ -273,10 +271,8 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
             term: term,
             year: year,
             type: 'MAJOR',
-            level: level,
+            levl: level,
             program: row.major2,
-            department: row.major2dept || '',
-            college: row.major2coll || ''
         });
     }
 
@@ -287,10 +283,8 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
             term: term,
             year: year,
             type: 'MINOR',
-            level: level,
+            levl: level,
             program: row.minor1,
-            department: row.minor1dept || '',
-            college: '' // Minors don't have college assignments
         });
     }
 
@@ -301,10 +295,8 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
             term: term,
             year: year,
             type: 'MINOR',
-            level: level,
+            levl: level,
             program: row.minor2,
-            department: row.minor2dept || '',
-            college: '' // Minors don't have college assignments
         });
     }
 
@@ -373,25 +365,17 @@ export const csvFileMappings: CSVFileMapping[] = [
                 ]
             },
             {
-                schemaRef: schema.studentPrograms,
+                schemaRef: schema.studentAddresses,
                 columns: [
                     { csvColumn: "mnumber", dbColumn: "mnumber" },
-                    { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
-                    { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
-                    { csvColumn: "homestreet1", dbColumn: "street1-[row-1-home]" },
-                    { csvColumn: "homestreet2", dbColumn: "street2-[row-1-home]" },
-                    { csvColumn: "homecity", dbColumn: "city-[row-1-home]" },
-                    { csvColumn: "homestate", dbColumn: "state-[row-1-home]" },
-                    { csvColumn: "homezip", dbColumn: "zip-[row-1-home]" },
-                    { csvColumn: "homenation", dbColumn: "nation-[row-1-home]" },
-                    { csvColumn: "homephone", dbColumn: "phone-[row-1-home]" },
-                    { csvColumn: "locstreet1", dbColumn: "street1-[row-2-local]" },
-                    { csvColumn: "locstreet2", dbColumn: "street2-[row-2-local]" },
-                    { csvColumn: "loccity", dbColumn: "city-[row-2-local]" },
-                    { csvColumn: "locstate", dbColumn: "state-[row-2-local]" },
-                    { csvColumn: "loczip", dbColumn: "zip-[row-2-local]" },
-                    { csvColumn: "locnation", dbColumn: "nation-[row-2-local]" },
-                    { csvColumn: "locphone", dbColumn: "phone-[row-2-local]" }
+                    { csvColumn: "type", dbColumn: "type" },
+                    { csvColumn: "street1", dbColumn: "street1" },
+                    { csvColumn: "street2", dbColumn: "street2" },
+                    { csvColumn: "city", dbColumn: "city" },
+                    { csvColumn: "state", dbColumn: "state" },
+                    { csvColumn: "zip", dbColumn: "zip" },
+                    { csvColumn: "nation", dbColumn: "nation" },
+                    { csvColumn: "phone", dbColumn: "phone" },
                 ],
                 // Use the row expander to create separate records for home and local addresses
                 rowExpander: expandStudentAddresses
@@ -399,19 +383,12 @@ export const csvFileMappings: CSVFileMapping[] = [
             {
                 schemaRef: schema.studentPrograms,
                 columns: [
+                    { csvColumn: "mnumber", dbColumn: "mnumber" },
                     { csvColumn: "term", dbColumn: "term", transform: (value) => parseTermCode(value).term },
                     { csvColumn: "term", dbColumn: "year", transform: (value) => parseTermCode(value).year },
+                    { csvColumn: "type", dbColumn: "type" },
                     { csvColumn: "levl", dbColumn: "level" },
-                    { csvColumn: "major1", dbColumn: "program-[row-1]" },
-                    { csvColumn: "major1dept", dbColumn: "program-[row-1-department]" },
-                    { csvColumn: "major1coll", dbColumn: "program-[row-1-college]" },
-                    { csvColumn: "major2", dbColumn: "program-[row-2]" },
-                    { csvColumn: "major2dept", dbColumn: "program-[row-2-department]" },
-                    { csvColumn: "major2coll", dbColumn: "program-[row-2-college]" },
-                    { csvColumn: "minor1", dbColumn: "program-[row-3]" },
-                    { csvColumn: "minor1dept", dbColumn: "program-[row-3-department]" },
-                    { csvColumn: "minor2", dbColumn: "program-[row-4]" },
-                    { csvColumn: "minor2dept", dbColumn: "program-[row-4-department]" },
+                    { csvColumn: "program", dbColumn: "program" },
                 ],
                 rowExpander: expandStudentPrograms
             },
