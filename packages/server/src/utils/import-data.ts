@@ -3,16 +3,46 @@ import { MappedCSVData } from "../services/column-mapping-service";
 
 const BATCH_SIZE = 1000;
 
+export type ImportResult = {
+    tablesProcessed: string[];
+    rowsProcessed: number;
+    batchesProcessed: number;
+    rowsPerTable: Record<string, number>;
+    errors: { table: string; error: any }[];
+};
+
 export async function importMappedCSVData(
     conn: DbConnection,
     data: MappedCSVData
-): Promise<void> {
+): Promise<ImportResult> {
+    const result: ImportResult = {
+        tablesProcessed: [],
+        rowsProcessed: 0,
+        batchesProcessed: 0,
+        rowsPerTable: {},
+        errors: [],
+    };
+
     for (const { table, rows } of data) {
+        result.tablesProcessed.push(table);
+        result.rowsPerTable[table] = (result.rowsPerTable[table] || 0) + rows.length;
+        result.rowsProcessed += rows.length;
+
         for (let i = 0; i < rows.length; i += BATCH_SIZE) {
             const batch = rows.slice(i, i + BATCH_SIZE);
-            await bulkUpsert(conn, table, batch);
+            result.batchesProcessed++;
+
+            try {
+                await bulkUpsert(conn, table, batch);
+            } catch (error: any) {
+                result.errors.push({ table, error });
+                // Optionally comment out this line if you want the import to continue:
+                // throw error; // Uncomment to stop on first error
+            }
         }
     }
+
+    return result;
 }
 
 async function bulkUpsert(

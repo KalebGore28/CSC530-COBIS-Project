@@ -42,6 +42,8 @@ import type {
 	BaseDestination
 } from "../../server/src/services/column-mapping-service";
 
+import type { ImportResult } from "../../server/src/utils/import-data";
+
 export type {
 	// Database types
 	AcademicStanding,
@@ -73,5 +75,6 @@ export type {
 	CSVFileMapping,
 	DataCsvMapping,
 	LookupCsvMapping,
-	BaseDestination
+	BaseDestination,
+	ImportResult
 };

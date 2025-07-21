@@ -10,6 +10,7 @@ export class ImportService {
 	static async processImport(
 		mappedData: MappedCSVData,
 	) {
-		await importMappedCSVData(await getDbConnection(), mappedData);
+		const response = await importMappedCSVData(await getDbConnection(), mappedData);
+		return response;
 	}
 } 

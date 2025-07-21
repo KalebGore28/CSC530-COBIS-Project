@@ -3,7 +3,8 @@ import axios from 'axios';
 import type {
   DataCsvMapping,
   LookupCsvMapping,
-  BaseDestination
+  BaseDestination,
+  ImportResult,
 } from '@cobis/types';
 
 // Doing type gymnastics to ensure the types are the expected return types
@@ -52,7 +53,7 @@ export type CSVFileMappingWithMetadata =
 export async function processImport(
   csvData: Record<string, string>[],
   mappingName: string,
-): Promise<void> {
+): Promise<ImportResult> {
   try {
     const response = await axios.post('/api/import/process', {
       csvData,
@@ -64,7 +65,7 @@ export async function processImport(
       withCredentials: true,
     });
 
-    // return response.data;
+    return response.data.result as ImportResult;
   } catch (error) {
     console.error('Error processing import:', error);
     throw error;

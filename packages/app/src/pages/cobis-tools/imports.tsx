@@ -1,4 +1,3 @@
-// Not my best work, but it works for now.
 import { useState } from "react";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,9 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { FileUpload } from "@/components/csv-import/file-upload";
 import { CsvPreview } from "@/components/csv-import/csv-preview";
 import { TableSelector } from "@/components/csv-import/table-selector";
-// import { ImportResultDisplay } from "@/components/csv-import/import-result";
+import { ImportResultDisplay } from "@/components/csv-import/import-result";
+
+import { ImportResult } from '@cobis/types';
 
 import {
 	type CSVFileMappingWithMetadata,
@@ -85,35 +86,44 @@ export const CsvImport: React.FC = () => {
 					<Separator />
 
 					{/* Step 4: Import Results */}
-					{/* {importResult && <div>
-						<h2 className="text-xl font-bold mb-4">Step 4: Import Results</h2>
+					{importResult && <div>
+						<h2 className="text-xl font-bold mb-4">Import Results</h2>
 						<ImportResultDisplay
 							result={importResult}
 						/>
-					</div>} */}
+					</div>}
 
 				</CardContent>
 				<CardFooter>
-					{mapping && !importResult && (
-						<div className="ml-auto">
-							<Button onClick={async () => {
-								await processImport(csvData, mapping.mappingName);
-							}}>
-								Process Import
-							</Button>
-						</div>
-					)}
-					{importResult && (
-						<div className="ml-auto">
-							<Button onClick={() => {
-								setImportResult(null);
-								setCsvData([]);
-								setSelectedFile(null);
-								setMapping(null);
-								setImportResult(null);
-							}}>
-								Start New Import
-							</Button>
+					{mapping && (
+						<div className="flex flex-col space-y-4 w-full">
+							<h2 className="text-xl font-bold mb-4">Process Import</h2>
+							{!importResult && (
+								<div>
+									<Button
+										onClick={async () => {
+											const results = await processImport(csvData, mapping.mappingName);
+											setImportResult(results);
+										}}
+									>
+										Process Import
+									</Button>
+								</div>
+							)}
+							{importResult && (
+								<div>
+									<Button
+										onClick={() => {
+											setImportResult(null);
+											setCsvData([]);
+											setSelectedFile(null);
+											setMapping(null);
+										}}
+									>
+										Start New Import
+									</Button>
+								</div>
+							)}
 						</div>
 					)}
 				</CardFooter>
