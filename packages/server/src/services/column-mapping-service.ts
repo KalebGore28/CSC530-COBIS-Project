@@ -244,11 +244,6 @@ const expandStudentAddresses: RowExpanderFunction = (row) => {
 // Function that expands a single demographic row into multiple student program rows
 const expandStudentPrograms: RowExpanderFunction = (row) => {
     const results: Record<string, any>[] = [];
-    const { year, term, valid } = parseTermCode(row.term || '');
-
-    if (!valid || !row.mnumber) {
-        return results; // Skip invalid rows
-    }
 
     const level = row.levl || 'UG'; // Default level if not provided
 
@@ -256,8 +251,7 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
     if (row.major1) {
         results.push({
             mnumber: row.mnumber,
-            term: term,
-            year: year,
+            term: row.term,
             type: 'MAJOR',
             levl: level,
             program: row.major1,
@@ -268,8 +262,7 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
     if (row.major2) {
         results.push({
             mnumber: row.mnumber,
-            term: term,
-            year: year,
+            term: row.term,
             type: 'MAJOR',
             levl: level,
             program: row.major2,
@@ -280,8 +273,7 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
     if (row.minor1) {
         results.push({
             mnumber: row.mnumber,
-            term: term,
-            year: year,
+            term: row.term,
             type: 'MINOR',
             levl: level,
             program: row.minor1,
@@ -292,8 +284,7 @@ const expandStudentPrograms: RowExpanderFunction = (row) => {
     if (row.minor2) {
         results.push({
             mnumber: row.mnumber,
-            term: term,
-            year: year,
+            term: row.term,
             type: 'MINOR',
             levl: level,
             program: row.minor2,
@@ -433,6 +424,14 @@ export const csvFileMappings: CSVFileMapping[] = [
                 ]
             },
             {
+                schemaRef: schema.faculty,
+                columns: [
+                    { csvColumn: "instmnumber", dbColumn: "mnumber" },
+                    { csvColumn: "instfirstnm", dbColumn: "first_name" },
+                    { csvColumn: "instlastnm", dbColumn: "last_name" }
+                ]
+            },
+            {
                 schemaRef: schema.instructorCourses,
                 columns: [
                     { csvColumn: "instmnumber", dbColumn: "mnumber" },
@@ -444,14 +443,6 @@ export const csvFileMappings: CSVFileMapping[] = [
                     { csvColumn: "section", dbColumn: "course_section" },
                 ]
 
-            },
-            {
-                schemaRef: schema.faculty,
-                columns: [
-                    { csvColumn: "instmnumber", dbColumn: "mnumber" },
-                    { csvColumn: "instfirstnm", dbColumn: "first_name" },
-                    { csvColumn: "instlastnm", dbColumn: "last_name" }
-                ]
             }
         ]
     },

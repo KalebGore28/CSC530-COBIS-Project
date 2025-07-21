@@ -281,7 +281,7 @@ ref: faculty.college > colleges.code
 
 ref: faculty.department > departments.code
 
-ref: instructor_courses.mnumber > user.mnumber
+ref: instructor_courses.mnumber - faculty.mnumber
 
 ref: instructor_courses.(course_subject, course_number, course_suffix) > courses.(subject, number, suffix)
 

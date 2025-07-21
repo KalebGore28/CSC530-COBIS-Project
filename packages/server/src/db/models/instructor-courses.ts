@@ -1,12 +1,12 @@
 import { mysqlTable, int, primaryKey, foreignKey, varchar } from 'drizzle-orm/mysql-core';
 import { relations } from "drizzle-orm";
 
-import { user } from "./betterAuth";
 import { courses } from "./courses";
 import { terms } from "./terms";
+import { faculty } from './faculty';
 
 export const instructorCourses = mysqlTable("instructor_courses", {
-	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => user.mnumber),
+	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => faculty.mnumber),
 	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
 	crn: varchar("crn", { length: 50 }).notNull(),
@@ -24,9 +24,9 @@ export type InstructorCourse = typeof instructorCourses.$inferSelect;
 
 // Define relationships for DBML generation
 export const instructorCoursesRelations = relations(instructorCourses, ({ one }) => ({
-	instructor: one(user, {
+	instructor: one(faculty, {
 		fields: [instructorCourses.mnumber],
-		references: [user.mnumber],
+		references: [faculty.mnumber],
 	}),
 	course: one(courses, {
 		fields: [instructorCourses.course_subject, instructorCourses.course_number, instructorCourses.course_suffix],
