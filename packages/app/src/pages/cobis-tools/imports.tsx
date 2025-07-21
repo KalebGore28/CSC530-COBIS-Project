@@ -46,7 +46,6 @@ export const CsvImport: React.FC = () => {
 							onFileChange={(e) => {
 								const file = e.target.files?.[0] || null;
 								setSelectedFile(file);
-								console.log("Selected file:", file);
 								// Reset parsed data if file changes
 								if (!file) {
 									resetImport();

@@ -90,13 +90,10 @@ export const InstructorPage: React.FC = () => {
 
 const InstructorPageContent: React.FC = () => {
 	const { mnumber } = useParams();
-	console.log("InstructorPageContent Rendered", mnumber);
 	const { pathname } = useLocation();
 	const navigate = useNavigate();
 
 	const activeTab = pathname.split("/").pop() || "current-term";
-
-	console.log(activeTab)
 
 	const { getCurrentYearTerm } = useLazyLoadQuery<InstructorIdGetCurrentTermQuery>(
 		InstructorIdGetCurrentTermQuery,
@@ -161,7 +158,6 @@ const InstructorPageContent: React.FC = () => {
 			<Tabs
 				value={activeTab}
 				onValueChange={(value) => {
-					console.log("Navigating to tab:", value);
 					navigate(value)
 				}}
 				className="w-full"
