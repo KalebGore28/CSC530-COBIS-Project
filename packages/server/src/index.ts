@@ -8,10 +8,8 @@ const PORT = Number(process.env.PORT)
 async function start() {
     try {
         await createDb();
-        console.log('✅ DB connected');
 
         await loadPrefixMap();
-        console.log('✅ Prefix map loaded');
 
         await new Promise<void>(resolve =>
             httpServer.listen({ port: PORT }, resolve)
