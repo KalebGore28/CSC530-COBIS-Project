@@ -21,9 +21,9 @@ type CoursePrefix {
 }
 
 type Course {
-  subject: String!         # part of PK
-  number: Int!             # part of PK
-  suffix: String!          # part of PK
+  subject: String! # part of PK
+  number: Int! # part of PK
+  suffix: String! # part of PK
   title: String!
   hours: Int!
   fee: Float!
@@ -31,10 +31,10 @@ type Course {
   last_updated: String!
   # Relationships
   student_courses(
-    startTerm: String!,
-    endTerm: String!,
-    startYear: Int!,
-    endYear: Int!,
+    startTerm: String!
+    endTerm: String!
+    startYear: Int!
+    endYear: Int!
   ): [StudentCourse!]!
 }
 
@@ -73,10 +73,10 @@ type Program {
   added_on: String!
   # Relationships
   student_programs(
-    startTerm: String!,
-    startYear: Int!,
-    endTerm: String!,
-    endYear: Int!,
+    startTerm: String!
+    startYear: Int!
+    endTerm: String!
+    endYear: Int!
   ): [StudentProgram!]!
 }
 
@@ -91,8 +91,8 @@ type Role {
 }
 
 type Term {
-  code: String!            # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
-  description: String!     # e.g., "Spring", "Summer", "Fall", "Winter"
+  code: String! # PK, e.g., "10" for Spring, "50" for Summer, "80" for Fall, "90" for Winter
+  description: String! # e.g., "Spring", "Summer", "Fall", "Winter"
 }
 
 # Student Types
@@ -113,17 +113,14 @@ type Student {
   cell_phone: String!
   email: String!
   # Relationships
-  academic_info(
-    term: String,
-    year: Int,
-  ): [StudentAcademicInfo!]!
+  academic_info(term: String, year: Int): [StudentAcademicInfo!]!
   addresses: [StudentAddress!]!
   advisors: [StudentAdvisor!]!
   courses(
-    startTerm: String,
-    endTerm: String,
-    startYear: Int,
-    endYear: Int,
+    startTerm: String
+    endTerm: String
+    startYear: Int
+    endYear: Int
   ): [StudentCourse!]!
   programs: [StudentProgram!]!
 }
@@ -236,7 +233,7 @@ type Session {
 
 # NOTE: Param naming style difference because beter-auth
 # Uses and expects camelCase for params
-type User { 
+type User {
   id: String!
   mnumber: String
   name: String!
@@ -270,25 +267,22 @@ type Faculty {
   department: Department!
   # Relationships
   courses_taught(
-    startTerm: String,
-    endTerm: String,
-    startYear: Int,
-    endYear: Int,
-    subject: String,
-    number: Int,
-    suffix: String,
-    section: String,
+    startTerm: String
+    endTerm: String
+    startYear: Int
+    endYear: Int
+    subject: String
+    number: Int
+    suffix: String
+    section: String
   ): [InstructorCourse!]!
   grade_distribution_trend(
-    startTerm: String!,
-    startYear: Int!,
-    endTerm: String,
+    startTerm: String!
+    startYear: Int!
+    endTerm: String
     endYear: Int
   ): [GradeDistribution!]!
-  advisees(
-    term: String,
-    year: Int,
-  ): [StudentAdvisor!]!
+  advisees(term: String, year: Int): [StudentAdvisor!]!
   # A faculty member is not guaranteed to be in the system
   # So this relationship has an optional user
   user: User
@@ -326,15 +320,13 @@ type GradeEntry {
   percentage: Float!
 }
 
-
 type UserRole {
-  user_id: String!              # FK → user.id
-  role_id: Int!              # FK → roles.id
+  user_id: String! # FK → user.id
+  role_id: Int! # FK → roles.id
   # Relationships
-  user: User!              # FK → user.id
-  role: Role!              # FK → roles.id
+  user: User! # FK → user.id
+  role: Role! # FK → roles.id
 }
-
 
 type YearTerm {
   term: Term!
@@ -360,12 +352,12 @@ enum GradeValue {
 }
 
 enum ComparisonOperator {
-  EQ    # =
-  NE    # !=
-  LT    # <
-  LTE   # <=
-  GT    # >
-  GTE   # >=
+  EQ # =
+  NE # !=
+  LT # <
+  LTE # <=
+  GT # >
+  GTE # >=
 }
 
 input CourseFilter {
@@ -390,14 +382,14 @@ input StudentLookupInput {
 }
 
 type StudentBasic {
-  mnumber:   String!
+  mnumber: String!
   first_name: String!
-  last_name:  String!
-  email:     String!
+  last_name: String!
+  email: String!
 }
 
 type StudentLookupPage {
-  students:   [StudentBasic!]!
+  students: [StudentBasic!]!
   totalCount: Int!
 }
 
@@ -441,19 +433,15 @@ type Query {
   instructors: [Faculty!]!
   lookupStudents(
     filters: StudentLookupInput!
-    offset:  Int = 0
-    limit:   Int = 10
+    offset: Int = 0
+    limit: Int = 10
   ): StudentLookupPage!
 
   # Enrollment Queries
   programs: [Program!]!
   program(code: String!): Program
   courses: [Course!]!
-  course(
-    subject: String!
-    number: Int!
-    suffix: String!
-  ): Course
+  course(subject: String!, number: Int!, suffix: String!): Course
 
   # Other Queries
   users: [User!]!
@@ -466,8 +454,8 @@ input CreateFacultyInput {
   mnumber: String!
   college_code: String!
   department_code: String!
-  role_ids: [Int!]!  # List of role IDs to assign to the faculty member
-  enableUser: Boolean!  # Whether to enable the user account
+  role_ids: [Int!]! # List of role IDs to assign to the faculty member
+  enableUser: Boolean! # Whether to enable the user account
 }
 
 type Mutation {
