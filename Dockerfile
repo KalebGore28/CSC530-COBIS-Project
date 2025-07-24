@@ -1,16 +1,25 @@
+# Use official Node.js base image
 FROM node:20.18.0
+
+# Set working directory
 WORKDIR /app
 
-# Copy root lockfile and package.json (for workspace deps)
+# Copy only package.json and lockfiles first for install layer caching
 COPY package*.json ./
-# Copy server package.json separately
-COPY packages/server/package*.json ./packages/server/
+COPY packages/server/package*.json packages/server/
+COPY packages/app/package*.json packages/app/
 
-# Install dependencies (including workspace deps)
+# Install all workspace dependencies
 RUN npm install --omit=dev
 
-# Copy built server code
-COPY dist/ ./dist/
+# Copy the rest of the project
+COPY . .
 
+# Build the app (this uses your top-level `build` script which calls esbuild)
+RUN npm run build
+
+# Expose the desired port
 EXPOSE 8080
-CMD ["node", "dist/server.js"]
+
+# Run the built server (from the top-level start script)
+CMD ["npm", "run", "start"]
