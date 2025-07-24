@@ -10,7 +10,7 @@ COPY packages/server/package*.json packages/server/
 COPY packages/app/package*.json packages/app/
 
 # Install all workspace dependencies
-RUN npm install --omit=dev
+RUN npm install
 
 # Copy the rest of the project
 COPY . .
