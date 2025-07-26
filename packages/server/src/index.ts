@@ -15,7 +15,7 @@ async function start() {
             httpServer.listen({ port: PORT }, resolve)
         );
 
-        console.log(`🚀 Server is running at http://localhost:${PORT}`);
+        console.log(`🚀 Server is running at port: ${PORT}`);
     } catch (err) {
         console.error('❌ Fatal startup error:', err);
         process.exit(1);
