@@ -22,4 +22,4 @@ RUN npm run build
 EXPOSE 8080
 
 # Run the built server (from the top-level start script)
-CMD ["npm", "run", "start"]
+CMD ["node", "dist/server.js"]
