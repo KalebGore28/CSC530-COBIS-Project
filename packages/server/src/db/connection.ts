@@ -11,7 +11,7 @@ export interface DbConnection {
 
 let _dbConnection: Promise<DbConnection> | null = null;
 
-export const createDb = async (): Promise<DbConnection> => {
+const createDb = async (): Promise<DbConnection> => {
 
 	const poolConnection = mysql.createPool({
 		host: process.env.DB_HOST,
@@ -34,12 +34,6 @@ export const getDbConnection = async (): Promise<DbConnection> => {
 	if (!_dbConnection) {
 		_dbConnection = createDb();
 	}
-	return _dbConnection;
-};
-
-export const resetDbConnection = async (): Promise<DbConnection> => {
-	_dbConnection = createDb();
-
 	return _dbConnection;
 };
 

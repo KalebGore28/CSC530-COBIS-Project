@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { createDb, getDbConnection } from "./db/connection";
+import { getDbConnection } from "./db/connection";
 import httpServer from './app';
 import { loadPrefixMap } from './utils/prefixMap';
 
@@ -9,7 +9,6 @@ let server: Awaited<ReturnType<typeof httpServer.listen>> | null = null;
 
 async function start() {
     try {
-        await createDb();
         await loadPrefixMap();
 
         await new Promise<void>((resolve) => {
