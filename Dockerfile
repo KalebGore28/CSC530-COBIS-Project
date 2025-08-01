@@ -33,7 +33,7 @@ COPY packages/server/package*.json packages/server/
 COPY packages/app/package*.json packages/app/
 
 # Install only production dependencies
-RUN npm install --omit=dev --prefer-offline
+RUN npm install --omit=dev
 
 # Expose application port
 EXPOSE 8080
