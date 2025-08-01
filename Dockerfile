@@ -1,25 +1,42 @@
-# Use official Node.js base image
-FROM node:20.18.0
+# ---------- Build Stage ----------
+FROM node:20.18.0 AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Copy only package.json and lockfiles first for install layer caching
+# Copy only package manifests for dependency install layer caching
 COPY package*.json ./
 COPY packages/server/package*.json packages/server/
 COPY packages/app/package*.json packages/app/
 
-# Install all workspace dependencies
+# Install all dependencies including devDependencies
 RUN npm install
 
-# Copy the rest of the project
+# Copy the rest of the source code
 COPY . .
 
-# Build the app (this uses your top-level `build` script which calls esbuild)
+# Build the app (assumes root-level `build` script builds everything)
 RUN npm run build
 
-# Expose the desired port
+# ---------- Production Stage ----------
+FROM node:20.18.0 AS final
+
+# Set working directory
+WORKDIR /app
+
+# Copy only the necessary built artifacts from the builder
+COPY --from=builder /app/dist ./dist
+
+# Copy production-only package.json files
+COPY package*.json ./
+COPY packages/server/package*.json packages/server/
+COPY packages/app/package*.json packages/app/
+
+# Install only production dependencies
+RUN npm install --omit=dev --prefer-offline
+
+# Expose application port
 EXPOSE 8080
 
-# Run the built server (from the top-level start script)
+# Run the built server
 CMD ["node", "dist/server.js"]
