@@ -84,7 +84,7 @@ export function PieChartDonut({ data }: PieChartDonutProps) {
 						innerRadius={60}
 						outerRadius={80}
 						paddingAngle={2}
-						label={({ grade }) => grade}
+						label={({ grade }) => String(grade)}
 					>
 						{dataWithTotal.map((entry, index) => (
 							<Cell key={`cell-${index}`} fill={entry.color} />
