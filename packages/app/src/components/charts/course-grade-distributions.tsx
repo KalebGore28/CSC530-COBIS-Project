@@ -199,7 +199,7 @@ export const CourseGradeChartContent: React.FC<{
 						tickLine={false}
 					/>
 					<ChartTooltip content={<ChartTooltipContent />} />
-					<ChartLegend content={<ChartLegendContent />} />
+					<ChartLegend content={<ChartLegendContent payload={undefined} />} />
 					{Object.entries(defaultChartConfig).map(
 						([grade, cfg]) => (
 							<Bar
