@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 
 // GraphQL imports
 import type { programsPageQuery } from './__generated__/programsPageQuery.graphql';

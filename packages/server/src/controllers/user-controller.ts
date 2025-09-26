@@ -42,31 +42,28 @@ export const GetAllUsersQuerySchema = z.object({
 
 export const ProvisionUserBodySchema = z.object({
 	// role_ids: Mandatory array of unique integers. Use min(1) if empty array is not allowed.
-	role_ids: z.array(z.number().int({ message: "Each role ID must be an integer" }), {
-		required_error: "role_ids is required", // Error if key is missing
-		invalid_type_error: "role_ids must be an array of integers",
-	})
+	role_ids: z.array(z.number().int({ message: "Each role ID must be an integer" }))
 		.min(1, { message: "At least one role ID must be provided in the role_ids array" }) // Ensure array is not empty
 		.transform(ids => [...new Set(ids)]), // Remove duplicates
 
 	// mnumber: Optional string, allowing null. Empty string is treated as null.
 	mnumber: z.preprocess(
 		(val) => (val === "" ? null : val), // Convert empty string to null before validation
-		z.string({ invalid_type_error: "mnumber must be a string or null" })
+		z.string()
 			.nullable() // Allow null
 			.optional() // Allow undefined (key not present)
 	),
 
 	// isEnabled: Optional boolean
-	isEnabled: z.boolean({ invalid_type_error: "isEnabled must be a boolean" })
+	isEnabled: z.boolean()
 		.optional(),
 
 	// college & department: Optional strings, but *must* be provided together if one is present.
-	college: z.string({ invalid_type_error: "college must be a string" })
+	college: z.string()
 		.min(1, { message: "college cannot be empty if provided" }) // Optional: ensure non-empty if present
 		.optional(),
 
-	department: z.string({ invalid_type_error: "department must be a string" })
+	department: z.string()
 		.min(1, { message: "department cannot be empty if provided" }) // Optional: ensure non-empty if present
 		.optional(),
 

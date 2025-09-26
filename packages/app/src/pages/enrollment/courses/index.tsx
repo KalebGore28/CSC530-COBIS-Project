@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 
 // GraphQL imports
 import type { coursesPageQuery } from './__generated__/coursesPageQuery.graphql';
