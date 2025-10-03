@@ -153,7 +153,7 @@ export function AppSidebar({ ...props }) {
 									: "hidden text-nowrap ml-5"
 							}
 						>
-							COBIS Tool v1.0.0
+							COBIS Tool v1.0.2
 						</span>
 					</SidebarMenuItem>
 					<Separator className="my-2" />

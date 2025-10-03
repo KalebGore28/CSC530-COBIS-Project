@@ -344,7 +344,7 @@ export const csvFileMappings: CSVFileMapping[] = [
                     { csvColumn: "racedesc", dbColumn: "race_description" },
                     { csvColumn: "residcode", dbColumn: "residency_code" },
                     { csvColumn: "residdesc", dbColumn: "residency_description" },
-                    { csvColumn: "age", dbColumn: "age", transform: (value) => Number(value) },
+                    { csvColumn: "age", dbColumn: "age", transform: () => 0 },
                     { csvColumn: "cellphone", dbColumn: "cell_phone" },
                     { csvColumn: "msuemail", dbColumn: "email" }
                 ]
@@ -382,7 +382,7 @@ export const csvFileMappings: CSVFileMapping[] = [
                     { csvColumn: "overatthours", dbColumn: "overall_attempted_hours", transform: (value) => Number(value) },
                     { csvColumn: "overearnhours", dbColumn: "overall_earned_hours", transform: (value) => Number(value) },
                     { csvColumn: "overqp", dbColumn: "overall_quality_points", transform: (value) => Number(value) },
-                    { csvColumn: "overgpa", dbColumn: "overall_gpa", transform: (value) => Number(value) }
+                    { csvColumn: "overgpa", dbColumn: "overall_gpa", transform: (value) => isNaN(value) ? null : Number(value) },
                 ]
             },
             {
