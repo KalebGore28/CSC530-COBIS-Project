@@ -474,13 +474,11 @@ export const csvFileMappings: CSVFileMapping[] = [
                 { csvColumn: "course", dbColumn: "suffix", transform: (value) => parseCourseCode(value).suffix },
                 { csvColumn: "crsetitle", dbColumn: "title" },
                 { csvColumn: "crhrs", dbColumn: "hours", transform: (value) => Number(value) },
-                { csvColumn: "course_fee", dbColumn: "fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
-                { csvColumn: "web_fee", dbColumn: "web_fee", transform: (value) => value === 'NULL' ? 0 : Number(value) },
+                { csvColumn: "course_fee", dbColumn: "fee", transform: () => 0 },
+                { csvColumn: "web_fee", dbColumn: "web_fee", transform: () => 0 },
                 {
                     csvColumn: "lastchanged", dbColumn: "last_updated",
-                    transform: (value) => value === 'NULL'
-                        ? format(new Date(), 'yyyy-MM-dd HH:mm:ss')
-                        : format(new Date(value), 'yyyy-MM-dd HH:mm:ss')
+                    transform: () => format(new Date(), 'yyyy-MM-dd HH:mm:ss')
                 },
                 { csvColumn: "department", dbColumn: "department" },
                 { csvColumn: "college", dbColumn: "college" },
