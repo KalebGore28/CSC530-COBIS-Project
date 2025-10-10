@@ -17,8 +17,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { useSession } from "@/context/session";
-import { useRoleContext } from "@/context/role";
+import { useSession } from "@/components/provider/session";
 import { Separator } from "@/components/ui/separator";
 // import { GradeDistribution } from "@/components/charts/term-grade-distributions";
 
@@ -95,6 +94,9 @@ const dashboardCardsStructure = [
 ];
 
 function DashboardPage() {
+    const { session } = useSession();
+    if (!session) return null;
+
     return (
         <div className="p-4">
             <h1>Dashboard</h1>

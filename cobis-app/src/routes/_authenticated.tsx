@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Outlet } from '@tanstack/react-router'
-import { useSession } from '@/context/session'
+import { useSession } from '@/components/provider/session'
 import { useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated')({

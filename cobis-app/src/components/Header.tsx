@@ -3,7 +3,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { ModeToggle } from "@/components/common/mode-toggle"
 import { useLocation, Link } from "@tanstack/react-router"
 import { Slash } from "lucide-react"
-import { useBreadcrumb } from "@/context/breadcrumb"
+import { useBreadcrumb } from "@/components/provider/breadcrumb"
 
 import {
   Breadcrumb,

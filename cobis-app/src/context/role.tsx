@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import { useSession } from '@/context/session';
+import { useSession } from '@/components/provider/session';
 import {
 	Compass,
 	BookOpen,
@@ -13,7 +13,7 @@ import type { Role } from '@cobis/types';
 
 // Define the Role type
 interface ExtendedRole extends Role {
-    name(name: any): unknown;
+	name(name: any): unknown;
 	logo: React.ElementType;
 }
 

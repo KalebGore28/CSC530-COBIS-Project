@@ -4,7 +4,7 @@ import {
   createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { ThemeProvider } from '@/components/provider/theme'
-import { SessionProvider } from '@/context/session';
+import { SessionProvider } from '@/components/provider/session';
 
 
 import appCss from '../styles.css?url'

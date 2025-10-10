@@ -7,7 +7,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { useSession } from '@/context/session';
+import { useSession } from '@/components/provider/session';
 import { signinGoogle } from '../lib/auth-client';
 import primaryLogo from '/primary_white.png?url';
 

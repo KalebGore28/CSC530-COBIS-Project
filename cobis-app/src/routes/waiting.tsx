@@ -5,7 +5,7 @@ import { CardTitle } from "@/components/ui/card";
 import { CardContent } from "@/components/ui/card";
 import { CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useSession } from '@/context/session';
+import { useSession } from '@/components/provider/session';
 
 import { authClient } from "@/lib/auth-client";
 
@@ -19,7 +19,7 @@ function RouteComponent() {
 
     if (isLoading) return null;
     if (!session) navigate({ to: '/login' });
-    
+
     // Check if the user is authenticated and has an enabled account with roles
     if (session?.isEnabled && session.mnumber && session.roles.length > 0) navigate({ to: '/' });
 
