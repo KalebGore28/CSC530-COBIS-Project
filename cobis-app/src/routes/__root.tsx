@@ -3,8 +3,9 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from '@tanstack/react-router'
+import { ThemeProvider } from '@/components/provider/theme'
+import { SessionProvider } from '@/context/session';
 
-import Header from '../components/Header'
 
 import appCss from '../styles.css?url'
 
@@ -47,7 +48,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {/* <Header /> */}
-        {children}
+        <SessionProvider>
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
+        </SessionProvider>
         <Scripts />
       </body>
     </html>

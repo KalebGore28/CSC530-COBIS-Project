@@ -7,7 +7,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Wrench } from "lucide-react"
 import { signinGoogle } from '../lib/auth-client';
 import primaryLogo from '/primary_white.png?url';
 
@@ -17,17 +16,12 @@ export const Route = createFileRoute('/login')({
 
 function RouteComponent() {
     return <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-blue-950">
-        <div className="flex w-full max-w-sm flex-col gap-6">
-            <div className="flex items-center justify-center">
-                <img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
-            </div>
-            <a className="flex items-center gap-2 self-center font-medium text-primary-foreground">
-                <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
-                    <Wrench className="size-4" />
-                </div>
+        <div className="flex w-full max-w-sm flex-col gap-6 items-center justify-center">
+            <img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
+            <span className="text-white dark:text-white font-bold">
                 COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
-            </a>
-            <Card>
+            </span>
+            <Card className="w-full">
                 <CardHeader className="text-center">
                     <CardTitle className="text-xl">Welcome to COBIS</CardTitle>
                     <CardDescription>

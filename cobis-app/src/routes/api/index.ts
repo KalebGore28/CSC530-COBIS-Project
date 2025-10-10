@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router"
-import { requireAuth } from "@/middleware/load-user"
+import { loadUser } from "@/middleware/load-user"
 
 export const Route = createFileRoute("/api/")({
   server: {
-    middleware: [requireAuth],
+    middleware: [loadUser],
     handlers: {
       GET: async ({ request }) => {
         return new Response("Hello, World!")

@@ -10,18 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as WaitingRouteImport } from './routes/waiting'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedLayoutRouteImport } from './routes/_authenticated/_layout'
 import { Route as ApiUserIndexRouteImport } from './routes/api/user/index'
 import { Route as ApiUserProvisionRouteImport } from './routes/api/user/provision'
 import { Route as ApiUserMeRouteImport } from './routes/api/user/me'
 import { Route as ApiUserUserIdRouteImport } from './routes/api/user/$userId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as AuthenticatedLayoutDashboardIndexRouteImport } from './routes/_authenticated/_layout/dashboard/index'
 
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WaitingRoute = WaitingRouteImport.update({
+  id: '/waiting',
+  path: '/waiting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -29,15 +38,23 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiIndexRoute = ApiIndexRouteImport.update({
   id: '/api/',
   path: '/api/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedLayoutRoute = AuthenticatedLayoutRouteImport.update({
+  id: '/_layout',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const ApiUserIndexRoute = ApiUserIndexRouteImport.update({
   id: '/api/user/',
@@ -64,80 +81,103 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedLayoutDashboardIndexRoute =
+  AuthenticatedLayoutDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedLayoutRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/waiting': typeof WaitingRoute
   '/welcome': typeof WelcomeRoute
+  '/': typeof AuthenticatedIndexRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
   '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user': typeof ApiUserIndexRoute
+  '/dashboard': typeof AuthenticatedLayoutDashboardIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/waiting': typeof WaitingRoute
   '/welcome': typeof WelcomeRoute
+  '/': typeof AuthenticatedIndexRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
   '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user': typeof ApiUserIndexRoute
+  '/dashboard': typeof AuthenticatedLayoutDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/waiting': typeof WaitingRoute
   '/welcome': typeof WelcomeRoute
+  '/_authenticated/_layout': typeof AuthenticatedLayoutRouteWithChildren
+  '/_authenticated/': typeof AuthenticatedIndexRoute
   '/api/': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
   '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user/': typeof ApiUserIndexRoute
+  '/_authenticated/_layout/dashboard/': typeof AuthenticatedLayoutDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | '/'
     | '/login'
+    | '/waiting'
     | '/welcome'
+    | '/'
     | '/api'
     | '/api/auth/$'
     | '/api/user/$userId'
     | '/api/user/me'
     | '/api/user/provision'
     | '/api/user'
+    | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/login'
+    | '/waiting'
     | '/welcome'
+    | '/'
     | '/api'
     | '/api/auth/$'
     | '/api/user/$userId'
     | '/api/user/me'
     | '/api/user/provision'
     | '/api/user'
+    | '/dashboard'
   id:
     | '__root__'
-    | '/'
+    | '/_authenticated'
     | '/login'
+    | '/waiting'
     | '/welcome'
+    | '/_authenticated/_layout'
+    | '/_authenticated/'
     | '/api/'
     | '/api/auth/$'
     | '/api/user/$userId'
     | '/api/user/me'
     | '/api/user/provision'
     | '/api/user/'
+    | '/_authenticated/_layout/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   LoginRoute: typeof LoginRoute
+  WaitingRoute: typeof WaitingRoute
   WelcomeRoute: typeof WelcomeRoute
   ApiIndexRoute: typeof ApiIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -156,6 +196,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/waiting': {
+      id: '/waiting'
+      path: '/waiting'
+      fullPath: '/waiting'
+      preLoaderRoute: typeof WaitingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -163,11 +210,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/': {
@@ -176,6 +223,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/api'
       preLoaderRoute: typeof ApiIndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/_layout': {
+      id: '/_authenticated/_layout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedLayoutRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/api/user/': {
       id: '/api/user/'
@@ -212,12 +273,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/_layout/dashboard/': {
+      id: '/_authenticated/_layout/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedLayoutDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedLayoutRoute
+    }
   }
 }
 
+interface AuthenticatedLayoutRouteChildren {
+  AuthenticatedLayoutDashboardIndexRoute: typeof AuthenticatedLayoutDashboardIndexRoute
+}
+
+const AuthenticatedLayoutRouteChildren: AuthenticatedLayoutRouteChildren = {
+  AuthenticatedLayoutDashboardIndexRoute:
+    AuthenticatedLayoutDashboardIndexRoute,
+}
+
+const AuthenticatedLayoutRouteWithChildren =
+  AuthenticatedLayoutRoute._addFileChildren(AuthenticatedLayoutRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedLayoutRoute: typeof AuthenticatedLayoutRouteWithChildren
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedLayoutRoute: AuthenticatedLayoutRouteWithChildren,
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   LoginRoute: LoginRoute,
+  WaitingRoute: WaitingRoute,
   WelcomeRoute: WelcomeRoute,
   ApiIndexRoute: ApiIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
