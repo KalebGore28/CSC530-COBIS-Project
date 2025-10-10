@@ -1,4 +1,4 @@
-ID,COURSE,CRSETITLE,CRHRS,course_fee,web_fee,lastChanged
+ID,COURSE,CRSETITLE,CREDITHRS,course_fee,web_fee,lastChanged
 1,ACC200,Principles of Financial Acct,3,NULL,NULL,NULL
 2,ACC201,Principles of Managerial Acct,3,NULL,NULL,NULL
 3,ACC202,Accounting Applications Lab,1,NULL,NULL,NULL

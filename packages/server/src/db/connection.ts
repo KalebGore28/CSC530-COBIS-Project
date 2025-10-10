@@ -2,11 +2,11 @@ import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import 'dotenv/config';
 
-import * as tables from './schema';
+import * as schema from './schema';
 
 export interface DbConnection {
 	db: mysql.Pool;
-	orm: MySql2Database<typeof tables>;
+	orm: MySql2Database<typeof schema>;
 }
 
 let _dbConnection: Promise<DbConnection> | null = null;
@@ -21,13 +21,13 @@ const createDb = async (): Promise<DbConnection> => {
 		database: process.env.DB_NAME,
 	});
 
-	const db = drizzle(poolConnection, { schema: tables, mode: 'default' });
+	const db = drizzle(poolConnection, { schema: schema, mode: 'default' });
 	if (!poolConnection) {
 		throw new Error('❌ Failed to create database connection. Please check your environment variables.');
 	}
 
 	console.log(`✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
-	return { orm: db, db: poolConnection };
+	return { db: poolConnection, orm: db };
 };
 
 export const getDbConnection = async (): Promise<DbConnection> => {
