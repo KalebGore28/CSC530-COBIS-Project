@@ -4,11 +4,27 @@ export const Route = createFileRoute('/api/user/provision')({
     server: {
         handlers: {
             POST: async ({ request }) => {
-                // Implement user provisioning logic here
-                return new Response(JSON.stringify({ message: 'User provisioned successfully' }), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                })
+                const url = new URL(request.url)
+                const mnumber = url.searchParams.get('mnumber')
+                const isEnabled = url.searchParams.get('isEnabled')
+                const college = url.searchParams.get('college')
+                const department = url.searchParams.get('department')
+                const role_ids = url.searchParams.getAll('role_id')
+
+
+                if (!mnumber || !isEnabled || !college || !department || role_ids.length === 0) {
+                    return new Response(
+                        JSON.stringify({ error: 'Missing required parameters' }),
+                        {
+                            status: 400,
+                            headers: { 'Content-Type': 'application/json' },
+                        }
+                    )
+                }
+
+                
+
+
             },
         },
     },
