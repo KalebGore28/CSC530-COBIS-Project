@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import {
     Card,
     CardContent,
@@ -7,6 +7,7 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useSession } from '@/context/session';
 import { signinGoogle } from '../lib/auth-client';
 import primaryLogo from '/primary_white.png?url';
 
@@ -15,6 +16,12 @@ export const Route = createFileRoute('/login')({
 })
 
 function RouteComponent() {
+    const { session, isLoading } = useSession();
+    const navigate = useNavigate();
+
+    if (isLoading) return null;
+    if (session) return navigate({ to: '/' });
+
     return <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-blue-950">
         <div className="flex w-full max-w-sm flex-col gap-6 items-center justify-center">
             <img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
