@@ -1,0 +1,30 @@
+CODE,DESCRIPTION
+0,Continuing Education
+1,Full Term
+10W,10 week Fall/Spring Session
+2,First Half
+3,Second Half
+4,First Summer
+5,Second Summer
+5W,Last 5 week of Fall/Spring
+6,Short Term
+7,Weekend
+8,ESL
+9,Correspondence
+C,Combined Sessions
+CA,First weekend Fall/Spring
+CB,Second weekend Fall/Spring
+CC,Third weekend Fall/Spring
+CR,Correspondence
+E1,ESL Term 1
+E2,ESL Term 2
+E3,ESL Summer Term
+LBL,Weekend Workshop
+SA,SA - 1st Short Session
+SB,SB - 2nd Short Session
+SC,SC - 3rd Short Session
+SF,SF - 1st 5 Week Session
+SH,SH - 2nd 5 Week Session
+SK,SK - 10 Week Session
+TA,TQI Session
+TB,TB - 3rd 5 Week Session

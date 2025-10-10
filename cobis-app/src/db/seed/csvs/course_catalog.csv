@@ -1,0 +1,2471 @@
+ID,COURSE,CRSETITLE,CREDITHRS,course_fee,web_fee,lastChanged
+1,ACC200,Principles of Financial Acct,3,NULL,NULL,NULL
+2,ACC201,Principles of Managerial Acct,3,NULL,NULL,NULL
+3,ACC202,Accounting Applications Lab,1,NULL,NULL,NULL
+4,ACC300,Intermediate Accounting I,3,NULL,NULL,NULL
+5,ACC301,Intermediate Accounting II,3,NULL,NULL,NULL
+6,ACC302,Federal Income Tax,3,NULL,NULL,NULL
+7,ACC303,Cost Accounting,3,NULL,NULL,NULL
+8,ACC308,Accounting Information Systems,3,NULL,NULL,NULL
+9,ACC488,Coop ED/Internship,3,NULL,NULL,NULL
+10,ACC490,Survey of Accounting,3,NULL,NULL,NULL
+11,ACC501,Acc for Gov & Nonprofit,3,NULL,NULL,NULL
+12,ACC502,Advanced Income Tax,3,NULL,NULL,NULL
+13,ACC506,Prin of Audit & Assurance,3,NULL,NULL,NULL
+14,ACC507,Professional Issues,1,NULL,NULL,NULL
+15,ACC509,Accounting Theory,3,NULL,NULL,NULL
+16,ACC586,Intl Experience in ACC,3,NULL,NULL,NULL
+17,ACC595,Special Problems,3,NULL,NULL,NULL
+18,ACC601,Acc for Gov & Nonprofit,3,NULL,NULL,NULL
+19,ACC602,Advanced Income Tax,3,NULL,NULL,NULL
+20,ACC604,Accounting for Decision Making,3,NULL,NULL,NULL
+21,ACC605,Corporate Governance & Ethics,3,NULL,NULL,NULL
+22,ACC606,Auditing Theory and Practice,3,NULL,NULL,NULL
+23,ACC609,Issues Corp Financial Report,3,NULL,NULL,NULL
+24,ACC610,International Accounting,3,NULL,NULL,NULL
+25,ACC644,Graduate Coop Ed,3,NULL,NULL,NULL
+26,ACC695,Special Problems,3,NULL,NULL,NULL
+27,ADM600,Intro Educational Leadership,3,NULL,NULL,NULL
+28,ADM624,School & Community Relations,3,NULL,NULL,NULL
+29,ADM630,Methods of Research,3,NULL,NULL,NULL
+30,ADM644,Survey of Research in Schools,3,NULL,NULL,NULL
+31,ADM645,Educational Resources Mngmnt,3,NULL,NULL,NULL
+32,ADM650,Clinical Supervision,3,NULL,NULL,NULL
+33,ADM655,Curriculum Program Development,3,NULL,NULL,NULL
+34,ADM656,School Improvement Processes,3,NULL,NULL,NULL
+35,ADM657,Educational Policy and Ethics,3,NULL,NULL,NULL
+36,ADM663,School Law,3,NULL,NULL,NULL
+37,ADM664,School Principal,3,NULL,NULL,NULL
+38,ADM667,Pupil Personnel Accounting,3,NULL,NULL,NULL
+39,ADM668,Prac/Sem in Edu Leadership,3,NULL,NULL,NULL
+40,ADM669,Sem in School Administration,3,NULL,NULL,NULL
+41,ADM670,Topics in Education Technology,3,NULL,NULL,NULL
+42,ADM674,Dir Study/Sch Administration,3,NULL,NULL,NULL
+43,ADM675,Intro to Alter Edu Settings,3,NULL,NULL,NULL
+44,ADM677,Crisis Management,3,NULL,NULL,NULL
+45,ADM720,Adv School Personnel Eval,3,NULL,NULL,NULL
+46,ADM723,Adv School Program Eval,3,NULL,NULL,NULL
+47,ADM749,School District Management,3,NULL,NULL,NULL
+48,ADM759,Instructional Planning in Edu,3,NULL,NULL,NULL
+49,ADM779,Superintendency Capstone,3,NULL,NULL,NULL
+50,ADM798,Specialty Study,3,NULL,NULL,NULL
+51,ADM799,Specialty Study,3,NULL,NULL,NULL
+52,AED104,Intro to Agriculture Education,3,NULL,NULL,NULL
+53,AED380,"AG Ed, Extension/Leadership",3,NULL,NULL,NULL
+54,AED421,Student Teaching-Ag Education,3,NULL,NULL,NULL
+55,AED580,Methods Teaching Ag Education,3,NULL,NULL,NULL
+56,AED581,Inst Out-of-School Groups,3,NULL,NULL,NULL
+57,AED583,Practicum-Ag Ed/Extention,3,NULL,NULL,NULL
+58,AED680,Research in Ag Education,3,NULL,NULL,NULL
+59,AED681,Supervising Stdnt Tching Ag Ed,3,NULL,NULL,NULL
+60,AED682,Instructional Design Ag Ed,3,NULL,NULL,NULL
+61,AED684,Beginning Teacher Workshop,3,NULL,NULL,NULL
+62,AED687,Teaching Agricultural Mechanic,3,NULL,NULL,NULL
+63,AED688,Modern Problems in Ag Ed,3,NULL,NULL,NULL
+64,AGR099,Transitions,3,NULL,NULL,NULL
+65,AGR100,Animal Science,3,NULL,NULL,NULL
+66,AGR101,Basic Stock Seat Horsemanship,3,NULL,NULL,NULL
+67,AGR102,Beginning Equitation,3,NULL,NULL,NULL
+68,AGR103,Intermediate Equitation,3,NULL,NULL,NULL
+69,AGR104,Advanced Equitation,3,NULL,NULL,NULL
+70,AGR105,Introduction to Rodeo,3,NULL,NULL,NULL
+71,AGR106,Beginning Horsemanship,3,NULL,NULL,NULL
+72,AGR107,Intermediate Horsemanship,3,NULL,NULL,NULL
+73,AGR108,Advanced Horsemanship,3,NULL,NULL,NULL
+74,AGR110,Event Prod/Venue Management,3,NULL,NULL,NULL
+75,AGR130,Agricultural Economics,3,NULL,NULL,NULL
+76,AGR133,Field Applications for AG,3,NULL,NULL,NULL
+77,AGR140,Plant Science,3,NULL,NULL,NULL
+78,AGR160,Horticultural Science,3,NULL,NULL,NULL
+79,AGR170,Intro to Agricultural Sys Tech,3,NULL,NULL,NULL
+80,AGR199,"Issues in Food, Fiber, and NR",3,NULL,NULL,NULL
+81,AGR200,Intl Perspectives in AGR,3,NULL,NULL,NULL
+82,AGR201,Intermediate Horsemanship,3,NULL,NULL,NULL
+83,AGR223,Intro to Artificial Inseminati,3,NULL,NULL,NULL
+84,AGR240,Crop Science,3,NULL,NULL,NULL
+85,AGR247,Tobacco Production,3,NULL,NULL,NULL
+86,AGR300,Principles of Animal Nutrition,3,NULL,NULL,NULL
+87,AGR301,Livestock Judging/Evaluation,3,NULL,NULL,NULL
+88,AGR302,Horse Science,3,NULL,NULL,NULL
+89,AGR303,Advanced Horse Science,3,NULL,NULL,NULL
+90,AGR304,Advanced Stock Seat,3,NULL,NULL,NULL
+91,AGR306,Advanced Forward Seat,3,NULL,NULL,NULL
+92,AGR308,Applied Equine Management,3,NULL,NULL,NULL
+93,AGR309,Equine Facility Management,3,NULL,NULL,NULL
+94,AGR310,App in Animal Technology,3,NULL,NULL,NULL
+95,AGR311,Beef Science,3,NULL,NULL,NULL
+96,AGR314,Small Ruminant Science,3,NULL,NULL,NULL
+97,AGR315,Equine Exercise Physiology,3,NULL,NULL,NULL
+98,AGR318,Equine Forage Management,3,NULL,NULL,NULL
+99,AGR320,Livestock Behavioral Analysis,3,NULL,NULL,NULL
+100,AGR321,Poultry Science,3,NULL,NULL,NULL
+101,AGR322,Intro Veterinary Laboratory I,3,NULL,NULL,NULL
+102,AGR324,Veterinary Diagnostic Imaging,3,NULL,NULL,NULL
+103,AGR325,Small Animal Science,3,NULL,NULL,NULL
+104,AGR326,Swine Science,3,NULL,NULL,NULL
+105,AGR328,Stats for Food & Ag,3,NULL,NULL,NULL
+106,AGR329,Intro Veterinary Laboratory II,3,NULL,NULL,NULL
+107,AGR330,Principles of Agribusiness Mgt,3,NULL,NULL,NULL
+108,AGR331,Small Animal Diseases,3,NULL,NULL,NULL
+109,AGR332,Veterinary Nursing,3,NULL,NULL,NULL
+110,AGR333,Agribusiness Records Analysis,3,NULL,NULL,NULL
+111,AGR336,Agricultural Commodity Market,3,NULL,NULL,NULL
+112,AGR337,AG Sales and Merchandising,3,NULL,NULL,NULL
+113,AGR339,Computer Applications for AG,3,NULL,NULL,NULL
+114,AGR340,Veterinary Laboratory Sciences,3,NULL,NULL,NULL
+115,AGR345,Soil Science,3,NULL,NULL,NULL
+116,AGR346,Soil Science Practicum,3,NULL,NULL,NULL
+117,AGR353,"World Food, AG and Society",3,NULL,NULL,NULL
+118,AGR355,Soil Judging,3,NULL,NULL,NULL
+119,AGR360,Greenhouse Prod/Mgt,3,NULL,NULL,NULL
+120,AGR361,Horticulture/Greenhouse Mgt,3,NULL,NULL,NULL
+121,AGR364,Nursery Management,3,NULL,NULL,NULL
+122,AGR365,Herbaceous Plant Materials,3,NULL,NULL,NULL
+123,AGR367,Residential Landscape Design,3,NULL,NULL,NULL
+124,AGR371,AG Buildings and Construction,3,NULL,NULL,NULL
+125,AGR372,Agricultural Metal Processes,3,NULL,NULL,NULL
+126,AGR373,Animals in Disaster,3,NULL,NULL,NULL
+127,AGR374,Livestock in Disaster,3,NULL,NULL,NULL
+128,AGR377,Agriculture Safety,3,NULL,NULL,NULL
+129,AGR379,Field Equip Technology,3,NULL,NULL,NULL
+130,AGR399,Professional Development Sem I,3,NULL,NULL,NULL
+131,AGR400,Veterinary Microbiology,3,NULL,NULL,NULL
+132,AGR402,Advanced Livestock Judging,3,NULL,NULL,NULL
+133,AGR403,Equine Reproduction,3,NULL,NULL,NULL
+134,AGR404,Selective Equine Breeding,3,NULL,NULL,NULL
+135,AGR405,Equine Behavior Modification,3,NULL,NULL,NULL
+136,AGR407,Equine Selection & Evaluation,3,NULL,NULL,NULL
+137,AGR410,Advanced Veterinary Hematology,3,NULL,NULL,NULL
+138,AGR420,Veterinary Clinical Chemistry,3,NULL,NULL,NULL
+139,AGR430,Veterinary Parasitology,3,NULL,NULL,NULL
+140,AGR433,Farm Management,3,NULL,NULL,NULL
+141,AGR436,Undergraduate Research in AG,3,NULL,NULL,NULL
+142,AGR437,Senior Honors Thesis,3,NULL,NULL,NULL
+143,AGR439,Software Applications,3,NULL,NULL,NULL
+144,AGR440,Animal Comm & Training,3,NULL,NULL,NULL
+145,AGR451,Veterinary Technology Review,3,NULL,NULL,NULL
+146,AGR455,Soil Management,3,NULL,NULL,NULL
+147,AGR460,Professional Experience in HC,3,NULL,NULL,NULL
+148,AGR461,Plant Propagation,3,NULL,NULL,NULL
+149,AGR462,Fine Turf Management,3,NULL,NULL,NULL
+150,AGR471,Applications in Precision Ag,3,NULL,NULL,NULL
+151,AGR477,Agricultural Power Units,3,NULL,NULL,NULL
+152,AGR488,Coop Ed/Internship,3,NULL,NULL,NULL
+153,AGR489,Coop Ed/Internship,3,NULL,NULL,NULL
+154,AGR499,Ldrshp/Prof Dev Sem II,3,NULL,NULL,NULL
+155,AGR501,Diseases of Livestock,3,NULL,NULL,NULL
+156,AGR502,Advanced Nutrition,3,NULL,NULL,NULL
+157,AGR503,Genetics and Animal Breeding,3,NULL,NULL,NULL
+158,AGR506,Reproductive Physiology,3,NULL,NULL,NULL
+159,AGR510,Animal Physiology,3,NULL,NULL,NULL
+160,AGR511,Animal Anatomy Laboratory,3,NULL,NULL,NULL
+161,AGR512,Beef Cattle Management,3,NULL,NULL,NULL
+162,AGR514,Teaching in Animal/Equine Sci,3,NULL,NULL,NULL
+163,AGR523,Artificial Insemination Tech,3,NULL,NULL,NULL
+164,AGR529,Intl Trade and Agriculture,3,NULL,NULL,NULL
+165,AGR531,Agricultural Finance,3,NULL,NULL,NULL
+166,AGR533,Seminar in Int'l Agriculture,3,NULL,NULL,NULL
+167,AGR535,Agricultural Policy,3,NULL,NULL,NULL
+168,AGR537,Sem in Agricultural Business,3,NULL,NULL,NULL
+169,AGR538,Seminar in Production AG,3,NULL,NULL,NULL
+170,AGR539,Adv Computer Applic for Agr,3,NULL,NULL,NULL
+171,AGR540,Vet Surgery and Anesthesia,3,NULL,NULL,NULL
+172,AGR542,Plant Breeding I,3,NULL,NULL,NULL
+173,AGR546,Integrated Pest Management,3,NULL,NULL,NULL
+174,AGR547,Crop Management,3,NULL,NULL,NULL
+175,AGR548,Crop Physiology,3,NULL,NULL,NULL
+176,AGR549,Weeds and their Control,3,NULL,NULL,NULL
+177,AGR550,Applied Pharmacology,3,NULL,NULL,NULL
+178,AGR551,Selected Studies in AG,3,NULL,NULL,NULL
+179,AGR555,Advanced Soil Fertility,3,NULL,NULL,NULL
+180,AGR563,Arboriculture,3,NULL,NULL,NULL
+181,AGR566,Advanced Greenhouse Practicum,3,NULL,NULL,NULL
+182,AGR569,Plants for Interior Design,3,NULL,NULL,NULL
+183,AGR570,Methods of Teaching Agr Mechan,3,NULL,NULL,NULL
+184,AGR571,Adv Precision Agriculture,3,NULL,NULL,NULL
+185,AGR573,Agricultural Processing System,3,NULL,NULL,NULL
+186,AGR575,Combine and Grain Handling,3,NULL,NULL,NULL
+187,AGR576,Agricultural Electrification,3,NULL,NULL,NULL
+188,AGR577,Tractor Power Principles,3,NULL,NULL,NULL
+189,AGR585,Specialized Journalism/RTV,3,NULL,NULL,NULL
+190,AGR590,Internship in Animal Tech,3,NULL,NULL,NULL
+191,AGR599,Agriculture Senior Capstone,3,NULL,NULL,NULL
+192,AGR600,Research in Agriculture,3,NULL,NULL,NULL
+193,AGR601,Forage Management System,3,NULL,NULL,NULL
+194,AGR605,Advanced Ration Formulation,3,NULL,NULL,NULL
+195,AGR620,Exp Design & Stat Analysis,3,NULL,NULL,NULL
+196,AGR622,Graduate Capstone Seminar,3,NULL,NULL,NULL
+197,AGR635,Research Methodology,3,NULL,NULL,NULL
+198,AGR644,Graduate Cooperative Ed,3,NULL,NULL,NULL
+199,AGR645,Biotechnology and Agriculture,3,NULL,NULL,NULL
+200,AGR648,Sustainable Food & Agr,3,NULL,NULL,NULL
+201,AGR672,Advanced Metal Work,3,NULL,NULL,NULL
+202,AGR676,Adv Agricultural Electrificati,3,NULL,NULL,NULL
+203,AGR698,Thesis,3,NULL,NULL,NULL
+204,AGR699,Thesis,3,NULL,NULL,NULL
+205,ANT140,Exploring World Cultures,3,NULL,NULL,NULL
+206,ANT315,Special Topics in Anthropology,3,NULL,NULL,NULL
+207,ANT344,The Black Experience,3,NULL,NULL,NULL
+208,ANT488,Coop Ed/Internship,3,NULL,NULL,NULL
+209,ANT489,Coop Ed/Internship,3,NULL,NULL,NULL
+210,ANT500,Directed Studies,3,NULL,NULL,NULL
+211,ANT596,The Minority Elderly,3,NULL,NULL,NULL
+212,ARC150,Introduction to Archaeology,3,NULL,NULL,NULL
+213,ARC300,Archaeological Method & Theory,3,NULL,NULL,NULL
+214,ARC304,Archaeological Lab Methods,3,NULL,NULL,NULL
+215,ARC315,Special Topics in Archaeology,3,NULL,NULL,NULL
+216,ARC321,Ancient Civilizations,3,NULL,NULL,NULL
+217,ARC350,Public Archaeology,3,NULL,NULL,NULL
+218,ARC488,Coop Ed/Internship,3,NULL,NULL,NULL
+219,ARC489,Coop Ed/Internship,3,NULL,NULL,NULL
+220,ARC500,Directed Studies,3,NULL,NULL,NULL
+221,ARC556,Geophysical Surveying,3,NULL,NULL,NULL
+222,ARC604,Arc Laboratory Systems,3,NULL,NULL,NULL
+223,ARC610,Landscape Archaeology,3,NULL,NULL,NULL
+224,ART099,Transitions,3,NULL,NULL,NULL
+225,ART101,Drawing I: Intro to Drawing,3,NULL,NULL,NULL
+226,ART111,Studio Practice,3,NULL,NULL,NULL
+227,ART112,Studio Research,3,NULL,NULL,NULL
+228,ART121,Art and Visual Culture,3,NULL,NULL,NULL
+229,ART201,Drawing II: Life Drawing,3,NULL,NULL,NULL
+230,ART211,Antiquity to the Baroque,3,NULL,NULL,NULL
+231,ART212,Enlightenment to the Present,3,NULL,NULL,NULL
+232,ART290,Special Problems in Studio Art,3,NULL,NULL,NULL
+233,ART298,Mid-Degree Review Seminar,3,NULL,NULL,NULL
+234,ART300,Drawing III,3,NULL,NULL,NULL
+235,ART303,Drawing IV,3,NULL,NULL,NULL
+236,ART304,Drawing V,3,NULL,NULL,NULL
+237,ART309,Intro to Metalsmithing I,3,NULL,NULL,NULL
+238,ART310,Intro to Woodworking I,3,NULL,NULL,NULL
+239,ART311,Metalsmithing II,3,NULL,NULL,NULL
+240,ART312,Metalsmithing III,3,NULL,NULL,NULL
+241,ART313,Woodworking II,3,NULL,NULL,NULL
+242,ART314,Woodworking III,3,NULL,NULL,NULL
+243,ART330,Introduction to Painting I,3,NULL,NULL,NULL
+244,ART333,Painting II,3,NULL,NULL,NULL
+245,ART334,Painting III,3,NULL,NULL,NULL
+246,ART341,Inclusive Art Education,3,NULL,NULL,NULL
+247,ART342,Effective Pedagogy of Art Edu,3,NULL,NULL,NULL
+248,ART343,Materials/Tech for Classroom,3,NULL,NULL,NULL
+249,ART350,Intro Graph Design I: Digital,3,NULL,NULL,NULL
+250,ART351,Graph Dsgn II: Type And Image,3,NULL,NULL,NULL
+251,ART352,Graph Dsg III: Layout & Design,3,NULL,NULL,NULL
+252,ART360,Introduction to Sculpture,3,NULL,NULL,NULL
+253,ART361,Sculpture II,3,NULL,NULL,NULL
+254,ART362,Digital Sculpture,3,NULL,NULL,NULL
+255,ART370,Introduction to Ceramics,3,NULL,NULL,NULL
+256,ART371,Ceramics II,3,NULL,NULL,NULL
+257,ART372,Ceramics III,3,NULL,NULL,NULL
+258,ART379,Introduction to Printmaking I,3,NULL,NULL,NULL
+259,ART380,Printmaking II,3,NULL,NULL,NULL
+260,ART381,Printmaking III,3,NULL,NULL,NULL
+261,ART382,Introduction to Photography,3,NULL,NULL,NULL
+262,ART383,Photography II,3,NULL,NULL,NULL
+263,ART384,Photography III,3,NULL,NULL,NULL
+264,ART390,Seminar,3,NULL,NULL,NULL
+265,ART393,Special Topics in 2D,3,NULL,NULL,NULL
+266,ART394,Special Topics in 3D,3,NULL,NULL,NULL
+267,ART399,Professional Practices,3,NULL,NULL,NULL
+268,ART403,Drawing VI,3,NULL,NULL,NULL
+269,ART404,Drawing VII,3,NULL,NULL,NULL
+270,ART411,Metalsmithing IV,3,NULL,NULL,NULL
+271,ART412,Metalsmithing V,3,NULL,NULL,NULL
+272,ART413,Woodworking IV,3,NULL,NULL,NULL
+273,ART414,Woodworking V,3,NULL,NULL,NULL
+274,ART415,Greek and Roman Art,3,NULL,NULL,NULL
+275,ART416,Medieval Art,3,NULL,NULL,NULL
+276,ART418,Renaissance Art,3,NULL,NULL,NULL
+277,ART419,Baroque Art,3,NULL,NULL,NULL
+278,ART425,Art of Asia,3,NULL,NULL,NULL
+279,ART428,Nineteenth Century Art,3,NULL,NULL,NULL
+280,ART429,Art from 1900 to 1960,3,NULL,NULL,NULL
+281,ART430,Art Since 1960,3,NULL,NULL,NULL
+282,ART433,Painting IV,3,NULL,NULL,NULL
+283,ART434,Painting V,3,NULL,NULL,NULL
+284,ART451,Graphic Design IV:Syst Design,3,NULL,NULL,NULL
+285,ART452,Graphic Design V:Snr Portfolio,3,NULL,NULL,NULL
+286,ART461,Sculpture IV,3,NULL,NULL,NULL
+287,ART462,Sculpture V,3,NULL,NULL,NULL
+288,ART471,Ceramics IV,3,NULL,NULL,NULL
+289,ART472,Ceramics V,3,NULL,NULL,NULL
+290,ART480,Printmaking IV,3,NULL,NULL,NULL
+291,ART481,Printmaking V,3,NULL,NULL,NULL
+292,ART483,Video II,3,NULL,NULL,NULL
+293,ART484,Directions in Moving Image,3,NULL,NULL,NULL
+294,ART488,Coop Ed/Internship,3,NULL,NULL,NULL
+295,ART489,Coop Ed/Internship,3,NULL,NULL,NULL
+296,ART490,Special Problems in Studio Art,3,NULL,NULL,NULL
+297,ART491,Special Prob in Art History,3,NULL,NULL,NULL
+298,ART492,Special Probs in Art Ed,3,NULL,NULL,NULL
+299,ART498,BFA Practicum Exhibition,3,NULL,NULL,NULL
+300,ART499,BA/BS Practicum Group Exhibit,3,NULL,NULL,NULL
+301,ART503,Drawing VIII,3,NULL,NULL,NULL
+302,ART504,Drawing IX,3,NULL,NULL,NULL
+303,ART511,Metalsmithing VI,3,NULL,NULL,NULL
+304,ART512,Metalsmithing VII,3,NULL,NULL,NULL
+305,ART513,Woodworking VI,3,NULL,NULL,NULL
+306,ART514,Woodworking VII,3,NULL,NULL,NULL
+307,ART533,Painting VI,3,NULL,NULL,NULL
+308,ART534,Painting VII,3,NULL,NULL,NULL
+309,ART551,Graphic Design VI,3,NULL,NULL,NULL
+310,ART552,Graphic Design VII,3,NULL,NULL,NULL
+311,ART561,Sculpture VI,3,NULL,NULL,NULL
+312,ART562,Advanced Sculpture,3,NULL,NULL,NULL
+313,ART571,Ceramics VI,3,NULL,NULL,NULL
+314,ART572,Ceramics VII,3,NULL,NULL,NULL
+315,ART580,Printmaking VI,3,NULL,NULL,NULL
+316,ART581,Printmaking VII,3,NULL,NULL,NULL
+317,ART583,Directions in Photography,3,NULL,NULL,NULL
+318,ART584,Directions in Intermedia,3,NULL,NULL,NULL
+319,ART690,Special Problems in Studio Art,3,NULL,NULL,NULL
+320,ART691,Special Probs in Art History,3,NULL,NULL,NULL
+321,ART692,Special Prob in Art Education,3,NULL,NULL,NULL
+322,AST115,Introductory Astronomy,3,NULL,NULL,NULL
+323,AST116,Introductory Astronomy Lab,3,NULL,NULL,NULL
+324,AST515,Special Topics,3,NULL,NULL,NULL
+325,BED510,Mthds/Mat Tching Bus/Mkt Ed,3,NULL,NULL,NULL
+326,BIO099,Transitions,3,NULL,NULL,NULL
+327,BIO100,Introduction Biology Lab,3,NULL,NULL,NULL
+328,BIO101,Biological Concepts,3,NULL,NULL,NULL
+329,BIO103,Saving Planet Earth,3,NULL,NULL,NULL
+330,BIO115,The Cellular Basis of Life,3,NULL,NULL,NULL
+331,BIO120,Scientific Etymology,3,NULL,NULL,NULL
+332,BIO154,Dendrology,3,NULL,NULL,NULL
+333,BIO216,Biological Inquiry & Analysis,3,NULL,NULL,NULL
+334,BIO220,Clinical Terminology,3,NULL,NULL,NULL
+335,BIO221,Zoology: Animal Form & Func,3,NULL,NULL,NULL
+336,BIO222,Botany: Plant Form & Function,3,NULL,NULL,NULL
+337,BIO227,Human Anatomy,3,NULL,NULL,NULL
+338,BIO228,Human Anatomy Laboratory,3,NULL,NULL,NULL
+339,BIO229,Human Physiology,3,NULL,NULL,NULL
+340,BIO230,Human Physiology Laboratory,3,NULL,NULL,NULL
+341,BIO290,Biomedical Research I,3,NULL,NULL,NULL
+342,BIO300,Introductory Microbiology,3,NULL,NULL,NULL
+343,BIO305,Intro to Evolutionary Princ,3,NULL,NULL,NULL
+344,BIO308,Ethics in Biology,3,NULL,NULL,NULL
+345,BIO320,Comparative Vertebrate Anatomy,3,NULL,NULL,NULL
+346,BIO321,Cell Biology:Mechanisms,3,NULL,NULL,NULL
+347,BIO322,Animal Physiology,3,NULL,NULL,NULL
+348,BIO323,Cell Biology: Systems,3,NULL,NULL,NULL
+349,BIO330,Principles of Ecology,3,NULL,NULL,NULL
+350,BIO333,Genetics,3,NULL,NULL,NULL
+351,BIO350,Systematic Botany,3,NULL,NULL,NULL
+352,BIO388,Biomedical Research II,3,NULL,NULL,NULL
+353,BIO389,Biomedical Research III,3,NULL,NULL,NULL
+354,BIO421,Vertebrate Histology,3,NULL,NULL,NULL
+355,BIO437,Senior Honors Thesis,3,NULL,NULL,NULL
+356,BIO438,Biomedical Research IV,3,NULL,NULL,NULL
+357,BIO439,Biomedical Research V,3,NULL,NULL,NULL
+358,BIO450,Exercise Physiology,3,NULL,NULL,NULL
+359,BIO460,Principles of Biomathematics,3,NULL,NULL,NULL
+360,BIO467,General Parasitology,3,NULL,NULL,NULL
+361,BIO483,Ungrad Teaching Methods I,3,NULL,NULL,NULL
+362,BIO484,Undergrd Teaching in Biology,3,NULL,NULL,NULL
+363,BIO488,Coop Ed/Internship,3,NULL,NULL,NULL
+364,BIO489,Coop Ed/Internship,3,NULL,NULL,NULL
+365,BIO491,Undergraduate Research I,3,NULL,NULL,NULL
+366,BIO492,Undergraduate Research II,3,NULL,NULL,NULL
+367,BIO493,Undergraduate Research III,3,NULL,NULL,NULL
+368,BIO494,Undergraduate Research IV,3,NULL,NULL,NULL
+369,BIO499,Senior Biology Seminar,3,NULL,NULL,NULL
+370,BIO504,Medical Cell Biology,3,NULL,NULL,NULL
+371,BIO521,Cell Biology Laboratory,3,NULL,NULL,NULL
+372,BIO522,Pathophysiology,3,NULL,NULL,NULL
+373,BIO528,Neurobiology,3,NULL,NULL,NULL
+374,BIO533,Molecular Genetics,3,NULL,NULL,NULL
+375,BIO534,Molecular Genetics Laboratory,3,NULL,NULL,NULL
+376,BIO535,Watershed Ecology,3,NULL,NULL,NULL
+377,BIO536,Evolution,3,NULL,NULL,NULL
+378,BIO538,Animal Behavior,3,NULL,NULL,NULL
+379,BIO539,Animal Behavior Laboratory,3,NULL,NULL,NULL
+380,BIO561,Freshwater Invertebrates,3,NULL,NULL,NULL
+381,BIO573,Ornithology,3,NULL,NULL,NULL
+382,BIO577,Population & Cnsrvtn Genetics,3,NULL,NULL,NULL
+383,BIO578,Conservation Biology,3,NULL,NULL,NULL
+384,BIO580,Principles of Wildlife Mgmt,3,NULL,NULL,NULL
+385,BIO582,Fisheries Management,3,NULL,NULL,NULL
+386,BIO632,Quantitative Ecology,3,NULL,NULL,NULL
+387,BIO644,Graduate Cooperative Education,3,NULL,NULL,NULL
+388,BIO651,Molecular Mech in Biosystems,3,NULL,NULL,NULL
+389,BIO667,Advanced Parasitology,3,NULL,NULL,NULL
+390,BIO669,Biological Limnology,3,NULL,NULL,NULL
+391,BIO689,Introduction to Graduate Study,3,NULL,NULL,NULL
+392,BIO691,Topics in Biology I,3,NULL,NULL,NULL
+393,BIO692,Topics in Biology II,3,NULL,NULL,NULL
+394,BIO693,Topics in Biology III,3,NULL,NULL,NULL
+395,BIO694,Topics in Biology IV,3,NULL,NULL,NULL
+396,BIO695,Biological Research,3,NULL,NULL,NULL
+397,BIO696,Understanding Scientific Commu,3,NULL,NULL,NULL
+398,BIO697,Seminar,3,NULL,NULL,NULL
+399,BIO698,Thesis I,3,NULL,NULL,NULL
+400,BIO699,Thesis II,3,NULL,NULL,NULL
+401,BIS301,Integrated Studies Research I,3,NULL,NULL,NULL
+402,BIS302,Integrated Studies Research II,3,NULL,NULL,NULL
+403,BIS399,Seminar in Integrated Studies,3,NULL,NULL,NULL
+404,BIS437,Senior Project,3,NULL,NULL,NULL
+405,BUS099,Transitions,1,NULL,NULL,NULL
+406,BUS140,Foundations of Business,3,NULL,NULL,NULL
+407,BUS200,Collegiate Leadership & Servic,3,NULL,NULL,NULL
+408,BUS215,Business Communication,3,NULL,NULL,NULL
+409,BUS355,Info Systems/Decision Making,3,NULL,NULL,NULL
+410,BUS396,International Business Seminar,3,NULL,NULL,NULL
+411,BUS442,Business Ethics/Environments,3,NULL,NULL,NULL
+412,BUS488,Coop Ed/Internship,3,NULL,NULL,NULL
+413,BUS515,Com in Intrntl Bus Environment,3,NULL,NULL,NULL
+414,BUS540,Legal Obligations of Business,3,NULL,NULL,NULL
+415,BUS595,Special Problems,3,NULL,NULL,NULL
+416,BUS596,International Business Seminar,3,NULL,NULL,NULL
+417,BUS615,Com in Intrntl Bus Environment,3,NULL,NULL,NULL
+418,BUS640,Legal Obligations of Business,3,NULL,NULL,NULL
+419,BUS695,Special Problems,3,NULL,NULL,NULL
+420,BUS696,International Business Seminar,3,NULL,NULL,NULL
+421,CDI099,Transitions,3,NULL,NULL,NULL
+422,CDI205,Intro to Comm Disorders,3,NULL,NULL,NULL
+423,CDI215,Clinical Phonetics,3,NULL,NULL,NULL
+424,CDI310,Anatomy and Physiology,3,NULL,NULL,NULL
+425,CDI315,Speech and Hearing Science,3,NULL,NULL,NULL
+426,CDI325,Pediatric Speech Disorders I,3,NULL,NULL,NULL
+427,CDI340,Speech & Language Development,3,NULL,NULL,NULL
+428,CDI345,Pediatric Language Disorders I,3,NULL,NULL,NULL
+429,CDI405,Hearing and Its Assessment,3,NULL,NULL,NULL
+430,CDI440,Adult Neurogenic Com Disorders,3,NULL,NULL,NULL
+431,CDI451,Intro to Aural Rehabilitation,3,NULL,NULL,NULL
+432,CDI465,Neuroanatomy/Physiology,3,NULL,NULL,NULL
+433,CDI470,Pediatric Speech Disorders II,3,NULL,NULL,NULL
+434,CDI472,Pediatric Language Disorder II,3,NULL,NULL,NULL
+435,CDI474,Elementary Clinical Skills,3,NULL,NULL,NULL
+436,CDI480,School Services for CDI,3,NULL,NULL,NULL
+437,CDI482,Augmentative-Alter Comm,3,NULL,NULL,NULL
+438,CDI601,Seminar in Trends/Issues,3,NULL,NULL,NULL
+439,CDI615,Instrumental Methods for SLP,3,NULL,NULL,NULL
+440,CDI620,Speech Sound Disorders,3,NULL,NULL,NULL
+441,CDI621,School-Based Externship,3,NULL,NULL,NULL
+442,CDI624,Assessment/Treatment of Voice,3,NULL,NULL,NULL
+443,CDI635,Graduate Seminar in CDI,3,NULL,NULL,NULL
+444,CDI646,Designing/Applying Research,3,NULL,NULL,NULL
+445,CDI648,Pediatric Language/Literacy,3,NULL,NULL,NULL
+446,CDI660,Motor Speech Disorders,3,NULL,NULL,NULL
+447,CDI670,Practicum Seminar,3,NULL,NULL,NULL
+448,CDI672,Diagnostic Methods,3,NULL,NULL,NULL
+449,CDI674,Clinical Practicum,3,NULL,NULL,NULL
+450,CDI676,Medical/Clinical Externship,3,NULL,NULL,NULL
+451,CDI680,Adult Neurogenic CDI,3,NULL,NULL,NULL
+452,CDI694,Advanced Clinical Practicum,3,NULL,NULL,NULL
+453,CDI695,Independent Study,3,NULL,NULL,NULL
+454,CDI699,Thesis,3,NULL,NULL,NULL
+455,CET280,Plane Surveying,3,NULL,NULL,NULL
+456,CET284,Sustainable Design,3,NULL,NULL,NULL
+457,CET298,Strength of Materials,3,NULL,NULL,NULL
+458,CET310,Anatomy of Buildings,3,NULL,NULL,NULL
+459,CET330,Water Quality Technology I,3,NULL,NULL,NULL
+460,CET331,Water Quality Technology II,3,NULL,NULL,NULL
+461,CET342,Air Quality Technology,3,NULL,NULL,NULL
+462,CET353,Solid/Hazardous Waste Mgmt,3,NULL,NULL,NULL
+463,CET370,Route Surveying,3,NULL,NULL,NULL
+464,CET381,Boundary Surveying I,3,NULL,NULL,NULL
+465,CET385,Heavy Constr Estimating,3,NULL,NULL,NULL
+466,CET386,Building Construct Cost Estima,3,NULL,NULL,NULL
+467,CET460,Geodesy,3,NULL,NULL,NULL
+468,CET480,Construction Planning & Mgt,3,NULL,NULL,NULL
+469,CET481,Structural Steel Design,3,NULL,NULL,NULL
+470,CET482,Reinforced Concrete Design,3,NULL,NULL,NULL
+471,CET483,Construction Materials,3,NULL,NULL,NULL
+472,CET484,Soil Mechanics and Foundations,3,NULL,NULL,NULL
+473,CET555,Environ Regulatory Affairs,3,NULL,NULL,NULL
+474,CET585,Remediation Technology,3,NULL,NULL,NULL
+475,CET681,Pollution Assessment & Control,3,NULL,NULL,NULL
+476,CET682,Industrial Ecology,3,NULL,NULL,NULL
+477,CHE099,Transitions,3,NULL,NULL,NULL
+478,CHE101,Consumer Chemistry,3,NULL,NULL,NULL
+479,CHE105,Introductory Chemistry,3,NULL,NULL,NULL
+480,CHE106,Introductory Chemistry II,3,NULL,NULL,NULL
+481,CHE111,Essentials of Chem/Biochem,3,NULL,NULL,NULL
+482,CHE201,General College Chemistry,3,NULL,NULL,NULL
+483,CHE202,Chemistry & Qualitative Analys,3,NULL,NULL,NULL
+484,CHE210,Brief Organic Chemistry,3,NULL,NULL,NULL
+485,CHE215,Brief Organic Chem Laboratory,3,NULL,NULL,NULL
+486,CHE305,Analytical Chemistry,3,NULL,NULL,NULL
+487,CHE312,Organic Chemistry I,3,NULL,NULL,NULL
+488,CHE320,Organic Chemistry II,3,NULL,NULL,NULL
+489,CHE325,Organic II Laboratory,3,NULL,NULL,NULL
+490,CHE330,Basic Biochemistry,3,NULL,NULL,NULL
+491,CHE352,Basic Chemical Instrumentation,3,NULL,NULL,NULL
+492,CHE388,International Experience,3,NULL,NULL,NULL
+493,CHE400,Chemical Literature,3,NULL,NULL,NULL
+494,CHE401,Ethics for the Chemist,3,NULL,NULL,NULL
+495,CHE403,Basic Physical Chemistry,3,NULL,NULL,NULL
+496,CHE410,Physical Chemistry I,3,NULL,NULL,NULL
+497,CHE420,Physical Chemistry II,3,NULL,NULL,NULL
+498,CHE435,Undergraduate Seminar,3,NULL,NULL,NULL
+499,CHE446,Physical Chem for Tech/Enginee,3,NULL,NULL,NULL
+500,CHE488,Coop Ed/Internship,3,NULL,NULL,NULL
+501,CHE489,Coop Ed/Internship,3,NULL,NULL,NULL
+502,CHE495,Senior Research,3,NULL,NULL,NULL
+503,CHE502,Fundamentals of Toxicology,3,NULL,NULL,NULL
+504,CHE511,Advanced Inorganic Chemistry I,3,NULL,NULL,NULL
+505,CHE512,Inorganic Chemistry Laboratory,3,NULL,NULL,NULL
+506,CHE513,Environmental Chemistry,3,NULL,NULL,NULL
+507,CHE519,Instrumental Analysis,3,NULL,NULL,NULL
+508,CHE527,Advanced Organic Chemistry,3,NULL,NULL,NULL
+509,CHE530,Fundamentals of Biochemistry I,3,NULL,NULL,NULL
+510,CHE540,Biochemistry II,3,NULL,NULL,NULL
+511,CHE565,Biogeochemistry,3,NULL,NULL,NULL
+512,CHE569,Spectrometric ID of Organic Cm,3,NULL,NULL,NULL
+513,CHE581,Advanced Physical Chemistry,3,NULL,NULL,NULL
+514,CHE591,Special Problems in Chemistry,3,NULL,NULL,NULL
+515,CHE592,Special Problems in Chemistry,3,NULL,NULL,NULL
+516,CHE593,Special Problems in Chemistry,3,NULL,NULL,NULL
+517,CHE601,Seminar,3,NULL,NULL,NULL
+518,CHE602,Seminar,3,NULL,NULL,NULL
+519,CHE610,Chemical Thermodynamics,3,NULL,NULL,NULL
+520,CHE627,Chemical Separations,3,NULL,NULL,NULL
+521,CHE628,Mass Spectrometry,3,NULL,NULL,NULL
+522,CHE672,Topics Analytical Chemistry,3,NULL,NULL,NULL
+523,CHE676,Polymer Chemistry,3,NULL,NULL,NULL
+524,CHE691,Special Problems in Chemistry,3,NULL,NULL,NULL
+525,CHE692,Special Problems in Chemistry,3,NULL,NULL,NULL
+526,CHE693,Special Problems in Chemistry,3,NULL,NULL,NULL
+527,CHE698,Thesis Research,3,NULL,NULL,NULL
+528,CHE699,Thesis Research,3,NULL,NULL,NULL
+529,CHN101,Elementary Chinese I,3,NULL,NULL,NULL
+530,CHN105,Introduction Chinese Culture,3,NULL,NULL,NULL
+531,CHN201,Intermediate Chinese I,3,NULL,NULL,NULL
+532,CIS243,Data Analysis: Prep & Visualiz,2,6.00,NULL,NULL
+533,CIS307,Intro to Business Intelligence,3,NULL,NULL,NULL
+534,CIS317,Systems Analysis & Design,3,9.00,321.00,NULL
+535,CIS325,Web Application Development,3,NULL,321.00,NULL
+536,CIS343,Data Analysis - Inf & Predict,2,6.00,214.00,NULL
+537,CIS399,Topics in Information Systems,1,NULL,NULL,NULL
+538,CIS407,Adv Database Management,3,NULL,321.00,NULL
+539,CIS420,Senior Capstone Project,3,9.00,NULL,NULL
+540,CIS425,Building E-Business w/Web,3,NULL,NULL,NULL
+541,CIS433,Data Analysis and Modeling,3,NULL,NULL,NULL
+542,CIS440,End User Tech Mgt,3,NULL,NULL,NULL
+543,CIS480,Foundations of Information Systems Design,3,NULL,NULL,NULL
+544,CIS488,Coop Ed/Internship,3,9.00,NULL,NULL
+545,CIS500,Internship,3,NULL,NULL,NULL
+546,CIS543,Advanced Business Analytics,3,9.00,NULL,NULL
+547,CIS545,Enterprise Resource Planning,3,NULL,NULL,NULL
+548,CIS548,Enterprise Resource Planning,3,9.00,321.00,NULL
+549,CIS585,Special Problems,3,9.00,NULL,NULL
+550,CIS595,Special Problems,3,NULL,NULL,NULL
+551,CIS609,Data Management,3,9.00,NULL,NULL
+552,CIS643,Advanced Business Analytics,3,9.00,309.00,NULL
+553,CIS645,AI Applications in Business,3,9.00,309.00,NULL
+554,CIS646,Manager's Guide to Database,3,NULL,NULL,NULL
+555,CIS648,Enterprise Resource Planning,3,9.00,309.00,NULL
+556,CIS650,Software Development,3,9.00,NULL,NULL
+557,CIS653,Managerial Decision-Making (archive),3,9.00,555.00,NULL
+558,CIS688,Graduate Internship,3,9.00,NULL,NULL
+559,CIS695,Comprehensive Project,3,9.00,NULL,NULL
+560,CIV201,World Civilizations to 1500,3,NULL,NULL,NULL
+561,CIV202,World Civilizations Since 1500,3,NULL,NULL,NULL
+562,CIV290,Special Topics in World Civ,3,NULL,NULL,NULL
+563,CNS615,Behavioral Assess/Intervention,3,NULL,NULL,NULL
+564,CNS617,Intro to School Counseling,3,NULL,NULL,NULL
+565,CNS618,Social Justice and Advocacy,3,NULL,NULL,NULL
+566,CNS619,Foundational Cnsling Technique,3,NULL,NULL,NULL
+567,CNS624,Theories of Counseling,3,NULL,NULL,NULL
+568,CNS625,Legal and Ethical Issues,3,NULL,NULL,NULL
+569,CNS635,Human Development,3,NULL,NULL,NULL
+570,CNS683,Tests and Measurements,3,NULL,NULL,NULL
+571,CNS684,Problems,3,NULL,NULL,NULL
+572,CNS689,Individual Testing,3,NULL,NULL,NULL
+573,CNS694,Advanced Coun & Supervision,3,NULL,NULL,NULL
+574,CNS790,Practicum,3,NULL,NULL,NULL
+575,CNS794,Internship I,3,NULL,NULL,NULL
+576,CNS795,Internship II,3,NULL,NULL,NULL
+577,CNS798,Specialty Study,3,NULL,NULL,NULL
+578,COM099,Transitions,3,NULL,NULL,NULL
+579,COM131,Intro to Interpersonal Comm,3,NULL,NULL,NULL
+580,COM160,Mgt Public Speaking Anxiety,1,NULL,NULL,NULL
+581,COM161,Intro to Public Speaking,3,NULL,NULL,NULL
+582,COM181,Intro to Interpersonal Comm,3,NULL,NULL,NULL
+583,COM201,Comm Foundations and Theory,3,NULL,NULL,NULL
+584,COM260,Communication Ethics,3,NULL,NULL,NULL
+585,COM331,Interpersonal Communication,3,NULL,NULL,NULL
+586,COM340,Intercultural Communication,3,NULL,NULL,NULL
+587,COM345,Diversity and Communication,3,NULL,NULL,NULL
+588,COM353,Team Comm and Leadership,3,NULL,NULL,NULL
+589,COM367,Communication/Critical Thought,3,NULL,NULL,NULL
+590,COM372,Comm in Educational Environ,3,NULL,NULL,NULL
+591,COM380,Organizational Communication,3,NULL,NULL,NULL
+592,COM381,Interpersonal Communication,3,NULL,NULL,NULL
+593,COM384,Comm Skills for Professionals,3,NULL,NULL,NULL
+594,COM385,Organizational Communication,3,NULL,NULL,NULL
+595,COM387,Intercultural Communication,3,NULL,NULL,NULL
+596,COM390,Communication Research,3,NULL,NULL,NULL
+597,COM401,Contemporary Issues in COM,3,NULL,NULL,NULL
+598,COM409,Seminar in Communication,3,NULL,NULL,NULL
+599,COM422,Communication and Technology,3,NULL,NULL,NULL
+600,COM439,Conflict and Communication,3,NULL,NULL,NULL
+601,COM461,Persuasive Communication,3,NULL,NULL,NULL
+602,COM481,Conflict and Communication,3,NULL,NULL,NULL
+603,COM488,Coop ED/Internship,3,NULL,NULL,NULL
+604,COM489,Coop Ed/Internship,3,NULL,NULL,NULL
+605,COM499,Contemporary Issues in Comm,3,NULL,NULL,NULL
+606,COM510,Internship,3,NULL,NULL,NULL
+607,COM553,Advanced Team Comm/Ldrshp,3,NULL,NULL,NULL
+608,COM580,Advanced Organizational Comm,3,NULL,NULL,NULL
+609,COM585,Advanced Organizational Comm,3,NULL,NULL,NULL
+610,COM589,Directed Study in Comm Theory,3,NULL,NULL,NULL
+611,COM594,Directed Individual Study,3,NULL,NULL,NULL
+612,COM595,Senior Seminar,3,NULL,NULL,NULL
+613,COM599,Internship,3,NULL,NULL,NULL
+614,COM610,Internship,3,NULL,NULL,NULL
+615,COM631,Interpersonal Com at Work,3,NULL,NULL,NULL
+616,COM635,Customer Communication,3,NULL,NULL,NULL
+617,COM639,Conflict Resolution,3,NULL,NULL,NULL
+618,COM640,Sem in Intercultural Com,3,NULL,NULL,NULL
+619,COM644,Graduate Coop Ed,3,NULL,NULL,NULL
+620,COM645,Foundations of Org Comm,3,NULL,NULL,NULL
+621,COM653,Advanced Team Comm/Ldrshp,3,NULL,NULL,NULL
+622,COM672,Comm in Instr Environments,3,NULL,NULL,NULL
+623,COM673,Organizational Training/Dvlpmt,3,NULL,NULL,NULL
+624,COM677,Organizational Learning and Dialogue,3,NULL,NULL,NULL
+625,COM680,Advanced Organizational Com,3,NULL,NULL,NULL
+626,COM681,Seminar in Conflict Resolution,3,NULL,NULL,NULL
+627,COM682,Sem in Crisis Communication,3,NULL,NULL,NULL
+628,COM685,Seminar in Organizational Comm,3,NULL,NULL,NULL
+629,COM689,Philosophy and Future of COM,3,NULL,NULL,NULL
+630,COM690,Research Methods in Org Comm,3,NULL,NULL,NULL
+631,COM692,Research Practice,3,NULL,NULL,NULL
+632,COM693,Readings in Communication,3,NULL,NULL,NULL
+633,COM694,Directed Study in Org Comm,3,NULL,NULL,NULL
+634,COM698,Thesis,3,NULL,NULL,NULL
+635,COM699,Thesis,3,NULL,NULL,NULL
+636,CRJ099,Transitions,3,NULL,NULL,NULL
+637,CRJ140,Intro to Criminal Justice,3,NULL,NULL,NULL
+638,CRJ220,Law Enforcement,3,NULL,NULL,NULL
+639,CRJ240,Corrections,3,NULL,NULL,NULL
+640,CRJ300,Crime and Criminals,3,NULL,NULL,NULL
+641,CRJ303,Principles/Methods of Research,3,NULL,NULL,NULL
+642,CRJ305,Internship,3,NULL,NULL,NULL
+643,CRJ320,Juvenile Justice,3,NULL,NULL,NULL
+644,CRJ325,Criminal Justice Ethics,3,NULL,NULL,NULL
+645,CRJ333,Criminalistics,3,NULL,NULL,NULL
+646,CRJ346,Criminal Investigation,3,NULL,NULL,NULL
+647,CRJ365,Interviewing and Interrogation,3,NULL,NULL,NULL
+648,CRJ425,Terrorism,3,NULL,NULL,NULL
+649,CRJ442,Probation/Parole:Community Cor,3,NULL,NULL,NULL
+650,CRJ445,"Race, Ethnicity Gender in CRJ",3,NULL,NULL,NULL
+651,CRJ448,Topical Seminar,3,NULL,NULL,NULL
+652,CRJ488,Coop Ed/Internship,3,NULL,NULL,NULL
+653,CRJ489,Coop Ed/Internship,3,NULL,NULL,NULL
+654,CRJ499,Senior Seminar,3,NULL,NULL,NULL
+655,CRJ537,Juvenile Justice Procedures,3,NULL,NULL,NULL
+656,CRJ573,Victimology,3,NULL,NULL,NULL
+657,CSC101,Problem Solving Using Comp,3,60.00,NULL,NULL
+658,CSC125,Internet and Web Page Design,3,NULL,NULL,NULL
+659,CSC145,Introduction to Programming,3,33.00,NULL,NULL
+660,CSC199,Intro to Information Tech,3,33.00,NULL,NULL
+661,CSC201,End User Tech Mgt,3,NULL,NULL,NULL
+662,CSC232,Intro to Programming in C#,3,NULL,NULL,NULL
+663,CSC235,Programming in C++,3,NULL,NULL,NULL
+664,CSC260,Cobol I,3,NULL,NULL,NULL
+665,CSC275,Intro to Game Programming,3,NULL,NULL,NULL
+666,CSC299,Special Topics,2,NULL,NULL,NULL
+667,CSC301,Foundations I,3,NULL,NULL,NULL
+668,CSC302,Foundations II,3,NULL,NULL,NULL
+669,CSC310,Database Administration,3,NULL,306.00,NULL
+670,CSC332,Visual Basic Programming II,3,NULL,NULL,NULL
+671,CSC340,Programming in Java,3,NULL,NULL,NULL
+672,CSC342,Programming in C#,3,NULL,NULL,NULL
+673,CSC345,Data Structures,3,NULL,NULL,NULL
+674,CSC360,Scripting Languages,3,NULL,NULL,NULL
+675,CSC405,Computer Architecture,4,NULL,NULL,NULL
+676,CSC410,Parallel/Distributed Computing,3,NULL,NULL,NULL
+677,CSC411,DS Proj Graphics/Visual,0,NULL,NULL,NULL
+678,CSC412,DS Project in Net-Centricomput,0,NULL,NULL,NULL
+679,CSC413,DS Proj Embedded Systems,0,NULL,NULL,NULL
+680,CSC414,DS Proj in Applications Prgrmn,0,NULL,NULL,NULL
+681,CSC415,Programming Languages,3,NULL,NULL,NULL
+682,CSC420,Numerical Analysis I,3,NULL,NULL,NULL
+683,CSC430,Software Construction,3,NULL,NULL,NULL
+684,CSC445,Computer Algorithms,3,NULL,NULL,NULL
+685,CSC446,Algorithms Proj Graphic/Visual,0,NULL,NULL,NULL
+686,CSC447,Algorithms Proj Net-Centric Co,0,NULL,NULL,NULL
+687,CSC448,Algorithms Proj Embedded Sys,0,NULL,NULL,NULL
+688,CSC449,Algorithms Proj App Program,0,NULL,NULL,NULL
+689,CSC488,Coop Ed/Internship,3,NULL,NULL,NULL
+690,CSC530,Senior Software Project,3,NULL,NULL,NULL
+691,CSC531,Graph User Proj Graphics/Vis,0,NULL,NULL,NULL
+692,CSC532,Graph User Inter Net-Centric,0,NULL,NULL,NULL
+693,CSC533,Graph User Inter Embedded Sys,0,NULL,NULL,NULL
+694,CSC534,Graphic User Inter Apps Prog,0,NULL,NULL,NULL
+695,CSC540,"Social, Ethical & Profe Issues",3,NULL,NULL,NULL
+696,CSC565,Embedded Systems & Robotics,3,NULL,NULL,NULL
+697,CSC575,Advanced Game Development,3,NULL,NULL,NULL
+698,CSC585,Special Problems,3,NULL,NULL,NULL
+699,CSC595,Special Problems,3,NULL,NULL,NULL
+700,CSP615,Intro to Student Affairs,3,NULL,NULL,NULL
+701,CSP616,The American College Student,3,NULL,NULL,NULL
+702,CSP617,Current Issues-Student Affairs,3,NULL,NULL,NULL
+703,CSP618,Practicum/Seminar in CSP,3,NULL,NULL,NULL
+704,CSP630,International Education Admini,3,NULL,NULL,NULL
+705,CSP631,Study Abroad Prog Admin,3,NULL,NULL,NULL
+706,CSP632,International Student Admin,3,NULL,NULL,NULL
+707,CSP633,Internship in Intl Education,3,NULL,NULL,NULL
+708,CTE200,Introduction to CTE,3,NULL,NULL,NULL
+709,CTE270,Basic Structures & Foundations,3,NULL,NULL,NULL
+710,CTE272,Organize/Manage Sch Facilities,3,NULL,NULL,NULL
+711,CTE274,Basic Assessment & Curricula,3,NULL,NULL,NULL
+712,CTE371,Methods of Instruct in CTE,3,NULL,NULL,NULL
+713,CTE463,Seminar-Teach CTE Subjects,3,NULL,NULL,NULL
+714,CTE501,Structures and Foundations,3,NULL,NULL,NULL
+715,CTE502,Assessment/Curricula in CTE,3,NULL,NULL,NULL
+716,CTE503,Planning & Implementation,3,NULL,NULL,NULL
+717,CTE566,Special Problems in CTE,3,NULL,NULL,NULL
+718,CTE568,Independent Study in CTE,3,NULL,NULL,NULL
+719,CTE640,Student Teaching Practicum,3,NULL,NULL,NULL
+720,CTE665,Program Planning/Evaluation,3,NULL,NULL,NULL
+721,CTE671,Philosophy of CTE,3,NULL,NULL,NULL
+722,CTE678,Review of Professional Literat,3,NULL,NULL,NULL
+723,ECO140,Contemporary Economics,3,NULL,NULL,NULL
+724,ECO230,Macroeconomics,3,NULL,NULL,NULL
+725,ECO231,Microeconomics,3,NULL,NULL,NULL
+726,ECO305,Money and Banking,3,NULL,NULL,NULL
+727,ECO310,Issues in the Global Economy,3,NULL,NULL,NULL
+728,ECO312,American Economic History,3,NULL,NULL,NULL
+729,ECO315,Comparative Economic Systems,3,NULL,NULL,NULL
+730,ECO330,Intermediate Macroeconomics,3,NULL,NULL,NULL
+731,ECO331,Intermediate Microeconomics,3,NULL,NULL,NULL
+732,ECO335,Economic/Policy of TSM Industr,3,NULL,NULL,NULL
+733,ECO345,Environmental Economics,3,NULL,NULL,NULL
+734,ECO410,Economic Development,3,NULL,NULL,NULL
+735,ECO450,Economic Applications to Law,3,NULL,NULL,NULL
+736,ECO460,International Trade & Finance,3,NULL,NULL,NULL
+737,ECO488,Coop Ed/Internship,3,NULL,NULL,NULL
+738,ECO490,Survey of Economics,3,NULL,NULL,NULL
+739,ECO498,Research Methods in Economics,3,NULL,NULL,NULL
+740,ECO499,Senior Seminar in Economics,3,NULL,NULL,NULL
+741,ECO505,Internship,3,NULL,NULL,NULL
+742,ECO521,Free Enterprise/Entre/Capitali,3,NULL,NULL,NULL
+743,ECO540,Market Structure & Firm Behav,3,NULL,NULL,NULL
+744,ECO550,Public Finance,3,NULL,NULL,NULL
+745,ECO595,Special Problems,3,NULL,NULL,NULL
+746,ECO621,Freedom and Economics,3,NULL,NULL,NULL
+747,ECO625,Managerial Economics,3,NULL,NULL,NULL
+748,ECO630,Macroeconomic Theory,3,NULL,NULL,NULL
+749,ECO631,Microeconomic Theory,3,NULL,NULL,NULL
+750,ECO638,Monetary and Fiscal Policy,3,NULL,NULL,NULL
+751,ECO650,Theory of Public Finance,3,NULL,NULL,NULL
+752,ECO660,International Business/Finance,3,NULL,NULL,NULL
+753,ECO670," Labor Economics",3,NULL,NULL,NULL
+754,ECO680,Quantitative Methods of ECO,3,NULL,NULL,NULL
+755,ECO685,Applied Econometrics I,3,NULL,NULL,NULL
+756,ECO690,Forecasting,3,NULL,NULL,NULL
+757,ECO695,Special Problems,3,NULL,NULL,NULL
+758,ECO698,Thesis,3,NULL,NULL,NULL
+759,ECO699,Thesis,3,NULL,NULL,NULL
+760,EDP260,Psychology of Human Developmen,3,NULL,NULL,NULL
+761,EDU099,Transitions,3,NULL,NULL,NULL
+762,EDU103,Issues/Prac of American Edu,3,NULL,NULL,NULL
+763,EDU104,Exploration of Teaching,3,NULL,NULL,NULL
+764,EDU303,Strategies of Teaching,3,NULL,NULL,NULL
+765,EDU400,Practicum in Teaching Mathemat,3,NULL,NULL,NULL
+766,EDU403,Structures/Found Education,3,NULL,NULL,NULL
+767,EDU404,Teaching Environ Edu K-12,3,NULL,NULL,NULL
+768,EDU405,Evaluation/Measurement in Edu,3,NULL,NULL,NULL
+769,EDU422,Student Teaching Seminar,3,NULL,NULL,NULL
+770,EDU423,International Teaching Exp,3,NULL,NULL,NULL
+771,EDU450,Special Problems,3,NULL,NULL,NULL
+772,EDU515,Introduction to Eviron Edu,3,NULL,NULL,NULL
+773,EDU600,Intro to Teacher Leadership,3,NULL,NULL,NULL
+774,EDU606,Prep of Curriculum Materials,3,NULL,NULL,NULL
+775,EDU621,Advanced Methods of Teaching,3,NULL,NULL,NULL
+776,EDU622,Philosophy of Education,3,NULL,NULL,NULL
+777,EDU626,Integration of Edu Technology,3,NULL,NULL,NULL
+778,EDU631,Classroom Mgt and Stdt Motivat,3,NULL,NULL,NULL
+779,EDU633,Curriculum Development,3,NULL,NULL,NULL
+780,EDU634,Problems Curriculum Develop,3,NULL,NULL,NULL
+781,EDU637,Instruct for Diverse Learners,3,NULL,NULL,NULL
+782,EDU639,Rsrch to Improve Student Learn,3,NULL,NULL,NULL
+783,EDU640,Exit Sem in Teacher Leadership,3,NULL,NULL,NULL
+784,EDU645,History of Edu in the U.S.,3,NULL,NULL,NULL
+785,EDU649,Research in Education,3,NULL,NULL,NULL
+786,EDU650,Workshop in Education,3,NULL,NULL,NULL
+787,EDU651,TQI Workshops in Education,3,NULL,NULL,NULL
+788,EDU660,Special Problems in Env Edu,3,NULL,NULL,NULL
+789,EDU663,Workshop in Environmental Edu,3,NULL,NULL,NULL
+790,EDU664,Techn of Teaching Environ Edu,3,NULL,NULL,NULL
+791,EDU669,Inves & Eval of Env Ed Issues,3,NULL,NULL,NULL
+792,EDU691,Nature/Needs of Gifted Student,3,NULL,NULL,NULL
+793,EDU692,Mthds/Mat Tchg Gifted Students,3,NULL,NULL,NULL
+794,EDU698,Thesis,3,NULL,NULL,NULL
+795,EGR099,Transitions,3,NULL,NULL,NULL
+796,EGR140,Intro to Comp Apl in Sci/Engr,3,NULL,NULL,NULL
+797,EGR195,Methods of Engineering Physics,3,NULL,NULL,NULL
+798,EGR240,Thermodynamics I,3,NULL,NULL,NULL
+799,EGR259,Statics,3,NULL,NULL,NULL
+800,EGR264,Linear Circuits I,3,NULL,NULL,NULL
+801,EGR310,Fund Biomedical Engineering,3,NULL,NULL,NULL
+802,EGR330,Dynamics,3,NULL,NULL,NULL
+803,EGR342,Thermodynamics II,3,NULL,NULL,NULL
+804,EGR344,Fluid Mechanics,3,NULL,NULL,NULL
+805,EGR346,Heat Transfer,3,NULL,NULL,NULL
+806,EGR359,Mechanics of Materials,3,NULL,NULL,NULL
+807,EGR365,Linear Circuits II,3,NULL,NULL,NULL
+808,EGR366,Analog Electronics I,3,NULL,NULL,NULL
+809,EGR375,Material Science,3,NULL,NULL,NULL
+810,EGR378,Logic Design I,3,NULL,NULL,NULL
+811,EGR388,International Exper in Engr,3,NULL,NULL,NULL
+812,EGR390,Engineering Measurements,3,NULL,NULL,NULL
+813,EGR459,Mechanical Design,3,NULL,NULL,NULL
+814,EGR460,Electricity and Magnetism I,3,NULL,NULL,NULL
+815,EGR461,Electricity and Magnetism II,3,NULL,NULL,NULL
+816,EGR468,Digital Signal Processing,3,NULL,NULL,NULL
+817,EGR498,Senior Engineering Design I,3,NULL,NULL,NULL
+818,EGR499,Senior Engineering Design II,3,NULL,NULL,NULL
+819,ELE301,Lang/Early Literacy for Child,3,NULL,NULL,NULL
+820,ELE302,Music/Movement for Children,3,NULL,NULL,NULL
+821,ELE304,Tchng Math in Elementary P-5,3,NULL,NULL,NULL
+822,ELE305,Children's Literature,3,NULL,NULL,NULL
+823,ELE307,Teaching Language Arts P-5,3,NULL,NULL,NULL
+824,ELE308,Teaching Math and Science,3,NULL,NULL,NULL
+825,ELE311,"Health, Wellness & Movement",3,NULL,NULL,NULL
+826,ELE390,Introduction to Kindergarten,3,NULL,NULL,NULL
+827,ELE401,Teaching Social Studies P-5,3,NULL,NULL,NULL
+828,ELE402,Tch Science Elementary P-5,3,NULL,NULL,NULL
+829,ELE410,Collaboration/Comm IECE Enviro,3,NULL,NULL,NULL
+830,ELE421,Student Tching Elem P-5 IECE,3,NULL,NULL,NULL
+831,ELE439,Childhood Assessment/Develop,3,NULL,NULL,NULL
+832,ELE455,Curriculum/Methods Infant/Todd,3,NULL,NULL,NULL
+833,ELE474,IECE Practicum I,3,NULL,NULL,NULL
+834,ELE602,Integrating Lang Arts in Curri,3,NULL,NULL,NULL
+835,ELE603,Integrating Math in the Curric,3,NULL,NULL,NULL
+836,ELE604,Adv Studies-Early Childhood Ed,3,NULL,NULL,NULL
+837,ELE605,Intro to IECE &Infants/Toddler,3,NULL,NULL,NULL
+838,ELE607,Research Early Childhood Edu,3,NULL,NULL,NULL
+839,ELE612,Infant-Toddler Practicum,3,NULL,NULL,NULL
+840,ELE613,Clinical Experiences IECE,3,NULL,NULL,NULL
+841,EMT261,Intro to Fluid Power Systems,3,NULL,NULL,NULL
+842,EMT262,Intro Fluid Pwr Sys Lab,3,NULL,NULL,NULL
+843,EMT310,Programmable Logic Controllers,3,NULL,NULL,NULL
+844,EMT312,Industrial Instrumentation,3,NULL,NULL,NULL
+845,EMT355,Elec Machinery & Controls,3,NULL,NULL,NULL
+846,EMT361,Intro Industrial Motion Ctrls,3,NULL,NULL,NULL
+847,EMT455,Industrial Networking Systems,3,NULL,NULL,NULL
+848,ENG095,Writing Workshop,3,NULL,NULL,NULL
+849,ENG099,Transitions,3,NULL,NULL,NULL
+850,ENG100,Basic Writing,3,NULL,NULL,NULL
+851,ENG101,Composition,3,NULL,NULL,NULL
+852,ENG102,Composition and Research,3,NULL,NULL,NULL
+853,ENG104,Honors English,3,NULL,NULL,NULL
+854,ENG105,"Reading, Writing and Inquiry",3,NULL,NULL,NULL
+855,ENG109,Oral Skills Workshop,3,NULL,NULL,NULL
+856,ENG110,Text Skills Wkshp for Intl Stu,3,NULL,NULL,NULL
+857,ENG111,Writing and Reading Support,3,NULL,NULL,NULL
+858,ENG112,Fundamental Writing Skills II,3,NULL,NULL,NULL
+859,ENG201,Introduction to Literature,3,NULL,NULL,NULL
+860,ENG204,Advanced Expository Writing,3,NULL,NULL,NULL
+861,ENG205,Writing for the Social Science,3,NULL,NULL,NULL
+862,ENG213,Film and Literature,3,NULL,NULL,NULL
+863,ENG214,Intro to Creative Writing,3,NULL,NULL,NULL
+864,ENG221,Intro to English Studies,3,NULL,NULL,NULL
+865,ENG224,Writing in the Professions,3,NULL,NULL,NULL
+866,ENG228,Standard English Usage,3,NULL,NULL,NULL
+867,ENG303,British Literature to 1760,3,NULL,NULL,NULL
+868,ENG304,Brit Lit 1760 to Present,3,NULL,NULL,NULL
+869,ENG308,World Lit 1830 to the Present,3,NULL,NULL,NULL
+870,ENG309,History of English Language,3,NULL,NULL,NULL
+871,ENG310,Intro to English Linguistics,3,NULL,NULL,NULL
+872,ENG311,American Literature to 1865,3,NULL,NULL,NULL
+873,ENG312,American Lit 1865 to Present,3,NULL,NULL,NULL
+874,ENG313,History of the Cinema,3,NULL,NULL,NULL
+875,ENG318,Women's Literature,3,NULL,NULL,NULL
+876,ENG319,Queer Literature,3,NULL,NULL,NULL
+877,ENG321,Research in Literary Studies,3,NULL,NULL,NULL
+878,ENG324,Technical Writing,3,NULL,NULL,NULL
+879,ENG329,Teaching English in Sec School,3,NULL,NULL,NULL
+880,ENG330,Special Topics,3,NULL,NULL,NULL
+881,ENG334,Shakespeare,3,NULL,NULL,NULL
+882,ENG341,Writing Short Fiction,3,NULL,NULL,NULL
+883,ENG342,Writing Poetry,3,NULL,NULL,NULL
+884,ENG343,Topics in Creative Wrt,3,NULL,NULL,NULL
+885,ENG351,Special Topics in Film Studies,3,NULL,NULL,NULL
+886,ENG360,Literature and Philosophy,3,NULL,NULL,NULL
+887,ENG365,Collaborative Research,3,NULL,NULL,NULL
+888,ENG371,Literature and the Environment,3,NULL,NULL,NULL
+889,ENG380,Adv Genre Poetry and Poetics,3,NULL,NULL,NULL
+890,ENG401,Film Theory and Criticism,3,NULL,NULL,NULL
+891,ENG404,Advanced Composition,3,NULL,NULL,NULL
+892,ENG415,Advanced Fiction Workshop,3,NULL,NULL,NULL
+893,ENG416,Advanced Poetry Workshop,3,NULL,NULL,NULL
+894,ENG419,European Cinema,3,NULL,NULL,NULL
+895,ENG425,"Teaching Lit, Writing/Grammar",3,NULL,NULL,NULL
+896,ENG435,Young Adult Literature,3,NULL,NULL,NULL
+897,ENG436,17th Century British Lit,3,NULL,NULL,NULL
+898,ENG437,Senior Honors Thesis,3,NULL,NULL,NULL
+899,ENG445,Teaching Writing in Sec School,3,NULL,NULL,NULL
+900,ENG470,Literary Criticism,3,NULL,NULL,NULL
+901,ENG488,Coop Ed/Editorial Internship,3,NULL,NULL,NULL
+902,ENG510,Linguistics Sec Lang Teaching,3,NULL,NULL,NULL
+903,ENG512,Directed Study,3,NULL,NULL,NULL
+904,ENG519,Gay and Lesbian Literature,3,NULL,NULL,NULL
+905,ENG520,Forms of Poetry,3,NULL,NULL,NULL
+906,ENG521,Forms of Fiction,3,NULL,NULL,NULL
+907,ENG531,Intro to Linguistic Science,3,NULL,NULL,NULL
+908,ENG533,Language and Culture,3,NULL,NULL,NULL
+909,ENG560,Adv Creative Writ: Fiction,3,NULL,NULL,NULL
+910,ENG561,Adv Creative Writ: Poetry,3,NULL,NULL,NULL
+911,ENG600,Research and Bibliography,3,NULL,NULL,NULL
+912,ENG606,Chaucer,3,NULL,NULL,NULL
+913,ENG607,Milton,3,NULL,NULL,NULL
+914,ENG610,Graduate Writer's Workshop,3,NULL,NULL,NULL
+915,ENG612,Directed Study,3,NULL,NULL,NULL
+916,ENG614,Special Topics,3,NULL,NULL,NULL
+917,ENG635,American Poetry,3,NULL,NULL,NULL
+918,ENG636,The American Novel,3,NULL,NULL,NULL
+919,ENG638,Studies in Southern Lit,3,NULL,NULL,NULL
+920,ENG649,17th Century British Lit,3,NULL,NULL,NULL
+921,ENG661,Fiction Tutorial,3,NULL,NULL,NULL
+922,ENG662,Poetry Tutorial,3,NULL,NULL,NULL
+923,ENG663,Creative Non-Fiction Tutorial,3,NULL,NULL,NULL
+924,ENG664,Field Study,3,NULL,NULL,NULL
+925,ENG665,Fiction Residency,3,NULL,NULL,NULL
+926,ENG666,Poetry Residency,3,NULL,NULL,NULL
+927,ENG667,Creative Non-Fiction Residency,3,NULL,NULL,NULL
+928,ENG668,Creative Thesis,3,NULL,NULL,NULL
+929,ENG673,Writing for Young People Tutor,3,NULL,NULL,NULL
+930,ENG674,Young People Residency,3,NULL,NULL,NULL
+931,ENG698,Thesis Writing,3,NULL,NULL,NULL
+932,ENG699,Thesis Writing,3,NULL,NULL,NULL
+933,ENT099,Transitions,3,NULL,NULL,NULL
+934,ENT286,Intro Evironmental Egr Tech,3,NULL,NULL,NULL
+935,ENT287,Statics for Technology,3,NULL,NULL,NULL
+936,ENT351,Industrial/Comm Pwr Distributn,3,NULL,NULL,NULL
+937,ENT365,Dynamics for Technology,3,NULL,NULL,NULL
+938,ENT382,Hydraulics,3,NULL,NULL,NULL
+939,ENT393,Engineering Economy,3,NULL,NULL,NULL
+940,ENT400,Thermo/Energy Development,3,NULL,NULL,NULL
+941,ENT419,Senior Project I,3,NULL,NULL,NULL
+942,ENT458,Applying Natl Electric Code,3,NULL,NULL,NULL
+943,ESL099,University Orientation,3,NULL,NULL,NULL
+944,ESL102,Elementary Applied Grammar II,3,NULL,NULL,NULL
+945,ESL104,Elementary Reading II,3,NULL,NULL,NULL
+946,ESL106,Elementary Writing II,3,NULL,NULL,NULL
+947,ESL108,Elementary Listening II,3,NULL,NULL,NULL
+948,ESL110,Elementary Conversation II,3,NULL,NULL,NULL
+949,ESL112,Elementary Speech II,3,NULL,NULL,NULL
+950,ESL201,Intermediate Applied Grammar I,3,NULL,NULL,NULL
+951,ESL202,Intermed Applied Grammar II,3,NULL,NULL,NULL
+952,ESL203,Intermediate Reading I,3,NULL,NULL,NULL
+953,ESL204,Intermediate Reading II,3,NULL,NULL,NULL
+954,ESL205,Intermediate Writing I,3,NULL,NULL,NULL
+955,ESL206,Intermediate Writing II,3,NULL,NULL,NULL
+956,ESL207,Intermediate Listening I,3,NULL,NULL,NULL
+957,ESL208,Intermediate Listening II,3,NULL,NULL,NULL
+958,ESL209,Intermediate Conversation I,3,NULL,NULL,NULL
+959,ESL210,Intermediate Conversation II,3,NULL,NULL,NULL
+960,ESL211,Intermediate Speech I,3,NULL,NULL,NULL
+961,ESL212,Intermediate Speech II,3,NULL,NULL,NULL
+962,ESL301,Advanced Applied Grammar I,3,NULL,NULL,NULL
+963,ESL302,Advanced Applied Grammar II,3,NULL,NULL,NULL
+964,ESL303,Advanced Reading I,3,NULL,NULL,NULL
+965,ESL304,Advanced Reading II,3,NULL,NULL,NULL
+966,ESL305,Advanced Writing I,3,NULL,NULL,NULL
+967,ESL306,Advanced Writing II,3,NULL,NULL,NULL
+968,ESL307,Adv Listening Comprehension I,3,NULL,NULL,NULL
+969,ESL308,Adv Listening Comprehension II,3,NULL,NULL,NULL
+970,ESL309,Advanced Oral Skills I,3,NULL,NULL,NULL
+971,ESL310,Advanced Oral Skills II,3,NULL,NULL,NULL
+972,ESL311,Advanced Error Analysis,3,NULL,NULL,NULL
+973,ESL312,Advanced Error Analysis,3,NULL,NULL,NULL
+974,ESL314,TOEFL Preparation - Level 6,3,NULL,NULL,NULL
+975,EXS099,Transitions,3,NULL,NULL,NULL
+976,EXS250,A & P Concepts for Health Sci,3,NULL,NULL,NULL
+977,EXS270,Clinical Experience Observ,3,NULL,NULL,NULL
+978,EXS271,Clinical Experience: Intro,3,NULL,NULL,NULL
+979,EXS295,Acute Care/Physically Active,3,NULL,NULL,NULL
+980,EXS301,Care & Prevention of Injuries,3,NULL,NULL,NULL
+981,EXS310,Exercise Conc/Special Popultns,3,NULL,NULL,NULL
+982,EXS320,Eval/Non-Orthopedic Conditions,3,NULL,NULL,NULL
+983,EXS333,Theories/Tech in Strength/Cond,3,NULL,NULL,NULL
+984,EXS350,Exercise Physiology,3,NULL,NULL,NULL
+985,EXS370,Kinesiology,3,NULL,NULL,NULL
+986,EXS371,Clinical Exper: Application,3,NULL,NULL,NULL
+987,EXS372,Clinical Experience: Integratn,3,NULL,NULL,NULL
+988,EXS375,Functional Biomechanics,3,NULL,NULL,NULL
+989,EXS380,Sport Medicine Pharmacology,3,NULL,NULL,NULL
+990,EXS390,Therapeutic Modalities,3,NULL,NULL,NULL
+991,EXS400,Research Design/Statistics,3,NULL,NULL,NULL
+992,EXS402,Evaluation of Lower Extremity,3,NULL,NULL,NULL
+993,EXS403,Evaluation of Upper Extremity,3,NULL,NULL,NULL
+994,EXS420,Rehabilitation Techniques,3,NULL,NULL,NULL
+995,EXS455,Exercise Prescription,3,NULL,NULL,NULL
+996,EXS460,Practicum,3,NULL,NULL,NULL
+997,EXS465,Advanced Exercise Physiology,3,NULL,NULL,NULL
+998,EXS470,Professional Experience II,3,NULL,NULL,NULL
+999,EXS471,Organizational Mgmt in Hlth Sc,3,NULL,NULL,NULL
+1000,EXS473,Clinical Experience: Autonomy,3,NULL,NULL,NULL
+1001,EXS480,Special Problems/Exe Sci,3,NULL,NULL,NULL
+1002,EXS485,Sport & Exercise Psychology,3,NULL,NULL,NULL
+1003,FCS111,Family and its Environment,3,NULL,NULL,NULL
+1004,FCS121,Basic Clothing Construction,3,NULL,NULL,NULL
+1005,FCS210,Child Development I,3,NULL,NULL,NULL
+1006,FCS211,Child Development II,3,NULL,NULL,NULL
+1007,FCS310,Prog Planning/Preschool Child,3,NULL,NULL,NULL
+1008,FCS311,Child Guidance,3,NULL,NULL,NULL
+1009,FCS342,Consumer Decision Making,3,NULL,NULL,NULL
+1010,FCS413,Marriage/Family Relationships,3,NULL,NULL,NULL
+1011,FCS462,Method of Tchg Family/Consumer,3,NULL,NULL,NULL
+1012,FCS501,Problems in Family/Consumer St,3,NULL,NULL,NULL
+1013,FCS511,Readings Family/Consumer St,3,NULL,NULL,NULL
+1014,FCS525,Advanced Child Dev Programs,3,NULL,NULL,NULL
+1015,FIN230,Personal Financial Planning,3,NULL,NULL,NULL
+1016,FIN330,Principles of Finance,3,NULL,NULL,NULL
+1017,FIN331,Principles of Insurance,3,NULL,NULL,NULL
+1018,FIN332,Financial Management,3,NULL,NULL,NULL
+1019,FIN333,Principles of Investment,3,NULL,NULL,NULL
+1020,FIN334,Banking and Financial Institut,3,NULL,NULL,NULL
+1021,FIN336,Employee Benefits/Retirement,3,NULL,NULL,NULL
+1022,FIN338,Estate Planning,3,NULL,NULL,NULL
+1023,FIN421,Financial Models,3,NULL,NULL,NULL
+1024,FIN461,International Financial Mgt,3,NULL,NULL,NULL
+1025,FIN480,Senior Seminar in Finance,3,NULL,NULL,NULL
+1026,FIN488,Coop Ed/Internship,3,NULL,NULL,NULL
+1027,FIN505,Internship,3,NULL,NULL,NULL
+1028,FIN522,Portfolio Management/Theory,3,NULL,NULL,NULL
+1029,FIN537,Commercial Banking,3,NULL,NULL,NULL
+1030,FIN595,Special Problems,3,NULL,NULL,NULL
+1031,FIN602,Corporate Finance,3,NULL,NULL,NULL
+1032,FIN612,Capital Investment Analysis,3,NULL,NULL,NULL
+1033,FIN621,Financial Models,3,NULL,NULL,NULL
+1034,FIN622,Portfolio Management/Theory,3,NULL,NULL,NULL
+1035,FIN632,Investment Management,3,NULL,NULL,NULL
+1036,FIN634,Financial Markets & Institutions,3,NULL,NULL,NULL
+1037,FIN661,International Financial Management,3,NULL,NULL,NULL
+1038,FIN695,Special Problems,3,NULL,NULL,NULL
+1039,FRE101,Fundamental Com in French,3,NULL,NULL,NULL
+1040,FRE102,Social Interactions in French,3,NULL,NULL,NULL
+1041,FRE105,Intro to French Culture,3,NULL,NULL,NULL
+1042,FRE201,Intercultural Com in French,3,NULL,NULL,NULL
+1043,FRE202,Practical App in French,3,NULL,NULL,NULL
+1044,FRE301,Social Issues in French Texts,3,NULL,NULL,NULL
+1045,FRE324,Contemp French Culture,3,NULL,NULL,NULL
+1046,FRE419,European Cinema,3,NULL,NULL,NULL
+1047,FRE421,Topics in French Literature,3,NULL,NULL,NULL
+1048,FYE098,New Student Orientation,3,NULL,NULL,NULL
+1049,FYE100,Transitions II,3,NULL,NULL,NULL
+1050,GCM099,Transitions,3,NULL,NULL,NULL
+1051,GCM151,Intro to Graphic Communication,3,NULL,NULL,NULL
+1052,GCM153,Electronic Imaging,3,NULL,NULL,NULL
+1053,GCM250,Fund of Visual Literacy,3,NULL,NULL,NULL
+1054,GCM252,Digital Image Conversion,3,NULL,NULL,NULL
+1055,GCM342,Finishing and Distribution,3,NULL,NULL,NULL
+1056,GCM350,Basic Color Photography,3,NULL,NULL,NULL
+1057,GCM352,Press Image Transfer I,3,NULL,NULL,NULL
+1058,GCM353,Press Image Transfer II,3,NULL,NULL,NULL
+1059,GCM354,Principles of Estimating,3,NULL,NULL,NULL
+1060,GCM357,Industrial Photography,3,NULL,NULL,NULL
+1061,GCM358,Commercial Photography,3,NULL,NULL,NULL
+1062,GCM359,Publication Photography,3,NULL,NULL,NULL
+1063,GCM365,Customer Service,3,NULL,NULL,NULL
+1064,GCM427,Professional Photographic Prac,3,NULL,NULL,NULL
+1065,GCM440,Digital Photography,3,NULL,NULL,NULL
+1066,GCM441,Graphic Communications II,3,NULL,NULL,NULL
+1067,GCM442,Digital Interactive Technology,3,NULL,NULL,NULL
+1068,GCM454,Color Mgt and Quality Control,3,NULL,NULL,NULL
+1069,GCM488,Coop Ed/Internship,3,NULL,NULL,NULL
+1070,GCM489,Coop Ed/Internship,1,NULL,NULL,NULL
+1071,GER101,Fundamental Communication,3,NULL,NULL,NULL
+1072,GER102,Social Interactions in German,3,NULL,NULL,NULL
+1073,GER105,Introduction to German Culture,3,NULL,NULL,NULL
+1074,GER201,Intercultural Communications,3,NULL,NULL,NULL
+1075,GER202,Practical Applications,3,NULL,NULL,NULL
+1076,GER301,Social Issues in German Texts,3,NULL,NULL,NULL
+1077,GER314,Cultural Heritage Abroad,3,NULL,NULL,NULL
+1078,GER324,Contemp Culture/Civilization,3,NULL,NULL,NULL
+1079,GER419,European Cinema,3,NULL,NULL,NULL
+1080,GER450,Literary Masterpieces,3,NULL,NULL,NULL
+1081,GER531,Advanced Grammar,3,NULL,NULL,NULL
+1082,GSC099,Transitions,3,NULL,NULL,NULL
+1083,GSC101,The Earth and the Environment,3,NULL,NULL,NULL
+1084,GSC102,Earth Through Time,3,NULL,NULL,NULL
+1085,GSC110,World Geography,3,NULL,NULL,NULL
+1086,GSC125,Weather and Climate,3,NULL,NULL,NULL
+1087,GSC199,Earth Science,3,NULL,NULL,NULL
+1088,GSC202,Intro to Geographic Info Scien,3,NULL,NULL,NULL
+1089,GSC210,Hydrology,3,NULL,NULL,NULL
+1090,GSC301,Scientific Communication,3,NULL,NULL,NULL
+1091,GSC303,Introduction to Water Science,3,NULL,NULL,NULL
+1092,GSC305,Map Analysis,3,NULL,NULL,NULL
+1093,GSC310,Rock and Mineral Resources,3,NULL,NULL,NULL
+1094,GSC312,Introduction to Remote Sensing,3,NULL,NULL,NULL
+1095,GSC336,Principles of Geomorphology,3,NULL,NULL,NULL
+1096,GSC488,Coop Ed/Internship,3,NULL,NULL,NULL
+1097,GSC489,Coop Ed/Internship,3,NULL,NULL,NULL
+1098,GSC507,Land Use Planning,3,NULL,NULL,NULL
+1099,GSC512,Remote Sensing,3,NULL,NULL,NULL
+1100,GSC521,Geographic Information Systems,3,NULL,NULL,NULL
+1101,GSC522,Digital Cartography,3,NULL,NULL,NULL
+1102,GSC535,Watershed Ecology,3,NULL,NULL,NULL
+1103,GSC556,Remote Sensing Applications,3,NULL,NULL,NULL
+1104,GSC591,Special Problems,3,NULL,NULL,NULL
+1105,GSC592,Special Problems,3,NULL,NULL,NULL
+1106,GSC593,Special Problems,3,NULL,NULL,NULL
+1107,GSC601,Graduate Study in Geosciences,3,NULL,NULL,NULL
+1108,GSC640,Advanced Remote Sensing,3,NULL,NULL,NULL
+1109,GSC644,Graduate Coop Ed,3,NULL,NULL,NULL
+1110,GSC691,Special Problems,3,NULL,NULL,NULL
+1111,GSC692,Special Problems,3,NULL,NULL,NULL
+1112,GSC693,Special Problems,3,NULL,NULL,NULL
+1113,GSC696,Scientific Communication,3,NULL,NULL,NULL
+1114,GSC698,Thesis Research,3,NULL,NULL,NULL
+1115,GSC699,Thesis Research,3,NULL,NULL,NULL
+1116,GTY264,Psychology of Aging,3,NULL,NULL,NULL
+1117,GTY400,Independent Studies,3,NULL,NULL,NULL
+1118,GTY596,Minority Elderly,3,NULL,NULL,NULL
+1119,GUI097,Self-Realization/Career Invest,3,NULL,NULL,NULL
+1120,GUI098,XLeader Scholars,3,NULL,NULL,NULL
+1121,GUI100,Self-Development/Career Expl,3,NULL,NULL,NULL
+1122,GUI188,Coop Ed/Internship,3,NULL,NULL,NULL
+1123,GUI251,Sem: Leadership Development,3,NULL,NULL,NULL
+1124,GUI252,Seminar Leadership Development,3,NULL,NULL,NULL
+1125,GUI288,Coop Ed/Internship,3,NULL,NULL,NULL
+1126,GUI450,Seminar in Personnel Services,3,NULL,NULL,NULL
+1127,GUI592,Group Processes,3,NULL,NULL,NULL
+1128,GUI615,Behavioral Assess/Intervention,3,NULL,NULL,NULL
+1129,GUI619,Lab in Guidance & Counseling,3,NULL,NULL,NULL
+1130,GUI620,Practicum in Guidance/Counsel,3,NULL,NULL,NULL
+1131,GUI622,Practicum in Psychometrics,3,NULL,NULL,NULL
+1132,GUI625,Legal and Ethical Issues,3,NULL,NULL,NULL
+1133,GUI660,Dev Human Potential Seminar,3,NULL,NULL,NULL
+1134,GUI670,Multicultural Issues Human Ser,3,NULL,NULL,NULL
+1135,GUI679,Advanced Prac:Guid/Counsel,3,NULL,NULL,NULL
+1136,GUI683,Tests and Measurements,3,NULL,NULL,NULL
+1137,GUI684,Problems,3,NULL,NULL,NULL
+1138,GUI686,Educational/Vocational Gui,3,NULL,NULL,NULL
+1139,GUI689,Individual Testing,3,NULL,NULL,NULL
+1140,GUI690,Advanced Individual Testing,3,NULL,NULL,NULL
+1141,GUI692,Group Dynamics in Counseling,3,NULL,NULL,NULL
+1142,GUI792,Internship School Psychology,3,NULL,NULL,NULL
+1143,GUI793,Internship School Psychology,3,NULL,NULL,NULL
+1144,GUI794,Intern/Community Agency Couns,3,NULL,NULL,NULL
+1145,GUI795,Intern/Community/Agency Coun,3,NULL,NULL,NULL
+1146,GUI798,Specialty Study,3,NULL,NULL,NULL
+1147,HCA395,Cultural Diversity Health Orgs,3,NULL,NULL,NULL
+1148,HCA401,Health Care Delivery System,3,NULL,NULL,NULL
+1149,HCA405,Hospital/Health Services Admin,3,NULL,NULL,NULL
+1150,HCA410,Health Care Planning,3,NULL,NULL,NULL
+1151,HCA415,Financial Aspects/Health Orgn,3,NULL,NULL,NULL
+1152,HDL592,Group Processes,3,NULL,NULL,NULL
+1153,HDL625,Legal and Ethical Issues,3,NULL,NULL,NULL
+1154,HDL655,Social Intel:Interper Process,3,NULL,NULL,NULL
+1155,HDL660,Dev Human Potential Seminar,3,NULL,NULL,NULL
+1156,HEA189,Health and Wellness,3,NULL,NULL,NULL
+1157,HEA190,Personal Health Issues,3,NULL,NULL,NULL
+1158,HEA191,Personal Health,3,NULL,NULL,NULL
+1159,HEA195,First Aid & Safety,3,NULL,NULL,NULL
+1160,HEA200,Community & Consumer Health,3,NULL,NULL,NULL
+1161,HIS099,Transitions,3,NULL,NULL,NULL
+1162,HIS201,Making of Europe 1500-now,3,NULL,NULL,NULL
+1163,HIS221,American Experience to 1865,3,NULL,NULL,NULL
+1164,HIS222,American Experience Since 1865,3,NULL,NULL,NULL
+1165,HIS300,Intro to Historical Studies,3,NULL,NULL,NULL
+1166,HIS304,History of Ireland,3,NULL,NULL,NULL
+1167,HIS309,Survey of World Religions,3,NULL,NULL,NULL
+1168,HIS322,History Religion in the U.S.,3,NULL,NULL,NULL
+1169,HIS323,The Great American West,3,NULL,NULL,NULL
+1170,HIS329,North American Indians,3,NULL,NULL,NULL
+1171,HIS330,Sports in America,3,NULL,NULL,NULL
+1172,HIS340,Modern East Asia,3,NULL,NULL,NULL
+1173,HIS361,Teaching History,3,NULL,NULL,NULL
+1174,HIS390,Special Topics,3,NULL,NULL,NULL
+1175,HIS400,Senior Research Seminar,3,NULL,NULL,NULL
+1176,HIS401,The French Revolution,3,NULL,NULL,NULL
+1177,HIS403,Europe Since 1914,3,NULL,NULL,NULL
+1178,HIS408,Rise/Fall of the Soviet Union,3,NULL,NULL,NULL
+1179,HIS409,Tudor and Stuart England,3,NULL,NULL,NULL
+1180,HIS410,Modern Britain and Empire,3,NULL,NULL,NULL
+1181,HIS415,Women in History,3,NULL,NULL,NULL
+1182,HIS419,The Third Reich,3,NULL,NULL,NULL
+1183,HIS424,US Foreign Relation Since 1898,3,NULL,NULL,NULL
+1184,HIS431,America in Revolution,3,NULL,NULL,NULL
+1185,HIS436,Recent America,3,NULL,NULL,NULL
+1186,HIS441,History of the Old South,3,NULL,NULL,NULL
+1187,HIS442,History of the New South,3,NULL,NULL,NULL
+1188,HIS450,Modern Africa,3,NULL,NULL,NULL
+1189,HIS474,China in Revolution,3,NULL,NULL,NULL
+1190,HIS476,The World Since 1945,3,NULL,NULL,NULL
+1191,HIS481,Revolutionary Mex 1810 to Pres,3,NULL,NULL,NULL
+1192,HIS490,History Study Abroad,3,NULL,NULL,NULL
+1193,HIS491,Domestic Travel History,3,NULL,NULL,NULL
+1194,HIS495,Special Topics II,3,NULL,NULL,NULL
+1195,HIS498,Museum Studies,3,NULL,NULL,NULL
+1196,HIS590,Directed Studies,3,NULL,NULL,NULL
+1197,HIS599,Historic Interpretation Intern,3,NULL,NULL,NULL
+1198,HIS600,Dev of Historical Thinking,3,NULL,NULL,NULL
+1199,HIS601,The French Revolution,3,NULL,NULL,NULL
+1200,HIS602,Readings in European History,3,NULL,NULL,NULL
+1201,HIS603,Europe Since 1914,3,NULL,NULL,NULL
+1202,HIS605,Research Sem European History,3,NULL,NULL,NULL
+1203,HIS608,The Rise/Fall of Soviet Union,3,NULL,NULL,NULL
+1204,HIS609,Tudor and Stuart England,3,NULL,NULL,NULL
+1205,HIS610,Modern Britain and Empire,3,NULL,NULL,NULL
+1206,HIS615,Women in History,3,NULL,NULL,NULL
+1207,HIS619,The Third Reich,3,NULL,NULL,NULL
+1208,HIS624,US Foreign Relation Since 1898,3,NULL,NULL,NULL
+1209,HIS631,Research Seminar in US History,3,NULL,NULL,NULL
+1210,HIS632,The American Revolution Era,3,NULL,NULL,NULL
+1211,HIS633,Sem: U.S. History since 1865,3,NULL,NULL,NULL
+1212,HIS636,Recent America,3,NULL,NULL,NULL
+1213,HIS641,History of the Old South,3,NULL,NULL,NULL
+1214,HIS642,History of the New South,3,NULL,NULL,NULL
+1215,HIS650,Modern Africa,3,NULL,NULL,NULL
+1216,HIS663,Readings in Global History,3,NULL,NULL,NULL
+1217,HIS674,China in Revolution,3,NULL,NULL,NULL
+1218,HIS676,The World Since 1945,3,NULL,NULL,NULL
+1219,HIS681,Revolutionary Mexico 1810/Pre,3,NULL,NULL,NULL
+1220,HIS690,Directed Study and Research,3,NULL,NULL,NULL
+1221,HIS692,History Study Abroad,3,NULL,NULL,NULL
+1222,HIS693,Domestic Travel History,3,NULL,NULL,NULL
+1223,HIS695,Special Topics,3,NULL,NULL,NULL
+1224,HIS698,Thesis,3,NULL,NULL,NULL
+1225,HIS699,Thesis,3,NULL,NULL,NULL
+1226,HON099,Transitions,3,NULL,NULL,NULL
+1227,HON101,Topics in Business,3,NULL,NULL,NULL
+1228,HON161,Honors Seminar in Visual Arts,3,NULL,NULL,NULL
+1229,HON162,Honors Seminar in Music,3,NULL,NULL,NULL
+1230,HON163,Honors Seminar in Theatre,3,NULL,NULL,NULL
+1231,HON164,Hon Sem in Arts/Culture Abroad,3,NULL,NULL,NULL
+1232,HON165,Hon Seminar in Communication,3,NULL,NULL,NULL
+1233,HON201,Honors Sem in World History I,3,NULL,NULL,NULL
+1234,HON202,Honors Sem in World History II,3,NULL,NULL,NULL
+1235,HON251,Hon Seminar Lit/Philosophy I,3,NULL,NULL,NULL
+1236,HON252,Honors Sem in Lit/Phil II,3,NULL,NULL,NULL
+1237,HON261,Honors Seminar in Science I,3,NULL,NULL,NULL
+1238,HON262,Honors Seminar in Mathematics,3,NULL,NULL,NULL
+1239,HON351,Honors Sem in Intnl Affairs,3,NULL,NULL,NULL
+1240,HON355,Hon Independent Study Abroad,3,NULL,NULL,NULL
+1241,HON437,Senior Honors Thesis,3,NULL,NULL,NULL
+1242,HPE175,Foundations Health/PE,3,NULL,NULL,NULL
+1243,HPE409,Evaluation/Assessment-HPE,3,NULL,NULL,NULL
+1244,HPE450,Methods of Teaching Health Ed,3,NULL,NULL,NULL
+1245,HPE460,Teaching Strategies in Sex Edu,3,NULL,NULL,NULL
+1246,HPE470,Teaching Substance Abuse Ed,3,NULL,NULL,NULL
+1247,HPE480,Special Problems in HPE,3,NULL,NULL,NULL
+1248,HUM205,Humanistic Study Abroad,3,NULL,NULL,NULL
+1249,HUM211,Topics in Lit and Philosophy,3,NULL,NULL,NULL
+1250,HUM212,Humanities in the Modern World,3,NULL,NULL,NULL
+1251,IDC099,Transitions,3,NULL,NULL,NULL
+1252,IDC199,Residential College Seminar,3,NULL,NULL,NULL
+1253,IDC300,Graduate Record Exam Prep,3,NULL,NULL,NULL
+1254,IET397,Undergraduate Research,3,NULL,NULL,NULL
+1255,IET399,Professional Development Sem I,3,NULL,NULL,NULL
+1256,IET488,Coop Ed/Internship,3,NULL,NULL,NULL
+1257,IET489,Coop Ed/Internship,3,NULL,NULL,NULL
+1258,IET571,Probs in Industrial & Engineer,3,NULL,NULL,NULL
+1259,IET578,Workshop in IET,3,NULL,NULL,NULL
+1260,IET584,Engineering Economic Analysis,3,NULL,NULL,NULL
+1261,IET597,Quality Control,3,NULL,NULL,NULL
+1262,IET644,Graduate Cooperative Education,3,NULL,NULL,NULL
+1263,IET679,Technical Writings,3,NULL,NULL,NULL
+1264,IET691,Industrial Operations,3,NULL,NULL,NULL
+1265,IET693,Systems Management Technology,3,NULL,NULL,NULL
+1266,IET695,Industrial Supervision,3,NULL,NULL,NULL
+1267,IET697,Research Industrial/Egr Tech,3,NULL,NULL,NULL
+1268,INT310,International Student Exchange,3,NULL,NULL,NULL
+1269,INT510,International Student Exchange,3,NULL,NULL,NULL
+1270,ITD099,Transitions,3,NULL,NULL,NULL
+1271,ITD101,Intro to Design/Graphic Com,3,NULL,NULL,NULL
+1272,ITD102,CAD Applications,3,NULL,NULL,NULL
+1273,ITD103,Technical Sketching,3,NULL,NULL,NULL
+1274,ITD104,Computer Aided Design,3,NULL,NULL,NULL
+1275,ITD107,Intro to Technical Drawing,3,NULL,NULL,NULL
+1276,ITD120,Processes and Materials,3,NULL,NULL,NULL
+1277,ITD130,Manufacturing Processes/Materi,3,NULL,NULL,NULL
+1278,ITD202,Applied Technical Drawing,3,NULL,NULL,NULL
+1279,ITD204,Parametric Model,3,NULL,NULL,NULL
+1280,ITD221,Design in the Near Environment,3,NULL,NULL,NULL
+1281,ITD251,Equipment,3,NULL,NULL,NULL
+1282,ITD253,Interior Design Studio I,3,NULL,NULL,NULL
+1283,ITD301,Arch Dwng/Res Pl,3,NULL,NULL,NULL
+1284,ITD304,Advanced Parametric Modeling,3,NULL,NULL,NULL
+1285,ITD306,Engineering Graphics,3,NULL,NULL,NULL
+1286,ITD330,Machine Tool Processes,3,NULL,NULL,NULL
+1287,ITD333,ANSI Fundamental,3,NULL,NULL,NULL
+1288,ITD350,Construction Systems,3,NULL,NULL,NULL
+1289,ITD351,Textiles for Interior Design,3,NULL,NULL,NULL
+1290,ITD352,History of Interior I,3,NULL,NULL,NULL
+1291,ITD353,Interior Design Studio II,3,NULL,NULL,NULL
+1292,ITD401,Arch Draft/Design,3,NULL,NULL,NULL
+1293,ITD403,Product and Tooling Design,3,NULL,NULL,NULL
+1294,ITD452,History of Interiors II,3,NULL,NULL,NULL
+1295,ITD453,Contract Interiors,3,NULL,NULL,NULL
+1296,ITD455,Housing-Handicapped/Elderly,3,NULL,NULL,NULL
+1297,ITD458,Int Dsgn Prof Ex,3,NULL,NULL,NULL
+1298,ITD459,NCIDQ & NKBA Exam Review,3,NULL,NULL,NULL
+1299,ITD492,Plant Layout,3,NULL,NULL,NULL
+1300,JMC099,Transitions,3,NULL,NULL,NULL
+1301,JMC168,Media Literacy and Society,3,NULL,NULL,NULL
+1302,JMC194,Media Writing,3,NULL,NULL,NULL
+1303,JMC270,Media Production,3,NULL,NULL,NULL
+1304,JMC283,Principles of Photojournalism,3,NULL,NULL,NULL
+1305,JMC294,Advanced Newswriting,3,NULL,NULL,NULL
+1306,JMC295,Copyediting,3,NULL,NULL,NULL
+1307,JMC322,Mass Media Study Abroad,3,NULL,NULL,NULL
+1308,JMC330,Mass Media Effects,3,NULL,NULL,NULL
+1309,JMC336,Media Prod II:Doc Storytelling,3,NULL,NULL,NULL
+1310,JMC358,Media Production III: Studio,3,NULL,NULL,NULL
+1311,JMC369,Audio/Video Post Production,3,NULL,NULL,NULL
+1312,JMC385,Directed Individual Study,3,NULL,NULL,NULL
+1313,JMC390,World Wide Web as Mass Medium,3,NULL,NULL,NULL
+1314,JMC391,Public Relations Principles,3,NULL,NULL,NULL
+1315,JMC394,Introduction to Advertising,3,NULL,NULL,NULL
+1316,JMC396,Publication Design,3,NULL,NULL,NULL
+1317,JMC397,In-depth Reporting,3,NULL,NULL,NULL
+1318,JMC398,Adv Multimedia Reporting,3,NULL,NULL,NULL
+1319,JMC400,International Mass Comm,3,NULL,NULL,NULL
+1320,JMC412,Content Creation for PR,3,NULL,NULL,NULL
+1321,JMC417,Advertising Creative Strategy,3,NULL,NULL,NULL
+1322,JMC426,Advertising Media Sales,3,NULL,NULL,NULL
+1323,JMC437,Senior Honors Thesis,3,NULL,NULL,NULL
+1324,JMC439,Advertising Media Planning,3,NULL,NULL,NULL
+1325,JMC440,Audience Analysis and Research,3,NULL,NULL,NULL
+1326,JMC448,Media Production Enterprises,3,NULL,NULL,NULL
+1327,JMC451,Media Production V: Field,3,NULL,NULL,NULL
+1328,JMC455,Capstone in Media Production,3,NULL,NULL,NULL
+1329,JMC456,Adv Capstone:The Campaign,3,NULL,NULL,NULL
+1330,JMC466,Adv Electronic Report/Prod,3,NULL,NULL,NULL
+1331,JMC488,Coop Ed/Internship,3,NULL,NULL,NULL
+1332,JMC491,PR Capstone: Cases & Campaigns,3,NULL,NULL,NULL
+1333,JMC492,Feature Writing,3,NULL,NULL,NULL
+1334,JMC499,Senior Seminar,3,NULL,NULL,NULL
+1335,JMC515,History of US Jou/Broadcasting,3,NULL,NULL,NULL
+1336,JMC585,Specialized Mass Communication,3,NULL,NULL,NULL
+1337,JMC586,Special Topics,3,NULL,NULL,NULL
+1338,JMC590,Media Law and Ethics,3,NULL,NULL,NULL
+1339,JMC596,Internship,3,NULL,NULL,NULL
+1340,JMC597,Journalism Capstone,3,NULL,NULL,NULL
+1341,JMC600,Seminar,3,NULL,NULL,NULL
+1342,JMC601,"Media, Culture, Gender & Race",3,NULL,NULL,NULL
+1343,JMC622,JMC Study Abroad,3,NULL,NULL,NULL
+1344,JMC630,Theories of Mass Communication,3,NULL,NULL,NULL
+1345,JMC648,Mass Media Industries,3,NULL,NULL,NULL
+1346,JMC660,Methods Communication Research,3,NULL,NULL,NULL
+1347,JMC670,Philosophical/Ethical Concepts,3,NULL,NULL,NULL
+1348,JMC677,Directed Individual Study,3,NULL,NULL,NULL
+1349,JMC690,Comprehensive Project,3,NULL,NULL,NULL
+1350,JPN101,Elementary Japanese I,3,NULL,NULL,NULL
+1351,JPN102,Elementary Japanese II,3,NULL,NULL,NULL
+1352,JPN201,Intermediate Japanese I,3,NULL,NULL,NULL
+1353,JPN202,Intermediate Japanese II,3,NULL,NULL,NULL
+1354,JPN301,Japanese Conversation/Comp,3,NULL,NULL,NULL
+1355,JPN302,Japanese Conversation/Comp,3,NULL,NULL,NULL
+1356,JPN331,Advanced Language Practice,3,NULL,NULL,NULL
+1357,JPN350,Modern Japanese Lit in Transla,3,NULL,NULL,NULL
+1358,JPN401,Advanced Japanese I,3,NULL,NULL,NULL
+1359,JPN402,Advanced Japanese II,3,NULL,NULL,NULL
+1360,JPN421,Topics in Japanese Literature,3,NULL,NULL,NULL
+1361,LBA099,Transitions,3,NULL,NULL,NULL
+1362,LBA438,Seminar in Liberal Arts,3,NULL,NULL,NULL
+1363,LBA488,Coop Ed/Intern,3,NULL,NULL,NULL
+1364,LBA489,Coop Ed/Intern,3,NULL,NULL,NULL
+1365,LIB601,Learning And Libraries,3,NULL,NULL,NULL
+1366,LIB604,Library in School Curriculum,3,NULL,NULL,NULL
+1367,LIB617,Research in Young Adult Lit,3,NULL,NULL,NULL
+1368,LIB620,Library Administration,3,NULL,NULL,NULL
+1369,LIB621,Library Practicum,3,NULL,NULL,NULL
+1370,LIB626,LibraryPracticum: Admin,3,NULL,NULL,NULL
+1371,LIB630,Organizing and Managing,3,NULL,NULL,NULL
+1372,LIB636,Library Practicum: Cataloging,3,NULL,NULL,NULL
+1373,LIB646,Library Practicum: Info Skills,3,NULL,NULL,NULL
+1374,LOR101,Lib Resarch for Info Literacy,3,NULL,NULL,NULL
+1375,LST240,Legal Environment of Business,3,NULL,NULL,NULL
+1376,LST242,Real Estate Law,3,NULL,NULL,NULL
+1377,LST250,Mock Trial,3,NULL,NULL,NULL
+1378,LST300,Introduction to Legal Research,3,NULL,NULL,NULL
+1379,LST310,Legal Analysis and Writing,3,NULL,NULL,NULL
+1380,LST400,Litigation and Trial Practice,3,NULL,NULL,NULL
+1381,LST430,Trusts and Estates,3,NULL,NULL,NULL
+1382,LST446,Criminal Law,3,NULL,NULL,NULL
+1383,LST447,Const Law II: Civil L & R,3,NULL,NULL,NULL
+1384,LST450,XAdvanced Mock Trial,3,NULL,NULL,NULL
+1385,LST488,Coop Ed/Internship,3,NULL,NULL,NULL
+1386,LST489,Coop Ed/Internship,3,NULL,NULL,NULL
+1387,LST495,Special Problems,3,NULL,NULL,NULL
+1388,MAT095,Fundamental Math Skills,3,NULL,NULL,NULL
+1389,MAT099,Transitions,3,NULL,NULL,NULL
+1390,MAT100,Developmental Mathematics,3,NULL,NULL,NULL
+1391,MAT105,Introductory Algebra,3,NULL,NULL,NULL
+1392,MAT115,Middle and Elementary Teachers,3,NULL,NULL,NULL
+1393,MAT117,Mathematical Concepts,3,NULL,NULL,NULL
+1394,MAT130,Technical Math I,3,NULL,NULL,NULL
+1395,MAT135,Intro to Probability/Statistic,3,NULL,NULL,NULL
+1396,MAT140,College Algebra,3,NULL,NULL,NULL
+1397,MAT145,Trigonometry,3,NULL,NULL,NULL
+1398,MAT150,Algebra & Trigonometry,3,NULL,NULL,NULL
+1399,MAT215,Math: Middle/Elem Teachers II,3,NULL,NULL,NULL
+1400,MAT220,Business Calculus,3,NULL,NULL,NULL
+1401,MAT230,Technical Math II,3,NULL,NULL,NULL
+1402,MAT250,Calculus & Analytic Geometry I,3,NULL,NULL,NULL
+1403,MAT305,Intermediate Geometry,3,NULL,NULL,NULL
+1404,MAT308,Calc & Analytic Geometry II,3,NULL,NULL,NULL
+1405,MAT309,Calc & Analytical Geometry III,3,NULL,NULL,NULL
+1406,MAT312,Mathematical Reasoning,3,NULL,NULL,NULL
+1407,MAT330,Technical Math III,3,NULL,NULL,NULL
+1408,MAT335,Matrix Theory & Linear Algebra,3,NULL,NULL,NULL
+1409,MAT399,"Sets, Logic and Functions",3,NULL,NULL,NULL
+1410,MAT411,Ordinary Differential Equation,3,NULL,NULL,NULL
+1411,MAT421,Intro to Algebraic Structures,3,NULL,NULL,NULL
+1412,MAT437,Senior Honors Thesis,3,NULL,NULL,NULL
+1413,MAT442,Intro to Numerical Analysis,3,NULL,NULL,NULL
+1414,MAT460,Principles of Biomathematics,3,NULL,NULL,NULL
+1415,MAT505,Abstract Algebra I,3,NULL,NULL,NULL
+1416,MAT510,Foundations of Geometry,3,NULL,NULL,NULL
+1417,MAT515,Theory of Numbers,3,NULL,NULL,NULL
+1418,MAT520,Introduction Complex Variables,3,NULL,NULL,NULL
+1419,MAT524,Boundary Value Problems,3,NULL,NULL,NULL
+1420,MAT525,Advanced Calculus I,3,NULL,NULL,NULL
+1421,MAT526,Advanced Calculus II,3,NULL,NULL,NULL
+1422,MAT530,ST: Mathematics I,3,NULL,NULL,NULL
+1423,MAT540,Mathematical Statistics I,3,NULL,NULL,NULL
+1424,MAT541,Mathematical Statistics II,3,NULL,NULL,NULL
+1425,MAT542,Numerical Analysis,3,NULL,NULL,NULL
+1426,MAT550,Teaching Mathematics,3,NULL,NULL,NULL
+1427,MAT551,Mathematics for Teachers,3,NULL,NULL,NULL
+1428,MAT560,Statistical Methods,3,NULL,NULL,NULL
+1429,MAT565,Applied Statistics I,3,NULL,NULL,NULL
+1430,MAT620,Selected Topics in Topology,3,NULL,NULL,NULL
+1431,MAT690,ST in Mathematics I,3,NULL,NULL,NULL
+1432,MAT691,ST:  Mathematics II,3,NULL,NULL,NULL
+1433,MAT698,Research and Thesis,3,NULL,NULL,NULL
+1434,MAT699,Research and Thesis,3,NULL,NULL,NULL
+1435,MCG201,Intro Multicultural/Class/Gend,3,NULL,NULL,NULL
+1436,MCG351,Special Topics in MCG,3,NULL,NULL,NULL
+1437,MCG412,Directed Studies,3,NULL,NULL,NULL
+1438,MGT350,Fundamentals of Management,3,NULL,NULL,NULL
+1439,MGT354,Tech of Oral Reporting/Briefin,3,NULL,NULL,NULL
+1440,MGT358,Entrepreneurial Business Plan,3,NULL,NULL,NULL
+1441,MGT370,Sports Business,3,NULL,NULL,NULL
+1442,MGT420,Entrepreneurial Strat Growth,3,NULL,NULL,NULL
+1443,MGT437,Senior Honors Thesis,3,NULL,NULL,NULL
+1444,MGT440,Entre Innovation & Creativity,3,NULL,NULL,NULL
+1445,MGT443,Mgt of Operations & Technology,3,NULL,NULL,NULL
+1446,MGT445,New Product Development,3,NULL,NULL,NULL
+1447,MGT488,Coop Ed/Internship,3,NULL,NULL,NULL
+1448,MGT489,Coop Ed/Internship,3,NULL,NULL,NULL
+1449,MGT490,Entrepreneurial Consulting,3,NULL,NULL,NULL
+1450,MGT550,Human Resource Management,3,NULL,NULL,NULL
+1451,MGT551,Organizational Behavior,3,NULL,NULL,NULL
+1452,MGT552,Mgt Operations/Technology II,3,NULL,NULL,NULL
+1453,MGT553,Human Resource Selection,3,NULL,NULL,NULL
+1454,MGT555,Training and Development,3,NULL,NULL,NULL
+1455,MGT557,International Management,3,NULL,NULL,NULL
+1456,MGT559,Compensation Management,3,NULL,NULL,NULL
+1457,MGT575,Labor-Management Relations,3,NULL,NULL,NULL
+1458,MGT580,Seminar in Leadership,3,NULL,NULL,NULL
+1459,MGT590,Strategic Management,3,NULL,NULL,NULL
+1460,MGT595,Special Problems,3,NULL,NULL,NULL
+1461,MGT651,Sem in Organizational Behavior,3,NULL,NULL,NULL
+1462,MGT653,Seminar in HR Staffing,3,NULL,NULL,NULL
+1463,MGT654,Sem in Human Resource Mgt,3,NULL,NULL,NULL
+1464,MGT656,Seminar in Strategic Mgt,3,NULL,NULL,NULL
+1465,MGT657,Seminar in International Mgt,3,NULL,NULL,NULL
+1466,MGT695,Special Problems,3,NULL,NULL,NULL
+1467,MID270,Teach/Learning Middle Grades,3,NULL,NULL,NULL
+1468,MID307,Middle School Writing/Literacy,3,NULL,NULL,NULL
+1469,MID370,Lab in Tchg Eng Com:Middle Sch,3,NULL,NULL,NULL
+1470,MID371,Lab in Tchg Math Middle School,3,NULL,NULL,NULL
+1471,MID372,Lab in Tchg Science:Middle,3,NULL,NULL,NULL
+1472,MID373,Lab: Tchg Social St/Middle Sch,3,NULL,NULL,NULL
+1473,MID380,Middle School Practicum,3,NULL,NULL,NULL
+1474,MID421,Middle School Student Teaching,3,NULL,NULL,NULL
+1475,MIL100,Physical Conditioning Lab,3,NULL,NULL,NULL
+1476,MIL101,Army and Critical Thinking,3,NULL,NULL,NULL
+1477,MIL102,Intro to Profession of Arms,3,NULL,NULL,NULL
+1478,MIL201,Leadership and Decision Making,3,NULL,NULL,NULL
+1479,MIL202,Army Doctrine/Team Development,3,NULL,NULL,NULL
+1480,MIL301,Trng Mgmt & Warfighting Funct,3,NULL,NULL,NULL
+1481,MIL302,Applied Team Ldrshp Small Unit,3,NULL,NULL,NULL
+1482,MIL333,Military History of the U.S.,3,NULL,NULL,NULL
+1483,MIL401,The Army Officer,3,NULL,NULL,NULL
+1484,MIL402,Company Grade Leadership,3,NULL,NULL,NULL
+1485,MIL490,Military Leadership Seminar,3,NULL,NULL,NULL
+1486,MKT285,Emerging Technologies in MKT,3,NULL,NULL,NULL
+1487,MKT360,Principles of Marketing,3,NULL,NULL,NULL
+1488,MKT361,Selling & Sales Management,3,NULL,NULL,NULL
+1489,MKT369,Retailing Management,3,NULL,NULL,NULL
+1490,MKT437,Senior Honors Thesis,3,NULL,NULL,NULL
+1491,MKT461,Principles of Purchasing,3,NULL,NULL,NULL
+1492,MKT463,Consumer Behavior,3,NULL,NULL,NULL
+1493,MKT465,Hospitality Management,3,NULL,NULL,NULL
+1494,MKT470,Logistics Management,3,NULL,NULL,NULL
+1495,MKT475,Digital Marketing,3,NULL,NULL,NULL
+1496,MKT485,Business GIS in Marketing,3,NULL,NULL,NULL
+1497,MKT488,Coop Ed/Internship,3,NULL,NULL,NULL
+1498,MKT489,Coop Ed/Internship,3,NULL,NULL,NULL
+1499,MKT490,Survey of Management/Marketing,3,NULL,NULL,NULL
+1500,MKT564,Marketing Channels,3,NULL,NULL,NULL
+1501,MKT565,Marketing Research,3,NULL,NULL,NULL
+1502,MKT568,Global Marketing Management,3,NULL,NULL,NULL
+1503,MKT569,Promotion Management,3,NULL,NULL,NULL
+1504,MKT578,Social Media and Marketing,3,NULL,NULL,NULL
+1505,MKT579,Social Media Consulting,3,NULL,NULL,NULL
+1506,MKT585,Integrated Business GIS,3,NULL,NULL,NULL
+1507,MKT595,Special Problems,3,NULL,NULL,NULL
+1508,MKT663,Advanced Consumer Behavior,3,NULL,NULL,NULL
+1509,MKT667,Market Planning & Application,3,NULL,NULL,NULL
+1510,MKT675,Seminar in Digital Marketing,3,NULL,NULL,NULL
+1511,MKT684,Sem in Integrated Business GIS,3,NULL,NULL,NULL
+1512,MKT695,Special Problems,3,NULL,NULL,NULL
+1513,MLA099,Transitions,3,NULL,NULL,NULL
+1514,MLA102,Elementary Modern Language I,3,NULL,NULL,NULL
+1515,MLA104,Cultural Intro to Languages,3,NULL,NULL,NULL
+1516,MLA105,Intro to Contemporary Culture,3,NULL,NULL,NULL
+1517,MLA202,Intermediate Modern Language,3,NULL,NULL,NULL
+1518,MLA400,Senior Seminar,3,NULL,NULL,NULL
+1519,MLA514,Methods Tchg Foreign Lang,3,NULL,NULL,NULL
+1520,MUS098,Recital Attendance & Assembly,3,NULL,NULL,NULL
+1521,MUS099,Transitions,3,NULL,NULL,NULL
+1522,MUS100,Developmental Music Theory,3,NULL,NULL,NULL
+1523,MUS104,Introduction to Jazz History,3,NULL,NULL,NULL
+1524,MUS105,Explore Composer & Masterpiece,3,NULL,NULL,NULL
+1525,MUS106,Film Music,3,NULL,NULL,NULL
+1526,MUS108,Introduction to World Music,3,NULL,NULL,NULL
+1527,MUS114,Percussion Level I,3,NULL,NULL,NULL
+1528,MUS115,Wind Level I,3,NULL,NULL,NULL
+1529,MUS117,Piano Level I,3,NULL,NULL,NULL
+1530,MUS118,Strings Level I,3,NULL,NULL,NULL
+1531,MUS119,Voice Level I,3,NULL,NULL,NULL
+1532,MUS123,Intro to Music Education,3,NULL,NULL,NULL
+1533,MUS130,Class Voice for Non-Majors,3,NULL,NULL,NULL
+1534,MUS131,Percussion Methods,3,NULL,NULL,NULL
+1535,MUS132,Woodwind Methods,3,NULL,NULL,NULL
+1536,MUS133,String Methods,3,NULL,NULL,NULL
+1537,MUS134,Voice Methods,3,NULL,NULL,NULL
+1538,MUS135,Brass Methods,3,NULL,NULL,NULL
+1539,MUS136,Fund of Keyboard Accompanying,3,NULL,NULL,NULL
+1540,MUS150,Instrumental Ensemble,3,NULL,NULL,NULL
+1541,MUS151,University Orchestra,3,NULL,NULL,NULL
+1542,MUS152,Marching Band,3,NULL,NULL,NULL
+1543,MUS153,Brass Choir,3,NULL,NULL,NULL
+1544,MUS154,Wind Ensemble,3,NULL,NULL,NULL
+1545,MUS155,Jazz Ensemble,3,NULL,NULL,NULL
+1546,MUS156,Jazz Combo,3,NULL,NULL,NULL
+1547,MUS157,Symphonic Band,3,NULL,NULL,NULL
+1548,MUS158,Concert Band,3,NULL,NULL,NULL
+1549,MUS160,University Chorale,3,NULL,NULL,NULL
+1550,MUS161,Concert Choir,3,NULL,NULL,NULL
+1551,MUS162,Chamber Singers,3,NULL,NULL,NULL
+1552,MUS164,Opera Workshop,3,NULL,NULL,NULL
+1553,MUS170,Theory I,3,NULL,NULL,NULL
+1554,MUS171,Aural Skills I,3,NULL,NULL,NULL
+1555,MUS172,Functional Keyboard I,3,NULL,NULL,NULL
+1556,MUS173,Theory II,3,NULL,NULL,NULL
+1557,MUS174,Aural Skills II,3,NULL,NULL,NULL
+1558,MUS175,Functional Keyboard II,3,NULL,NULL,NULL
+1559,MUS200,Public School Music I,3,NULL,NULL,NULL
+1560,MUS214,Percussion Level II,3,NULL,NULL,NULL
+1561,MUS215,Wind Level II,3,NULL,NULL,NULL
+1562,MUS216,Organ Level II,3,NULL,NULL,NULL
+1563,MUS217,Piano Level II,3,NULL,NULL,NULL
+1564,MUS218,Strings Level II,3,NULL,NULL,NULL
+1565,MUS219,Voice Level II,3,NULL,NULL,NULL
+1566,MUS225,English/German Diction,3,NULL,NULL,NULL
+1567,MUS226,French/Italian Diction,3,NULL,NULL,NULL
+1568,MUS230,Intro to the Music Industry,3,NULL,NULL,NULL
+1569,MUS240,Introduction to Composition,3,NULL,NULL,NULL
+1570,MUS241,Composition Level I,3,NULL,NULL,NULL
+1571,MUS242,Composition II,3,NULL,NULL,NULL
+1572,MUS270,Theory III,3,NULL,NULL,NULL
+1573,MUS271,Aural Skills III,3,NULL,NULL,NULL
+1574,MUS272,Functional Keyboard III,3,NULL,NULL,NULL
+1575,MUS273,Theory IV,3,NULL,NULL,NULL
+1576,MUS274,Aural Skills IV,3,NULL,NULL,NULL
+1577,MUS275,Functional Keyboard IV,3,NULL,NULL,NULL
+1578,MUS300,Public School Music II,3,NULL,NULL,NULL
+1579,MUS301,General Music Methods,3,NULL,NULL,NULL
+1580,MUS302,Choral Methods,3,NULL,NULL,NULL
+1581,MUS303,Instrumental Mthds:ELE/MID,3,NULL,NULL,NULL
+1582,MUS304,Advanced Instrumental Methods,3,NULL,NULL,NULL
+1583,MUS313,Intro to Music Synthesis,3,NULL,NULL,NULL
+1584,MUS314,Percussion Level III,3,NULL,NULL,NULL
+1585,MUS315,Wind Level III,3,NULL,NULL,NULL
+1586,MUS316,Organ Level III,3,NULL,NULL,NULL
+1587,MUS317,Piano Level III,3,NULL,NULL,NULL
+1588,MUS318,String Level III,3,NULL,NULL,NULL
+1589,MUS319,Voice Level III,3,NULL,NULL,NULL
+1590,MUS320,Vocal Pedagogy for Music Ed,3,NULL,NULL,NULL
+1591,MUS321,Choral Repertoire,3,NULL,NULL,NULL
+1592,MUS323,Basic Conducting,3,NULL,NULL,NULL
+1593,MUS326,Marching Band Administration,3,NULL,NULL,NULL
+1594,MUS327,Arranging Techniques,3,NULL,NULL,NULL
+1595,MUS330,Music Business I,3,NULL,NULL,NULL
+1596,MUS331,Music Business II,3,NULL,NULL,NULL
+1597,MUS336,Piano as Ensemble Instrument,3,NULL,NULL,NULL
+1598,MUS350,Instrumental Ensemble,3,NULL,NULL,NULL
+1599,MUS351,University Orchestra,3,NULL,NULL,NULL
+1600,MUS352,Marching Band,3,NULL,NULL,NULL
+1601,MUS353,Brass Choir,3,NULL,NULL,NULL
+1602,MUS354,Wind Ensemble,3,NULL,NULL,NULL
+1603,MUS355,Jazz Ensemble,3,NULL,NULL,NULL
+1604,MUS356,Jazz Combo,3,NULL,NULL,NULL
+1605,MUS357,Symphonic Band,3,NULL,NULL,NULL
+1606,MUS358,Concert Band,3,NULL,NULL,NULL
+1607,MUS360,University Chorale,3,NULL,NULL,NULL
+1608,MUS361,Concert Choir,3,NULL,NULL,NULL
+1609,MUS362,Chamber Singers,3,NULL,NULL,NULL
+1610,MUS364,Opera Workshop,3,NULL,NULL,NULL
+1611,MUS381,Music in a Historical Context,3,NULL,NULL,NULL
+1612,MUS382,Music in a Global Context,3,NULL,NULL,NULL
+1613,MUS383,Special Topics-Music History,3,NULL,NULL,NULL
+1614,MUS396,Repertoire/Pedagogy,3,NULL,NULL,NULL
+1615,MUS398,Junior Recital,3,NULL,NULL,NULL
+1616,MUS414,Percussion Level IV,3,NULL,NULL,NULL
+1617,MUS415,Wind Level IV,3,NULL,NULL,NULL
+1618,MUS417,Piano Level IV,3,NULL,NULL,NULL
+1619,MUS418,String Level IV,3,NULL,NULL,NULL
+1620,MUS419,Voice Level IV,3,NULL,NULL,NULL
+1621,MUS423,Instrumental Conducting,3,NULL,NULL,NULL
+1622,MUS424,Choral Conducting,3,NULL,NULL,NULL
+1623,MUS459,Adv History and Literature,3,NULL,NULL,NULL
+1624,MUS488,Coop Ed/Internship,3,NULL,NULL,NULL
+1625,MUS489,Coop Ed/Internship,3,NULL,NULL,NULL
+1626,MUS490,Senior Seminar,3,NULL,NULL,NULL
+1627,MUS496,Repertoire/Pedagogy,3,NULL,NULL,NULL
+1628,MUS497,Final Project,3,NULL,NULL,NULL
+1629,MUS498,Senior Recital,3,NULL,NULL,NULL
+1630,MUS499,Concerto Performance,3,NULL,NULL,NULL
+1631,MUS511,Analysis of Contemporary Music,3,NULL,NULL,NULL
+1632,MUS512,Counterpoint,3,NULL,NULL,NULL
+1633,MUS513,Form and Analysis,3,NULL,NULL,NULL
+1634,MUS514,Music Study-Percussion,3,NULL,NULL,NULL
+1635,MUS515,Music Study: Wind,3,NULL,NULL,NULL
+1636,MUS516,Music Study: Organ,3,NULL,NULL,NULL
+1637,MUS519,Applied Music Study: Voice,3,NULL,NULL,NULL
+1638,MUS530,Special Topics,3,NULL,NULL,NULL
+1639,MUS550,Independent Study in Music,3,NULL,NULL,NULL
+1640,MUS600,His/Philo Foundation Mus Ed,3,NULL,NULL,NULL
+1641,MUS610,Adv Music Theory/Analysis,3,NULL,NULL,NULL
+1642,MUS614,Percussion,3,NULL,NULL,NULL
+1643,MUS615,Wind Instruments,3,NULL,NULL,NULL
+1644,MUS617,Piano,3,NULL,NULL,NULL
+1645,MUS618,Strings,3,NULL,NULL,NULL
+1646,MUS619,Voice,3,NULL,NULL,NULL
+1647,MUS639,Methods of Research/Music Edu,3,NULL,NULL,NULL
+1648,MUS650,Problems and Projects in Music,3,NULL,NULL,NULL
+1649,MUS651,University Orchestra,3,NULL,NULL,NULL
+1650,MUS652,Marching Band,3,NULL,NULL,NULL
+1651,MUS654,Symphonic Wind Ensemble,3,NULL,NULL,NULL
+1652,MUS655,Jazz Ensemble,3,NULL,NULL,NULL
+1653,MUS657,Symphonic Band,3,NULL,NULL,NULL
+1654,MUS659,Adv Music History & Literature,3,NULL,NULL,NULL
+1655,MUS660,University Chorale,3,NULL,NULL,NULL
+1656,MUS661,Concert Choir,3,NULL,NULL,NULL
+1657,MUS662,Chamber Singers,3,NULL,NULL,NULL
+1658,MUS664,Opera Workshop,3,NULL,NULL,NULL
+1659,MUS670,Chamber Ensembles,3,NULL,NULL,NULL
+1660,NSE300,National Student Exchange,3,NULL,NULL,NULL
+1661,NTN099,Transitions,3,NULL,NULL,NULL
+1662,NTN220,Food Safety and Sanitation,3,NULL,NULL,NULL
+1663,NTN230,Introductory Nutrition,3,NULL,NULL,NULL
+1664,NTN231,Prin of Food Science/Prep,3,NULL,NULL,NULL
+1665,NTN333,Nutrition Through Life Cycle,3,NULL,NULL,NULL
+1666,NTN371,Food Production Practicum,3,NULL,NULL,NULL
+1667,NTN372,Quant Food Prod & Purchasing,3,NULL,NULL,NULL
+1668,NTN373,Mgt Food Service/Personnel/Fac,3,NULL,NULL,NULL
+1669,NTN374,Food Service Mgt Practicum,3,NULL,NULL,NULL
+1670,NTN412,Community Nutrition & Health,3,NULL,NULL,NULL
+1671,NTN422,Meal Management,3,NULL,NULL,NULL
+1672,NTN432,Experimental Foods,3,NULL,NULL,NULL
+1673,NTN434,Clinical Dietetics Practicum,3,NULL,NULL,NULL
+1674,NTN440,Medical Nutrition Therapy I,3,NULL,NULL,NULL
+1675,NTN480,Special Problems,3,NULL,NULL,NULL
+1676,NTN488,Coop Ed/Internship,3,NULL,NULL,NULL
+1677,NTN499,Senior Seminar,3,NULL,NULL,NULL
+1678,NTN535,Medical Nutri Therapy/Disease,3,NULL,NULL,NULL
+1679,NTN640,Dietetics Clinical Training,3,NULL,NULL,NULL
+1680,NTN641,Medical Nutrition Therapy I,3,NULL,NULL,NULL
+1681,NTN642,Mgmt Practice in Dietetics,3,NULL,NULL,NULL
+1682,NTN643,Community Nutrition,3,NULL,NULL,NULL
+1683,NTN650,Dietetics Clinical Training II,3,NULL,NULL,NULL
+1684,NTN651,Medical Nutrition Therapy II,3,NULL,NULL,NULL
+1685,NTN652,Business Entrepreneur,3,NULL,NULL,NULL
+1686,NTN653,Advanced Clinical Practice,3,NULL,NULL,NULL
+1687,NTN656,Nutrition Research Lit Review,3,NULL,NULL,NULL
+1688,NTN660,Research Project/Nutrition I,3,NULL,NULL,NULL
+1689,NTN661,Research Project/Nutrition II,3,NULL,NULL,NULL
+1690,NUR099,Transitions,3,NULL,NULL,NULL
+1691,NUR200,Professional Nur Practice I,3,NULL,NULL,NULL
+1692,NUR201,Nursing Assessment,3,NULL,NULL,NULL
+1693,NUR203,Mental Health Nursing,3,NULL,NULL,NULL
+1694,NUR205,Pharmacology I,3,NULL,NULL,NULL
+1695,NUR206,Foundation of Nursing Practice,3,NULL,NULL,NULL
+1696,NUR207,Informatics/Healthcare Technol,3,NULL,NULL,NULL
+1697,NUR301,Pathophysiology-Nur Practice,3,NULL,NULL,NULL
+1698,NUR302,Obstetrical/Neonatal Nurs Care,3,NULL,NULL,NULL
+1699,NUR303,Nur Care of Childbearing Fam,3,NULL,NULL,NULL
+1700,NUR304,Care of Childrearing Families,3,NULL,NULL,NULL
+1701,NUR306,Research & Evidence Based Prac,3,NULL,NULL,NULL
+1702,NUR307,Adult Health I,3,NULL,NULL,NULL
+1703,NUR311,Nursing Care of Adults I,3,NULL,NULL,NULL
+1704,NUR312,Nursing Care of Adults II,3,NULL,NULL,NULL
+1705,NUR314,Professional Nursing Practice,3,NULL,NULL,NULL
+1706,NUR401,Psychiatric/Mental Health Nur,3,NULL,NULL,NULL
+1707,NUR403,Community Nursing,3,NULL,NULL,NULL
+1708,NUR404,Leadership/Management in Nur,3,NULL,NULL,NULL
+1709,NUR405,Nur Profession/Health Care Del,3,NULL,NULL,NULL
+1710,NUR407,Integration Practicum,3,NULL,NULL,NULL
+1711,NUR440,Directed Study,3,NULL,NULL,NULL
+1712,NUR470,Complementary Healing Modaliti,3,NULL,NULL,NULL
+1713,NUR603,Theory/Concept Analysis,3,NULL,NULL,NULL
+1714,NUR605,Issues in Rural Health Care,3,NULL,NULL,NULL
+1715,NUR606,Scientific Found Anesthesia I,3,NULL,NULL,NULL
+1716,NUR608,Science Found Anesthesia III,3,NULL,NULL,NULL
+1717,NUR609,Scientific Found Anesthesia IV,3,NULL,NULL,NULL
+1718,NUR612,Nurse Educator Practicum I,3,NULL,NULL,NULL
+1719,NUR613,Nurse Educator Practicum II,3,NULL,NULL,NULL
+1720,NUR620,Critical Care Concepts/Appl,3,NULL,NULL,NULL
+1721,NUR622,Diagnosis/Mgt of Adulth Health,3,NULL,NULL,NULL
+1722,NUR623,Advanced Nur in Acute Care,3,NULL,NULL,NULL
+1723,NUR624,Adv Adult Nur-Chronic Rehab,3,NULL,NULL,NULL
+1724,NUR630,Research in Nursing,3,NULL,NULL,NULL
+1725,NUR631,Adv Resrch/Evidence-Based Prac,3,NULL,NULL,NULL
+1726,NUR632,Princ Anesthesia Practice I,3,NULL,NULL,NULL
+1727,NUR633,Prin Anes Prac,3,NULL,NULL,NULL
+1728,NUR634,Prin Anesthesia Practice III,3,NULL,NULL,NULL
+1729,NUR635,Principles of Anesthes Prac IV,3,NULL,NULL,NULL
+1730,NUR637,Pharmacology Anesthesia II,3,NULL,NULL,NULL
+1731,NUR638,Pharmacology Anesthesia III,3,NULL,NULL,NULL
+1732,NUR641,Advance Nursing Assessment,3,NULL,NULL,NULL
+1733,NUR642,Advanced Pharmacology,3,NULL,NULL,NULL
+1734,NUR644,Primary Care of the Family I,3,NULL,NULL,NULL
+1735,NUR650,Adv Clin Spec II,3,NULL,NULL,NULL
+1736,NUR651,Clinical Practicum I,3,NULL,NULL,NULL
+1737,NUR653,Clinical Practicum III,3,NULL,NULL,NULL
+1738,NUR654,Adv FNP Integrated Practicum,3,NULL,NULL,NULL
+1739,NUR655,Seminar in Nurse Anesthesia I,3,NULL,NULL,NULL
+1740,NUR656,Seminar in Nurse Anesthesia II,3,NULL,NULL,NULL
+1741,NUR673,Pathophysiology Adv Nur Prac I,3,NULL,NULL,NULL
+1742,OSH099,Transitions,3,NULL,NULL,NULL
+1743,OSH101,Emergency Medical Training,3,NULL,NULL,NULL
+1744,OSH192,Intro Occupational Safety/Hea,3,NULL,NULL,NULL
+1745,OSH287,OSHA Stand-Gen Industry/Constr,3,NULL,NULL,NULL
+1746,OSH299,Professional Development Sem,3,NULL,NULL,NULL
+1747,OSH301,Product Liability,3,NULL,NULL,NULL
+1748,OSH310,Fire/Emergency Prepare/Preplan,3,NULL,NULL,NULL
+1749,OSH311,Hazardous Mat/Emergency Plan,3,NULL,NULL,NULL
+1750,OSH320,Environmental/Occup Engr Tech,3,NULL,NULL,NULL
+1751,OSH353,Prev Musculoskel Disord Workpl,3,NULL,NULL,NULL
+1752,OSH371,Professional Internship II,3,NULL,NULL,NULL
+1753,OSH384,Construction Safety,3,NULL,NULL,NULL
+1754,OSH420,Fundamentals of Indust Hygiene,3,NULL,NULL,NULL
+1755,OSH425,Physical Agents,3,NULL,NULL,NULL
+1756,OSH445,Loss Ctrl Mgmt and Measurement,3,NULL,NULL,NULL
+1757,OSH450,Practical Application Lab,3,NULL,NULL,NULL
+1758,OSH452,Systems Approach Hazard Contr,3,NULL,NULL,NULL
+1759,OSH453,Human Factors/Safety Engr,3,NULL,NULL,NULL
+1760,OSH488,Coop Ed/Internship,3,NULL,NULL,NULL
+1761,OSH511,Hazardous Waste Site Operation,3,NULL,NULL,NULL
+1762,OSH523,Occupational Diseases,3,NULL,NULL,NULL
+1763,OSH527,Air Contaminants/Industr Vent,3,NULL,NULL,NULL
+1764,OSH545,Loss Control Measurement/Mgt,3,NULL,NULL,NULL
+1765,OSH546,Fundamentals of Risk Mgmt,3,NULL,NULL,NULL
+1766,OSH550,SEH Program Mgt/Training,3,NULL,NULL,NULL
+1767,OSH571,Problems in Safety and Health,3,NULL,NULL,NULL
+1768,OSH591,Engr/Tech Aspects of Safety,3,NULL,NULL,NULL
+1769,OSH621,Ind Hygiene/Safety Prg Dev,3,NULL,NULL,NULL
+1770,OSH622,Toxicology of Industrial Mat,3,NULL,NULL,NULL
+1771,OSH626,Air Samp & Statistical Analysi,3,NULL,NULL,NULL
+1772,OSH637,Biostatistics and Probability,3,NULL,NULL,NULL
+1773,OSH644,Graduate Coop Ed/Internship,3,NULL,NULL,NULL
+1774,OSH650,OSH Org Leadership/Mgt,3,NULL,NULL,NULL
+1775,OSH655,Legal Aspects Safety & Health,3,NULL,NULL,NULL
+1776,OSH656,Ergonomics and Biomechanics,3,NULL,NULL,NULL
+1777,OSH657,Current Lit/Research in SEH,3,NULL,NULL,NULL
+1778,OSH658,Intro Occupational Epidemiolog,3,NULL,NULL,NULL
+1779,OSH663,Applied Workplace Ergonomics,3,NULL,NULL,NULL
+1780,OSH670,Internship in Safety & Health,3,NULL,NULL,NULL
+1781,OSH680,Graduate Seminar in OSH,3,NULL,NULL,NULL
+1782,OSH687,Fund of Air & Water Pollution,3,NULL,NULL,NULL
+1783,OSH689,Industr & Haz Waste Mgt,3,NULL,NULL,NULL
+1784,OSH697,Research in Environ Hlth & Saf,3,NULL,NULL,NULL
+1785,OSH698,Thesis,3,NULL,NULL,NULL
+1786,OSH699,Thesis,3,NULL,NULL,NULL
+1787,OSY214,Office Information Systems,3,NULL,NULL,NULL
+1788,OSY315,Office Systems Applications,3,NULL,NULL,NULL
+1789,PHE205,Lifetime Activities,3,NULL,NULL,NULL
+1790,PHE206,Team Sports,3,NULL,NULL,NULL
+1791,PHE285,Football/Basketball Officiate,3,NULL,NULL,NULL
+1792,PHE304,Adapted Physical Education,3,NULL,NULL,NULL
+1793,PHE306,Dance and Gymnastics,3,NULL,NULL,NULL
+1794,PHE310,Fund of Athletic Coaching,3,NULL,NULL,NULL
+1795,PHE312,Coaching Football I,3,NULL,NULL,NULL
+1796,PHE314,Coaching Basketball I,3,NULL,NULL,NULL
+1797,PHE318,Coaching Track & Field I,3,NULL,NULL,NULL
+1798,PHE330,Movement Concepts/Skills Theme,3,NULL,NULL,NULL
+1799,PHE375,Movement Analy/Physical Educ,3,NULL,NULL,NULL
+1800,PHE400,Teach Phys Ed in Ele School,3,NULL,NULL,NULL
+1801,PHE405,Physiology Exercise/Fitness,3,NULL,NULL,NULL
+1802,PHE414,Coaching Basketball II,3,NULL,NULL,NULL
+1803,PHE416,Coaching Baseball II,3,NULL,NULL,NULL
+1804,PHE459,Teach Adolescent Physical Edu,3,NULL,NULL,NULL
+1805,PHE602,Legal Issue-Sport/Physical Edu,3,NULL,NULL,NULL
+1806,PHE680,Independent Study in HPE,3,NULL,NULL,NULL
+1807,PHI099,Transitions,3,NULL,NULL,NULL
+1808,PHI103,Critical Thinking,3,NULL,NULL,NULL
+1809,PHI201,Introduction to Philosophy,3,NULL,NULL,NULL
+1810,PHI202,Ethics,3,NULL,NULL,NULL
+1811,PHI203,Symbolic Logic,3,NULL,NULL,NULL
+1812,PHI304,History of PHI:Ancient/Medieva,3,NULL,NULL,NULL
+1813,PHI321,Philosophy of Religion,3,NULL,NULL,NULL
+1814,PHI340,Special Topics,3,NULL,NULL,NULL
+1815,PHI360,Literature and Philosophy,3,NULL,NULL,NULL
+1816,PHI437,Senior Honors Thesis,3,NULL,NULL,NULL
+1817,PHI499,Senior Research Project,3,NULL,NULL,NULL
+1818,PHI550,Directed Study,3,NULL,NULL,NULL
+1819,PHI650,Directed Study,3,NULL,NULL,NULL
+1820,PHY099,Transitions,3,NULL,NULL,NULL
+1821,PHY105,The Science of Sound,3,NULL,NULL,NULL
+1822,PHY125,Brief Introductory Physics,3,NULL,NULL,NULL
+1823,PHY126,Intro Physics Lab,3,NULL,NULL,NULL
+1824,PHY130,General Physics I,3,NULL,NULL,NULL
+1825,PHY131,General Physics I Laboratory,3,NULL,NULL,NULL
+1826,PHY132,General Physics II,3,NULL,NULL,NULL
+1827,PHY133,General Physics II Laboratory,3,NULL,NULL,NULL
+1828,PHY235,"Mechanics, Heat & Wave Motion",3,NULL,NULL,NULL
+1829,PHY236,Mechanics/Heat/Wave Mot Lab,3,NULL,NULL,NULL
+1830,PHY255,"Electricity, Magnetism & Light",3,NULL,NULL,NULL
+1831,PHY256,"Elect, Magnetism, Light Lab",3,NULL,NULL,NULL
+1832,PHY299,Introduction to Research,3,NULL,NULL,NULL
+1833,PHY370,Introduction to Modern Physics,3,NULL,NULL,NULL
+1834,PHY460,Electricity and Magnetism I,3,NULL,NULL,NULL
+1835,PHY461,Electricity and Magnetism II,3,NULL,NULL,NULL
+1836,PHY470,Optics,3,NULL,NULL,NULL
+1837,PHY488,Coop Ed/Internship,3,NULL,NULL,NULL
+1838,PHY489,Coop Ed/Internship,3,NULL,NULL,NULL
+1839,PHY515,Special Topics,3,NULL,NULL,NULL
+1840,PHY520,Independent Study,3,NULL,NULL,NULL
+1841,PHY599,Senior Research,3,NULL,NULL,NULL
+1842,PLN488,Coop Ed/Internship,3,NULL,NULL,NULL
+1843,PLN489,Coop Ed/Internship,3,NULL,NULL,NULL
+1844,PLN507,Land Use Planning,3,NULL,NULL,NULL
+1845,PLN521,Geographic Info Systems,3,NULL,NULL,NULL
+1846,PLN644,Graduate Coop Ed,3,NULL,NULL,NULL
+1847,POL099,Transitions,3,NULL,NULL,NULL
+1848,POL140,American National Government,3,NULL,NULL,NULL
+1849,POL240,State and Local Politics,3,NULL,NULL,NULL
+1850,POL250,Intro International Relations,3,NULL,NULL,NULL
+1851,POL252,Intro to Comparative Politics,3,NULL,NULL,NULL
+1852,POL261,Intro to Political Theory,3,NULL,NULL,NULL
+1853,POL343,Kentucky Govt and Politics,3,NULL,NULL,NULL
+1854,POL344,Media and Politics,3,NULL,NULL,NULL
+1855,POL345,Campaigns and Elections,3,NULL,NULL,NULL
+1856,POL360,Research Methods,3,NULL,NULL,NULL
+1857,POL440,Political Parties/Pressure Grp,3,NULL,NULL,NULL
+1858,POL442,Government and Business,3,NULL,NULL,NULL
+1859,POL443,Executive Process,3,NULL,NULL,NULL
+1860,POL444,Judicial Process,3,NULL,NULL,NULL
+1861,POL445,Constitutional Law I,3,NULL,NULL,NULL
+1862,POL447,Const Law II:Civil R & L,3,NULL,NULL,NULL
+1863,POL450,Modern Africa,3,NULL,NULL,NULL
+1864,POL453,Gov/Pol of Latin America,3,NULL,NULL,NULL
+1865,POL454,Gov/Pol of Asia,3,NULL,NULL,NULL
+1866,POL455,Modern Middle East,3,NULL,NULL,NULL
+1867,POL456,American Foreign Policy,3,NULL,NULL,NULL
+1868,POL457,Intl Law & Organizations,3,NULL,NULL,NULL
+1869,POL460,Political Behavior,3,NULL,NULL,NULL
+1870,POL461,Classical/Medieval Pol Thought,3,NULL,NULL,NULL
+1871,POL470,Foundations of Public Admin,3,NULL,NULL,NULL
+1872,POL471,Contemp Public Policy Issues,3,NULL,NULL,NULL
+1873,POL473,Public Budgeting and Finance,3,NULL,NULL,NULL
+1874,POL480,Topical Seminar in Pol Sci,3,NULL,NULL,NULL
+1875,POL488,Coop Ed/Internship,3,NULL,NULL,NULL
+1876,POL489,Coop Ed/Internship,3,NULL,NULL,NULL
+1877,POL495,Special Problems,3,NULL,NULL,NULL
+1878,POL498,Senior Seminar Intl Affairs,3,NULL,NULL,NULL
+1879,POL499,Senior Seminar Political Sci,3,NULL,NULL,NULL
+1880,POL660,Research Methods,3,NULL,NULL,NULL
+1881,POL670,Foundations of Public Adm,3,NULL,NULL,NULL
+1882,POL671,Public Policy Analysis,3,NULL,NULL,NULL
+1883,POL673,Public Budgeting & Finance,3,NULL,NULL,NULL
+1884,POL674,Public Organizations,3,NULL,NULL,NULL
+1885,POL680,Topical Seminar in Public Adm,3,NULL,NULL,NULL
+1886,POL685,Public Administration Capstone,3,NULL,NULL,NULL
+1887,POL690,Administrative Internship,3,NULL,NULL,NULL
+1888,POL695,Special Problems,3,NULL,NULL,NULL
+1889,PSY099,Transitions,3,NULL,NULL,NULL
+1890,PSY180,General Psychology,3,NULL,NULL,NULL
+1891,PSY199,Developing Psychological Skill,3,NULL,NULL,NULL
+1892,PSY222,Sport Psychology,3,NULL,NULL,NULL
+1893,PSY223,Psychology of Sport Fans,3,NULL,NULL,NULL
+1894,PSY245,Law and Psychology,3,NULL,NULL,NULL
+1895,PSY260,Lifespan Development,3,NULL,NULL,NULL
+1896,PSY261,Child Psychology,3,NULL,NULL,NULL
+1897,PSY264,Psychology of Aging,3,NULL,NULL,NULL
+1898,PSY300,Principles/Mthds Stat Analysis,3,NULL,NULL,NULL
+1899,PSY301,Prin/Mthds of Psych Research I,3,NULL,NULL,NULL
+1900,PSY302,Topical Seminar,3,NULL,NULL,NULL
+1901,PSY303,Social Psychology,3,NULL,NULL,NULL
+1902,PSY304,Psych of Learning and Memory,3,NULL,NULL,NULL
+1903,PSY305,Physiological Psychology,3,NULL,NULL,NULL
+1904,PSY322,Motivation and Emotion,3,NULL,NULL,NULL
+1905,PSY360,Directed Individual Study,3,NULL,NULL,NULL
+1906,PSY390,Animal Behavior,3,NULL,NULL,NULL
+1907,PSY403,History & System of Psychology,3,NULL,NULL,NULL
+1908,PSY499,Senior Thesis,3,NULL,NULL,NULL
+1909,PSY540,"Drugs, Alcohol and Behavior",3,NULL,NULL,NULL
+1910,PSY581,Abnormal Psychology,3,NULL,NULL,NULL
+1911,PSY584,Industrial/Organizational Psy,3,NULL,NULL,NULL
+1912,PSY589,Personality,3,NULL,NULL,NULL
+1913,PSY602,Graduate Seminar,3,NULL,NULL,NULL
+1914,PSY610,Grad Sem in Gen Experiment Psy,3,NULL,NULL,NULL
+1915,PSY620,Sem:Professional/Ethical Issue,3,NULL,NULL,NULL
+1916,PSY621,Biological Bases of Behavior,3,NULL,NULL,NULL
+1917,PSY622,Cognitive Bases of Behavior,3,NULL,NULL,NULL
+1918,PSY623,Social Bases of Behavior,3,NULL,NULL,NULL
+1919,PSY624,Developmental Base of Behavior,3,NULL,NULL,NULL
+1920,PSY645,Clinical Measure & Eval I,3,NULL,NULL,NULL
+1921,PSY651,Correlational Research,3,NULL,NULL,NULL
+1922,PSY664,Psychopathology,3,NULL,NULL,NULL
+1923,PSY665,Clinical Measure & Eval II,3,NULL,NULL,NULL
+1924,PSY666,Advanced Seminar,3,NULL,NULL,NULL
+1925,PSY667,Practicum in Psychology,3,NULL,NULL,NULL
+1926,PSY668,Advanced Practicum,3,NULL,NULL,NULL
+1927,PSY670,Psychotherapeutic Procedures,3,NULL,NULL,NULL
+1928,PSY672,Family Therapy,3,NULL,NULL,NULL
+1929,PSY681,Advanced Adolescent Psychology,3,NULL,NULL,NULL
+1930,PSY682,Child Clinical Psychology,3,NULL,NULL,NULL
+1931,PSY683,Tests and Measurements,3,NULL,NULL,NULL
+1932,PSY684,Directed Individual Study,3,NULL,NULL,NULL
+1933,PSY688,Multivariate Rsrch Dsgn/Stats,3,NULL,NULL,NULL
+1934,PSY698,Thesis,3,NULL,NULL,NULL
+1935,PSY699,Thesis,3,NULL,NULL,NULL
+1936,REA095,Reading Workshop,3,NULL,NULL,NULL
+1937,REA100,Fundamental Reading Skills,3,NULL,NULL,NULL
+1938,REA120,College Study Skills,3,NULL,NULL,NULL
+1939,REA121,Advanced Reading/Study Skills,3,NULL,NULL,NULL
+1940,REA306,Teaching Reading in Ele School,3,NULL,NULL,NULL
+1941,REA407,Middle School Reading,3,NULL,NULL,NULL
+1942,REA412,Assess/Strat Struggling Rdrs,3,NULL,NULL,NULL
+1943,REA527,Teaching Reading/Sec Schools,3,NULL,NULL,NULL
+1944,REA612,Foundations of Literacy,3,NULL,NULL,NULL
+1945,REA618,Content Area Literacy K-12,3,NULL,NULL,NULL
+1946,REA626,"Word Stdy: Phonics, Spell/Voca",3,NULL,NULL,NULL
+1947,REA628,Literacy Assessment,3,NULL,NULL,NULL
+1948,REA638,Assess/Instr Child W/Read Diff,3,NULL,NULL,NULL
+1949,REA639,Supervised Practicum/Reading,3,NULL,NULL,NULL
+1950,REC099,Transitions,3,NULL,NULL,NULL
+1951,REC101,Intro Recreation & Leisure,3,NULL,NULL,NULL
+1952,REC102,Camp Leadership and Campcraft,3,NULL,NULL,NULL
+1953,REC105,Volleyball,3,NULL,NULL,NULL
+1954,REC108,Golf,3,NULL,NULL,NULL
+1955,REC111,Clay Target Shooting,3,NULL,NULL,NULL
+1956,REC112,Open Water Scuba Diving I,3,NULL,NULL,NULL
+1957,REC118,Tai Chi Chuan,3,NULL,NULL,NULL
+1958,REC119,Beginning Karate,3,NULL,NULL,NULL
+1959,REC123,Aerobic Kickboxing,3,NULL,NULL,NULL
+1960,REC133,Physical Fitness,3,NULL,NULL,NULL
+1961,REC150,Sem in Recreational Activities,3,NULL,NULL,NULL
+1962,REC159,Advanced Tae Kwon Do,3,NULL,NULL,NULL
+1963,REC162,Backpacking and Outdoor Living,3,NULL,NULL,NULL
+1964,REC164,Rock Climbing,3,NULL,NULL,NULL
+1965,REC202,Recreation Program Planning,3,NULL,NULL,NULL
+1966,REC207,Inclusive Recreation,3,NULL,NULL,NULL
+1967,REC295,Wilderness First Aid Basics,3,NULL,NULL,NULL
+1968,REC302,Advanced Program Leadership,3,NULL,NULL,NULL
+1969,REC304,Community Leadership,3,NULL,NULL,NULL
+1970,REC311,Leadership in Adventure Edu,3,NULL,NULL,NULL
+1971,REC401,Research/Eval in Recreation,3,NULL,NULL,NULL
+1972,REC403,Managing Rec Areas/Facilities,3,NULL,NULL,NULL
+1973,REC405,Org/Admin of Recreation,3,NULL,NULL,NULL
+1974,REC411,Principles of Challenge Edu,3,NULL,NULL,NULL
+1975,REC421,Professional Experience,3,NULL,NULL,NULL
+1976,REC450,Rec Use of Natural Resources,3,NULL,NULL,NULL
+1977,REC465,Interpret Serv in Park Mgt,3,NULL,NULL,NULL
+1978,REC480,Special Problems in Recreation,3,NULL,NULL,NULL
+1979,REC499,Senior Seminar,3,NULL,NULL,NULL
+1980,REC515,Leisurein Therapeutic Rec Serv,3,NULL,NULL,NULL
+1981,REC520,Leisure and Aging,3,NULL,NULL,NULL
+1982,RES132,Real Estate Principles I,3,NULL,NULL,NULL
+1983,RES134,Real Estate Marketing I,3,NULL,NULL,NULL
+1984,RES226,Real Estate Finance,3,NULL,NULL,NULL
+1985,RES242,Real Estate Law,3,NULL,NULL,NULL
+1986,RES338,Real Estate Brokerage Mgt,3,NULL,NULL,NULL
+1987,RGS309,Survey of World Religions,3,NULL,NULL,NULL
+1988,RGS321,Philosophy of Religion,3,NULL,NULL,NULL
+1989,RGS322,History of Religion in U.S.,3,NULL,NULL,NULL
+1990,RGS350,Special Topics,3,NULL,NULL,NULL
+1991,RGS420,Sociology of Religion,3,NULL,NULL,NULL
+1992,RGS510,Directed Study,3,NULL,NULL,NULL
+1993,RGS511,Milton,3,NULL,NULL,NULL
+1994,SCI301,Scientific Communication,3,NULL,NULL,NULL
+1995,SEC420,Practicum in Secondary Schools,3,NULL,NULL,NULL
+1996,SEC421,Student Tching Secondary Sch,3,NULL,NULL,NULL
+1997,SED300,Edu Students w/Disabilities,3,NULL,NULL,NULL
+1998,SED350,Roles/Proc in Special Ed,3,NULL,NULL,NULL
+1999,SED400,Characteristic of Stu w/Mild D,3,NULL,NULL,NULL
+2000,SED421,Student Teaching in Special Ed,3,NULL,NULL,NULL
+2001,SED425,Content Area Literacy,3,NULL,NULL,NULL
+2002,SED443,Curriculum & Instruction,3,NULL,NULL,NULL
+2003,SED455,Practicum in LBD,3,NULL,NULL,NULL
+2004,SED505,SED Procedures/Strat For IECE,3,NULL,NULL,NULL
+2005,SED526,Edu of Young Child Disability,3,NULL,NULL,NULL
+2006,SED531,Nature/Needs Mod/Sev Disabil,3,NULL,NULL,NULL
+2007,SED537,Diagnostic Methods,3,NULL,NULL,NULL
+2008,SED540,Procedures-Class Mgt & Discipl,3,NULL,NULL,NULL
+2009,SED551,Transdisc Assmt-w/Mod/Severe,3,NULL,NULL,NULL
+2010,SED552,Functional Behavior Analysis,3,NULL,NULL,NULL
+2011,SED553,Procedures-Students w/MSD,3,NULL,NULL,NULL
+2012,SED554,Class Mgt-Mod/Severe Disabil,3,NULL,NULL,NULL
+2013,SED602,Family-Prof Partnerships,3,NULL,NULL,NULL
+2014,SED603,Spec Ed Law & Procedures,3,NULL,NULL,NULL
+2015,SED605,Char/Needs-Child/Youth w/Dis,3,NULL,NULL,NULL
+2016,SED613,Advanced Behavior Support,3,NULL,NULL,NULL
+2017,SED615,Collabor Skills for Educators,3,NULL,NULL,NULL
+2018,SED625,Instr Tech Child/Yth W/Mild,3,NULL,NULL,NULL
+2019,SED640,Practicum,3,NULL,NULL,NULL
+2020,SED645,Strategies for Stdnt w/Autism,3,NULL,NULL,NULL
+2021,SED651,Social Competence/Safe Environ,3,NULL,NULL,NULL
+2022,SED652,Assess Prog Plan Inf Tod Presc,3,NULL,NULL,NULL
+2023,SED653,Meth/Materials-Infants/Tod/Pre,3,NULL,NULL,NULL
+2024,SED655,Special Education Transition,3,NULL,NULL,NULL
+2025,SED660,Problems in Special Education,3,NULL,NULL,NULL
+2026,SED690,Exit Seminar in Special Ed,3,NULL,NULL,NULL
+2027,SED695,Independent Study,3,NULL,NULL,NULL
+2028,SOC099,Transitions,3,NULL,NULL,NULL
+2029,SOC133,Introduction to Sociology,3,NULL,NULL,NULL
+2030,SOC231,Social Problems,3,NULL,NULL,NULL
+2031,SOC250,Global Sociology,3,NULL,NULL,NULL
+2032,SOC303,Intro to Research Methods,3,NULL,NULL,NULL
+2033,SOC332,Socialization of Youth,3,NULL,NULL,NULL
+2034,SOC334,Sociology of Migration,3,NULL,NULL,NULL
+2035,SOC337,Social Inequality,3,NULL,NULL,NULL
+2036,SOC340,Medical Sociology,3,NULL,NULL,NULL
+2037,SOC344,The Black Experience,3,NULL,NULL,NULL
+2038,SOC380,Society and Technology,3,NULL,NULL,NULL
+2039,SOC400,Senior Seminar,3,NULL,NULL,NULL
+2040,SOC420,Sociology of Religion,3,NULL,NULL,NULL
+2041,SOC430,American Culture,3,NULL,NULL,NULL
+2042,SOC434,Social Theory,3,NULL,NULL,NULL
+2043,SOC436,Sociology of Sport,3,NULL,NULL,NULL
+2044,SOC438,Sociology of Deviant Behavior,3,NULL,NULL,NULL
+2045,SOC441,Youth Violence,3,NULL,NULL,NULL
+2046,SOC455,Environment & Social Policy,3,NULL,NULL,NULL
+2047,SOC488,Coop Ed/Internship,3,NULL,NULL,NULL
+2048,SOC489,Coop Ed/Internship,3,NULL,NULL,NULL
+2049,SOC490,Directed Studies,3,NULL,NULL,NULL
+2050,SPA101,Fund Communication in Spanish,3,NULL,NULL,NULL
+2051,SPA102,Social Interactions in Spanish,3,NULL,NULL,NULL
+2052,SPA106,Basic Spa & Culture for Agr,3,NULL,NULL,NULL
+2053,SPA201,Intercultural Comm in Spanish,3,NULL,NULL,NULL
+2054,SPA202,Practical Applic in Spanish,3,NULL,NULL,NULL
+2055,SPA301,Conversation and Composition I,3,NULL,NULL,NULL
+2056,SPA302,Conversation & Composition II,3,NULL,NULL,NULL
+2057,SPA325,Spanish-American Culture,3,NULL,NULL,NULL
+2058,SPA331,Advanced Language Practice,3,NULL,NULL,NULL
+2059,SPA419,European Cinema,3,NULL,NULL,NULL
+2060,SPA422,Topics in Spanish-American Lit,3,NULL,NULL,NULL
+2061,SPA460,Studies in a Genre,3,NULL,NULL,NULL
+2062,SPA511,Spanish American Short Story,3,NULL,NULL,NULL
+2063,SWK099,Transitions,3,NULL,NULL,NULL
+2064,SWK101,Introduction to Social Work,3,NULL,NULL,NULL
+2065,SWK120,Foundations for Parenting,3,NULL,NULL,NULL
+2066,SWK201,Social Work and Social Welfare,3,NULL,NULL,NULL
+2067,SWK225,Human Diversity,3,NULL,NULL,NULL
+2068,SWK301,Human Behavior & Soc Environ I,3,NULL,NULL,NULL
+2069,SWK302,Human Behavior & Soc Env II,3,NULL,NULL,NULL
+2070,SWK303,Principles/Methods of Research,3,NULL,NULL,NULL
+2071,SWK310,Social Work Practice I,3,NULL,NULL,NULL
+2072,SWK311,Social Work Practice Skills,3,NULL,NULL,NULL
+2073,SWK312,Social Work Practice II,3,NULL,NULL,NULL
+2074,SWK313,Social Work Practice III,3,NULL,NULL,NULL
+2075,SWK346,International Social Work,3,NULL,NULL,NULL
+2076,SWK350,Social Welfare Policies/Serv,3,NULL,NULL,NULL
+2077,SWK365,Crisis Intervention,3,NULL,NULL,NULL
+2078,SWK370,Gerontological SWK Theory,3,NULL,NULL,NULL
+2079,SWK375,SWK in Health Care Settings,3,NULL,NULL,NULL
+2080,SWK385,SWK in Mental Health Settings,3,NULL,NULL,NULL
+2081,SWK395,Substance Abuse Prevention,3,NULL,NULL,NULL
+2082,SWK405,Child Abuse and Neglect,3,NULL,NULL,NULL
+2083,SWK415,Child Abuse Interventions,3,NULL,NULL,NULL
+2084,SWK426,Spirituality and SWK Practice,3,NULL,NULL,NULL
+2085,SWK428,History/Philosophy of Drug Crt,3,NULL,NULL,NULL
+2086,SWK429,Behavioral Issues in Drug Crt,3,NULL,NULL,NULL
+2087,SWK431,Adult Protection,3,NULL,NULL,NULL
+2088,SWK498,Senior Seminar,3,NULL,NULL,NULL
+2089,SWK499,Field Practicum,3,NULL,NULL,NULL
+2090,SWK500,Independent Study,3,NULL,NULL,NULL
+2091,THD098,Theatre Attendance and Assembl,3,NULL,NULL,NULL
+2092,THD099,Transitions,3,NULL,NULL,NULL
+2093,THD101,Dance Appreciation,3,NULL,NULL,NULL
+2094,THD104,The Theatrical Experience,3,NULL,NULL,NULL
+2095,THD111,Acting I,3,NULL,NULL,NULL
+2096,THD120,Play Analysis,3,NULL,NULL,NULL
+2097,THD210,Voice and Diction,3,NULL,NULL,NULL
+2098,THD220,Creative Dramatics,3,NULL,NULL,NULL
+2099,THD230,Stage Manangement,3,NULL,NULL,NULL
+2100,THD240,Theatre Production,3,NULL,NULL,NULL
+2101,THD241,Theatrical Makeup,3,NULL,NULL,NULL
+2102,THD250,Basic Theatre Design,3,NULL,NULL,NULL
+2103,THD260,Musical Theatre Dance I,3,NULL,NULL,NULL
+2104,THD310,Acting II,3,NULL,NULL,NULL
+2105,THD312,Advanced Movement for Actors,3,NULL,NULL,NULL
+2106,THD322,International Studies in Thtre,3,NULL,NULL,NULL
+2107,THD346,Acting Shakespeare,3,NULL,NULL,NULL
+2108,THD349,Advanced Stagecraft,3,NULL,NULL,NULL
+2109,THD350,Scene Design,3,NULL,NULL,NULL
+2110,THD352,Costume Design,3,NULL,NULL,NULL
+2111,THD360,Musical Theatre Dance II,3,NULL,NULL,NULL
+2112,THD400,Special Topics,3,NULL,NULL,NULL
+2113,THD410,Acting III,3,NULL,NULL,NULL
+2114,THD421,Theatre History & Lit II,3,NULL,NULL,NULL
+2115,THD422,Contemporary Theatre,3,NULL,NULL,NULL
+2116,THD430,Directing I,3,NULL,NULL,NULL
+2117,THD490,Directed Independent Study,3,NULL,NULL,NULL
+2118,THD590,Directed Study,3,NULL,NULL,NULL
+2119,TSL510,App Linguistic for Sec Lan Tch,3,NULL,NULL,NULL
+2120,TSL520,Cmptr Assisted Language Lrning,3,NULL,NULL,NULL
+2121,TSL530,Methods/Materials Tching ESL,3,NULL,NULL,NULL
+2122,TSL533,Language/Culture,3,NULL,NULL,NULL
+2123,TSL580,Practicum,3,NULL,NULL,NULL
+2124,TSL610,Research Appl in Lang Ed,3,NULL,NULL,NULL
+2125,TSL615,Curriculum Design in Sec Lang,3,NULL,NULL,NULL
+2126,TSL623,Testing/Evaluation in TSL,3,NULL,NULL,NULL
+2127,TSL630,Developing Intercultural Comp,3,NULL,NULL,NULL
+2128,TSL653,L2 Integrated Skills Seminar,3,NULL,NULL,NULL
+2129,TSL690,Internship: Teaching Focus,3,NULL,NULL,NULL
+2130,TSM099,Transitions,1,NULL,NULL,NULL
+2131,TSM110,Electrical Systems I,3,NULL,NULL,NULL
+2132,TSM121,TSM Electronic Principles,3,NULL,NULL,NULL
+2133,TSM133,Intro TSM Technology & Methods,3,NULL,NULL,NULL
+2134,TSM210,Electrical Systems II,3,NULL,NULL,NULL
+2135,TSM232,Operating Systems,3,NULL,NULL,NULL
+2136,TSM233,Network Services,3,NULL,NULL,NULL
+2137,TSM241,Networking Fundamentals,3,NULL,NULL,NULL
+2138,TSM320,Intro to Wireless Technology,3,NULL,NULL,NULL
+2139,TSM321,Wireless Communications I,3,NULL,NULL,NULL
+2140,TSM322,Wireless Communications II,3,NULL,NULL,NULL
+2141,TSM323,Wireless Mobile Internet,3,NULL,NULL,NULL
+2142,TSM343,Protocol Analysis,3,NULL,NULL,NULL
+2143,TSM351,Principles of Info Security,3,NULL,NULL,NULL
+2144,TSM352,System Security,3,NULL,NULL,NULL
+2145,TSM353,Network Security,3,NULL,NULL,NULL
+2146,TSM397,Undergraduate Research in TSM,3,NULL,NULL,NULL
+2147,TSM411,"NW Design, Operations/Mgmt",3,NULL,NULL,NULL
+2148,TSM421,Mobile Satellite Communication,3,NULL,NULL,NULL
+2149,TSM440,Info Policy & Security Audit,3,NULL,NULL,NULL
+2150,TSM441,Adv Information Security,3,NULL,NULL,NULL
+2151,TSM443,Voice and WAN Systems,3,NULL,NULL,NULL
+2152,TSM450,TSM Policy and Strategies,3,NULL,NULL,NULL
+2153,TSM488,Coop Ed/Internship,3,NULL,NULL,NULL
+2154,TSM489,Coop Ed/Internship,3,NULL,NULL,NULL
+2155,TSM517,Systems Planning,3,NULL,NULL,NULL
+2156,TSM530,Systems Planning,3,NULL,NULL,NULL
+2157,TSM571,Problems in TSM,3,NULL,NULL,NULL
+2158,TSM601,Telecommunications Principles,3,NULL,NULL,NULL
+2159,TSM602,Telecommunications Systems,3,NULL,300.00,NULL
+2160,TSM603,TSM Project Management,3,NULL,NULL,NULL
+2161,TSM610,TSM Networks Management,3,NULL,NULL,NULL
+2162,TSM615,Information System Security,3,NULL,NULL,NULL
+2163,TSM630,TSM: Law/Policy/Regulations,3,NULL,300.00,NULL
+2164,TSM680,Telecom Solution Development,3,NULL,NULL,NULL
+2165,TSM688,Telecom Systems Practicum,3,NULL,NULL,NULL
+2166,TSM695,Comprehensive Project,3,NULL,NULL,NULL
+2167,WSC690,Seminar,3,NULL,NULL,NULL
+2168,WSC698,Thesis I,3,NULL,NULL,NULL
+2169,WSC699,Thesis II,3,NULL,NULL,NULL
+2170,YNL290,Trends/Issues Yth & Human Ser,3,NULL,NULL,NULL
+2171,YNL350,Prog Admin in Yth/Hmn Serv Org,3,NULL,NULL,NULL
+2172,YNL351,Ldrshp/Spprt in Yth/Hmn Serv,3,NULL,NULL,NULL
+2173,YNL400,Yth/Hmn Serv Adm Internship,3,NULL,NULL,NULL
+2174,YNL450,Senior Seminar,3,NULL,NULL,NULL
+2175,YNL485,Seminar on Ldrship Development,3,NULL,NULL,NULL
+2176,YNL501,Seminar on Yth/Hmn Serv Org,3,NULL,NULL,NULL
+2177,YNL502,Wkshp Financial Res Dvlpmnt,3,NULL,NULL,NULL
+2178,YNL580,Spcl Probs in Yth/Hmn Ser Org,3,NULL,NULL,NULL
+2179,YNL685,Sem on Leadership Development,3,NULL,NULL,NULL
+2180,COM622,Communication Technology,3,NULL,NULL,NULL
+2181,CIS443,Business Statistics III,3,NULL,NULL,NULL
+2182,CIS685,Special Problems,3,9.00,309.00,NULL
+2183,ECO190,Consumer Economics,3,NULL,NULL,NULL
+2184,TSM617,Advanced Systems Planning,3,NULL,NULL,NULL
+2185,COM630,Sem in Interpersonal Com,3,NULL,NULL,NULL
+2188,JMC685,Specialized Mass Communication,3,NULL,NULL,NULL
+2189,JMC615,History of Media/Mass Com,3,NULL,NULL,NULL
+2190,ECO386,Intl Experience in Economics,3,NULL,NULL,NULL
+2191,MGT558,Adv Topics in Human Resources,3,NULL,NULL,NULL
+2192,GCM360,Portraiture Photography,3,NULL,NULL,NULL
+2193,ECO640,Market Structure & Firm Behav,3,NULL,NULL,NULL
+2194,ECO639,Microeconomic Policy,3,NULL,NULL,NULL
+2195,CIS290,Not known to COBIS yet,3,NULL,NULL,NULL
+2196,JMC616,Internship,3,NULL,NULL,NULL
+2197,FIN350,Intro Counter Threat Finance,3,NULL,NULL,NULL
+2198,JMC603,Seminar in Public Relations,3,NULL,NULL,NULL
+2199,ECO570,Labor Economics,3,NULL,NULL,NULL
+2200,CSC255,Not known to COBIS yet,3,NULL,NULL,NULL
+2201,LST444,Judicial Process,3,NULL,NULL,NULL
+2202,JMC344,Not known to COBIS yet,3,NULL,NULL,NULL
+2203,JMC558,Not known to COBIS yet,3,NULL,NULL,NULL
+2204,LST445,Constitutional Law I,3,NULL,NULL,NULL
+2205,CSC515,Computer Graphics Programming,3,NULL,NULL,NULL
+2206,CSC245,Data structured (old),4,NULL,NULL,NULL
+2207,JMC599,Not known to COBIS yet,3,NULL,NULL,NULL
+2208,CIS525,Overview of E-Business Technologies,3,NULL,NULL,NULL
+2209,BPA140,Not known to COBIS yet,3,NULL,NULL,NULL
+2210,BPA215,Not known to COBIS yet,3,NULL,NULL,NULL
+2211,BPA442,Not known to COBIS yet,3,NULL,NULL,NULL
+2212,BPA200,Not known to COBIS yet,1,NULL,NULL,NULL
+2213,CIS625,E-Business Technology,3,NULL,NULL,NULL
+2214,BPA396,Not known to COBIS yet,3,NULL,NULL,NULL
+2215,FIN520,Risk Management,3,NULL,NULL,NULL
+2216,MGT572,Organizational Development,3,NULL,NULL,NULL
+2217,BPA488,Not known to COBIS yet,3,NULL,NULL,NULL
+2218,MKT685,Enterprise Business GIS,3,NULL,NULL,NULL
+2219,LST457,Intrl Law and Organizations,3,NULL,NULL,NULL
+2220,CIS603,Project Management,3,9.00,NULL,NULL
+2221,FIN620,Risk Management,3,NULL,NULL,NULL
+2222,BPA615,Not known to COBIS yet,3,NULL,NULL,NULL
+2223,ECO320,Women in the Global Economy,3,NULL,NULL,NULL
+2224,BPA540,Not known to COBIS yet,3,NULL,NULL,NULL
+2225,BPA355,Not known to COBIS yet,3,NULL,NULL,NULL
+2226,BPA099,Not known to COBIS yet,1,NULL,NULL,NULL
+2227,COM636,Health Communication,3,NULL,NULL,NULL
+2228,CSC370,Intro to Artificial Intelligen,3,NULL,NULL,NULL
+2229,JMC658,New Technologies,3,NULL,NULL,NULL
+2230,BPA515,Not known to COBIS yet,3,NULL,NULL,NULL
+2231,BPA640,Not known to COBIS yet,3,NULL,NULL,NULL
+2232,FIN489,Coop Ed/Internship,3,NULL,NULL,NULL
+2233,JMC602,Seminar in Advertising,3,NULL,NULL,NULL
+2234,JMC444,Social Media Management,3,NULL,NULL,NULL
+2235,CSC325,Adv Object-Oriented Program,3,NULL,NULL,NULL
+2236,FIN650,Derivative Securities,3,NULL,NULL,NULL
+2237,TSM444,Enterprise Networks,3,NULL,NULL,NULL
+2238,ECO325,Economics of Corruption,3,NULL,NULL,NULL
+2239,CSC425,Web Services and Apps,3,NULL,NULL,NULL
+2240,LST350,Not known to COBIS yet,3,NULL,NULL,NULL
+2241,GCM351,Graphic Comm Principles,3,NULL,NULL,NULL
+2242,JMC610,Intro to Graduate Studies,1,NULL,NULL,NULL
+2243,TSM671,Problems in TSM,3,NULL,NULL,NULL
+2244,CIS601,Telecommunication Principles,3,NULL,NULL,NULL
+2245,LSC343,Fundamentals of Operations,3,NULL,NULL,NULL
+2246,LSC452,Process Management,3,NULL,NULL,NULL
+2247,COM687,Leadership Communication,3,NULL,NULL,NULL
+2248,MKT460,Integrated Marketing Communic,3,NULL,NULL,NULL
+2249,GCM558,Trend in Graphic Communication,3,NULL,NULL,NULL
+2250,TSM388,Interntl Experience in TSM,3,NULL,NULL,NULL
+2251,LSC461,Prin of Purchasing/Supply Mgmt,3,NULL,NULL,NULL
+2252,CSC300,Discrete Structures,3,NULL,NULL,NULL
+2253,ACC503,Cost Mgt in Global Economy,3,NULL,NULL,NULL
+2254,CIS615,Information System Security,3,NULL,NULL,NULL
+2255,TSM301,Telecommunications Electronics,3,NULL,NULL,NULL
+2256,MKT499,Not known to COBIS yet,1,NULL,NULL,NULL
+2257,CIS509,Data Mgmt for Data Warehouses,3,9.00,NULL,NULL
+2258,CIS490,Survey of Calculus & Statistic,3,NULL,234.00,NULL
+2259,COM100,Transitions,1,NULL,NULL,NULL
+2260,MGT801,Educational Entrepreneurship,3,NULL,NULL,NULL
+2261,FIN550,Derivative Securities,3,NULL,NULL,NULL
+2262,JMC305,News Editing,3,NULL,NULL,NULL
+2263,TSM670,Develop E-Commerce Application,3,NULL,NULL,NULL
+2264,JMC100,Transitions,1,NULL,NULL,NULL
+2265,JMC304,Multimedia Writing,3,NULL,NULL,NULL
+2266,TSM100,Transitions,1,NULL,NULL,NULL
+2267,COM215,Intro to Sports Communication,3,NULL,NULL,NULL
+2268,LSC470,Analytics for Business Majors,3,NULL,NULL,NULL
+2269,COM100T,Transitions,1,NULL,NULL,NULL
+2270,TSM100T,Transitions,1,NULL,NULL,NULL
+2271,JMC100T,Transitions,1,NULL,NULL,NULL
+2272,JMC384,Sports Media,3,NULL,NULL,NULL
+2273,ECO370,The Economics of Sports,3,NULL,NULL,NULL
+2274,JMC593,Opinion Writing,3,NULL,NULL,NULL
+2275,COM315,Coaching as Communication,3,NULL,NULL,NULL
+2276,LSC475,Intl Transportation/Logistics,3,NULL,NULL,NULL
+2277,LSC480,Supply Chain Mgt Strategy,3,NULL,NULL,NULL
+2278,LSC485,Humanitarian Supply Chain,3,NULL,NULL,NULL
+2279,COM386,Corporate Communication,3,NULL,NULL,NULL
+2280,JMC620,Strategic Communications,3,NULL,NULL,NULL
+2281,LST370,Law and Literature,3,NULL,NULL,NULL
+2282,LST476,Law in Public Administration,3,NULL,NULL,NULL
+2283,ECO420,Behavioral Economics,3,NULL,NULL,NULL
+2284,ECO610,Intro to Economic Development,3,NULL,NULL,NULL
+2285,FIN420,Behavioral Finance,3,NULL,NULL,NULL
+2286,LST480,Topical Sem in Legal Studies,3,NULL,NULL,NULL
+2287,FIN610,Economic Development Finance,3,NULL,NULL,NULL
+2288,CSC375,Introduction to Machine Learni,3,NULL,NULL,NULL
+2289,COM361,Career Presentation,3,NULL,NULL,NULL
+2290,FIN354,Bank Compliance Issues,3,NULL,NULL,NULL
+2291,TSM360,Virtualized Enterprise Systems,3,NULL,NULL,NULL
+2292,BUS296,Topics in Intl Business,3,NULL,NULL,NULL
+2293,FIN344,Lending & Financial Statements,3,NULL,NULL,NULL
+2294,FIN432,Corporate Finance,3,NULL,NULL,NULL
+2295,CSC385,Introduction to Special Topics,3,NULL,NULL,NULL
+2296,LSC489,Coop Ed/Internship,3,NULL,NULL,NULL
+2297,COM887,Sem in Organizational Leadersh,3,NULL,NULL,NULL
+2298,CSC100T,Transitions,1,NULL,NULL,NULL
+2299,MKT669,Seminar in Global Marketing,3,NULL,NULL,NULL
+2300,CIS299,Special Topics in Computer App,1,NULL,NULL,NULL
+2301,FIN100T,Transitions,1,NULL,NULL,NULL
+2302,BUS100T,Transitions,1,NULL,NULL,NULL
+2303,ACC100T,Transitions,1,NULL,NULL,NULL
+2304,ECO611,Economic Development Methods,3,NULL,NULL,NULL
+2305,ECO100T,Transitions,1,NULL,NULL,NULL
+2306,LST320,Family Law,3,NULL,NULL,NULL
+2307,MKT645,Seminar in New Venture Dev,3,NULL,NULL,NULL
+2308,ACC500,Advanced Accounting,3,NULL,NULL,NULL
+2309,ECO615,Directed Study in ECO Developm,3,NULL,NULL,NULL
+2310,ECO655,Cost Benefit Analysis,3,NULL,NULL,NULL
+2311,ECO618,Internship in Econ Development,3,NULL,NULL,NULL
+2312,LSC670,Supply Chain Network Design,3,NULL,NULL,NULL
+2313,LSC488,Coop Ed/Internship,3,NULL,NULL,NULL
+2314,MKT362,Food and Beverage Marketing,3,NULL,NULL,NULL
+2315,HDL692,"Individual, Group and Team Dyn",3,NULL,NULL,NULL
+2316,HDL670,Multicultural/Diversity Issues,3,NULL,NULL,NULL
+2317,TSM135,Intro to Network Technology,2,NULL,NULL,NULL
+2318,CSC450,Cryptography,3,NULL,NULL,NULL
+2319,TSM134,Intro to Telecom Sys Mgmt,2,NULL,NULL,NULL
+2320,ECO617,Capstone in Econ Development,3,NULL,NULL,NULL
+2321,ECO313,History of Economic Thought,3,NULL,NULL,NULL
+2323,IOE696,Teamwork and the Management of Technology,3,NULL,NULL,NULL
+2324,IOE619,Industrial Energy Management,3,NULL,NULL,NULL
+2325,HDL631,Educational Data Mgmt Techniqu,3,NULL,NULL,NULL
+2326,IOE695,Industrial Supervision,3,NULL,NULL,NULL
+2327,STA640,Mathematical Statistics I,3,NULL,NULL,NULL
+2328,STA641,Mathematical Statistics II,3,NULL,NULL,NULL
+2329,GCM152,Content Management Systems,3,NULL,NULL,NULL
+2330,TSM607,Adv TSM Project Management,3,NULL,300.00,NULL
+2331,TSM625,Information Security Risk Management,3,NULL,300.00,NULL
+2332,CSC233,Programming in Python,3,NULL,NULL,NULL
+2333,ECO411,Intro to Economic Development,3,NULL,NULL,NULL
+2334,ACC603,Cost Mgt in Global Economy,3,NULL,NULL,NULL
+2335,COM686,Apprehension & the Workplace,3,NULL,NULL,NULL
+2336,FIN410,Economic Development Finance,3,NULL,NULL,NULL
+2337,JMC604,Introduction to Mass Media,3,NULL,NULL,NULL
+2338,FIN637,Not known to COBIS yet,3,NULL,NULL,NULL
+2339,MKT364,Intro to Hospitality & Tourism,3,NULL,NULL,NULL
+2340,CIS663,Developing Analytics Applicati,3,NULL,NULL,NULL
+2341,JMC686,Special Topics,3,NULL,NULL,NULL
+2342,COM261,Debate and Advocacy,3,NULL,NULL,NULL
+2343,CIS623,Intro to Business Analytics,3,NULL,NULL,NULL
+2344,MGT425,Applied Org Sustainability,3,NULL,NULL,NULL
+2345,TSM302,Internet of Things Networking,3,NULL,NULL,NULL
+2346,MKT260,Not known to COBIS yet,3,NULL,NULL,NULL
+2347,CSC240,Java (old),3,NULL,NULL,NULL
+2348,ACC099,Not known to COBIS yet,1,NULL,NULL,NULL
+2349,TSM620,Not known to COBIS yet,3,NULL,NULL,NULL
+2350,CSC508,Advanced Machine Learning,3,NULL,NULL,NULL
+2351,ACC608,Adv Accounting Info Sys & Anal,3,NULL,NULL,NULL
+2352,CIS304,Systems analysis and design (CIS317),3,NULL,NULL,NULL
+2353,LST540,Not known to COBIS yet,3,NULL,NULL,NULL
+2354,CSC560,Not known to COBIS yet,3,NULL,NULL,NULL
+2355,TSM132,Network Technical Support,3,NULL,NULL,NULL
+2356,CIS260,COBOL (CSC260),3,NULL,NULL,NULL
+2357,CSC104,Not known to COBIS yet,1,NULL,NULL,NULL
+2358,ECO500,Not known to COBIS yet,3,NULL,NULL,NULL
+2359,MGT449,Not known to COBIS yet,3,NULL,NULL,NULL
+2360,TSM380,Not known to COBIS yet,3,NULL,NULL,NULL
+2361,MKT563,Not known to COBIS yet,3,NULL,NULL,NULL
+2362,CIS201,Report program generator (Archive),3,NULL,NULL,NULL
+2363,TSM120,Not known to COBIS yet,3,NULL,NULL,NULL
+2364,BPA143,WordPerfect & Lotus 123,3,NULL,NULL,NULL
+2365,CIS360,COBOL II,3,NULL,NULL,NULL
+2366,BPA499,Not known to COBIS yet,1,NULL,NULL,NULL
+2367,TSM340,Not known to COBIS yet,3,NULL,NULL,NULL
+2368,MGT652,Not known to COBIS yet,3,NULL,NULL,NULL
+2369,BPA235,Not known to COBIS yet,3,NULL,NULL,NULL
+2370,TSM690,Not known to COBIS yet,3,NULL,NULL,NULL
+2371,ACC304,Not known to COBIS yet,3,NULL,NULL,NULL
+2372,CIS160,COBOL I (archive),3,NULL,NULL,NULL
+2373,CIS430,Project management,3,NULL,NULL,NULL
+2374,CIS143,Not known to COBIS yet,3,NULL,NULL,NULL
+2375,FIN521,Not known to COBIS yet,3,NULL,NULL,NULL
+2376,CSC204,Assembly language (archive),3,NULL,NULL,NULL
+2377,ECO100,Not known to COBIS yet,3,NULL,NULL,NULL
+2378,CIS647,Systems Analysis and Design,3,NULL,NULL,NULL
+2379,CSC102,Not known to COBIS yet,3,NULL,NULL,NULL
+2380,CIS445,Intro to MIS (BAC355),3,NULL,NULL,NULL
+2381,JMC445,Not known to COBIS yet,3,NULL,NULL,NULL
+2382,CIS200,Not known to COBIS yet,3,NULL,NULL,NULL
+2383,CSC336,Visual Basic advanced (CSC332),3,NULL,NULL,NULL
+2384,ACC526,Not known to COBIS yet,3,NULL,NULL,NULL
+2385,CSC135,Basic programming (Archive),4,NULL,NULL,NULL
+2386,CSC510,Intro to netwroking (CNM135),3,NULL,NULL,NULL
+2387,CIS309,Data warehousing (CIS509),3,NULL,NULL,NULL
+2388,MGT351,Not known to COBIS yet,3,NULL,NULL,NULL
+2389,CIS261,Not known to COBIS yet,3,NULL,NULL,NULL
+2390,BPA360,Not known to COBIS yet,3,NULL,NULL,NULL
+2391,ACC516,Auditing Theory and Practice,3,NULL,NULL,NULL
+2392,TSM218,Not known to COBIS yet,3,NULL,NULL,NULL
+2393,CSC136,Not known to COBIS yet,3,NULL,NULL,NULL
+2394,TSM325,Not known to COBIS yet,3,NULL,NULL,NULL
+2395,MGT410,Lodging Operations,3,NULL,NULL,NULL
+2396,CIS361,Developing Data Products,3,NULL,NULL,NULL
+2397,ACC600,Advanced Accounting,3,NULL,NULL,NULL
+2398,COM357,Not known to COBIS yet,3,NULL,NULL,NULL
+2399,LST340,Immigration Law,3,NULL,NULL,NULL
+2400,JMC556,Not known to COBIS yet,3,NULL,NULL,NULL
+2401,MGT365,Outdoor Tourism Management,3,NULL,NULL,NULL
+2402,COM684,Complexity and Org Com,3,NULL,NULL,NULL
+2403,COM633,Communication Ethics,3,NULL,NULL,NULL
+2404,FIN692,Not known to COBIS yet,3,NULL,NULL,NULL
+2405,TSM118,Not known to COBIS yet,3,NULL,NULL,NULL
+2406,ECO440,Not known to COBIS yet,3,NULL,NULL,NULL
+2407,CIS145,Not known to COBIS yet,3,NULL,NULL,NULL
+2408,FIN691,Financial Planning Sem I,3,NULL,NULL,NULL
+2409,CYS601,Data Com & Networking,3,NULL,NULL,NULL
+2410,CYS645,Info Security Program Mgmt,3,NULL,NULL,NULL
+2411,HDL683,Assess/Application of Leadersh,3,NULL,NULL,NULL
+2412,JMC386,Special Topics,6,NULL,NULL,NULL
+2413,HDL682,Leading Organizations Processe,3,NULL,NULL,NULL
+2414,CYS615,Information System Security,3,NULL,NULL,NULL
+2415,LSC595,Special Problems,3,NULL,NULL,NULL
+2416,CSC103,Not known to COBIS yet,3,NULL,NULL,2020-08-06 15:55:00
+2417,CSC110,Not known to COBIS yet,1,NULL,NULL,2020-08-06 15:55:00
+2418,FIN533,Not known to COBIS yet,3,NULL,NULL,2020-08-06 15:55:00
+2419,COM382,Not known to COBIS yet,3,NULL,NULL,2020-08-20 18:09:00
+2420,CSC330,Not known to COBIS yet,3,NULL,NULL,2020-10-12 12:44:00
+2421,MGT658,Advanced Topics,3,NULL,NULL,2020-12-14 15:50:00
+2422,ECO355,Urban Economics,3,NULL,NULL,2020-12-14 15:50:00
+2423,CYS695,Comp Project in Info Security,3,NULL,NULL,2020-12-14 15:50:00
+2424,ECO620,Eco Development Data Analytics,3,NULL,NULL,2020-12-14 15:50:00
+2425,ECO485,Applied Econometrics,3,NULL,NULL,2020-12-14 15:50:00
+2426,ACC307,Forensic Accounting and Fraud,3,NULL,NULL,2020-12-14 15:50:00
+2427,LST442,Not known to COBIS yet,3,NULL,NULL,2021-03-19 16:44:00
+2428,FIN633,Not known to COBIS yet,3,NULL,NULL,2021-03-19 16:44:00
+2429,COM637,Positive Communication,3,NULL,NULL,2021-05-10 16:58:00
+2430,CYS625,Info Security Risk Mgmt,3,NULL,NULL,2021-05-10 16:58:00
+2431,FIN337,Financial Markets & Regulation,3,NULL,NULL,2021-05-10 16:58:00
+2432,JMC650,Media Law for Business Leaders,3,NULL,NULL,2021-05-10 16:58:00
+2433,CYS640,Incident Manage & Bus Cont,3,NULL,NULL,2021-05-10 16:58:00
+2434,CYS630,CYS Legal Issues in Info Sec,3,NULL,NULL,2021-06-28 16:31:00
+2435,CYS680,Info Security Solutions Dvlpmt,3,NULL,NULL,2021-08-09 16:39:00
+2436,CSC455,Computer Security,3,NULL,NULL,2021-12-15 15:33:00
+2437,CSC695,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2438,MKT469,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2439,ECO622,Economic Impact Analysis,3,NULL,NULL,2021-12-15 15:33:00
+2440,LST695,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2441,JMC502,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2442,GCM253,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2443,JMC591,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2444,ACC437,Not known to COBIS yet,3,NULL,NULL,2021-12-15 15:33:00
+2445,ECO380,Business & Economic Data Analy,3,NULL,NULL,2021-12-15 15:33:00
+2446,ECO470,Health Economics,3,NULL,NULL,2022-05-17 12:39:00
+2447,BAC540,Legal Obligations of Business,3,NULL,NULL,2022-08-10 04:46:00
+2448,CYS688,Information Security Practicum,3,NULL,NULL,2022-08-10 04:46:00
+2449,BAC355,Info Systems/Decision Making,3,NULL,NULL,2022-08-10 04:46:00
+2450,BAC442,Business Ethics/Environments,3,NULL,NULL,2022-08-10 04:46:00
+2451,CYS660,Certified Ethical Hacker I,3,NULL,NULL,2022-08-10 04:46:00
+2452,CIS499,Not known to COBIS yet,1,NULL,NULL,2022-10-12 10:49:00
+2453,ECO314,Rationality and Policy,3,NULL,NULL,2022-12-13 11:36:00
+2454,MKT566,Marketing Management,3,NULL,NULL,2022-12-13 11:36:00
+2455,MGT659,Managing Sustainability,3,NULL,NULL,2022-12-13 11:36:00
+2456,CYS650,SOC Analyst,3,NULL,NULL,2023-06-13 20:35:00
+2457,JMC210,Podcasting,3,NULL,NULL,2023-06-13 20:35:00
+2458,JMC501,Not known to COBIS yet,3,NULL,NULL,2023-06-13 20:35:00
+2459,MGT364,Intro to Hospitality & Tourism,3,NULL,NULL,2023-06-13 20:35:00
+2460,JMC568,Not known to COBIS yet,3,NULL,NULL,2023-06-13 20:35:00
+2461,MGT250,Not known to COBIS yet,3,NULL,NULL,2023-06-13 20:35:00
+2462,MKT410,Lodging Operations,3,NULL,NULL,2023-06-13 20:35:00
+2463,ECO481,Business Data Mining,3,NULL,NULL,2023-06-13 20:35:00
+2464,JMC697,Not known to COBIS yet,3,NULL,NULL,2023-06-13 20:35:00
+2465,CYS661,Certified Ethical Hacker II,3,NULL,NULL,2023-07-10 11:29:00
+2466,ACC607,Forensic Acc & Fraud Exam,3,NULL,NULL,2023-08-07 14:11:00
+2467,ACC621,Business Valuation,3,NULL,NULL,2024-02-13 15:43:00
+2468,FIN435,Foundations of FinTech,3,NULL,NULL,2024-02-13 15:43:00
+2469,FIN635,Foundations of FinTech,3,NULL,NULL,2024-02-13 15:43:00
+2470,JMC268,DEI in Media,3,NULL,NULL,2024-02-13 15:43:00
+2471,ACC620,Not known to COBIS yet,3,NULL,NULL,2024-05-14 09:53:00
+2472,BAC640,Legal Obligations of Business,3,NULL,NULL,2024-12-20 22:01:00
+2473,ECO681,Business Data Mining,3,NULL,NULL,2024-12-20 22:01:00

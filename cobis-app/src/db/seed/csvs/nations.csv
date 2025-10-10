@@ -1,0 +1,309 @@
+CODE,DESCRIPTION
+55305,Afghanistan
+55310,Albania
+55315,Algeria
+54010,American Samoa
+55320,Andorra
+55325,Angola
+55326,Anguilla
+55327,Antarctica
+55330,Antigua
+55335,Argentina
+55340,Armenia
+55341,Aruba
+55342,Ashmore and Cartier Islands
+55345,Australia
+55350,Austria
+55352,Azerbaijan
+55355,Bahamas
+55359,Baker Island
+55360,Bangladesh
+55363,Barbados
+55362,Bassas D India
+55358,Behrain
+55364,Belarus
+55365,Belgium
+55368,Belize
+55369,Benin
+55370,Bermuda
+55373,Bhutan
+55375,Bolivia
+55378,Bosnia and Herzegovina
+55380,Botswana
+55383,Bouvet Island
+55385,Brazil
+55386,British Indian Ocean Territory
+55387,British Virgin Islands
+55945,British West Indies
+55388,Brunei
+55390,Bulgaria
+55392,Burkina Faso
+55393,Burundi
+55400,Cambodia
+55405,Cameroon
+55410,Canada
+55411,Canal Zone
+55412,Canton and Enderbury Islands
+55413,Cape Verde
+55414,Cayman Islands
+55417,Central & Southern Line
+55416,Central African Republic
+55418,Chad
+55420,Chile
+55425,China
+55426,Christmas Island
+55427,Clipperton Island
+55428,Cocos (Keeling) Islands
+55430,Colombia
+55431,Comoros
+55432,"Conga, Democratic Republic of"
+55433,"Conga, Republic of the"
+55434,Cook Islands
+55436,Coral Sea Islands
+55435,Costa Rica
+55437,Cote D Ivoire
+55440,Crete
+55442,Croatia
+55445,Cuba
+55450,Cyprus
+55455,Czech Republic
+55458,Czechoslovakia
+55460,Denmark
+55462,Dijibouti
+55464,Dominica
+55465,Dominican Republic
+55468,East Timor
+55470,Ecuador
+55475,Egypt
+55480,El Salvador
+55482,Equatorial Guinea
+55483,Eritrea
+55488,Estonia
+55485,Ethiopia
+55486,Europa Island
+55487,Falkland Islands
+55491,Faroe Islands
+55489,Federal Republic of Germany
+55490,Fiji
+55495,Finland
+55500,France
+55503,French Guiana
+55501,French Polynesia
+55502,French Sthrn & Antarctic Lands
+55508,French Terr of Afars & Issas
+55509,Gabon
+55504,Gambia
+55507,Gaza Strip
+55506,Georgia
+55512,German Democratic Republic
+55511,Germany
+55505,Germany East
+55510,Germany West
+55515,Ghana
+55516,Gibraltar
+55518,Gilbert Islands
+55517,Gilbert and Ellice Islands
+55519,Glorioso Islands
+55525,Greece
+55530,Greenland
+55535,Grenada
+55540,Guadeloupe
+54350,Guam
+55550,Guatemala
+55553,Guernsey
+55555,Guinea
+55556,Guinea-Bissau
+55558,Guyana
+55560,Haiti
+55563,Heard and Mcdonald Islands
+55565,Honduras
+55570,Hong Kong
+55573,Howland Island
+55575,Hungary
+55580,Iceland
+55585,India
+55590,Indonesia
+55595,Iran
+55600,Iraq
+55601,Iraq-Saudi Arabia Neutral Zone
+55605,Ireland
+55610,Israel
+55611,Israel-Jordan Demilitarized Zn
+55615,Italy
+55620,Jamaica
+55623,Jan Mayen
+55625,Japan
+55626,Jarvis Island
+55627,Jersey
+55628,Johnston Atoll
+55630,Jordan
+55631,Juan De Nova Island
+55633,Kazakhstan
+55635,Kenya
+55636,Kingman Reef
+55637,Kiribati
+55640,Korea North
+55645,Korea South
+55650,Kuwait
+55652,Kyrgyzstan
+55655,Laos
+55657,Latvia
+55660,Lebanon
+55663,Lesotho
+55665,Liberia
+55670,Libya
+55673,Liechtenstein
+55675,Lithuania
+55680,Luxembourg
+55681,Macau
+55682,Macedonia
+55684,Madagascar
+55683,Malawi
+55685,Malaysia
+55687,Maldives
+55689,Mali
+55690,Malta
+55691,"Man, Isle of"
+55692,Marshall Islands
+55694,Martinique
+55697,Mauritania
+55693,Mauritius
+55699,Mayotte
+55695,Mexico
+55701,"Micronesia, Federated States"
+55702,Midway Islands
+55698,Moldova
+55700,Monaco
+55705,Mongolia
+55707,Montenegro
+55708,Montserrat
+55710,Morocco
+55715,Mozambique
+55395,Myanmar
+55716,Namibia
+55717,Nauru
+55718,Navassa Island
+55720,Nepal
+55725,Netherlands
+55726,Netherlands Antilles
+55727,Neutral Zone
+55728,New Caledonia
+55730,New Zealand
+55735,Nicaragua
+55738,Niger
+55740,Nigeria
+55741,Niue
+55742,Norfolk Island
+55743,Northern Mariana Islands
+55745,Norway
+55748,Oman
+55999,Other Country
+55750,Pakistan
+55751,Palau
+55753,Palmyra Atoll
+55752,Panama
+55755,Panama Canal Zone
+55757,Papua New Guinea
+55758,Paracel Islands
+55760,Paraguay
+55765,Peru
+55770,Philippines
+55773,Pitcairn Islands
+55775,Poland
+55780,Portugal
+55782,Portuguese Timor
+54750,Puerto Rico
+55787,Qatar
+55783,Republic of Viet-Nam
+55784,Reunion
+55795,Romania
+55798,Russia
+55796,Rwanda
+55826,S Georgia & S Sandwich Islands
+55797,Saint Helena
+55799,Saint Lucia
+55793,Saint Pierre and Miquelon
+55807,Samoa (Western Samoa)
+55803,San Marino
+55804,Sao Tome and Principe
+55800,Saudi Arabia
+55805,Scotland
+55806,Senegal
+55955,Serbia
+55957,Serbia and Notenegro
+55958,Seychelles
+55810,Sierra Leone
+55813,Sikkim
+55815,Singapore
+55817,Slovakia
+55818,Slovenia
+55819,Solomon Islands
+55820,Somalia
+55825,South Africa
+55827,Southern Rhodesia
+55828,Southern Ryukyu Islands
+55830,Spain
+55831,Spanish North Africa
+55832,Spanish Sahara
+55834,Spratly Islands
+55415,Sri Lanka
+55833,St Christopher/Nevis
+55801,St Vincent/Grenadine
+55802,Stateless
+55835,Sudan
+55837,Surinam
+55836,Svalbard
+55838,Svalbard and Jan Mayen
+55839,Swan Islands
+55840,Swaziland
+55845,Sweden
+55850,Switzerland
+55855,Syria
+55860,Taiwan
+55857,Tajikistan
+55865,Tanzania
+55870,Thailand
+55875,Tibet
+55885,Togo
+55886,Tokelau
+55887,Tonga
+55880,Trinidad/Tabago
+55888,Tromelin Island
+55889,Trust Terr of Pacific Islands
+55890,Tunisia
+55895,Turkey
+55897,Turkmenistan
+55898,Turks and Caicos Islands
+55899,Tuvalu
+55900,Uganda
+55903,Ukraine
+55904,Union of Soviet Socialist Rep
+55910,United Arab Emirates
+55520,United Kingdom
+55912,United St Misc Pacific Islands
+55913,United States
+55914,Unknown
+55915,Uraguay
+55905,Ussr
+55918,Uzbekistan
+55916,Vanuatu
+55917,Vatican City (Holy See)
+55920,Venezuela
+55932,Vietnam
+55925,Vietnam North
+55930,Vietnam South
+54850,Virgin Islands
+55936,Wake Atoll
+55940,Wales
+55942,Wallis and Futuna
+55943,West Bank
+55944,Western Sahara
+9,Will not use Austria
+137,Will not use Spain
+157,Will not use US of America
+56,Will not use West Germany
+55950,Yeman
+55946,Yeman (Sanaa)
+55953,Yugoslavia
+55960,Zambia
+55790,Zimbabwe
