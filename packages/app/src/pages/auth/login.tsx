@@ -1,6 +1,6 @@
 import React from "react";
 import { Wrench } from "lucide-react"
-import primaryLogo from "@/assets/primary_white.png"
+import primaryLogo from "@/assets/primary_white.png?url"
 import { LoginForm } from "@/components/auth/login-form"
 
 export const LoginPage: React.FC = () => {
@@ -14,7 +14,7 @@ export const LoginPage: React.FC = () => {
 					<div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary">
 						<Wrench className="size-4" />
 					</div>
-					COBIS Tool (v1.0.0)
+					COBIS Tool (v{process.env.APP_VERSION})
 				</a>
 				<LoginForm />
 			</div>

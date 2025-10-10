@@ -3,6 +3,7 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import viteReact from '@vitejs/plugin-react'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
+import pkg from './package.json'
 
 const config = defineConfig({
   plugins: [
@@ -14,6 +15,9 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
+  },
 })
 
 export default config
