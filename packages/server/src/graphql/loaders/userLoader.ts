@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import { type User, user } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createUserLoader(db: DbConnection['orm']) {
 	return new DataLoader<string, User | null>(async (mnumbers) => {

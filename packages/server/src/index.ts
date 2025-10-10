@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { getDbConnection } from "./db/connection";
+import { getDbConnection } from "./db";
 import httpServer from './app';
 import { loadPrefixMap } from './utils/prefixMap';
 

@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { eq, or, and } from 'drizzle-orm';
 import { type Course, courses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 /**
  * Builds a composite key string for a course row.

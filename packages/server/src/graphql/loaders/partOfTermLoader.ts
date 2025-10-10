@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import { type PartOfTerm, partOfTerm } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createPartOfTermLoader(db: DbConnection['orm']) {
 	return new DataLoader<string, PartOfTerm | null>(async (codes) => {

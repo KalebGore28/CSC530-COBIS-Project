@@ -9,7 +9,7 @@ import { restrictGoogleCallback } from "./middleware/restrict-google-callback";
 import { authenticateAndLoadUser } from "./middleware/authenticate-user";
 import { loadQueryMap } from "./utils/query-map-loader";
 
-import { getDbConnection, DbConnection } from "./db/connection";
+import { getDbConnection, DbConnection } from "./db";
 import type { AuthAndPermissionsRequest } from "./types/requests";
 
 import { createImportRouter } from "./routes/import-router";

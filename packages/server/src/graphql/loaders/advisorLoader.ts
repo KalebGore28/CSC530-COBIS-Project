@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray, sql } from 'drizzle-orm';
 import { type StudentAdvisor, studentAdvisors } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createAdvisorLoader(db: DbConnection['orm']) {
   return new DataLoader<string, StudentAdvisor[]>(async (mnumbers) => {

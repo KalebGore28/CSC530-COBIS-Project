@@ -1,4 +1,4 @@
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 import { createTermLoader } from './termLoader';
 import { createAddressesLoader } from './addressLoader';
 import { createAdvisorLoader } from './advisorLoader';

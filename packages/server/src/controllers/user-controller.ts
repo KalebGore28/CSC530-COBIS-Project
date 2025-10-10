@@ -3,7 +3,7 @@ import { fromNodeHeaders } from "better-auth/node";
 import { authPromise } from "../lib/auth";
 import { UserService, UserFilters } from '../services/user-service';
 import { AuthAndPermissionsRequest } from '../types/requests';
-import { getDbConnection } from '../db/connection';
+import { getDbConnection } from '../db';
 import { user } from '../db/schema';
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';

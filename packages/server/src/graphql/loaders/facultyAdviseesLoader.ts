@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { students, studentAdvisors } from '../../db/schema';
 import { inArray, eq, sql } from 'drizzle-orm';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export type StudentAdvisorRecord = {
 	student_mnumber: string;

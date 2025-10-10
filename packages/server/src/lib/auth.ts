@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
-import { getDbConnection } from "../db/connection";
+import { getDbConnection } from "../db";
 
 /**
  * The better-auth instance.

@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { sql } from 'drizzle-orm';
 import { studentCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 /** reuse the same key helper */
 function courseKey(parts: {
@@ -41,12 +41,12 @@ export function createCreditHourByCourseLoader(
     // Single grouped query: MIN(course_hours) per course
     const rows = await db
       .select({
-        term:          studentCourses.term,
-        year:          studentCourses.year,
+        term: studentCourses.term,
+        year: studentCourses.year,
         course_subject: studentCourses.course_subject,
-        course_number:  studentCourses.course_number,
-        course_suffix:  studentCourses.course_suffix,
-        credit_hour:   sql<number>`MIN(${studentCourses.course_hours})`,
+        course_number: studentCourses.course_number,
+        course_suffix: studentCourses.course_suffix,
+        credit_hour: sql<number>`MIN(${studentCourses.course_hours})`,
       })
       .from(studentCourses)
       .where(

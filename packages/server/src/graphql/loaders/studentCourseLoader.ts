@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { type StudentCourse, studentCourses } from '../../db/schema';
 import { inArray } from 'drizzle-orm';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createStudentCourseLoader(
 	db: DbConnection['orm']

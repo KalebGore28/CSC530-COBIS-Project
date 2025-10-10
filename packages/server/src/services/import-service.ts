@@ -1,5 +1,5 @@
 import { importMappedCSVData } from '../utils/import-data';
-import { getDbConnection } from '../db/connection';
+import { getDbConnection } from '../db';
 import { MappedCSVData } from './column-mapping-service';
 
 /**

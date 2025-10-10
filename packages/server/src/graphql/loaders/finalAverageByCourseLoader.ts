@@ -3,7 +3,7 @@
 import DataLoader from 'dataloader';
 import { sql } from 'drizzle-orm';
 import { studentCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 /** same composite‐key helper */
 function courseKey(parts: {

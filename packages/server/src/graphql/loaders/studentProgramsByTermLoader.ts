@@ -2,7 +2,7 @@ import DataLoader from 'dataloader'
 import { or, and, gt, lt, gte, lte, asc, eq } from 'drizzle-orm'
 import type { StudentProgram } from '../../db/schema'
 import { studentPrograms } from '../../db/schema'
-import type { DbConnection } from '../../db/connection'
+import type { DbConnection } from '../../db'
 
 /**
  * Load all StudentProgram rows between [startTerm/startYear … endTerm/endYear],

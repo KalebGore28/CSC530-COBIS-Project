@@ -2,7 +2,7 @@
 import { fromNodeHeaders } from "better-auth/node";
 import { authPromise } from "../lib/auth";
 import { Request, Response, NextFunction } from "express";
-import { getDbConnection } from "../db/connection";
+import { getDbConnection } from "../db";
 import { eq } from "drizzle-orm";
 import {
 	user,

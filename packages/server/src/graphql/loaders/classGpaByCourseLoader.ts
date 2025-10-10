@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { sql, and, eq } from 'drizzle-orm';
 import { studentCourses, studentAcademicInfo } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 /** reuse same key helper */
 function courseKey(parts: {

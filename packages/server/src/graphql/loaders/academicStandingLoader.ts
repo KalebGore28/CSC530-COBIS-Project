@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import { type AcademicStanding, academicStanding } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createAcademicStandingLoader(db: DbConnection['orm']) {
 	return new DataLoader<string, AcademicStanding | null>(async (codes) => {

@@ -2,7 +2,7 @@
 import DataLoader from 'dataloader';
 import { inArray, desc } from 'drizzle-orm';
 import { type InstructorCourse, instructorCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createInstructorCoursesLoader(
 	db: DbConnection['orm']

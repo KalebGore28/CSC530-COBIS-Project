@@ -2,7 +2,7 @@ import DataLoader from 'dataloader'
 import { or, and, gt, lt, gte, lte, asc, eq } from 'drizzle-orm'
 import type { StudentCourse } from '../../db/schema'
 import { studentCourses } from '../../db/schema'
-import type { DbConnection } from '../../db/connection'
+import type { DbConnection } from '../../db'
 
 /**
  * Instead of building one huge OR(...AND(...)...) expression,
@@ -17,7 +17,7 @@ export function createStudentCoursesByTermLoader(
 	endYear: number
 ) {
 	return new DataLoader<string, StudentCourse[]>(async (compositeKeys) => {
-		
+
 		// 1. Build the same start/end range conditions:
 		const startCond = or(
 			gt(studentCourses.year, startYear),

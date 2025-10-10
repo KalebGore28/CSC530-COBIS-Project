@@ -2,7 +2,7 @@
 import DataLoader from 'dataloader';
 import { sql } from 'drizzle-orm';
 import { instructorCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createCurrentTermLoader(
   db: DbConnection['orm']

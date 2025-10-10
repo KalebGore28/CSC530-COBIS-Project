@@ -1,6 +1,6 @@
 import path from "path";
 import { fileURLToPath } from 'url';
-import { getDbConnection } from "../db/connection";
+import { getDbConnection } from "../db";
 import { importCSVFile } from "../utils/csv-importer";
 import { csvConfig } from "../services/column-mapping-service";
 

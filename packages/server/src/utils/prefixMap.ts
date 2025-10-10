@@ -1,4 +1,4 @@
-import { getDbConnection } from "../db/connection"; // adjust path as needed
+import { getDbConnection } from "../db"; // adjust path as needed
 import * as schema from "../db/schema"; // adjust path as needed
 
 // Internal singleton map (private)

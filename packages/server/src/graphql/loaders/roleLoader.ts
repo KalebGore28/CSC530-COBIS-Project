@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import { type Role, roles } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createRoleLoader(db: DbConnection['orm']) {
 	return new DataLoader<number, Role | null>(async (ids) => {

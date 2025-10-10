@@ -1,5 +1,5 @@
 import { eq, and, ne, like, SQL, sql, inArray } from "drizzle-orm"; // Import necessary Drizzle functions
-import { getDbConnection } from "../db/connection";
+import { getDbConnection } from "../db";
 // Import both user and faculty schemas
 import {
 	user,

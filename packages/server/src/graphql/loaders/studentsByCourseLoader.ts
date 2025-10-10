@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { sql } from 'drizzle-orm';
 import { type StudentCourse, studentCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 // our “composite key” string format
 function courseKey({

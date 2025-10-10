@@ -1,7 +1,7 @@
 import DataLoader from 'dataloader';
 import { inArray } from 'drizzle-orm';
 import { type RegistrationStatus, registrationStatus } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 export function createRegistrationStatusLoader(db: DbConnection['orm']) {
 	return new DataLoader<string, RegistrationStatus | null>(async (codes) => {

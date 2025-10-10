@@ -2,7 +2,7 @@
 import DataLoader from 'dataloader';
 import { and, eq, gte, lte, or, count } from 'drizzle-orm';
 import { instructorCourses, studentCourses } from '../../db/schema';
-import type { DbConnection } from '../../db/connection';
+import type { DbConnection } from '../../db';
 
 // shape of the key we’ll stringify
 type GradeDistKey = {
