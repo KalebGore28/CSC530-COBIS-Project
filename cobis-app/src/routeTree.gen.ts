@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
+import { Route as ApiUserMeRouteImport } from './routes/api/user/me'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const LoginRoute = LoginRouteImport.update({
@@ -29,6 +30,11 @@ const ApiIndexRoute = ApiIndexRouteImport.update({
   path: '/api/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserMeRoute = ApiUserMeRouteImport.update({
+  id: '/api/user/me',
+  path: '/api/user/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   id: '/api/auth/$',
   path: '/api/auth/$',
@@ -40,12 +46,14 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/me': typeof ApiUserMeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/me': typeof ApiUserMeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/api/': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/me': typeof ApiUserMeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/api' | '/api/auth/$'
+  fullPaths: '/' | '/login' | '/api' | '/api/auth/$' | '/api/user/me'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/api' | '/api/auth/$'
-  id: '__root__' | '/' | '/login' | '/api/' | '/api/auth/$'
+  to: '/' | '/login' | '/api' | '/api/auth/$' | '/api/user/me'
+  id: '__root__' | '/' | '/login' | '/api/' | '/api/auth/$' | '/api/user/me'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ApiIndexRoute: typeof ApiIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiUserMeRoute: typeof ApiUserMeRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/me': {
+      id: '/api/user/me'
+      path: '/api/user/me'
+      fullPath: '/api/user/me'
+      preLoaderRoute: typeof ApiUserMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ApiIndexRoute: ApiIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiUserMeRoute: ApiUserMeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
