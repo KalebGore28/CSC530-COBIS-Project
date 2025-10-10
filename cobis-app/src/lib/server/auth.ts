@@ -19,7 +19,7 @@ export const auth = betterAuth({
 		provider: "mysql",
 	}),
 	baseURL: process.env.BETTER_AUTH_URL as string,
-	trustedOrigins: [process.env.FRONTEND_ORIGIN as string],
+	trustedOrigins: [process.env.TRUSTED_ORIGIN as string],
 	socialProviders: {
 		// This app was only designed to work with Google OAuth even though better-auth supports more.
 		// It is not recommended to use another provider, otherwise domain restrictions will not work.
