@@ -14,7 +14,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiIndexRouteImport } from './routes/api/index'
 import { Route as ApiUserIndexRouteImport } from './routes/api/user/index'
+import { Route as ApiUserProvisionRouteImport } from './routes/api/user/provision'
 import { Route as ApiUserMeRouteImport } from './routes/api/user/me'
+import { Route as ApiUserUserIdRouteImport } from './routes/api/user/$userId'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const WelcomeRoute = WelcomeRouteImport.update({
@@ -42,9 +44,19 @@ const ApiUserIndexRoute = ApiUserIndexRouteImport.update({
   path: '/api/user/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUserProvisionRoute = ApiUserProvisionRouteImport.update({
+  id: '/api/user/provision',
+  path: '/api/user/provision',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiUserMeRoute = ApiUserMeRouteImport.update({
   id: '/api/user/me',
   path: '/api/user/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiUserUserIdRoute = ApiUserUserIdRouteImport.update({
+  id: '/api/user/$userId',
+  path: '/api/user/$userId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
+  '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user': typeof ApiUserIndexRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/welcome': typeof WelcomeRoute
   '/api': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
+  '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user': typeof ApiUserIndexRoute
 }
 export interface FileRoutesById {
@@ -78,7 +94,9 @@ export interface FileRoutesById {
   '/welcome': typeof WelcomeRoute
   '/api/': typeof ApiIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/user/$userId': typeof ApiUserUserIdRoute
   '/api/user/me': typeof ApiUserMeRoute
+  '/api/user/provision': typeof ApiUserProvisionRoute
   '/api/user/': typeof ApiUserIndexRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +107,9 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/api'
     | '/api/auth/$'
+    | '/api/user/$userId'
     | '/api/user/me'
+    | '/api/user/provision'
     | '/api/user'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +118,9 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/api'
     | '/api/auth/$'
+    | '/api/user/$userId'
     | '/api/user/me'
+    | '/api/user/provision'
     | '/api/user'
   id:
     | '__root__'
@@ -107,7 +129,9 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/api/'
     | '/api/auth/$'
+    | '/api/user/$userId'
     | '/api/user/me'
+    | '/api/user/provision'
     | '/api/user/'
   fileRoutesById: FileRoutesById
 }
@@ -117,7 +141,9 @@ export interface RootRouteChildren {
   WelcomeRoute: typeof WelcomeRoute
   ApiIndexRoute: typeof ApiIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiUserUserIdRoute: typeof ApiUserUserIdRoute
   ApiUserMeRoute: typeof ApiUserMeRoute
+  ApiUserProvisionRoute: typeof ApiUserProvisionRoute
   ApiUserIndexRoute: typeof ApiUserIndexRoute
 }
 
@@ -158,11 +184,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiUserIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/user/provision': {
+      id: '/api/user/provision'
+      path: '/api/user/provision'
+      fullPath: '/api/user/provision'
+      preLoaderRoute: typeof ApiUserProvisionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/user/me': {
       id: '/api/user/me'
       path: '/api/user/me'
       fullPath: '/api/user/me'
       preLoaderRoute: typeof ApiUserMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/user/$userId': {
+      id: '/api/user/$userId'
+      path: '/api/user/$userId'
+      fullPath: '/api/user/$userId'
+      preLoaderRoute: typeof ApiUserUserIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -181,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   WelcomeRoute: WelcomeRoute,
   ApiIndexRoute: ApiIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiUserUserIdRoute: ApiUserUserIdRoute,
   ApiUserMeRoute: ApiUserMeRoute,
+  ApiUserProvisionRoute: ApiUserProvisionRoute,
   ApiUserIndexRoute: ApiUserIndexRoute,
 }
 export const routeTree = rootRouteImport

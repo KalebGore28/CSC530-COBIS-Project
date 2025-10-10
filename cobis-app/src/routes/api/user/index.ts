@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { loadUser } from '@/middleware/load-user'
 import { requireCobisAdmin } from '@/middleware/require-cobis-admin'
 import { getDbConnection } from '@/db'
-import { user, userRoles, roles, faculty } from '@/db/schema'
+import { user, userRoles, roles, faculty, colleges, departments } from '@/db/schema'
 import { eq, like, sql, SQL, and } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/user/')({
@@ -59,14 +59,16 @@ export const Route = createFileRoute('/api/user/')({
                         faculty: {
                             firstName: faculty.first_name,
                             lastName: faculty.last_name,
-                            department: faculty.department,
-                            college: faculty.college,
+                            department: departments.description,
+                            college: colleges.description,
                         },
                     })
                     .from(user)
                     .leftJoin(faculty, eq(faculty.mnumber, user.mnumber))
                     .leftJoin(userRoles, eq(userRoles.user_id, user.id))
                     .leftJoin(roles, eq(userRoles.role_id, roles.id))
+                    .leftJoin(colleges, eq(faculty.college, colleges.code))
+                    .leftJoin(departments, eq(faculty.department, departments.code))
                     .groupBy(
                         user.id,
                         user.mnumber,
