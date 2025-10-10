@@ -1,8 +1,10 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { getDbConnection } from '@/db'
 import { auth } from '@/lib/server/auth'
+import { user, userRoles, roles, faculty } from '@/db/schema'
+import { eq } from "drizzle-orm";
 
-export const requireAuth = createMiddleware().server(async ({ next, request }) => {
+export const loadUser = createMiddleware().server(async ({ next, request }) => {
     // Use your auth library (BetterAuth, Lucia, Clerk, etc.)
     const session = await auth.api.getSession({ headers: request.headers })
 
@@ -15,23 +17,57 @@ export const requireAuth = createMiddleware().server(async ({ next, request }) =
             request,
             pathname: new URL(request.url).pathname,
             context: {
-                user: {
-                    id: '',
-                    createdAt: new Date(0),
-                    updatedAt: new Date(0),
-                    email: '',
-                    emailVerified: false,
-                    name: '',
-                    image: null,
+                mnumber: null,
+                isEnabled: false,
+                roles: [],
+                faculty: {
+                    firstName: '',
+                    lastName: '',
+                    department: '',
+                    college: '',
                 },
             },
         }
     }
 
+    const { orm } = await getDbConnection()
+
+    const dbUser = await orm
+        .select({
+            mnumber: user.mnumber,
+            isEnabled: user.isEnabled,
+        })
+        .from(user)
+        .where(eq(user.id, session.user.id))
+        .then((res) => res[0] || null)
+
+    const dbUserRoles = await orm
+        .select({
+            roleName: roles.name,
+        })
+        .from(userRoles)
+        .innerJoin(roles, eq(userRoles.role_id, roles.id))
+        .where(eq(userRoles.user_id, session.user.id))
+        .then((res) => res.map((r) => r.roleName))
+
+    const facultyInfo = await orm
+        .select({
+            firstName: faculty.first_name,
+            lastName: faculty.last_name,
+            department: faculty.department,
+            college: faculty.college,
+        })
+        .from(faculty)
+        .where(eq(faculty.mnumber, dbUser?.mnumber || ''))
+        .then((res) => res[0] || null)
+
     // Otherwise, continue
     return next({
         context: {
-            user: session.user,
+            mnumber: dbUser?.mnumber || null,
+            isEnabled: dbUser?.isEnabled || false,
+            roles: dbUserRoles || [],
+            faculty: facultyInfo || null,
         },
     })
 })
