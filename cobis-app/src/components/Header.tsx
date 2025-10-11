@@ -1,6 +1,6 @@
 import React from "react"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { ModeToggle } from "@/components/common/mode-toggle"
+import { ModeToggle } from "@/components/provider/theme"
 import { useLocation, Link } from "@tanstack/react-router"
 import { Slash } from "lucide-react"
 import { useBreadcrumb } from "@/components/provider/breadcrumb"

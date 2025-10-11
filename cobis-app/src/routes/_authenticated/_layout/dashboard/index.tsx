@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import {
     Card,
     CardContent,
@@ -16,9 +16,9 @@ import {
     ChartColumnIncreasing
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { useSession } from "@/components/provider/session";
 import { Separator } from "@/components/ui/separator";
+import { hasRouteAccess } from '@/components/provider/session';
 // import { GradeDistribution } from "@/components/charts/term-grade-distributions";
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
@@ -97,10 +97,42 @@ function DashboardPage() {
     const { session } = useSession();
     if (!session) return null;
 
+    // Filter cards based on user roles and route permissions
+    const visibleCards = dashboardCardsStructure.filter(card =>
+        hasRouteAccess(card.link, session.roles)
+    );
+
     return (
-        <div className="p-4">
-            <h1>Dashboard</h1>
-            <p>This content renders inside the Outlet of /</p>
+        <div className="container p-6 mx-auto space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
+
+                <h2 className="col-span-full text-center font-bold text-2xl">
+                    Welcome Back, {session?.user.name}
+                </h2>
+                <p className="text-muted-foreground col-span-full text-center">
+                    Access your tools and information from this dashboard
+                </p>
+            </div>
+
+            <Separator />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {visibleCards.map((card) => (
+                    <Card key={card.link} className="transition-all hover:shadow-md">
+                        <CardHeader className="text-center pt-6">
+                            <div className="flex justify-center">{card.icon}</div>
+                            <CardTitle>{card.title}</CardTitle>
+                            <CardDescription>{card.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex justify-center pb-6">
+                            <Link to={card.link} className='cursor-pointer'>
+                                <Button variant="default">{card.buttonText}</Button>
+                            </Link>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+
         </div>
     )
 }
