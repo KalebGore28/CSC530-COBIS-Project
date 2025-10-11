@@ -24,7 +24,9 @@ import {
 	SidebarMenuItem,
 	SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
+import { useSession } from "./provider/session"
 import { useNavigate } from "@tanstack/react-router"
+import { hasRouteAccess } from "./provider/session"
 
 const nav_main_data = [
 	{
@@ -73,12 +75,20 @@ const nav_main_data = [
 ]
 
 export function NavMain({ open }: { open?: boolean }) {
+	const { session } = useSession();
 	const navigate = useNavigate()
+	if (!session) return null;
+	
+	// Filter nav_main_data based on user roles and route permissions
+	const filtered_nav_main_data = nav_main_data.filter((item) =>
+		hasRouteAccess(item.url, session.roles)
+	)
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
 				<SidebarMenu>
-					{nav_main_data.map((item) => (
+					{filtered_nav_main_data.map((item) => (
 						<SidebarMenuItem key={item.title} className="text-nowrap">
 							{item.items && item.items?.length > 0 ? (
 								<Collapsible>
