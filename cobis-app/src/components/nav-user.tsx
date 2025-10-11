@@ -23,7 +23,6 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar"
 
-import { useNavigate } from "@tanstack/react-router"
 import { useSession } from "@/components/provider/session"
 import { authClient } from "@/lib/auth-client"
 
@@ -31,7 +30,6 @@ import { authClient } from "@/lib/auth-client"
 export function NavUser() {
 	const { session } = useSession();
 	const { isMobile } = useSidebar();
-	const navigate = useNavigate();
 
 	return (
 		<SidebarMenu>
@@ -93,7 +91,7 @@ export function NavUser() {
 						<DropdownMenuItem
 							onClick={async () => {
 								await authClient.signOut()
-								navigate({ to: "/login" });
+								window.location.href = "/login"
 							}}
 						>
 							<LogOutIcon />

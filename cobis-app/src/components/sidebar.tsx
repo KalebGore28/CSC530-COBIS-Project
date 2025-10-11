@@ -13,14 +13,9 @@ import { Separator } from "@/components/ui/separator"
 import { Navigate } from "@tanstack/react-router"
 import logo from "/primary_white.png"
 import logoIcon from "/primary-icon.png"
-import { useEffect } from "react"
 
 export function AppSidebar() {
     const { open } = useSidebar();
-
-    useEffect(() => {
-        console.log("sidebar is: ", open === true ? "open" : "closed");
-    }, [open]);
 
     return (
         <Sidebar collapsible="icon">
