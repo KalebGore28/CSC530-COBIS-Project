@@ -8,7 +8,6 @@ export const loadUser = createMiddleware({ type: 'request' })
     .server(async ({ next, request }) => {
         const session = await auth.api.getSession({ headers: request.headers })
 
-        // If no user/session, redirect to login
         if (!session?.user) {
             return {
                 response: new Response(

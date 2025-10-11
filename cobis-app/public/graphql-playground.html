@@ -5,119 +5,24 @@
     <meta charset="utf-8" />
     <title>GraphQL Playground</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.css" />
-    <style>
-        body {
-            font-family: system-ui, sans-serif;
-            background: #0e1117;
-            color: #fff;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        header {
-            background: #20232a;
-            padding: 10px 16px;
-            font-size: 18px;
-            font-weight: bold;
-            border-bottom: 1px solid #333;
-        }
-
-        main {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        #editor,
-        #response {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #response {
-            border-left: 1px solid #333;
-            background: #1e1e1e;
-        }
-
-        #run {
-            background: #61dafb;
-            color: #000;
-            font-weight: bold;
-            border: none;
-            padding: 10px 14px;
-            cursor: pointer;
-        }
-
-        #run:hover {
-            background: #52c7e8;
-        }
-
-        pre {
-            flex: 1;
-            overflow: auto;
-            margin: 0;
-            padding: 10px;
-            color: #9cdcfe;
-            font-family: monospace;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .CodeMirror {
-            flex: 1;
-            height: 100%;
-            font-size: 14px;
-        }
-    </style>
 </head>
 
 <body>
-    <header>
-        GraphQL Playground
-        <button id="run" style="float:right;">Run ▶︎</button>
-    </header>
-    <main>
-        <div id="editor">
-            <textarea id="query">{
-  hello(name: "world")
-}</textarea>
-        </div>
-        <div id="response">
-            <pre id="output">// Response will appear here...</pre>
-        </div>
-    </main>
+    <script type="module">
+        import { renderPlaygroundPage } from "https://cdn.jsdelivr.net/npm/graphql-playground-html@1.6/+esm";
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/codemirror.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.14/mode/javascript/javascript.min.js"></script>
-    <script>
-        const editor = CodeMirror.fromTextArea(document.getElementById("query"), {
-            mode: "application/json",
-            theme: "default",
-            lineNumbers: true,
-        });
-
-        async function runQuery() {
-            const query = editor.getValue();
-            const output = document.getElementById("output");
-            output.textContent = "Running...";
-            try {
-                const res = await fetch("/api/graphql", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ query }),
-                });
-                const data = await res.json();
-                output.textContent = JSON.stringify(data, null, 2);
-            } catch (err) {
-                output.textContent = "Error: " + err.message;
-            }
-        }
-
-        document.getElementById("run").addEventListener("click", runQuery);
+        // Overwrite the entire HTML with Playground’s full document
+        document.open();
+        document.write(
+            renderPlaygroundPage({
+                endpoint: "/api/graphql",
+                settings: {
+                    "editor.theme": "dark",
+                    "request.credentials": "same-origin",
+                },
+            })
+        );
+        document.close();
     </script>
 </body>
 
