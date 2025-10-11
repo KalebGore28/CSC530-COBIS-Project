@@ -108,7 +108,7 @@ export function NavMain({ open }: { open?: boolean }) {
 											{item.items.map((subItem) => (
 												<SidebarMenuSubItem key={subItem.title} className="text-nowrap">
 													<SidebarMenuSubButton onClick={() => navigate({ to: subItem.url })}>
-														<span>{subItem.title}</span>
+														<span className="text-white">{subItem.title}</span>
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}
