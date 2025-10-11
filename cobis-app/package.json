@@ -11,7 +11,7 @@
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
-    "db:gen": "drizzle-kit generate && tsx src/db/dbml.ts",
+    "db:gen": "drizzle-kit generate && tsx src/db/dbml.ts && tsx src/db/export-schema.ts",
     "db:mig": "drizzle-kit migrate && tsx src/db/dbml.ts",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed/seed.ts"
@@ -41,12 +41,13 @@
     "dotenv": "^17.2.3",
     "drizzle-graphql": "^0.8.5",
     "drizzle-orm": "^0.44.6",
-    "graphql": "^16.11.0",
     "lucide-react": "^0.544.0",
     "mysql2": "^3.15.2",
     "next-themes": "^0.4.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-relay": "^20.1.1",
+    "relay-runtime": "^20.1.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.0.2",
     "tailwindcss": "^4.0.6",
@@ -61,15 +62,35 @@
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
+    "@types/react-relay": "^18.2.1",
+    "@types/relay-runtime": "^19.0.3",
     "@vitejs/plugin-react": "^5.0.4",
+    "babel-plugin-relay": "^20.1.1",
     "drizzle-dbml-generator": "^0.10.0",
     "drizzle-kit": "^0.31.5",
+    "graphql": "^16.11.0",
     "jsdom": "^27.0.0",
     "prettier": "^3.5.3",
+    "relay-compiler": "^20.1.1",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2",
     "vite": "^7.1.7",
     "vitest": "^3.0.5",
     "web-vitals": "^5.1.0"
+  },
+  "relay": {
+    "src": "./src",
+    "schema": "./db/schema.graphql",
+    "language": "typescript",
+    "eagerEsModules": true,
+    "exclude": [
+      "**/node_modules/**",
+      "**/__mocks__/**",
+      "**/__generated__/**"
+    ],
+    "persistConfig": {
+      "file": "./persisted_queries.json",
+      "algorithm": "MD5"
+    }
   }
 }
