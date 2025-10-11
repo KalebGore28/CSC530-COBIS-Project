@@ -171,9 +171,9 @@ table student_addresses {
 
 table student_advisors {
   student_mnumber varchar(10) [not null]
-  term_code varchar(50)
-  year int
-  advisor_mnumber varchar(10)
+  term_code varchar(50) [not null]
+  year int [not null]
+  advisor_mnumber varchar(10) [not null]
 
   indexes {
     (student_mnumber, term_code, year, advisor_mnumber) [pk]
