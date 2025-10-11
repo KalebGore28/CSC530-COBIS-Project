@@ -1,3 +1,4 @@
+// GraphQL Query Imports
 import { searchAcademicStandings } from "./searchAcademicStanding"
 import { searchAdmitCodes } from "./searchAdmitCodes"
 import { searchColleges } from "./searchColleges"
@@ -20,6 +21,9 @@ import { getProgramEnrollment } from "./getProgramEnrollment"
 import { getProgramsEnrollment } from "./getProgramsEnrollment"
 import { getCourseEnrollment } from "./getCourseEnrollment"
 import { getCoursesEnrollment } from "./getCoursesEnrollment"
+
+
+// GraphQL Resolver Imports
 
 export const queries = {
     searchAcademicStandings,

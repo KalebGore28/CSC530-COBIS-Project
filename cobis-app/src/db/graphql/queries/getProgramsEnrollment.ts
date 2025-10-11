@@ -5,7 +5,7 @@ import { programs } from '@/db/schema'
 import { checkEnrollmentAccess } from '../middleware/checkEnrollmentAccess'
 
 // Define return type
-export const ProgramEnrollmentType = new GraphQLObjectType({
+export const ProgramsEnrollmentType = new GraphQLObjectType({
     name: 'ProgramsEnrollment',
     fields: {
         code: { type: new GraphQLNonNull(GraphQLString) },
@@ -24,7 +24,7 @@ export const ProgramEnrollmentType = new GraphQLObjectType({
 
 // Export GraphQL field config
 export const getProgramsEnrollment = {
-    type: new GraphQLList(ProgramEnrollmentType),
+    type: new GraphQLList(ProgramsEnrollmentType),
     resolve: checkEnrollmentAccess(async (_parent: any, _args: any, { db }: ApolloContext) => {
         return db
             .select()

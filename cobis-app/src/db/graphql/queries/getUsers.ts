@@ -5,7 +5,7 @@ import { requireRoles } from '../middleware/requireRoles'
 import type { ApolloContext } from '@/middleware/apollo-server-context'
 
 // Define return type
-export const UserType = new GraphQLObjectType({
+export const UsersType = new GraphQLObjectType({
     name: 'Users',
     fields: {
         id: { type: new GraphQLNonNull(GraphQLString) },
@@ -23,7 +23,7 @@ export const UserType = new GraphQLObjectType({
 
 // Export GraphQL field config
 export const getUsers = {
-    type: new GraphQLList(UserType),
+    type: new GraphQLList(UsersType),
     args: {},
     resolve: requireRoles(['cobis_administrator'], async (_parent: any, _args: any, { db }: ApolloContext) => {
         return db

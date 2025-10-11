@@ -3,6 +3,17 @@ import type { ApolloContext } from '@/middleware/apollo-server-context';
 
 type Course = typeof courses.$inferSelect;
 
+export const courseTypeExtension = /* GraphQL */ `
+  extend type CoursesSelectItem {
+    student_courses(
+      startTerm: String!
+      startYear: Int!
+      endTerm: String!
+      endYear: Int!
+    ): [StudentCoursesSelectItem]
+  }
+`;
+
 export const CourseResolver = {
 	student_courses: (
 		course: Course,
@@ -10,8 +21,6 @@ export const CourseResolver = {
 		{ loaders }: ApolloContext
 	) => {
 		const { startTerm, startYear, endTerm, endYear } = args;
-		console.log('🔥 student_courses resolver fired for:', course.subject)
-
 
 		const loader = loaders.getStudentCoursesLoader(
 			startTerm,
@@ -19,7 +28,6 @@ export const CourseResolver = {
 			endTerm,
 			endYear
 		);
-		console.log("LOADER: ", loader);
 
 		return loader.load([
 			course.subject,

@@ -5,7 +5,7 @@ import type { ApolloContext } from '@/middleware/apollo-server-context'
 import { students, studentAcademicInfo, studentPrograms, studentCourses } from '@/db/schema'
 
 // Define return type
-export const StudentType = new GraphQLObjectType({
+export const StudentBasicType = new GraphQLObjectType({
     name: 'StudentBasic',
     fields: {
         mnumber: { type: new GraphQLNonNull(GraphQLString) },
@@ -49,7 +49,7 @@ const StudentLookupInputType = new GraphQLInputObjectType({
 const LookupStudentsResultType = new GraphQLObjectType({
     name: 'LookupStudentsResult',
     fields: {
-        students: { type: new GraphQLNonNull(new GraphQLList(StudentType)) },
+        students: { type: new GraphQLNonNull(new GraphQLList(StudentBasicType)) },
         totalCount: { type: new GraphQLNonNull(GraphQLInt) },
     },
 })
