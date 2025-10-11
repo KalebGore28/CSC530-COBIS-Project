@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     component: DashboardPage,
 })
 
-const gradeDistributionRoles = ["Faculty", "Department Chair"];
+const gradeDistributionRoles = ["faculty", "department_chair"];
 
 // Define dashboard cards structure - uses routePermissions for visibility
 const dashboardCardsStructure = [
