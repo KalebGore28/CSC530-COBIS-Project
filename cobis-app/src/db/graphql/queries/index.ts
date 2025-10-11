@@ -11,6 +11,11 @@ import { searchRegistrationStatuses } from "./searchRegistrationStatuses"
 import { searchRoles } from "./searchRoles"
 import { searchTerms } from "./searchTerms"
 import { getCurrentYearTerm } from "./getCurrentYearTerm"
+import { getStudent } from "./getStudent"
+import { getInstructor } from "./getInstructor"
+import { getUser } from "./getUser"
+import { getUsers } from "./getUsers"
+import { lookupStudents } from "./lookupStudents"
 
 export const queries = {
     searchAcademicStandings,
@@ -26,4 +31,9 @@ export const queries = {
     searchRoles,
     searchTerms,
     getCurrentYearTerm,
+    getStudent,
+    getInstructor,
+    getUser,
+    getUsers,
+    lookupStudents,
 }

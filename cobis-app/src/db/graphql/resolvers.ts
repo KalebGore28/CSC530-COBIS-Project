@@ -71,37 +71,7 @@ type CreateFacultyInput = {
 }
 
 export const resolvers = {
-	Query: {
-
-
-
-		// --- Protected Queries ---
-		student: checkStudentAccess(async (_parent: any, args: { mnumber: string }, { db }: ApolloContext) => {
-			const [stud] = await db
-				.select()
-				.from(tables.students)
-				.where(eq(tables.students.mnumber, args.mnumber))
-				.limit(1)
-			return stud || null
-		}
-		),
-		instructor: checkInstructorAccess(async (_parent: any, args: { mnumber: string }, { db }: ApolloContext) => {
-			const [fac] = await db
-				.select()
-				.from(tables.faculty)
-				.where(eq(tables.faculty.mnumber, args.mnumber))
-				.limit(1)
-			return fac || null
-		}
-		),
-		instructors: async (_parent: any, _args: any, { db }: ApolloContext) => {
-			const rows = await db
-				.select()
-				.from(tables.faculty)
-				.orderBy(tables.faculty.last_name, tables.faculty.first_name)
-			return rows || []
-		},
-
+	Query: {	
 		// Lookup Query
 		lookupStudents: async (
 			_parent: any,
@@ -333,21 +303,6 @@ export const resolvers = {
 			return course || null;
 		}),
 
-		// Other queries
-		users: requireRoles(['cobis_administrator'], async (_parent: any, _args: any, { db }: ApolloContext) => {
-			return db
-				.select()
-				.from(tables.user)
-				.orderBy(tables.user.email);
-		}),
-		user: requireRoles(['cobis_administrator'], async (_parent: any, args: { id: string }, { db }: ApolloContext) => {
-			const [user] = await db
-				.select()
-				.from(tables.user)
-				.where(eq(tables.user.id, args.id))
-				.limit(1);
-			return user || null;
-		}),
 		faculty: requireRoles(['cobis_administrator'], async (_parent: any, _args: any, { db }: ApolloContext) => {
 			return db
 				.select()
