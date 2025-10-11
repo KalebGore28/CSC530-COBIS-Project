@@ -24,9 +24,9 @@ export const getCurrentYearTerm = {
                 term: terms.description, // get the readable term description
             })
             .from(instructorCourses)
-            .leftJoin(terms, eq(instructorCourses.term, terms.code))
+            .leftJoin(terms, eq(instructorCourses.term_code, terms.code))
             .where(sql`${instructorCourses.year} = (SELECT MAX(year) FROM ${instructorCourses})`)
-            .orderBy(sql`${instructorCourses.term} DESC`)
+            .orderBy(sql`${instructorCourses.term_code} DESC`)
             .limit(1)
 
         // fallback for when database is empty

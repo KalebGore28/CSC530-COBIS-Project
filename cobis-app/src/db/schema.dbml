@@ -30,8 +30,8 @@ table colleges {
 
 table course_prefixes {
   prefix varchar(50) [pk, not null]
-  department varchar(50) [not null]
-  college varchar(50) [not null]
+  department_code varchar(50) [not null]
+  college_code varchar(50) [not null]
 }
 
 table courses {
@@ -41,8 +41,8 @@ table courses {
   title varchar(255) [not null]
   hours int [not null]
   last_updated datetime [not null, default: `NOW()`]
-  department varchar(50)
-  college varchar(50)
+  department_code varchar(50)
+  college_code varchar(50)
 
   indexes {
     (subject, number, suffix) [pk]
@@ -54,15 +54,15 @@ table courses {
 table departments {
   code varchar(50) [pk, not null]
   description varchar(255) [not null]
-  college varchar(50)
+  college_code varchar(50)
 }
 
 table faculty {
   mnumber varchar(10) [pk, not null]
   first_name varchar(50) [not null]
   last_name varchar(50) [not null]
-  college varchar(50)
-  department varchar(50)
+  college_code varchar(50)
+  department_code varchar(50)
 }
 
 table instructional_methods {
@@ -72,7 +72,7 @@ table instructional_methods {
 
 table instructor_courses {
   mnumber varchar(10) [not null]
-  term varchar(50) [not null]
+  term_code varchar(50) [not null]
   year int [not null]
   course_subject varchar(50) [not null]
   course_number int [not null]
@@ -81,7 +81,7 @@ table instructor_courses {
   role varchar(50) [not null, default: 'Instructor']
 
   indexes {
-    (mnumber, term, year, course_subject, course_number, course_suffix, course_section) [pk]
+    (mnumber, term_code, year, course_subject, course_number, course_suffix, course_section) [pk]
     
   }
 }
@@ -105,8 +105,8 @@ table programs {
   has_concentration boolean [not null, default: false]
   is_discontinued boolean [not null, default: false]
   is_aacsb boolean [not null, default: false]
-  department varchar(50)
-  college varchar(50)
+  department_code varchar(50)
+  college_code varchar(50)
   last_updated datetime [not null, default: `NOW()`]
 }
 
@@ -133,12 +133,12 @@ table session {
 
 table student_academic_info {
   mnumber varchar(10) [not null]
-  term varchar(50) [not null]
+  term_code varchar(50) [not null]
   year int [not null]
-  admit_term varchar(50)
+  admit_term_code varchar(50)
   admit_year int
   admit_code varchar(50)
-  academic_standing varchar(50)
+  academic_standing_code varchar(50)
   msu_attempted_hours real
   msu_earned_hours real
   msu_quality_points real
@@ -149,7 +149,7 @@ table student_academic_info {
   overall_gpa real
 
   indexes {
-    (mnumber, term, year) [pk]
+    (mnumber, term_code, year) [pk]
     
     
     
@@ -165,41 +165,41 @@ table student_addresses {
   city varchar(50)
   state varchar(50)
   zip varchar(10)
-  nation varchar(50)
+  nation_code varchar(50)
   phone varchar(15)
 }
 
 table student_advisors {
   student_mnumber varchar(10) [not null]
-  term varchar(50)
+  term_code varchar(50)
   year int
   advisor_mnumber varchar(10)
 
   indexes {
-    (student_mnumber, term, year, advisor_mnumber) [pk]
+    (student_mnumber, term_code, year, advisor_mnumber) [pk]
     
   }
 }
 
 table student_courses {
   mnumber varchar(10) [not null]
-  term varchar(50) [not null]
+  term_code varchar(50) [not null]
   year int [not null]
-  part_of_term varchar(50)
+  part_of_term_code varchar(50)
   course_subject varchar(50) [not null]
   course_number int [not null]
   course_suffix varchar(50) [not null, default: '']
   course_section varchar(50) [not null]
   course_hours int [not null]
   course_level varchar(50)
-  registration_status varchar(50)
-  instructional_method varchar(50)
+  registration_status_code varchar(50)
+  instructional_method_code varchar(50)
   last_attendance varchar(50)
   midterm_grade varchar(50)
   final_grade varchar(50)
 
   indexes {
-    (mnumber, term, year, course_subject, course_number, course_suffix, course_section) [pk]
+    (mnumber, term_code, year, course_subject, course_number, course_suffix, course_section) [pk]
     
     
     
@@ -210,14 +210,14 @@ table student_courses {
 
 table student_programs {
   mnumber varchar(10) [not null]
-  term varchar(50) [not null]
+  term_code varchar(50) [not null]
   year int [not null]
   type varchar(50) [not null]
   level varchar(50) [not null]
-  program varchar(50) [not null]
+  program_code varchar(50) [not null]
 
   indexes {
-    (mnumber, type, program) [pk]
+    (mnumber, type, program_code) [pk]
     
     
     

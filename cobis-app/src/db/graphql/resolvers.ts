@@ -3,23 +3,6 @@ import * as tables from '@/db/schema'
 import { requireRoles } from './middleware/requireRoles';
 import { ApolloContext } from '@/middleware/apollo-server-context';
 
-import { CourseResolver } from './resolvers/course';
-import { DepartmentResolver } from './resolvers/department';
-import { ProgramResolver } from './resolvers/program';
-import { StudentResolver } from './resolvers/student';
-import { StudentAcademicInfoResolver } from './resolvers/student-academic-info';
-import { StudentAddressResolver } from './resolvers/student-address';
-import { StudentAdvisorResolver } from './resolvers/student-advisor';
-import { StudentCoursesResolver } from './resolvers/student-course';
-import { StudentProgramResolver } from './resolvers/student-program';
-import { FacultyResolver } from './resolvers/faculty';
-import { RoleResolver } from './resolvers/role';
-import { UserResolver } from './resolvers/user';
-import { UserRoleResolver } from './resolvers/user-role';
-import { InstructorCourseResolver } from './resolvers/instructor-course';
-
-
-
 type CreateFacultyInput = {
 	user_id: string;
 	mnumber: string;
@@ -30,30 +13,6 @@ type CreateFacultyInput = {
 }
 
 export const resolvers = {
-	Course: CourseResolver,
-	Department: DepartmentResolver,
-	Program: ProgramResolver,
-
-	// Student resolvers
-	Student: StudentResolver,
-	StudentAcademicInfo: StudentAcademicInfoResolver,
-	StudentAddress: StudentAddressResolver,
-	StudentAdvisor: StudentAdvisorResolver,
-	StudentCourse: StudentCoursesResolver,
-	StudentProgram: StudentProgramResolver,
-
-	// Other resolvers
-	Faculty: FacultyResolver,
-	Role: RoleResolver,
-	User: UserResolver,
-	UserRole: UserRoleResolver,
-	InstructorCourse: InstructorCourseResolver,
-
-	YearTerm: {
-		term: (_parent: any, _args: any, { loaders }: ApolloContext) =>
-			loaders.term.load(_parent.term),
-	},
-
 	Mutation: {
 		provisionFaculty: requireRoles(
 			['cobis_administrator'],

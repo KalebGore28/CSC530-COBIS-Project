@@ -5,6 +5,8 @@ type Course = typeof courses.$inferSelect;
 
 export const courseTypeExtension = /* GraphQL */ `
   extend type CoursesSelectItem {
+	department: DepartmentsSelectItem
+	college: CollegesSelectItem
     student_courses(
       startTerm: String!
       startYear: Int!
@@ -15,6 +17,10 @@ export const courseTypeExtension = /* GraphQL */ `
 `;
 
 export const CourseResolver = {
+	department: (course: Course, _args: any, { loaders }: ApolloContext) =>
+		loaders.department.load(course.department_code || ''),
+	college: (course: Course, _args: any, { loaders }: ApolloContext) =>
+		loaders.college.load(course.college_code || ''),
 	student_courses: (
 		course: Course,
 		args: { startTerm: string; startYear: number; endTerm: string; endYear: number },

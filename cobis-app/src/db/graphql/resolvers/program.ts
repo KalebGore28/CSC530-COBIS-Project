@@ -1,13 +1,26 @@
-import type { Program } from '../../db/schema'
-import { ApolloContext } from '../../app'
+import { programs } from '../../schema'
+import type { ApolloContext } from '@/middleware/apollo-server-context';
+
+type Program = typeof programs.$inferSelect;
+
+export const programTypeExtension = /* GraphQL */ `
+  extend type ProgramsSelectItem {
+    department: DepartmentsSelectItem
+    college: CollegesSelectItem
+    student_programs(
+      startTerm: String!
+      startYear: Int!
+      endTerm: String!
+      endYear: Int!
+    ): [StudentProgramsSelectItem]
+  }
+`;
 
 export const ProgramResolver = {
   department: (program: Program, _args: any, { loaders }: ApolloContext) =>
-    loaders.department.load(program.department),
-
+    loaders.department.load(program.department_code || ''),
   college: (program: Program, _args: any, { loaders }: ApolloContext) =>
-    loaders.college.load(program.college),
-
+    loaders.college.load(program.college_code || ''),
   student_programs: async (
     program: Program,
     args: { startTerm: string; startYear: number; endTerm: string; endYear: number },

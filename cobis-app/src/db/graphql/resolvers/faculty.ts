@@ -1,5 +1,52 @@
-import type { Faculty, InstructorCourse, Term } from "../../db/schema";
-import { ApolloContext } from "../../app";
+import { faculty, instructorCourses, terms } from "../../schema";
+import type { ApolloContext } from "@/middleware/apollo-server-context";
+
+type Faculty = typeof faculty.$inferSelect;
+type InstructorCourse = typeof instructorCourses.$inferSelect;
+type Term = typeof terms.$inferSelect;
+
+export const facultyTypeExtension = /* GraphQL */ `
+  extend type FacultySelectItem {
+    department: DepartmentsSelectItem
+    college: CollegesSelectItem
+    courses_taught(
+      startTerm: String
+      endTerm: String
+      startYear: Int
+      endYear: Int
+      subject: String
+      number: Int
+      suffix: String
+    ): [InstructorCoursesSelectItem]
+
+    grade_distribution_trend(
+      startTerm: String!
+      startYear: Int!
+      endTerm: String
+      endYear: Int
+    ): [FacultyGradeDistributionTrendItem]
+
+    advisees(
+      term: String
+      year: Int
+    ): [StudentsSelectItem]
+
+    user: UserSelectItem
+  }
+
+  type FacultyGradeDistributionTrendItem {
+    term: Term!
+    year: Int!
+    distributions: [FacultyGradeDistributionItem!]!
+  }
+
+  type FacultyGradeDistributionItem {
+    grade: String!
+    count: Int!
+    percentage: Float!
+  }
+`;
+
 
 const termMap = {
     '10': 'Spring',
@@ -9,10 +56,10 @@ const termMap = {
 }
 
 export const FacultyResolver = {
-    college: (faculty: Faculty, _args: any, { loaders }: ApolloContext) =>
-        faculty.college ? loaders.college.load(faculty.college) : null,
     department: (faculty: Faculty, _args: any, { loaders }: ApolloContext) =>
-        faculty.department ? loaders.department.load(faculty.department) : null,
+        loaders.department.load(faculty.department_code || ''),
+    college: (faculty: Faculty, _args: any, { loaders }: ApolloContext) =>
+        loaders.college.load(faculty.college_code || ''),
     courses_taught: async (
         fac: Faculty,
         args: {
@@ -48,7 +95,7 @@ export const FacultyResolver = {
             year: number
         ) =>
             course.year > year ||
-            (course.year === year && course.term >= term);
+            (course.year === year && course.term_code >= term);
 
         const termYearLE = (
             course: InstructorCourse,
@@ -56,7 +103,7 @@ export const FacultyResolver = {
             year: number
         ) =>
             course.year < year ||
-            (course.year === year && course.term <= term);
+            (course.year === year && course.term_code <= term);
 
         return all.filter((course) => {
             if (args.startTerm && args.startYear) {
@@ -103,9 +150,9 @@ export const FacultyResolver = {
         // 3. apply the exact same filtering logic you used for courses_taught
         const inRange = (course: typeof allCourses[number]) => {
             const ge = (t: string, y: number) =>
-                course.year > y || (course.year === y && course.term >= t);
+                course.year > y || (course.year === y && course.term_code >= t);
             const le = (t: string, y: number) =>
-                course.year < y || (course.year === y && course.term <= t);
+                course.year < y || (course.year === y && course.term_code <= t);
 
             if (args.startTerm && args.startYear && !ge(args.startTerm, args.startYear)) return false;
             if (args.endTerm && args.endYear && !le(args.endTerm, args.endYear)) return false;
@@ -116,10 +163,10 @@ export const FacultyResolver = {
         // 4. group by term+year
         const groups = new Map<string, { term: Term; year: number; courses: typeof allCourses }>();
         for (const course of filtered) {
-            const key = [course.term, course.year].join('|');
+            const key = [course.term_code, course.year].join('|');
             if (!groups.has(key)) {
                 groups.set(key, {
-                    term: { code: course.term, description: termMap[course.term as keyof typeof termMap] || '' },
+                    term: { code: course.term_code, description: termMap[course.term_code as keyof typeof termMap] || '' },
                     year: course.year,
                     courses: [],
                 });
@@ -134,7 +181,7 @@ export const FacultyResolver = {
                 const allDists = await Promise.all(
                     courses.map((c) =>
                         loaders.finalGradeDistributionByCourse.load(
-                            [c.term, c.year, c.course_subject, c.course_number, c.course_suffix].join('|')
+                            [c.term_code, c.year, c.course_subject, c.course_number, c.course_suffix].join('|')
                         )
                     )
                 );
@@ -183,10 +230,10 @@ export const FacultyResolver = {
         // otherwise, filter by term/year
         return all.filter((student) => {
             if (args.term && args.year) {
-                return student.term === args.term && student.year === args.year;
+                return student.term_code === args.term && student.year === args.year;
             }
             if (args.term) {
-                return student.term === args.term;
+                return student.term_code === args.term;
             }
             if (args.year) {
                 return student.year === args.year;

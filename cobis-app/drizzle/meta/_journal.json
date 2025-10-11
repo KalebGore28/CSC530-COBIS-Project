@@ -15,6 +15,20 @@
       "when": 1760194601648,
       "tag": "0001_cold_mojo",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1760214185847,
+      "tag": "0002_blushing_silhouette",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1760214635418,
+      "tag": "0003_cloudy_millenium_guard",
+      "breakpoints": true
     }
   ]
 }

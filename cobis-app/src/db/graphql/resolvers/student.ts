@@ -1,5 +1,22 @@
-import type { Student } from "../../db/schema";
-import { ApolloContext } from "../../app";
+import { students} from "../../schema";
+import type { ApolloContext } from '@/middleware/apollo-server-context';
+
+type Student = typeof students.$inferSelect;
+
+export const studentTypeExtension = /* GraphQL */ `
+  extend type StudentsSelectItem {
+    addresses: [StudentAddressesSelectItem]
+    advisors: [StudentAdvisorsSelectItem]
+    programs: [StudentProgramsSelectItem]
+    academic_info(term: String, year: Int): [StudentAcademicInfoSelectItem]
+    courses(
+      startTerm: String
+      endTerm: String
+      startYear: Int
+      endYear: Int
+    ): [StudentCoursesSelectItem]
+  }
+`;
 
 const termMap = {
 	'10': 'Spring',
@@ -27,7 +44,7 @@ export const StudentResolver = {
         // if only a term is provided, return all academic info for that term
         if (term != null && year == null) {
             return allAcademicInfo.then((info) =>
-                info.filter((ai) => ai.term === term)
+                info.filter((ai) => ai.term_code === term)
             );
         }
 
@@ -40,7 +57,7 @@ export const StudentResolver = {
 
         // if both term and year are provided, return all academic info for that term and year
         return allAcademicInfo.then((info) =>
-            info.filter((ai) => ai.term === term && ai.year === year)
+            info.filter((ai) => ai.term_code === term && ai.year === year)
         );
     },
     courses: (
@@ -77,14 +94,14 @@ export const StudentResolver = {
         // if only a start term and year are provided, return all courses for that term and year
         if (args.startTerm != null && args.startYear != null && args.endTerm == null && args.endYear == null) {
             return allCourses.then((courses) =>
-                courses.filter((course) => course.term === args.startTerm && course.year === args.startYear)
+                courses.filter((course) => course.term_code === args.startTerm && course.year === args.startYear)
             );
         }
 
         // if only an end term and year are provided, return all courses for that term and year
         if (args.startTerm == null && args.startYear == null && args.endTerm != null && args.endYear != null) {
             return allCourses.then((courses) =>
-                courses.filter((course) => course.term === args.endTerm && course.year === args.endYear)
+                courses.filter((course) => course.term_code === args.endTerm && course.year === args.endYear)
             );
         }
 
@@ -92,7 +109,7 @@ export const StudentResolver = {
         if (args.startTerm != null && args.startYear != null && args.endTerm != null && args.endYear != null) {
             return allCourses.then((courses) =>
                 courses.filter((course) => {
-                    const courseTerm = termMap[course.term as keyof typeof termMap];
+                    const courseTerm = termMap[course.term_code as keyof typeof termMap];
                     const courseYear = course.year;
 
                     // check if the course is within the specified range

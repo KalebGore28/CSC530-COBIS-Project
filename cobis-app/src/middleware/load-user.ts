@@ -76,8 +76,8 @@ export const loadUser = createMiddleware({ type: 'request' })
             .select({
                 firstName: faculty.first_name,
                 lastName: faculty.last_name,
-                department: faculty.department,
-                college: faculty.college,
+                department: faculty.department_code,
+                college: faculty.college_code,
             })
             .from(faculty)
             .where(eq(faculty.mnumber, dbUser?.mnumber || ''))
