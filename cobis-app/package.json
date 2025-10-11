@@ -79,8 +79,8 @@
     "web-vitals": "^5.1.0"
   },
   "relay": {
-    "src": "./src",
-    "schema": "./db/schema.graphql",
+    "src": "./src/routes",
+    "schema": "src/db/schema.graphql",
     "language": "typescript",
     "eagerEsModules": true,
     "exclude": [
