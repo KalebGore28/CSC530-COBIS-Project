@@ -1,7 +1,22 @@
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
-import { GraphQLObjectType, GraphQLSchema } from 'graphql';
+import { GraphQLObjectType, GraphQLSchema, extendSchema, parse } from 'graphql';
 import { buildSchema } from 'drizzle-graphql';
 import { queries } from "./graphql/queries";
+import { CourseResolver } from "./graphql/resolvers/course";
+import { addResolversToSchema } from '@graphql-tools/schema';
+
+const typeExtensions = /* GraphQL */ `
+  extend type CoursesSelectItem {
+    student_courses(
+      startTerm: String!
+      startYear: Int!
+      endTerm: String!
+      endYear: Int!
+    ): [StudentsSelectItem]
+  }
+`;
+
+
 
 import mysql from "mysql2/promise";
 import 'dotenv/config';
@@ -51,7 +66,7 @@ const createDb = async (): Promise<DbConnection> => {
 	});
 
 	// Construct the final schema
-	const graphql_schema = new GraphQLSchema({
+	let graphql_schema = new GraphQLSchema({
 		query,
 		mutation,
 		types: [
@@ -60,8 +75,19 @@ const createDb = async (): Promise<DbConnection> => {
 		],
 	});
 
+	graphql_schema = extendSchema(graphql_schema, parse(typeExtensions));
+
+	// 🧩 Add your *custom* resolvers on top of existing drizzle ones
+	const executableSchema = addResolversToSchema({
+		schema: graphql_schema,
+		resolvers: {
+			CoursesSelectItem: CourseResolver,
+		},
+	});
+
+
 	console.log(`✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
-	return { db: poolConnection, orm: db, graphql_schema };
+	return { db: poolConnection, orm: db, graphql_schema: executableSchema };
 };
 
 export const getDbConnection = async (): Promise<DbConnection> => {

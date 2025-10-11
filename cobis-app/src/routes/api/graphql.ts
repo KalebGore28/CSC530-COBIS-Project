@@ -32,7 +32,6 @@ export const Route = createFileRoute('/api/graphql')({
             },
             // POST → actual GraphQL requests
             POST: async ({ request, context }) => {
-                console.log('📬 Incoming GraphQL request')
                 const server = await getApollo()
 
                 // Parse incoming JSON body

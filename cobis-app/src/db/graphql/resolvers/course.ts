@@ -1,5 +1,7 @@
-import type { Course } from '../../db/schema';
-import { ApolloContext } from '../../app';
+import { courses } from '../../schema';
+import type { ApolloContext } from '@/middleware/apollo-server-context';
+
+type Course = typeof courses.$inferSelect;
 
 export const CourseResolver = {
 	student_courses: (
@@ -8,6 +10,7 @@ export const CourseResolver = {
 		{ loaders }: ApolloContext
 	) => {
 		const { startTerm, startYear, endTerm, endYear } = args;
+		console.log('🔥 student_courses resolver fired for:', course.subject)
 
 
 		const loader = loaders.getStudentCoursesLoader(
@@ -16,6 +19,7 @@ export const CourseResolver = {
 			endTerm,
 			endYear
 		);
+		console.log("LOADER: ", loader);
 
 		return loader.load([
 			course.subject,
