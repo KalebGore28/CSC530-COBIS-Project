@@ -1,13 +1,15 @@
-import {
-  HeadContent,
-  Scripts,
-  createRootRouteWithContext,
-} from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { Suspense } from 'react';
+import { Environment, Network, FetchFunction } from "relay-runtime";
+
+// Providers
 import { ThemeProvider } from '@/components/provider/theme'
 import { SessionProvider } from '@/components/provider/session';
-import { RelayEnvironmentProvider } from "react-relay";
-import { Environment, Network, FetchFunction } from "relay-runtime";
+// Workaround for lack of ESM support in react-relay
+import pkg from 'react-relay';
+const { RelayEnvironmentProvider } = pkg;
+
+
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 
