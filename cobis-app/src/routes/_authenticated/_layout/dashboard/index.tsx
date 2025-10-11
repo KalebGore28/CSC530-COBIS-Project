@@ -58,7 +58,7 @@ const dashboardCardsStructure = [
         description:
             "Import and manage data from external sources for system integration.",
         icon: <BarChart3 className="h-8 w-8 mb-4 text-primary" />,
-        link: "/cobis-tools/imports",
+        link: "/cobis-tools/import",
         buttonText: "Access Import Tools",
     },
     {

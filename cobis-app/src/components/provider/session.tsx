@@ -94,7 +94,7 @@ const ROUTE_PERMISSIONS: { [key: string]: Route } = {
     name: 'COBIS Tools',
     allowedRoles: ["cobis_administrator"]
   },
-  '/cobis-tools/imports': {
+  '/cobis-tools/import': {
     name: 'Imports',
     allowedRoles: ["cobis_administrator"]
   },
