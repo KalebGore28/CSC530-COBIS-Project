@@ -6,8 +6,7 @@ import {
 	BookOpen,
 	Telescope,
 	ChartColumnIncreasing,
-	ChevronRight,
-	ChevronDown
+	ChevronsUpDown
 } from "lucide-react"
 import {
 	Collapsible,
@@ -101,7 +100,7 @@ export function NavMain({ open }: { open?: boolean }) {
 										>
 											{item.icon && <item.icon />}
 											<span>{item.title}</span>
-											<ChevronRight className="ml-auto" />
+											<ChevronsUpDown className="ml-auto" />
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent>
