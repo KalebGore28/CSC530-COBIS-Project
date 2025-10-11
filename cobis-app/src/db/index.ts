@@ -1,12 +1,16 @@
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
+import { buildSchema } from 'drizzle-graphql';
+
 import mysql from "mysql2/promise";
 import 'dotenv/config';
 
 import * as schema from './schema';
+import { GraphQLSchema } from "graphql";
 
 export interface DbConnection {
 	db: mysql.Pool;
 	orm: MySql2Database<typeof schema>;
+	graphql_schema: GraphQLSchema;
 }
 
 let _dbConnection: Promise<DbConnection> | null = null;
@@ -26,8 +30,10 @@ const createDb = async (): Promise<DbConnection> => {
 		throw new Error('❌ Failed to create database connection. Please check your environment variables.');
 	}
 
+	const { schema: graphql_schema } = buildSchema(db);
+
 	console.log(`✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
-	return { db: poolConnection, orm: db };
+	return { db: poolConnection, orm: db, graphql_schema };
 };
 
 export const getDbConnection = async (): Promise<DbConnection> => {
