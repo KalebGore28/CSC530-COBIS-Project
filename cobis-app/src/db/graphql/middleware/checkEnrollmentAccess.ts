@@ -16,7 +16,7 @@ export function checkEnrollmentAccess<
 ): (parent: TParent, args: TArgs, ctx: ApolloContext) => Promise<TResult> {
 	return async (parent: TParent, args: TArgs, ctx: ApolloContext) => {
 		// 1) admin / super role
-		if (ctx.userContext.roles.some(r => r === 'cobis_admin')) {
+		if (ctx.userContext.roles.some(r => r === 'cobis_administrator')) {
 			return resolver(parent, args, ctx);
 		}
 

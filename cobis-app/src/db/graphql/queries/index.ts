@@ -16,6 +16,10 @@ import { getInstructor } from "./getInstructor"
 import { getUser } from "./getUser"
 import { getUsers } from "./getUsers"
 import { lookupStudents } from "./lookupStudents"
+import { getProgramEnrollment } from "./getProgramEnrollment"
+import { getProgramsEnrollment } from "./getProgramsEnrollment"
+import { getCourseEnrollment } from "./getCourseEnrollment"
+import { getCoursesEnrollment } from "./getCoursesEnrollment"
 
 export const queries = {
     searchAcademicStandings,
@@ -36,4 +40,8 @@ export const queries = {
     getUser,
     getUsers,
     lookupStudents,
+    getProgramEnrollment,
+    getProgramsEnrollment,
+    getCourseEnrollment,
+    getCoursesEnrollment,
 }

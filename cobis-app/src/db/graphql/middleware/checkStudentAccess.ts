@@ -24,7 +24,7 @@ export function checkStudentAccess<
 		}
 
 		// 2) admin / super role
-		if (ctx.userContext.roles.some(r => r === 'cobis_admin')) {
+		if (ctx.userContext.roles.some(r => r === 'cobis_administrator')) {
 			return resolver(parent, args, ctx);
 		}
 
