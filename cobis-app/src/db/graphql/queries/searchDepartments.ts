@@ -10,7 +10,7 @@ export const DepartmentType = new GraphQLObjectType({
     fields: {
         code: { type: new GraphQLNonNull(GraphQLString) },
         description: { type: new GraphQLNonNull(GraphQLString) },
-        college: { type: GraphQLString },
+        college_code: { type: GraphQLString },
     },
 })
 

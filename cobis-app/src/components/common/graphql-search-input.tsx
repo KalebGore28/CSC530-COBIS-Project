@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/command";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Program, Course } from "@/utils/search";
 
 interface HasCodeDesc {
 	code: string;

@@ -18,8 +18,9 @@ export const CourseType = new GraphQLObjectType({
     suffix: { type: new GraphQLNonNull(GraphQLString) },
     title: { type: new GraphQLNonNull(GraphQLString) },
     hours: { type: new GraphQLNonNull(GraphQLInt) },
-    department: { type: GraphQLString },
-    college: { type: GraphQLString },
+    department_code: { type: GraphQLString },
+    college_code: { type: GraphQLString },
+    last_updated: { type: GraphQLString },
   },
 })
 

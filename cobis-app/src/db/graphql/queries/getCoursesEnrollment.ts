@@ -14,8 +14,8 @@ export const CoursesEnrollmentType = new GraphQLObjectType({
         title: { type: new GraphQLNonNull(GraphQLString) },
         hours: { type: GraphQLInt },
         last_updated: { type: new GraphQLNonNull(GraphQLString) },
-        department: { type: GraphQLString },
-        college: { type: GraphQLString },
+        department_code: { type: GraphQLString },
+        college_code: { type: GraphQLString },
     },
 })
 

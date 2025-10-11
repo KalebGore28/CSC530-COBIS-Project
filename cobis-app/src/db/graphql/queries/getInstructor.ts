@@ -12,8 +12,8 @@ export const InstructorType = new GraphQLObjectType({
         mnumber: { type: new GraphQLNonNull(GraphQLString) },
         first_name: { type: new GraphQLNonNull(GraphQLString) },
         last_name: { type: new GraphQLNonNull(GraphQLString) },
-        college: { type: GraphQLString },
-        department: { type: GraphQLString },
+        college_code: { type: GraphQLString },
+        department_code: { type: GraphQLString },
     },
 })
 

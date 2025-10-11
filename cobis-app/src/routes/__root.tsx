@@ -13,11 +13,15 @@ const { RelayEnvironmentProvider } = pkg;
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 
-const fetchGraphQL: FetchFunction = async (request, variables) => {
+export const fetchGraphQL: FetchFunction = async (operation, variables) => {
   const resp = await fetch(import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query: request.text, variables }),
+    body: JSON.stringify({
+      doc_id: operation.id, // NOTE: pass md5 hash to the server
+      // query: operation.text, // this is now obsolete because text is null
+      variables,
+    }),
   });
   if (!resp.ok) {
     throw new Error("Response failed.");

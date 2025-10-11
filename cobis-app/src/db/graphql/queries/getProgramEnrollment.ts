@@ -16,9 +16,9 @@ export const ProgramEnrollmentType = new GraphQLObjectType({
         is_minor: { type: GraphQLBoolean },
         has_concentration: { type: GraphQLBoolean },
         is_discontinued: { type: GraphQLBoolean },
-        is_ascsb: { type: GraphQLBoolean },
-        department: { type: GraphQLString },
-        college: { type: GraphQLString },
+        is_aacsb: { type: GraphQLBoolean },
+        department_code: { type: GraphQLString },
+        college_code: { type: GraphQLString },
         last_updated: { type: new GraphQLNonNull(GraphQLString) },
     },
 })

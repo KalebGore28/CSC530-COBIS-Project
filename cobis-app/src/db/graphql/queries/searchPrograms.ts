@@ -1,5 +1,5 @@
 // src/graphql/queries/searchPrograms.ts
-import { GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
+import { GraphQLBoolean, GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
 import { sql, or } from 'drizzle-orm'
 import { programs } from '@/db/schema'
 import type { ApolloContext } from '@/middleware/apollo-server-context'
@@ -10,6 +10,24 @@ export const ProgramType = new GraphQLObjectType({
     fields: {
         code: { type: new GraphQLNonNull(GraphQLString) },
         description: { type: new GraphQLNonNull(GraphQLString) },
+        cip_code: { type: GraphQLString },
+        is_major: { type: new GraphQLNonNull(GraphQLBoolean) },
+        is_minor: { type: new GraphQLNonNull(GraphQLBoolean) },
+        has_concentration: { type: new GraphQLNonNull(GraphQLBoolean) },
+        is_discontinued: { type: new GraphQLNonNull(GraphQLBoolean) },
+        is_aacsb: { type: new GraphQLNonNull(GraphQLBoolean) },
+        department_code: { type: GraphQLString },
+        college_code: { type: GraphQLString },
+        last_updated: { type: GraphQLString },
+        department: {
+            type: new GraphQLObjectType({
+                name: 'ProgramDepartment',
+                fields: {
+                    code: { type: new GraphQLNonNull(GraphQLString) },
+                    description: { type: new GraphQLNonNull(GraphQLString) },
+                },
+            }),
+        },
     },
 })
 
