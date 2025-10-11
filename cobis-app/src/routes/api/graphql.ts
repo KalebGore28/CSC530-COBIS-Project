@@ -3,6 +3,19 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { ApolloServer } from '@apollo/server'
 import { loadUser } from '@/middleware/load-user'
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
+
+let apollo: ApolloServer | null = null
+async function getApollo() {
+    if (!apollo) {
+        const schema = (await getDbConnection()).graphql_schema
+        apollo = new ApolloServer({ schema })
+        await apollo.start()
+    }
+    return apollo
+}
+
 
 export const Route = createFileRoute('/api/graphql')({
     server: {
@@ -10,29 +23,17 @@ export const Route = createFileRoute('/api/graphql')({
         handlers: {
             // GET → optional GraphiQL playground or test query
             GET: async () => {
-                const html = /* GraphiQL-like minimal UI */
-                    `<!DOCTYPE html>
-          <html>
-            <head><title>GraphQL Endpoint</title></head>
-            <body>
-              <h2>GraphQL endpoint</h2>
-              <p>Send a POST request to this URL with <code>{ "query": "...", "variables": {...} }</code>.</p>
-            </body>
-          </html>`
+                const filePath = join(process.cwd(), 'public', 'graphql-playground.html')
+                const html = await readFile(filePath, 'utf8')
                 return new Response(html, {
                     status: 200,
-                    headers: { 'Content-Type': 'text/html' },
+                    headers: { 'Content-Type': 'text/html; charset=utf-8' },
                 })
             },
 
             // POST → actual GraphQL requests
             POST: async ({ request }) => {
-                const graphql_schema = (await getDbConnection()).graphql_schema
-
-                const server = new ApolloServer({
-                    schema: graphql_schema,
-                })
-                await server.start()
+                const server = await getApollo()
 
                 // Parse incoming JSON body
                 const { query, variables, operationName } = await request.json()
