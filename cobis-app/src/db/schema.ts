@@ -116,6 +116,20 @@ export const instructionalMethods = mysqlTable("instructional_methods", {
 	description: varchar("description", { length: 255 }).notNull(),
 });
 
+export const instructorCourses = mysqlTable("instructor_courses", {
+	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => faculty.mnumber),
+	term: varchar("term", { length: 50 }).notNull().references(() => terms.code),
+	year: int("year").notNull(),
+	course_subject: varchar("course_subject", { length: 50 }).notNull(),
+	course_number: int("course_number").notNull(),
+	course_suffix: varchar("course_suffix", { length: 50 }).notNull().default(""),
+	course_section: varchar("course_section", { length: 50 }).notNull().default(""),
+	role: varchar("role", { length: 50 }).notNull().default("Instructor"),
+}, (table) => [
+	primaryKey({ columns: [table.mnumber, table.term, table.year, table.course_subject, table.course_number, table.course_suffix, table.course_section], name: "pk_instructor_courses" }),
+	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix], name: "fk_instructor_courses_course" }),
+]);
+
 export const nations = mysqlTable("nations", {
 	code: varchar("code", { length: 50 }).primaryKey(),
 	description: varchar("description", { length: 255 }).notNull(),

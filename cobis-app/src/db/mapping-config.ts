@@ -9,6 +9,7 @@ import {
     departments,
     faculty,
     instructionalMethods,
+    instructorCourses,
     registrationStatus,
     roles,
     students,
@@ -84,6 +85,7 @@ export const csvConfig = createCSVConfig({
     departments,
     faculty,
     instructionalMethods,
+    instructorCourses,
     registrationStatus,
     roles,
     students,
@@ -155,6 +157,21 @@ csvConfig.tables = {
             code: { csvColumnName: "CODE" },
             description: { csvColumnName: "DESCRIPTION" },
         },
+    },
+    instructorCourses: {
+        patterns: [
+            /reg_cuba_courses_during_term_\d+_\d+\.csv$/i,
+            /\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i
+        ],
+        config: {
+            mnumber: { csvColumnName: "INSTMNUMBER" },
+            term: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).term },
+            year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
+            course_subject: { csvColumnName: "CRSESUBJ" },
+            course_number: { csvColumnName: "CRSENUMB" },
+            // course_suffix isn't provided in the CSV, so we force it to default to ''
+            course_section: { csvColumnName: "SECTION" },
+        }
     },
     registrationStatus: {
         patterns: [/^registration_status\.csv$/i],

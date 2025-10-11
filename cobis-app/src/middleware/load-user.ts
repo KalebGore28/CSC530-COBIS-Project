@@ -20,6 +20,25 @@ export const loadUser = createMiddleware({ type: 'request' })
                 request,
                 pathname: new URL(request.url).pathname,
                 context: {
+                    session: {
+                        id: '',
+                        createdAt: new Date(0),
+                        updatedAt: new Date(0),
+                        userId: '',
+                        expiresAt: new Date(0),
+                        token: '',
+                        ipAddress: null,
+                        userAgent: null,
+                    },
+                    user: {
+                        id: '',
+                        createdAt: new Date(0),
+                        updatedAt: new Date(0),
+                        email: '',
+                        emailVerified: false,
+                        name: '',
+                        image: null,
+                    },
                     mnumber: null,
                     isEnabled: false,
                     roles: [],
@@ -67,6 +86,8 @@ export const loadUser = createMiddleware({ type: 'request' })
         // Otherwise, continue
         return next({
             context: {
+                session: session.session,
+                user: session.user,
                 mnumber: dbUser?.mnumber || null,
                 isEnabled: dbUser?.isEnabled || false,
                 roles: dbUserRoles || [],

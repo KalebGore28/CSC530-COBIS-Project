@@ -8,6 +8,13 @@
       "when": 1760070832085,
       "tag": "0000_unusual_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1760194601648,
+      "tag": "0001_cold_mojo",
+      "breakpoints": true
     }
   ]
 }

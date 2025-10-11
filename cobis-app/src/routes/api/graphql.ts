@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { ApolloServer } from '@apollo/server'
 import { loadUser } from '@/middleware/load-user'
+import { type ApolloContext, apolloServerContextMiddleware } from '@/middleware/apollo-server-context'
 
 let apollo: ApolloServer | null = null
 async function getApollo() {
@@ -19,10 +20,19 @@ async function getApollo() {
 
 export const Route = createFileRoute('/api/graphql')({
     server: {
-        middleware: [loadUser],
+        middleware: [loadUser, apolloServerContextMiddleware],
         handlers: {
+            // GET → GraphQL Playground IDE
+            GET: async () => {
+                // redirect to Apollo Sandbox
+                return new Response(null, {
+                    status: 302,
+                    headers: { Location: '/graphql-playground.html' },
+                })
+            },
             // POST → actual GraphQL requests
-            POST: async ({ request }) => {
+            POST: async ({ request, context }) => {
+                console.log('📬 Incoming GraphQL request')
                 const server = await getApollo()
 
                 // Parse incoming JSON body
@@ -31,6 +41,19 @@ export const Route = createFileRoute('/api/graphql')({
                 // Execute GraphQL operation dynamically
                 const result = await server.executeOperation({
                     query, variables, operationName
+                }, {
+                    contextValue: {
+                        db: context.db,
+                        loaders: context.loaders,
+                        userContext: {
+                            session: context.session,
+                            user: context.user,
+                            roles: context.roles,
+                            mnumber: context.mnumber,
+                            isEnabled: context.isEnabled,
+                            faculty: context.faculty,
+                        }
+                    } as ApolloContext
                 })
 
                 const { body } = result;

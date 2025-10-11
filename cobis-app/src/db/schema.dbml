@@ -70,6 +70,22 @@ table instructional_methods {
   description varchar(255) [not null]
 }
 
+table instructor_courses {
+  mnumber varchar(10) [not null]
+  term varchar(50) [not null]
+  year int [not null]
+  course_subject varchar(50) [not null]
+  course_number int [not null]
+  course_suffix varchar(50) [not null, default: '']
+  course_section varchar(50) [not null, default: '']
+  role varchar(50) [not null, default: 'Instructor']
+
+  indexes {
+    (mnumber, term, year, course_subject, course_number, course_suffix, course_section) [pk]
+    
+  }
+}
+
 table nations {
   code varchar(50) [pk, not null]
   description varchar(255) [not null]
