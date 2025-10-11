@@ -7,20 +7,24 @@ import {
     SidebarMenuItem,
     useSidebar,
 } from "@/components/ui/sidebar"
+import { NavMain } from "@/components/nav-main"
+import { NavUser } from "@/components/nav-user"
 import { Separator } from "@/components/ui/separator"
 import { Navigate } from "@tanstack/react-router"
 import logo from "/primary_white.png"
 import logoIcon from "/primary-icon.png"
+import { useEffect } from "react"
 
 export function AppSidebar() {
-    const { open, openMobile, isMobile } = useSidebar();
+    const { open } = useSidebar();
 
-    // Derive isExpanded from open and openMobile
-    const isExpanded = isMobile ? openMobile : open;
+    useEffect(() => {
+        console.log("sidebar is: ", open === true ? "open" : "closed");
+    }, [open]);
 
     return (
         <Sidebar collapsible="icon">
-            <div className="h-full bg-blue-950 dark:bg-gray-900 text-white">
+            <div className="h-full bg-blue-950 dark:bg-gray-900 text-white justify-between flex flex-col">
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>
@@ -31,8 +35,8 @@ export function AppSidebar() {
                                 }}
                             >
                                 <img
-                                    src={isExpanded ? logo : logoIcon}
-                                    className={isExpanded ? "w-auto h-auto mt-4" : "w-8 h-10 my-2"}
+                                    src={open === true ? logo : logoIcon}
+                                    className={open === true ? "w-auto h-auto mt-4" : "w-8 h-10 my-2"}
                                     alt="Murray Logo"
                                 />
                             </div>
@@ -40,7 +44,7 @@ export function AppSidebar() {
                         <SidebarMenuItem className="text-center">
                             <span
                                 className={
-                                    isExpanded
+                                    open === true
                                         ? "text-white text-sm font-semibold text-center text-nowrap"
                                         : "hidden text-nowrap ml-5"
                                 }
@@ -49,16 +53,13 @@ export function AppSidebar() {
                             </span>
                         </SidebarMenuItem>
                         <Separator className="my-2" />
-                        <SidebarMenuItem>
-                            {/* <RoleSwitcher /> */}
-                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarHeader>
                 <SidebarContent>
-                    {/* <NavMain items={filteredNavMain} /> */}
+                    <NavMain open={open} />
                 </SidebarContent>
                 <SidebarFooter>
-                    {/* <NavUser session={session} onLogout={logout} /> */}
+                    <NavUser />
                 </SidebarFooter>
             </div>
         </Sidebar>
