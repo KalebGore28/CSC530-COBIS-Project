@@ -1,26 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StudentFilters, FilterState } from "@/components/student-filter";
-import {
-  PaginatedTable,
-  PaginatedTableSkeleton,
-} from "@/components/common/paginated-table";
+import { PaginatedTable, PaginatedTableSkeleton } from "@/components/common/paginated-table";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { exportToCSV } from "@/utils/csv-export";
 import { Button } from "@/components/ui/button";
 import { Download, Loader2 } from "lucide-react";
 import { format } from "date-fns";
-import React, { useState, Suspense, useEffect, useMemo } from "react";
+import React, { useState, Suspense, useEffect } from "react";
+import { graphql, useLazyLoadQuery, useQueryLoader, usePreloadedQuery } from "react-relay";
 
-// Relay imports
 import type { studentLookupQuery, studentLookupQuery$data, StudentLookupInput } from "./__generated__/studentLookupQuery.graphql";
-import {
-  graphql,
-  useLazyLoadQuery,
-  useQueryLoader,
-  usePreloadedQuery,
-} from "react-relay";
-
 type queryResponse = NonNullable<NonNullable<NonNullable<studentLookupQuery$data["lookupStudents"]>["students"]>[number]>;
 
 const StudentLookupQuery = graphql`
@@ -43,9 +33,7 @@ const StudentLookupQuery = graphql`
 
 const PAGE_LIMIT = 10;
 
-export const Route = createFileRoute(
-  "/_authenticated/_layout/student-lookup"
-)({
+export const Route = createFileRoute("/_authenticated/_layout/student-lookup")({
   component: StudentLookup,
 });
 
@@ -74,36 +62,24 @@ export const SkeletonTable: React.FC<{ rows?: number }> = ({ rows = 10 }) => (
 const makePreHeader = (filters: FilterState): string[] => {
   const lines: string[] = [];
 
-  if (filters.academicLevels.length) {
+  if (filters.academicLevels && filters.academicLevels.length) {
     lines.push(`Academic Levels,${filters.academicLevels.join("|")}`);
   }
   if (filters.gpaRange) {
     lines.push(`GPA,${filters.gpaRange[0]}-${filters.gpaRange[1]}`);
   }
 
-  if (Object.keys(filters.programFilter).length) {
-    const programLines = Object.entries(filters.programFilter)
-      .map(([program, flags]) => {
-        const flagsStr = [];
-        if (flags.is_major) flagsStr.push("major");
-        if (flags.is_minor) flagsStr.push("minor");
-        return `${program} (${flagsStr.join(",")})`;
-      })
-      .join("|");
-    lines.push(`Programs,${programLines}`);
+  if (filters.programFilter) {
+    const programLine = `${filters.programFilter.code} - ${filters.programFilter.is_major ? " (major)" : ""
+      }${filters.programFilter.is_minor ? " (minor)" : ""}`;
+    lines.push(`Programs,${programLine}`);
   }
 
-  if (Object.keys(filters.courseFilters).length) {
-    const courseLines = Object.entries(filters.courseFilters)
-      .map(([course, cf]) => {
-        const flagsStr = [];
-        if (cf.taken) flagsStr.push("taken");
-        if (cf.gradeOperator) flagsStr.push(`grade ${cf.gradeOperator}`);
-        if (cf.grade) flagsStr.push(`grade ${cf.grade}`);
-        return `${course} (${flagsStr.join(",")})`;
-      })
-      .join("|");
-    lines.push(`Courses,${courseLines}`);
+  if (filters.courseFilter) {
+    const courseLine = `${filters.courseFilter.course_id} - ${filters.courseFilter.taken ? "Taken" : "Not Taken"
+      } ${filters.courseFilter.operator ? filters.courseFilter.operator : ""
+      } ${filters.courseFilter.grade ? filters.courseFilter.grade : ""}`;
+    lines.push(`Courses,${courseLine}`);
   }
 
   lines.push(`Exported At,${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`);
@@ -113,14 +89,12 @@ const makePreHeader = (filters: FilterState): string[] => {
 // ---------- Main Route ----------
 function StudentLookup() {
   const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
-
   return (
     <div className="p-6">
       <StudentFilters
         onApplyFilters={setCurrentFilters}
         onResetFilters={() => setCurrentFilters(null)}
       />
-
       <div className="mt-6">
         <Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} />}>
           {currentFilters ? (
@@ -139,6 +113,7 @@ function StudentLookup() {
 }
 
 function StudentLookupContent({ filters }: { filters: FilterState }) {
+  const [offset, setOffset] = useState(0);
   const filterInput: StudentLookupInput = {
     academicLevels: filters.academicLevels,
     gpaMin: filters.gpaRange ? filters.gpaRange[0] : undefined,
@@ -149,7 +124,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
 
   const data = useLazyLoadQuery<studentLookupQuery>(
     StudentLookupQuery,
-    { filters: filterInput, offset: 0, limit: PAGE_LIMIT },
+    { filters: filterInput, offset: offset, limit: PAGE_LIMIT },
     { fetchPolicy: "store-or-network" }
   );
 
@@ -168,7 +143,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
   const handleExportClick = () => {
     const total = data.lookupStudents?.totalCount ?? 0;
     loadQuery({
-      filters: gqlFilters,
+      filters: filterInput,
       offset: 0,
       limit: total,
     });
@@ -196,16 +171,8 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
           ]}
           rowsPerPage={PAGE_LIMIT}
           totalRows={data.lookupStudents.totalCount}
-          handlePreviousCallback={() =>
-            setOffset((prev) => Math.max(prev - PAGE_LIMIT, 0))
-          }
-          handleNextCallback={() =>
-            setOffset((prev) =>
-              prev + PAGE_LIMIT < (data.lookupStudents?.totalCount ?? 0)
-                ? prev + PAGE_LIMIT
-                : prev
-            )
-          }
+          handlePreviousCallback={() => setOffset((o) => Math.max(0, o - PAGE_LIMIT))}
+          handleNextCallback={() => setOffset((o) => o + PAGE_LIMIT)}
         />
       </CardContent>
 
@@ -219,7 +186,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
             </Button>
           }
         >
-          <ExportContent queryRef={queryRef} filters={filters} />
+          <ExportContent queryRef={queryRef} />
         </Suspense>
       )}
     </Card>
@@ -227,13 +194,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
 };
 
 // ---------- ExportContent ----------
-function ExportContent({
-  queryRef,
-  filters,
-}: {
-  queryRef: any;
-  filters: FilterState;
-}) {
+function ExportContent({ queryRef }: { queryRef: any }) {
   const data = usePreloadedQuery<studentLookupQuery>(StudentLookupQuery, queryRef);
 
   useEffect(() => {
