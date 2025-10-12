@@ -25,7 +25,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
     const [selected, setSelected] = useState<Course | null>(null);
     const [taken, setTaken] = useState(false);
     const [comparison, setComparison] = useState("=");
-    const [grade, setGrade] = useState("");
+    const [grade, setGrade] = useState("A");
 
     const { queryRef, loadQuery } = useCourseSearch();
 
