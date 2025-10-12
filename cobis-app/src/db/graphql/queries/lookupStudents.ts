@@ -112,7 +112,7 @@ export const lookupStudents = {
 
         const whereClauses: SQLWrapper[] = [];
 
-        // 1) GPA filters (unchanged) …
+        // 1) GPA filters
         if (gpaMin != null) {
             whereClauses.push(sql`
                     EXISTS (
@@ -162,18 +162,16 @@ export const lookupStudents = {
                         FROM ${studentAcademicInfo} AS sai1
                         WHERE sai1.mnumber = ${students.mnumber}
                 
-                        -- only the latest snapshot:
                         AND NOT EXISTS (
                             SELECT 1
                             FROM ${studentAcademicInfo} AS sai2
                             WHERE sai2.mnumber = sai1.mnumber
                             AND (
                                 sai2.year  > sai1.year
-                                OR (sai2.year = sai1.year AND sai2.term > sai1.term)
+                                OR (sai2.year = sai1.year AND sai2.term_code > sai1.term_code)
                             )
                         )
-                
-                        -- apply the selected‐level ranges
+            
                         AND (${or(...levelClauses)})
                     )
                 `);
@@ -256,12 +254,15 @@ export const lookupStudents = {
         });
 
         // 5) Build base select to count total rows
+        const whereExpr = whereClauses.length ? and(...whereClauses) : undefined;
+
+        // Count total rows
         const [{ count: totalCount }] = await db
             .select({ count: sql<number>`count(*)` })
             .from(students)
-            .where(and(...whereClauses));
+            .where(whereExpr);
 
-        // Build paginated fetch
+        // Fetch paginated rows
         const studentRows = await db
             .select({
                 mnumber: students.mnumber,
@@ -270,9 +271,10 @@ export const lookupStudents = {
                 email: students.email,
             })
             .from(students)
-            .where(and(...whereClauses))
+            .where(whereExpr)
             .offset(offset)
             .limit(limit);
+
 
         return {
             students: studentRows,
