@@ -167,7 +167,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
             { key: "mnumber", label: "MNumber" },
             { key: "first_name", label: "First Name" },
             { key: "last_name", label: "Last Name" },
-            { key: "email", label: "Email", transform: (val) => val.toLowerCase() },
+            { key: "email", label: "Email", transform: (val) => (val ?? "").toLowerCase() },
           ]}
           rowsPerPage={PAGE_LIMIT}
           totalRows={data.lookupStudents.totalCount}
@@ -186,7 +186,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
             </Button>
           }
         >
-          <ExportContent queryRef={queryRef} />
+          <ExportContent queryRef={queryRef} filters={filters} />
         </Suspense>
       )}
     </Card>
@@ -194,7 +194,7 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
 };
 
 // ---------- ExportContent ----------
-function ExportContent({ queryRef }: { queryRef: any }) {
+function ExportContent({ queryRef, filters }: { queryRef: any, filters: FilterState }) {
   const data = usePreloadedQuery<studentLookupQuery>(StudentLookupQuery, queryRef);
 
   useEffect(() => {
@@ -204,7 +204,7 @@ function ExportContent({ queryRef }: { queryRef: any }) {
       filename: `students_${format(new Date(), "yyyyMMdd_HHmmss")}`,
       fields: ["mnumber", "first_name", "last_name", "email"],
       headers: ["mnumber", "first_name", "last_name", "email"],
-      // preHeader: makePreHeader(filters),
+      preHeader: makePreHeader(filters),
     });
   }, [data]);
 
