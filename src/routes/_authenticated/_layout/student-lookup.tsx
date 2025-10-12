@@ -13,7 +13,7 @@ import { format } from "date-fns";
 import React, { useState, Suspense, useEffect, useMemo } from "react";
 
 // Relay imports
-import type { studentLookupQuery, studentLookupQuery$data } from "./__generated__/studentLookupQuery.graphql";
+import type { studentLookupQuery, studentLookupQuery$data, StudentLookupInput } from "./__generated__/studentLookupQuery.graphql";
 import {
   graphql,
   useLazyLoadQuery,
@@ -49,11 +49,7 @@ export const Route = createFileRoute(
   component: StudentLookup,
 });
 
-// ---------- Skeleton ----------
-interface SkeletonTableProps {
-  rows?: number;
-}
-export const SkeletonTable: React.FC<SkeletonTableProps> = ({ rows = 10 }) => (
+export const SkeletonTable: React.FC<{ rows?: number }> = ({ rows = 10 }) => (
   <Card className="w-full animate-pulse h-[600px]">
     <CardHeader className="flex items-center justify-between">
       <Skeleton className="h-6 w-1/4" />
@@ -85,8 +81,8 @@ const makePreHeader = (filters: FilterState): string[] => {
     lines.push(`GPA,${filters.gpaRange[0]}-${filters.gpaRange[1]}`);
   }
 
-  if (Object.keys(filters.programFilters).length) {
-    const programLines = Object.entries(filters.programFilters)
+  if (Object.keys(filters.programFilter).length) {
+    const programLines = Object.entries(filters.programFilter)
       .map(([program, flags]) => {
         const flagsStr = [];
         if (flags.is_major) flagsStr.push("major");
@@ -142,54 +138,18 @@ function StudentLookup() {
   );
 }
 
-// ---------- Lookup Content ----------
-type StudentLookupContentProps = {
-  filters: FilterState;
-};
-
-const StudentLookupContent: React.FC<StudentLookupContentProps> = ({
-  filters,
-}) => {
-  const formatFilterState = (filters: FilterState) => {
-    const gqlFilters: any = {};
-
-    if (filters.academicLevels.length)
-      gqlFilters.academicLevels = filters.academicLevels;
-
-    if (!(filters.gpaRange[0] === 0 && filters.gpaRange[1] === 4)) {
-      gqlFilters.gpaMin = filters.gpaRange[0];
-      gqlFilters.gpaMax = filters.gpaRange[1];
-    }
-
-    const programEntries = Object.entries(filters.programFilters)
-      .filter(([, flags]) => flags.is_major || flags.is_minor)
-      .map(([program, flags]) => ({
-        program,
-        is_major: !!flags.is_major,
-        is_minor: !!flags.is_minor,
-      }));
-    if (programEntries.length) gqlFilters.programs = programEntries;
-
-    const courseEntries = Object.entries(filters.courseFilters)
-      .filter(([, cf]) => cf.taken !== undefined || cf.gradeOperator)
-      .map(([course, cf]) => ({
-        course,
-        taken: cf.taken ?? false,
-        operator: cf.gradeOperator,
-        grade: cf.grade,
-      }));
-    if (courseEntries.length) gqlFilters.courses = courseEntries;
-
-    return gqlFilters;
-  };
-
-  const [offset, setOffset] = useState(0);
-  const gqlFilters = useMemo(() => formatFilterState(filters), [filters]);
-  useEffect(() => setOffset(0), [gqlFilters]);
+function StudentLookupContent({ filters }: { filters: FilterState }) {
+  const filterInput: StudentLookupInput = {
+    academicLevels: filters.academicLevels,
+    gpaMin: filters.gpaRange ? filters.gpaRange[0] : undefined,
+    gpaMax: filters.gpaRange ? filters.gpaRange[1] : undefined,
+    program: filters.programFilter,
+    course: filters.courseFilter
+  }
 
   const data = useLazyLoadQuery<studentLookupQuery>(
     StudentLookupQuery,
-    { filters: gqlFilters, offset, limit: PAGE_LIMIT },
+    { filters: filterInput, offset: 0, limit: PAGE_LIMIT },
     { fetchPolicy: "store-or-network" }
   );
 
@@ -283,7 +243,7 @@ function ExportContent({
       filename: `students_${format(new Date(), "yyyyMMdd_HHmmss")}`,
       fields: ["mnumber", "first_name", "last_name", "email"],
       headers: ["mnumber", "first_name", "last_name", "email"],
-      preHeader: makePreHeader(filters),
+      // preHeader: makePreHeader(filters),
     });
   }, [data]);
 

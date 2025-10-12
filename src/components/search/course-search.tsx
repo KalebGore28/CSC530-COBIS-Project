@@ -1,8 +1,8 @@
 import { useState, useEffect, Suspense, useMemo } from "react";
 import { useCourseSearch, useCourseResults } from ".";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { debounce } from "lodash-es";
 import { courses } from "@/db/schema";
@@ -11,7 +11,7 @@ type Course = typeof courses.$inferSelect;
 
 export type ExtendedCourseSearch = Course & {
     taken?: boolean;
-    comparison?: string;
+    operator?: string;
     grade?: string;
 };
 
@@ -21,10 +21,15 @@ interface CourseSearchBoxProps {
 }
 
 export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
+    const operationKey = {
+        "=": "EQ",
+        ">=": "GTE",
+        "<=": "LTE",
+    }
     const [query, setQuery] = useState("");
     const [selected, setSelected] = useState<Course | null>(null);
     const [taken, setTaken] = useState(false);
-    const [comparison, setComparison] = useState("=");
+    const [operator, setOperator] = useState("=");
     const [grade, setGrade] = useState("A");
 
     const { queryRef, loadQuery } = useCourseSearch();
@@ -48,10 +53,10 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
         onSelectChange?.({
             ...selected,
             taken,
-            comparison,
+            operator: operationKey[operator as keyof typeof operationKey],
             grade,
         });
-    }, [selected, taken, comparison, grade]);
+    }, [selected, taken, operator, grade]);
 
     //
     // When a course has been selected
@@ -75,7 +80,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                             setSelected(null);
                             setQuery("");
                             setTaken(false);
-                            setComparison("=");
+                            setOperator("=");
                             setGrade("");
                         }}
                     >
@@ -87,14 +92,21 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
 
                     {/* Taken / Not Taken Toggle */}
                     <div className="flex items-center gap-2">
-                        <Checkbox
-                            id="taken"
-                            checked={taken}
-                            onCheckedChange={(checked) => setTaken(Boolean(checked))}
-                        />
-                        <label htmlFor="taken" className="text-sm">
-                            Course Taken
-                        </label>
+                        <span className="text-sm font-medium">Taken:</span>
+                        <Tabs
+                            value={taken ? "yes" : "no"}
+                            onValueChange={(val) => setTaken(val === "yes")}
+                            className="bg-background border rounded-md"
+                        >
+                            <TabsList className="grid grid-cols-2">
+                                <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                    Yes
+                                </TabsTrigger>
+                                <TabsTrigger value="no" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                    No
+                                </TabsTrigger>
+                            </TabsList>
+                        </Tabs>
                     </div>
 
                     {/* Show additional fields only if taken */}
@@ -102,7 +114,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         <div className="flex flex-col sm:flex-row gap-3">
                             {/* Comparison selector */}
                             <div className="flex-1">
-                                <Select value={comparison} onValueChange={setComparison}>
+                                <Select value={operator} onValueChange={setOperator}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select comparison" />
                                     </SelectTrigger>

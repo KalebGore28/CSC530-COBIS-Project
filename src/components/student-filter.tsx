@@ -3,9 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 
-import { courses, programs } from "@/db/schema";
+import { courses } from "@/db/schema";
 
-type Program = typeof programs.$inferSelect;
 type Course = typeof courses.$inferSelect;
 
 import { ProgramSearchBox, ExtendedProgramSearch } from "@/components/search/program-search";
@@ -24,17 +23,17 @@ type OperatorKey = keyof typeof ComparisonOperator;
 
 
 export interface FilterState {
-	academicLevels: string[];
-	gpaRange: [number, number];
-	programFilter: {
-		code?: string;
+	academicLevels?: string[];
+	gpaRange?: [number, number];
+	programFilter?: {
+		code: string;
 		is_major?: boolean;
 		is_minor?: boolean;
 	};
-	courseFilter: {
-		course_id?: string;
-		taken?: boolean;
-		comparison?: OperatorKey;
+	courseFilter?: {
+		course_id: string;
+		taken: boolean;
+		operator?: OperatorKey;
 		grade?: string;
 	};
 }
@@ -55,20 +54,17 @@ export const StudentFilters = ({
 	const [filters, setFilters] = useState<FilterState>({
 		academicLevels: [],
 		gpaRange: [0, 4.0],
-		programFilter: {},
-		courseFilter: {},
+		programFilter: undefined,
+		courseFilter: undefined,
 	});
-
-
-
 
 	// Academic Level
 	const toggleLevel = (level: string) =>
 		setFilters((f) => ({
 			...f,
-			academicLevels: f.academicLevels.includes(level)
-				? f.academicLevels.filter((l) => l !== level)
-				: [...f.academicLevels, level],
+			academicLevels: (f.academicLevels ?? []).includes(level)
+				? (f.academicLevels ?? []).filter((l) => l !== level)
+				: [...(f.academicLevels ?? []), level],
 		}));
 
 	// GPA Range
@@ -100,8 +96,8 @@ export const StudentFilters = ({
 			...f,
 			courseFilter: {
 				course_id: key,
-				taken: c.taken,
-				comparison: c.comparison as OperatorKey,
+				taken: !!c.taken,
+				operator: c.operator as OperatorKey,
 				grade: c.grade,
 			},
 		}));
@@ -123,7 +119,7 @@ export const StudentFilters = ({
 									className="flex items-center gap-2 cursor-pointer select-none"
 								>
 									<Checkbox
-										checked={filters.academicLevels.includes(level)}
+										checked={(filters.academicLevels ?? []).includes(level)}
 										onCheckedChange={() => toggleLevel(level)}
 										id={`level-${level}`}
 									/>
@@ -138,7 +134,7 @@ export const StudentFilters = ({
 						<span className="text-md font-semibold">GPA Range</span>
 						<div className="flex flex-col gap-2">
 							<Slider
-								value={[filters.gpaRange[0], filters.gpaRange[1]]}
+								value={filters.gpaRange ? [filters.gpaRange[0], filters.gpaRange[1]] : [0, 4.0]}
 								onValueChange={setGpa}
 								step={0.1}
 								min={0}
@@ -146,8 +142,8 @@ export const StudentFilters = ({
 								className="w-full"
 							/>
 							<div className="flex justify-between text-sm font-medium text-muted-foreground">
-								<span>{filters.gpaRange[0].toFixed(1)}</span>
-								<span>{filters.gpaRange[1].toFixed(1)}</span>
+								<span>{(filters.gpaRange?.[0] ?? 0).toFixed(1)}</span>
+								<span>{(filters.gpaRange?.[1] ?? 4.0).toFixed(1)}</span>
 							</div>
 						</div>
 					</div>
@@ -161,6 +157,32 @@ export const StudentFilters = ({
 				<div className="flex flex-col gap-2">
 					<span className="text-md font-semibold">Course Filter</span>
 					<CourseSearchBox onSelectChange={setCourse} />
+				</div>
+
+				{/* Action Buttons */}
+				<div className="flex gap-2 justify-end">
+					{onResetFilters && (
+						<button
+							className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition"
+							onClick={() => {
+								setFilters({
+									academicLevels: [],
+									gpaRange: [0, 4.0],
+									programFilter: undefined,
+									courseFilter: undefined,
+								});
+								onResetFilters();
+							}}
+						>
+							Reset
+						</button>
+					)}
+					<button
+						className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition"
+						onClick={() => onApplyFilters(filters)}
+					>
+						Run Search
+					</button>
 				</div>
 			</CardContent>
 		</Card>

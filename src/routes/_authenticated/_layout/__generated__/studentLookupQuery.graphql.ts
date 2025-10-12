@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1e52c76b7e9f0433a33546b5dd3cd1b2>>
+ * @generated SignedSource<<10387b6040e9f5b0445f0880f696110c>>
  * @relayHash c9c907d59fca0f380789ef1834d14d81
  * @lightSyntaxTransform
  * @nogrep
@@ -14,18 +14,18 @@
 import { ConcreteRequest } from 'relay-runtime';
 export type StudentLookupInput = {
   academicLevels?: ReadonlyArray<string | null | undefined> | null | undefined;
-  courses?: ReadonlyArray<CourseFilterInput | null | undefined> | null | undefined;
+  course?: CourseFilterInput | null | undefined;
   gpaMax?: number | null | undefined;
   gpaMin?: number | null | undefined;
-  programs?: ReadonlyArray<ProgramFilterInput | null | undefined> | null | undefined;
+  program?: ProgramFilterInput | null | undefined;
 };
 export type ProgramFilterInput = {
+  code: string;
   is_major?: boolean | null | undefined;
   is_minor?: boolean | null | undefined;
-  program: string;
 };
 export type CourseFilterInput = {
-  course: string;
+  course_id: string;
   grade?: string | null | undefined;
   operator?: string | null | undefined;
   taken: boolean;

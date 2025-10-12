@@ -1,8 +1,8 @@
 // src/graphql/queries/lookupStudents.ts
 import { GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString, GraphQLInputObjectType, GraphQLFloat, GraphQLInt, GraphQLBoolean } from 'graphql'
-import { or, eq, sql, SQLWrapper, and, ne, lt, lte, gt, gte } from 'drizzle-orm'
+import { or, eq, sql, SQLWrapper, and, ne, lt, lte, gt, gte, not, exists } from 'drizzle-orm'
 import type { ApolloContext } from '@/middleware/apollo-server-context'
-import { students, studentAcademicInfo, studentPrograms, studentCourses } from '@/db/schema'
+import { students, studentAcademicInfo, studentCourses, studentPrograms } from '@/db/schema'
 
 // Define return type
 export const StudentBasicType = new GraphQLObjectType({
@@ -19,7 +19,7 @@ export const StudentBasicType = new GraphQLObjectType({
 const ProgramFilterInputType = new GraphQLInputObjectType({
     name: 'ProgramFilterInput',
     fields: {
-        program: { type: new GraphQLNonNull(GraphQLString) },
+        code: { type: new GraphQLNonNull(GraphQLString) },
         is_major: { type: GraphQLBoolean },
         is_minor: { type: GraphQLBoolean },
     },
@@ -28,7 +28,7 @@ const ProgramFilterInputType = new GraphQLInputObjectType({
 const CourseFilterInputType = new GraphQLInputObjectType({
     name: 'CourseFilterInput',
     fields: {
-        course: { type: new GraphQLNonNull(GraphQLString) },
+        course_id: { type: new GraphQLNonNull(GraphQLString) },
         taken: { type: new GraphQLNonNull(GraphQLBoolean) },
         operator: { type: GraphQLString },
         grade: { type: GraphQLString },
@@ -41,8 +41,8 @@ const StudentLookupInputType = new GraphQLInputObjectType({
         academicLevels: { type: new GraphQLList(GraphQLString) },
         gpaMin: { type: GraphQLFloat },
         gpaMax: { type: GraphQLFloat },
-        programs: { type: new GraphQLList(ProgramFilterInputType) },
-        courses: { type: new GraphQLList(CourseFilterInputType) },
+        program: { type: ProgramFilterInputType },
+        course: { type: CourseFilterInputType },
     },
 })
 
@@ -58,14 +58,14 @@ type ComparisonOperator = 'EQ' | 'NE' | 'LT' | 'LTE' | 'GT' | 'GTE';
 type GradeValue = 'A' | 'B' | 'C' | 'D' | 'E';
 
 type CourseFilterInput = {
-    course: string;
+    course_id: string;
     taken: boolean;
     operator?: ComparisonOperator;
     grade?: GradeValue;
 }
 
 type ProgramFilterInput = {
-    program: string;
+    code: string;
     is_major?: boolean;
     is_minor?: boolean;
 }
@@ -74,14 +74,14 @@ type StudentLookupInput = {
     academicLevels?: string[];
     gpaMin?: number;
     gpaMax?: number;
-    programs?: ProgramFilterInput[];
-    courses?: CourseFilterInput[];
+    program?: ProgramFilterInput;
+    course?: CourseFilterInput;
 }
 
 const parseCourseId = (cid: string) => {
     const m = /^([A-Za-z]+)(\d+)([A-Za-z]*)$/.exec(cid);
     if (!m) throw new Error(`Invalid course ID: ${cid}`);
-    return { subject: m[1], number: +m[2], suffix: m[3] };
+    return { subject: m[1], number: +m[2], suffix: m[3] || "" };
 };
 
 // Export GraphQL field config
@@ -106,8 +106,8 @@ export const lookupStudents = {
             academicLevels,
             gpaMin,
             gpaMax,
-            programs,
-            courses
+            program,
+            course,
         } = filters;
 
         const whereClauses: SQLWrapper[] = [];
@@ -177,81 +177,90 @@ export const lookupStudents = {
                 `);
         }
 
-        // 3) Program filters (new)
-        programs?.forEach(({ program, is_major, is_minor }) => {
-            if (is_major) {
-                whereClauses.push(sql`
-                      EXISTS (
-                        SELECT 1
-                        FROM ${studentPrograms} sp
-                        WHERE sp.mnumber = ${students.mnumber}
-                          AND sp.type    = 'MAJOR'
-                          AND sp.program = ${program}
-                      )
-                    `);
+        // 3) Single Program filter
+        if (program && (program.is_major || program.is_minor)) {
+            const progWhere: SQLWrapper[] = [
+                eq(studentPrograms.mnumber, students.mnumber),
+                eq(studentPrograms.program_code, program.code),
+            ];
+
+            // Filter by major/minor if specified
+            if (program.is_major) {
+                progWhere.push(eq(studentPrograms.type, "MAJOR"));
+            } 
+            if (program.is_minor) {
+                progWhere.push(eq(studentPrograms.type, "MINOR"));
             }
-            if (is_minor) {
-                whereClauses.push(sql`
-                      EXISTS (
-                        SELECT 1
-                        FROM ${studentPrograms} sp
-                        WHERE sp.mnumber = ${students.mnumber}
-                          AND sp.type    = 'MINOR'
-                          AND sp.program = ${program}
-                      )
-                    `);
-            }
-        });
 
-        // 4) Course filters (new combined logic)
-        courses?.forEach(({ course, taken, operator, grade }) => {
-            const { subject, number, suffix = '' } = parseCourseId(course);
+            // ✅ EXISTS subquery → student is in the program
+            whereClauses.push(
+                exists(
+                    db
+                        .select({ one: sql`1` })
+                        .from(studentPrograms)
+                        .where(and(...progWhere)),
+                ),
+            );
+        }
 
-            if (taken) {
-                // build base match clauses
-                const base: SQLWrapper[] = [
-                    eq(studentCourses.mnumber, students.mnumber),
-                    eq(studentCourses.course_subject, subject),
-                    eq(studentCourses.course_number, number),
-                    sql`COALESCE(${studentCourses.course_suffix}, '') = ${suffix}`,
-                ];
+        // 4) Course filter (new combined logic)
+        if (course && (course.course_id && course.taken !== undefined)) {
+            const { subject, number, suffix } = parseCourseId(course.course_id);
 
-                // flip string comparisons so that "A" > "B" academically → invert operators
-                if (operator && grade) {
-                    const map: Record<ComparisonOperator, typeof eq> = {
-                        EQ: eq,    // = 
-                        NE: ne,    // !=
+            // Base relation between students and studentCourses
+            const baseCourseMatch = and(
+                eq(studentCourses.mnumber, students.mnumber),
+                eq(studentCourses.course_subject, subject),
+                eq(studentCourses.course_number, number),
+                eq(studentCourses.course_suffix, suffix),
+            );
 
-                        // flipped for academic order:
-                        LT: gt,    // academically “<”  → string-wise “>=”
-                        LTE: gte,   // academically “≤” → string-wise “>”
-                        GT: lt,    // academically “>”  → string-wise “<=”
-                        GTE: lte,   // academically “≥” → string-wise “<”
-                    };
-                    base.push(map[operator](studentCourses.final_grade, grade));
+            if (course.taken) {
+                // Student *must* have taken the course
+                let gradeCondition: SQLWrapper | undefined;
+
+                if (course.operator && course.grade) {
+                    switch (course.operator) {
+                        case "EQ":
+                            gradeCondition = eq(studentCourses.final_grade, course.grade);
+                            break;
+                        case "NE":
+                            gradeCondition = ne(studentCourses.final_grade, course.grade);
+                            break;
+                        case "LT":
+                            gradeCondition = gt(studentCourses.final_grade, course.grade); // academically “<”  → string-wise “>”
+                            break;
+                        case "LTE":
+                            gradeCondition = gte(studentCourses.final_grade, course.grade); // academically “<=” → string-wise “>=”
+                            break;
+                        case "GT":
+                            gradeCondition = lt(studentCourses.final_grade, course.grade); // academically “>” → string-wise “<”
+                            break;
+                        case "GTE":
+                            gradeCondition = lte(studentCourses.final_grade, course.grade); // academically “>=” → string-wise “<=”
+                            break;
+                        default:
+                            throw new Error(`Unknown comparison operator: ${course.operator}`);
+                    }
                 }
 
-                whereClauses.push(sql`
-                      EXISTS (
-                        SELECT 1
-                        FROM ${studentCourses}
-                        WHERE ${and(...base)}
-                      )
-                    `);
+                // EXISTS subquery ensures the student has the course record
+                const takenSubquery = db
+                    .select({ one: sql`1` })
+                    .from(studentCourses)
+                    .where(gradeCondition ? and(baseCourseMatch, gradeCondition) : baseCourseMatch);
+
+                whereClauses.push(exists(takenSubquery));
             } else {
-                // not taken → NOT EXISTS
-                whereClauses.push(sql`
-                      NOT EXISTS (
-                        SELECT 1
-                        FROM ${studentCourses} sc
-                        WHERE sc.mnumber        = ${students.mnumber}
-                          AND sc.course_subject = ${subject}
-                          AND sc.course_number  = ${number}
-                          AND COALESCE(sc.course_suffix, '') = ${suffix}
-                      )
-                    `);
+                // Student *must NOT* have taken the course
+                const notTakenSubquery = db
+                    .select({ one: sql`1` })
+                    .from(studentCourses)
+                    .where(baseCourseMatch);
+
+                whereClauses.push(not(exists(notTakenSubquery)));
             }
-        });
+        }
 
         // 5) Build base select to count total rows
         const whereExpr = whereClauses.length ? and(...whereClauses) : undefined;
