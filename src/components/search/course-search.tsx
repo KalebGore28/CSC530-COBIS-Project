@@ -51,7 +51,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
             comparison,
             grade,
         });
-    }, [selected, taken, comparison, grade, onSelectChange]);
+    }, [selected, taken, comparison, grade]);
 
     //
     // When a course has been selected

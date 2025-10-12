@@ -26,12 +26,17 @@ type OperatorKey = keyof typeof ComparisonOperator;
 export interface FilterState {
 	academicLevels: string[];
 	gpaRange: [number, number];
-	programFilters: Record<string, Partial<Record<keyof Program, boolean>>>;
-	courseFilters: Record<string, {
+	programFilter: {
+		code?: string;
+		is_major?: boolean;
+		is_minor?: boolean;
+	};
+	courseFilter: {
+		course_id?: string;
 		taken?: boolean;
-		gradeOperator?: OperatorKey;
+		comparison?: OperatorKey;
 		grade?: string;
-	}>;
+	};
 }
 
 interface StudentFiltersProps {
@@ -44,30 +49,17 @@ export const StudentFilters = ({
 	onResetFilters,
 }: StudentFiltersProps) => {
 	const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
+	const courseKey = (c: Course) => `${c.subject}${c.number}${c.suffix}`;
 
 	// academic & GPA
-	const [filters, setFilters] = useState<{
-		academicLevels: string[];
-		gpaRange: [number, number];
-	}>({
+	const [filters, setFilters] = useState<FilterState>({
 		academicLevels: [],
 		gpaRange: [0, 4.0],
+		programFilter: {},
+		courseFilter: {},
 	});
 
-	const [selectedPrograms, setSelectedPrograms] = useState<Program[]>([]);
-	const [programFilters, setProgramFilters] = useState<
-		Record<string, Partial<Record<keyof Program, boolean>>>
-	>({});
-	const [selectedCourses, setSelectedCourses] = useState<Course[]>([]);
-	const [courseFilters, setCourseFilters] = useState<
-		Record<string, {
-			taken: boolean;
-			gradeOperator?: OperatorKey;
-			grade?: string;
-		}>
-	>({});
 
-	const courseKey = (c: Course) => `${c.subject}${c.number}${c.suffix}`;
 
 
 	// Academic Level
@@ -89,9 +81,14 @@ export const StudentFilters = ({
 	// Program functions
 	const setProgram = (p: ExtendedProgramSearch | null) => {
 		if (!p) return;
-		setSelectedPrograms((ps) =>
-			ps.some((x) => x.code === p.code) ? ps : [...ps, p]
-		);
+		setFilters((f) => ({
+			...f,
+			programFilter: {
+				code: p.code,
+				is_major: p.is_major,
+				is_minor: p.is_minor,
+			},
+		}));
 	}
 
 
@@ -99,73 +96,16 @@ export const StudentFilters = ({
 	const setCourse = (c: ExtendedCourseSearch | null) => {
 		if (!c) return;
 		const key = courseKey(c);
-		setSelectedCourses(cs => cs.some(x => courseKey(x) === key) ? cs : [...cs, c]);
+		setFilters((f) => ({
+			...f,
+			courseFilter: {
+				course_id: key,
+				taken: c.taken,
+				comparison: c.comparison as OperatorKey,
+				grade: c.grade,
+			},
+		}));
 	}
-
-	const toggleCourseTaken = (key: string) => {
-		setCourseFilters(maps => {
-			const cur = maps[key] ?? { taken: false };
-			const taken = !cur.taken;
-
-			return {
-				...maps,
-				[key]: {
-					taken,
-					...(taken
-						? {
-							gradeOperator: cur.gradeOperator ?? 'EQ',
-							grade: cur.grade ?? 'A',
-						}
-						: {}),
-				},
-			};
-		});
-	};
-
-
-
-	const resetAll = () => {
-		setFilters({ academicLevels: [], gpaRange: [0, 4.0] });
-		setSelectedPrograms([]);
-		setProgramFilters({});
-		setSelectedCourses([]);
-		setCourseFilters({});
-		onResetFilters?.();
-	};
-
-	const setCourseGradeOperator = (key: string, op: OperatorKey) => {
-		setCourseFilters(maps => {
-			const cur = maps[key] ?? {};
-			return {
-				...maps,
-				[key]: {
-					...cur,
-					gradeOperator: op,
-					grade: cur.grade ?? "A",
-				},
-			};
-		});
-	};
-
-	const setCourseGrade = (key: string, grade: string) => {
-		setCourseFilters(maps => {
-			const cur = maps[key] ?? {};
-			return {
-				...maps,
-				[key]: {
-					...cur,
-					grade,
-					gradeOperator: cur.gradeOperator ?? 'EQ',
-				},
-			};
-		});
-	};
-
-	type FilterableProgramKeys = 'is_major' | 'is_minor';
-	const FILTERABLE: { key: FilterableProgramKeys; label: string }[] = [
-		{ key: 'is_major', label: 'Major' },
-		{ key: 'is_minor', label: 'Minor' },
-	];
 
 	return (
 		<Card className="w-full">

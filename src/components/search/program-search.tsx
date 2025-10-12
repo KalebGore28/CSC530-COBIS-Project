@@ -53,7 +53,7 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                 onSelectChange(null);
             }
         }
-    }, [selected, isMajor, isMinor, onSelectChange]);
+    }, [selected, isMajor, isMinor]);
 
     if (selected) {
         return (
