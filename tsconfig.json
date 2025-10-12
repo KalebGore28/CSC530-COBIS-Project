@@ -1,34 +1,41 @@
 {
-	"compilerOptions": {
-		"baseUrl": ".",
-		"paths": {
-			"@cobis/types": [
-				"packages/types/src/index.ts"
-			],
-			"@cobis/types/*": [
-				"packages/types/src/*"
-			]
-		},
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "Node",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
-		"noFallthroughCasesInSwitch": true
-	},
-	"references": [
-		{
-			"path": "packages/app"
-		},
-		{
-			"path": "packages/server"
-		},
-		{
-			"path": "packages/types"
-		}
-	]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "eslint.config.js",
+    "prettier.config.js",
+    "vite.config.js",
+    "src/components/search/program-search.tsx"
+  ],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": [
+      "ES2022",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": [
+      "vite/client"
+    ],
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": false,
+    "noEmit": true,
+    /* Linting */
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedSideEffectImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+    }
+  }
 }

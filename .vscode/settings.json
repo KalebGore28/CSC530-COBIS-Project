@@ -1,7 +1,11 @@
 {
-	"dbmlERDPreviewer.preferredTheme": "dark",
-	"cSpell.words": [
-		"aacsb",
-		"mnumber"
-	]
+  "files.watcherExclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "search.exclude": {
+    "**/routeTree.gen.ts": true
+  },
+  "files.readonlyInclude": {
+    "**/routeTree.gen.ts": true
+  }
 }
