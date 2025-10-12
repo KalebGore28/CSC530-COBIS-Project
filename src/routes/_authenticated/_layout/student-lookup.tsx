@@ -89,16 +89,21 @@ const makePreHeader = (filters: FilterState): string[] => {
 // ---------- Main Route ----------
 function StudentLookup() {
   const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   return (
     <div className="p-6">
       <StudentFilters
-        onApplyFilters={setCurrentFilters}
+        onApplyFilters={(filters) => {
+          setCurrentFilters(filters);
+          setIsLoading(true);
+        }}
         onResetFilters={() => setCurrentFilters(null)}
+        isLoading={isLoading}
       />
       <div className="mt-6">
         <Suspense fallback={<SkeletonTable rows={PAGE_LIMIT} />}>
           {currentFilters ? (
-            <StudentLookupContent filters={currentFilters} />
+            <StudentLookupContent filters={currentFilters} setLoading={setIsLoading} />
           ) : (
             <Card className="w-full text-center">
               <p className="text-sm text-muted-foreground">
@@ -112,7 +117,7 @@ function StudentLookup() {
   );
 }
 
-function StudentLookupContent({ filters }: { filters: FilterState }) {
+function StudentLookupContent({ filters, setLoading }: { filters: FilterState, setLoading: (loading: boolean) => void }) {
   const [offset, setOffset] = useState(0);
   const filterInput: StudentLookupInput = {
     academicLevels: filters.academicLevels,
@@ -127,6 +132,8 @@ function StudentLookupContent({ filters }: { filters: FilterState }) {
     { filters: filterInput, offset: offset, limit: PAGE_LIMIT },
     { fetchPolicy: "store-or-network" }
   );
+
+  if (data) setLoading(false);
 
   // for export
   const [queryRef, loadQuery, _] =

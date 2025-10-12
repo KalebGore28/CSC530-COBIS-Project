@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
+import { Loader2 } from "lucide-react";
 
 import { courses } from "@/db/schema";
 
@@ -41,11 +42,13 @@ export interface FilterState {
 interface StudentFiltersProps {
 	onApplyFilters: (filters: FilterState) => void;
 	onResetFilters?: () => void;
+	isLoading?: boolean;
 }
 
 export const StudentFilters = ({
 	onApplyFilters,
 	onResetFilters,
+	isLoading,
 }: StudentFiltersProps) => {
 	const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
 	const courseKey = (c: Course) => `${c.subject}${c.number}${c.suffix}`;
@@ -86,7 +89,6 @@ export const StudentFilters = ({
 			},
 		}));
 	}
-
 
 	// Course functions
 	const setCourse = (c: ExtendedCourseSearch | null) => {
@@ -177,12 +179,22 @@ export const StudentFilters = ({
 							Reset
 						</button>
 					)}
+					{/* Search button with loader when selected */}
 					<button
-						className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition"
+						className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
 						onClick={() => onApplyFilters(filters)}
+						disabled={isLoading}
 					>
-						Run Search
+						{isLoading ? (
+							<>
+								Running...
+								<Loader2 className="animate-spin h-4 w-4" />
+							</>
+						) : (
+							"Run Search"
+						)}
 					</button>
+
 				</div>
 			</CardContent>
 		</Card>
