@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<6ceac63c94f4bd1f1fac45960b28ddf7>>
- * @relayHash e760894b3a20120a097f741dced22fa0
+ * @generated SignedSource<<a0473b033fc235441d7c5014b2a36b1c>>
+ * @relayHash 37cc65cb0f4a94d1dfd97813f2d432bb
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,28 +9,26 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID e760894b3a20120a097f741dced22fa0
+// @relayRequestID 37cc65cb0f4a94d1dfd97813f2d432bb
 
 import { ConcreteRequest } from 'relay-runtime';
 export type advisedStudentsQuery$variables = {
   mnumber: string;
-  term?: string | null | undefined;
-  year?: number | null | undefined;
+  term_code: string;
+  year: number;
 };
 export type advisedStudentsQuery$data = {
-  readonly facultySingle: {
-    readonly advisees: ReadonlyArray<{
-      readonly student: {
-        readonly email: string | null | undefined;
-        readonly first_name: string;
-        readonly gender: string | null | undefined;
-        readonly last_name: string;
-        readonly middle_name: string | null | undefined;
-        readonly mnumber: string;
-        readonly suffix: string | null | undefined;
-      };
-    }> | null | undefined;
-  } | null | undefined;
+  readonly studentAdvisors: ReadonlyArray<{
+    readonly student: {
+      readonly email: string | null | undefined;
+      readonly first_name: string;
+      readonly gender: string | null | undefined;
+      readonly last_name: string;
+      readonly middle_name: string | null | undefined;
+      readonly mnumber: string;
+      readonly suffix: string | null | undefined;
+    };
+  }>;
 };
 export type advisedStudentsQuery = {
   response: advisedStudentsQuery$data;
@@ -47,7 +45,7 @@ var v0 = [
   {
     "defaultValue": null,
     "kind": "LocalArgument",
-    "name": "term"
+    "name": "term_code"
   },
   {
     "defaultValue": null,
@@ -70,95 +68,95 @@ v1 = [
               }
             ],
             "kind": "ObjectValue",
-            "name": "mnumber"
+            "name": "advisor_mnumber"
+          },
+          {
+            "fields": [
+              {
+                "kind": "Variable",
+                "name": "eq",
+                "variableName": "term_code"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "term_code"
+          },
+          {
+            "fields": [
+              {
+                "kind": "Variable",
+                "name": "eq",
+                "variableName": "year"
+              }
+            ],
+            "kind": "ObjectValue",
+            "name": "year"
           }
         ],
         "kind": "ObjectValue",
         "name": "where"
       }
     ],
-    "concreteType": "FacultySelectItem",
+    "concreteType": "StudentAdvisorsSelectItem",
     "kind": "LinkedField",
-    "name": "facultySingle",
-    "plural": false,
+    "name": "studentAdvisors",
+    "plural": true,
     "selections": [
       {
         "alias": null,
-        "args": [
-          {
-            "kind": "Variable",
-            "name": "term",
-            "variableName": "term"
-          },
-          {
-            "kind": "Variable",
-            "name": "year",
-            "variableName": "year"
-          }
-        ],
-        "concreteType": "StudentAdvisorsSelectItem",
+        "args": null,
+        "concreteType": "StudentsSelectItem",
         "kind": "LinkedField",
-        "name": "advisees",
-        "plural": true,
+        "name": "student",
+        "plural": false,
         "selections": [
           {
             "alias": null,
             "args": null,
-            "concreteType": "StudentsSelectItem",
-            "kind": "LinkedField",
-            "name": "student",
-            "plural": false,
-            "selections": [
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "mnumber",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "first_name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "middle_name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "last_name",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "suffix",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "email",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "gender",
-                "storageKey": null
-              }
-            ],
+            "kind": "ScalarField",
+            "name": "mnumber",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "first_name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "middle_name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "last_name",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "suffix",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "email",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "gender",
             "storageKey": null
           }
         ],
@@ -186,7 +184,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "e760894b3a20120a097f741dced22fa0",
+    "id": "37cc65cb0f4a94d1dfd97813f2d432bb",
     "metadata": {},
     "name": "advisedStudentsQuery",
     "operationKind": "query",
@@ -195,6 +193,6 @@ return {
 };
 })();
 
-(node as any).hash = "b4c95d9d946ddc2fb2ba1ee8c621b933";
+(node as any).hash = "fe40c2cccc0522ea6bf290fc03685003";
 
 export default node;

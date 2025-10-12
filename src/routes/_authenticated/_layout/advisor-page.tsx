@@ -10,7 +10,6 @@ function RouteComponent() {
     <div className="mx-auto p-6 w-full">
       <AdvisedStudents
         title='My Advised Students'
-        mnumber={'F12345678'}
         modalOpen={true}
       />
     </div>

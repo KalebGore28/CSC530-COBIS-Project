@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/custom/modal';
 import { useSession } from './provider/session';
-import { StudentDetail } from '@/components/student-detail';
+// import { StudentDetail } from '@/components/student-detail';
 
 // Import types
 import { students } from '@/db/schema';
@@ -48,25 +48,29 @@ const advisedStudentsGetCurrentTermQuery = graphql`
 `;
 
 const advisedStudentsQuery = graphql`
-  query advisedStudentsQuery($mnumber: String!, $term: String, $year: Int) {
-	facultySingle(
-    where: {
-      mnumber: { eq: $mnumber }
-    }
-  	) {
-	  advisees(term: $term, year: $year) {
-		student {
-			mnumber
-			first_name
-			middle_name
-			last_name
-			suffix
-			email
-			gender
+	query advisedStudentsQuery(
+	$mnumber: String!
+	$term_code: String!
+	$year: Int!
+	) {
+	studentAdvisors(
+		where: {
+		advisor_mnumber: { eq: $mnumber }
+		term_code: { eq: $term_code }
+		year: { eq: $year }
 		}
-	  }
+	) {
+		student {
+		mnumber
+		first_name
+		middle_name
+		last_name
+		suffix
+		email
+		gender
+		}
 	}
-  }
+	}
 `;
 
 // Custom skeleton for AdvisedStudents
@@ -120,7 +124,7 @@ export const AdvisedStudents: React.FC<{
 	title = 'My Advised Students',
 	modalOpen = false,
 }) => {
-	const { session} = useSession();
+		const { session } = useSession();
 		return (
 			<Suspense fallback={<AdvisedStudentsSkeleton />}>
 				<AdvisedStudentContent
@@ -160,8 +164,8 @@ export const AdvisedStudentContent: React.FC<{
 			advisedStudentsQuery,
 			{
 				mnumber,
-				term: term ?? getCurrentYearTerm?.term ?? '',
-				year: year ?? getCurrentYearTerm?.year ?? undefined,
+				term_code: term ?? getCurrentYearTerm?.term ?? '',
+				year: year ?? getCurrentYearTerm?.year ?? 0,
 			},
 			{ fetchPolicy: "store-or-network" }
 		);
@@ -173,7 +177,7 @@ export const AdvisedStudentContent: React.FC<{
 			'90': 'Winter'
 		};
 
-		const students = data.facultySingle?.advisees?.map((advisee) => ({
+		const students = data.studentAdvisors?.map((advisee) => ({
 			mnumber: advisee.student.mnumber,
 			first_name: advisee.student.first_name,
 			middle_name: advisee.student.middle_name,
@@ -203,7 +207,6 @@ export const AdvisedStudentContent: React.FC<{
 									<TableHead>M-Number</TableHead>
 									<TableHead>Name</TableHead>
 									<TableHead>Email</TableHead>
-									<TableHead>Age</TableHead>
 									<TableHead>Gender</TableHead>
 								</TableRow>
 							</TableHeader>
@@ -249,9 +252,9 @@ export const AdvisedStudentContent: React.FC<{
 					title={`Student Detail: ${selectedStudent?.last_name}, ${selectedStudent?.first_name}`}
 					size='5xl'
 				>
-					{selectedStudent?.mnumber && (
-						// <StudentDetail mnumber={selectedStudent?.mnumber} />
-					)}
+					{/* {selectedStudent?.mnumber && (
+						<StudentDetail mnumber={selectedStudent?.mnumber} />
+					)} */}
 				</Modal>}
 			</Card>
 		);

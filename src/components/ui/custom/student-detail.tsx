@@ -22,17 +22,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { studentDetailGetCurrentTermQuery } from './__generated__/studentDetailGetCurrentTermQuery.graphql';
 import type { studentDetailQuery } from './__generated__/studentDetailQuery.graphql';
 import { graphql, useLazyLoadQuery } from "react-relay";
-import { GPATrendChart } from './charts/gpa-trend-chart';
+// import { GPATrendChart } from './charts/gpa-trend-chart';
 
 
 const studentDetailGetCurrentTermQuery = graphql`
     query studentDetailGetCurrentTermQuery {
         getCurrentYearTerm {
             year
-            term {
-                code
-                description
-            }
+            term
         }
     }
 `;
@@ -299,7 +296,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
             </Card>
 
             {/* GPA Trend Card */}
-            <GPATrendChart gpaTrend={[...data.student.gpaTrend]} />
+            {/* <GPATrendChart gpaTrmailend={[...data.student.gpaTrend]} /> */}
 
             {/* Programs Card */}
             <Card>
