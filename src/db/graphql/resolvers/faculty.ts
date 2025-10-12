@@ -1,3 +1,4 @@
+// src/graphql/resolvers/faculty.ts
 import { faculty, instructorCourses, terms } from "../../schema";
 import type { ApolloContext } from "@/middleware/apollo-server-context";
 
@@ -29,7 +30,7 @@ export const facultyTypeExtension = /* GraphQL */ `
     advisees(
       term: String
       year: Int
-    ): [StudentsSelectItem]
+    ): [StudentAdvisorsSelectItem!]
 
     user: UserSelectItem
   }
@@ -221,8 +222,11 @@ export const FacultyResolver = {
         },
         { loaders }: ApolloContext
     ) => {
+        console.log('FacultyAdvisees loader:', loaders.facultyAdvisees);
+        console.log('Faculty:', faculty);
         // fetch all students for this faculty member (cached per request)
         const all = await loaders.facultyAdvisees.load(faculty.mnumber);
+        console.log('All advisees:', all);
 
         // if no filters, return all
         if (!args.term && !args.year) return all;

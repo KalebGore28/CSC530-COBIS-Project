@@ -213,6 +213,9 @@ export const studentAdvisors = mysqlTable("student_advisors", {
 }, (table) => [
 	primaryKey({ columns: [table.student_mnumber, table.term_code, table.year, table.advisor_mnumber], name: "pk_student_advisors" }),
 	foreignKey({ columns: [table.term_code], foreignColumns: [terms.code], name: "fk_student_advisors_term" }),
+	foreignKey({ columns: [table.advisor_mnumber], foreignColumns: [faculty.mnumber], name: "fk_student_advisors_faculty" }),
+	foreignKey({ columns: [table.student_mnumber], foreignColumns: [students.mnumber], name: "fk_student_advisors_student" }),
+
 ]);
 
 export const studentCourses = mysqlTable("student_courses", {

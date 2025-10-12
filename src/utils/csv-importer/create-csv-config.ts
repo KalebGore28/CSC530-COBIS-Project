@@ -19,7 +19,7 @@ type ColumnHasDefault<C> =
 
 // --- Column config props, conditional on whether it has a default ---
 type ColumnConfigProps<HasDefault extends boolean> = {
-  csvColumnName: string;
+  csvColumnName: string | string[];
   transform?: (value: any) => any;
 } & (HasDefault extends true
   ? { forcedConform?: boolean } // only available when column has default

@@ -178,6 +178,8 @@ table student_advisors {
   indexes {
     (student_mnumber, term_code, year, advisor_mnumber) [pk]
     
+    
+    
   }
 }
 

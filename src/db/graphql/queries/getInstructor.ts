@@ -1,5 +1,5 @@
 // src/graphql/queries/getInstructor.ts
-import { GraphQLList, GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
+import { GraphQLNonNull, GraphQLObjectType, GraphQLString } from 'graphql'
 import { eq } from 'drizzle-orm'
 import { faculty } from '@/db/schema'
 import { checkInstructorAccess } from '../middleware/checkInstructorAccess'
@@ -19,7 +19,7 @@ export const InstructorType = new GraphQLObjectType({
 
 // Export GraphQL field config
 export const getInstructor = {
-    type: new GraphQLList(InstructorType),
+    type: InstructorType,
     args: {
         mnumber: { type: new GraphQLNonNull(GraphQLString) },
     },

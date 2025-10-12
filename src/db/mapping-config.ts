@@ -143,12 +143,14 @@ csvConfig.tables = {
     faculty: {
         patterns: [
             /reg_cuba_courses_during_term_\d+_\d+\.csv$/i,
-            /\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i
+            /\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i,
+            /reg_cuba_demographic_\d+_\d+\.csv$/i,
+            /\d+_REG_CUBA_Demographic_Grade_Time_Extract_\d+\.csv$/i
         ],
         config: {
-            mnumber: { csvColumnName: "INSTMNUMBER" },
-            first_name: { csvColumnName: "INSTFIRSTNM" },
-            last_name: { csvColumnName: "INSTLASTNM" },
+            mnumber: { csvColumnName: ["INSTMNUMBER", "ADVNUMB"] },
+            first_name: { csvColumnName: ["INSTFIRSTNM", "ADVFNAME"] },
+            last_name: { csvColumnName: ["INSTLASTNM", "ADVLNAME"] },
         }
     },
     instructionalMethods: {

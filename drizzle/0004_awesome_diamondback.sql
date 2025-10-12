@@ -1,0 +1,2 @@
+ALTER TABLE `student_advisors` ADD CONSTRAINT `fk_student_advisors_faculty` FOREIGN KEY (`advisor_mnumber`) REFERENCES `faculty`(`mnumber`) ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE `student_advisors` ADD CONSTRAINT `fk_student_advisors_student` FOREIGN KEY (`student_mnumber`) REFERENCES `students`(`mnumber`) ON DELETE no action ON UPDATE no action;

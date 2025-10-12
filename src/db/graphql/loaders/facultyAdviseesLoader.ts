@@ -14,7 +14,7 @@ export function createFacultyAdviseesLoader(
 		const rows = await db
 			.select({
 				student_mnumber: studentAdvisors.student_mnumber,
-				term: studentAdvisors.term,
+				term_code: studentAdvisors.term_code,
 				year: studentAdvisors.year,
 				advisor_mnumber: studentAdvisors.advisor_mnumber,
 			})

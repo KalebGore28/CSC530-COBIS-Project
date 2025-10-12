@@ -45,7 +45,7 @@ export const importData = async (
             const mapped: Record<string, any> = {};
             for (const [columnName, columnConfig] of Object.entries(config)) {
                 const { csvColumnName, transform } = columnConfig as {
-                    csvColumnName: string;
+                    csvColumnName: string | string[];
                     transform?: (value: any) => any;
                 };
                 const forcedConform =
@@ -53,7 +53,16 @@ export const importData = async (
                         ? (columnConfig as any).forcedConform
                         : undefined;
 
-                let value = row[csvColumnName];
+                    // Allow csvColumnName to be either string or array of strings
+                    // We do this if a column might appear under different names in different files
+                const csvColumnNames = Array.isArray(csvColumnName) ? csvColumnName : [csvColumnName];
+                let value;
+                for (const colName of csvColumnNames) {
+                    if (row[colName] !== undefined) {
+                        value = row[colName];
+                        break;
+                    }
+                }
                 if (transform) {
                     value = transform(value);
                 }
