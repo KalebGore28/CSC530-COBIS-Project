@@ -285,7 +285,7 @@ function ExportContent({
       headers: ["mnumber", "first_name", "last_name", "email"],
       preHeader: makePreHeader(filters),
     });
-  }, [data, filters]);
+  }, [data]);
 
   return null; // invisible component that performs side effect
 }

@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<832e2072e3324b3ae37331a57fbb641a>>
- * @relayHash be7cf0661b551a6270f2d61d455235e6
+ * @generated SignedSource<<0cdb094524c1444ac29a608f4b1ad399>>
+ * @relayHash ce1526eb82978d505bf3ffd4860cea08
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,30 +9,27 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID be7cf0661b551a6270f2d61d455235e6
+// @relayRequestID ce1526eb82978d505bf3ffd4860cea08
 
 import { ConcreteRequest } from 'relay-runtime';
-export type searchProgramsQuery$variables = {
+export type searchCoursesQuery$variables = {
   query: string;
 };
-export type searchProgramsQuery$data = {
-  readonly searchPrograms: ReadonlyArray<{
-    readonly code: string;
-    readonly department: {
-      readonly description: string;
-    } | null | undefined;
+export type searchCoursesQuery$data = {
+  readonly searchCourses: ReadonlyArray<{
+    readonly college_code: string | null | undefined;
     readonly department_code: string | null | undefined;
-    readonly description: string;
-    readonly has_concentration: boolean;
-    readonly is_aacsb: boolean;
-    readonly is_discontinued: boolean;
-    readonly is_major: boolean;
-    readonly is_minor: boolean;
+    readonly hours: number;
+    readonly last_updated: string | null | undefined;
+    readonly number: number;
+    readonly subject: string;
+    readonly suffix: string;
+    readonly title: string;
   } | null | undefined> | null | undefined;
 };
-export type searchProgramsQuery = {
-  response: searchProgramsQuery$data;
-  variables: searchProgramsQuery$variables;
+export type searchCoursesQuery = {
+  response: searchCoursesQuery$data;
+  variables: searchCoursesQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -43,14 +40,7 @@ var v0 = [
     "name": "query"
   }
 ],
-v1 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "description",
-  "storageKey": null
-},
-v2 = [
+v1 = [
   {
     "alias": null,
     "args": [
@@ -60,52 +50,51 @@ v2 = [
         "variableName": "query"
       }
     ],
-    "concreteType": "Program",
+    "concreteType": "Course",
     "kind": "LinkedField",
-    "name": "searchPrograms",
+    "name": "searchCourses",
     "plural": true,
     "selections": [
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "code",
-        "storageKey": null
-      },
-      (v1/*: any*/),
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "is_major",
+        "name": "subject",
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "is_minor",
+        "name": "number",
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "has_concentration",
+        "name": "suffix",
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "is_discontinued",
+        "name": "title",
         "storageKey": null
       },
       {
         "alias": null,
         "args": null,
         "kind": "ScalarField",
-        "name": "is_aacsb",
+        "name": "hours",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "last_updated",
         "storageKey": null
       },
       {
@@ -118,13 +107,8 @@ v2 = [
       {
         "alias": null,
         "args": null,
-        "concreteType": "ProgramDepartment",
-        "kind": "LinkedField",
-        "name": "department",
-        "plural": false,
-        "selections": [
-          (v1/*: any*/)
-        ],
+        "kind": "ScalarField",
+        "name": "college_code",
         "storageKey": null
       }
     ],
@@ -136,8 +120,8 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "searchProgramsQuery",
-    "selections": (v2/*: any*/),
+    "name": "searchCoursesQuery",
+    "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -145,19 +129,19 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "searchProgramsQuery",
-    "selections": (v2/*: any*/)
+    "name": "searchCoursesQuery",
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "be7cf0661b551a6270f2d61d455235e6",
+    "id": "ce1526eb82978d505bf3ffd4860cea08",
     "metadata": {},
-    "name": "searchProgramsQuery",
+    "name": "searchCoursesQuery",
     "operationKind": "query",
     "text": null
   }
 };
 })();
 
-(node as any).hash = "2efbd68857bde0ca62b905718daa2bf6";
+(node as any).hash = "4eb562d6cd0bd2a79384548671726e1a";
 
 export default node;

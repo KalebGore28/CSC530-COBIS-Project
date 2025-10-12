@@ -1,4 +1,3 @@
-// maybe want to get rid of this.
 import React, { useState, useEffect, useCallback } from "react";
 import debounce from "lodash.debounce";
 import {
@@ -35,7 +34,7 @@ export const GraphQLSearchInput = <T extends HasCodeDesc>({
 	onSelect,
 	onRemove,
 	renderResult,
-	placeholder = "Search…",
+	placeholder = "Search...",
 	debounceTime = 300,
 	className = "",
 }: GraphQLSearchInputProps<T>) => {
