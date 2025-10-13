@@ -16,7 +16,7 @@ export function createInstructorCoursesLoader(
 			.where(inArray(instructorCourses.mnumber, mnumbers as string[]))
 			.orderBy(
 				desc(instructorCourses.year),
-				desc(instructorCourses.term)
+				desc(instructorCourses.term_code)
 			);
 
 		const map = rows.reduce<Record<string, InstructorCourse[]>>((acc, row) => {

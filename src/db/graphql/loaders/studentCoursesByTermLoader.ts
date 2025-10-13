@@ -24,14 +24,14 @@ export function createStudentCoursesByTermLoader(
 			gt(studentCourses.year, startYear),
 			and(
 				eq(studentCourses.year, startYear),
-				gte(studentCourses.term, startTerm)
+				gte(studentCourses.term_code, startTerm)
 			)
 		)
 		const endCond = or(
 			lt(studentCourses.year, endYear),
 			and(
 				eq(studentCourses.year, endYear),
-				lte(studentCourses.term, endTerm)
+				lte(studentCourses.term_code, endTerm)
 			)
 		)
 
@@ -40,7 +40,7 @@ export function createStudentCoursesByTermLoader(
 			.select()
 			.from(studentCourses)
 			.where(and(startCond, endCond))
-			.orderBy(asc(studentCourses.year), asc(studentCourses.term))
+			.orderBy(asc(studentCourses.year), asc(studentCourses.term_code))
 
 		// 3. Build a Map<string, StudentCourse[]> keyed by "subject|number|suffix"
 		const byCompositeKey = new Map<string, StudentCourse[]>()

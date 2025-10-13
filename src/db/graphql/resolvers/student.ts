@@ -1,4 +1,4 @@
-import { students} from "../../schema";
+import { students } from "../../schema";
 import type { ApolloContext } from '@/middleware/apollo-server-context';
 
 type Student = typeof students.$inferSelect;
@@ -19,10 +19,10 @@ export const studentTypeExtension = /* GraphQL */ `
 `;
 
 const termMap = {
-	'10': 'Spring',
-	'50': 'Summer',
-	'80': 'Fall',
-	'90': 'Winter',
+    '10': 'Spring',
+    '50': 'Summer',
+    '80': 'Fall',
+    '90': 'Winter',
 }
 
 export const StudentResolver = {
@@ -34,6 +34,7 @@ export const StudentResolver = {
         loaders.studentProgram.load(student.mnumber),
     academic_info: async (student: Student, args: { term: string, year: number }, { loaders }: ApolloContext) => {
         const { term, year } = args;
+        console.log(`Fetching academic info for student ${student.mnumber} with filters term=${term}, year=${year}`);
 
         // fetch all academic info for the student
         const allAcademicInfo = loaders.academicInfo.load(student.mnumber);

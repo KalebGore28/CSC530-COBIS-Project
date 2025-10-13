@@ -41,7 +41,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
     // single batched query: group and count per grade
     const rows = await db
       .select({
-        term: studentCourses.term,
+        term: studentCourses.term_code,
         year: studentCourses.year,
         course_subject: studentCourses.course_subject,
         course_number: studentCourses.course_number,
@@ -51,7 +51,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
       })
       .from(studentCourses)
       .where(
-        sql`( ${studentCourses.term},
+        sql`( ${studentCourses.term_code},
                ${studentCourses.year},
                ${studentCourses.course_subject},
                ${studentCourses.course_number},
@@ -59,7 +59,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
              IN (${tuples})`
       )
       .groupBy(
-        studentCourses.term,
+        studentCourses.term_code,
         studentCourses.year,
         studentCourses.course_subject,
         studentCourses.course_number,
@@ -112,7 +112,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
     // single batched query: group and count per midterm grade
     const rows = await db
       .select({
-        term: studentCourses.term,
+        term: studentCourses.term_code,
         year: studentCourses.year,
         course_subject: studentCourses.course_subject,
         course_number: studentCourses.course_number,
@@ -122,7 +122,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
       })
       .from(studentCourses)
       .where(
-        sql`( ${studentCourses.term},
+        sql`( ${studentCourses.term_code},
                ${studentCourses.year},
                ${studentCourses.course_subject},
                ${studentCourses.course_number},
@@ -130,7 +130,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
              IN (${tuples})`
       )
       .groupBy(
-        studentCourses.term,
+        studentCourses.term_code,
         studentCourses.year,
         studentCourses.course_subject,
         studentCourses.course_number,

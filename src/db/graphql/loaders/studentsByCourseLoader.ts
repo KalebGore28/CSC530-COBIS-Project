@@ -7,19 +7,19 @@ type StudentCourse = typeof studentCourses.$inferSelect;
 
 // our “composite key” string format
 function courseKey({
-	term,
+	term_code,
 	year,
 	course_subject,
 	course_number,
 	course_suffix,
 }: {
-	term: string;
+	term_code: string;
 	year: number;
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
 }) {
-	return [term, year, course_subject, course_number, course_suffix].join('|');
+	return [term_code, year, course_subject, course_number, course_suffix].join('|');
 }
 
 export function createStudentsByCourseLoader(db: DbConnection['orm']) {
@@ -40,12 +40,12 @@ export function createStudentsByCourseLoader(db: DbConnection['orm']) {
 			.from(studentCourses)
 			.where(
 				// tuple IN (…) 
-				sql`( ${studentCourses.term}, ${studentCourses.year}, ${studentCourses.course_subject}, ${studentCourses.course_number}, ${studentCourses.course_suffix} )
+				sql`( ${studentCourses.term_code}, ${studentCourses.year}, ${studentCourses.course_subject}, ${studentCourses.course_number}, ${studentCourses.course_suffix} )
              IN (${tuples})`
 			)
 			.orderBy(
 				// preserve your ordering
-				sql`${studentCourses.year} DESC, ${studentCourses.term} DESC`
+				sql`${studentCourses.year} DESC, ${studentCourses.term_code} DESC`
 			);
 
 		// group by composite key

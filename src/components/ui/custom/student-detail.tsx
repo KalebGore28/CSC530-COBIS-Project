@@ -35,85 +35,80 @@ const studentDetailGetCurrentTermQuery = graphql`
 `;
 
 const studentDetailQuery = graphql`
-    query studentDetailQuery($mnumber: String!, $term: String, $year: Int) {
-    student(mnumber: $mnumber) {
+query studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {
+  studentsSingle(where: { mnumber: { eq: $mnumber } }) {
+    first_name
+    last_name
+    middle_name
+    suffix
+    email
+    birthdate
+    gender
+    cell_phone
+    race
+    residency
+    citizenship
+    mnumber
+    termInfo: academic_info(term: $term, year: $year) {
+      admit_code
+      academic_standing {
+        code
+        description
+      }
+      admit_term {
+        code
+        description
+      }
+      admit_year
+      msu_attempted_hours
+      msu_earned_hours
+      msu_gpa
+      msu_quality_points
+      overall_attempted_hours
+      overall_earned_hours
+      overall_gpa
+      overall_quality_points
+    }
+    gpaTrend: academic_info {
+      msu_gpa
+      overall_gpa
+      term {
+        code
+        description
+      }
+      year
+    }
+    advisors {
+      advisor_mnumber
+      term {
+        code
+        description
+      }
+      year
+      advisor {
         first_name
         last_name
-        middle_name
-        suffix
-        email
-        birthdate
-        age
-        gender
-        cell_phone
-        race_code
-        race_description
-        residency_code
-        residency_description
-        citizenship
-        termInfo: academic_info(term: $term, year: $year) {
-            admit_code {
-                code
-                description
-            }
-            academic_standing {
-                code
-                description
-            }
-            admit_term {
-                code
-                description
-            }
-            admit_year
-            msu_attempted_hours
-            msu_earned_hours
-            msu_gpa
-            msu_quality_points
-            overall_attempted_hours
-            overall_earned_hours
-            overall_gpa
-            overall_quality_points
+        mnumber
+        user {
+          email
         }
-        gpaTrend: academic_info {
-            msu_gpa
-            overall_gpa
-            term {
-                code
-                description
-            }
-            year
-        }
-        advisors {
-            advisor_mnumber
-            term {
-                code
-                description
-            }
-            year
-            advisor {
-                first_name
-                last_name
-                mnumber
-                user {
-                    email
-                }
-            }
-        }
-        programs {
-            term {
-                code
-                description
-            }
-            year
-            type
-            level
-            program {
-                code
-                description
-            }
-        }
+      }
     }
+    programs {
+      term {
+        code
+        description
+      }
+      year
+      type
+      level
+      program {
+        code
+        description
+      }
     }
+  }
+}
 `;
 
 // Custom skeleton component for loading state
@@ -165,14 +160,14 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
         studentDetailQuery,
         {
             mnumber,
-            term: getCurrentYearTerm.term.code,
-            year: getCurrentYearTerm.year,
+            term: getCurrentYearTerm?.term ?? '',
+            year: getCurrentYearTerm?.year ?? 0,
         },
         { fetchPolicy: "store-or-network" }
     );
 
     // Check if the student data is available
-    if (!data.student) {
+    if (!data.studentsSingle) {
         return (
             <div className='flex flex-col gap-4'>
                 <Card className='w-full'>
@@ -187,12 +182,12 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
         );
     }
 
-    const majorPrograms = data.student.programs.filter(
-        (program) => program.type === 'MAJOR'
+    const majorPrograms = (data.studentsSingle.programs ?? []).filter(
+        (program) => program && program.type === 'MAJOR'
     );
 
-    const minorPrograms = data.student.programs.filter(
-        (program) => program.type === 'MINOR'
+    const minorPrograms = (data.studentsSingle.programs ?? []).filter(
+        (program) => program && program.type === 'MINOR'
     );
 
     return (
@@ -202,48 +197,49 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                 <CardHeader>
                     <CardTitle>Student Information</CardTitle>
                     <CardDescription>
-                        Basic details for {data.student.first_name}{' '}
-                        {data.student.last_name} (mnumber: {mnumber})
+                        Basic details for {data.studentsSingle.first_name}{' '}
+                        {data.studentsSingle.last_name} (mnumber: {mnumber})
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
                     <div>
-                        <strong>Name:</strong> {data.student.first_name}{' '}
-                        {data.student.middle_name} {data.student.last_name}{' '}
-                        {data.student.suffix}
+                        <strong>Name:</strong> {data.studentsSingle.first_name}{' '}
+                        {data.studentsSingle.middle_name} {data.studentsSingle.last_name}{' '}
+                        {data.studentsSingle.suffix}
                     </div>
                     <div>
                         <strong>M-Number:</strong> {mnumber}
                     </div>
                     <div>
                         <strong>Email:</strong>{' '}
-                        <a href={`mailto:${data.student.email.toLowerCase()}`} className='hover:underline'>
-                            {data.student.email.toLowerCase()}
-                        </a>
+                        {data.studentsSingle.email ? (
+                            <a href={`mailto:${data.studentsSingle.email.toLowerCase()}`} className='hover:underline'>
+                                {data.studentsSingle.email.toLowerCase()}
+                            </a>
+                        ) : (
+                            'N/A'
+                        )}
                     </div>
                     <div>
-                        <strong>Birthdate:</strong> {new Date(data.student.birthdate).toLocaleDateString()}
-                    </div>
-                    <div>
-                        <strong>Age:</strong> {data.student.age}
+                        <strong>Birthdate:</strong> {data.studentsSingle.birthdate ? new Date(data.studentsSingle.birthdate).toLocaleDateString() : 'N/A'}
                     </div>
                     <div>
                         <strong>Gender:</strong>{' '}
-                        {data.student.gender === 'M' ? 'Male' : 'Female'}
+                        {data.studentsSingle.gender === 'M' ? 'Male' : 'Female'}
                     </div>
                     <div>
                         <strong>Cellphone:</strong>{' '}
-                        {data.student.cell_phone || 'N/A'}
+                        {data.studentsSingle.cell_phone || 'N/A'}
                     </div>
                     <div>
-                        <strong>Race:</strong> {data.student.race_description} ({data.student.race_code})
+                        <strong>Race:</strong> {data.studentsSingle.race} ({data.studentsSingle.race})
                     </div>
                     <div>
                         <strong>Citizenship:</strong>{' '}
-                        {data.student.citizenship}
+                        {data.studentsSingle.citizenship}
                     </div>
                     <div>
-                        <strong>Residency:</strong> {data.student.residency_description} ({data.student.residency_code})
+                        <strong>Residency:</strong> {data.studentsSingle.residency} ({data.studentsSingle.residency})
                     </div>
                 </CardContent>
             </Card>
@@ -253,44 +249,44 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                 <CardHeader>
                     <CardTitle>Academic Information</CardTitle>
                     <CardDescription>
-                        GPA, hours, standing, and admission details for {getCurrentYearTerm.term.description} {getCurrentYearTerm.year}
+                        GPA, hours, standing, and admission details for {getCurrentYearTerm?.term ?? 'N/A'} {getCurrentYearTerm?.year ?? 'N/A'}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
                     <div>
-                        <strong>MSU GPA:</strong> {data.student.termInfo[0].msu_gpa}
+                        <strong>MSU GPA:</strong> {data.studentsSingle.termInfo?.[0]?.msu_gpa ?? 'N/A'}
                     </div>
                     <div>
-                        <strong>Overall GPA:</strong> {data.student.termInfo[0].overall_gpa}
+                        <strong>Overall GPA:</strong> {data.studentsSingle.termInfo?.[0]?.overall_gpa ?? 'N/A'}
                     </div>
                     <div>
                         <strong>MSU Attempted Hours:</strong>{' '}
-                        {data.student.termInfo[0].msu_attempted_hours}
+                        {data.studentsSingle.termInfo?.[0]?.msu_attempted_hours ?? 'N/A'}
                     </div>
                     <div>
                         <strong>MSU Earned Hours:</strong>{' '}
-                        {data.student.termInfo[0].msu_earned_hours}
+                        {data.studentsSingle.termInfo?.[0]?.msu_earned_hours ?? 'N/A'}
                     </div>
                     <div>
                         <strong>Overall Attempted Hours:</strong>{' '}
-                        {data.student.termInfo[0].overall_attempted_hours}
+                        {data.studentsSingle.termInfo?.[0]?.overall_attempted_hours ?? 'N/A'}
                     </div>
                     <div>
                         <strong>Overall Earned Hours:</strong>{' '}
-                        {data.student.termInfo[0].overall_earned_hours}
+                        {data.studentsSingle.termInfo?.[0]?.overall_earned_hours ?? 'N/A'}
                     </div>
                     <div>
                         <strong>Academic Standing:</strong>{' '}
-                        {data.student.termInfo[0].academic_standing.description} (
-                        {data.student.termInfo[0].academic_standing.code})
+                        {data.studentsSingle.termInfo?.[0]?.academic_standing?.description ?? 'N/A'} (
+                        {data.studentsSingle.termInfo?.[0]?.academic_standing?.code ?? 'N/A'})
                     </div>
                     <div>
                         <strong>Admit Term:</strong>{' '}
-                        {data.student.termInfo[0].admit_term.description} {data.student.termInfo[0].admit_year}
+                        {data.studentsSingle.termInfo?.[0]?.admit_term?.code ?? 'N/A'} {data.studentsSingle.termInfo?.[0]?.admit_year ?? 'N/A'}
                     </div>
                     <div>
                         <strong>Admit Code:</strong> {' '}
-                        {data.student.termInfo[0].admit_code.description} ({data.student.termInfo[0].admit_term.code})
+                        {data.studentsSingle.termInfo?.[0]?.admit_code ?? 'N/A'} ({data.studentsSingle.termInfo?.[0]?.admit_term?.code ?? 'N/A'})
                     </div>
                 </CardContent>
             </Card>
@@ -320,17 +316,19 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                             </TableHeader>
                             <TableBody>
                                 {majorPrograms.length > 0 ? (
-                                    majorPrograms.map((program) => (
-                                        <TableRow key={program.program.code}>
-                                            <TableCell>{program.program.code}</TableCell>
-                                            <TableCell>{program.program.description}</TableCell>
-                                            <TableCell>{program.level}</TableCell>
-                                            <TableCell>{program.type}</TableCell>
-                                            <TableCell>
-                                                {program.term.description} {program.year}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                    majorPrograms.map((program, _idx) =>
+                                        program && program.program ? (
+                                            <TableRow key={program.program.code}>
+                                                <TableCell>{program.program.code}</TableCell>
+                                                <TableCell>{program.program.description}</TableCell>
+                                                <TableCell>{program.level}</TableCell>
+                                                <TableCell>{program.type}</TableCell>
+                                                <TableCell>
+                                                    {program.term.description} {program.year}
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : null
+                                    )
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center">
@@ -357,17 +355,19 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                             </TableHeader>
                             <TableBody>
                                 {minorPrograms.length > 0 ? (
-                                    minorPrograms.map((program) => (
-                                        <TableRow key={program.program.code}>
-                                            <TableCell>{program.program.code}</TableCell>
-                                            <TableCell>{program.program.description}</TableCell>
-                                            <TableCell>{program.level}</TableCell>
-                                            <TableCell>{program.type}</TableCell>
-                                            <TableCell>
-                                                {program.term.description} {program.year}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
+                                    minorPrograms.map((program) =>
+                                        program && program.program ? (
+                                            <TableRow key={program.program.code}>
+                                                <TableCell>{program.program.code}</TableCell>
+                                                <TableCell>{program.program.description}</TableCell>
+                                                <TableCell>{program.level}</TableCell>
+                                                <TableCell>{program.type}</TableCell>
+                                                <TableCell>
+                                                    {program.term.description} {program.year}
+                                                </TableCell>
+                                            </TableRow>
+                                        ) : null
+                                    )
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={5} className="text-center">
@@ -398,22 +398,24 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {data.student.advisors.map((advisor) => (
-                                <TableRow key={advisor.advisor_mnumber}>
-                                    <TableCell>{advisor.advisor_mnumber}</TableCell>
-                                    <TableCell>
-                                        {advisor.advisor.first_name} {advisor.advisor.last_name}
-                                    </TableCell>
-                                    <TableCell>
-                                        <a href={`mailto:${advisor.advisor.user?.email || null}`} className='hover:underline'>
-                                            {advisor.advisor.user?.email || 'N/A'}
-                                        </a>
-                                    </TableCell>
-                                    <TableCell>
-                                        {advisor.term.description} {advisor.year}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                            {(data.studentsSingle.advisors ?? []).map((advisor) =>
+                                advisor && advisor.advisor ? (
+                                    <TableRow key={advisor.advisor_mnumber}>
+                                        <TableCell>{advisor.advisor_mnumber}</TableCell>
+                                        <TableCell>
+                                            {advisor.advisor.first_name} {advisor.advisor.last_name}
+                                        </TableCell>
+                                        <TableCell>
+                                            <a href={`mailto:${advisor.advisor.user?.email || ''}`} className='hover:underline'>
+                                                {advisor.advisor.user?.email || 'N/A'}
+                                            </a>
+                                        </TableCell>
+                                        <TableCell>
+                                            {advisor.term.description} {advisor.year}
+                                        </TableCell>
+                                    </TableRow>
+                                ) : null
+                            )}
                         </TableBody>
                     </Table>
                 </CardContent>

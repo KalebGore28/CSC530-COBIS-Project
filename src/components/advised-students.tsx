@@ -17,7 +17,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { Modal } from '@/components/ui/custom/modal';
 import { useSession } from './provider/session';
-// import { StudentDetail } from '@/components/student-detail';
+import { StudentDetail } from '@/components/ui/custom/student-detail';
 
 // Import types
 import { students } from '@/db/schema';
@@ -128,9 +128,9 @@ export const AdvisedStudents: React.FC<{
 		return (
 			<Suspense fallback={<AdvisedStudentsSkeleton />}>
 				<AdvisedStudentContent
-					mnumber={session?.mnumber || ''}
-					term={term}
-					year={year}
+					mnumber={"M987654322"}
+					term={"90"}
+					year={2024}
 					title={title}
 					modalOpen={modalOpen}
 				/>
@@ -252,9 +252,9 @@ export const AdvisedStudentContent: React.FC<{
 					title={`Student Detail: ${selectedStudent?.last_name}, ${selectedStudent?.first_name}`}
 					size='5xl'
 				>
-					{/* {selectedStudent?.mnumber && (
+					{selectedStudent?.mnumber && (
 						<StudentDetail mnumber={selectedStudent?.mnumber} />
-					)} */}
+					)}
 				</Modal>}
 			</Card>
 		);

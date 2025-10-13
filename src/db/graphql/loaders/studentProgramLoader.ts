@@ -26,10 +26,10 @@ export function createStudentProgramByCodeLoader(db: DbConnection['orm']) {
     const rows = await db
       .select()
       .from(studentPrograms)
-      .where(inArray(studentPrograms.program, codes as string[]));
+      .where(inArray(studentPrograms.program_code, codes as string[]));
 
     const map = rows.reduce<Record<string, StudentProgram[]>>((acc, row) => {
-      (acc[row.program] ||= []).push(row);
+      (acc[row.program_code] ||= []).push(row);
       return acc;
     }, {});
 

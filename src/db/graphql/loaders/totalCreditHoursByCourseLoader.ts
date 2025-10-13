@@ -7,14 +7,14 @@ import type { DbConnection } from '../..';
 
 /** reuse the same key helper */
 function courseKey(row: {
-	term: string;
+	term_code: string;
 	year: number;
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
 }) {
 	return [
-		row.term,
+		row.term_code,
 		row.year,
 		row.course_subject,
 		row.course_number,
@@ -41,7 +41,7 @@ export function createTotalCreditHoursByCourseLoader(
 
 		const rows = await db
 			.select({
-				term: studentCourses.term,
+				term_code: studentCourses.term_code,
 				year: studentCourses.year,
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
@@ -51,7 +51,7 @@ export function createTotalCreditHoursByCourseLoader(
 			.from(studentCourses)
 			.where(
 				sql`(
-          ${studentCourses.term}, 
+          ${studentCourses.term_code}, 
           ${studentCourses.year}, 
           ${studentCourses.course_subject}, 
           ${studentCourses.course_number}, 
@@ -65,7 +65,7 @@ export function createTotalCreditHoursByCourseLoader(
 				)})`
 			)
 			.groupBy(
-				studentCourses.term,
+				studentCourses.term_code,
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,

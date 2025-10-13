@@ -41,7 +41,7 @@ export function createCreditHourByCourseLoader(
     // Single grouped query: MIN(course_hours) per course
     const rows = await db
       .select({
-        term: studentCourses.term,
+        term: studentCourses.term_code,
         year: studentCourses.year,
         course_subject: studentCourses.course_subject,
         course_number: studentCourses.course_number,
@@ -51,7 +51,7 @@ export function createCreditHourByCourseLoader(
       .from(studentCourses)
       .where(
         sql`(
-          ${studentCourses.term},
+          ${studentCourses.term_code},
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
@@ -65,7 +65,7 @@ export function createCreditHourByCourseLoader(
         )})`
       )
       .groupBy(
-        studentCourses.term,
+        studentCourses.term_code,
         studentCourses.year,
         studentCourses.course_subject,
         studentCourses.course_number,

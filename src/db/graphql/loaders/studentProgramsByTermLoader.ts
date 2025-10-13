@@ -22,14 +22,14 @@ export function createStudentProgramsByTermLoader(
 			gt(studentPrograms.year, startYear),
 			and(
 				eq(studentPrograms.year, startYear),
-				gte(studentPrograms.term, startTerm)
+				gte(studentPrograms.term_code, startTerm)
 			)
 		)
 		const endCond = or(
 			lt(studentPrograms.year, endYear),
 			and(
 				eq(studentPrograms.year, endYear),
-				lte(studentPrograms.term, endTerm)
+				lte(studentPrograms.term_code, endTerm)
 			)
 		)
 
@@ -38,13 +38,13 @@ export function createStudentProgramsByTermLoader(
 			.select()
 			.from(studentPrograms)
 			.where(and(startCond, endCond))
-			.orderBy(asc(studentPrograms.year), asc(studentPrograms.term))
+			.orderBy(asc(studentPrograms.year), asc(studentPrograms.term_code))
 
 		// 3. Group by program code
 		const byProgram = new Map<string, StudentProgram[]>()
 		programCodes.forEach((code) => byProgram.set(code, []))
 		for (const row of rowsInRange) {
-			const key = row.program
+			const key = row.program_code
 			if (byProgram.has(key)) {
 				byProgram.get(key)!.push(row)
 			}

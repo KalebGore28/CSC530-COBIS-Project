@@ -56,14 +56,14 @@ export function createFacultyCourseGradeDistributionLoader(
 							gte(instructorCourses.year, startYear),
 							and(
 								eq(instructorCourses.year, startYear),
-								gte(instructorCourses.term, startTerm)
+								gte(instructorCourses.term_code, startTerm)
 							)
 						),
 						or(
 							lte(instructorCourses.year, finalYear),
 							and(
 								eq(instructorCourses.year, finalYear),
-								lte(instructorCourses.term, finalTerm)
+								lte(instructorCourses.term_code, finalTerm)
 							)
 						),
 					];
@@ -71,7 +71,7 @@ export function createFacultyCourseGradeDistributionLoader(
 					// aggregation query
 					const rows = await db
 						.select({
-							term: instructorCourses.term,
+							term: instructorCourses.term_code,
 							year: instructorCourses.year,
 							grade: studentCourses.final_grade,
 							count: count(),
@@ -84,13 +84,13 @@ export function createFacultyCourseGradeDistributionLoader(
 								eq(instructorCourses.course_number, studentCourses.course_number),
 								eq(instructorCourses.course_suffix, studentCourses.course_suffix),
 								eq(instructorCourses.course_section, studentCourses.course_section),
-								eq(instructorCourses.term, studentCourses.term),
+								eq(instructorCourses.term_code, studentCourses.term_code),
 								eq(instructorCourses.year, studentCourses.year)
 							)
 						)
 						.where(and(...predicates))
 						.groupBy(
-							instructorCourses.term,
+							instructorCourses.term_code,
 							instructorCourses.year,
 							studentCourses.final_grade
 						);

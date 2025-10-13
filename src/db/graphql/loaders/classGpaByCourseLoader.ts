@@ -37,7 +37,7 @@ export function createClassGpaByCourseLoader(
 		// 2. single JOIN+GROUP BY query
 		const rows = await db
 			.select({
-				term: studentCourses.term,
+				term: studentCourses.term_code,
 				year: studentCourses.year,
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
@@ -49,13 +49,13 @@ export function createClassGpaByCourseLoader(
 				studentAcademicInfo,
 				and(
 					eq(studentAcademicInfo.mnumber, studentCourses.mnumber),
-					eq(studentAcademicInfo.term, studentCourses.term),
+					eq(studentAcademicInfo.term_code, studentCourses.term_code),
 					eq(studentAcademicInfo.year, studentCourses.year)
 				)
 			)
 			.where(
 				sql`(
-          ${studentCourses.term},
+          ${studentCourses.term_code},
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
@@ -69,7 +69,7 @@ export function createClassGpaByCourseLoader(
 				)})`
 			)
 			.groupBy(
-				studentCourses.term,
+				studentCourses.term_code,
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,

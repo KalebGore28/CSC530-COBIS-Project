@@ -48,7 +48,7 @@ export function createFinalAverageByCourseLoader(
 		// single aggregated query
 		const rows = await db
 			.select({
-				term: studentCourses.term,
+				term: studentCourses.term_code,
 				year: studentCourses.year,
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
@@ -58,7 +58,7 @@ export function createFinalAverageByCourseLoader(
 			.from(studentCourses)
 			.where(
 				sql`(
-          ${studentCourses.term},
+          ${studentCourses.term_code},
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
@@ -72,7 +72,7 @@ export function createFinalAverageByCourseLoader(
 				)})`
 			)
 			.groupBy(
-				studentCourses.term,
+				studentCourses.term_code,
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,

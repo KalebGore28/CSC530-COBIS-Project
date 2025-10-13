@@ -13,7 +13,7 @@ export function createCurrentTermLoader(
       const [row] = await db
         .select({
           year: sql<number>`MAX(${instructorCourses.year})`,
-          term: sql<string>`MAX(${instructorCourses.term})`,
+          term: sql<string>`MAX(${instructorCourses.term_code})`,
         })
         .from(instructorCourses);
 
