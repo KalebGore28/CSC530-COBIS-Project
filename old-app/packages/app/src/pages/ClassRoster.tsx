@@ -5,7 +5,6 @@ import { TermSelector } from "@/components/selectors/term-selector";
 import { CourseSelector } from "@/components/selectors/course-selector";
 import { Roster } from "@/components/roster";
 
-
 // Import types
 import type { ExtendedTerm } from "@/components/selectors/term-selector";
 import type { ExtendedCourse } from "@/components/selectors/course-selector";

@@ -18,6 +18,7 @@ export const facultyTypeExtension = /* GraphQL */ `
       subject: String
       number: Int
       suffix: String
+      section: String
     ): [InstructorCoursesSelectItem]
 
     grade_distribution_trend(
@@ -47,7 +48,6 @@ export const facultyTypeExtension = /* GraphQL */ `
     percentage: Float!
   }
 `;
-
 
 const termMap = {
     '10': 'Spring',
