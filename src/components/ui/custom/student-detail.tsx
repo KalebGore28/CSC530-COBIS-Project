@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { studentDetailGetCurrentTermQuery } from './__generated__/studentDetailGetCurrentTermQuery.graphql';
 import type { studentDetailQuery } from './__generated__/studentDetailQuery.graphql';
 import { graphql, useLazyLoadQuery } from "react-relay";
-// import { GPATrendChart } from './charts/gpa-trend-chart';
+import { GPATrendChart } from '@/components/charts/gpa-trend-chart';
 
 
 const studentDetailGetCurrentTermQuery = graphql`
@@ -30,6 +30,7 @@ const studentDetailGetCurrentTermQuery = graphql`
         getCurrentYearTerm {
             year
             term
+            term_code
         }
     }
 `;
@@ -160,7 +161,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
         studentDetailQuery,
         {
             mnumber,
-            term: getCurrentYearTerm?.term ?? '',
+            term: getCurrentYearTerm?.term_code ?? '',
             year: getCurrentYearTerm?.year ?? 0,
         },
         { fetchPolicy: "store-or-network" }
@@ -245,54 +246,51 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
             </Card>
 
             {/* Academic Information Card */}
-            <Card className='w-full'>
-                <CardHeader>
-                    <CardTitle>Academic Information</CardTitle>
-                    <CardDescription>
-                        GPA, hours, standing, and admission details for {getCurrentYearTerm?.term ?? 'N/A'} {getCurrentYearTerm?.year ?? 'N/A'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
-                    <div>
-                        <strong>MSU GPA:</strong> {data.studentsSingle.termInfo?.[0]?.msu_gpa ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>Overall GPA:</strong> {data.studentsSingle.termInfo?.[0]?.overall_gpa ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>MSU Attempted Hours:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.msu_attempted_hours ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>MSU Earned Hours:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.msu_earned_hours ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>Overall Attempted Hours:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.overall_attempted_hours ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>Overall Earned Hours:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.overall_earned_hours ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>Academic Standing:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.academic_standing?.description ?? 'N/A'} (
-                        {data.studentsSingle.termInfo?.[0]?.academic_standing?.code ?? 'N/A'})
-                    </div>
-                    <div>
-                        <strong>Admit Term:</strong>{' '}
-                        {data.studentsSingle.termInfo?.[0]?.admit_term?.code ?? 'N/A'} {data.studentsSingle.termInfo?.[0]?.admit_year ?? 'N/A'}
-                    </div>
-                    <div>
-                        <strong>Admit Code:</strong> {' '}
-                        {data.studentsSingle.termInfo?.[0]?.admit_code ?? 'N/A'} ({data.studentsSingle.termInfo?.[0]?.admit_term?.code ?? 'N/A'})
-                    </div>
-                </CardContent>
-            </Card>
+            {data.studentsSingle.termInfo && data.studentsSingle.termInfo.length > 0 &&
+                <Card className='w-full'>
+                    <CardHeader>
+                        <CardTitle>Academic Information</CardTitle>
+                        <CardDescription>
+                            GPA, hours, standing, and admission details for {getCurrentYearTerm?.term ?? 'N/A'} {getCurrentYearTerm?.year ?? 'N/A'}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
+                        <div>
+                            <strong>MSU GPA:</strong> {data.studentsSingle.termInfo[0]?.msu_gpa ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>Overall GPA:</strong> {data.studentsSingle.termInfo[0]?.overall_gpa ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>MSU Attempted Hours:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.msu_attempted_hours ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>MSU Earned Hours:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.msu_earned_hours ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>Overall Attempted Hours:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.overall_attempted_hours ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>Overall Earned Hours:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.overall_earned_hours ?? 'N/A'}
+                        </div>
+                        <div>
+                            <strong>Academic Standing:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.academic_standing?.description ?? 'N/A'} ({data.studentsSingle.termInfo[0]?.academic_standing?.code ?? 'N/A'})
+                        </div>
+                        <div>
+                            <strong>Admit Year:</strong>{' '}
+                            {data.studentsSingle.termInfo[0]?.admit_year ?? 'N/A'}
+                        </div>
+                    </CardContent>
+                </Card>
+            }
 
             {/* GPA Trend Card */}
-            {/* <GPATrendChart gpaTrmailend={[...data.student.gpaTrend]} /> */}
+            <GPATrendChart gpaTrend={[...data.studentsSingle.gpaTrend]} />
 
             {/* Programs Card */}
             <Card>

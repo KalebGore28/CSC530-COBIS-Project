@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<6a7102a19393eddfa5760b2c0063e11c>>
- * @relayHash 794176920df9f1a1168a00b88dae2804
+ * @generated SignedSource<<8290181020a4f03d5e96f749a8531e93>>
+ * @relayHash 6984b7be114af725eb2b3f356b1c44dc
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,13 +9,14 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 794176920df9f1a1168a00b88dae2804
+// @relayRequestID 6984b7be114af725eb2b3f356b1c44dc
 
 import { ConcreteRequest } from 'relay-runtime';
 export type studentDetailGetCurrentTermQuery$variables = Record<PropertyKey, never>;
 export type studentDetailGetCurrentTermQuery$data = {
   readonly getCurrentYearTerm: {
     readonly term: string | null | undefined;
+    readonly term_code: string | null | undefined;
     readonly year: number | null | undefined;
   } | null | undefined;
 };
@@ -47,6 +48,13 @@ var v0 = [
         "kind": "ScalarField",
         "name": "term",
         "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "term_code",
+        "storageKey": null
       }
     ],
     "storageKey": null
@@ -70,7 +78,7 @@ return {
     "selections": (v0/*: any*/)
   },
   "params": {
-    "id": "794176920df9f1a1168a00b88dae2804",
+    "id": "6984b7be114af725eb2b3f356b1c44dc",
     "metadata": {},
     "name": "studentDetailGetCurrentTermQuery",
     "operationKind": "query",
@@ -79,6 +87,6 @@ return {
 };
 })();
 
-(node as any).hash = "7595dbe634904fe9ed67d149c8262204";
+(node as any).hash = "b847f212e639c20b047fc8e2cf505ba8";
 
 export default node;

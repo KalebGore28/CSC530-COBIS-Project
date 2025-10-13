@@ -128,9 +128,9 @@ export const AdvisedStudents: React.FC<{
 		return (
 			<Suspense fallback={<AdvisedStudentsSkeleton />}>
 				<AdvisedStudentContent
-					mnumber={"M987654322"}
-					term={"90"}
-					year={2024}
+					mnumber={session?.mnumber || ''}
+					term={term}
+					year={year}
 					title={title}
 					modalOpen={modalOpen}
 				/>

@@ -9,6 +9,7 @@ export const CurrentYearTermType = new GraphQLObjectType({
     name: 'CurrentYearTerm',
     fields: {
         year: { type: GraphQLInt },
+        term_code: { type: GraphQLString },
         term: { type: GraphQLString },
     },
 })
@@ -22,6 +23,7 @@ export const getCurrentYearTerm = {
             .select({
                 year: instructorCourses.year,
                 term: terms.description, // get the readable term description
+                term_code: instructorCourses.term_code,
             })
             .from(instructorCourses)
             .leftJoin(terms, eq(instructorCourses.term_code, terms.code))
@@ -34,6 +36,7 @@ export const getCurrentYearTerm = {
             return {
                 year: 1970,
                 term: 'Spring',
+                term_code: '10',
             }
         }
 
