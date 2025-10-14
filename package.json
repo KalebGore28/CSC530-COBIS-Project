@@ -11,7 +11,7 @@
     "lint": "eslint",
     "format": "prettier",
     "check": "prettier --write . && eslint --fix",
-    "gen": "drizzle-kit generate && tsx src/db/dbml.ts && tsx src/db/export-schema.ts && npx relay-compiler",
+    "gen": "drizzle-kit generate && tsx src/db/dbml.ts && tsx src/db/export-schema.ts && npx graphql-codegen --config codegen.ts --watch",
     "db:mig": "drizzle-kit migrate && tsx src/db/dbml.ts",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/db/seed/seed.ts"
