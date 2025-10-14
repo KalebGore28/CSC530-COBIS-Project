@@ -20,5 +20,11 @@ export async function execute<TResult, TVariables>(
         throw new Error('Network response was not ok')
     }
 
-    return response.json() as TResult
+    const json = await response.json();
+    if (json.errors) {
+        console.error(json.errors);
+        throw new Error('GraphQL execution error');
+    }
+    return json.data as TResult; // ✅ unwrap
+
 }

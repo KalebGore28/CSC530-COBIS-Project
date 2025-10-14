@@ -9295,11 +9295,6 @@ export type VerificationValuefiltersOr = {
   notLike?: InputMaybe<Scalars['String']['input']>;
 };
 
-export type AdvisedStudentsGetCurrentTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type AdvisedStudentsGetCurrentTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null } | null };
-
 export type AdvisedStudentsQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
   term_code: Scalars['String']['input'];
@@ -9378,6 +9373,11 @@ export type StudentDetailQueryQueryVariables = Exact<{
 
 export type StudentDetailQueryQuery = { __typename?: 'Query', studentsSingle?: { __typename?: 'StudentsSelectItem', first_name: string, last_name: string, middle_name?: string | null, suffix?: string | null, email?: string | null, birthdate?: string | null, gender?: string | null, cell_phone?: string | null, race?: string | null, residency?: string | null, citizenship?: string | null, mnumber: string, termInfo?: Array<{ __typename?: 'StudentAcademicInfoSelectItem', admit_code?: string | null, admit_year?: number | null, msu_attempted_hours?: number | null, msu_earned_hours?: number | null, msu_gpa?: number | null, msu_quality_points?: number | null, overall_attempted_hours?: number | null, overall_earned_hours?: number | null, overall_gpa?: number | null, overall_quality_points?: number | null, academic_standing?: { __typename?: 'AcademicStandingSelectItem', code: string, description: string } | null, admit_term?: { __typename?: 'AdmitCodesSelectItem', code: string, description: string } | null } | null> | null, gpaTrend?: Array<{ __typename?: 'StudentAcademicInfoSelectItem', msu_gpa?: number | null, overall_gpa?: number | null, year: number, term?: { __typename?: 'TermsSelectItem', code: string, description: string } | null } | null> | null, advisors?: Array<{ __typename?: 'StudentAdvisorsSelectItem', advisor_mnumber: string, year: number, term: { __typename?: 'TermsSelectItem', code: string, description: string }, advisor: { __typename?: 'FacultySelectItem', first_name: string, last_name: string, mnumber: string, user?: { __typename?: 'UserSelectItem', email: string } | null } } | null> | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', year: number, type: string, level: string, term: { __typename?: 'TermsSelectItem', code: string, description: string }, program: { __typename?: 'ProgramsSelectItem', code: string, description: string } } | null> | null } | null };
 
+export type AdvisedStudentsGetCurrentTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AdvisedStudentsGetCurrentTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null, term_code?: string | null } | null };
+
 export type StudentLookupQueryQueryVariables = Exact<{
   filters: StudentLookupInput;
   offset: Scalars['Int']['input'];
@@ -9406,14 +9406,6 @@ export class TypedDocumentString<TResult, TVariables>
   }
 }
 
-export const AdvisedStudentsGetCurrentTermQueryDocument = new TypedDocumentString(`
-    query advisedStudentsGetCurrentTermQuery {
-  getCurrentYearTerm {
-    year
-    term
-  }
-}
-    `) as unknown as TypedDocumentString<AdvisedStudentsGetCurrentTermQueryQuery, AdvisedStudentsGetCurrentTermQueryQueryVariables>;
 export const AdvisedStudentsQueryDocument = new TypedDocumentString(`
     query advisedStudentsQuery($mnumber: String!, $term_code: String!, $year: Int!) {
   studentAdvisors(
@@ -9653,6 +9645,15 @@ export const StudentDetailQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<StudentDetailQueryQuery, StudentDetailQueryQueryVariables>;
+export const AdvisedStudentsGetCurrentTermQueryDocument = new TypedDocumentString(`
+    query advisedStudentsGetCurrentTermQuery {
+  getCurrentYearTerm {
+    year
+    term
+    term_code
+  }
+}
+    `) as unknown as TypedDocumentString<AdvisedStudentsGetCurrentTermQueryQuery, AdvisedStudentsGetCurrentTermQueryQueryVariables>;
 export const StudentLookupQueryDocument = new TypedDocumentString(`
     query studentLookupQuery($filters: StudentLookupInput!, $offset: Int!, $limit: Int!) {
   lookupStudents(filters: $filters, offset: $offset, limit: $limit) {
