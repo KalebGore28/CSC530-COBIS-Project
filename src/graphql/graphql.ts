@@ -9360,7 +9360,7 @@ export type CourseSelectorQueryQueryVariables = Exact<{
 }>;
 
 
-export type CourseSelectorQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_subject: string, course_number: number, course_suffix: string, course_section: string, total_students: number, total_credit_hours: number, credit_hour?: number | null, course: { __typename?: 'CoursesSelectItem', title: string } } | null> | null } | null };
+export type CourseSelectorQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_subject: string, course_number: number, course_suffix: string, course_section: string, credit_hour?: number | null, total_students: number, total_credit_hours: number, class_gpa?: number | null, midterm_average?: number | null, final_average?: number | null, course: { __typename?: 'CoursesSelectItem', title: string } } | null> | null } | null };
 
 export type TermSelectorQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
@@ -9565,9 +9565,12 @@ export const CourseSelectorQueryDocument = new TypedDocumentString(`
       course_number
       course_suffix
       course_section
+      credit_hour
       total_students
       total_credit_hours
-      credit_hour
+      class_gpa
+      midterm_average
+      final_average
     }
   }
 }

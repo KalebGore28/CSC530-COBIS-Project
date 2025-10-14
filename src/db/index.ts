@@ -26,7 +26,9 @@ export interface DbConnection {
 	graphql_schema: GraphQLSchema;
 }
 
-let _dbConnection: Promise<DbConnection> | null = null;
+const globalForDb = globalThis as unknown as {
+	_dbConnection?: Promise<DbConnection>;
+};
 
 const createDb = async (): Promise<DbConnection> => {
 
@@ -73,8 +75,8 @@ const createDb = async (): Promise<DbConnection> => {
 	});
 
 	graphql_schema = extendSchema(graphql_schema, parse(
-		courseTypeExtension + 
-		facultyTypeExtension + 
+		courseTypeExtension +
+		facultyTypeExtension +
 		instructorCourseTypeExtension +
 		programTypeExtension +
 		studentAcademicInfoTypeExtension +
@@ -109,10 +111,10 @@ const createDb = async (): Promise<DbConnection> => {
 };
 
 export const getDbConnection = async (): Promise<DbConnection> => {
-	if (!_dbConnection) {
-		_dbConnection = createDb();
+	if (!globalForDb._dbConnection) {
+		globalForDb._dbConnection = createDb();
 	}
-	return _dbConnection;
+	return globalForDb._dbConnection;
 };
 
 export const seedDb = async (

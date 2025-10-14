@@ -1,4 +1,3 @@
-import React, { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,15 +48,7 @@ export type RosterInfoCardProps = {
 	className?: string;
 }
 
-export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course, term, className }) => {
-	return (
-		<Suspense fallback={<RosterInfoCardSkeleton className={className} />}>
-			<RosterInfoContent course={course} term={term} className={className} />
-		</Suspense>
-	);
-};
-
-const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, term, className }) => {
+export function RosterInfoCard({ course, term, className }: RosterInfoCardProps) {
 	const { data, isLoading } = useQuery({
 		queryKey: ['getCurrentYearTermQuery'],
 		queryFn: async () => await execute(getCurrentYearTermQuery),

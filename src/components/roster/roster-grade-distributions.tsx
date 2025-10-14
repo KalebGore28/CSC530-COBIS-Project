@@ -69,7 +69,13 @@ const rosterGradeDistributionsQuery = graphql(`
 	}
 `);
 
-export function RosterGradeDistributions({ mnumber, course }: { mnumber: string, course: ExtendedCourse; }) {
+type RosterGradeDistributionsProps = {
+	mnumber: string;
+	course: ExtendedCourse;
+	className?: string;
+}
+
+export function RosterGradeDistributions({ mnumber, course, className }: RosterGradeDistributionsProps) {
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
 
 	const { data, isLoading } = useQuery({
@@ -89,7 +95,7 @@ export function RosterGradeDistributions({ mnumber, course }: { mnumber: string,
 
 
 	return (
-		<Card>
+		<Card className={className}>
 			<CardHeader className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<CardTitle>Grade Distributions</CardTitle>
@@ -116,7 +122,7 @@ export function RosterGradeDistributions({ mnumber, course }: { mnumber: string,
 			</CardHeader>
 			<CardContent>
 				<PieChartDonut
-					data={gradeType === "midterm" ? midterm_grades : final_grades}
+					data={gradeType === "midterm" ? midterm_grades : final_grades as any}
 				/>
 			</CardContent>
 		</Card>

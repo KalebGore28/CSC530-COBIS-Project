@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import {
 	Select,
 	SelectContent,
@@ -44,13 +44,17 @@ export interface ExtendedCourse
 	creditHours: number;
 	studentCount: number;
 	totalCreditHours: number;
+	classGPA: number;
+	midtermAverage: number;
+	finalAverage: number;
 }
 
 export interface CourseSelectorProps {
-	mnumber: string | null;
-	selectedTerm: ExtendedTerm | null;
+	mnumber: string;
+	selectedTerm: ExtendedTerm;
 	onCourseSelect?: (course: ExtendedCourse) => void;
 	showStats?: boolean;
+	className?: string;
 }
 
 const courseSelectorQuery = graphql(`
@@ -69,16 +73,19 @@ const courseSelectorQuery = graphql(`
 		course_number
 		course_suffix
         course_section
+        credit_hour
         total_students
         total_credit_hours
-        credit_hour
+		class_gpa
+		midterm_average
+		final_average
       }
     }
   }
 `);
 
 const CourseSelectorSkeleton = () => (
-	<>
+	<Card>
 		<CardContent>
 			<Skeleton className="h-8 w-full" />
 		</CardContent>
@@ -87,18 +94,6 @@ const CourseSelectorSkeleton = () => (
 				<Skeleton key={w} className={`h-5 w-${w}`} />
 			))}
 		</CardFooter>
-	</>
-);
-
-const NoTermCard = ({ message }: { message: string }) => (
-	<Card className="w-full">
-		<CardHeader>
-			<CardTitle>Course Selection</CardTitle>
-			<CardDescription>{message}</CardDescription>
-		</CardHeader>
-		<CardContent>
-			<Skeleton className="h-8 w-full" />
-		</CardContent>
 	</Card>
 );
 
@@ -107,33 +102,8 @@ const getCourseId = (c: ExtendedCourse) =>
 const formatCourseDisplay = (c: ExtendedCourse) =>
 	`${c.course_subject} ${c.course_number}${c.course_suffix}-${c.course_section}: ${c.title}`;
 
-export function CourseSelector({ mnumber, selectedTerm, onCourseSelect, showStats = true }: CourseSelectorProps) {
-	if (!mnumber) return <Skeleton className="h-8 w-full" />;
-	if (!selectedTerm) return <NoTermCard message="Please select a term first to view available courses" />;
-	return (
-		<Card className="w-full">
-			<CardHeader>
-				<CardTitle>Select Course</CardTitle>
-				<CardDescription>
-					Courses for {selectedTerm.description} {selectedTerm.year}
-				</CardDescription>
-			</CardHeader>
-			<Suspense fallback={<CourseSelectorSkeleton />}>
-				<CourseSelectorContent
-					mnumber={mnumber}
-					selectedTerm={selectedTerm}
-					onCourseSelect={onCourseSelect}
-					showStats={showStats}
-				/>
-			</Suspense>
-		</Card>
-	);
-};
-
-function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStats }: CourseSelectorProps) {
+export function CourseSelector({ mnumber, selectedTerm, onCourseSelect, showStats, className }: CourseSelectorProps) {
 	const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
-
-	if (!mnumber || !selectedTerm) return null;
 
 	const { data, isLoading } = useQuery({
 		queryKey: ['courseSelectorQuery', mnumber, selectedTerm.code, selectedTerm.year],
@@ -143,6 +113,8 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 			year: selectedTerm.year,
 		}),
 	});
+
+	if (!mnumber || !selectedTerm) return null;
 
 	if (isLoading) {
 		return <CourseSelectorSkeleton />;
@@ -163,6 +135,9 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 							studentCount: c.total_students ?? 0,
 							totalCreditHours:
 								c.total_credit_hours ?? (c.credit_hour ?? 0) * (c.total_students ?? 0),
+							classGPA: c.class_gpa ?? 0,
+							midtermAverage: c.midterm_average ?? 0,
+							finalAverage: c.final_average ?? 0,
 						},
 					]
 					: []
@@ -184,7 +159,13 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 	};
 
 	return (
-		<>
+		<Card className={`${className}`}>
+			<CardHeader>
+				<CardTitle>Select Course</CardTitle>
+				<CardDescription>
+					Courses for {selectedTerm.description} {selectedTerm.year}
+				</CardDescription>
+			</CardHeader>
 			<CardContent>
 				<Select
 					value={selectedCourse ? getCourseId(selectedCourse) : ""}
@@ -217,6 +198,6 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 					</Badge>
 				</CardFooter>
 			)}
-		</>
+		</Card>
 	);
 };

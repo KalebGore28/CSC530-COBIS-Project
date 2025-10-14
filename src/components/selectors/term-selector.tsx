@@ -1,4 +1,4 @@
-import { useState, Suspense } from "react";
+import { useState } from "react";
 import {
 	Select,
 	SelectContent,
@@ -34,9 +34,10 @@ export interface ExtendedTerm extends Term {
 }
 
 export interface TermSelectorProps {
-	mnumber: string | null;
+	mnumber: string;
 	onTermSelect?: (term: ExtendedTerm) => void;
 	showStats?: boolean;
+	className?: string;
 }
 
 const termSelectorQuery = graphql(`
@@ -57,7 +58,7 @@ const termSelectorQuery = graphql(`
 
 // Custom skeleton for TermSelectorContent
 const TermSelectorSkeleton = () => (
-	<>
+	<Card className="w-full">
 		<CardContent>
 			<Skeleton className="h-8 w-full" /> {/* Mimics SelectTrigger */}
 		</CardContent>
@@ -66,32 +67,10 @@ const TermSelectorSkeleton = () => (
 			<Skeleton className="h-5 w-24" /> {/* Mimics Badge */}
 			<Skeleton className="h-5 w-28" /> {/* Mimics Badge */}
 		</CardFooter>
-	</>
+	</Card>
 );
 
-export function TermSelector({ mnumber, onTermSelect, showStats = true }: TermSelectorProps) {
-	if (!mnumber) return <Skeleton className="h-40 w-full" />;
-
-	return (
-		<Card className="w-full">
-			<CardHeader>
-				<CardTitle>Select Term</CardTitle>
-				<CardDescription>Choose a term to view course information</CardDescription>
-			</CardHeader>
-			<Suspense fallback={<TermSelectorSkeleton />}>
-				<TermSelectorContent
-					mnumber={mnumber}
-					onTermSelect={onTermSelect}
-					showStats={showStats}
-				/>
-			</Suspense>
-		</Card>
-	);
-};
-
-function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorProps) {
-	if (!mnumber) return <Skeleton className="h-40 w-full" />;
-
+export function TermSelector({ mnumber, onTermSelect, showStats = true, className }: TermSelectorProps) {
 	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 
 	const { data, isLoading } = useQuery({
@@ -177,7 +156,11 @@ function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorP
 	};
 
 	return (
-		<>
+		<Card className={`${className}`}>
+			<CardHeader>
+				<CardTitle>Term Selector</CardTitle>
+				<CardDescription>Choose a term to view course information</CardDescription>
+			</CardHeader>
 			<CardContent>
 				<Select
 					value={selectedTerm ? `${selectedTerm.code}-${selectedTerm.year}` : ""}
@@ -213,7 +196,7 @@ function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorP
 					</Badge>
 				</CardFooter>
 			)}
-		</>
+		</Card>
 	);
 };
 

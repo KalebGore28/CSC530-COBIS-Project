@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	Card,
 	CardContent,
@@ -7,7 +6,7 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 
-export type RosterSummaryCardProps = {
+type RosterSummaryCardProps = {
 	totalStudents: number;
 	classGPA: number;
 	midtermAverage: number;
@@ -15,13 +14,7 @@ export type RosterSummaryCardProps = {
 	className?: string;
 };
 
-export const RosterSummaryCard: React.FC<RosterSummaryCardProps> = ({
-	totalStudents,
-	classGPA,
-	midtermAverage,
-	finalAverage,
-	className,
-}) => {
+export function RosterSummaryCard({ totalStudents, classGPA, midtermAverage, finalAverage, className }: RosterSummaryCardProps) {
 	// Calculate Average Trend
 	const getClassStatistics = () => {
 		const averageTrend = finalAverage - midtermAverage;
