@@ -1,6 +1,6 @@
 /**
- * @generated SignedSource<<b9161f096be11b03126c7d6f670b8118>>
- * @relayHash 857b1e241a6102fafe2176631fdd6e5b
+ * @generated SignedSource<<9fab51638537aa186ca0074e61f620ff>>
+ * @relayHash a570dd240143e06532292fd1205cfd53
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-// @relayRequestID 857b1e241a6102fafe2176631fdd6e5b
+// @relayRequestID a570dd240143e06532292fd1205cfd53
 
 import { ConcreteRequest } from 'relay-runtime';
 export type courseSelectorQuery$variables = {
@@ -21,12 +21,12 @@ export type courseSelectorQuery$data = {
   readonly facultySingle: {
     readonly courses_taught: ReadonlyArray<{
       readonly course: {
-        readonly number: number;
-        readonly subject: string;
-        readonly suffix: string;
         readonly title: string;
       };
+      readonly course_number: number;
       readonly course_section: string;
+      readonly course_subject: string;
+      readonly course_suffix: string;
       readonly credit_hour: number | null | undefined;
       readonly total_credit_hours: number;
       readonly total_students: number;
@@ -124,31 +124,31 @@ v1 = [
                 "alias": null,
                 "args": null,
                 "kind": "ScalarField",
-                "name": "subject",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "number",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
-                "name": "suffix",
-                "storageKey": null
-              },
-              {
-                "alias": null,
-                "args": null,
-                "kind": "ScalarField",
                 "name": "title",
                 "storageKey": null
               }
             ],
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "course_subject",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "course_number",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "course_suffix",
             "storageKey": null
           },
           {
@@ -204,7 +204,7 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "id": "857b1e241a6102fafe2176631fdd6e5b",
+    "id": "a570dd240143e06532292fd1205cfd53",
     "metadata": {},
     "name": "courseSelectorQuery",
     "operationKind": "query",
@@ -213,6 +213,6 @@ return {
 };
 })();
 
-(node as any).hash = "63708d6144967298e866d7dc5ccc20aa";
+(node as any).hash = "85325bdd114c63b4f7dd0180b66e09ce";
 
 export default node;

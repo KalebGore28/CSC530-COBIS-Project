@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Student, Program } from "@cobis/types";
 import {
 	Card,
 	CardContent,

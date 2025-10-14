@@ -3,14 +3,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
-import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
-import { RosterStudents } from "@/components/roster/roster-students";
+// import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
+// import { RosterStudents } from "@/components/roster/roster-students";
 
 // Import types
 import type { ExtendedCourse } from "@/components/selectors/course-selector";
-import type { RosterStudent } from "@/components/roster/roster-students";
-import type { Grade, GradeDistribution } from "@/components/charts/pie-chart-donut";
-import { VALID_GRADES } from "@/components/charts/pie-chart-donut";
+// import type { RosterStudent } from "@/components/roster/roster-students";
+// import type { Grade, GradeDistribution } from "@/components/charts/pie-chart-donut";
+// import { VALID_GRADES } from "@/components/charts/pie-chart-donut";
 
 // GraphQL imports
 import type { rosterQuery } from "./__generated__/rosterQuery.graphql";
@@ -130,49 +130,49 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 	);
 
 	// Extract course data
-	const courseData = data?.instructor?.courses_taught?.[0];
+	const courseData = data?.facultySingle?.courses_taught?.[0];
 	if (!courseData) {
 		return <div>No course data available</div>;
 	}
 
 	// Map students data to RosterStudent type
-	const students: RosterStudent[] = courseData.students?.map((s) => ({
-		mnumber: s.student.mnumber,
-		first_name: s.student.first_name,
-		last_name: s.student.last_name,
-		middle_name: s.student.middle_name || "",
-		suffix: s.student.suffix || "",
-		email: s.student.email,
-		programs: s.student.programs?.map((p) => ({
-			code: p.program.code,
-			description: p.program.description,
-		})) || [],
-		midterm_grade: s.midterm_grade || "N/A",
-		final_grade: s.final_grade || "N/A",
-	})) || [];
+	// const students: RosterStudent[] = courseData.students?.map((s) => ({
+	// 	mnumber: s.student.mnumber,
+	// 	first_name: s.student.first_name,
+	// 	last_name: s.student.last_name,
+	// 	middle_name: s.student.middle_name || "",
+	// 	suffix: s.student.suffix || "",
+	// 	email: s.student.email,
+	// 	programs: s.student.programs?.map((p) => ({
+	// 		code: p.program.code,
+	// 		description: p.program.description,
+	// 	})) || [],
+	// 	midterm_grade: s.midterm_grade || "N/A",
+	// 	final_grade: s.final_grade || "N/A",
+	// })) || [];
 
 	// Calculate grade distributions
-	const gradeCounts = (grades: (string | null | undefined)[]): GradeDistribution[] => {
-		const gradeMap: { [key in Grade]: number } = {
-			A: 0,
-			B: 0,
-			C: 0,
-			D: 0,
-			E: 0,
-			"N/A": 0,
-		};
-		grades.forEach((grade) => {
-			const key = grade && VALID_GRADES.includes(grade as Grade) ? grade : "N/A";
-			gradeMap[key as Grade]++;
-		});
-		return VALID_GRADES.map((grade) => ({
-			grade,
-			count: gradeMap[grade],
-		}));
-	};
+	// const gradeCounts = (grades: (string | null | undefined)[]): GradeDistribution[] => {
+	// 	const gradeMap: { [key in Grade]: number } = {
+	// 		A: 0,
+	// 		B: 0,
+	// 		C: 0,
+	// 		D: 0,
+	// 		E: 0,
+	// 		"N/A": 0,
+	// 	};
+	// 	grades.forEach((grade) => {
+	// 		const key = grade && VALID_GRADES.includes(grade as Grade) ? grade : "N/A";
+	// 		gradeMap[key as Grade]++;
+	// 	});
+	// 	return VALID_GRADES.map((grade) => ({
+	// 		grade,
+	// 		count: gradeMap[grade],
+	// 	}));
+	// };
 
-	const midtermGrades = courseData.students?.map((s) => s.midterm_grade) || [];
-	const finalGrades = courseData.students?.map((s) => s.final_grade) || [];
+	// const midtermGrades = courseData.students?.map((s) => s.midterm_grade) || [];
+	// const finalGrades = courseData.students?.map((s) => s.final_grade) || [];
 
 	// map the courseData to a course object as ExtendedCourse
 	const course = {
@@ -195,7 +195,7 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 		<div className={`grid grid-cols-2 gap-6 ${className}`}>
 			<RosterInfoCard course={course} className="col-span-2" />
 
-			<RosterGradeDistributions
+			{/* <RosterGradeDistributions
 				className="col-span-2 md:col-span-1"
 				gradesData={{
 					final_grades: gradeCounts(finalGrades),
@@ -214,7 +214,7 @@ const RosterContent: React.FC<ClassRosterProps> = ({
 				className="col-span-2"
 				students={students}
 				course={selectedCourse}
-			/>
+			/> */}
 		</div>
 	);
 };

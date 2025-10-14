@@ -1,4 +1,4 @@
-import React, { useState, Suspense } from "react";
+import { useState, Suspense } from "react";
 import {
 	Select,
 	SelectContent,
@@ -110,17 +110,22 @@ function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorP
 
 	const terms: ExtendedTerm[] = Array.from(
 		new Map(
-			data.facultySingle?.courses_taught?.map((course) => [
-				`${course.term.code}-${course.year}`,
-				{
-					code: course.term.code,
-					description: course.term.description,
-					year: course.year,
-					courseCount: 0,
-					studentCount: 0,
-					creditHoursDelivered: 0,
-				},
-			]) || []
+			data.facultySingle?.courses_taught?.map((course) =>
+				course && course.term
+					? [
+						`${course.term.code}-${course.year}`,
+						{
+							code: course.term.code,
+							description: course.term.description,
+							year: course.year,
+							courseCount: 0,
+							studentCount: 0,
+							creditHoursDelivered: 0,
+						},
+					]
+					: null
+			)
+				.filter((item): item is [string, ExtendedTerm] => item !== null) || []
 		).values()
 	).sort((a, b) =>
 		b.year !== a.year ? b.year - a.year : b.code.localeCompare(a.code)
@@ -129,17 +134,17 @@ function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorP
 	const calculateTermStats = (code: string, year: number): ExtendedTerm => {
 		const coursesInTerm =
 			data.facultySingle?.courses_taught?.filter(
-				(course) => course.term.code === code && course.year === year
+				(course) => course && course.term && course.term.code === code && course.year === year
 			) || [];
 
 		const courseCount = coursesInTerm.length;
 		const studentCount = coursesInTerm.reduce(
-			(sum, course) => sum + (course.total_students || 0),
+			(sum, course) => sum + (course && course.total_students ? course.total_students : 0),
 			0
 		);
 
 		const creditHoursDelivered = coursesInTerm.reduce(
-			(sum, course) => sum + (course.total_credit_hours || 0),
+			(sum, course) => sum + (course && course.total_credit_hours ? course.total_credit_hours : 0),
 			0
 		);
 

@@ -14,8 +14,14 @@ export const instructorCourseTypeExtension = /* GraphQL */ `
     class_gpa: Float
     midterm_average: Float
     final_average: Float
-    # midterm_grade_distribution: [InstructorCourseGradeDistributionItem!]!
-    # final_grade_distribution: [InstructorCourseGradeDistributionItem!]!
+    midterm_grade_distribution: [GradeEntry!]!
+    final_grade_distribution: [GradeEntry!]!
+  }
+
+  type GradeEntry {
+    grade: String!
+    count: Int!
+    percentage: Float!
   }
 `;
 
@@ -101,24 +107,24 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_suffix,
             ].join('|')
         ),
-    // midterm_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-    //     loaders.midtermGradeDistributionByCourse.load(
-    //         [
-    //             instructorCourse.term_code,
-    //             instructorCourse.year,
-    //             instructorCourse.course_subject,
-    //             instructorCourse.course_number,
-    //             instructorCourse.course_suffix,
-    //         ].join('|')
-    //     ),
-    // final_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
-    //     loaders.finalGradeDistributionByCourse.load(
-    //         [
-    //             instructorCourse.term_code,
-    //             instructorCourse.year,
-    //             instructorCourse.course_subject,
-    //             instructorCourse.course_number,
-    //             instructorCourse.course_suffix,
-    //         ].join('|')
-    //     ),
+    midterm_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+        loaders.midtermGradeDistributionByCourse.load(
+            [
+                instructorCourse.term_code,
+                instructorCourse.year,
+                instructorCourse.course_subject,
+                instructorCourse.course_number,
+                instructorCourse.course_suffix,
+            ].join('|')
+        ),
+    final_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
+        loaders.finalGradeDistributionByCourse.load(
+            [
+                instructorCourse.term_code,
+                instructorCourse.year,
+                instructorCourse.course_subject,
+                instructorCourse.course_number,
+                instructorCourse.course_suffix,
+            ].join('|')
+        ),
 };

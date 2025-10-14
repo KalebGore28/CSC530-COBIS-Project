@@ -17,12 +17,12 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { courses, terms } from "@/db/schema";
+import { instructorCourses, terms } from "@/db/schema";
 import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.graphql";
 import { graphql, useLazyLoadQuery } from "react-relay";
 
 type Term = typeof terms.$inferSelect;
-type Course = typeof courses.$inferSelect;
+type InstructorCourse = typeof instructorCourses.$inferSelect;
 
 export interface ExtendedTerm extends Term {
 	year: number;
@@ -33,14 +33,14 @@ export interface ExtendedTerm extends Term {
 
 export interface ExtendedCourse
 	extends Omit<
-		Course,
-		"hours" | "fee" | "web_fee" | "last_updated" | "department_code" | "college_code"
+		InstructorCourse,
+		"mnumber" | "term_code" | "year" | "role"
 	> {
+	title: string;
 	course_section: string;
 	creditHours: number;
 	studentCount: number;
 	totalCreditHours: number;
-	term: ExtendedTerm;
 }
 
 export interface CourseSelectorProps {
@@ -60,11 +60,11 @@ const courseSelectorQuery = graphql`
         endYear: $year
       ) {
         course {
-          subject
-          number
-          suffix
           title
         }
+		course_subject
+		course_number
+		course_suffix
         course_section
         total_students
         total_credit_hours
@@ -100,9 +100,9 @@ const NoTermCard = ({ message }: { message: string }) => (
 );
 
 const getCourseId = (c: ExtendedCourse) =>
-	`${c.subject}|${c.number}|${c.suffix}|${c.course_section}`;
+	`${c.course_subject}|${c.course_number}|${c.course_suffix}|${c.course_section}`;
 const formatCourseDisplay = (c: ExtendedCourse) =>
-	`${c.subject} ${c.number}${c.suffix}-${c.course_section}: ${c.title}`;
+	`${c.course_subject} ${c.course_number}${c.course_suffix}-${c.course_section}: ${c.title}`;
 
 export function CourseSelector({ mnumber, selectedTerm, onCourseSelect, showStats = true }: CourseSelectorProps) {
 	if (!mnumber) return <Skeleton className="h-8 w-full" />;
@@ -144,23 +144,22 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 				c?.course
 					? [
 						{
-							subject: c.course.subject,
-							number: c.course.number,
-							suffix: c.course.suffix,
+							course_subject: c.course_subject,
+							course_number: c.course_number,
+							course_suffix: c.course_suffix,
 							title: c.course.title,
 							course_section: c.course_section,
 							creditHours: c.credit_hour ?? 0,
 							studentCount: c.total_students ?? 0,
 							totalCreditHours:
 								c.total_credit_hours ?? (c.credit_hour ?? 0) * (c.total_students ?? 0),
-							term: selectedTerm!
 						},
 					]
 					: []
 			)
 			.sort((a, b) =>
-				`${a.subject}${a.number}${a.suffix}-${a.course_section}`.localeCompare(
-					`${b.subject}${b.number}${b.suffix}-${b.course_section}`
+				`${a.course_subject}${a.course_number}${a.course_suffix}-${a.course_section}`.localeCompare(
+					`${b.course_subject}${b.course_number}${b.course_suffix}-${b.course_section}`
 				)
 			) ?? [];
 

@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 // Import types
 import type { ExtendedCourse } from "../selectors/course-selector";
+import type { ExtendedTerm } from "../selectors/term-selector";
 
 // GraphQL imports
 import type { rosterInfoCardQuery } from "./__generated__/rosterInfoCardQuery.graphql";
@@ -43,25 +44,29 @@ const RosterInfoCardSkeleton: React.FC<{ className?: string }> = ({ className })
 
 export type RosterInfoCardProps = {
 	course: ExtendedCourse;
+	term: ExtendedTerm;
 	className?: string;
 }
 
-export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course, className }) => {
+export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course, term, className }) => {
 	return (
 		<Suspense fallback={<RosterInfoCardSkeleton className={className} />}>
-			<RosterInfoContent course={course} className={className} />
+			<RosterInfoContent course={course} term={term} className={className} />
 		</Suspense>
 	);
 };
 
-const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, className }) => {
+const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, term, className }) => {
 	const { getCurrentYearTerm } = useLazyLoadQuery<rosterInfoCardQuery>(
 		rosterInfoCardQuery,
 		{},
 		{ fetchPolicy: "store-or-network" }
 	);
 
-	const isActive = course.term.year === getCurrentYearTerm.year && course.term.code === getCurrentYearTerm.term.code;
+	const isActive =
+		getCurrentYearTerm &&
+		term.year === getCurrentYearTerm.year &&
+		term.code === getCurrentYearTerm.term_code;
 
 	return (
 		<Card className={className}>
@@ -69,12 +74,12 @@ const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, className })
 				<div className="flex flex-col md:flex-row justify-between gap-6">
 					<div>
 						<h2 className="text-2xl font-bold tracking-tight text-foreground">
-							{course.subject} {course.number}
-							{course.suffix} - {course.course_section}
+							{course.course_subject} {course.course_number}
+							{course.course_suffix} - {course.course_section}
 						</h2>
 						<p className="text-xl text-foreground">{course.title}</p>
 						<p className="text-sm text-muted-foreground">
-							{course.term.description} {course.term.year} • {course.creditHours} Credit Hours (Total Hours: {course.totalCreditHours})
+							{term.description} {term.year} • {course.creditHours} Credit Hours (Total Hours: {course.totalCreditHours})
 						</p>
 					</div>
 					<div className="flex flex-col justify-between items-end h-full gap-4">

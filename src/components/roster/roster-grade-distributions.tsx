@@ -1,41 +1,30 @@
-import React, { useMemo, useState } from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { useState, Suspense } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
-// Import types
-import type { GradeDistribution } from "@/components/charts/pie-chart-donut";
 
-export type GradesData = {
-	final_grades: GradeDistribution[];
-	midterm_grades: GradeDistribution[];
-};
+import type { ExtendedCourse } from "@/components/selectors/course-selector";
+import { graphql, useLazyLoadQuery } from "react-relay";
 
-type RosterGradeDistributionsProps = {
-	gradesData: GradesData;
-	className?: string;
-};
+const rosterGradeDistributionsQuery = graphql`
 
-export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> = ({
-	gradesData,
-	className,
-}) => {
+`;
+
+
+
+export function RosterGradeDistributions({ course }: { course: ExtendedCourse }) { };
+
+
+
+
+export function RosterGradeDistributionsContent({ course }: { course: ExtendedCourse; }) {
 	const { final_grades, midterm_grades } = gradesData;
 
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
 
-	// Memoize the data to avoid unnecessary re-renders
-	const finalGradesData = useMemo(() => final_grades, [final_grades]);
-	const midtermGradesData = useMemo(() => midterm_grades, [midterm_grades]);
-
 	return (
-		<Card className={className}>
+		<Card>
 			<CardHeader className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<CardTitle>Grade Distributions</CardTitle>
@@ -62,7 +51,7 @@ export const RosterGradeDistributions: React.FC<RosterGradeDistributionsProps> =
 			</CardHeader>
 			<CardContent>
 				<PieChartDonut
-					data={gradeType === "midterm" ? midtermGradesData : finalGradesData}
+					data={gradeType === "midterm" ? midterm_grades : final_grades}
 				/>
 			</CardContent>
 		</Card>
