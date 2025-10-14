@@ -1,6 +1,6 @@
 import { createMiddleware } from '@tanstack/react-start'
 import { getDbConnection, DbConnection } from '@/db'
-import { createLoaders, Loaders } from '@/db/graphql/loaders'
+import { createLoaders, Loaders } from '@/graphql/loaders'
 import { auth } from '@/lib/server/auth'
 import { loadUser } from './load-user'
 

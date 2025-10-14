@@ -1,37 +1,14 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
 import { Suspense } from 'react';
-import { Environment, Network, FetchFunction } from "relay-runtime";
 
 // Providers
 import { ThemeProvider } from '@/components/provider/theme'
 import { SessionProvider } from '@/components/provider/session';
-// Workaround for lack of ESM support in react-relay
-import pkg from 'react-relay';
-const { RelayEnvironmentProvider } = pkg;
+
 
 
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
-
-export const fetchGraphQL: FetchFunction = async (operation, variables) => {
-  const resp = await fetch(import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      doc_id: operation.id, // NOTE: pass md5 hash to the server
-      // query: operation.text, // this is now obsolete because text is null
-      variables,
-    }),
-  });
-  if (!resp.ok) {
-    throw new Error("Response failed.");
-  }
-  return await resp.json();
-};
-
-const environment = new Environment({
-  network: Network.create(fetchGraphQL),
-});
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -72,11 +49,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         {/* <Header /> */}
         <SessionProvider>
           <ThemeProvider>
-            <RelayEnvironmentProvider environment={environment}>
-              <Suspense fallback={<div>Loading...</div>}>
-                {children}
-              </Suspense>
-            </RelayEnvironmentProvider>
+            <Suspense fallback={<div>Loading...</div>}>
+              {children}
+            </Suspense>
           </ThemeProvider>
         </SessionProvider>
         <Scripts />

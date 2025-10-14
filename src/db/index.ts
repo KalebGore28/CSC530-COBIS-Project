@@ -1,24 +1,24 @@
 import { drizzle, MySql2Database } from "drizzle-orm/mysql2";
 import { GraphQLObjectType, GraphQLSchema, extendSchema, parse } from 'graphql';
 import { buildSchema } from 'drizzle-graphql';
-import { queries } from "./graphql/queries";
+import { queries } from "../graphql/queries";
 import { addResolversToSchema } from '@graphql-tools/schema';
 
 import mysql from "mysql2/promise";
 import 'dotenv/config';
 
 import * as schema from './schema';
-import { CourseResolver, courseTypeExtension } from "./graphql/resolvers/course";
-import { FacultyResolver, facultyTypeExtension } from "./graphql/resolvers/faculty";
-import { InstructorCourseResolver, instructorCourseTypeExtension } from "./graphql/resolvers/instructor-course";
-import { ProgramResolver, programTypeExtension } from "./graphql/resolvers/program";
-import { StudentAcademicInfoResolver, studentAcademicInfoTypeExtension } from "./graphql/resolvers/student-academic-info";
-import { StudentAddressResolver, studentAddressTypeExtension } from "./graphql/resolvers/student-address";
-import { StudentAdvisorResolver, studentAdvisorTypeExtension } from "./graphql/resolvers/student-advisor";
-import { StudentCoursesResolver, studentCoursesTypeExtension } from "./graphql/resolvers/student-course";
-import { StudentProgramsResolver, studentProgramTypeExtension } from "./graphql/resolvers/student-program";
-import { StudentResolver, studentTypeExtension } from "./graphql/resolvers/student";
-import { UserRolesResolver, userRoleTypeExtension } from "./graphql/resolvers/user-role";
+import { CourseResolver, courseTypeExtension } from "../graphql/resolvers/course";
+import { FacultyResolver, facultyTypeExtension } from "../graphql/resolvers/faculty";
+import { InstructorCourseResolver, instructorCourseTypeExtension } from "../graphql/resolvers/instructor-course";
+import { ProgramResolver, programTypeExtension } from "../graphql/resolvers/program";
+import { StudentAcademicInfoResolver, studentAcademicInfoTypeExtension } from "../graphql/resolvers/student-academic-info";
+import { StudentAddressResolver, studentAddressTypeExtension } from "../graphql/resolvers/student-address";
+import { StudentAdvisorResolver, studentAdvisorTypeExtension } from "../graphql/resolvers/student-advisor";
+import { StudentCoursesResolver, studentCoursesTypeExtension } from "../graphql/resolvers/student-course";
+import { StudentProgramsResolver, studentProgramTypeExtension } from "../graphql/resolvers/student-program";
+import { StudentResolver, studentTypeExtension } from "../graphql/resolvers/student";
+import { UserRolesResolver, userRoleTypeExtension } from "../graphql/resolvers/user-role";
 
 export interface DbConnection {
 	db: mysql.Pool;

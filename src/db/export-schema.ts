@@ -10,7 +10,7 @@ import { getDbConnection } from '.';
     const sdl = printSchema(graphql_schema);
 
     // Save it to schema.graphql
-    writeFileSync('src/db/schema.graphql', sdl);
+    writeFileSync('src/graphql/schema.graphql', sdl);
 
     console.log('✅ schema.graphql successfully generated!');
 })();

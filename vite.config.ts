@@ -13,7 +13,7 @@ const config = defineConfig({
     }),
     tailwindcss(),
     tanstackStart(),
-    viteReact({ babel: { plugins: ["relay"]}}),
+    viteReact(),
   ],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(pkg.version),
