@@ -26,7 +26,7 @@ function ClassRosterPage() {
     <div className="container p-6 mx-auto space-y-6">
       <h1 className="text-2xl font-bold">Class Roster</h1>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
         {/* Term Selector */}
         <TermSelector
           className={"col-span-2 md:col-span-1"}
@@ -42,32 +42,32 @@ function ClassRosterPage() {
             onCourseSelect={setSelectedCourse}
           />
         )}
-      </div>
 
-      {/* Roster and Info Cards */}
-      {selectedTerm && selectedCourse && (
-        <>
-          <RosterInfoCard
-            className={"col-span-2"}
-            course={selectedCourse}
-            term={selectedTerm}
-          />
-          <div className="col-span-2">
+        {/* Roster and Info Cards */}
+        {selectedTerm && selectedCourse && (
+          <>
+            <RosterInfoCard
+              className={"col-span-2"}
+              course={selectedCourse}
+              term={selectedTerm}
+            />
             <RosterGradeDistributions
-              // className={"col-span-1"}
+              className={"col-span-1"}
               mnumber={session.mnumber}
               course={selectedCourse}
             />
             <RosterSummaryCard
-              // className={"col-span-1"}
+              className={"col-span-1"}
               totalStudents={selectedCourse.studentCount}
               classGPA={selectedCourse.classGPA}
               midtermAverage={selectedCourse.midtermAverage}
               finalAverage={selectedCourse.finalAverage}
             />
-          </div>
-        </>
-      )}
+          </>
+        )}
+
+        
+      </div>
     </div>
   );
 };
