@@ -11,8 +11,8 @@ export const Route = createFileRoute('/_authenticated/_layout/advisor-page')({
   component: RouteComponent,
 })
 
-const advisedStudentsGetCurrentTermQuery = graphql(`
-	query advisedStudentsGetCurrentTermQuery {
+const getCurrentYearTermQuery = graphql(`
+	query getCurrentYearTermQuery {
 		getCurrentYearTerm {
 			year
 			term
@@ -25,8 +25,8 @@ function RouteComponent() {
   const { session } = useSession()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['advisorPageCurrentYearTermQuery'],
-    queryFn: async () => await execute(advisedStudentsGetCurrentTermQuery),
+    queryKey: ['getCurrentYearTermQuery'],
+    queryFn: async () => await execute(getCurrentYearTermQuery),
   });
 
   if (!session || !session.mnumber || isLoading) return null;

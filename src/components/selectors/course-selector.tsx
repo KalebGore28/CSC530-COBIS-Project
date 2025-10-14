@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, Suspense } from "react";
 import {
 	Select,
 	SelectContent,
@@ -16,13 +16,16 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import { instructorCourses, terms } from "@/db/schema";
-import type { courseSelectorQuery } from "./__generated__/courseSelectorQuery.graphql";
-import { graphql, useLazyLoadQuery } from "react-relay";
 
 type Term = typeof terms.$inferSelect;
 type InstructorCourse = typeof instructorCourses.$inferSelect;
+
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
+
 
 export interface ExtendedTerm extends Term {
 	year: number;
@@ -50,7 +53,7 @@ export interface CourseSelectorProps {
 	showStats?: boolean;
 }
 
-const courseSelectorQuery = graphql`
+const courseSelectorQuery = graphql(`
   query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {
     facultySingle(where: { mnumber: { eq: $mnumber } }) {
       courses_taught(
@@ -72,7 +75,7 @@ const courseSelectorQuery = graphql`
       }
     }
   }
-`;
+`);
 
 const CourseSelectorSkeleton = () => (
 	<>
@@ -132,14 +135,21 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 
 	if (!mnumber || !selectedTerm) return null;
 
-	const data = useLazyLoadQuery<courseSelectorQuery>(
-		courseSelectorQuery,
-		{ mnumber, term: selectedTerm!.code, year: selectedTerm!.year },
-		{ fetchPolicy: "store-or-network" }
-	);
+	const { data, isLoading } = useQuery({
+		queryKey: ['courseSelectorQuery', mnumber, selectedTerm.code, selectedTerm.year],
+		queryFn: async () => await execute(courseSelectorQuery, {
+			mnumber,
+			term: selectedTerm.code,
+			year: selectedTerm.year,
+		}),
+	});
+
+	if (isLoading) {
+		return <CourseSelectorSkeleton />;
+	}
 
 	const courses =
-		data.facultySingle?.courses_taught
+		data?.facultySingle?.courses_taught
 			?.flatMap((c) =>
 				c?.course
 					? [
@@ -162,12 +172,6 @@ function CourseSelectorContent({ mnumber, selectedTerm, onCourseSelect, showStat
 					`${b.course_subject}${b.course_number}${b.course_suffix}-${b.course_section}`
 				)
 			) ?? [];
-
-	useEffect(() => {
-		const first = courses[0] ?? null;
-		setSelectedCourse(first);
-		if (first) onCourseSelect?.(first);
-	}, [selectedTerm]);
 
 	if (!courses.length) return null;
 

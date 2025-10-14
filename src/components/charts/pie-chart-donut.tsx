@@ -21,12 +21,12 @@ const CustomTooltip = ({ active, payload }: any) => {
 
 // Default grade colors using shadcn theme
 const DEFAULT_COLORS: Record<Grade, string> = {
-	'A': 'hsl(var(--chart-1))',
-	'B': 'hsl(var(--chart-2))',
-	'C': 'hsl(var(--chart-3))',
-	'D': 'hsl(var(--chart-4))',
-	'E': 'hsl(var(--chart-5))',
-	'N/A': 'hsl(var(--chart-6))',
+	'A': 'var(--chart-1)',
+	'B': 'var(--chart-2)',
+	'C': 'var(--chart-3)',
+	'D': 'var(--chart-4)',
+	'E': 'var(--chart-5)',
+	'N/A': 'var(--chart-6)',
 };
 
 // Define valid grades
@@ -67,7 +67,7 @@ export function PieChartDonut({ data }: PieChartDonutProps) {
 	const dataWithTotal = filteredData.map(item => ({
 		...item,
 		allTotal: total,
-		color: DEFAULT_COLORS[item.grade] || 'hsl(var(--muted))',
+		color: DEFAULT_COLORS[item.grade] || 'var(--muted))',
 	}));
 
 	return (

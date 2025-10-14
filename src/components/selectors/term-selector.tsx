@@ -21,9 +21,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { terms } from "@/db/schema";
 type Term = typeof terms.$inferSelect;
 
-// GraphQL imports
-import type { termSelectorQuery } from "./__generated__/termSelectorQuery.graphql";
-import { graphql, useLazyLoadQuery } from "react-relay";
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
 
 export interface ExtendedTerm extends Term {
 	year: number;
@@ -38,7 +39,7 @@ export interface TermSelectorProps {
 	showStats?: boolean;
 }
 
-const termSelectorQuery = graphql`
+const termSelectorQuery = graphql(`
   query termSelectorQuery($mnumber: String!) {
     facultySingle(where: { mnumber: { eq: $mnumber } }) {
       courses_taught {
@@ -52,7 +53,7 @@ const termSelectorQuery = graphql`
       }
     }
   }
-`;
+`);
 
 // Custom skeleton for TermSelectorContent
 const TermSelectorSkeleton = () => (
@@ -93,14 +94,16 @@ function TermSelectorContent({ mnumber, onTermSelect, showStats }: TermSelectorP
 
 	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 
-	const data = useLazyLoadQuery<termSelectorQuery>(
-		termSelectorQuery,
-		{ mnumber },
-		{ fetchPolicy: "store-or-network" }
-	);
+	const { data, isLoading } = useQuery({
+		queryKey: ['termSelectorQuery', mnumber],
+		queryFn: async () => await execute(termSelectorQuery, { mnumber }),
+	});
 
+	if (isLoading) {
+		return <TermSelectorSkeleton />;
+	}
 
-	if (!data.facultySingle?.courses_taught || data.facultySingle.courses_taught.length === 0) {
+	if (!data?.facultySingle?.courses_taught || data.facultySingle.courses_taught.length === 0) {
 		return (
 			<CardContent>
 				<p>No courses found for the selected instructor.</p>

@@ -7,19 +7,20 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { ExtendedCourse } from "../selectors/course-selector";
 import type { ExtendedTerm } from "../selectors/term-selector";
 
-// GraphQL imports
-import type { rosterInfoCardQuery } from "./__generated__/rosterInfoCardQuery.graphql";
-import { graphql, useLazyLoadQuery } from "react-relay";
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
 
-const rosterInfoCardQuery = graphql`
-	query rosterInfoCardQuery {
+const getCurrentYearTermQuery = graphql(`
+	query getCurrentYearTermQuery {
 		getCurrentYearTerm {
 			year
 			term
 			term_code
 		}
 	}
-`;
+`);
 
 // Custom skeleton for RosterInfoCard
 const RosterInfoCardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
@@ -57,11 +58,16 @@ export const RosterInfoCard: React.FC<RosterInfoCardProps> = ({ course, term, cl
 };
 
 const RosterInfoContent: React.FC<RosterInfoCardProps> = ({ course, term, className }) => {
-	const { getCurrentYearTerm } = useLazyLoadQuery<rosterInfoCardQuery>(
-		rosterInfoCardQuery,
-		{},
-		{ fetchPolicy: "store-or-network" }
-	);
+	const { data, isLoading } = useQuery({
+		queryKey: ['getCurrentYearTermQuery'],
+		queryFn: async () => await execute(getCurrentYearTermQuery),
+	});
+
+	if (isLoading) {
+		return <RosterInfoCardSkeleton className={className} />;
+	}
+
+	const getCurrentYearTerm = data?.getCurrentYearTerm;
 
 	const isActive =
 		getCurrentYearTerm &&

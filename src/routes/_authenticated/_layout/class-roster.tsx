@@ -23,7 +23,6 @@ function ClassRosterPage() {
 
   const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
-  selectedCourse?.course_section
 
   return (
     <div className="container p-6 mx-auto space-y-6">
@@ -52,7 +51,10 @@ function ClassRosterPage() {
             course={selectedCourse}
             term={selectedTerm}
           />
-          {/* <RosterGradeDistributions course={selectedCourse}/> */}
+          <RosterGradeDistributions
+            mnumber={session.mnumber}
+            course={selectedCourse}
+          />
         </>
       )}
     </div>
