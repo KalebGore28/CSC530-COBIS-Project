@@ -1,0 +1,98 @@
+/* eslint-disable */
+import * as types from './graphql';
+
+
+
+/**
+ * Map of all GraphQL operations in the project.
+ *
+ * This map has several performance disadvantages:
+ * 1. It is not tree-shakeable, so it will include all operations in the project.
+ * 2. It is not minifiable, so the string of a GraphQL query will be multiple times inside the bundle.
+ * 3. It does not support dead code elimination, so it will add unused operations.
+ *
+ * Therefore it is highly recommended to use the babel or swc plugin for production.
+ * Learn more about it here: https://the-guild.dev/graphql/codegen/plugins/presets/preset-client#reducing-bundle-size
+ */
+type Documents = {
+    "\n\tquery advisedStudentsGetCurrentTermQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t}\n\t}\n": typeof types.AdvisedStudentsGetCurrentTermQueryDocument,
+    "\n\tquery advisedStudentsQuery(\n\t$mnumber: String!\n\t$term_code: String!\n\t$year: Int!\n\t) {\n\tstudentAdvisors(\n\t\twhere: {\n\t\tadvisor_mnumber: { eq: $mnumber }\n\t\tterm_code: { eq: $term_code }\n\t\tyear: { eq: $year }\n\t\t}\n\t) {\n\t\tstudent {\n\t\tmnumber\n\t\tfirst_name\n\t\tmiddle_name\n\t\tlast_name\n\t\tsuffix\n\t\temail\n\t\tgender\n\t\t}\n\t}\n\t}\n": typeof types.AdvisedStudentsQueryDocument,
+    "\n\tquery rosterQuery(\n\t$mnumber: String!\n\t$subject: String!\n\t$number: Int!\n\t$suffix: String\n\t$section: String!\n\t$startTerm: String!\n\t$startYear: Int!\n\t) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n\t\tcourses_taught(\n\t\tsubject: $subject\n\t\tnumber: $number\n\t\tsuffix: $suffix\n\t\tsection: $section\n\t\tstartTerm: $startTerm\n\t\tendTerm: $startTerm\n\t\tstartYear: $startYear\n\t\tendYear: $startYear\n\t\t) {\n\t\t\tcourse {\n\t\t\t\tsubject\n\t\t\t\tnumber\n\t\t\t\tsuffix\n\t\t\t\ttitle\n\t\t\t}\n\t\t\tcourse_section\n\t\t\tterm {\n\t\t\t\tcode\n\t\t\t\tdescription\n\t\t\t}\n\t\t\ttotal_students\n\t\t\ttotal_credit_hours\n\t\t\tcredit_hour\n\t\t\tclass_gpa\n\t\t\tmidterm_average\n\t\t\tfinal_average\n\t\t\tstudents {\n\t\t\t\tfirst_name\n\t\t\t\t\tlast_name\n\t\t\t\t\tmiddle_name\n\t\t\t\t\tsuffix\n\t\t\t\t\temail\n\t\t\t\t\tmnumber\n\t\t\t\t\tprograms {\n\t\t\t\t\t\tprogram {\n\t\t\t\t\t\t\tcode\n\t\t\t\t\t\t\tdescription\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": typeof types.RosterQueryDocument,
+    "\n\tquery rosterInfoCardQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t\tterm_code\n\t\t}\n\t}\n": typeof types.RosterInfoCardQueryDocument,
+    "\n  query searchDepartmentsQuery($query: String!) {\n    searchDepartments(query: $query) {\n      code\n      description\n    }\n  }\n": typeof types.SearchDepartmentsQueryDocument,
+    "\n  query searchCoursesQuery($query: String!) {\n    searchCourses(query: $query) {\n      subject\n      number\n      suffix\n      title\n      hours\n      last_updated\n      department_code\n      college_code\n    }\n  }\n": typeof types.SearchCoursesQueryDocument,
+    "\n  query searchProgramsQuery($query: String!) {\n    searchPrograms(query: $query) {\n      code\n      description\n      cip_code\n      is_major\n      is_minor\n      has_concentration\n      is_discontinued\n      is_aacsb\n      department_code\n      college_code\n      last_updated\n      department { description }\n    }\n  }\n": typeof types.SearchProgramsQueryDocument,
+    "\n  query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught(\n        startTerm: $term\n        startYear: $year\n        endTerm: $term\n        endYear: $year\n      ) {\n        course {\n          title\n        }\n\t\tcourse_subject\n\t\tcourse_number\n\t\tcourse_suffix\n        course_section\n        total_students\n        total_credit_hours\n        credit_hour\n      }\n    }\n  }\n": typeof types.CourseSelectorQueryDocument,
+    "\n  query termSelectorQuery($mnumber: String!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught {\n        year\n        term {\n          description\n          code\n        }\n        total_students\n\t\ttotal_credit_hours\n      }\n    }\n  }\n": typeof types.TermSelectorQueryDocument,
+    "\n    query studentDetailGetCurrentTermQuery {\n        getCurrentYearTerm {\n            year\n            term\n            term_code\n        }\n    }\n": typeof types.StudentDetailGetCurrentTermQueryDocument,
+    "\nquery studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {\n  studentsSingle(where: { mnumber: { eq: $mnumber } }) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    gender\n    cell_phone\n    race\n    residency\n    citizenship\n    mnumber\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n        }\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n": typeof types.StudentDetailQueryDocument,
+    "\n  query studentLookupQuery(\n    $filters: StudentLookupInput!\n    $offset: Int!\n    $limit: Int!\n  ) {\n    lookupStudents(filters: $filters, offset: $offset, limit: $limit) {\n      students {\n        mnumber\n        first_name\n        last_name\n        email\n      }\n      totalCount\n    }\n  }\n": typeof types.StudentLookupQueryDocument,
+};
+const documents: Documents = {
+    "\n\tquery advisedStudentsGetCurrentTermQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t}\n\t}\n": types.AdvisedStudentsGetCurrentTermQueryDocument,
+    "\n\tquery advisedStudentsQuery(\n\t$mnumber: String!\n\t$term_code: String!\n\t$year: Int!\n\t) {\n\tstudentAdvisors(\n\t\twhere: {\n\t\tadvisor_mnumber: { eq: $mnumber }\n\t\tterm_code: { eq: $term_code }\n\t\tyear: { eq: $year }\n\t\t}\n\t) {\n\t\tstudent {\n\t\tmnumber\n\t\tfirst_name\n\t\tmiddle_name\n\t\tlast_name\n\t\tsuffix\n\t\temail\n\t\tgender\n\t\t}\n\t}\n\t}\n": types.AdvisedStudentsQueryDocument,
+    "\n\tquery rosterQuery(\n\t$mnumber: String!\n\t$subject: String!\n\t$number: Int!\n\t$suffix: String\n\t$section: String!\n\t$startTerm: String!\n\t$startYear: Int!\n\t) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n\t\tcourses_taught(\n\t\tsubject: $subject\n\t\tnumber: $number\n\t\tsuffix: $suffix\n\t\tsection: $section\n\t\tstartTerm: $startTerm\n\t\tendTerm: $startTerm\n\t\tstartYear: $startYear\n\t\tendYear: $startYear\n\t\t) {\n\t\t\tcourse {\n\t\t\t\tsubject\n\t\t\t\tnumber\n\t\t\t\tsuffix\n\t\t\t\ttitle\n\t\t\t}\n\t\t\tcourse_section\n\t\t\tterm {\n\t\t\t\tcode\n\t\t\t\tdescription\n\t\t\t}\n\t\t\ttotal_students\n\t\t\ttotal_credit_hours\n\t\t\tcredit_hour\n\t\t\tclass_gpa\n\t\t\tmidterm_average\n\t\t\tfinal_average\n\t\t\tstudents {\n\t\t\t\tfirst_name\n\t\t\t\t\tlast_name\n\t\t\t\t\tmiddle_name\n\t\t\t\t\tsuffix\n\t\t\t\t\temail\n\t\t\t\t\tmnumber\n\t\t\t\t\tprograms {\n\t\t\t\t\t\tprogram {\n\t\t\t\t\t\t\tcode\n\t\t\t\t\t\t\tdescription\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n": types.RosterQueryDocument,
+    "\n\tquery rosterInfoCardQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t\tterm_code\n\t\t}\n\t}\n": types.RosterInfoCardQueryDocument,
+    "\n  query searchDepartmentsQuery($query: String!) {\n    searchDepartments(query: $query) {\n      code\n      description\n    }\n  }\n": types.SearchDepartmentsQueryDocument,
+    "\n  query searchCoursesQuery($query: String!) {\n    searchCourses(query: $query) {\n      subject\n      number\n      suffix\n      title\n      hours\n      last_updated\n      department_code\n      college_code\n    }\n  }\n": types.SearchCoursesQueryDocument,
+    "\n  query searchProgramsQuery($query: String!) {\n    searchPrograms(query: $query) {\n      code\n      description\n      cip_code\n      is_major\n      is_minor\n      has_concentration\n      is_discontinued\n      is_aacsb\n      department_code\n      college_code\n      last_updated\n      department { description }\n    }\n  }\n": types.SearchProgramsQueryDocument,
+    "\n  query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught(\n        startTerm: $term\n        startYear: $year\n        endTerm: $term\n        endYear: $year\n      ) {\n        course {\n          title\n        }\n\t\tcourse_subject\n\t\tcourse_number\n\t\tcourse_suffix\n        course_section\n        total_students\n        total_credit_hours\n        credit_hour\n      }\n    }\n  }\n": types.CourseSelectorQueryDocument,
+    "\n  query termSelectorQuery($mnumber: String!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught {\n        year\n        term {\n          description\n          code\n        }\n        total_students\n\t\ttotal_credit_hours\n      }\n    }\n  }\n": types.TermSelectorQueryDocument,
+    "\n    query studentDetailGetCurrentTermQuery {\n        getCurrentYearTerm {\n            year\n            term\n            term_code\n        }\n    }\n": types.StudentDetailGetCurrentTermQueryDocument,
+    "\nquery studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {\n  studentsSingle(where: { mnumber: { eq: $mnumber } }) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    gender\n    cell_phone\n    race\n    residency\n    citizenship\n    mnumber\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n        }\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n": types.StudentDetailQueryDocument,
+    "\n  query studentLookupQuery(\n    $filters: StudentLookupInput!\n    $offset: Int!\n    $limit: Int!\n  ) {\n    lookupStudents(filters: $filters, offset: $offset, limit: $limit) {\n      students {\n        mnumber\n        first_name\n        last_name\n        email\n      }\n      totalCount\n    }\n  }\n": types.StudentLookupQueryDocument,
+};
+
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery advisedStudentsGetCurrentTermQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t}\n\t}\n"): typeof import('./graphql').AdvisedStudentsGetCurrentTermQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery advisedStudentsQuery(\n\t$mnumber: String!\n\t$term_code: String!\n\t$year: Int!\n\t) {\n\tstudentAdvisors(\n\t\twhere: {\n\t\tadvisor_mnumber: { eq: $mnumber }\n\t\tterm_code: { eq: $term_code }\n\t\tyear: { eq: $year }\n\t\t}\n\t) {\n\t\tstudent {\n\t\tmnumber\n\t\tfirst_name\n\t\tmiddle_name\n\t\tlast_name\n\t\tsuffix\n\t\temail\n\t\tgender\n\t\t}\n\t}\n\t}\n"): typeof import('./graphql').AdvisedStudentsQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery rosterQuery(\n\t$mnumber: String!\n\t$subject: String!\n\t$number: Int!\n\t$suffix: String\n\t$section: String!\n\t$startTerm: String!\n\t$startYear: Int!\n\t) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n\t\tcourses_taught(\n\t\tsubject: $subject\n\t\tnumber: $number\n\t\tsuffix: $suffix\n\t\tsection: $section\n\t\tstartTerm: $startTerm\n\t\tendTerm: $startTerm\n\t\tstartYear: $startYear\n\t\tendYear: $startYear\n\t\t) {\n\t\t\tcourse {\n\t\t\t\tsubject\n\t\t\t\tnumber\n\t\t\t\tsuffix\n\t\t\t\ttitle\n\t\t\t}\n\t\t\tcourse_section\n\t\t\tterm {\n\t\t\t\tcode\n\t\t\t\tdescription\n\t\t\t}\n\t\t\ttotal_students\n\t\t\ttotal_credit_hours\n\t\t\tcredit_hour\n\t\t\tclass_gpa\n\t\t\tmidterm_average\n\t\t\tfinal_average\n\t\t\tstudents {\n\t\t\t\tfirst_name\n\t\t\t\t\tlast_name\n\t\t\t\t\tmiddle_name\n\t\t\t\t\tsuffix\n\t\t\t\t\temail\n\t\t\t\t\tmnumber\n\t\t\t\t\tprograms {\n\t\t\t\t\t\tprogram {\n\t\t\t\t\t\t\tcode\n\t\t\t\t\t\t\tdescription\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t}\n\t\t\t}\n\t\t}\n\t}\n"): typeof import('./graphql').RosterQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n\tquery rosterInfoCardQuery {\n\t\tgetCurrentYearTerm {\n\t\t\tyear\n\t\t\tterm\n\t\t\tterm_code\n\t\t}\n\t}\n"): typeof import('./graphql').RosterInfoCardQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query searchDepartmentsQuery($query: String!) {\n    searchDepartments(query: $query) {\n      code\n      description\n    }\n  }\n"): typeof import('./graphql').SearchDepartmentsQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query searchCoursesQuery($query: String!) {\n    searchCourses(query: $query) {\n      subject\n      number\n      suffix\n      title\n      hours\n      last_updated\n      department_code\n      college_code\n    }\n  }\n"): typeof import('./graphql').SearchCoursesQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query searchProgramsQuery($query: String!) {\n    searchPrograms(query: $query) {\n      code\n      description\n      cip_code\n      is_major\n      is_minor\n      has_concentration\n      is_discontinued\n      is_aacsb\n      department_code\n      college_code\n      last_updated\n      department { description }\n    }\n  }\n"): typeof import('./graphql').SearchProgramsQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught(\n        startTerm: $term\n        startYear: $year\n        endTerm: $term\n        endYear: $year\n      ) {\n        course {\n          title\n        }\n\t\tcourse_subject\n\t\tcourse_number\n\t\tcourse_suffix\n        course_section\n        total_students\n        total_credit_hours\n        credit_hour\n      }\n    }\n  }\n"): typeof import('./graphql').CourseSelectorQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query termSelectorQuery($mnumber: String!) {\n    facultySingle(where: { mnumber: { eq: $mnumber } }) {\n      courses_taught {\n        year\n        term {\n          description\n          code\n        }\n        total_students\n\t\ttotal_credit_hours\n      }\n    }\n  }\n"): typeof import('./graphql').TermSelectorQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n    query studentDetailGetCurrentTermQuery {\n        getCurrentYearTerm {\n            year\n            term\n            term_code\n        }\n    }\n"): typeof import('./graphql').StudentDetailGetCurrentTermQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\nquery studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {\n  studentsSingle(where: { mnumber: { eq: $mnumber } }) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    gender\n    cell_phone\n    race\n    residency\n    citizenship\n    mnumber\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code\n      academic_standing {\n        code\n        description\n      }\n      admit_term {\n        code\n        description\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n      }\n      year\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n        }\n      }\n    }\n    programs {\n      term {\n        code\n        description\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n      }\n    }\n  }\n}\n"): typeof import('./graphql').StudentDetailQueryDocument;
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query studentLookupQuery(\n    $filters: StudentLookupInput!\n    $offset: Int!\n    $limit: Int!\n  ) {\n    lookupStudents(filters: $filters, offset: $offset, limit: $limit) {\n      students {\n        mnumber\n        first_name\n        last_name\n        email\n      }\n      totalCount\n    }\n  }\n"): typeof import('./graphql').StudentLookupQueryDocument;
+
+
+export function graphql(source: string) {
+  return (documents as any)[source] ?? {};
+}

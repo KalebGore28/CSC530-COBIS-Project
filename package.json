@@ -48,6 +48,7 @@
     "dotenv": "^17.2.3",
     "drizzle-graphql": "^0.8.5",
     "drizzle-orm": "^0.44.6",
+    "graphql-request": "^7.2.0",
     "lodash-es": "^4.17.21",
     "lucide-react": "^0.544.0",
     "mysql2": "^3.15.2",
@@ -65,6 +66,9 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
+    "@0no-co/graphqlsp": "^1.15.0",
+    "@graphql-codegen/cli": "^6.0.0",
+    "@parcel/watcher": "^2.5.1",
     "@tanstack/eslint-config": "^0.3.0",
     "@tanstack/eslint-plugin-query": "^5.91.0",
     "@testing-library/dom": "^10.4.0",
