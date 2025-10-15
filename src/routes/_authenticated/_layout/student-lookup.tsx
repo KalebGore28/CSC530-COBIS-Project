@@ -88,7 +88,6 @@ const makePreHeader = (filters: FilterState): string[] => {
   return lines;
 };
 
-
 function StudentLookup() {
   const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
   const [offset, setOffset] = useState(0);
@@ -159,7 +158,6 @@ function StudentLookup() {
 
   const handleExportClick = () => {
     if (!data?.lookupStudents?.students || data.lookupStudents.students.length === 0) {
-      console.warn("No students available to export");
       return;
     }
     exportToCSV<any>([...data.lookupStudents.students], {
