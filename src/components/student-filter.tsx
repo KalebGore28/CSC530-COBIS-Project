@@ -25,13 +25,14 @@ type OperatorKey = keyof typeof ComparisonOperator;
 
 export interface FilterState {
 	academicLevels?: string[];
-	gpaRange?: [number, number];
-	programFilter?: {
+	gpaMax?: number;
+	gpaMin?: number;
+	program?: {
 		code: string;
 		is_major?: boolean;
 		is_minor?: boolean;
 	};
-	courseFilter?: {
+	course?: {
 		course_id: string;
 		taken: boolean;
 		operator?: OperatorKey;
@@ -56,9 +57,10 @@ export const StudentFilters = ({
 	// academic & GPA
 	const [filters, setFilters] = useState<FilterState>({
 		academicLevels: [],
-		gpaRange: [0, 4.0],
-		programFilter: undefined,
-		courseFilter: undefined,
+		gpaMax: 4.0,
+		gpaMin: 0,
+		program: undefined,
+		course: undefined,
 	});
 
 	// Academic Level
@@ -74,7 +76,8 @@ export const StudentFilters = ({
 	const setGpa = (vals: number[]) =>
 		setFilters((f) => ({
 			...f,
-			gpaRange: [vals[0], vals[1]] as [number, number],
+			gpaMin: vals[0],
+			gpaMax: vals[1],
 		}));
 
 	// Program functions
@@ -82,7 +85,7 @@ export const StudentFilters = ({
 		if (!p) return;
 		setFilters((f) => ({
 			...f,
-			programFilter: {
+			program: {
 				code: p.code,
 				is_major: p.is_major,
 				is_minor: p.is_minor,
@@ -96,7 +99,7 @@ export const StudentFilters = ({
 		const key = courseKey(c);
 		setFilters((f) => ({
 			...f,
-			courseFilter: {
+			course: {
 				course_id: key,
 				taken: !!c.taken,
 				operator: c.operator as OperatorKey,
@@ -136,7 +139,7 @@ export const StudentFilters = ({
 						<span className="text-md font-semibold">GPA Range</span>
 						<div className="flex flex-col gap-2">
 							<Slider
-								value={filters.gpaRange ? [filters.gpaRange[0], filters.gpaRange[1]] : [0, 4.0]}
+								value={[filters.gpaMin ?? 0, filters.gpaMax ?? 4.0]}
 								onValueChange={setGpa}
 								step={0.1}
 								min={0}
@@ -144,8 +147,8 @@ export const StudentFilters = ({
 								className="w-full"
 							/>
 							<div className="flex justify-between text-sm font-medium text-muted-foreground">
-								<span>{(filters.gpaRange?.[0] ?? 0).toFixed(1)}</span>
-								<span>{(filters.gpaRange?.[1] ?? 4.0).toFixed(1)}</span>
+								<span>{(filters.gpaMin ?? 0).toFixed(1)}</span>
+								<span>{(filters.gpaMax ?? 4.0).toFixed(1)}</span>
 							</div>
 						</div>
 					</div>
@@ -169,9 +172,10 @@ export const StudentFilters = ({
 							onClick={() => {
 								setFilters({
 									academicLevels: [],
-									gpaRange: [0, 4.0],
-									programFilter: undefined,
-									courseFilter: undefined,
+									gpaMax: 4.0,
+									gpaMin: 0,
+									program: undefined,
+									course: undefined,
 								});
 								onResetFilters();
 							}}
