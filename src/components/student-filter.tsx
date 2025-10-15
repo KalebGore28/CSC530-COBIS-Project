@@ -82,20 +82,32 @@ export const StudentFilters = ({
 
 	// Program functions
 	const setProgram = (p: ExtendedProgramSearch | null) => {
-		if (!p) return;
+		if (!p) {
+			setFilters((f) => ({
+				...f,
+				program: undefined,
+			}));
+			return;
+		}
 		setFilters((f) => ({
 			...f,
 			program: {
 				code: p.code,
-				is_major: p.is_major,
-				is_minor: p.is_minor,
+				is_major: p.selectedAs === "major",
+				is_minor: p.selectedAs === "minor",
 			},
 		}));
 	}
 
 	// Course functions
 	const setCourse = (c: ExtendedCourseSearch | null) => {
-		if (!c) return;
+		if (!c) {
+			setFilters((f) => ({
+				...f,
+				course: undefined,
+			}));
+			return;
+		}
 		const key = courseKey(c);
 		setFilters((f) => ({
 			...f,

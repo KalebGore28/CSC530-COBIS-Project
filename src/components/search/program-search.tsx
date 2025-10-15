@@ -93,6 +93,7 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                         onClick={() => {
                             setSelected(null);
                             setQuery("");
+                            onSelectChange && onSelectChange(null);
                         }}
                     >
                         Remove
@@ -106,10 +107,29 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                             <Checkbox
                                 id="major"
                                 checked={isMajor}
+                                disabled={!selected.is_minor} // disable if only major available
                                 onCheckedChange={(checked) => {
-                                    // Only allow one checked at a time
-                                    setIsMajor(!!checked);
-                                    setIsMinor(!checked);
+                                    const nextMajor = !!checked;
+
+                                    // Only toggle if both flags exist
+                                    if (selected.is_minor) {
+                                        setIsMajor(nextMajor);
+                                        setIsMinor(!nextMajor);
+                                        onSelectChange?.({
+                                            ...selected,
+                                            selectedAs: nextMajor
+                                                ? "major"
+                                                : "minor",
+                                        });
+                                    } else {
+                                        // If only major exists, force it true + disabled
+                                        setIsMajor(true);
+                                        setIsMinor(false);
+                                        onSelectChange?.({
+                                            ...selected,
+                                            selectedAs: "major",
+                                        });
+                                    }
                                 }}
                             />
                             <Label htmlFor="major" className="text-sm">
@@ -123,9 +143,29 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                             <Checkbox
                                 id="minor"
                                 checked={isMinor}
+                                disabled={!selected.is_major} // disable if only minor available
                                 onCheckedChange={(checked) => {
-                                    setIsMinor(!!checked);
-                                    setIsMajor(!checked);
+                                    const nextMinor = !!checked;
+
+                                    // Only toggle if both flags exist
+                                    if (selected.is_major) {
+                                        setIsMinor(nextMinor);
+                                        setIsMajor(!nextMinor);
+                                        onSelectChange?.({
+                                            ...selected,
+                                            selectedAs: nextMinor
+                                                ? "minor"
+                                                : "major",
+                                        });
+                                    } else {
+                                        // If only minor exists, force it true + disabled
+                                        setIsMinor(true);
+                                        setIsMajor(false);
+                                        onSelectChange?.({
+                                            ...selected,
+                                            selectedAs: "minor",
+                                        });
+                                    }
                                 }}
                             />
                             <Label htmlFor="minor" className="text-sm">

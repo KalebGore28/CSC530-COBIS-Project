@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { StudentFilters, FilterState } from "@/components/student-filter";
 import { PaginatedTable, PaginatedTableSkeleton } from "@/components/common/paginated-table";
@@ -92,8 +92,10 @@ function StudentLookup() {
   const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
   const [offset, setOffset] = useState(0);
 
+  const stableFilterKey = useMemo(() => JSON.stringify(currentFilters ?? {}), [currentFilters]);
+
   const { data, isLoading } = useQuery({
-    queryKey: ['studentLookupQuery', currentFilters, offset],
+    queryKey: ['studentLookupQuery', stableFilterKey, offset],
     queryFn: async () => execute(StudentLookupQuery, {
       filters: currentFilters || {
         academicLevels: [],
@@ -105,7 +107,7 @@ function StudentLookup() {
       offset: offset,
       limit: 10,
     }),
-    enabled: !!currentFilters, // only run query if filters are set
+    enabled: !!currentFilters,
   });
 
   // If no filters applied, show prompt to apply filters
@@ -113,7 +115,9 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
+          setOffset(0);
           setCurrentFilters(filters);
+          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}
@@ -129,7 +133,9 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
+          setOffset(0);
           setCurrentFilters(filters);
+          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}
@@ -144,7 +150,9 @@ function StudentLookup() {
       <div className="p-6">
         <StudentFilters
           onApplyFilters={(filters) => {
+            setOffset(0);
             setCurrentFilters(filters);
+            console.log(filters);
           }}
           onResetFilters={() => setCurrentFilters(null)}
           isLoading={isLoading}
@@ -172,7 +180,9 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
+          setOffset(0);
           setCurrentFilters(filters);
+          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}

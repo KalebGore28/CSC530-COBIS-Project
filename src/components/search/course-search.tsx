@@ -104,6 +104,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                             setTaken(false);
                             setOperator("=");
                             setGrade("");
+                            onSelectChange && onSelectChange(null);
                         }}
                     >
                         Remove
@@ -117,7 +118,15 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         <span className="text-sm font-medium">Taken:</span>
                         <Tabs
                             value={taken ? "yes" : "no"}
-                            onValueChange={(val) => setTaken(val === "yes")}
+                            onValueChange={(val) => {
+                                setTaken(val === "yes")
+                                onSelectChange && onSelectChange({
+                                    ...selected,
+                                    taken: val === "yes",
+                                    operator: operatorKey[operator],
+                                    grade
+                                });
+                            }}
                             className="bg-background border rounded-md"
                         >
                             <TabsList className="grid grid-cols-2">
@@ -136,7 +145,15 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         <div className="flex flex-col sm:flex-row gap-3">
                             {/* Comparison selector */}
                             <div className="flex-1">
-                                <Select value={operator} onValueChange={(val) => setOperator(val as Operator)}>
+                                <Select value={operator} onValueChange={(val) => {
+                                    setOperator(val as Operator)
+                                    onSelectChange && onSelectChange({
+                                        ...selected,
+                                        taken,
+                                        operator: operatorKey[val as Operator],
+                                        grade
+                                    });
+                                }}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select comparison" />
                                     </SelectTrigger>
@@ -150,7 +167,15 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
 
                             {/* Grade selector */}
                             <div className="flex-1">
-                                <Select value={grade} onValueChange={setGrade}>
+                                <Select value={grade} onValueChange={(val) => {
+                                    setGrade(val);
+                                    onSelectChange && onSelectChange({
+                                        ...selected,
+                                        taken,
+                                        operator: operatorKey[operator],
+                                        grade: val
+                                    });
+                                }}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select grade" />
                                     </SelectTrigger>
