@@ -1,11 +1,36 @@
-import { useState, useEffect, Suspense, useMemo } from "react";
-import { useDepartmentSearch, useDepartmentResults } from "."
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { debounce } from "lodash-es";
+import { Skeleton } from "@/components/ui/skeleton";
 import { departments } from "@/db/schema";
+import fuzzysort from "fuzzysort";
 
 type Department = typeof departments.$inferSelect;
+
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
+
+export const GetDepartmentsQuery = graphql(`
+    query getDepartmentsQuery {
+        departments {
+            code
+            description
+            college_code
+        }
+    }
+`)
+
+export function findDepartmentMatchFuzzy(input: string, departments: Department[]): Department[] {
+    const results = fuzzysort.go(input, departments, {
+        keys: ["description", (d) => d.code],
+        threshold: -1000,
+        limit: 10,
+    });
+    return results.map(result => result.obj);
+}
+
 
 interface DepartmentSearchBoxProps {
     /** Called whenever the selected department changes */
@@ -13,29 +38,22 @@ interface DepartmentSearchBoxProps {
 }
 export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps) {
     const [query, setQuery] = useState("");
+    const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
     const [selected, setSelected] = useState<Department | null>(null);
-    const { queryRef, loadQuery } = useDepartmentSearch();
 
-    // Debounce GraphQL search
-    const debouncedSearch = useMemo(
-        () =>
-            debounce((value: string) => {
-                if (value.trim().length > 1) loadQuery({ query: value });
-            }, 300),
-        [loadQuery]
-    );
+    const { data, isLoading } = useQuery({
+        queryKey: ['getDepartments'],
+        queryFn: () => execute(GetDepartmentsQuery),
+    });
 
-    useEffect(() => {
-        debouncedSearch(query);
-        return () => debouncedSearch.cancel();
-    }, [query, debouncedSearch]);
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
-    // Notify parent whenever selection changes
-    useEffect(() => {
-        return onSelectChange?.(selected);
-    }, [selected, onSelectChange]);
+    const departments: Department[] = (data?.departments ?? []).map(dept => ({
+        code: dept.code,
+        description: dept.description,
+        college_code: dept.college_code ?? null,
+    }));
 
-    // If a department is selected, stop showing search results
     if (selected) {
         return (
             <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2 bg-muted/30">
@@ -47,6 +65,7 @@ export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps
                     size="sm"
                     onClick={() => {
                         setSelected(null);
+                        setFilteredDepartments([]);
                         setQuery("");
                     }}
                 >
@@ -61,46 +80,37 @@ export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps
             <Input
                 placeholder="Search departments..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    const results = findDepartmentMatchFuzzy(e.target.value, departments);
+                    setFilteredDepartments(results);
+                }}
             />
-            <Suspense fallback={<p className="text-sm text-gray-500">Loading results...</p>}>
-                {query.trim().length > 1 && queryRef && (
-                    <Suspense fallback={<p className="text-sm text-gray-500">Loading results...</p>}>
-                        <DepartmentResults
-                            queryRef={queryRef}
-                            onSelect={(dept) => {
-                                setSelected({
-                                    code: dept.code,
-                                    description: dept.description,
-                                    college_code: dept.college_code ?? null,
-                                });
-                                setQuery("");
-                            }}
-                        />
-                    </Suspense>
-                )}
-            </Suspense>
+            <DepartmentResults
+                filteredDepartments={filteredDepartments}
+                onSelect={(dept) => {
+                    setSelected(dept);
+                    onSelectChange && onSelectChange(dept);
+                    setFilteredDepartments([]);
+                    setQuery("");
+                }}
+            />
         </div>
     );
 }
 
 function DepartmentResults({
-    queryRef,
+    filteredDepartments,
     onSelect,
 }: {
-    queryRef: any;
+    filteredDepartments: Department[];
     onSelect: (dept: Department) => void;
 }) {
-    const data = useDepartmentResults(queryRef);
-    const results = data?.searchDepartments ?? [];
-
-    if (results.length === 0) {
-        return <p className="text-sm text-gray-500">No results found.</p>;
-    }
+    if (filteredDepartments.length === 0) return null;
 
     return (
         <ul className="border rounded-md divide-y">
-            {results.map((dept) =>
+            {filteredDepartments.map((dept) =>
                 dept ? (
                     <li
                         key={dept.code}

@@ -1,13 +1,43 @@
-import { useState, useEffect, Suspense, useMemo } from "react";
-import { useCourseSearch, useCourseResults } from ".";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { debounce } from "lodash-es";
+import { Skeleton } from "@/components/ui/skeleton";
 import { courses } from "@/db/schema";
+import fuzzysort from "fuzzysort";
 
 type Course = typeof courses.$inferSelect;
+
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
+
+
+export const GetCoursesQuery = graphql(`
+  query getCoursesQuery {
+    courses {
+        subject
+        number
+        suffix
+        title
+        hours
+        last_updated
+        department_code
+        college_code
+    }
+  }
+`);
+
+export function findCourseMatchFuzzy(input: string, courses: Course[]): Course[] {
+    const results = fuzzysort.go(input, courses, {
+        keys: ["title", (c) => `${c.subject}${c.number}${c.suffix ?? ""}`],
+        threshold: -1000,
+        limit: 10,
+    });
+    return results.map(result => result.obj);
+}
 
 export type ExtendedCourseSearch = Course & {
     taken?: boolean;
@@ -21,46 +51,37 @@ interface CourseSearchBoxProps {
 }
 
 export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
-    const operationKey = {
+    const operatorKey = {
         "=": "EQ",
         ">=": "GTE",
         "<=": "LTE",
     }
+    type Operator = "=" | ">=" | "<=";
     const [query, setQuery] = useState("");
+    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
     const [selected, setSelected] = useState<Course | null>(null);
     const [taken, setTaken] = useState(false);
-    const [operator, setOperator] = useState("=");
+    const [operator, setOperator] = useState<Operator>("=");
     const [grade, setGrade] = useState("A");
 
-    const { queryRef, loadQuery } = useCourseSearch();
+    const { data, isLoading } = useQuery({
+        queryKey: ['getCourses'],
+        queryFn: () => execute(GetCoursesQuery),
+    });
 
-    const debouncedSearch = useMemo(
-        () =>
-            debounce((value: string) => {
-                if (value.trim().length > 1) loadQuery({ query: value });
-            }, 300),
-        [loadQuery]
-    );
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
-    useEffect(() => {
-        debouncedSearch(query);
-        return () => debouncedSearch.cancel();
-    }, [query, debouncedSearch]);
+    const courses: Course[] = (data?.courses ?? []).map((course) => ({
+        subject: course.subject,
+        number: course.number,
+        suffix: course.suffix,
+        title: course.title,
+        hours: course.hours,
+        last_updated: course.last_updated ? new Date(course.last_updated) : new Date(),
+        department_code: course.department_code ?? null,
+        college_code: course.college_code ?? null,
+    }));
 
-    // Notify parent whenever selection or filters change
-    useEffect(() => {
-        if (!selected) return onSelectChange?.(null);
-        onSelectChange?.({
-            ...selected,
-            taken,
-            operator: operationKey[operator as keyof typeof operationKey],
-            grade,
-        });
-    }, [selected, taken, operator, grade]);
-
-    //
-    // When a course has been selected
-    //
     if (selected) {
         return (
             <div className="flex flex-col gap-3 border rounded-md p-3 bg-muted/30">
@@ -78,6 +99,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         size="sm"
                         onClick={() => {
                             setSelected(null);
+                            setFilteredCourses([]);
                             setQuery("");
                             setTaken(false);
                             setOperator("=");
@@ -114,7 +136,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         <div className="flex flex-col sm:flex-row gap-3">
                             {/* Comparison selector */}
                             <div className="flex-1">
-                                <Select value={operator} onValueChange={setOperator}>
+                                <Select value={operator} onValueChange={(val) => setOperator(val as Operator)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select comparison" />
                                     </SelectTrigger>
@@ -137,7 +159,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                                         <SelectItem value="B">B</SelectItem>
                                         <SelectItem value="C">C</SelectItem>
                                         <SelectItem value="D">D</SelectItem>
-                                        <SelectItem value="F">F</SelectItem>
+                                        <SelectItem value="E">E</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -148,72 +170,55 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
         );
     }
 
-    //
-    // Default search box state
-    //
     return (
         <div className="space-y-2">
             <Input
                 placeholder="Search courses..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    const results = findCourseMatchFuzzy(e.target.value, courses);
+                    setFilteredCourses(results);
+                }}
             />
-            <Suspense fallback={<p className="text-sm text-gray-500">Loading results...</p>}>
-                {query.trim().length > 1 && queryRef && (
-                    <CourseResults
-                        queryRef={queryRef}
-                        onSelect={(course) => {
-                            setSelected({
-                                subject: course.subject,
-                                number: course.number,
-                                suffix: course.suffix,
-                                title: course.title,
-                                hours: course.hours,
-                                last_updated: course.last_updated ? new Date(course.last_updated) : new Date(),
-                                department_code: course.department_code ?? null,
-                                college_code: course.college_code ?? null,
-                            });
-                            setQuery("");
-                        }}
-                    />
-                )}
-            </Suspense>
+            <CourseResults
+                filteredCourses={filteredCourses}
+                onSelect={(course) => {
+                    setSelected(course);
+                    onSelectChange && onSelectChange({
+                        ...course,
+                        taken,
+                        operator: operatorKey[operator],
+                        grade
+                    });
+                    setFilteredCourses([]);
+                    setQuery("");
+                }}
+            />
         </div>
     );
 }
 
 function CourseResults({
-    queryRef,
+    filteredCourses,
     onSelect,
 }: {
-    queryRef: any;
+    filteredCourses: Course[];
     onSelect: (course: Course) => void;
 }) {
-    const data = useCourseResults(queryRef);
-    const results = data?.searchCourses ?? [];
-
-    if (results.length === 0) {
-        return <p className="text-sm text-gray-500">No results found.</p>;
-    }
+    if (filteredCourses.length === 0) return null;
 
     return (
         <ul className="border rounded-md divide-y">
-            {results.map(
+            {filteredCourses.map(
                 (course) =>
                     course && (
                         <li
                             key={`${course.subject}-${course.number}${course.suffix ? `-${course.suffix}` : ""}`}
                             className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                            onClick={() => onSelect({
-                                subject: course.subject,
-                                number: course.number,
-                                suffix: course.suffix,
-                                title: course.title,
-                                hours: course.hours,
-                                last_updated: course.last_updated ? new Date(course.last_updated) : new Date(),
-                                department_code: course.department_code ?? null,
-                                college_code: course.college_code ?? null,
-                            })}
+                            onClick={() => {
+                                onSelect(course);
+                            }}
                         >
                             <strong>
                                 {course.subject} {course.number}

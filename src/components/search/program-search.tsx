@@ -1,14 +1,46 @@
-import { useState, useEffect, Suspense, useMemo } from "react";
-import { useProgramSearch, useProgramResults } from ".";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { debounce } from "lodash-es";
+import { Skeleton } from "@/components/ui/skeleton";
 import { programs } from "@/db/schema";
+import fuzzysort from "fuzzysort";
 
 type Program = typeof programs.$inferSelect;
+
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
+
+export const GetProgramsQuery = graphql(`
+    query getProgramsQuery {
+        programs {
+            code
+            description
+            cip_code
+            is_major
+            is_minor
+            has_concentration
+            is_discontinued
+            is_aacsb
+            department_code
+            college_code
+            last_updated
+        }
+    }
+`)
+
+export function findProgramMatchFuzzy(input: string, programs: Program[]): Program[] {
+    const results = fuzzysort.go(input, programs, {
+        keys: ["description", (p) => p.code],
+        threshold: -1000,
+        limit: 10,
+    });
+    return results.map(result => result.obj);
+}
 
 export type ExtendedProgramSearch = Program & {
     selectedAs?: "major" | "minor" | null;
@@ -22,38 +54,31 @@ interface ProgramSearchBoxProps {
 
 export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
     const [query, setQuery] = useState("");
+    const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
     const [selected, setSelected] = useState<Program | null>(null);
-    const { queryRef, loadQuery } = useProgramSearch();
     const [isMajor, setIsMajor] = useState(true);
     const [isMinor, setIsMinor] = useState(false);
 
-    // Debounce GraphQL search
-    const debouncedSearch = useMemo(
-        () =>
-            debounce((value: string) => {
-                if (value.trim().length > 1) loadQuery({ query: value });
-            }, 300),
-        [loadQuery]
-    );
+    const { data, isLoading } = useQuery({
+        queryKey: ['getPrograms'],
+        queryFn: () => execute(GetProgramsQuery),
+    });
 
-    useEffect(() => {
-        debouncedSearch(query);
-        return () => debouncedSearch.cancel();
-    }, [query, debouncedSearch]);
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
-    // Notify parent whenever selection changes
-    useEffect(() => {
-        if (onSelectChange) {
-            if (selected) {
-                onSelectChange({
-                    ...selected,
-                    selectedAs: isMajor ? "major" : isMinor ? "minor" : null,
-                });
-            } else {
-                onSelectChange(null);
-            }
-        }
-    }, [selected, isMajor, isMinor]);
+    const programs: Program[] = (data?.programs ?? []).map(prog => ({
+        code: prog.code,
+        description: prog.description,
+        cip_code: prog.cip_code ?? null,
+        is_major: prog.is_major,
+        is_minor: prog.is_minor,
+        has_concentration: prog.has_concentration,
+        is_discontinued: prog.is_discontinued,
+        is_aacsb: prog.is_aacsb,
+        department_code: prog.department_code ?? null,
+        college_code: prog.college_code ?? null,
+        last_updated: prog.last_updated ? new Date(prog.last_updated) : new Date(),
+    }));
 
     if (selected) {
         return (
@@ -119,75 +144,51 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
             <Input
                 placeholder="Search programs..."
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => {
+                    setQuery(e.target.value);
+                    const results = findProgramMatchFuzzy(e.target.value, programs);
+                    setFilteredPrograms(results);
+                }}
             />
-            <Suspense fallback={<p className="text-sm text-gray-500">Loading results...</p>}>
-                {query.trim().length > 1 && queryRef && (
-                    <ProgramResults
-                        queryRef={queryRef}
-                        onSelect={(prog) => {
-                            setSelected({
-                                code: prog.code,
-                                description: prog.description,
-                                cip_code: prog.cip_code,
-                                is_major: prog.is_major,
-                                is_minor: prog.is_minor,
-                                has_concentration: prog.has_concentration,
-                                is_discontinued: prog.is_discontinued,
-                                is_aacsb: prog.is_aacsb,
-                                department_code: prog.department_code,
-                                college_code: prog.college_code ?? null,
-                                last_updated: prog.last_updated,
-                            });
-                            setQuery("");
-                        }}
-                    />
-                )}
-            </Suspense>
+            <ProgramResults
+                filteredPrograms={filteredPrograms}
+                onSelect={(prog) => {
+                    setSelected(prog);
+                    onSelectChange && onSelectChange({
+                        ...prog,
+                        selectedAs: isMajor ? "major" : isMinor ? "minor" : null,
+                    });
+                    setFilteredPrograms([]);
+                    setQuery("");
+                }}
+            />
         </div>
     );
 }
 
 function ProgramResults({
-    queryRef,
+    filteredPrograms,
     onSelect,
 }: {
-    queryRef: any;
+    filteredPrograms: Program[];
     onSelect: (prog: Program) => void;
 }) {
-    const data = useProgramResults(queryRef);
-    const results = data?.searchPrograms ?? [];
-
-    if (results.length === 0) {
-        return <p className="text-sm text-gray-500">No results found.</p>;
-    }
+    if (filteredPrograms.length === 0) return null;
 
     return (
         <ul className="border rounded-md divide-y">
-            {results.map((prog) =>
+            {filteredPrograms.map((prog) =>
                 prog ? (
                     <li
                         key={prog.code}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() =>
-                            onSelect({
-                                code: prog.code,
-                                description: prog.description,
-                                cip_code: prog.cip_code ?? null,
-                                is_major: prog.is_major,
-                                is_minor: prog.is_minor,
-                                has_concentration: prog.has_concentration,
-                                is_discontinued: prog.is_discontinued,
-                                is_aacsb: prog.is_aacsb,
-                                department_code: prog.department_code ?? null,
-                                college_code: prog.college_code ?? null,
-                                last_updated: prog.last_updated ? new Date(prog.last_updated) : new Date(),
-                            })
+                            onSelect(prog)
                         }
                     >
                         <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
 
-                            <strong>{prog.code}</strong> — {prog.description}
+                            <strong>{prog.code}</strong>{prog.description}
                             <div className="space-x-2">
                                 {prog.is_major && (
                                     <Badge

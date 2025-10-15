@@ -9332,26 +9332,20 @@ export type GetCurrentYearTermQueryQueryVariables = Exact<{ [key: string]: never
 
 export type GetCurrentYearTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null, term_code?: string | null } | null };
 
-export type SearchDepartmentsQueryQueryVariables = Exact<{
-  query: Scalars['String']['input'];
-}>;
+export type GetCoursesQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SearchDepartmentsQueryQuery = { __typename?: 'Query', searchDepartments?: Array<{ __typename?: 'Department', code: string, description: string } | null> | null };
+export type GetCoursesQueryQuery = { __typename?: 'Query', courses: Array<{ __typename?: 'CoursesSelectItem', subject: string, number: number, suffix: string, title: string, hours: number, last_updated: string, department_code?: string | null, college_code?: string | null }> };
 
-export type SearchCoursesQueryQueryVariables = Exact<{
-  query: Scalars['String']['input'];
-}>;
+export type GetDepartmentsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SearchCoursesQueryQuery = { __typename?: 'Query', searchCourses?: Array<{ __typename?: 'Course', subject: string, number: number, suffix: string, title: string, hours: number, last_updated?: string | null, department_code?: string | null, college_code?: string | null } | null> | null };
+export type GetDepartmentsQueryQuery = { __typename?: 'Query', departments: Array<{ __typename?: 'DepartmentsSelectItem', code: string, description: string, college_code?: string | null }> };
 
-export type SearchProgramsQueryQueryVariables = Exact<{
-  query: Scalars['String']['input'];
-}>;
+export type GetProgramsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SearchProgramsQueryQuery = { __typename?: 'Query', searchPrograms?: Array<{ __typename?: 'Program', code: string, description: string, cip_code?: string | null, is_major: boolean, is_minor: boolean, has_concentration: boolean, is_discontinued: boolean, is_aacsb: boolean, department_code?: string | null, college_code?: string | null, last_updated?: string | null, department?: { __typename?: 'ProgramDepartment', description: string } | null } | null> | null };
+export type GetProgramsQueryQuery = { __typename?: 'Query', programs: Array<{ __typename?: 'ProgramsSelectItem', code: string, description: string, cip_code?: string | null, is_major: boolean, is_minor: boolean, has_concentration: boolean, is_discontinued: boolean, is_aacsb: boolean, department_code?: string | null, college_code?: string | null, last_updated: string }> };
 
 export type CourseSelectorQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
@@ -9507,17 +9501,9 @@ export const GetCurrentYearTermQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetCurrentYearTermQueryQuery, GetCurrentYearTermQueryQueryVariables>;
-export const SearchDepartmentsQueryDocument = new TypedDocumentString(`
-    query searchDepartmentsQuery($query: String!) {
-  searchDepartments(query: $query) {
-    code
-    description
-  }
-}
-    `) as unknown as TypedDocumentString<SearchDepartmentsQueryQuery, SearchDepartmentsQueryQueryVariables>;
-export const SearchCoursesQueryDocument = new TypedDocumentString(`
-    query searchCoursesQuery($query: String!) {
-  searchCourses(query: $query) {
+export const GetCoursesQueryDocument = new TypedDocumentString(`
+    query getCoursesQuery {
+  courses {
     subject
     number
     suffix
@@ -9528,10 +9514,19 @@ export const SearchCoursesQueryDocument = new TypedDocumentString(`
     college_code
   }
 }
-    `) as unknown as TypedDocumentString<SearchCoursesQueryQuery, SearchCoursesQueryQueryVariables>;
-export const SearchProgramsQueryDocument = new TypedDocumentString(`
-    query searchProgramsQuery($query: String!) {
-  searchPrograms(query: $query) {
+    `) as unknown as TypedDocumentString<GetCoursesQueryQuery, GetCoursesQueryQueryVariables>;
+export const GetDepartmentsQueryDocument = new TypedDocumentString(`
+    query getDepartmentsQuery {
+  departments {
+    code
+    description
+    college_code
+  }
+}
+    `) as unknown as TypedDocumentString<GetDepartmentsQueryQuery, GetDepartmentsQueryQueryVariables>;
+export const GetProgramsQueryDocument = new TypedDocumentString(`
+    query getProgramsQuery {
+  programs {
     code
     description
     cip_code
@@ -9543,12 +9538,9 @@ export const SearchProgramsQueryDocument = new TypedDocumentString(`
     department_code
     college_code
     last_updated
-    department {
-      description
-    }
   }
 }
-    `) as unknown as TypedDocumentString<SearchProgramsQueryQuery, SearchProgramsQueryQueryVariables>;
+    `) as unknown as TypedDocumentString<GetProgramsQueryQuery, GetProgramsQueryQueryVariables>;
 export const CourseSelectorQueryDocument = new TypedDocumentString(`
     query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {
   facultySingle(where: {mnumber: {eq: $mnumber}}) {
