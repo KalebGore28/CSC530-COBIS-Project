@@ -9363,11 +9363,6 @@ export type TermSelectorQueryQueryVariables = Exact<{
 
 export type TermSelectorQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', year: number, total_students: number, total_credit_hours: number, term: { __typename?: 'Term', description: string, code: string } } | null> | null } | null };
 
-export type StudentDetailGetCurrentTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type StudentDetailGetCurrentTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null, term_code?: string | null } | null };
-
 export type StudentDetailQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
   term: Scalars['String']['input'];
@@ -9582,15 +9577,6 @@ export const TermSelectorQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<TermSelectorQueryQuery, TermSelectorQueryQueryVariables>;
-export const StudentDetailGetCurrentTermQueryDocument = new TypedDocumentString(`
-    query studentDetailGetCurrentTermQuery {
-  getCurrentYearTerm {
-    year
-    term
-    term_code
-  }
-}
-    `) as unknown as TypedDocumentString<StudentDetailGetCurrentTermQueryQuery, StudentDetailGetCurrentTermQueryQueryVariables>;
 export const StudentDetailQueryDocument = new TypedDocumentString(`
     query studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {
   studentsSingle(where: {mnumber: {eq: $mnumber}}) {

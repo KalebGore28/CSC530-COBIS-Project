@@ -1,4 +1,3 @@
-import React, { Suspense } from 'react';
 import {
     Card,
     CardContent,
@@ -6,7 +5,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
-
 import {
     Table,
     TableBody,
@@ -16,101 +14,99 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
-
-
-// GraphQL imports
-import type { studentDetailGetCurrentTermQuery } from './__generated__/studentDetailGetCurrentTermQuery.graphql';
-import type { studentDetailQuery } from './__generated__/studentDetailQuery.graphql';
-import { graphql, useLazyLoadQuery } from "react-relay";
 import { GPATrendChart } from '@/components/charts/gpa-trend-chart';
 
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
 
-const studentDetailGetCurrentTermQuery = graphql`
-    query studentDetailGetCurrentTermQuery {
-        getCurrentYearTerm {
-            year
-            term
-            term_code
-        }
-    }
-`;
+const getCurrentYearTermQuery = graphql(`
+	query getCurrentYearTermQuery {
+		getCurrentYearTerm {
+			year
+			term
+			term_code
+		}
+	}
+`);
 
-const studentDetailQuery = graphql`
-query studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {
-  studentsSingle(where: { mnumber: { eq: $mnumber } }) {
-    first_name
-    last_name
-    middle_name
-    suffix
-    email
-    birthdate
-    gender
-    cell_phone
-    race
-    residency
-    citizenship
-    mnumber
-    termInfo: academic_info(term: $term, year: $year) {
-      admit_code
-      academic_standing {
-        code
-        description
-      }
-      admit_term {
-        code
-        description
-      }
-      admit_year
-      msu_attempted_hours
-      msu_earned_hours
-      msu_gpa
-      msu_quality_points
-      overall_attempted_hours
-      overall_earned_hours
-      overall_gpa
-      overall_quality_points
-    }
-    gpaTrend: academic_info {
-      msu_gpa
-      overall_gpa
-      term {
-        code
-        description
-      }
-      year
-    }
-    advisors {
-      advisor_mnumber
-      term {
-        code
-        description
-      }
-      year
-      advisor {
+const studentDetailQuery = graphql(`
+    query studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {
+    studentsSingle(where: { mnumber: { eq: $mnumber } }) {
         first_name
         last_name
+        middle_name
+        suffix
+        email
+        birthdate
+        gender
+        cell_phone
+        race
+        residency
+        citizenship
         mnumber
-        user {
-          email
+        termInfo: academic_info(term: $term, year: $year) {
+        admit_code
+        academic_standing {
+            code
+            description
         }
-      }
+        admit_term {
+            code
+            description
+        }
+        admit_year
+        msu_attempted_hours
+        msu_earned_hours
+        msu_gpa
+        msu_quality_points
+        overall_attempted_hours
+        overall_earned_hours
+        overall_gpa
+        overall_quality_points
+        }
+        gpaTrend: academic_info {
+        msu_gpa
+        overall_gpa
+        term {
+            code
+            description
+        }
+        year
+        }
+        advisors {
+        advisor_mnumber
+        term {
+            code
+            description
+        }
+        year
+        advisor {
+            first_name
+            last_name
+            mnumber
+            user {
+            email
+            }
+        }
+        }
+        programs {
+        term {
+            code
+            description
+        }
+        year
+        type
+        level
+        program {
+            code
+            description
+        }
+        }
     }
-    programs {
-      term {
-        code
-        description
-      }
-      year
-      type
-      level
-      program {
-        code
-        description
-      }
     }
-  }
-}
-`;
+`);
 
 // Custom skeleton component for loading state
 const StudentDetailSkeleton = () => {
@@ -140,35 +136,26 @@ interface StudentDetailProps {
     mnumber: string; // The M-Number passed to the component
 }
 
-export const StudentDetail: React.FC<StudentDetailProps> = ({ mnumber }) => {
-    return (
-        <Suspense fallback={<StudentDetailSkeleton />}>
-            <StudentDetailContent mnumber={mnumber} />
-        </Suspense>
-    )
-}
-
-export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) => {
+export function StudentDetail({ mnumber }: StudentDetailProps) {
     // Fetch the current term and year
-    const { getCurrentYearTerm } = useLazyLoadQuery<studentDetailGetCurrentTermQuery>(
-        studentDetailGetCurrentTermQuery,
-        {},
-        { fetchPolicy: "store-or-network" }
-    );
+    const { data: currentYearTermData, isLoading } = useQuery({
+        queryKey: ['getCurrentYearTermQuery'],
+        queryFn: async () => await execute(getCurrentYearTermQuery),
+    });
 
     // Fetch the student details
-    const data = useLazyLoadQuery<studentDetailQuery>(
-        studentDetailQuery,
-        {
+    const { data, isLoading: studentLoading } = useQuery({
+        queryKey: ['studentDetailQuery', mnumber, currentYearTermData?.getCurrentYearTerm?.term, currentYearTermData?.getCurrentYearTerm?.year],
+        queryFn: async () => execute(studentDetailQuery, {
             mnumber,
-            term: getCurrentYearTerm?.term_code ?? '',
-            year: getCurrentYearTerm?.year ?? 0,
-        },
-        { fetchPolicy: "store-or-network" }
-    );
+            term: currentYearTermData?.getCurrentYearTerm?.term || '',
+            year: currentYearTermData?.getCurrentYearTerm?.year || 0,
+        }),
+        enabled: !isLoading && !!currentYearTermData?.getCurrentYearTerm, // Only run this query if the current term data is available
+    });
 
     // Check if the student data is available
-    if (!data.studentsSingle) {
+    if (!data?.studentsSingle) {
         return (
             <div className='flex flex-col gap-4'>
                 <Card className='w-full'>
@@ -290,7 +277,7 @@ export const StudentDetailContent: React.FC<StudentDetailProps> = ({ mnumber }) 
             }
 
             {/* GPA Trend Card */}
-            <GPATrendChart gpaTrend={[...data.studentsSingle.gpaTrend]} />
+            <GPATrendChart gpaTrend={data.studentsSingle.gpaTrend ?? []} />
 
             {/* Programs Card */}
             <Card>

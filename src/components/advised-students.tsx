@@ -235,8 +235,8 @@ export function AdvisedStudentContent({
 				size='5xl'
 			>
 				{selectedStudent?.mnumber && (
-						<StudentDetail mnumber={selectedStudent?.mnumber} />
-					)}
+					<StudentDetail mnumber={selectedStudent?.mnumber} />
+				)}
 			</Modal>}
 		</Card>
 	);
