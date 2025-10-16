@@ -7,7 +7,7 @@ export const instructorCourseTypeExtension = /* GraphQL */ `
   extend type InstructorCoursesSelectItem {
     term: Term!
     course: CoursesSelectItem!
-    students: [StudentsSelectItem!]!
+    students: [StudentCoursesSelectItem!]!
     total_students: Int!
     total_credit_hours: Int!
     credit_hour: Float

@@ -55,6 +55,8 @@ export function createStudentsByCourseLoader(db: DbConnection['orm']) {
 			return acc;
 		}, {});
 
+		console.log('Batched studentsByCourse keys:', keys.length, 'rows:', rows);
+
 		// preserve original key order
 		return keys.map(k => map[k] ?? []);
 	});

@@ -9,6 +9,7 @@ import { type ExtendedCourse, CourseSelector } from "@/components/selectors/cour
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
 import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
+import { RosterStudents } from "@/components/roster/roster-students";
 
 export const Route = createFileRoute('/_authenticated/_layout/class-roster')({
   component: ClassRosterPage,
@@ -63,10 +64,14 @@ function ClassRosterPage() {
               midtermAverage={selectedCourse.midtermAverage}
               finalAverage={selectedCourse.finalAverage}
             />
+            <RosterStudents
+              className={"col-span-2"}
+              mnumber={session.mnumber}
+              course={selectedCourse}
+              term={selectedTerm}
+            />
           </>
         )}
-
-        
       </div>
     </div>
   );

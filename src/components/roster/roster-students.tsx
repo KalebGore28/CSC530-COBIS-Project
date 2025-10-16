@@ -25,9 +25,64 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Download, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
-import type { ExtendedCourse } from "@/components/selectors/course-selector";
 import { exportToCSV } from "@/utils/csv-export";
+import { programs, students } from "@/db/schema";
+import type { ExtendedCourse } from "@/components/selectors/course-selector";
+import type { ExtendedTerm } from "@/components/selectors/course-selector";
+
+type Program = typeof programs.$inferSelect;
+type Student = typeof students.$inferSelect;
+
+// Import GraphQL imports
+import { useQuery } from '@tanstack/react-query';
+import { execute } from '@/graphql/execute';
+import { graphql } from '@/graphql';
+
+
+const rosterStudentsQuery = graphql(`
+	query rosterStudentsQuery(
+	$mnumber: String!
+	$subject: String!
+	$number: Int!
+	$suffix: String!
+	$section: String!
+	) {
+		instructorCoursesSingle(
+			where: {
+			mnumber: { eq: $mnumber }
+			course_subject: { eq: $subject }
+			course_number: { eq: $number }
+			course_suffix: { eq: $suffix }
+			course_section: { eq: $section }
+			}
+		) {
+			term_code
+			year
+			course_subject
+			course_number
+			course_suffix
+			students {
+			student {
+				mnumber
+				first_name
+				middle_name
+				last_name
+				suffix
+				email
+				programs {
+					program {
+						description
+						code
+					}
+				}
+			}
+			
+			}
+		}
+	}
+`);
 
 const getGradeColorClass = (grade: string) => {
 	if (grade === "N/A" || !grade) return "";
@@ -47,9 +102,9 @@ interface RosterProgram
 		| "has_concentration"
 		| "is_discontinued"
 		| "is_aacsb"
-		| "department"
-		| "college"
-		| "added_on"
+		| "department_code"
+		| "college_code"
+		| "last_updated"
 	> { }
 
 export interface RosterStudent
@@ -59,10 +114,8 @@ export interface RosterStudent
 		| "birthdate"
 		| "citizenship"
 		| "race_code"
-		| "race_description"
-		| "residency_code"
-		| "residency_description"
-		| "age"
+		| "race"
+		| "residency"
 		| "cell_phone"
 	> {
 	programs: RosterProgram[];
@@ -71,22 +124,48 @@ export interface RosterStudent
 }
 
 export interface RosterStudentsProps {
-	students: RosterStudent[];
+	mnumber: string;
 	course: ExtendedCourse;
+	term: ExtendedTerm;
 	className?: string;
 }
 
-export const RosterStudents: React.FC<RosterStudentsProps> = ({
-	students,
-	course,
-	className,
-}) => {
+export function RosterStudents({ mnumber, course, term, className }: RosterStudentsProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [gradeFilter, setGradeFilter] = useState("all");
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [sortField, setSortField] = useState<"name" | "midterm" | "final">("name");
 
-	const exportFilename = `${course.subject}${course.number}${course.suffix}-${course.course_section}_${course.term.description}_${course.term.year}`;
+	const exportFilename = `${course.course_subject}${course.course_number}${course.course_suffix}-${course.course_section}_${term.description}_${term.year}`;
+
+	const { data, isLoading } = useQuery({
+		queryKey: ['rosterStudentsQuery', course.course_subject, course.course_number, course.course_suffix, course.course_section],
+		queryFn: async () => await execute(rosterStudentsQuery, {
+			mnumber: mnumber,
+			subject: course.course_subject,
+			number: course.course_number,
+			suffix: course.course_suffix,
+			section: course.course_section,
+		}),
+	});
+
+	if (isLoading) <Skeleton className="h-10 w-full" />;
+
+	if (!data || !data.instructorCoursesSingle) return <div>No data available.</div>;
+
+	// Map the data to RosterStudent format
+	const students: RosterStudent[] = data.instructorCoursesSingle.students.map((sc) => ({
+		mnumber: sc.student.mnumber,
+		first_name: sc.student.first_name,
+		middle_name: sc.student.middle_name || null,
+		last_name: sc.student.last_name,
+		suffix: sc.student.suffix || null,
+		email: sc.student.email || null,
+		programs: sc.student.programs
+			?.filter((p): p is NonNullable<typeof sc.student.programs[number]> => p != null)
+			.map((p) => p.program) ?? [],
+	}));
+
 
 	// Filter and sort students
 	const filteredStudents = students
@@ -94,7 +173,7 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 			const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
 			const matchesSearch = fullName.includes(searchQuery.toLowerCase()) ||
 				student.mnumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-				student.email.toLowerCase().includes(searchQuery.toLowerCase());
+				student.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
 			const matchesGrade = gradeFilter === "all" ||
 				student.final_grade?.startsWith(gradeFilter) ||
@@ -264,10 +343,10 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 											<TableCell>{student.mnumber}</TableCell>
 											<TableCell>
 												<a
-													href={`mailto:${student.email.toLowerCase()}`}
+													href={`mailto:${student.email?.toLowerCase()}`}
 													className="hover:underline"
 												>
-													{student.email.toLowerCase()}
+													{student.email?.toLowerCase()}
 												</a>
 											</TableCell>
 											<TableCell>
@@ -317,10 +396,10 @@ export const RosterStudents: React.FC<RosterStudentsProps> = ({
 											<div>
 												<span className="font-medium">Email: </span>
 												<a
-													href={`mailto:${student.email.toLowerCase()}`}
+													href={`mailto:${student.email?.toLowerCase()}`}
 													className="hover:underline"
 												>
-													{student.email.toLowerCase()}
+													{student.email?.toLowerCase()}
 												</a>
 											</div>
 											<div>
