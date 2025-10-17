@@ -40,7 +40,7 @@
     "plugins": [
       {
         "name": "@0no-co/graphqlsp",
-        "schema": "./src/db/schema.graphql"
+        "schema": "./src/graphql/schema.graphql"
       }
     ]
   }
