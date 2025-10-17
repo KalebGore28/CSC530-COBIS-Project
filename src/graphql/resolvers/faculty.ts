@@ -86,10 +86,8 @@ export const FacultyResolver = {
             );
         }
 
-        // fetch ALL courses for this instructor (cached per request)
         const all = await loaders.instructorCourses.load(fac.mnumber);
 
-        // simple compare helper
         const termYearGE = (
             course: InstructorCourse,
             term: string,

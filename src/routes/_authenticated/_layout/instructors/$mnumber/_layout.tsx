@@ -108,8 +108,8 @@ function RouteComponent() {
                         </Avatar>
                         <div>
                             <h1 className="text-3xl font-bold">{`${instructor.first_name} ${instructor.last_name}`}</h1>
-                            <p className="text-xl text-muted-foreground">{instructor.department?.description}</p>
-                            <p className="text-sm text-muted-foreground">{instructor.college?.description}</p>
+                            <p className="text-sm text-muted-foreground">Department: {instructor.department?.description}</p>
+                            <p className="text-sm text-muted-foreground">College: {instructor.college?.description}</p>
                             <span className="inline-flex items-center text-sm space-x-1">
                                 {instructor.user?.email && (
                                     <a
@@ -125,6 +125,7 @@ function RouteComponent() {
                 </CardContent>
             </Card>
 
+            <div className='w-full flex justify-center'>
             {/* Tabs */}
             <Tabs
                 value={activeTab}
@@ -134,14 +135,15 @@ function RouteComponent() {
                         params: { mnumber },
                     });
                 }}
-                className="w-full"
+                className="bg-background border rounded-md"
             >
                 <TabsList className="grid grid-cols-3">
-                    <TabsTrigger value="current-term">Current Term</TabsTrigger>
-                    <TabsTrigger value="term-history">Teaching History</TabsTrigger>
-                    <TabsTrigger value="grade-distribution">Grade Distributions</TabsTrigger>
+                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="current-term">Current Term</TabsTrigger>
+                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="term-history">Teaching History</TabsTrigger>
+                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="grade-distribution">Grade Distributions</TabsTrigger>
                 </TabsList>
             </Tabs>
+            </div>
 
             {/* Nested routes render here */}
             <Outlet />

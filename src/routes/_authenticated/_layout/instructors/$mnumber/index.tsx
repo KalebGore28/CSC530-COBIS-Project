@@ -10,6 +10,7 @@ export const Route = createFileRoute(
   }
 })
 
+// This component will never be seen due to the redirect in beforeLoad
 function RouteComponent() {
   return <div>Hello "/_authenticated/_layout/instructors/$mnumber/"!</div>
 }

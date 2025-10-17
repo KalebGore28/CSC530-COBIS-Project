@@ -9370,6 +9370,17 @@ export type StudentDetailQueryQueryVariables = Exact<{
 
 export type StudentDetailQueryQuery = { __typename?: 'Query', studentsSingle?: { __typename?: 'StudentsSelectItem', first_name: string, last_name: string, middle_name?: string | null, suffix?: string | null, email?: string | null, birthdate?: string | null, gender?: string | null, cell_phone?: string | null, race?: string | null, residency?: string | null, citizenship?: string | null, mnumber: string, termInfo?: Array<{ __typename?: 'StudentAcademicInfoSelectItem', admit_code?: string | null, admit_year?: number | null, msu_attempted_hours?: number | null, msu_earned_hours?: number | null, msu_gpa?: number | null, msu_quality_points?: number | null, overall_attempted_hours?: number | null, overall_earned_hours?: number | null, overall_gpa?: number | null, overall_quality_points?: number | null, academic_standing?: { __typename?: 'AcademicStandingSelectItem', code: string, description: string } | null, admit_term?: { __typename?: 'AdmitCodesSelectItem', code: string, description: string } | null } | null> | null, gpaTrend?: Array<{ __typename?: 'StudentAcademicInfoSelectItem', msu_gpa?: number | null, overall_gpa?: number | null, year: number, term?: { __typename?: 'TermsSelectItem', code: string, description: string } | null } | null> | null, advisors?: Array<{ __typename?: 'StudentAdvisorsSelectItem', advisor_mnumber: string, year: number, term: { __typename?: 'TermsSelectItem', code: string, description: string }, advisor: { __typename?: 'FacultySelectItem', first_name: string, last_name: string, mnumber: string, user?: { __typename?: 'UserSelectItem', email: string } | null } } | null> | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', year: number, type: string, level: string, term: { __typename?: 'TermsSelectItem', code: string, description: string }, program: { __typename?: 'ProgramsSelectItem', code: string, description: string } } | null> | null } | null };
 
+export type CourseTermQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+  startTerm?: InputMaybe<Scalars['String']['input']>;
+  startYear?: InputMaybe<Scalars['Int']['input']>;
+  endTerm?: InputMaybe<Scalars['String']['input']>;
+  endYear?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type CourseTermQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', credit_hour?: number | null, course_section: string, total_students: number, total_credit_hours: number, course: { __typename?: 'CoursesSelectItem', title: string, subject: string, number: number, suffix: string } } | null> | null } | null };
+
 export type GetInstructorQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
 }>;
@@ -9644,6 +9655,30 @@ export const StudentDetailQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<StudentDetailQueryQuery, StudentDetailQueryQueryVariables>;
+export const CourseTermQueryDocument = new TypedDocumentString(`
+    query courseTermQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    mnumber
+    courses_taught(
+      startTerm: $startTerm
+      startYear: $startYear
+      endTerm: $endTerm
+      endYear: $endYear
+    ) {
+      course {
+        title
+        subject
+        number
+        suffix
+      }
+      credit_hour
+      course_section
+      total_students
+      total_credit_hours
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CourseTermQueryQuery, CourseTermQueryQueryVariables>;
 export const GetInstructorQueryDocument = new TypedDocumentString(`
     query getInstructorQuery($mnumber: String!) {
   facultySingle(where: {mnumber: {eq: $mnumber}}) {
