@@ -31,6 +31,7 @@ function ClassRosterPage() {
         {/* Term Selector */}
         <TermSelector
           className={"col-span-2 md:col-span-1"}
+          showStats={true}
           mnumber={session.mnumber}
           onTermSelect={setSelectedTerm}
         />
@@ -38,6 +39,7 @@ function ClassRosterPage() {
         {selectedTerm && (
           <CourseSelector
             className={"col-span-2 md:col-span-1"}
+            showStats={true}
             mnumber={session.mnumber}
             selectedTerm={selectedTerm}
             onCourseSelect={setSelectedCourse}

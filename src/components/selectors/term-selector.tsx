@@ -70,7 +70,7 @@ const TermSelectorSkeleton = () => (
 	</Card>
 );
 
-export function TermSelector({ mnumber, onTermSelect, showStats = true, className }: TermSelectorProps) {
+export function TermSelector({ mnumber, onTermSelect, showStats, className }: TermSelectorProps) {
 	const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
 
 	const { data, isLoading } = useQuery({
