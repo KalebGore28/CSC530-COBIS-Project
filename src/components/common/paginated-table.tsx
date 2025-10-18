@@ -1,4 +1,3 @@
-import { useState, useCallback } from 'react';
 import {
 	Table,
 	TableHeader,
@@ -11,24 +10,27 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export type Column<T> = {
-	[K in keyof T]: {
-		key: K;
-		label: string;
-		transform?: (value: T[K], row: T) => string | number;
-	}
-}[keyof T];
+	key: keyof T;
+	label: string;
+	transform?: (value: T[keyof T], row: T) => string | number;
+};
 
-interface PaginatedTableSkeletonProps {
-	columns: { key: string; label: string }[];
-	rowCount?: number;
+interface PaginatedTableProps<T> {
+	data: T[];
+	columns: Column<T>[];
+	rowsPerPage: number;
+	totalRows: number;
+	currentPage: number;
+	onPageChange: (page: number) => void;
+	onRowClick?: (row: T) => void;
 	className?: string;
 }
 
-export const PaginatedTableSkeleton: React.FC<PaginatedTableSkeletonProps> = ({
-	columns,
-	rowCount = 5,
-	className = '',
-}) => {
+export function PaginatedTableSkeleton({ columns, rowCount, className }: {
+	columns: { key: string; label: string }[];
+	rowCount: number;
+	className?: string;
+}) {
 	return (
 		<div className="space-y-4">
 			{/* Info bar skeleton */}
@@ -70,59 +72,27 @@ export const PaginatedTableSkeleton: React.FC<PaginatedTableSkeletonProps> = ({
 	);
 };
 
-interface PaginatedTableProps<T> {
-	data: T[];
-	columns: Column<T>[];
-	rowsPerPage?: number;
-	totalRows?: number;
-	onRowClick?: (row: T) => void;
-	handlePreviousCallback?: () => void;
-	handleNextCallback?: () => void;
-	className?: string;
-}
-
-
 export function PaginatedTable<T>({
 	data,
 	columns,
-	rowsPerPage = 10,
+	rowsPerPage,
 	totalRows,
+	currentPage,
+	onPageChange,
 	onRowClick,
-	handlePreviousCallback,
-	handleNextCallback,
 	className,
 }: PaginatedTableProps<T>) {
-	const [currentPage, setCurrentPage] = useState(1);
-	const effectiveTotal = totalRows ?? data.length;
-
-	const totalPages = Math.ceil(effectiveTotal / rowsPerPage);
-
-	const handlePrevious = useCallback(() => {
-		if (currentPage > 1) {
-			setCurrentPage((p) => p - 1);
-			handlePreviousCallback?.();
-		}
-	}, [currentPage, handlePreviousCallback]);
-
-	const handleNext = useCallback(() => {
-		if (currentPage < totalPages) {
-			setCurrentPage((p) => p + 1);
-			handleNextCallback?.();
-		}
-	}, [currentPage, totalPages, handleNextCallback]);
-
+	const totalPages = Math.ceil(totalRows / rowsPerPage);
 	const startCount = (currentPage - 1) * rowsPerPage + 1;
-	const endCount = Math.min(currentPage * rowsPerPage, effectiveTotal);
+	const endCount = Math.min(currentPage * rowsPerPage, totalRows);
 
 	return (
 		<div className="space-y-4">
-			{effectiveTotal > 0 && (
+			{totalRows > 0 && (
 				<div className="flex items-center justify-between text-sm text-muted-foreground">
 					<div>
-						Showing{' '}
-						<strong>{startCount}</strong> to{' '}
-						<strong>{endCount}</strong> of{' '}
-						<strong>{effectiveTotal}</strong> rows
+						Showing <strong>{startCount}</strong> to <strong>{endCount}</strong> of{" "}
+						<strong>{totalRows}</strong> rows
 					</div>
 				</div>
 			)}
@@ -141,19 +111,13 @@ export function PaginatedTable<T>({
 							<TableRow
 								key={rowIndex}
 								onClick={onRowClick ? () => onRowClick(row) : undefined}
-								className={onRowClick ? 'cursor-pointer hover:bg-gray-100' : undefined}
+								className={onRowClick ? "cursor-pointer hover:bg-gray-100" : undefined}
 							>
 								{columns.map((col) => {
-									const cellValue = row[col.key];
-									const display = col.transform
-										? col.transform(cellValue, row)
-										: String(cellValue);
+									const val = row[col.key];
 									return (
-										<TableCell
-											key={String(col.key)}
-											className="truncate max-w-[120px]"
-										>
-											{display}
+										<TableCell key={String(col.key)} className="truncate max-w-[120px]">
+											{col.transform ? col.transform(val, row) : String(val)}
 										</TableCell>
 									);
 								})}
@@ -169,22 +133,22 @@ export function PaginatedTable<T>({
 				</TableBody>
 			</Table>
 
+			{/* Pagination */}
 			<div className="flex justify-end items-center gap-2">
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={handlePrevious}
+					onClick={() => onPageChange(currentPage - 1)}
 					disabled={currentPage === 1}
-					className={currentPage === 1 ? 'hidden' : ''}
 				>
 					← Previous
 				</Button>
+				<span className="text-sm text-muted-foreground">Page {currentPage} of {totalPages}</span>
 				<Button
 					variant="outline"
 					size="sm"
-					onClick={handleNext}
+					onClick={() => onPageChange(currentPage + 1)}
 					disabled={currentPage === totalPages}
-					className={currentPage === totalPages ? 'hidden' : ''}
 				>
 					Next →
 				</Button>

@@ -60,7 +60,6 @@ export function SkeletonTable({ rows = 10 }: { rows?: number }) {
   );
 }
 
-// ---------- Helpers ----------
 const makePreHeader = (filters: FilterState): string[] => {
   const lines: string[] = [];
 
@@ -90,7 +89,10 @@ const makePreHeader = (filters: FilterState): string[] => {
 
 function StudentLookup() {
   const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
-  const [offset, setOffset] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const rowsPerPage = 10;
+  const offset = (currentPage - 1) * rowsPerPage;
 
   const stableFilterKey = useMemo(() => JSON.stringify(currentFilters ?? {}), [currentFilters]);
 
@@ -115,9 +117,8 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
-          setOffset(0);
+          setCurrentPage(1);
           setCurrentFilters(filters);
-          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}
@@ -133,9 +134,8 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
-          setOffset(0);
+          setCurrentPage(1);
           setCurrentFilters(filters);
-          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}
@@ -150,9 +150,8 @@ function StudentLookup() {
       <div className="p-6">
         <StudentFilters
           onApplyFilters={(filters) => {
-            setOffset(0);
+            setCurrentPage(1);
             setCurrentFilters(filters);
-            console.log(filters);
           }}
           onResetFilters={() => setCurrentFilters(null)}
           isLoading={isLoading}
@@ -180,9 +179,8 @@ function StudentLookup() {
     <div className="p-6">
       <StudentFilters
         onApplyFilters={(filters) => {
-          setOffset(0);
+          setCurrentPage(1);
           setCurrentFilters(filters);
-          console.log(filters);
         }}
         onResetFilters={() => setCurrentFilters(null)}
         isLoading={isLoading}
@@ -198,18 +196,18 @@ function StudentLookup() {
 
         <CardContent>
           <PaginatedTable<any>
-            className="border"
-            data={[...data.lookupStudents.students]}
+            className="border min-h-[400px]"
+            data={data.lookupStudents.students}
             columns={[
               { key: "mnumber", label: "MNumber" },
               { key: "first_name", label: "First Name" },
               { key: "last_name", label: "Last Name" },
               { key: "email", label: "Email", transform: (val) => (val ?? "").toLowerCase() },
             ]}
-            rowsPerPage={10}
+            rowsPerPage={rowsPerPage}
             totalRows={data.lookupStudents.totalCount}
-            handlePreviousCallback={() => setOffset((o) => Math.max(0, o - 10))}
-            handleNextCallback={() => setOffset((o) => o + 10)}
+            currentPage={currentPage}
+            onPageChange={(page) => setCurrentPage(page)}
           />
         </CardContent>
       </Card>
