@@ -127,7 +127,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                                     grade
                                 });
                             }}
-                            className="bg-background border rounded-md"
+                            className="bg-background border rounded-lg"
                         >
                             <TabsList className="grid grid-cols-2">
                                 <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">

@@ -135,7 +135,7 @@ function RouteComponent() {
                         params: { mnumber },
                     });
                 }}
-                className="bg-background border rounded-md"
+                className="bg-background border rounded-lg"
             >
                 <TabsList className="grid grid-cols-3">
                     <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="current-term">Current Term</TabsTrigger>
