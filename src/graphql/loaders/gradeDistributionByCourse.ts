@@ -16,24 +16,26 @@ function courseKey({
   course_subject,
   course_number,
   course_suffix,
+  course_section,
 }: {
   term: string;
   year: number;
   course_subject: string;
   course_number: number;
   course_suffix: string;
+  course_section: string;
 }) {
-  return [term, year, course_subject, course_number, course_suffix].join('|');
+  return [term, year, course_subject, course_number, course_suffix, course_section].join('|');
 }
 
 export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm']) {
   return new DataLoader<string, GradeCount[]>(async (keys) => {
     // split each composite key back into its parts
     const parts = keys.map(k => k.split('|'));
-    // build an IN list of tuples: ((term, year, subj, num, suf), …)
+    // build an IN list of tuples: ((term, year, subj, num, suf, section), …)
     const tuples = sql.join(
-      parts.map(([term, year, subject, number, suffix]) =>
-        sql`(${term}, ${Number(year)}, ${subject}, ${Number(number)}, ${suffix})`
+      parts.map(([term, year, subject, number, suffix, section]) =>
+        sql`(${term}, ${Number(year)}, ${subject}, ${Number(number)}, ${suffix}, ${section})`
       ),
       sql`, `
     );
@@ -46,6 +48,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
         course_subject: studentCourses.course_subject,
         course_number: studentCourses.course_number,
         course_suffix: studentCourses.course_suffix,
+        course_section: studentCourses.course_section,
         grade: studentCourses.final_grade,
         count: sql<number>`COUNT(*)`,
       })
@@ -55,7 +58,8 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
                ${studentCourses.year},
                ${studentCourses.course_subject},
                ${studentCourses.course_number},
-               ${studentCourses.course_suffix} )
+               ${studentCourses.course_suffix},
+               ${studentCourses.course_section} )
              IN (${tuples})`
       )
       .groupBy(
@@ -64,6 +68,7 @@ export function createFinalGradeDistributionByCourseLoader(db: DbConnection['orm
         studentCourses.course_subject,
         studentCourses.course_number,
         studentCourses.course_suffix,
+        studentCourses.course_section,
         studentCourses.final_grade
       )
       .orderBy(studentCourses.final_grade);
@@ -101,10 +106,10 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
   return new DataLoader<string, GradeCount[]>(async (keys) => {
     // split each composite key back into its parts
     const parts = keys.map(k => k.split('|'));
-    // build an IN list of tuples: ((term, year, subj, num, suf), …)
+    // build an IN list of tuples: ((term, year, subj, num, suf, section), …)
     const tuples = sql.join(
-      parts.map(([term, year, subject, number, suffix]) =>
-        sql`(${term}, ${Number(year)}, ${subject}, ${Number(number)}, ${suffix})`
+      parts.map(([term, year, subject, number, suffix, section]) =>
+        sql`(${term}, ${Number(year)}, ${subject}, ${Number(number)}, ${suffix}, ${section})`
       ),
       sql`, `
     );
@@ -117,6 +122,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
         course_subject: studentCourses.course_subject,
         course_number: studentCourses.course_number,
         course_suffix: studentCourses.course_suffix,
+        course_section: studentCourses.course_section,
         grade: studentCourses.midterm_grade,
         count: sql<number>`COUNT(*)`,
       })
@@ -126,7 +132,8 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
                ${studentCourses.year},
                ${studentCourses.course_subject},
                ${studentCourses.course_number},
-               ${studentCourses.course_suffix} )
+               ${studentCourses.course_suffix},
+               ${studentCourses.course_section} )
              IN (${tuples})`
       )
       .groupBy(
@@ -135,6 +142,7 @@ export function createMidtermGradeDistributionByCourseLoader(db: DbConnection['o
         studentCourses.course_subject,
         studentCourses.course_number,
         studentCourses.course_suffix,
+        studentCourses.course_section,
         studentCourses.midterm_grade
       )
       .orderBy(studentCourses.midterm_grade);

@@ -28,12 +28,6 @@ table colleges {
   description varchar(255) [not null]
 }
 
-table course_prefixes {
-  prefix varchar(50) [pk, not null]
-  department_code varchar(50) [not null]
-  college_code varchar(50) [not null]
-}
-
 table courses {
   subject varchar(50) [not null]
   number int [not null]

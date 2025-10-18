@@ -1015,161 +1015,6 @@ export type CourseFilterInput = {
   taken: Scalars['Boolean']['input'];
 };
 
-export type CoursePrefixesCollege_CodeFilters = {
-  OR?: InputMaybe<Array<CoursePrefixesCollege_CodefiltersOr>>;
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesCollege_CodefiltersOr = {
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesDepartment_CodeFilters = {
-  OR?: InputMaybe<Array<CoursePrefixesDepartment_CodefiltersOr>>;
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesDepartment_CodefiltersOr = {
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesFilters = {
-  OR?: InputMaybe<Array<CoursePrefixesFiltersOr>>;
-  college_code?: InputMaybe<CoursePrefixesCollege_CodeFilters>;
-  department_code?: InputMaybe<CoursePrefixesDepartment_CodeFilters>;
-  prefix?: InputMaybe<CoursePrefixesPrefixFilters>;
-};
-
-export type CoursePrefixesFiltersOr = {
-  college_code?: InputMaybe<CoursePrefixesCollege_CodeFilters>;
-  department_code?: InputMaybe<CoursePrefixesDepartment_CodeFilters>;
-  prefix?: InputMaybe<CoursePrefixesPrefixFilters>;
-};
-
-export type CoursePrefixesInsertInput = {
-  college_code: Scalars['String']['input'];
-  department_code: Scalars['String']['input'];
-  prefix: Scalars['String']['input'];
-};
-
-export type CoursePrefixesOrderBy = {
-  college_code?: InputMaybe<InnerOrder>;
-  department_code?: InputMaybe<InnerOrder>;
-  prefix?: InputMaybe<InnerOrder>;
-};
-
-export type CoursePrefixesPrefixFilters = {
-  OR?: InputMaybe<Array<CoursePrefixesPrefixfiltersOr>>;
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesPrefixfiltersOr = {
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type CoursePrefixesSelectItem = {
-  __typename?: 'CoursePrefixesSelectItem';
-  college_code: Scalars['String']['output'];
-  department_code: Scalars['String']['output'];
-  prefix: Scalars['String']['output'];
-};
-
-export type CoursePrefixesUpdateInput = {
-  college_code?: InputMaybe<Scalars['String']['input']>;
-  department_code?: InputMaybe<Scalars['String']['input']>;
-  prefix?: InputMaybe<Scalars['String']['input']>;
-};
-
 export type CoursesCollege_CodeFilters = {
   OR?: InputMaybe<Array<CoursesCollege_CodefiltersOr>>;
   eq?: InputMaybe<Scalars['String']['input']>;
@@ -2589,7 +2434,6 @@ export type Mutation = {
   deleteFromaccount?: Maybe<MutationReturn>;
   deleteFromadmitCodes?: Maybe<MutationReturn>;
   deleteFromcolleges?: Maybe<MutationReturn>;
-  deleteFromcoursePrefixes?: Maybe<MutationReturn>;
   deleteFromcourses?: Maybe<MutationReturn>;
   deleteFromdepartments?: Maybe<MutationReturn>;
   deleteFromfaculty?: Maybe<MutationReturn>;
@@ -2619,8 +2463,6 @@ export type Mutation = {
   insertIntoAdmitCodesSingle?: Maybe<MutationReturn>;
   insertIntoColleges?: Maybe<MutationReturn>;
   insertIntoCollegesSingle?: Maybe<MutationReturn>;
-  insertIntoCoursePrefixes?: Maybe<MutationReturn>;
-  insertIntoCoursePrefixesSingle?: Maybe<MutationReturn>;
   insertIntoCourses?: Maybe<MutationReturn>;
   insertIntoCoursesSingle?: Maybe<MutationReturn>;
   insertIntoDepartments?: Maybe<MutationReturn>;
@@ -2667,7 +2509,6 @@ export type Mutation = {
   updateAccount?: Maybe<MutationReturn>;
   updateAdmitCodes?: Maybe<MutationReturn>;
   updateColleges?: Maybe<MutationReturn>;
-  updateCoursePrefixes?: Maybe<MutationReturn>;
   updateCourses?: Maybe<MutationReturn>;
   updateDepartments?: Maybe<MutationReturn>;
   updateFaculty?: Maybe<MutationReturn>;
@@ -2709,11 +2550,6 @@ export type MutationDeleteFromadmitCodesArgs = {
 
 export type MutationDeleteFromcollegesArgs = {
   where?: InputMaybe<CollegesFilters>;
-};
-
-
-export type MutationDeleteFromcoursePrefixesArgs = {
-  where?: InputMaybe<CoursePrefixesFilters>;
 };
 
 
@@ -2859,16 +2695,6 @@ export type MutationInsertIntoCollegesArgs = {
 
 export type MutationInsertIntoCollegesSingleArgs = {
   values: CollegesInsertInput;
-};
-
-
-export type MutationInsertIntoCoursePrefixesArgs = {
-  values: Array<CoursePrefixesInsertInput>;
-};
-
-
-export type MutationInsertIntoCoursePrefixesSingleArgs = {
-  values: CoursePrefixesInsertInput;
 };
 
 
@@ -3103,12 +2929,6 @@ export type MutationUpdateAdmitCodesArgs = {
 export type MutationUpdateCollegesArgs = {
   set: CollegesUpdateInput;
   where?: InputMaybe<CollegesFilters>;
-};
-
-
-export type MutationUpdateCoursePrefixesArgs = {
-  set: CoursePrefixesUpdateInput;
-  where?: InputMaybe<CoursePrefixesFilters>;
 };
 
 
@@ -4091,8 +3911,6 @@ export type Query = {
   admitCodesSingle?: Maybe<AdmitCodesSelectItem>;
   colleges: Array<CollegesSelectItem>;
   collegesSingle?: Maybe<CollegesSelectItem>;
-  coursePrefixes: Array<CoursePrefixesSelectItem>;
-  coursePrefixesSingle?: Maybe<CoursePrefixesSelectItem>;
   courses: Array<CoursesSelectItem>;
   coursesSingle?: Maybe<CoursesSelectItem>;
   departments: Array<DepartmentsSelectItem>;
@@ -4217,21 +4035,6 @@ export type QueryCollegesSingleArgs = {
   offset?: InputMaybe<Scalars['Int']['input']>;
   orderBy?: InputMaybe<CollegesOrderBy>;
   where?: InputMaybe<CollegesFilters>;
-};
-
-
-export type QueryCoursePrefixesArgs = {
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<CoursePrefixesOrderBy>;
-  where?: InputMaybe<CoursePrefixesFilters>;
-};
-
-
-export type QueryCoursePrefixesSingleArgs = {
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  orderBy?: InputMaybe<CoursePrefixesOrderBy>;
-  where?: InputMaybe<CoursePrefixesFilters>;
 };
 
 
@@ -9362,7 +9165,7 @@ export type RosterStudentsQueryQueryVariables = Exact<{
 }>;
 
 
-export type RosterStudentsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', term_code: string, year: number, course_subject: string, course_number: number, course_suffix: string, students: Array<{ __typename?: 'StudentCoursesSelectItem', student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', program: { __typename?: 'ProgramsSelectItem', description: string, code: string } } | null> | null } }> } | null };
+export type RosterStudentsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', term_code: string, year: number, course_subject: string, course_number: number, course_suffix: string, course_section: string, students: Array<{ __typename?: 'StudentCoursesSelectItem', student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', program: { __typename?: 'ProgramsSelectItem', description: string, code: string } } | null> | null } }> } | null };
 
 export type GetCoursesQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9611,6 +9414,7 @@ export const RosterStudentsQueryDocument = new TypedDocumentString(`
     course_subject
     course_number
     course_suffix
+    course_section
     students {
       student {
         mnumber

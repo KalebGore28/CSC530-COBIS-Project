@@ -38,14 +38,15 @@ export const InstructorCourseResolver = {
         ),
     students: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
         loaders.studentsByCourse.load(
-            [
-                instructorCourse.term_code,
-                instructorCourse.year,
-                instructorCourse.course_subject,
-                instructorCourse.course_number,
-                instructorCourse.course_suffix,
-            ].join('|')
-        ),
+        [
+            instructorCourse.term_code,
+            instructorCourse.year,
+            instructorCourse.course_subject,
+            instructorCourse.course_number,
+            instructorCourse.course_suffix,
+            instructorCourse.course_section,
+        ].join('|')
+    ),
     total_students: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
         loaders.totalStudentsByCourse.load(
             [
@@ -54,6 +55,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
 
@@ -65,6 +67,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     credit_hour: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -75,6 +78,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     class_gpa: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -85,6 +89,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     midterm_average: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -95,6 +100,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     final_average: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -105,6 +111,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     midterm_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -115,6 +122,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
     final_grade_distribution: (instructorCourse: InstructorCourse, _args: any, { loaders }: ApolloContext) =>
@@ -125,6 +133,7 @@ export const InstructorCourseResolver = {
                 instructorCourse.course_subject,
                 instructorCourse.course_number,
                 instructorCourse.course_suffix,
+                instructorCourse.course_section,
             ].join('|')
         ),
 };

@@ -10,6 +10,7 @@ function courseKey(parts: {
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
+	course_section: string;
 }) {
 	return [
 		parts.term,
@@ -17,6 +18,7 @@ function courseKey(parts: {
 		parts.course_subject,
 		parts.course_number,
 		parts.course_suffix,
+		parts.course_section,
 	].join('|');
 }
 
@@ -31,7 +33,7 @@ export function createClassGpaByCourseLoader(
 	return new DataLoader<string, number>(async (keys) => {
 		// 1. split keys back into parts
 		const parts = keys.map((k) =>
-			k.split('|') as [string, string, string, string, string]
+			k.split('|') as [string, string, string, string, string, string]
 		);
 
 		// 2. single JOIN+GROUP BY query
@@ -42,6 +44,7 @@ export function createClassGpaByCourseLoader(
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
 				course_suffix: studentCourses.course_suffix,
+				course_section: studentCourses.course_section,
 				avg: sql<number>`AVG(${studentAcademicInfo.overall_gpa})`,
 			})
 			.from(studentCourses)
@@ -59,11 +62,12 @@ export function createClassGpaByCourseLoader(
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
-          ${studentCourses.course_suffix}
+          ${studentCourses.course_suffix},
+		  ${studentCourses.course_section}
         ) IN (${sql.join(
 					parts.map(
-						([term, year, subj, num, suffix]) =>
-							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix})`
+						([term, year, subj, num, suffix, section]) =>
+							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix}, ${section})`
 					),
 					sql`, `
 				)})`
@@ -73,7 +77,8 @@ export function createClassGpaByCourseLoader(
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,
-				studentCourses.course_suffix
+				studentCourses.course_suffix,
+				studentCourses.course_section
 			);
 
 		// 3. map results back to keys

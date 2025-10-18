@@ -10,6 +10,7 @@ function courseKey(row: {
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
+	course_section: string;
 }) {
 	return [
 		row.term_code,
@@ -17,6 +18,7 @@ function courseKey(row: {
 		row.course_subject,
 		row.course_number,
 		row.course_suffix,
+		row.course_section,
 	].join('|');
 }
 
@@ -35,6 +37,7 @@ export function createTotalStudentsByCourseLoader(
 			string,
 			string,
 			string,
+			string,
 			string
 		]);
 
@@ -46,6 +49,7 @@ export function createTotalStudentsByCourseLoader(
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
 				course_suffix: studentCourses.course_suffix,
+				course_section: studentCourses.course_section,
 				count: sql<number>`COUNT(*)`,
 			})
 			.from(studentCourses)
@@ -55,13 +59,14 @@ export function createTotalStudentsByCourseLoader(
           ${studentCourses.year}, 
           ${studentCourses.course_subject}, 
 		  ${studentCourses.course_number}, 
-		  ${studentCourses.course_suffix}
+		  ${studentCourses.course_suffix},
+		  ${studentCourses.course_section}
 		) IN (${sql.join(
 					parts.map(
-						([term, year, subj, num, suffix]) =>
+						([term, year, subj, num, suffix, section]) =>
 							sql`(${term}, ${Number(year)}, ${subj}, ${Number(
 								num
-							)}, ${suffix})`
+							)}, ${suffix}, ${section})`
 					),
 					sql`, `
 				)})`
@@ -71,7 +76,8 @@ export function createTotalStudentsByCourseLoader(
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,
-				studentCourses.course_suffix
+				studentCourses.course_suffix,
+				studentCourses.course_section,
 			);
 
 		// 3. map rows back into a lookup

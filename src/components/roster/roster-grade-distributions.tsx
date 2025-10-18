@@ -11,7 +11,6 @@ import { useQuery } from '@tanstack/react-query';
 import { execute } from '@/graphql/execute';
 import { graphql } from '@/graphql';
 
-
 // Custom skeleton for RosterGradeDistributions
 const RosterGradeDistributionsSkeleton: React.FC<{ className?: string }> = ({ className }) => (
 	<Card className={className}>
@@ -93,8 +92,19 @@ export function RosterGradeDistributions({ mnumber, course, className }: RosterG
 
 	if (isLoading) return <RosterGradeDistributionsSkeleton />;
 
-	const midterm_grades = data?.instructorCoursesSingle?.midterm_grade_distribution || [];
-	const final_grades = data?.instructorCoursesSingle?.final_grade_distribution || [];
+	const _allowedGrades = ["A", "B", "C", "D", "E", "N/A"] as const;
+	type _AllowedGrade = typeof _allowedGrades[number];
+
+	const mapToGradeDistribution = (arr: { grade: string; count: number }[] | undefined) => {
+		const list = arr || [];
+		return list.map(({ grade, count }) => {
+			const g = _allowedGrades.includes(grade as _AllowedGrade) ? (grade as _AllowedGrade) : "N/A";
+			return { grade: g, count };
+		});
+	};
+
+	const midterm_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.midterm_grade_distribution);
+	const final_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.final_grade_distribution);
 
 
 	return (
@@ -125,7 +135,7 @@ export function RosterGradeDistributions({ mnumber, course, className }: RosterG
 			</CardHeader>
 			<CardContent>
 				<PieChartDonut
-					data={gradeType === "midterm" ? midterm_grades : final_grades as any}
+					data={gradeType === "midterm" ? midterm_grades : final_grades}
 				/>
 			</CardContent>
 		</Card>

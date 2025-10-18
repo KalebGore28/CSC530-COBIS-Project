@@ -36,6 +36,13 @@
       "when": 1760304240969,
       "tag": "0004_awesome_diamondback",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1760815154784,
+      "tag": "0005_old_meltdown",
+      "breakpoints": true
     }
   ]
 }

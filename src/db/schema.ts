@@ -68,15 +68,6 @@ export const colleges = mysqlTable("colleges", {
 	description: varchar("description", { length: 255 }).notNull(),
 });
 
-export const coursePrefixes = mysqlTable("course_prefixes", {
-	prefix: varchar("prefix", { length: 50 }).primaryKey(),         // e.g. "ACC"
-	department_code: varchar("department_code", { length: 50 }).notNull(),
-	college_code: varchar("college_code", { length: 50 }).notNull(),
-}, (table) => [
-	foreignKey({ columns: [table.department_code], foreignColumns: [departments.code], name: "fk_course_prefixes_department" }),
-	foreignKey({ columns: [table.college_code], foreignColumns: [colleges.code], name: "fk_course_prefixes_college" }),
-]);
-
 export const courses = mysqlTable("courses", {
 	subject: varchar("subject", { length: 50 }).notNull(), // e.g. "ACC"
 	number: int("number").notNull(),

@@ -63,22 +63,22 @@ const rosterStudentsQuery = graphql(`
 			course_subject
 			course_number
 			course_suffix
+			course_section
 			students {
-			student {
-				mnumber
-				first_name
-				middle_name
-				last_name
-				suffix
-				email
-				programs {
-					program {
-						description
-						code
+				student {
+					mnumber
+					first_name
+					middle_name
+					last_name
+					suffix
+					email
+					programs {
+						program {
+							description
+							code
+						}
 					}
 				}
-			}
-			
 			}
 		}
 	}

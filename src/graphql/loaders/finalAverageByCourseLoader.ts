@@ -12,6 +12,7 @@ function courseKey(parts: {
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
+	course_section: string;
 }) {
 	return [
 		parts.term,
@@ -19,6 +20,7 @@ function courseKey(parts: {
 		parts.course_subject,
 		parts.course_number,
 		parts.course_suffix,
+		parts.course_section,
 	].join('|');
 }
 
@@ -32,7 +34,7 @@ export function createFinalAverageByCourseLoader(
 ) {
 	return new DataLoader<string, number>(async (keys) => {
 		const parts = keys.map((k) =>
-			k.split('|') as [string, string, string, string, string]
+			k.split('|') as [string, string, string, string, string, string]
 		);
 
 		// CASE mapping for final_grade
@@ -53,6 +55,7 @@ export function createFinalAverageByCourseLoader(
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
 				course_suffix: studentCourses.course_suffix,
+				course_section: studentCourses.course_section,
 				avg_points: sql<number>`AVG(${gradeCase})`,
 			})
 			.from(studentCourses)
@@ -62,11 +65,12 @@ export function createFinalAverageByCourseLoader(
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
-          ${studentCourses.course_suffix}
+          ${studentCourses.course_suffix},
+		  ${studentCourses.course_section}
         ) IN (${sql.join(
 					parts.map(
-						([term, year, subj, num, suffix]) =>
-							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix})`
+						([term, year, subj, num, suffix, section]) =>
+							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix}, ${section})`
 					),
 					sql`, `
 				)})`
@@ -76,7 +80,8 @@ export function createFinalAverageByCourseLoader(
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,
-				studentCourses.course_suffix
+				studentCourses.course_suffix,
+				studentCourses.course_section
 			);
 
 		// map & round

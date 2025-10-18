@@ -12,6 +12,7 @@ function courseKey(row: {
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
+	course_section: string;
 }) {
 	return [
 		row.term_code,
@@ -19,6 +20,7 @@ function courseKey(row: {
 		row.course_subject,
 		row.course_number,
 		row.course_suffix,
+		row.course_section,
 	].join('|');
 }
 
@@ -36,6 +38,7 @@ export function createTotalCreditHoursByCourseLoader(
 			string,
 			string,
 			string,
+			string,
 			string
 		]);
 
@@ -46,6 +49,7 @@ export function createTotalCreditHoursByCourseLoader(
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
 				course_suffix: studentCourses.course_suffix,
+				course_section: studentCourses.course_section,
 				sum: sql<number>`SUM(${studentCourses.course_hours})`,
 			})
 			.from(studentCourses)
@@ -55,11 +59,12 @@ export function createTotalCreditHoursByCourseLoader(
           ${studentCourses.year}, 
           ${studentCourses.course_subject}, 
           ${studentCourses.course_number}, 
-          ${studentCourses.course_suffix}
+          ${studentCourses.course_suffix},
+		  ${studentCourses.course_section}
         ) IN (${sql.join(
 					parts.map(
-						([term, year, subj, num, suffix]) =>
-							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix})`
+						([term, year, subj, num, suffix, section]) =>
+							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix}, ${section})`
 					),
 					sql`, `
 				)})`
@@ -69,7 +74,8 @@ export function createTotalCreditHoursByCourseLoader(
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,
-				studentCourses.course_suffix
+				studentCourses.course_suffix,
+				studentCourses.course_section
 			);
 
 		const map: Record<string, number> = {};

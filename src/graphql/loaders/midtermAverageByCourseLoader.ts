@@ -10,6 +10,7 @@ function courseKey(parts: {
 	course_subject: string;
 	course_number: number;
 	course_suffix: string;
+	course_section: string;
 }) {
 	return [
 		parts.term,
@@ -17,6 +18,7 @@ function courseKey(parts: {
 		parts.course_subject,
 		parts.course_number,
 		parts.course_suffix,
+		parts.course_section,
 	].join('|');
 }
 
@@ -30,7 +32,7 @@ export function createMidtermAverageByCourseLoader(
 ) {
 	return new DataLoader<string, number>(async (keys) => {
 		const parts = keys.map((k) =>
-			k.split('|') as [string, string, string, number, string]
+			k.split('|') as [string, string, string, number, string, string]
 		);
 
 		// CASE mapping: adjust to your actual gradePoints scale if different
@@ -51,6 +53,7 @@ export function createMidtermAverageByCourseLoader(
 				course_subject: studentCourses.course_subject,
 				course_number: studentCourses.course_number,
 				course_suffix: studentCourses.course_suffix,
+				course_section: studentCourses.course_section,
 				avg_points: sql<number>`AVG(${gradeCase})`,
 			})
 			.from(studentCourses)
@@ -60,11 +63,12 @@ export function createMidtermAverageByCourseLoader(
           ${studentCourses.year},
           ${studentCourses.course_subject},
           ${studentCourses.course_number},
-          ${studentCourses.course_suffix}
+          ${studentCourses.course_suffix},
+		  ${studentCourses.course_section}
         ) IN (${sql.join(
 					parts.map(
-						([term, year, subj, num, suffix]) =>
-							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix})`
+						([term, year, subj, num, suffix, section]) =>
+							sql`(${term}, ${Number(year)}, ${subj}, ${Number(num)}, ${suffix}, ${section})`
 					),
 					sql`, `
 				)})`
@@ -74,7 +78,8 @@ export function createMidtermAverageByCourseLoader(
 				studentCourses.year,
 				studentCourses.course_subject,
 				studentCourses.course_number,
-				studentCourses.course_suffix
+				studentCourses.course_suffix,
+				studentCourses.course_section,
 			);
 
 		// map & round to 2 decimals
