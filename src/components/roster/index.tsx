@@ -108,12 +108,6 @@ export function Roster({ mnumber, course, term_code, year }: RosterProps) {
         finalAverage: rosterData?.final_average || 0,
     }
 
-    if (!isLoading) {
-        console.log('Roster Data:', data);
-    }
-
-
-
     return (
         <div className="container mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
