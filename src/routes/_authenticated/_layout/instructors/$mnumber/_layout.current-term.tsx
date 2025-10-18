@@ -2,50 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from '@/components/ui/skeleton';
-import { useNavigate, useParams } from '@tanstack/react-router';
 import { Button } from '@/components/ui/button';
+import { useNavigate, useParams } from '@tanstack/react-router';
 
 // Import GraphQL imports
 import { useQuery } from '@tanstack/react-query';
 import { execute } from '@/graphql/execute';
 import { graphql } from '@/graphql';
-
-function SelectedTermTableSkeleton() {
-  return (
-    <Card className='p-4 px-0'>
-      <CardHeader>
-        <CardTitle>Current Term Courses</CardTitle>
-        <CardDescription>
-          {/* {getCurrentYearTerm.term.description} {getCurrentYearTerm.year} */}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[100px]">Course</TableHead>
-              <TableHead className="w-[100px]">Title</TableHead>
-              <TableHead className="w-[100px]">Credit Hours</TableHead>
-              <TableHead className="w-[100px]">Total Students</TableHead>
-              <TableHead className="w-[100px]">Total Credit Hours</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, index) => (
-              <TableRow key={index}>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
 
 const getCurrentYearTermQuery = graphql(`
 	query getCurrentYearTermQuery {
@@ -76,6 +39,45 @@ const courseTermQuery = graphql(`
     }
   }
 `);
+
+function SelectedTermTableSkeleton() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Current Term Courses</CardTitle>
+        <CardDescription>
+          {/* {getCurrentYearTerm.term.description} {getCurrentYearTerm.year} */}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className='border rounded-lg'>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[100px]">Course</TableHead>
+                <TableHead className="w-[100px]">Title</TableHead>
+                <TableHead className="w-[100px]">Credit Hours</TableHead>
+                <TableHead className="w-[100px]">Total Students</TableHead>
+                <TableHead className="w-[100px]">Total Credit Hours</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={index}>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                  <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/instructors/$mnumber/_layout/current-term',
@@ -125,7 +127,7 @@ function RouteComponent() {
   }
 
   return (
-    <Card className='p-4 px-0'>
+    <Card>
       <CardHeader>
         <CardTitle>Current Term Courses</CardTitle>
         <CardDescription>
@@ -137,26 +139,25 @@ function RouteComponent() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className='max-w-[100px] truncate'>Course</TableHead>
-                <TableHead className='max-w-[100px] truncate'>Title</TableHead>
-                <TableHead className='max-w-[100px] truncate'>Students</TableHead>
-                <TableHead className='max-w-[100px] truncate'>Credit Hours</TableHead>
-                <TableHead className='max-w-[100px] truncate'>Action</TableHead>
+                <TableHead className='max-w-[120px] truncate'>Course</TableHead>
+                <TableHead className='max-w-[120px] truncate'>Title</TableHead>
+                <TableHead className='max-w-[120px] truncate'>Students</TableHead>
+                <TableHead className='max-w-[120px] truncate'>Credit Hours</TableHead>
+                <TableHead className='max-w-[120px] truncate'>Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {coursesTaught.map((instructorCourse) => (
                 <TableRow key={instructorCourse?.course_section}>
-                  <TableCell className='max-w-[100px] truncate'>
+                  <TableCell className='max-w-[120px] truncate'>
                     {`${instructorCourse?.course.subject} ${instructorCourse?.course.number}${instructorCourse?.course.suffix}`}
                   </TableCell>
-                  <TableCell className='max-w-[100px] truncate'>{instructorCourse?.course.title}</TableCell>
-                  <TableCell className='max-w-[100px] truncate'>{instructorCourse?.total_students}</TableCell>
-                  <TableCell className='max-w-[100px] truncate'>{instructorCourse?.total_credit_hours}</TableCell>
-                  <TableCell className='max-w-[100px] truncate'>
+                  <TableCell className='max-w-[120px] truncate'>{instructorCourse?.course.title}</TableCell>
+                  <TableCell className='max-w-[120px] truncate'>{instructorCourse?.total_students}</TableCell>
+                  <TableCell className='max-w-[120px] truncate'>{instructorCourse?.total_credit_hours}</TableCell>
+                  <TableCell className='max-w-[120px] truncate'>
                     <Button
                       variant='outline'
-                      size='sm'
                       onClick={() => {
                         navigate({
                           to: `/instructors/${mnumber}/term-history/${getCurrentYearTerm?.year}${getCurrentYearTerm?.term_code}/${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`

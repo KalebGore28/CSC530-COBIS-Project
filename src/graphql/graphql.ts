@@ -9381,6 +9381,13 @@ export type CourseTermQueryQueryVariables = Exact<{
 
 export type CourseTermQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', credit_hour?: number | null, course_section: string, total_students: number, total_credit_hours: number, course: { __typename?: 'CoursesSelectItem', title: string, subject: string, number: number, suffix: string } } | null> | null } | null };
 
+export type TermHistoryQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+}>;
+
+
+export type TermHistoryQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', total_credit_hours: number, total_students: number, year: number, term_code: string, term: { __typename?: 'Term', code: string, description: string } } | null> | null } | null };
+
 export type GetInstructorQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
 }>;
@@ -9679,6 +9686,23 @@ export const CourseTermQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<CourseTermQueryQuery, CourseTermQueryQueryVariables>;
+export const TermHistoryQueryDocument = new TypedDocumentString(`
+    query termHistoryQuery($mnumber: String!) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    mnumber
+    courses_taught {
+      total_credit_hours
+      total_students
+      year
+      term_code
+      term {
+        code
+        description
+      }
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<TermHistoryQueryQuery, TermHistoryQueryQueryVariables>;
 export const GetInstructorQueryDocument = new TypedDocumentString(`
     query getInstructorQuery($mnumber: String!) {
   facultySingle(where: {mnumber: {eq: $mnumber}}) {
