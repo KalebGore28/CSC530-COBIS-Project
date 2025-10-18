@@ -9304,6 +9304,20 @@ export type AdvisedStudentsQueryQueryVariables = Exact<{
 
 export type AdvisedStudentsQueryQuery = { __typename?: 'Query', studentAdvisors: Array<{ __typename?: 'StudentAdvisorsSelectItem', student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, gender?: string | null } }> };
 
+export type GetCurrentYearTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCurrentYearTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null, term_code?: string | null } | null };
+
+export type TermGradeDistributionsQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+  startTerm: Scalars['String']['input'];
+  startYear: Scalars['Int']['input'];
+}>;
+
+
+export type TermGradeDistributionsQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, grade_distribution_trend?: Array<{ __typename?: 'FacultyGradeDistributionTrendItem', year: number, distributions: Array<{ __typename?: 'FacultyGradeDistributionItem', count: number, grade: string, percentage: number }>, term: { __typename?: 'Term', code: string, description: string } } | null> | null } | null };
+
 export type RosterGradeDistributionsQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -9313,11 +9327,6 @@ export type RosterGradeDistributionsQueryQueryVariables = Exact<{
 
 
 export type RosterGradeDistributionsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', course_subject: string, course_number: number, course_suffix: string, course_section: string, term_code: string, year: number, midterm_grade_distribution: Array<{ __typename?: 'GradeEntry', grade: string, count: number }>, final_grade_distribution: Array<{ __typename?: 'GradeEntry', grade: string, count: number }> } | null };
-
-export type GetCurrentYearTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type GetCurrentYearTermQueryQuery = { __typename?: 'Query', getCurrentYearTerm?: { __typename?: 'CurrentYearTerm', year?: number | null, term?: string | null, term_code?: string | null } | null };
 
 export type RosterStudentsQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
@@ -9445,6 +9454,34 @@ export const AdvisedStudentsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<AdvisedStudentsQueryQuery, AdvisedStudentsQueryQueryVariables>;
+export const GetCurrentYearTermQueryDocument = new TypedDocumentString(`
+    query getCurrentYearTermQuery {
+  getCurrentYearTerm {
+    year
+    term
+    term_code
+  }
+}
+    `) as unknown as TypedDocumentString<GetCurrentYearTermQueryQuery, GetCurrentYearTermQueryQueryVariables>;
+export const TermGradeDistributionsQueryDocument = new TypedDocumentString(`
+    query termGradeDistributionsQuery($mnumber: String!, $startTerm: String!, $startYear: Int!) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    mnumber
+    grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {
+      distributions {
+        count
+        grade
+        percentage
+      }
+      term {
+        code
+        description
+      }
+      year
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<TermGradeDistributionsQueryQuery, TermGradeDistributionsQueryQueryVariables>;
 export const RosterGradeDistributionsQueryDocument = new TypedDocumentString(`
     query rosterGradeDistributionsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!) {
   instructorCoursesSingle(
@@ -9467,15 +9504,6 @@ export const RosterGradeDistributionsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RosterGradeDistributionsQueryQuery, RosterGradeDistributionsQueryQueryVariables>;
-export const GetCurrentYearTermQueryDocument = new TypedDocumentString(`
-    query getCurrentYearTermQuery {
-  getCurrentYearTerm {
-    year
-    term
-    term_code
-  }
-}
-    `) as unknown as TypedDocumentString<GetCurrentYearTermQueryQuery, GetCurrentYearTermQueryQueryVariables>;
 export const RosterStudentsQueryDocument = new TypedDocumentString(`
     query rosterStudentsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!, $section: String!) {
   instructorCoursesSingle(

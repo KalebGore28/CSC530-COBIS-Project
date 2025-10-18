@@ -84,94 +84,94 @@ export const GradeDistribution: React.FC<{
 	description = "Showing grade distribution trends over time",
 }) => {
 
-	const [gradeDistributionData, setGradeDistributionData] = useState<termGradeDistributionsDataQuery$data | null>(null)
-	const [timeRange, setTimeRange] = useState("1y")
-	const [offset, setOffset] = useState(1)
+		const [gradeDistributionData, setGradeDistributionData] = useState<termGradeDistributionsDataQuery$data | null>(null)
+		const [timeRange, setTimeRange] = useState("1y")
+		const [offset, setOffset] = useState(1)
 
-	const yearMap: Record<string, number> = {
-		"1y": 1,
-		"2y": 2,
-		"3y": 3,
-		"5y": 5,
-		"10y": 10,
-	};
+		const yearMap: Record<string, number> = {
+			"1y": 1,
+			"2y": 2,
+			"3y": 3,
+			"5y": 5,
+			"10y": 10,
+		};
 
-	// Handle data return
-	const handleDataReturn = (data: termGradeDistributionsDataQuery$data) => {
-		if (data) {
-			setGradeDistributionData(data)
+		// Handle data return
+		const handleDataReturn = (data: termGradeDistributionsDataQuery$data) => {
+			if (data) {
+				setGradeDistributionData(data)
+			}
 		}
-	}
 
-	// Handle time range change
-	const handleTimeRangeChange = (value: string) => {
-		setTimeRange(value)
-		setOffset(yearMap[value] ?? 1);
-	}
+		// Handle time range change
+		const handleTimeRangeChange = (value: string) => {
+			setTimeRange(value)
+			setOffset(yearMap[value] ?? 1);
+		}
 
-	return (
-		<Card className="gap-0">
-			<CardHeader className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center border-b gap-4 py-4">
-				{/* Left column: title + description */}
-				<div className="text-center sm:text-left">
-					<CardTitle>{title}</CardTitle>
-					<CardDescription>{description}</CardDescription>
-				</div>
+		return (
+			<Card className="gap-0">
+				<CardHeader className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center border-b gap-4 py-4">
+					{/* Left column: title + description */}
+					<div className="text-center sm:text-left">
+						<CardTitle>{title}</CardTitle>
+						<CardDescription>{description}</CardDescription>
+					</div>
 
-				{/* Right column: fetch / select controls */}
-				<div className="flex items-center justify-center sm:justify-end space-x-2">
-					<Suspense
-						fallback={
-							<Loader2 className="h-4 w-4 animate-spin" />
-						}
-					>
-						<GradeDistributionFetchData
-							mnumber={mnumber}
-							offset={offset}
-							dataCallback={handleDataReturn}
-						/>
-					</Suspense>
-
-					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
-						<SelectTrigger
-							className="w-[160px] rounded-lg"
-							aria-label="Select time range"
+					{/* Right column: fetch / select controls */}
+					<div className="flex items-center justify-center sm:justify-end space-x-2">
+						<Suspense
+							fallback={
+								<Loader2 className="h-4 w-4 animate-spin" />
+							}
 						>
-							<SelectValue placeholder="All time" />
-						</SelectTrigger>
-						<SelectContent className="rounded-xl">
-							<SelectItem value="10y" className="rounded-lg">
-								Last 10 years
-							</SelectItem>
-							<SelectItem value="5y" className="rounded-lg">
-								Last 5 years
-							</SelectItem>
-							<SelectItem value="3y" className="rounded-lg">
-								Last 3 years
-							</SelectItem>
-							<SelectItem value="2y" className="rounded-lg">
-								Last 2 years
-							</SelectItem>
-							<SelectItem value="1y" className="rounded-lg">
-								Last year
-							</SelectItem>
-						</SelectContent>
-					</Select>
-				</div>
-			</CardHeader>
+							<GradeDistributionFetchData
+								mnumber={mnumber}
+								offset={offset}
+								dataCallback={handleDataReturn}
+							/>
+						</Suspense>
 
-			<CardContent className="mx-4 px-0">
-				{gradeDistributionData ? (
-					<GradeDistributionChart
-						data={gradeDistributionData}
-					/>
-				) : (
-					<p className="p-2">No data available</p>
-				)}
-			</CardContent>
-		</Card>
-	)
-}
+						<Select value={timeRange} onValueChange={handleTimeRangeChange}>
+							<SelectTrigger
+								className="w-[160px] rounded-lg"
+								aria-label="Select time range"
+							>
+								<SelectValue placeholder="All time" />
+							</SelectTrigger>
+							<SelectContent className="rounded-xl">
+								<SelectItem value="10y" className="rounded-lg">
+									Last 10 years
+								</SelectItem>
+								<SelectItem value="5y" className="rounded-lg">
+									Last 5 years
+								</SelectItem>
+								<SelectItem value="3y" className="rounded-lg">
+									Last 3 years
+								</SelectItem>
+								<SelectItem value="2y" className="rounded-lg">
+									Last 2 years
+								</SelectItem>
+								<SelectItem value="1y" className="rounded-lg">
+									Last year
+								</SelectItem>
+							</SelectContent>
+						</Select>
+					</div>
+				</CardHeader>
+
+				<CardContent className="mx-4 px-0">
+					{gradeDistributionData ? (
+						<GradeDistributionChart
+							data={gradeDistributionData}
+						/>
+					) : (
+						<p className="p-2">No data available</p>
+					)}
+				</CardContent>
+			</Card>
+		)
+	}
 
 interface GradeDistributionFetchDataProps {
 	mnumber: string
