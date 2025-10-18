@@ -82,7 +82,7 @@ export function RosterInfoCard({ course, term, className }: RosterInfoCardProps)
 					<div className="flex flex-col justify-between items-end h-full gap-4">
 						<Badge
 							variant={isActive ? "default" : "secondary"}
-							className="text-sm font-medium rounded-full"
+							className="text-sm font-medium rounded-full bg-primary px-4 py-1 dark:bg-primary/20"
 						>
 							<span className="text-xs font-normal text-white">
 								{isActive ? "Active" : "Completed"}

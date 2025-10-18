@@ -1,7 +1,6 @@
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { CourseGradeChart } from '@/components/charts/course-grade-distributions';
 import { AdvisedStudents } from '@/components/advised-students';
@@ -48,18 +47,6 @@ const termDetailsQuery = graphql(`
   }
 `)
 
-function TermDetailsSkeleton() {
-  return (
-    <div className="container mx-auto p-6">
-      <div className="flex flex-col space-y-6">
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-4 w-1/4" />
-        <Skeleton className="h-96 w-full" />
-      </div>
-    </div>
-  );
-};
-
 export const Route = createFileRoute(
   '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/',
 )({
@@ -98,6 +85,21 @@ function RouteComponent() {
     <div className="w-full mx-auto p-6 space-y-6">
       {/* Statistics summary cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="w-full col-span-3">
+          {/* Back button */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-fit"
+            onClick={() => navigate({
+              to: `/instructors/${mnumber}/term-history`
+            })}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Term History
+          </Button>
+        </div>
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">

@@ -5,7 +5,6 @@ import { useSession } from "@/components/provider/session";
 import { type ExtendedTerm, TermSelector } from "@/components/selectors/term-selector";
 import { type ExtendedCourse, CourseSelector } from "@/components/selectors/course-selector";
 
-// import { Roster } from "@/components/roster";
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
 import { RosterSummaryCard } from "@/components/roster/roster-summary-card";

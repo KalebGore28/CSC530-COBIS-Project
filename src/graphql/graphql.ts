@@ -9329,6 +9329,19 @@ export type TermGradeDistributionsQueryQueryVariables = Exact<{
 
 export type TermGradeDistributionsQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, grade_distribution_trend?: Array<{ __typename?: 'FacultyGradeDistributionTrendItem', year: number, distributions: Array<{ __typename?: 'FacultyGradeDistributionItem', count: number, grade: string, percentage: number }>, term: { __typename?: 'Term', code: string, description: string } } | null> | null } | null };
 
+export type RosterQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+  term: Scalars['String']['input'];
+  year: Scalars['Int']['input'];
+  subject: Scalars['String']['input'];
+  number: Scalars['Int']['input'];
+  suffix?: InputMaybe<Scalars['String']['input']>;
+  section?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type RosterQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_subject: string, course_number: number, course_suffix: string, course_section: string, credit_hour?: number | null, total_students: number, total_credit_hours: number, class_gpa?: number | null, midterm_average?: number | null, final_average?: number | null, course: { __typename?: 'CoursesSelectItem', title: string } } | null> | null } | null };
+
 export type RosterGradeDistributionsQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -9536,6 +9549,36 @@ export const TermGradeDistributionsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<TermGradeDistributionsQueryQuery, TermGradeDistributionsQueryQueryVariables>;
+export const RosterQueryDocument = new TypedDocumentString(`
+    query rosterQuery($mnumber: String!, $term: String!, $year: Int!, $subject: String!, $number: Int!, $suffix: String, $section: String) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    courses_taught(
+      startTerm: $term
+      startYear: $year
+      endTerm: $term
+      endYear: $year
+      subject: $subject
+      number: $number
+      suffix: $suffix
+      section: $section
+    ) {
+      course {
+        title
+      }
+      course_subject
+      course_number
+      course_suffix
+      course_section
+      credit_hour
+      total_students
+      total_credit_hours
+      class_gpa
+      midterm_average
+      final_average
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<RosterQueryQuery, RosterQueryQueryVariables>;
 export const RosterGradeDistributionsQueryDocument = new TypedDocumentString(`
     query rosterGradeDistributionsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!, $section: String!) {
   instructorCoursesSingle(
