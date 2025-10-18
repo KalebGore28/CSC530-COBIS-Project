@@ -9304,6 +9304,17 @@ export type AdvisedStudentsQueryQueryVariables = Exact<{
 
 export type AdvisedStudentsQueryQuery = { __typename?: 'Query', studentAdvisors: Array<{ __typename?: 'StudentAdvisorsSelectItem', student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, gender?: string | null } }> };
 
+export type CourseGradeDistributionsQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+  startTerm: Scalars['String']['input'];
+  startYear: Scalars['Int']['input'];
+  endTerm: Scalars['String']['input'];
+  endYear: Scalars['Int']['input'];
+}>;
+
+
+export type CourseGradeDistributionsQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_section: string, final_grade_distribution: Array<{ __typename?: 'GradeEntry', grade: string, count: number, percentage: number }>, midterm_grade_distribution: Array<{ __typename?: 'GradeEntry', grade: string, count: number, percentage: number }>, course: { __typename?: 'CoursesSelectItem', number: number, subject: string, suffix: string, title: string } } | null> | null } | null };
+
 export type GetCurrentYearTermQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -9405,6 +9416,17 @@ export type GetInstructorQueryQueryVariables = Exact<{
 
 export type GetInstructorQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', mnumber: string, first_name: string, last_name: string, department_code?: string | null, college_code?: string | null, department?: { __typename?: 'DepartmentsSelectItem', description: string } | null, college?: { __typename?: 'CollegesSelectItem', description: string } | null, user?: { __typename?: 'UserSelectItem', image: string, email: string } | null } | null };
 
+export type TermDetailsQueryQueryVariables = Exact<{
+  mnumber: Scalars['String']['input'];
+  startTerm?: InputMaybe<Scalars['String']['input']>;
+  startYear?: InputMaybe<Scalars['Int']['input']>;
+  endTerm?: InputMaybe<Scalars['String']['input']>;
+  endYear?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type TermDetailsQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_section: string, total_credit_hours: number, total_students: number, course: { __typename?: 'CoursesSelectItem', title: string, subject: string, number: number, suffix: string } } | null> | null } | null };
+
 export type InstructorsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -9455,6 +9477,37 @@ export const AdvisedStudentsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<AdvisedStudentsQueryQuery, AdvisedStudentsQueryQueryVariables>;
+export const CourseGradeDistributionsQueryDocument = new TypedDocumentString(`
+    query courseGradeDistributionsQuery($mnumber: String!, $startTerm: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    mnumber
+    courses_taught(
+      startTerm: $startTerm
+      endTerm: $endTerm
+      startYear: $startYear
+      endYear: $endYear
+    ) {
+      final_grade_distribution {
+        grade
+        count
+        percentage
+      }
+      midterm_grade_distribution {
+        grade
+        count
+        percentage
+      }
+      course {
+        number
+        subject
+        suffix
+        title
+      }
+      course_section
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<CourseGradeDistributionsQueryQuery, CourseGradeDistributionsQueryQueryVariables>;
 export const GetCurrentYearTermQueryDocument = new TypedDocumentString(`
     query getCurrentYearTermQuery {
   getCurrentYearTerm {
@@ -9753,6 +9806,28 @@ export const GetInstructorQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetInstructorQueryQuery, GetInstructorQueryQueryVariables>;
+export const TermDetailsQueryDocument = new TypedDocumentString(`
+    query termDetailsQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {
+  facultySingle(where: {mnumber: {eq: $mnumber}}) {
+    courses_taught(
+      startTerm: $startTerm
+      startYear: $startYear
+      endTerm: $endTerm
+      endYear: $endYear
+    ) {
+      course {
+        title
+        subject
+        number
+        suffix
+      }
+      course_section
+      total_credit_hours
+      total_students
+    }
+  }
+}
+    `) as unknown as TypedDocumentString<TermDetailsQueryQuery, TermDetailsQueryQueryVariables>;
 export const InstructorsQueryDocument = new TypedDocumentString(`
     query instructorsQuery {
   faculty {

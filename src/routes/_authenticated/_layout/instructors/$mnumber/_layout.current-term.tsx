@@ -148,9 +148,9 @@ function RouteComponent() {
             </TableHeader>
             <TableBody>
               {coursesTaught.map((instructorCourse) => (
-                <TableRow key={instructorCourse?.course_section}>
+                <TableRow key={`${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`}>
                   <TableCell className='max-w-[120px] truncate'>
-                    {`${instructorCourse?.course.subject} ${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`}
+                    {`${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`}
                   </TableCell>
                   <TableCell className='max-w-[120px] truncate'>{instructorCourse?.course.title}</TableCell>
                   <TableCell className='max-w-[120px] truncate'>{instructorCourse?.total_students}</TableCell>

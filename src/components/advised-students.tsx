@@ -118,7 +118,6 @@ export function AdvisedStudents({
 }: {
 	mnumber: string;
 	term_info: TermInfo;
-	year: number;
 	title?: string;
 	modalOpen?: boolean;
 }) {
@@ -147,8 +146,6 @@ export function AdvisedStudentContent({
 }) {
 	const [isModalOpen, setIsModalOpen] = useState(false);
 	const [selectedStudent, setSelectedStudent] = useState<ExtendedStudent | null>(null);
-
-	console.log(term_info)
 
 	const { data, isLoading } = useQuery({
 		queryKey: ['advisedStudentsQuery', mnumber, term_info.term_code, term_info.year],
@@ -199,6 +196,7 @@ export function AdvisedStudentContent({
 										key={s.mnumber}
 										className="cursor-pointer hover:bg-muted/50 transition"
 										onClick={() => {
+											//@ts-ignore
 											setSelectedStudent(s);
 											setIsModalOpen(true);
 										}}
