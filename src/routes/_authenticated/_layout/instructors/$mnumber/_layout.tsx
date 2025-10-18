@@ -1,5 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Outlet, useNavigate, useParams, useLocation } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useNavigate, useParams, useLocation } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

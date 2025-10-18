@@ -9323,6 +9323,7 @@ export type RosterGradeDistributionsQueryQueryVariables = Exact<{
   subject: Scalars['String']['input'];
   number: Scalars['Int']['input'];
   suffix: Scalars['String']['input'];
+  section: Scalars['String']['input'];
 }>;
 
 
@@ -9483,9 +9484,9 @@ export const TermGradeDistributionsQueryDocument = new TypedDocumentString(`
 }
     `) as unknown as TypedDocumentString<TermGradeDistributionsQueryQuery, TermGradeDistributionsQueryQueryVariables>;
 export const RosterGradeDistributionsQueryDocument = new TypedDocumentString(`
-    query rosterGradeDistributionsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!) {
+    query rosterGradeDistributionsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!, $section: String!) {
   instructorCoursesSingle(
-    where: {mnumber: {eq: $mnumber}, course_subject: {eq: $subject}, course_number: {eq: $number}, course_suffix: {eq: $suffix}}
+    where: {mnumber: {eq: $mnumber}, course_subject: {eq: $subject}, course_number: {eq: $number}, course_suffix: {eq: $suffix}, course_section: {eq: $section}}
   ) {
     course_subject
     course_number

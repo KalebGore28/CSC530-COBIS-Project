@@ -42,30 +42,32 @@ const rosterGradeDistributionsQuery = graphql(`
 	$subject: String!
 	$number: Int!
 	$suffix: String!
+	$section: String!
 	) {
-	instructorCoursesSingle(
-		where: {
-		mnumber: { eq: $mnumber }
-		course_subject: { eq: $subject }
-		course_number: { eq: $number }
-		course_suffix: { eq: $suffix }
+		instructorCoursesSingle(
+			where: {
+			mnumber: { eq: $mnumber }
+			course_subject: { eq: $subject }
+			course_number: { eq: $number }
+			course_suffix: { eq: $suffix }
+			course_section: { eq: $section }
+			}
+		) {
+			course_subject
+			course_number
+			course_suffix
+			course_section
+			term_code
+			year
+			midterm_grade_distribution {
+			grade
+			count
+			}
+			final_grade_distribution {
+			grade
+			count
+			}
 		}
-	) {
-		course_subject
-		course_number
-		course_suffix
-		course_section
-		term_code
-		year
-		midterm_grade_distribution {
-		grade
-		count
-		}
-		final_grade_distribution {
-		grade
-		count
-		}
-	}
 	}
 `);
 
@@ -79,12 +81,13 @@ export function RosterGradeDistributions({ mnumber, course, className }: RosterG
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
 
 	const { data, isLoading } = useQuery({
-		queryKey: ['rosterGradeDistributionsQuery', course.course_subject, course.course_number, course.course_suffix],
+		queryKey: ['rosterGradeDistributionsQuery', course.course_subject, course.course_number, course.course_suffix, course.course_section],
 		queryFn: async () => await execute(rosterGradeDistributionsQuery, {
 			mnumber: mnumber,
 			subject: course.course_subject,
 			number: course.course_number,
 			suffix: course.course_suffix,
+			section: course.course_section,
 		}),
 	});
 
