@@ -147,7 +147,7 @@ function RouteComponent() {
         description="Fill in the details to provision this user."
         size="xl"
       >
-        <div className="flex flex-col p-4 w-full h-[650px]">
+        <div className="flex flex-col p-4 w-full h-[700px]">
           <div className="flex-1 overflow-y-auto space-y-6">
 
             <span className="font-medium">Faculty:</span>
@@ -178,6 +178,9 @@ function RouteComponent() {
             <fieldset disabled={selectedUser?.mnumber === session?.mnumber}>
               <Tabs
                 defaultValue={selectedUser?.isEnabled ? "yes" : "no"}
+                onValueChange={() => {
+
+                }}
               >
                 <TabsList className="grid grid-cols-2">
                   <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
@@ -193,8 +196,15 @@ function RouteComponent() {
             <span className="font-medium">Roles:</span>
             <MultiRoleSelector
               userMnumber={selectedUser?.mnumber}
-              roles={['cobis_administrator']}
-             />
+              roles={selectedUser?.roles.map((r: any) => r.role.name)}
+            />
+
+            <div className="mt-auto flex justify-end space-x-2">
+              <Button>
+                Provision
+              </Button>
+
+            </div>
           </div>
         </div>
       </Modal>

@@ -1,5 +1,5 @@
 import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList, CommandShortcut } from "@/components/ui/command"
-import { roles, user } from "@/db/schema";
+import { roles } from "@/db/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/components/provider/session";
 import { useState, useEffect } from "react";
