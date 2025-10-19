@@ -278,9 +278,9 @@ csvConfig.tables = {
             registration_status_code: { csvColumnName: "RSTSCODE" },
             instructional_method_code: { csvColumnName: "INSMCODE" },
             part_of_term_code: { csvColumnName: "PARTOFTERM" },
-            last_attendance: { csvColumnName: "LASTATTEND" },
-            midterm_grade: { csvColumnName: "MIDGRADE" },
-            final_grade: { csvColumnName: "FINGRADE" },
+            last_attendance: { csvColumnName: "LASTATTEND", transform: (val) => val === '' ? null : val },
+            midterm_grade: { csvColumnName: "MIDGRADE", transform: (val) => val === '' ? null : val },
+            final_grade: { csvColumnName: "FINGRADE", transform: (val) => val === '' ? null : val },
         },
     },
     studentPrograms: {

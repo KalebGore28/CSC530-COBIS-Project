@@ -106,7 +106,6 @@ export function RosterGradeDistributions({ mnumber, course, className }: RosterG
 	const midterm_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.midterm_grade_distribution);
 	const final_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.final_grade_distribution);
 
-
 	return (
 		<Card className={className}>
 			<CardHeader className="flex flex-wrap items-center justify-between gap-4">

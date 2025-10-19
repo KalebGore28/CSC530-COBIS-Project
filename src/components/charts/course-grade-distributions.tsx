@@ -78,21 +78,38 @@ export function CourseGradeChart({ mnumber, term, year }: {
 
 	const gradeDistributionData = data?.facultySingle?.courses_taught || []
 
-	// Conditionally Transform data for chart based on view
+	const _allowedGrades = ["A", "B", "C", "D", "E", "N/A"] as const;
+	type _AllowedGrade = typeof _allowedGrades[number];
+
+	// Conditionally transform data for chart based on view
 	const chartData = gradeDistributionData.map((course) => {
-		const distribution = view === "final" ? course?.final_grade_distribution : course?.midterm_grade_distribution
+		const distribution =
+			view === "final"
+				? course?.final_grade_distribution
+				: course?.midterm_grade_distribution;
 
 		const record: Record<string, string | number> = {
 			course: `${course?.course.subject}${course?.course.number}${course?.course.suffix}-${course?.course_section}`,
-		}
+		};
 
 		allGrades.forEach((g) => {
-			const bucket = distribution?.find((d) => d.grade === g)
-			record[g] = bucket ? bucket.percentage : 0
-		})
+			const bucket = distribution?.find((d) => d.grade === g);
 
-		return record
-	})
+			// If grade not in allowed list or bucket missing, mark N/A
+			if (!_allowedGrades.includes(g as _AllowedGrade)) {
+				record[g] = "N/A";
+			} else {
+				record[g] = bucket ? bucket.percentage : 0;
+			}
+		});
+
+		// Optionally: add "N/A" bucket if no grades matched
+		if (!record["N/A"]) {
+			record["N/A"] = 0;
+		}
+
+		return record;
+	});
 
 	return (
 		<Card>
