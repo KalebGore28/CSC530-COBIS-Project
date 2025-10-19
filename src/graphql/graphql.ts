@@ -9165,7 +9165,7 @@ export type RosterStudentsQueryQueryVariables = Exact<{
 }>;
 
 
-export type RosterStudentsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', term_code: string, year: number, course_subject: string, course_number: number, course_suffix: string, course_section: string, students: Array<{ __typename?: 'StudentCoursesSelectItem', student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', program: { __typename?: 'ProgramsSelectItem', description: string, code: string } } | null> | null } }> } | null };
+export type RosterStudentsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', term_code: string, year: number, course_subject: string, course_number: number, course_suffix: string, course_section: string, students: Array<{ __typename?: 'StudentCoursesSelectItem', midterm_grade?: string | null, final_grade?: string | null, student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', program: { __typename?: 'ProgramsSelectItem', description: string, code: string } } | null> | null } }> } | null };
 
 export type GetCoursesQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -9430,6 +9430,8 @@ export const RosterStudentsQueryDocument = new TypedDocumentString(`
           }
         }
       }
+      midterm_grade
+      final_grade
     }
   }
 }

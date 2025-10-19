@@ -79,6 +79,8 @@ const rosterStudentsQuery = graphql(`
 						}
 					}
 				}
+				midterm_grade
+				final_grade
 			}
 		}
 	}
@@ -164,8 +166,9 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 		programs: sc.student.programs
 			?.filter((p): p is NonNullable<typeof sc.student.programs[number]> => p != null)
 			.map((p) => p.program) ?? [],
+		midterm_grade: sc.midterm_grade ?? "N/A",
+		final_grade: sc.final_grade ?? "N/A"
 	}));
-
 
 	// Filter and sort students
 	const filteredStudents = students
@@ -289,8 +292,12 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 			<CardContent className="overflow-x-auto">
 				<Tabs defaultValue="list" className="w-full">
 					<TabsList className="grid w-full md:w-auto grid-cols-2 mb-4">
-						<TabsTrigger value="list">List View</TabsTrigger>
-						<TabsTrigger value="grid">Grid View</TabsTrigger>
+						<TabsTrigger value="list">
+							List View
+						</TabsTrigger>
+						<TabsTrigger value="grid">
+							Grid View
+						</TabsTrigger>
 					</TabsList>
 
 					<TabsContent value="list">
