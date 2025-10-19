@@ -191,7 +191,10 @@ function RouteComponent() {
             </fieldset>
 
             <span className="font-medium">Roles:</span>
-            <MultiRoleSelector />
+            <MultiRoleSelector
+              userMnumber={selectedUser?.mnumber}
+              roles={['cobis_administrator']}
+             />
           </div>
         </div>
       </Modal>
