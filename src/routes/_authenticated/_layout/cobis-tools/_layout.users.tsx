@@ -6,6 +6,9 @@ import { Input } from '@/components/ui/input';
 import fuzzysort from 'fuzzysort';
 import { useState } from 'react';
 import { Modal } from '@/components/ui/custom/modal';
+import { CollegeSearchBox } from '@/components/search/college-search';
+import { DepartmentSearchBox } from '@/components/search/department-search';
+import { FacultySearchBox } from '@/components/search/faculty-search';
 import { useSession } from '@/components/provider/session';
 
 // Import GraphQL imports
@@ -139,9 +142,24 @@ function RouteComponent() {
         }}
         title="Provision User"
         description="Fill in the details to provision this user."
-        size="lg"
+        size="xl"
       >
-        <span>Modal Content Here</span>
+        <div className="flex flex-col p-4 w-full h-[600px]">
+          <div className="flex-1 overflow-y-auto space-y-8">
+            <span className="font-medium">Faculty:</span>
+            <FacultySearchBox
+              mnumber={selectedUser?.mnumber}
+            />
+            <span className="font-medium">Department:</span>
+            <DepartmentSearchBox
+              departmentCode={selectedUser?.faculty?.department?.code}
+            />
+            <span className="font-medium">College:</span>
+            <CollegeSearchBox
+              collegeCode={selectedUser?.faculty?.college?.code}
+            />
+          </div>
+        </div>
       </Modal>
     </div>
   )

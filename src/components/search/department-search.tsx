@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -33,10 +33,12 @@ export function findDepartmentMatchFuzzy(input: string, departments: Department[
 
 
 interface DepartmentSearchBoxProps {
+    /** Optional department code to preselect a department */
+    departmentCode?: string;
     /** Called whenever the selected department changes */
     onSelectChange?: (selected: Department | null) => void;
 }
-export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps) {
+export function DepartmentSearchBox({ departmentCode, onSelectChange }: DepartmentSearchBoxProps) {
     const [query, setQuery] = useState("");
     const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
     const [selected, setSelected] = useState<Department | null>(null);
@@ -46,13 +48,23 @@ export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps
         queryFn: () => execute(GetDepartmentsQuery),
     });
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    // Runs only once to set default selection if departmentCode prop is provided
+    useEffect(() => {
+        if (!departmentCode || !departments.length || isLoading) return;
+        const defaultDepartment = departments.find((d) => d.code === departmentCode);
+        if (defaultDepartment && (!selected || selected.code !== defaultDepartment.code)) {
+            setSelected(defaultDepartment);
+            onSelectChange?.(defaultDepartment);
+        }
+    }, [departmentCode, isLoading]);
 
     const departments: Department[] = (data?.departments ?? []).map(dept => ({
         code: dept.code,
         description: dept.description,
         college_code: dept.college_code ?? null,
     }));
+
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
     if (selected) {
         return (
@@ -77,15 +89,30 @@ export function DepartmentSearchBox({ onSelectChange }: DepartmentSearchBoxProps
 
     return (
         <div className="space-y-2">
-            <Input
-                placeholder="Search departments..."
-                value={query}
-                onChange={(e) => {
-                    setQuery(e.target.value);
-                    const results = findDepartmentMatchFuzzy(e.target.value, departments);
-                    setFilteredDepartments(results);
-                }}
-            />
+            <div className="flex align-center space-x-2">
+                <Input
+                    placeholder="Search departments..."
+                    value={query}
+                    onChange={(e) => {
+                        setQuery(e.target.value);
+                        const results = findDepartmentMatchFuzzy(e.target.value, departments);
+                        setFilteredDepartments(results);
+                    }}
+                />
+                {departmentCode && !selected && (
+                    <Button
+                        variant="destructive"
+                        size="default"
+                        onClick={() => {
+                            setSelected(departments.find((d) => d.code === departmentCode) || null);
+                            setFilteredDepartments([]);
+                            setQuery("");
+                        }}
+                    >
+                        Undo
+                    </Button>
+                )}
+            </div>
             <DepartmentResults
                 filteredDepartments={filteredDepartments}
                 onSelect={(dept) => {

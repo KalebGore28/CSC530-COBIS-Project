@@ -17,7 +17,7 @@ interface ModalProps {
 	description?: string;
 	children: React.ReactNode;
 	footer?: React.ReactNode;
-	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl'| '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
+	size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | '7xl' | 'full';
 	className?: string;
 }
 
@@ -69,10 +69,7 @@ export const Modal: React.FC<ModalProps> = ({
 					)}
 				</DialogHeader>
 
-				<div className="max-h-[75vh] overflow-y-auto">
-					<div className="p-6">{children}</div>
-				</div>
-
+				{children}
 
 				{footer && (
 					<DialogFooter className="p-4 border-t bg-muted/50">

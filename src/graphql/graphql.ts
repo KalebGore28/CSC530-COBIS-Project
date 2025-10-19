@@ -9169,6 +9169,11 @@ export type RosterStudentsQueryQueryVariables = Exact<{
 
 export type RosterStudentsQueryQuery = { __typename?: 'Query', instructorCoursesSingle?: { __typename?: 'InstructorCoursesSelectItem', term_code: string, year: number, course_subject: string, course_number: number, course_suffix: string, course_section: string, students: Array<{ __typename?: 'StudentCoursesSelectItem', midterm_grade?: string | null, final_grade?: string | null, student: { __typename?: 'StudentsSelectItem', mnumber: string, first_name: string, middle_name?: string | null, last_name: string, suffix?: string | null, email?: string | null, programs?: Array<{ __typename?: 'StudentProgramsSelectItem', program: { __typename?: 'ProgramsSelectItem', description: string, code: string } } | null> | null } }> } | null };
 
+export type GetCollegesQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetCollegesQueryQuery = { __typename?: 'Query', colleges: Array<{ __typename?: 'CollegesSelectItem', code: string, description: string }> };
+
 export type GetCoursesQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -9179,10 +9184,20 @@ export type GetDepartmentsQueryQueryVariables = Exact<{ [key: string]: never; }>
 
 export type GetDepartmentsQueryQuery = { __typename?: 'Query', departments: Array<{ __typename?: 'DepartmentsSelectItem', code: string, description: string, college_code?: string | null }> };
 
+export type GetFacultyQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetFacultyQueryQuery = { __typename?: 'Query', faculty: Array<{ __typename?: 'FacultySelectItem', mnumber: string, first_name: string, last_name: string, department_code?: string | null, college_code?: string | null }> };
+
 export type GetProgramsQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type GetProgramsQueryQuery = { __typename?: 'Query', programs: Array<{ __typename?: 'ProgramsSelectItem', code: string, description: string, cip_code?: string | null, is_major: boolean, is_minor: boolean, has_concentration: boolean, is_discontinued: boolean, is_aacsb: boolean, department_code?: string | null, college_code?: string | null, last_updated: string }> };
+
+export type GetUsersQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetUsersQueryQuery = { __typename?: 'Query', user: Array<{ __typename?: 'UserSelectItem', id: string, mnumber?: string | null, name: string, email: string, emailVerified: boolean, image: string, createdAt: string, updatedAt: string, isEnabled: boolean, lastLogin?: string | null }> };
 
 export type CourseSelectorQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
@@ -9443,6 +9458,14 @@ export const RosterStudentsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<RosterStudentsQueryQuery, RosterStudentsQueryQueryVariables>;
+export const GetCollegesQueryDocument = new TypedDocumentString(`
+    query getCollegesQuery {
+  colleges {
+    code
+    description
+  }
+}
+    `) as unknown as TypedDocumentString<GetCollegesQueryQuery, GetCollegesQueryQueryVariables>;
 export const GetCoursesQueryDocument = new TypedDocumentString(`
     query getCoursesQuery {
   courses {
@@ -9466,6 +9489,17 @@ export const GetDepartmentsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetDepartmentsQueryQuery, GetDepartmentsQueryQueryVariables>;
+export const GetFacultyQueryDocument = new TypedDocumentString(`
+    query getFacultyQuery {
+  faculty {
+    mnumber
+    first_name
+    last_name
+    department_code
+    college_code
+  }
+}
+    `) as unknown as TypedDocumentString<GetFacultyQueryQuery, GetFacultyQueryQueryVariables>;
 export const GetProgramsQueryDocument = new TypedDocumentString(`
     query getProgramsQuery {
   programs {
@@ -9483,6 +9517,22 @@ export const GetProgramsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<GetProgramsQueryQuery, GetProgramsQueryQueryVariables>;
+export const GetUsersQueryDocument = new TypedDocumentString(`
+    query getUsersQuery {
+  user {
+    id
+    mnumber
+    name
+    email
+    emailVerified
+    image
+    createdAt
+    updatedAt
+    isEnabled
+    lastLogin
+  }
+}
+    `) as unknown as TypedDocumentString<GetUsersQueryQuery, GetUsersQueryQueryVariables>;
 export const CourseSelectorQueryDocument = new TypedDocumentString(`
     query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {
   facultySingle(where: {mnumber: {eq: $mnumber}}) {
