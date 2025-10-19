@@ -72,7 +72,6 @@ export const FacultyResolver = {
         },
         { loaders }: ApolloContext,
     ) => {
-        console.log('courses_taught args:', args)
         // enforce “both or neither” for start‐range and end‐range
         if ((args.startTerm != null) !== (args.startYear != null)) {
             throw new Error(
@@ -191,6 +190,7 @@ export const FacultyResolver = {
                                 c.course_subject,
                                 c.course_number,
                                 c.course_suffix,
+                                c.course_section,
                             ].join('|'),
                         ),
                     ),

@@ -27,7 +27,6 @@ function courseKey({
 
 export function createStudentsByCourseLoader(db: DbConnection['orm']) {
   return new DataLoader<string, StudentCourse[]>(async (keys) => {
-    console.log("StudentsByCourseLoader - Loading keys:", keys);
     const parts = keys.map((k) => k.split('|'))
     const tuples = sql.join(
       parts.map(
@@ -55,8 +54,6 @@ export function createStudentsByCourseLoader(db: DbConnection['orm']) {
       .orderBy(
         sql`${studentCourses.year} DESC, ${studentCourses.term_code} DESC`,
       )
-
-    console.log("StudentsByCourseLoader - Fetched Rows:", rows);
 
     // group by composite key
     const map = rows.reduce<Record<string, typeof rows>>((acc, row) => {
