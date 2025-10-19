@@ -27,8 +27,10 @@ interface MultiRoleSelectorProps {
     */
     userMnumber: string;
     roles?: string[];
+    /** Called whenever the selected roles change */
+    onRolesChange?: (selectedRoles: Role[]) => void;
 }
-export function MultiRoleSelector({ userMnumber, roles }: MultiRoleSelectorProps) {
+export function MultiRoleSelector({ userMnumber, roles, onRolesChange }: MultiRoleSelectorProps) {
     console.log("MultiRoleSelector roles prop:", roles, userMnumber);
     const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
     const { session } = useSession();
@@ -45,6 +47,7 @@ export function MultiRoleSelector({ userMnumber, roles }: MultiRoleSelectorProps
         if (!roles || roleList.length === 0 || isLoading) return;
         const defaultRoles = roleList.filter((role) => roles.includes(role.name));
         setSelectedRoles(defaultRoles);
+        onRolesChange?.(defaultRoles);
     }, [roles, roleList, isLoading]);
 
     if (isLoading) return <Skeleton className="h-40 w-full" />;
@@ -78,6 +81,7 @@ export function MultiRoleSelector({ userMnumber, roles }: MultiRoleSelectorProps
                                             }
 
                                             setSelectedRoles(updatedRoles);
+                                            onRolesChange?.(updatedRoles);
                                         }}
                                         className={`flex items-center justify-between ${isDisabled ? "opacity-50 pointer-events-none" : ""
                                             }`}

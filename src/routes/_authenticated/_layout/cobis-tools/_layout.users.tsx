@@ -12,6 +12,9 @@ import { DepartmentSelector } from '@/components/selectors/department-selector';
 import { FacultySelector } from '@/components/selectors/faculty-selector';
 import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
 import { useSession } from '@/components/provider/session';
+import { roles } from '@/db/schema';
+
+type Role = typeof roles.$inferSelect;
 
 // Import GraphQL imports
 import { useQuery } from '@tanstack/react-query';
@@ -77,6 +80,14 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
 })
+
+export type ProvisionParams = {
+  roles: Role[];
+  isEnabled: boolean;
+  collegeCode: string;
+  departmentCode: string;
+  mnumber: string;
+}
 
 function RouteComponent() {
   const { session } = useSession();
