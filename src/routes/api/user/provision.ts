@@ -1,7 +1,9 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { loadUser } from '@/middleware/load-user'
 
 export const Route = createFileRoute('/api/user/provision')({
     server: {
+        middleware: [loadUser],
         handlers: {
             POST: async ({ request }) => {
                 const url = new URL(request.url)

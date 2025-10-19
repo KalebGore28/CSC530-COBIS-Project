@@ -4,10 +4,6 @@ import { loadUser } from '@/middleware/load-user';
 import { auth } from '@/lib/server/auth'
 
 export const Route = createFileRoute('/api/user/me')({
-    loader: () => {
-        // The return type is already inferred from the route
-        return "hello";
-    },
     server: {
         middleware: [loadUser],
         handlers: {

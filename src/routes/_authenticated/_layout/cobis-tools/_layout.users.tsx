@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -77,6 +78,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+  const { session } = useSession();
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -158,6 +160,29 @@ function RouteComponent() {
             <CollegeSearchBox
               collegeCode={selectedUser?.faculty?.college?.code}
             />
+            <span className="font-medium">
+              Account Enabled:
+              {selectedUser?.mnumber === session?.mnumber && (
+                <span className="text-sm text-red-500 ml-2">
+                  (You cannot change your own account status)
+                </span>
+              )}
+            </span>
+            <fieldset disabled={selectedUser?.mnumber === session?.mnumber}>
+              <Tabs
+                defaultValue={selectedUser?.isEnabled ? "yes" : "no"}
+              >
+
+                <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    Yes
+                  </TabsTrigger>
+                  <TabsTrigger value="no" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                    No
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </fieldset>
           </div>
         </div>
       </Modal>
