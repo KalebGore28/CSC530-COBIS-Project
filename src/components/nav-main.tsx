@@ -53,7 +53,7 @@ const nav_main_data = [
 		url: "/cobis-tools",
 		icon: TerminalSquareIcon,
 		items: [
-			{ title: "Importing", url: "/cobis-tools/import" },
+			{ title: "Import", url: "/cobis-tools/import" },
 			{ title: "Users", url: "/cobis-tools/users" },
 		],
 	},

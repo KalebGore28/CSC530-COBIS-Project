@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(
-  '/_authenticated/_layout/cobis-tools/import',
+  '/_authenticated/_layout/cobis-tools/_layout/import',
 )({
   component: RouteComponent,
 })
