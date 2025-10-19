@@ -19,6 +19,7 @@ import { StudentCoursesResolver, studentCoursesTypeExtension } from "../graphql/
 import { StudentProgramsResolver, studentProgramTypeExtension } from "../graphql/resolvers/student-program";
 import { StudentResolver, studentTypeExtension } from "../graphql/resolvers/student";
 import { UserRolesResolver, userRoleTypeExtension } from "../graphql/resolvers/user-role";
+import { UserResolver, userTypeExtension } from "@/graphql/resolvers/user";
 
 export interface DbConnection {
 	db: mysql.Pool;
@@ -85,7 +86,8 @@ const createDb = async (): Promise<DbConnection> => {
 		studentCoursesTypeExtension +
 		studentProgramTypeExtension +
 		studentTypeExtension +
-		userRoleTypeExtension
+		userRoleTypeExtension +
+		userTypeExtension
 	));
 
 	// 🧩 Add your *custom* resolvers on top of existing drizzle ones
@@ -103,6 +105,7 @@ const createDb = async (): Promise<DbConnection> => {
 			StudentProgramsSelectItem: StudentProgramsResolver,
 			StudentsSelectItem: StudentResolver,
 			UserRolesSelectItem: UserRolesResolver,
+			UserSelectItem: UserResolver,
 		}
 	});
 
