@@ -54,44 +54,41 @@ export const loadUser = createMiddleware({ type: 'request' })
 
         const { orm } = await getDbConnection()
 
-        const dbUser = await orm
+        const combined = await orm
             .select({
                 mnumber: user.mnumber,
                 isEnabled: user.isEnabled,
-            })
-            .from(user)
-            .where(eq(user.id, session.user.id))
-            .then((res) => res[0] || null)
-
-        const dbUserRoles = await orm
-            .select({
                 roleName: roles.name,
-            })
-            .from(userRoles)
-            .innerJoin(roles, eq(userRoles.role_id, roles.id))
-            .where(eq(userRoles.user_id, session.user.id))
-            .then((res) => res.map((r) => r.roleName))
-
-        const facultyInfo = await orm
-            .select({
                 firstName: faculty.first_name,
                 lastName: faculty.last_name,
                 department: faculty.department_code,
                 college: faculty.college_code,
             })
-            .from(faculty)
-            .where(eq(faculty.mnumber, dbUser?.mnumber || ''))
-            .then((res) => res[0] || null)
+            .from(user)
+            .leftJoin(userRoles, eq(userRoles.user_id, user.id))
+            .leftJoin(roles, eq(userRoles.role_id, roles.id))
+            .leftJoin(faculty, eq(faculty.mnumber, user.mnumber))
+            .where(eq(user.id, session.user.id))
 
-        // Otherwise, continue
+        // Handle aggregation — because a user may have multiple roles
+        const base = combined[0]
+        const rolesList = combined.map((r) => r.roleName).filter(Boolean)
+
         return next({
             context: {
                 session: session.session,
                 user: session.user,
-                mnumber: dbUser?.mnumber || null,
-                isEnabled: dbUser?.isEnabled || false,
-                roles: dbUserRoles || [],
-                faculty: facultyInfo || null,
+                mnumber: base?.mnumber || null,
+                isEnabled: base?.isEnabled || false,
+                roles: rolesList,
+                faculty: base
+                    ? {
+                        firstName: base.firstName,
+                        lastName: base.lastName,
+                        department: base.department,
+                        college: base.college,
+                    }
+                    : null,
             },
         })
     })

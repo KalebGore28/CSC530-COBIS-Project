@@ -1,12 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Button } from '@/components/ui/button';
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import fuzzysort from 'fuzzysort';
 import { useState } from 'react';
+import { Modal } from '@/components/ui/custom/modal';
 import { useSession } from '@/components/provider/session';
 
 // Import GraphQL imports
@@ -76,6 +75,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const [query, setQuery] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const { data } = useQuery({
     queryKey: ['users'],
@@ -98,7 +99,6 @@ function RouteComponent() {
             onChange={(e) => setQuery(e.target.value)}
           />
         </CardContent>
-
       </Card>
 
       <div className="w-full max-w-3xl mx-auto space-y-2">
@@ -118,15 +118,31 @@ function RouteComponent() {
                   </div>
                   <div className="text-sm text-gray-500">{user.email}</div>
                   <div className="text-sm text-gray-500">M#: {user.mnumber}</div>
-                  <div className="text-sm text-gray-500">Last Login: {user.lastLogin}</div>
                 </div>
               </div>
-
-              <Button variant="outline" size="sm">View Details</Button>
+              <Button variant="outline" size="sm" onClick={() => {
+                setSelectedUser(user);
+                setModalOpen(true);
+              }}>
+                View Details
+              </Button>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <Modal
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setSelectedUser(null);
+        }}
+        title="Provision User"
+        description="Fill in the details to provision this user."
+        size="lg"
+      >
+        <span>Modal Content Here</span>
+      </Modal>
     </div>
   )
 }
