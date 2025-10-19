@@ -30,12 +30,12 @@ export function findCollegeMatchFuzzy(input: string, colleges: College[]): Colle
     return results.map(result => result.obj);
 }
 
-interface CollegeSearchBoxProps {
+interface CollegeSelectorProps {
     collegeCode?: string;
     /** Called whenever the selected college changes */
     onSelectChange?: (selected: College | null) => void;
 }
-export function CollegeSearchBox({ collegeCode, onSelectChange }: CollegeSearchBoxProps) {
+export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelectorProps) {
     const [query, setQuery] = useState("");
     const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
     const [selected, setSelected] = useState<College | null>(null);

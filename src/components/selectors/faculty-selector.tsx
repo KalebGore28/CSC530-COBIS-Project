@@ -33,13 +33,13 @@ export function findFacultyMatchFuzzy(input: string, facultyList: Faculty[]): Fa
     return results.map(result => result.obj);
 }
 
-interface FacultySearchBoxProps {
+interface FacultySelectorProps {
     /** Optional M number to preselect a faculty member */
     mnumber?: string;
     /** Called whenever the selected faculty changes */
     onSelectChange?: (selected: Faculty | null) => void;
 }
-export function FacultySearchBox({ mnumber, onSelectChange }: FacultySearchBoxProps) {
+export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProps) {
     const [query, setQuery] = useState("");
     const [filteredFaculty, setFilteredFaculty] = useState<Faculty[]>([]);
     const [selected, setSelected] = useState<Faculty | null>(null);

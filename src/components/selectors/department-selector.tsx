@@ -32,13 +32,13 @@ export function findDepartmentMatchFuzzy(input: string, departments: Department[
 }
 
 
-interface DepartmentSearchBoxProps {
+interface DepartmentSelectorProps {
     /** Optional department code to preselect a department */
     departmentCode?: string;
     /** Called whenever the selected department changes */
     onSelectChange?: (selected: Department | null) => void;
 }
-export function DepartmentSearchBox({ departmentCode, onSelectChange }: DepartmentSearchBoxProps) {
+export function DepartmentSelector({ departmentCode, onSelectChange }: DepartmentSelectorProps) {
     const [query, setQuery] = useState("");
     const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
     const [selected, setSelected] = useState<Department | null>(null);

@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input';
 import fuzzysort from 'fuzzysort';
 import { useState } from 'react';
 import { Modal } from '@/components/ui/custom/modal';
-import { CollegeSearchBox } from '@/components/search/college-search';
-import { DepartmentSearchBox } from '@/components/search/department-search';
-import { FacultySearchBox } from '@/components/search/faculty-search';
+import { CollegeSelector } from '@/components/selectors/college-selector';
+import { DepartmentSelector } from '@/components/selectors/department-selector';
+import { FacultySelector } from '@/components/selectors/faculty-selector';
+import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
 import { useSession } from '@/components/provider/session';
 
 // Import GraphQL imports
@@ -81,7 +82,7 @@ function RouteComponent() {
   const { session } = useSession();
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const { data } = useQuery({
     queryKey: ['users'],
@@ -146,20 +147,24 @@ function RouteComponent() {
         description="Fill in the details to provision this user."
         size="xl"
       >
-        <div className="flex flex-col p-4 w-full h-[600px]">
-          <div className="flex-1 overflow-y-auto space-y-8">
+        <div className="flex flex-col p-4 w-full h-[650px]">
+          <div className="flex-1 overflow-y-auto space-y-6">
+
             <span className="font-medium">Faculty:</span>
-            <FacultySearchBox
+            <FacultySelector
               mnumber={selectedUser?.mnumber}
             />
+
             <span className="font-medium">Department:</span>
-            <DepartmentSearchBox
+            <DepartmentSelector
               departmentCode={selectedUser?.faculty?.department?.code}
             />
+
             <span className="font-medium">College:</span>
-            <CollegeSearchBox
+            <CollegeSelector
               collegeCode={selectedUser?.faculty?.college?.code}
             />
+
             <span className="font-medium">
               Account Enabled:
               {selectedUser?.mnumber === session?.mnumber && (
@@ -168,11 +173,12 @@ function RouteComponent() {
                 </span>
               )}
             </span>
+
+            {/* Account Enabled Toggle Conditionally Enabled Based on User */}
             <fieldset disabled={selectedUser?.mnumber === session?.mnumber}>
               <Tabs
                 defaultValue={selectedUser?.isEnabled ? "yes" : "no"}
               >
-
                 <TabsList className="grid grid-cols-2">
                   <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                     Yes
@@ -183,6 +189,9 @@ function RouteComponent() {
                 </TabsList>
               </Tabs>
             </fieldset>
+
+            <span className="font-medium">Roles:</span>
+            <MultiRoleSelector />
           </div>
         </div>
       </Modal>
