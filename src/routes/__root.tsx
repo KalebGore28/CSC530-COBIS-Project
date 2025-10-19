@@ -5,8 +5,6 @@ import { Suspense } from 'react';
 import { ThemeProvider } from '@/components/provider/theme'
 import { SessionProvider } from '@/components/provider/session';
 
-
-
 import appCss from '../styles.css?url'
 import type { QueryClient } from '@tanstack/react-query'
 
@@ -25,7 +23,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'COBIS App',
       },
     ],
     links: [
