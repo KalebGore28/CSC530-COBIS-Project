@@ -272,6 +272,16 @@ function RouteComponent() {
                       toast.error(err.message);
                     },
                   });
+                  setModalOpen(false);
+                  setSelectedUser(null);
+                  setProvisionParams({
+                    roles: [],
+                    isEnabled: false,
+                    collegeCode: "",
+                    departmentCode: "",
+                    mnumber: "",
+                    userId: "",
+                  });
                 }}
                 disabled={provision.isPending}
               >
