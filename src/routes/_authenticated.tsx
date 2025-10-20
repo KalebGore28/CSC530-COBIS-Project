@@ -13,7 +13,7 @@ function RouteComponent() {
 
     const pathname = routerState.location.pathname
 
-    // 1️⃣ No session → go to login
+    // No session → go to login
     if (!session) {
         if (pathname !== '/login') {
             localStorage.setItem('redirectTo', pathname)
@@ -22,18 +22,17 @@ function RouteComponent() {
         return null
     }
 
-    // 2️⃣ Not fully provisioned
+    // Not fully provisioned
     if (!session.isEnabled || !session.mnumber || session.roles.length === 0) {
         return <Navigate to="/waiting" />
     }
 
-    // 3️⃣ Return user to saved path (only once)
+    // Return user to saved path (only once)
     const redirectTo = localStorage.getItem('redirectTo')
     if (redirectTo && redirectTo !== pathname) {
         localStorage.removeItem('redirectTo')
         return <Navigate to={redirectTo} replace />
     }
 
-    // ✅ Render normally
     return <Outlet />
 }
