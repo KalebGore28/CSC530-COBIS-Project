@@ -2,7 +2,7 @@ import { Command, CommandEmpty, CommandGroup, CommandItem, CommandList, CommandS
 import { roles } from "@/db/schema";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "@/components/provider/session";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 type Role = typeof roles.$inferSelect;
 
@@ -31,7 +31,6 @@ interface MultiRoleSelectorProps {
     onRolesChange?: (selectedRoles: Role[]) => void;
 }
 export function MultiRoleSelector({ userMnumber, roles, onRolesChange }: MultiRoleSelectorProps) {
-    console.log("MultiRoleSelector roles prop:", roles, userMnumber);
     const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
     const { session } = useSession();
 
@@ -42,15 +41,16 @@ export function MultiRoleSelector({ userMnumber, roles, onRolesChange }: MultiRo
 
     const roleList = data?.roles || [];
 
-    // Runs only once to set default selection if roles prop is provided
-    useEffect(() => {
-        if (!roles || roleList.length === 0 || isLoading) return;
-        const defaultRoles = roleList.filter((role) => roles.includes(role.name));
-        setSelectedRoles(defaultRoles);
-        onRolesChange?.(defaultRoles);
-    }, [roles, roleList, isLoading]);
-
     if (isLoading) return <Skeleton className="h-40 w-full" />;
+
+    // Initialize from props after data loads, but only if empty
+    if (selectedRoles.length === 0 && roles && roleList.length > 0) {
+        const mappedRoles = roleList.filter((r) => roles.includes(r.name));
+        if (mappedRoles.length > 0) {
+            setSelectedRoles(mappedRoles);
+            queueMicrotask(() => onRolesChange?.(mappedRoles));
+        }
+    }
 
     return (
         <div className="w-full border rounded-md shadow-sm">

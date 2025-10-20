@@ -94,6 +94,13 @@ function RouteComponent() {
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [provisionParams, setProvisionParams] = useState<ProvisionParams>({
+    roles: [],
+    isEnabled: false,
+    collegeCode: "",
+    departmentCode: "",
+    mnumber: "",
+  });
 
   const { data } = useQuery({
     queryKey: ['users'],
@@ -101,6 +108,7 @@ function RouteComponent() {
   });
 
   const filteredUsers = fuzzySearchUsers(data?.user ?? [], query);
+
 
   return (
     <div className="space-y-4">
@@ -164,16 +172,34 @@ function RouteComponent() {
             <span className="font-medium">Faculty:</span>
             <FacultySelector
               mnumber={selectedUser?.mnumber}
+              onSelectChange={(value) => {
+                setProvisionParams((prev) => ({
+                  ...prev,
+                  mnumber: value?.mnumber || "",
+                }));
+              }}
             />
 
             <span className="font-medium">Department:</span>
             <DepartmentSelector
               departmentCode={selectedUser?.faculty?.department?.code}
+              onSelectChange={(value) => {
+                setProvisionParams((prev) => ({
+                  ...prev,
+                  departmentCode: value?.code || "",
+                }));
+              }}
             />
 
             <span className="font-medium">College:</span>
             <CollegeSelector
               collegeCode={selectedUser?.faculty?.college?.code}
+              onSelectChange={(value) => {
+                setProvisionParams((prev) => ({
+                  ...prev,
+                  collegeCode: value?.code || "",
+                }));
+              }}
             />
 
             <span className="font-medium">
@@ -189,7 +215,11 @@ function RouteComponent() {
             <fieldset disabled={selectedUser?.mnumber === session?.mnumber}>
               <Tabs
                 defaultValue={selectedUser?.isEnabled ? "yes" : "no"}
-                onValueChange={() => {
+                onValueChange={(value) => {
+                  setProvisionParams((prev) => ({
+                    ...prev,
+                    isEnabled: value === "yes",
+                  }));
 
                 }}
               >
@@ -208,8 +238,13 @@ function RouteComponent() {
             <MultiRoleSelector
               userMnumber={selectedUser?.mnumber}
               roles={selectedUser?.roles.map((r: any) => r.role.name)}
+              onRolesChange={(value) => {
+                setProvisionParams((prev) => ({
+                  ...prev,
+                  roles: value,
+                }));
+              }}
             />
-
             <div className="mt-auto flex justify-end space-x-2">
               <Button>
                 Provision
