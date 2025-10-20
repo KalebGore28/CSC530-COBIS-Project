@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate, useRouterState } from '@tanstack/react-router'
+import { createFileRoute, Outlet, Navigate, useRouterState } from '@tanstack/react-router'
 import { useSession } from '@/components/provider/session'
 
 export const Route = createFileRoute('/_authenticated')({
@@ -8,40 +8,32 @@ export const Route = createFileRoute('/_authenticated')({
 function RouteComponent() {
     const { session, isLoading } = useSession()
     const routerState = useRouterState()
-    const navigate = useNavigate()
 
     if (isLoading) return null
+
+    const pathname = routerState.location.pathname
+
+    // 1️⃣ No session → go to login
     if (!session) {
-        if (routerState.location.pathname === '/login') {
-            return null
+        if (pathname !== '/login') {
+            localStorage.setItem('redirectTo', pathname)
+            return <Navigate to="/login" search={{ redirectTo: pathname }} />
         }
-        localStorage.setItem('redirectTo', routerState.location.pathname)
-        
-        navigate({
-            to: '/login',
-            search: { redirectTo: routerState.location.pathname },
-            replace: true,
-        })
-        return null
-    }
-    if (!session?.isEnabled || !session.mnumber || session.roles.length === 0) {
-        navigate({
-            to: '/waiting',
-            replace: true,
-        })
         return null
     }
 
-    // Check if user has a redirectTo value in localStorage
+    // 2️⃣ Not fully provisioned
+    if (!session.isEnabled || !session.mnumber || session.roles.length === 0) {
+        return <Navigate to="/waiting" />
+    }
+
+    // 3️⃣ Return user to saved path (only once)
     const redirectTo = localStorage.getItem('redirectTo')
-    if (redirectTo && redirectTo !== routerState.location.pathname) {
+    if (redirectTo && redirectTo !== pathname) {
         localStorage.removeItem('redirectTo')
-        navigate({
-            to: redirectTo,
-            replace: true,
-        })
-        return null
+        return <Navigate to={redirectTo} replace />
     }
 
+    // ✅ Render normally
     return <Outlet />
 }

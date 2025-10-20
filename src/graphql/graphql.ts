@@ -2194,7 +2194,6 @@ export type InstructorCoursesFilters = {
   course_subject?: InputMaybe<InstructorCoursesCourse_SubjectFilters>;
   course_suffix?: InputMaybe<InstructorCoursesCourse_SuffixFilters>;
   mnumber?: InputMaybe<InstructorCoursesMnumberFilters>;
-  role?: InputMaybe<InstructorCoursesRoleFilters>;
   term_code?: InputMaybe<InstructorCoursesTerm_CodeFilters>;
   year?: InputMaybe<InstructorCoursesYearFilters>;
 };
@@ -2205,7 +2204,6 @@ export type InstructorCoursesFiltersOr = {
   course_subject?: InputMaybe<InstructorCoursesCourse_SubjectFilters>;
   course_suffix?: InputMaybe<InstructorCoursesCourse_SuffixFilters>;
   mnumber?: InputMaybe<InstructorCoursesMnumberFilters>;
-  role?: InputMaybe<InstructorCoursesRoleFilters>;
   term_code?: InputMaybe<InstructorCoursesTerm_CodeFilters>;
   year?: InputMaybe<InstructorCoursesYearFilters>;
 };
@@ -2216,7 +2214,6 @@ export type InstructorCoursesInsertInput = {
   course_subject: Scalars['String']['input'];
   course_suffix?: InputMaybe<Scalars['String']['input']>;
   mnumber: Scalars['String']['input'];
-  role?: InputMaybe<Scalars['String']['input']>;
   term_code: Scalars['String']['input'];
   year: Scalars['Int']['input'];
 };
@@ -2266,48 +2263,8 @@ export type InstructorCoursesOrderBy = {
   course_subject?: InputMaybe<InnerOrder>;
   course_suffix?: InputMaybe<InnerOrder>;
   mnumber?: InputMaybe<InnerOrder>;
-  role?: InputMaybe<InnerOrder>;
   term_code?: InputMaybe<InnerOrder>;
   year?: InputMaybe<InnerOrder>;
-};
-
-export type InstructorCoursesRoleFilters = {
-  OR?: InputMaybe<Array<InstructorCoursesRolefiltersOr>>;
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type InstructorCoursesRolefiltersOr = {
-  eq?: InputMaybe<Scalars['String']['input']>;
-  gt?: InputMaybe<Scalars['String']['input']>;
-  gte?: InputMaybe<Scalars['String']['input']>;
-  ilike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
-  isNull?: InputMaybe<Scalars['Boolean']['input']>;
-  like?: InputMaybe<Scalars['String']['input']>;
-  lt?: InputMaybe<Scalars['String']['input']>;
-  lte?: InputMaybe<Scalars['String']['input']>;
-  ne?: InputMaybe<Scalars['String']['input']>;
-  notIlike?: InputMaybe<Scalars['String']['input']>;
-  /** Array<undefined> */
-  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
-  notLike?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type InstructorCoursesSelectItem = {
@@ -2324,7 +2281,6 @@ export type InstructorCoursesSelectItem = {
   midterm_average?: Maybe<Scalars['Float']['output']>;
   midterm_grade_distribution: Array<GradeEntry>;
   mnumber: Scalars['String']['output'];
-  role: Scalars['String']['output'];
   students: Array<StudentCoursesSelectItem>;
   term: Term;
   term_code: Scalars['String']['output'];
@@ -2378,7 +2334,6 @@ export type InstructorCoursesUpdateInput = {
   course_subject?: InputMaybe<Scalars['String']['input']>;
   course_suffix?: InputMaybe<Scalars['String']['input']>;
   mnumber?: InputMaybe<Scalars['String']['input']>;
-  role?: InputMaybe<Scalars['String']['input']>;
   term_code?: InputMaybe<Scalars['String']['input']>;
   year?: InputMaybe<Scalars['Int']['input']>;
 };

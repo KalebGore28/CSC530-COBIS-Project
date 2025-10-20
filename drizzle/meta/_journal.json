@@ -5,43 +5,8 @@
     {
       "idx": 0,
       "version": "5",
-      "when": 1760070832085,
-      "tag": "0000_unusual_harpoon",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1760194601648,
-      "tag": "0001_cold_mojo",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1760214185847,
-      "tag": "0002_blushing_silhouette",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1760214635418,
-      "tag": "0003_cloudy_millenium_guard",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1760304240969,
-      "tag": "0004_awesome_diamondback",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1760815154784,
-      "tag": "0005_old_meltdown",
+      "when": 1760933672585,
+      "tag": "0000_luxuriant_wolverine",
       "breakpoints": true
     }
   ]

@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "4dcabb89-f121-4575-8451-86729e34fa1c",
+  "id": "5388e8d7-c9f8-4623-9b78-204245aa4e8f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "academic_standing": {
@@ -9,7 +9,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -155,7 +155,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -186,7 +186,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -206,71 +206,6 @@
           "name": "colleges_code",
           "columns": [
             "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "course_prefixes": {
-      "name": "course_prefixes",
-      "columns": {
-        "prefix": {
-          "name": "prefix",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "department": {
-          "name": "department",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "college": {
-          "name": "college",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "fk_course_prefixes_department": {
-          "name": "fk_course_prefixes_department",
-          "tableFrom": "course_prefixes",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_course_prefixes_college": {
-          "name": "fk_course_prefixes_college",
-          "tableFrom": "course_prefixes",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "course_prefixes_prefix": {
-          "name": "course_prefixes_prefix",
-          "columns": [
-            "prefix"
           ]
         }
       },
@@ -324,16 +259,16 @@
           "autoincrement": false,
           "default": "NOW()"
         },
-        "department": {
-          "name": "department",
-          "type": "varchar(50)",
+        "department_code": {
+          "name": "department_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "varchar(50)",
+        "college_code": {
+          "name": "college_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -346,7 +281,7 @@
           "tableFrom": "courses",
           "tableTo": "departments",
           "columnsFrom": [
-            "department"
+            "department_code"
           ],
           "columnsTo": [
             "code"
@@ -359,7 +294,7 @@
           "tableFrom": "courses",
           "tableTo": "colleges",
           "columnsFrom": [
-            "college"
+            "college_code"
           ],
           "columnsTo": [
             "code"
@@ -386,7 +321,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -398,9 +333,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "varchar(50)",
+        "college_code": {
+          "name": "college_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -413,7 +348,7 @@
           "tableFrom": "departments",
           "tableTo": "colleges",
           "columnsFrom": [
-            "college"
+            "college_code"
           ],
           "columnsTo": [
             "code"
@@ -457,16 +392,16 @@
           "notNull": true,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "varchar(50)",
+        "college_code": {
+          "name": "college_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "department": {
-          "name": "department",
-          "type": "varchar(50)",
+        "department_code": {
+          "name": "department_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -479,7 +414,7 @@
           "tableFrom": "faculty",
           "tableTo": "colleges",
           "columnsFrom": [
-            "college"
+            "college_code"
           ],
           "columnsTo": [
             "code"
@@ -492,7 +427,7 @@
           "tableFrom": "faculty",
           "tableTo": "departments",
           "columnsFrom": [
-            "department"
+            "department_code"
           ],
           "columnsTo": [
             "code"
@@ -517,7 +452,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -543,12 +478,130 @@
       "uniqueConstraints": {},
       "checkConstraint": {}
     },
+    "instructor_courses": {
+      "name": "instructor_courses",
+      "columns": {
+        "mnumber": {
+          "name": "mnumber",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "term_code": {
+          "name": "term_code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "year": {
+          "name": "year",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_subject": {
+          "name": "course_subject",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_number": {
+          "name": "course_number",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "course_suffix": {
+          "name": "course_suffix",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        },
+        "course_section": {
+          "name": "course_section",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "''"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "instructor_courses_mnumber_faculty_mnumber_fk": {
+          "name": "instructor_courses_mnumber_faculty_mnumber_fk",
+          "tableFrom": "instructor_courses",
+          "tableTo": "faculty",
+          "columnsFrom": [
+            "mnumber"
+          ],
+          "columnsTo": [
+            "mnumber"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "instructor_courses_term_code_terms_code_fk": {
+          "name": "instructor_courses_term_code_terms_code_fk",
+          "tableFrom": "instructor_courses",
+          "tableTo": "terms",
+          "columnsFrom": [
+            "term_code"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_instructor_courses_course": {
+          "name": "fk_instructor_courses_course",
+          "tableFrom": "instructor_courses",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_subject",
+            "course_number",
+            "course_suffix"
+          ],
+          "columnsTo": [
+            "subject",
+            "number",
+            "suffix"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "pk_instructor_courses": {
+          "name": "pk_instructor_courses",
+          "columns": [
+            "mnumber",
+            "term_code",
+            "year",
+            "course_subject",
+            "course_number",
+            "course_suffix",
+            "course_section"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
     "nations": {
       "name": "nations",
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -579,7 +632,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -669,16 +722,16 @@
           "autoincrement": false,
           "default": false
         },
-        "department": {
-          "name": "department",
-          "type": "varchar(50)",
+        "department_code": {
+          "name": "department_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "college": {
-          "name": "college",
-          "type": "varchar(50)",
+        "college_code": {
+          "name": "college_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -699,7 +752,7 @@
           "tableFrom": "programs",
           "tableTo": "departments",
           "columnsFrom": [
-            "department"
+            "department_code"
           ],
           "columnsTo": [
             "code"
@@ -712,7 +765,7 @@
           "tableFrom": "programs",
           "tableTo": "colleges",
           "columnsFrom": [
-            "college"
+            "college_code"
           ],
           "columnsTo": [
             "code"
@@ -737,7 +790,7 @@
       "columns": {
         "code": {
           "name": "code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -898,9 +951,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "term": {
-          "name": "term",
-          "type": "varchar(50)",
+        "term_code": {
+          "name": "term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -912,9 +965,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "admit_term": {
-          "name": "admit_term",
-          "type": "varchar(50)",
+        "admit_term_code": {
+          "name": "admit_term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -928,14 +981,14 @@
         },
         "admit_code": {
           "name": "admit_code",
-          "type": "varchar(50)",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "academic_standing": {
-          "name": "academic_standing",
-          "type": "varchar(50)",
+        "academic_standing_code": {
+          "name": "academic_standing_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1030,7 +1083,7 @@
           "tableFrom": "student_academic_info",
           "tableTo": "terms",
           "columnsFrom": [
-            "term"
+            "term_code"
           ],
           "columnsTo": [
             "code"
@@ -1043,7 +1096,7 @@
           "tableFrom": "student_academic_info",
           "tableTo": "terms",
           "columnsFrom": [
-            "admit_term"
+            "admit_term_code"
           ],
           "columnsTo": [
             "code"
@@ -1069,7 +1122,7 @@
           "tableFrom": "student_academic_info",
           "tableTo": "academic_standing",
           "columnsFrom": [
-            "academic_standing"
+            "academic_standing_code"
           ],
           "columnsTo": [
             "code"
@@ -1083,7 +1136,7 @@
           "name": "pk_student_academic_info",
           "columns": [
             "mnumber",
-            "term",
+            "term_code",
             "year"
           ]
         }
@@ -1136,9 +1189,9 @@
           "notNull": false,
           "autoincrement": false
         },
-        "nation": {
-          "name": "nation",
-          "type": "varchar(50)",
+        "nation_code": {
+          "name": "nation_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1171,7 +1224,7 @@
           "tableFrom": "student_addresses",
           "tableTo": "nations",
           "columnsFrom": [
-            "nation"
+            "nation_code"
           ],
           "columnsTo": [
             "code"
@@ -1201,9 +1254,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "term": {
-          "name": "term",
-          "type": "varchar(50)",
+        "term_code": {
+          "name": "term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1243,10 +1296,36 @@
           "tableFrom": "student_advisors",
           "tableTo": "terms",
           "columnsFrom": [
-            "term"
+            "term_code"
           ],
           "columnsTo": [
             "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_student_advisors_faculty": {
+          "name": "fk_student_advisors_faculty",
+          "tableFrom": "student_advisors",
+          "tableTo": "faculty",
+          "columnsFrom": [
+            "advisor_mnumber"
+          ],
+          "columnsTo": [
+            "mnumber"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "fk_student_advisors_student": {
+          "name": "fk_student_advisors_student",
+          "tableFrom": "student_advisors",
+          "tableTo": "students",
+          "columnsFrom": [
+            "student_mnumber"
+          ],
+          "columnsTo": [
+            "mnumber"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -1257,7 +1336,7 @@
           "name": "pk_student_advisors",
           "columns": [
             "student_mnumber",
-            "term",
+            "term_code",
             "year",
             "advisor_mnumber"
           ]
@@ -1276,9 +1355,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "term": {
-          "name": "term",
-          "type": "varchar(50)",
+        "term_code": {
+          "name": "term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1290,9 +1369,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "part_of_term": {
-          "name": "part_of_term",
-          "type": "varchar(50)",
+        "part_of_term_code": {
+          "name": "part_of_term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1340,16 +1419,16 @@
           "notNull": false,
           "autoincrement": false
         },
-        "registration_status": {
-          "name": "registration_status",
-          "type": "varchar(50)",
+        "registration_status_code": {
+          "name": "registration_status_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
         },
-        "instructional_method": {
-          "name": "instructional_method",
-          "type": "varchar(50)",
+        "instructional_method_code": {
+          "name": "instructional_method_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -1396,7 +1475,7 @@
           "tableFrom": "student_courses",
           "tableTo": "terms",
           "columnsFrom": [
-            "term"
+            "term_code"
           ],
           "columnsTo": [
             "code"
@@ -1409,7 +1488,7 @@
           "tableFrom": "student_courses",
           "tableTo": "part_of_term",
           "columnsFrom": [
-            "part_of_term"
+            "part_of_term_code"
           ],
           "columnsTo": [
             "code"
@@ -1422,7 +1501,7 @@
           "tableFrom": "student_courses",
           "tableTo": "registration_status",
           "columnsFrom": [
-            "registration_status"
+            "registration_status_code"
           ],
           "columnsTo": [
             "code"
@@ -1435,7 +1514,7 @@
           "tableFrom": "student_courses",
           "tableTo": "instructional_methods",
           "columnsFrom": [
-            "instructional_method"
+            "instructional_method_code"
           ],
           "columnsTo": [
             "code"
@@ -1466,7 +1545,7 @@
           "name": "pk_student_courses",
           "columns": [
             "mnumber",
-            "term",
+            "term_code",
             "year",
             "course_subject",
             "course_number",
@@ -1488,9 +1567,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "term": {
-          "name": "term",
-          "type": "varchar(50)",
+        "term_code": {
+          "name": "term_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1516,9 +1595,9 @@
           "notNull": true,
           "autoincrement": false
         },
-        "program": {
-          "name": "program",
-          "type": "varchar(50)",
+        "program_code": {
+          "name": "program_code",
+          "type": "varchar(10)",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
@@ -1544,7 +1623,7 @@
           "tableFrom": "student_programs",
           "tableTo": "terms",
           "columnsFrom": [
-            "term"
+            "term_code"
           ],
           "columnsTo": [
             "code"
@@ -1557,7 +1636,7 @@
           "tableFrom": "student_programs",
           "tableTo": "programs",
           "columnsFrom": [
-            "program"
+            "program_code"
           ],
           "columnsTo": [
             "code"
@@ -1572,7 +1651,7 @@
           "columns": [
             "mnumber",
             "type",
-            "program"
+            "program_code"
           ]
         }
       },
