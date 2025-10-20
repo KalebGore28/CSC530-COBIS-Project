@@ -11,6 +11,22 @@ const config: CodegenConfig = {
         documentMode: 'string'
       }
     },
+    './persisted-queries/client.json': {
+      documents: ['./client/**/*.{graphql,gql}', './pages/**/*.{graphql,gql}'],
+      plugins: ['@replit/graphql-codegen-persisted-queries'],
+      config: {
+        output: 'client',
+        algorithm: 'sha256' // Already default, but being explicit
+      },
+    },
+    './persisted-queries/server.json': {
+      documents: ['./client/**/*.{graphql,gql}', './pages/**/*.{graphql,gql}'],
+      plugins: ['@replit/graphql-codegen-persisted-queries'],
+      config: {
+        output: 'server',
+        algorithm: 'sha256' // Already default, but being explicit
+      },
+    }
   }
 }
 

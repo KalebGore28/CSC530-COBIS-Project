@@ -68,6 +68,7 @@
     "@0no-co/graphqlsp": "^1.15.0",
     "@graphql-codegen/cli": "^6.0.0",
     "@parcel/watcher": "^2.5.1",
+    "@replit/graphql-codegen-persisted-queries": "^0.1.2",
     "@tanstack/eslint-config": "^0.3.0",
     "@tanstack/eslint-plugin-query": "^5.91.0",
     "@testing-library/dom": "^10.4.0",

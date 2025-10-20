@@ -1,0 +1,126 @@
+{
+   "format": "apollo-persisted-query-manifest",
+   "version": 1,
+   "operations": {
+      "45d0919799df2dabfb98d81708fa9a0ad54f23c2deedf789708e6d7688773fad": {
+         "type": "query",
+         "name": "advisedStudentsQuery",
+         "body": "query advisedStudentsQuery($mnumber: String!, $term_code: String!, $year: Int!) {\n  studentAdvisors(\n    where: {advisor_mnumber: {eq: $mnumber}, term_code: {eq: $term_code}, year: {eq: $year}}\n  ) {\n    student {\n      mnumber\n      first_name\n      middle_name\n      last_name\n      suffix\n      email\n      gender\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "3fd03d86127c8c168a8ad4128e077c8af43527e5ad264771b52ebc249b234c29": {
+         "type": "query",
+         "name": "courseGradeDistributionsQuery",
+         "body": "query courseGradeDistributionsQuery($mnumber: String!, $startTerm: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    mnumber\n    courses_taught(\n      startTerm: $startTerm\n      endTerm: $endTerm\n      startYear: $startYear\n      endYear: $endYear\n    ) {\n      final_grade_distribution {\n        grade\n        count\n        percentage\n        __typename\n      }\n      midterm_grade_distribution {\n        grade\n        count\n        percentage\n        __typename\n      }\n      course {\n        number\n        subject\n        suffix\n        title\n        __typename\n      }\n      course_section\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "073758950b6bd9e2deb4a310a815f7af73cd19bcb89ac73649683500febe1c47": {
+         "type": "query",
+         "name": "getCurrentYearTermQuery",
+         "body": "query getCurrentYearTermQuery {\n  getCurrentYearTerm {\n    year\n    term\n    term_code\n    __typename\n  }\n}"
+      },
+      "fa31754f3383936de48c3bd6706d2a7a58a466ae696f0eb98b5764b9a7e8c939": {
+         "type": "query",
+         "name": "termGradeDistributionsQuery",
+         "body": "query termGradeDistributionsQuery($mnumber: String!, $startTerm: String!, $startYear: Int!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    mnumber\n    grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {\n      distributions {\n        count\n        grade\n        percentage\n        __typename\n      }\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "133f602007401ecd42efe5a982edcf415410015749f6560f7e6b04bdf6cb0013": {
+         "type": "query",
+         "name": "rosterQuery",
+         "body": "query rosterQuery($mnumber: String!, $term: String!, $year: Int!, $subject: String!, $number: Int!, $suffix: String, $section: String) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    courses_taught(\n      startTerm: $term\n      startYear: $year\n      endTerm: $term\n      endYear: $year\n      subject: $subject\n      number: $number\n      suffix: $suffix\n      section: $section\n    ) {\n      course {\n        title\n        __typename\n      }\n      course_subject\n      course_number\n      course_suffix\n      course_section\n      credit_hour\n      total_students\n      total_credit_hours\n      class_gpa\n      midterm_average\n      final_average\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "3a0670fa0eaacd6a6935593fa542c628de9a5278e304c79a847cbb8c84367695": {
+         "type": "query",
+         "name": "rosterGradeDistributionsQuery",
+         "body": "query rosterGradeDistributionsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!, $section: String!) {\n  instructorCoursesSingle(\n    where: {mnumber: {eq: $mnumber}, course_subject: {eq: $subject}, course_number: {eq: $number}, course_suffix: {eq: $suffix}, course_section: {eq: $section}}\n  ) {\n    course_subject\n    course_number\n    course_suffix\n    course_section\n    term_code\n    year\n    midterm_grade_distribution {\n      grade\n      count\n      __typename\n    }\n    final_grade_distribution {\n      grade\n      count\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "603f9d71ba0e2b7ef2accc7543fbf097be00ed113fa1cfdc3ddf9b6f9a37d844": {
+         "type": "query",
+         "name": "rosterStudentsQuery",
+         "body": "query rosterStudentsQuery($mnumber: String!, $subject: String!, $number: Int!, $suffix: String!, $section: String!) {\n  instructorCoursesSingle(\n    where: {mnumber: {eq: $mnumber}, course_subject: {eq: $subject}, course_number: {eq: $number}, course_suffix: {eq: $suffix}, course_section: {eq: $section}}\n  ) {\n    term_code\n    year\n    course_subject\n    course_number\n    course_suffix\n    course_section\n    students {\n      student {\n        mnumber\n        first_name\n        middle_name\n        last_name\n        suffix\n        email\n        programs {\n          program {\n            description\n            code\n            __typename\n          }\n          __typename\n        }\n        __typename\n      }\n      midterm_grade\n      final_grade\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "c49fcc44a0f7eb7d30e0fcb97dd7d0d0927c144363c76c62b93a857bf24bb133": {
+         "type": "query",
+         "name": "getCoursesQuery",
+         "body": "query getCoursesQuery {\n  courses {\n    subject\n    number\n    suffix\n    title\n    hours\n    last_updated\n    department_code\n    college_code\n    __typename\n  }\n}"
+      },
+      "29cad42365697cae3596e22dfeea43ca4c301559b6e4c92f1b965be9282dac8d": {
+         "type": "query",
+         "name": "getProgramsQuery",
+         "body": "query getProgramsQuery {\n  programs {\n    code\n    description\n    cip_code\n    is_major\n    is_minor\n    has_concentration\n    is_discontinued\n    is_aacsb\n    department_code\n    college_code\n    last_updated\n    __typename\n  }\n}"
+      },
+      "091203f9d6f6a1c52d909bc4f606490f5d8936542d347d331d3d775e9fae9aa8": {
+         "type": "query",
+         "name": "getUsersQuery",
+         "body": "query getUsersQuery {\n  user {\n    id\n    mnumber\n    name\n    email\n    emailVerified\n    image\n    createdAt\n    updatedAt\n    isEnabled\n    lastLogin\n    __typename\n  }\n}"
+      },
+      "b03de7d232e6dba7716be8f5b798c619ac5ab2fb0206e2ea7e758bf34fc075e2": {
+         "type": "query",
+         "name": "getCollegesQuery",
+         "body": "query getCollegesQuery {\n  colleges {\n    code\n    description\n    __typename\n  }\n}"
+      },
+      "f474d161846942a2c8bf596b0efd5a150ad257542fe8d5b12bd5c5d5e2f26e4a": {
+         "type": "query",
+         "name": "courseSelectorQuery",
+         "body": "query courseSelectorQuery($mnumber: String!, $term: String!, $year: Int!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    courses_taught(\n      startTerm: $term\n      startYear: $year\n      endTerm: $term\n      endYear: $year\n    ) {\n      course {\n        title\n        __typename\n      }\n      course_subject\n      course_number\n      course_suffix\n      course_section\n      credit_hour\n      total_students\n      total_credit_hours\n      class_gpa\n      midterm_average\n      final_average\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "ccb32d02b4109cb0504f1a33a77dfbef8aef45e8cd17884cb9a5f7b09c882fa5": {
+         "type": "query",
+         "name": "getDepartmentsQuery",
+         "body": "query getDepartmentsQuery {\n  departments {\n    code\n    description\n    college_code\n    __typename\n  }\n}"
+      },
+      "966b9f747163a928e3c5ae51facd05787d4d6cde62120f4b50c7d496a082833a": {
+         "type": "query",
+         "name": "getFacultyQuery",
+         "body": "query getFacultyQuery {\n  faculty {\n    mnumber\n    first_name\n    last_name\n    department_code\n    college_code\n    __typename\n  }\n}"
+      },
+      "45f133955fa915c8438cad4faa54aadb222148b153ee0942a98621cbfa8c9d24": {
+         "type": "query",
+         "name": "rolesQuery",
+         "body": "query rolesQuery {\n  roles {\n    id\n    name\n    __typename\n  }\n}"
+      },
+      "5c04421356879b908671eddf6e24cc338319436c865d41e56f58a72777432dad": {
+         "type": "query",
+         "name": "termSelectorQuery",
+         "body": "query termSelectorQuery($mnumber: String!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    courses_taught {\n      year\n      term {\n        description\n        code\n        __typename\n      }\n      total_students\n      total_credit_hours\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "948dd443dabbe00b167a8e7f2741ec134c7caa3e3d5b5a0ea0e89533299a1c20": {
+         "type": "query",
+         "name": "studentDetailQuery",
+         "body": "query studentDetailQuery($mnumber: String!, $term: String!, $year: Int!) {\n  studentsSingle(where: {mnumber: {eq: $mnumber}}) {\n    first_name\n    last_name\n    middle_name\n    suffix\n    email\n    birthdate\n    gender\n    cell_phone\n    race\n    residency\n    citizenship\n    mnumber\n    termInfo: academic_info(term: $term, year: $year) {\n      admit_code\n      academic_standing {\n        code\n        description\n        __typename\n      }\n      admit_term {\n        code\n        description\n        __typename\n      }\n      admit_year\n      msu_attempted_hours\n      msu_earned_hours\n      msu_gpa\n      msu_quality_points\n      overall_attempted_hours\n      overall_earned_hours\n      overall_gpa\n      overall_quality_points\n      __typename\n    }\n    gpaTrend: academic_info {\n      msu_gpa\n      overall_gpa\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      __typename\n    }\n    advisors {\n      advisor_mnumber\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      advisor {\n        first_name\n        last_name\n        mnumber\n        user {\n          email\n          __typename\n        }\n        __typename\n      }\n      __typename\n    }\n    programs {\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      type\n      level\n      program {\n        code\n        description\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "a78b16c2b797bef813eee444e0ad602f0f20ae5972122654f620fa43495a8c9c": {
+         "type": "query",
+         "name": "usersQuery",
+         "body": "query usersQuery {\n  user {\n    id\n    mnumber\n    name\n    email\n    emailVerified\n    image\n    createdAt\n    updatedAt\n    isEnabled\n    lastLogin\n    faculty {\n      college {\n        code\n        description\n        __typename\n      }\n      department {\n        code\n        description\n        __typename\n      }\n      __typename\n    }\n    roles {\n      role {\n        id\n        name\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "e0a4d49473306d99daa66b27820b1ab1fc4344cacfa8e50e2015f580aa236645": {
+         "type": "query",
+         "name": "courseTermQuery",
+         "body": "query courseTermQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    mnumber\n    courses_taught(\n      startTerm: $startTerm\n      startYear: $startYear\n      endTerm: $endTerm\n      endYear: $endYear\n    ) {\n      course {\n        title\n        subject\n        number\n        suffix\n        __typename\n      }\n      credit_hour\n      course_section\n      total_students\n      total_credit_hours\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "18e3eb6e650b5dbf8d7e8615133a274b952cb3da4efc5da7f86cfa4ad508709f": {
+         "type": "query",
+         "name": "termHistoryQuery",
+         "body": "query termHistoryQuery($mnumber: String!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    mnumber\n    courses_taught {\n      total_credit_hours\n      total_students\n      year\n      term_code\n      term {\n        code\n        description\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "b438308abd1fc554c5e8e6aec4e4fb1ec060fc2d0583797058b1d4abfc7f03aa": {
+         "type": "query",
+         "name": "getInstructorQuery",
+         "body": "query getInstructorQuery($mnumber: String!) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    mnumber\n    first_name\n    last_name\n    department_code\n    college_code\n    department {\n      description\n      __typename\n    }\n    college {\n      description\n      __typename\n    }\n    user {\n      image\n      email\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "6425f853057af9b69d1c020c1e04811e21eca8ef0dbda7e80353b18a72c2b144": {
+         "type": "query",
+         "name": "termDetailsQuery",
+         "body": "query termDetailsQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {\n  facultySingle(where: {mnumber: {eq: $mnumber}}) {\n    courses_taught(\n      startTerm: $startTerm\n      startYear: $startYear\n      endTerm: $endTerm\n      endYear: $endYear\n    ) {\n      course {\n        title\n        subject\n        number\n        suffix\n        __typename\n      }\n      course_section\n      total_credit_hours\n      total_students\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "325781dfb35b610cdd75e4e988d74f1f3db3dc9de10ada286a5be84042be4564": {
+         "type": "query",
+         "name": "instructorsQuery",
+         "body": "query instructorsQuery {\n  faculty {\n    mnumber\n    first_name\n    last_name\n    department_code\n    department {\n      description\n      __typename\n    }\n    college_code\n    college {\n      description\n      __typename\n    }\n    user {\n      email\n      image\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "e45522f9b75264697f1113f77d087ef7257c01202629b160b18504141d53fc98": {
+         "type": "query",
+         "name": "studentLookupQuery",
+         "body": "query studentLookupQuery($filters: StudentLookupInput!, $offset: Int!, $limit: Int!) {\n  lookupStudents(filters: $filters, offset: $offset, limit: $limit) {\n    students {\n      mnumber\n      first_name\n      last_name\n      email\n      __typename\n    }\n    totalCount\n    __typename\n  }\n}"
+      }
+   }
+}

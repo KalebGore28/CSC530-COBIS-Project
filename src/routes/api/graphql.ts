@@ -5,7 +5,7 @@ import { ApolloServer } from '@apollo/server'
 import { loadUser } from '@/middleware/load-user'
 import { isEnabled } from '@/middleware/is-enabled'
 import { type ApolloContext, apolloServerContextMiddleware } from '@/middleware/apollo-server-context'
-import persistedQueries from 'persisted_queries.json'
+import serverPersistedQueries from "../../../persisted-queries/server.json";
 
 let apollo: ApolloServer | null = null
 async function getApollo() {
@@ -36,10 +36,10 @@ export const Route = createFileRoute('/api/graphql')({
             POST: async ({ request, context }) => {
                 const server = await getApollo()
 
-                const { doc_id, variables, operationName, query: incomingQuery } = await request.json()
-                // console.log("GraphQL doc_id:", doc_id, "operationName:", operationName, "variables:", variables, "incomingQuery:", incomingQuery);
+                const { doc_id, variables, query: incomingQuery } = await request.json()
+                // console.log("GraphQL doc_id:", doc_id, "variables:", variables, "incomingQuery:", incomingQuery);
 
-                const query = doc_id ? persistedQueries[doc_id as keyof typeof persistedQueries] : incomingQuery
+                const query = doc_id ? serverPersistedQueries.operations[doc_id as keyof typeof serverPersistedQueries.operations].body : incomingQuery;
                 if (!query) {
                     return new Response(JSON.stringify({ errors: [{ message: 'Unknown doc_id' }] }), {
                         status: 400,
@@ -49,7 +49,7 @@ export const Route = createFileRoute('/api/graphql')({
 
                 // Execute GraphQL operation dynamically
                 const result = await server.executeOperation({
-                    query, variables, operationName
+                    query, variables
                 }, {
                     contextValue: {
                         db: context.db,
