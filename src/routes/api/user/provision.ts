@@ -1,12 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { loadUser } from '@/middleware/load-user'
+import { isEnabled } from '@/middleware/is-enabled'
+import { requireCobisAdmin } from '@/middleware/require-cobis-admin'
 import { user, faculty, userRoles } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { getDbConnection } from '@/db'
 
 export const Route = createFileRoute('/api/user/provision')({
     server: {
-        middleware: [loadUser],
+        middleware: [loadUser, isEnabled, requireCobisAdmin],
         handlers: {
             POST: async ({ request, context }) => {
                 const url = new URL(request.url)

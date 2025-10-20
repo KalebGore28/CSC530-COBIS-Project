@@ -3,6 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { ApolloServer } from '@apollo/server'
 import { loadUser } from '@/middleware/load-user'
+import { isEnabled } from '@/middleware/is-enabled'
 import { type ApolloContext, apolloServerContextMiddleware } from '@/middleware/apollo-server-context'
 import persistedQueries from 'persisted_queries.json'
 
@@ -21,7 +22,7 @@ async function getApollo() {
 
 export const Route = createFileRoute('/api/graphql')({
     server: {
-        middleware: [loadUser, apolloServerContextMiddleware],
+        middleware: [loadUser, isEnabled, apolloServerContextMiddleware],
         handlers: {
             // GET → GraphQL Playground IDE
             GET: async () => {
