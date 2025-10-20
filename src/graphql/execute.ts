@@ -1,9 +1,28 @@
 import type { TypedDocumentString } from './graphql'
+import persistedMap from '../../persisted-queries/client.json';
+
+function extractOperationName(query: any): string | null {
+    const raw = query.value;
+    const match = raw.match(/\b(query|mutation|subscription)\s+([A-Za-z0-9_]+)/);
+    return match ? match[2] : null;
+}
 
 export async function execute<TResult, TVariables>(
     query: TypedDocumentString<TResult, TVariables>,
     ...[variables]: TVariables extends Record<string, never> ? [] : [TVariables]
 ) {
+    // Extract the operation name
+    const operationName = extractOperationName(query);
+    if (!operationName) {
+        throw new Error("Could not extract GraphQL operation name");
+    }
+
+    // Lookup hash from persisted map
+    const hash = (persistedMap as Record<string, string>)[operationName];
+    if (!hash) {
+        throw new Error(`No persisted query hash found for: ${operationName}`);
+    }
+
     const response = await fetch(import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT, {
         method: 'POST',
         headers: {
@@ -11,7 +30,7 @@ export async function execute<TResult, TVariables>(
             Accept: 'application/graphql-response+json'
         },
         body: JSON.stringify({
-            query,
+            doc_id: hash,
             variables
         })
     })

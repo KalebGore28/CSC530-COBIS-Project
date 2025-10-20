@@ -36,10 +36,9 @@ export const Route = createFileRoute('/api/graphql')({
             POST: async ({ request, context }) => {
                 const server = await getApollo()
 
-                const { doc_id, variables, query: incomingQuery } = await request.json()
-                // console.log("GraphQL doc_id:", doc_id, "variables:", variables, "incomingQuery:", incomingQuery);
+                const { doc_id, variables } = await request.json()
 
-                const query = doc_id ? serverPersistedQueries.operations[doc_id as keyof typeof serverPersistedQueries.operations].body : incomingQuery;
+                const query = doc_id ? serverPersistedQueries.operations[doc_id as keyof typeof serverPersistedQueries.operations].body : null;
                 if (!query) {
                     return new Response(JSON.stringify({ errors: [{ message: 'Unknown doc_id' }] }), {
                         status: 400,
