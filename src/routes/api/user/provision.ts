@@ -57,8 +57,18 @@ export const Route = createFileRoute('/api/user/provision')({
                     )
                 }
 
+                const COBIS_ADMINISTRATOR_ROLE_ID = 6;
+
                 // Check if an admin is trying to remove their own admin role (cobis_administrator)
-                // TODO: Implement this check
+                if (context.user?.id === userId && !role_ids.includes(COBIS_ADMINISTRATOR_ROLE_ID.toString())) {
+                    return new Response(
+                        JSON.stringify({ error: 'You cannot remove your own administrator role' }),
+                        {
+                            status: 403,
+                            headers: { 'Content-Type': 'application/json' },
+                        }
+                    )
+                }
                
                 // Update user details
                 await orm.update(user).set({
