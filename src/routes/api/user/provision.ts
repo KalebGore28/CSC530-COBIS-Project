@@ -12,6 +12,16 @@ export const Route = createFileRoute('/api/user/provision')({
                 const college = url.searchParams.get('college')
                 const department = url.searchParams.get('department')
                 const role_ids = url.searchParams.getAll('role_id')
+                const userId = url.searchParams.get('userId')
+
+                console.log('Provisioning user with params:', {
+                    mnumber,
+                    isEnabled,
+                    college,
+                    department,
+                    role_ids,
+                    userId,
+                })
 
 
                 if (!mnumber || !isEnabled || !college || !department || role_ids.length === 0) {
@@ -23,10 +33,6 @@ export const Route = createFileRoute('/api/user/provision')({
                         }
                     )
                 }
-
-                
-
-
             },
         },
     },

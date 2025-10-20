@@ -59,7 +59,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
             setSelected(defaultCollege);
             onSelectChange?.(defaultCollege);
         }
-        console.log("CollegeSelector: set default college to", defaultCollege);
     }, [collegeCode, isLoading]);
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;

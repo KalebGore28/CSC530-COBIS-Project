@@ -4,8 +4,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import fuzzysort from 'fuzzysort';
-import { useState } from 'react';
 import { Modal } from '@/components/ui/custom/modal';
 import { CollegeSelector } from '@/components/selectors/college-selector';
 import { DepartmentSelector } from '@/components/selectors/department-selector';
@@ -13,8 +11,10 @@ import { FacultySelector } from '@/components/selectors/faculty-selector';
 import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
 import { useSession } from '@/components/provider/session';
 import { roles } from '@/db/schema';
-
-type Role = typeof roles.$inferSelect;
+import { useState } from 'react';
+import { useProvisionUser, ProvisionParams } from '@/hooks/use-provision-user';
+import { toast } from "sonner";
+import fuzzysort from 'fuzzysort';
 
 // Import GraphQL imports
 import { useQuery } from '@tanstack/react-query';
@@ -81,16 +81,9 @@ export const Route = createFileRoute(
   component: RouteComponent,
 })
 
-export type ProvisionParams = {
-  roles: Role[];
-  isEnabled: boolean;
-  collegeCode: string;
-  departmentCode: string;
-  mnumber: string;
-}
-
 function RouteComponent() {
   const { session } = useSession();
+  const provision = useProvisionUser();
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
@@ -100,6 +93,7 @@ function RouteComponent() {
     collegeCode: "",
     departmentCode: "",
     mnumber: "",
+    userId: "",
   });
 
   const { data } = useQuery({
@@ -108,7 +102,6 @@ function RouteComponent() {
   });
 
   const filteredUsers = fuzzySearchUsers(data?.user ?? [], query);
-
 
   return (
     <div className="space-y-4">
@@ -161,6 +154,14 @@ function RouteComponent() {
         onClose={() => {
           setModalOpen(false);
           setSelectedUser(null);
+          setProvisionParams({
+            roles: [],
+            isEnabled: false,
+            collegeCode: "",
+            departmentCode: "",
+            mnumber: "",
+            userId: "",
+          });
         }}
         title="Provision User"
         description="Fill in the details to provision this user."
@@ -176,6 +177,7 @@ function RouteComponent() {
                 setProvisionParams((prev) => ({
                   ...prev,
                   mnumber: value?.mnumber || "",
+                  userId: selectedUser?.id || "",
                 }));
               }}
             />
@@ -239,7 +241,6 @@ function RouteComponent() {
               userMnumber={selectedUser?.mnumber}
               roles={selectedUser?.roles.map((r: any) => r.role.name)}
               onRolesChange={(value) => {
-                console.log("Selected roles:", value);
                 setProvisionParams((prev) => ({
                   ...prev,
                   roles: value,
@@ -247,8 +248,26 @@ function RouteComponent() {
               }}
             />
             <div className="mt-auto flex justify-end space-x-2">
-              <Button>
-                Provision
+              <Button
+                onClick={() => {
+                  const selfProvision = selectedUser?.mnumber === session?.mnumber;
+                  const finalParams = {
+                    ...provisionParams,
+                    isEnabled: selfProvision ? true : provisionParams.isEnabled,
+                  };
+
+                  provision.mutate(finalParams, {
+                    onSuccess: () => {
+                      toast.success("User provisioned successfully");
+                    },
+                    onError: (err) => {
+                      toast.error(err.message);
+                    },
+                  });
+                }}
+                disabled={provision.isPending}
+              >
+                {provision.isPending ? "Provisioning..." : "Provision"}
               </Button>
 
             </div>
