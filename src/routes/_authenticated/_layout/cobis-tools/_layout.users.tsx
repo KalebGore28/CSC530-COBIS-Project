@@ -141,6 +141,14 @@ function RouteComponent() {
               <Button variant="outline" size="sm" onClick={() => {
                 setSelectedUser(user);
                 setModalOpen(true);
+                setProvisionParams({
+                  roles: user.roles.map((r: any) => r.role),
+                  isEnabled: user.isEnabled,
+                  collegeCode: user.faculty?.college?.code || "",
+                  departmentCode: user.faculty?.department?.code || "",
+                  mnumber: user.mnumber,
+                  userId: user.id,
+                });
               }}>
                 View Details
               </Button>
