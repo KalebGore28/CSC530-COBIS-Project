@@ -3,8 +3,10 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
+
 import { FileUpload } from '@/components/csv-import/file-upload'
 import { CsvPreview } from '@/components/csv-import/csv-preview'
+import { TablePreview } from '@/components/csv-import/table-preview';
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/cobis-tools/_layout/import',
@@ -58,6 +60,12 @@ function RouteComponent() {
               highlightSpecialValues={true}
               minColumnWidth={150}
             />
+          </div>}
+
+          {/* Step 3: Table Preview */}
+          {selectedFile && <div>
+            <h2 className="text-xl font-bold mb-4">Step 3: Matching Tables</h2>
+            <TablePreview fileName={selectedFile.name} />
           </div>}
 
         </CardContent>
