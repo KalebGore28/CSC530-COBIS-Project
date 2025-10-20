@@ -8,7 +8,7 @@ export const Route = createFileRoute('/api/user/provision')({
     server: {
         middleware: [loadUser],
         handlers: {
-            POST: async ({ request }) => {
+            POST: async ({ request, context }) => {
                 const url = new URL(request.url)
                 const mnumber = url.searchParams.get('mnumber')
                 const isEnabled = url.searchParams.get('isEnabled')
@@ -46,6 +46,20 @@ export const Route = createFileRoute('/api/user/provision')({
                     )
                 }
 
+                // Check if user is trying to disable themselves
+                if (context.user?.id === userId && isEnabled === 'false') {
+                    return new Response(
+                        JSON.stringify({ error: 'You cannot disable your own account' }),
+                        {
+                            status: 403,
+                            headers: { 'Content-Type': 'application/json' },
+                        }
+                    )
+                }
+
+                // Check if an admin is trying to remove their own admin role (cobis_administrator)
+                // TODO: Implement this check
+               
                 // Update user details
                 await orm.update(user).set({
                     mnumber,
@@ -57,6 +71,7 @@ export const Route = createFileRoute('/api/user/provision')({
                     college_code: college,
                     department_code: department,
                 }).where(eq(faculty.mnumber, mnumber))
+
 
                 // Update user roles
                 // First, remove existing roles
