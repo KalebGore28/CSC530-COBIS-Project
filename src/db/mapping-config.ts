@@ -123,7 +123,7 @@ csvConfig.tables = {
         },
     },
     courses: {
-        patterns: [/^course_catalog\.csv$/i],
+        patterns: [/^reg_cuba_catalog_\d{6}_\d{8}\.csv$/i],
         config: {
             subject: { csvColumnName: "COURSE", transform: (val) => parseCourseCode(val).subject },
             number: { csvColumnName: "COURSE", transform: (val) => parseCourseCode(val).number },
