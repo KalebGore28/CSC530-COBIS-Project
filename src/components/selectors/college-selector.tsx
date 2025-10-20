@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -50,16 +50,19 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
         description: college.description,
     }));
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
-    // Initialize from props after data loads, but only if empty
-    if (selected === null && collegeCode && colleges.length > 0) {
+    // Runs only once to set default selection if collegeCode prop is provided
+    useEffect(() => {
+        if (!collegeCode || !colleges.length || isLoading) return;
         const defaultCollege = colleges.find((c) => c.code === collegeCode);
-        if (defaultCollege) {
+        if (defaultCollege && (!selected || selected.code !== defaultCollege.code)) {
             setSelected(defaultCollege);
-            queueMicrotask(() => onSelectChange?.(defaultCollege));
+            onSelectChange?.(defaultCollege);
         }
-    }
+        console.log("CollegeSelector: set default college to", defaultCollege);
+    }, [collegeCode, isLoading]);
+
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
     if (selected) {
         return (

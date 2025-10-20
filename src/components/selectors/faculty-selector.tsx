@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -57,16 +57,17 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
         college_code: faculty.college_code ?? null,
     }));
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
-
-    // Initialize from props after data loads, but only if empty
-    if (selected === null && mnumber && facultyList.length > 0) {
+    // Runs only once to set default selection if mnumber prop is provided
+    useEffect(() => {
+        if (!mnumber || !facultyList.length || isLoading) return;
         const defaultFaculty = facultyList.find((f) => f.mnumber === mnumber);
-        if (defaultFaculty) {
+        if (defaultFaculty && (!selected || selected.mnumber !== defaultFaculty.mnumber)) {
             setSelected(defaultFaculty);
-            queueMicrotask(() => onSelectChange?.(defaultFaculty));
+            onSelectChange?.(defaultFaculty);
         }
-    }
+    }, [mnumber, isLoading]);
+
+    if (isLoading) return <Skeleton className="h-10 w-full" />;
 
     if (selected) {
         return (

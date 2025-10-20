@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,6 +47,16 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
         queryFn: () => execute(GetDepartmentsQuery),
     });
 
+    // Runs only once to set default selection if departmentCode prop is provided
+    useEffect(() => {
+        if (!departmentCode || !departments.length || isLoading) return;
+        const defaultDepartment = departments.find((d) => d.code === departmentCode);
+        if (defaultDepartment && (!selected || selected.code !== defaultDepartment.code)) {
+            setSelected(defaultDepartment);
+            onSelectChange?.(defaultDepartment);
+        }
+    }, [departmentCode, isLoading]);
+
     const departments: Department[] = (data?.departments ?? []).map(dept => ({
         code: dept.code,
         description: dept.description,
@@ -54,15 +64,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
     }));
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
-
-    // Initialize from props after data loads, but only if empty
-    if (selected === null && departmentCode && departments.length > 0) {
-        const defaultDept = departments.find((d) => d.code === departmentCode);
-        if (defaultDept) {
-            setSelected(defaultDept);
-            queueMicrotask(() => onSelectChange?.(defaultDept));
-        }
-    }
 
     if (selected) {
         return (

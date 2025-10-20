@@ -239,6 +239,7 @@ function RouteComponent() {
               userMnumber={selectedUser?.mnumber}
               roles={selectedUser?.roles.map((r: any) => r.role.name)}
               onRolesChange={(value) => {
+                console.log("Selected roles:", value);
                 setProvisionParams((prev) => ({
                   ...prev,
                   roles: value,
