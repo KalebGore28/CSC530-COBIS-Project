@@ -12,9 +12,10 @@ import { ChevronLeft, ChevronRight, FileSpreadsheet, AlertCircle, Info } from "l
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { ParseResult } from 'papaparse';
 
 interface CsvPreviewProps {
-  csvData: Record<string, string>[];
+  csvData: ParseResult<Record<string, string>>;
   maxRows?: number;
   highlightSpecialValues?: boolean;
   minColumnWidth?: number;
@@ -38,9 +39,9 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
   minColumnWidth = 150, // Default minimum column width
 }) => {
   const [page, setPage] = useState(0);
-  const headers = Object.keys(csvData[0] ?? {});
+  const headers = Object.keys(csvData.data[0] ?? {});
 
-  if (!csvData || csvData.length === 0) {
+  if (!csvData || csvData.data.length === 0) {
     return (
       <div className="mb-6 w-full">
         <div className="flex items-center justify-between mb-2">
@@ -60,10 +61,10 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
     );
   }
 
-  const totalPages = Math.ceil(csvData.length / maxRows);
+  const totalPages = Math.ceil(csvData.data.length / maxRows);
   const pageStart = page * maxRows;
-  const pageEnd = Math.min(pageStart + maxRows, csvData.length);
-  const pageData = csvData.slice(pageStart, pageEnd);
+  const pageEnd = Math.min(pageStart + maxRows, csvData.data.length);
+  const pageData = csvData.data.slice(pageStart, pageEnd);
 
   // Analyze cell types and track special values
   const specialValueTypes = {
@@ -131,7 +132,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
       <div className="flex justify-between items-center mb-3">
         <div className="text-sm text-muted-foreground flex items-center gap-2">
-          <span>{csvData.length} total rows</span>
+          <span>{csvData.data.length} total rows</span>
           <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 font-normal">
             {headers.length} columns
           </Badge>

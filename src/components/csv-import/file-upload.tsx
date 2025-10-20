@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { X, Upload, FileText, FileUp, CheckCircle2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Papa from "papaparse";
+import type { ParseResult } from 'papaparse';
 
 interface FileUploadProps {
   onFileChange: (e: ChangeEvent<HTMLInputElement>) => void;
   onClearFile: () => void;
-  onParsedData?: (results: Papa.ParseResult<unknown>) => void;
+  onParsedData?: (results: ParseResult<Record<string, string>>) => void;
   file: File | null;
   allowedExtensions?: string[];
   maxSizeInMB?: number;
@@ -87,12 +88,9 @@ export const FileUpload: React.FC<FileUploadProps> = ({
       Papa.parse(selectedFile, {
         header: true,
         skipEmptyLines: true,
-        transformHeader: (header) => {
-          return header.toLowerCase()
-        },
         complete: (results) => {
           setParsingStatus('success');
-          onParsedData(results);
+          onParsedData(results as ParseResult<Record<string, string>>);
         },
         error: (error) => {
           setParsingStatus('error');
