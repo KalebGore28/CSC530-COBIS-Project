@@ -13,6 +13,12 @@ RUN bun install
 # Copy the rest of the source code
 COPY . .
 
+# Accept a build-arg and expose it as an ENV so Vite can see it
+ARG VITE_FRONTEND_URL
+ENV VITE_FRONTEND_URL=$VITE_FRONTEND_URL
+ARG VITE_GRAPHQL_HTTP_ENDPOINT
+ENV VITE_GRAPHQL_HTTP_ENDPOINT=$VITE_GRAPHQL_HTTP_ENDPOINT
+
 # Build the app
 RUN bun run build
 
