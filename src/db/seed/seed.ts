@@ -14,7 +14,7 @@ async function main() {
 		await importCSVFile(db, path.join(__dirname, 'csvs/admit_codes.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/academic_standing.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/colleges.csv'), csvConfig);
-		await importCSVFile(db, path.join(__dirname, 'csvs/course_catalog.csv'), csvConfig);
+		await importCSVFile(db, path.join(__dirname, 'csvs/reg_cuba_catalog_202510_20250117.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/departments.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/instructional_methods.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/nations.csv'), csvConfig);
