@@ -1,0 +1,12 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '--build-arg', 'VITE_GRAPHQL_HTTP_ENDPOINT=$_VITE_GRAPHQL_HTTP_ENDPOINT',
+        '--build-arg', 'VITE_FRONTEND_URL=$_VITE_FRONTEND_URL',
+        '-t', 'gcr.io/$PROJECT_ID/cobis-app',
+        '.'
+      ]
+images:
+  - 'gcr.io/$PROJECT_ID/cobis-app'
