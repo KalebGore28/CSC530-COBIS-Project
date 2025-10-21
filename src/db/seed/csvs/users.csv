@@ -1,0 +1,4 @@
+ID,FirstName,LastName,Email,Invitee,Role
+1,John,Doe,john.doe@example.com,2,user
+2,Jane,Doe,jane.doe@example.com,1,admin
+3,Bob,Smith,bob.smith@example.com,2,user

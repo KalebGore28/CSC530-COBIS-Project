@@ -1,42 +1,38 @@
 # ---------- Build Stage ----------
-FROM node:20.18.0 AS builder
+FROM oven/bun:1.3.0 AS builder
 
 # Set working directory
 WORKDIR /app
 
 # Copy only package manifests for dependency install layer caching
-COPY package*.json ./
-COPY packages/server/package*.json packages/server/
-COPY packages/app/package*.json packages/app/
+COPY bun.lock package*.json ./
 
 # Install all dependencies including devDependencies
-RUN npm install
+RUN bun install
 
 # Copy the rest of the source code
 COPY . .
 
-# Build the app (assumes root-level `build` script builds everything)
-RUN npm run build
+# Build the app
+RUN bun run build
 
 # ---------- Production Stage ----------
-FROM node:20.18.0 AS final
+FROM oven/bun:1.3.0 AS final
 
 # Set working directory
 WORKDIR /app
 
 # Copy only the necessary built artifacts from the builder
 COPY --from=builder /app/dist ./dist
-
-# Copy production-only package.json files
-COPY package*.json ./
-COPY packages/server/package*.json packages/server/
-COPY packages/app/package*.json packages/app/
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/bun.lock ./
+COPY --from=builder /app/server.ts ./
 
 # Install only production dependencies
-RUN npm install --omit=dev
+RUN bun install --production
 
 # Expose application port
 EXPOSE 8080
 
 # Run the built server
-CMD ["node", "dist/server.js"]
+CMD ["bun","server.ts"]

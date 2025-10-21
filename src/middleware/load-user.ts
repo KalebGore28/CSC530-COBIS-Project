@@ -1,0 +1,94 @@
+import { createMiddleware } from '@tanstack/react-start'
+import { getDbConnection } from '@/db'
+import { auth } from '@/lib/server/auth'
+import { user, userRoles, roles, faculty } from '@/db/schema'
+import { eq } from "drizzle-orm";
+
+export const loadUser = createMiddleware({ type: 'request' })
+    .server(async ({ next, request }) => {
+        const session = await auth.api.getSession({ headers: request.headers })
+
+        if (!session?.user) {
+            return {
+                response: new Response(
+                    JSON.stringify({ error: 'Unauthorized', message: 'User not signed in' }),
+                    {
+                        status: 401,
+                        headers: { 'Content-Type': 'application/json' },
+                    }
+                ),
+                request,
+                pathname: new URL(request.url).pathname,
+                context: {
+                    session: {
+                        id: '',
+                        createdAt: new Date(0),
+                        updatedAt: new Date(0),
+                        userId: '',
+                        expiresAt: new Date(0),
+                        token: '',
+                        ipAddress: null,
+                        userAgent: null,
+                    },
+                    user: {
+                        id: '',
+                        createdAt: new Date(0),
+                        updatedAt: new Date(0),
+                        email: '',
+                        emailVerified: false,
+                        name: '',
+                        image: null,
+                    },
+                    mnumber: null,
+                    isEnabled: false,
+                    roles: [],
+                    faculty: {
+                        firstName: '',
+                        lastName: '',
+                        department: '',
+                        college: '',
+                    },
+                },
+            }
+        }
+
+        const { orm } = await getDbConnection()
+
+        const combined = await orm
+            .select({
+                mnumber: user.mnumber,
+                isEnabled: user.isEnabled,
+                roleName: roles.name,
+                firstName: faculty.first_name,
+                lastName: faculty.last_name,
+                department: faculty.department_code,
+                college: faculty.college_code,
+            })
+            .from(user)
+            .leftJoin(userRoles, eq(userRoles.user_id, user.id))
+            .leftJoin(roles, eq(userRoles.role_id, roles.id))
+            .leftJoin(faculty, eq(faculty.mnumber, user.mnumber))
+            .where(eq(user.id, session.user.id))
+
+        // Handle aggregation — because a user may have multiple roles
+        const base = combined[0]
+        const rolesList = combined.map((r) => r.roleName).filter(Boolean)
+
+        return next({
+            context: {
+                session: session.session,
+                user: session.user,
+                mnumber: base?.mnumber || null,
+                isEnabled: base?.isEnabled || false,
+                roles: rolesList,
+                faculty: base
+                    ? {
+                        firstName: base.firstName,
+                        lastName: base.lastName,
+                        department: base.department,
+                        college: base.college,
+                    }
+                    : null,
+            },
+        })
+    })
