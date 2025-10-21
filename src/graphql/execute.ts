@@ -1,7 +1,7 @@
 import type { TypedDocumentString } from './graphql'
 import persistedMap from '../../persisted-queries/client.json';
 
-// const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT
+const GRAPHQL_ENDPOINT = import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT
 
 function extractOperationName(query: any): string | null {
     const raw = query.value;
@@ -25,7 +25,7 @@ export async function execute<TResult, TVariables>(
         throw new Error(`No persisted query hash found for: ${operationName}`);
     }
 
-    const response = await fetch("https://cobis-migration-694292090335.us-central1.run.app/api/graphql", {
+    const response = await fetch(GRAPHQL_ENDPOINT || "https://cobis-migration-694292090335.us-central1.run.app/api/graphql", {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
