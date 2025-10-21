@@ -23,7 +23,7 @@ export async function execute<TResult, TVariables>(
         throw new Error(`No persisted query hash found for: ${operationName}`);
     }
 
-    const response = await fetch(import.meta.env.VITE_GRAPHQL_HTTP_ENDPOINT, {
+    const response = await fetch('https://cobis-migration-694292090335.us-central1.run.app/api/graphql', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
