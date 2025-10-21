@@ -1,9 +1,11 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    entrypoint: 'bash'
-    args: ['-c', 'echo "The value of my variable is: $$VITE_GRAPHQL_HTTP_ENDPOINT']
-    env:
-      - 'VITE_FRONTEND_URL=$_VITE_FRONTEND_URL'
-      - 'VITE_GRAPHQL_HTTP_ENDPOINT=$_VITE_GRAPHQL_HTTP_ENDPOINT'
+    args:
+      [
+        'build',
+        '-t', 'gcr.io/$PROJECT_ID/cobis-app',
+        '--build-arg=VITE_GRAPHQL_HTTP_ENDPOINT=$_VITE_GRAPHQL_HTTP_ENDPOINT',
+        '.'
+      ]
 images:
   - 'gcr.io/$PROJECT_ID/cobis-app'
