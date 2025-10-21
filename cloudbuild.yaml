@@ -12,3 +12,5 @@ steps:
     args: ['push', 'gcr.io/$PROJECT_ID/cobis-app']
 images:
   - 'gcr.io/$PROJECT_ID/cobis-app'
+substitutions:
+  _VITE_GRAPHQL_HTTP_ENDPOINT: https://cobis-migration-694292090335.us-central1.run.app/api/graphql
