@@ -29,7 +29,7 @@ function RouteComponent() {
   }
 
   return (
-    <div className="w-full mx-auto p-6 space-y-6 ">
+    <div className="w-full mx-auto p-6 space-y-6">
       <div className="flex flex-col">
         {/* Back button */}
         <Button

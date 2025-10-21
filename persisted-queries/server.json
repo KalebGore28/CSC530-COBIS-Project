@@ -92,6 +92,26 @@
          "name": "usersQuery",
          "body": "query usersQuery {\n  user {\n    id\n    mnumber\n    name\n    email\n    emailVerified\n    image\n    createdAt\n    updatedAt\n    isEnabled\n    lastLogin\n    faculty {\n      college {\n        code\n        description\n        __typename\n      }\n      department {\n        code\n        description\n        __typename\n      }\n      __typename\n    }\n    roles {\n      role {\n        id\n        name\n        __typename\n      }\n      __typename\n    }\n    __typename\n  }\n}"
       },
+      "b4811bbb582c029a7e4b8818eee6ce4c5ec0027110c25ad46bcdb3f6adaeb1de": {
+         "type": "query",
+         "name": "coursesPageQuery",
+         "body": "query coursesPageQuery {\n  courses {\n    subject\n    suffix\n    number\n    title\n    hours\n    last_updated\n    department_code\n    college_code\n    __typename\n  }\n}"
+      },
+      "720cb8bce28e398e8a9168f69cef3a8a025ebecd3a60002ced582b6b92805764": {
+         "type": "query",
+         "name": "programsPageQuery",
+         "body": "query programsPageQuery {\n  programs {\n    code\n    description\n    cip_code\n    is_major\n    is_minor\n    has_concentration\n    is_discontinued\n    is_aacsb\n    department_code\n    college_code\n    last_updated\n    __typename\n  }\n}"
+      },
+      "69468130315b8b1d8bdc77a8cbaa171f322741c0c267ce60934d66bbfd896bbb": {
+         "type": "query",
+         "name": "detailsCourseQuery",
+         "body": "query detailsCourseQuery($subject: String!, $number: Int!, $suffix: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!, $startTerm: String!) {\n  coursesSingle(\n    where: {subject: {eq: $subject}, number: {eq: $number}, suffix: {eq: $suffix}}\n  ) {\n    subject\n    number\n    suffix\n    title\n    hours\n    last_updated\n    student_courses(\n      startYear: $startYear\n      endTerm: $endTerm\n      endYear: $endYear\n      startTerm: $startTerm\n    ) {\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      __typename\n    }\n    __typename\n  }\n}"
+      },
+      "baf93e4d176eb6271365ffd223a8282ecc24a22a12f12622c0fd995f0b39d3d3": {
+         "type": "query",
+         "name": "detailsProgramQuery",
+         "body": "query detailsProgramQuery($code: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!, $startTerm: String!) {\n  programsSingle(where: {code: {eq: $code}}) {\n    code\n    has_concentration\n    is_aacsb\n    is_discontinued\n    is_major\n    is_minor\n    description\n    cip_code\n    last_updated\n    department {\n      code\n      description\n      __typename\n    }\n    college {\n      code\n      description\n      __typename\n    }\n    student_programs(\n      startYear: $startYear\n      endTerm: $endTerm\n      endYear: $endYear\n      startTerm: $startTerm\n    ) {\n      term {\n        code\n        description\n        __typename\n      }\n      year\n      __typename\n    }\n    __typename\n  }\n}"
+      },
       "e0a4d49473306d99daa66b27820b1ab1fc4344cacfa8e50e2015f580aa236645": {
          "type": "query",
          "name": "courseTermQuery",
