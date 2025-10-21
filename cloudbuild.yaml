@@ -4,7 +4,7 @@ steps:
       [
         'build',
         '-t', 'gcr.io/$PROJECT_ID/cobis-app',
-        '--build-arg=VITE_GRAPHQL_HTTP_ENDPOINT=$_VITE_GRAPHQL_HTTP_ENDPOINT',
+        '--build-arg', 'VITE_GRAPHQL_HTTP_ENDPOINT=$_VITE_GRAPHQL_HTTP_ENDPOINT',
         '.'
       ]
 # push the container image to Container Registry
