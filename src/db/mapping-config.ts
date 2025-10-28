@@ -23,6 +23,10 @@ import {
     terms,
 } from "./schema";
 
+function isCSVColumnNull(value: string | null | undefined): boolean {
+    return value === null || value === undefined || value.toLowerCase() === "null" || value === "";
+}
+
 export const csvConfig = createCSVConfig({
     admitCodes,
     academicStanding,
@@ -97,7 +101,7 @@ export const csvConfig = createCSVConfig({
             config: {
                 code: { csvColumnName: "CODE" },
                 description: { csvColumnName: "DESCRIPTION" },
-                college_code: { csvColumnName: "COLLEGE", transform: (val) => val === 'NULL' ? null : val },
+                college_code: { csvColumnName: "COLLEGE", transform: (val) => isCSVColumnNull(val) ? null : val },
             },
         },
         faculty: {
@@ -158,8 +162,8 @@ export const csvConfig = createCSVConfig({
                 has_concentration: { csvColumnName: "HAS_CONCENTRATION" },
                 is_discontinued: { csvColumnName: "IS_DISCONTINUED" },
                 is_aacsb: { csvColumnName: "IS_AACSB" },
-                department_code: { csvColumnName: "DEPARTMENT", transform: (val) => val === 'NULL' ? null : val },
-                college_code: { csvColumnName: "COLLEGE", transform: (val) => val === 'NULL' ? null : val },
+                department_code: { csvColumnName: "DEPARTMENT", transform: (val) => isCSVColumnNull(val) ? null : val },
+                college_code: { csvColumnName: "COLLEGE", transform: (val) => isCSVColumnNull(val) ? null : val },
             },
             missingRowResolver: (missingData) => ({ code: missingData[0], description: "Unknown Program" }),
         },
@@ -188,7 +192,7 @@ export const csvConfig = createCSVConfig({
                 year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
                 course_subject: { csvColumnName: "CRSESUBJ" },
                 course_number: { csvColumnName: "CRSENUMB" },
-                // course_suffix isn't provided in the CSV, so we force it to default to ''
+                course_suffix: { csvColumnName: "_NOT_PROVIDED", transform: () => '' },
                 course_section: { csvColumnName: "SECTION" },
             }
         },
@@ -220,10 +224,10 @@ export const csvConfig = createCSVConfig({
                 mnumber: { csvColumnName: "MNUMBER" },
                 term_code: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).term },
                 year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
-                admit_term_code: { csvColumnName: "ADMITTERM", transform: (val) => val === '' ? null : parseTermCode(val).term },
-                admit_year: { csvColumnName: "ADMITTERM", transform: (val) => val === '' ? null : parseTermCode(val).year },
-                admit_code: { csvColumnName: "ADMITCODE", transform: (val) => val === '' ? null : val },
-                academic_standing_code: { csvColumnName: "ACADSTANDING", transform: (val) => val === '' ? null : val },
+                admit_term_code: { csvColumnName: "ADMITTERM", transform: (val) => isCSVColumnNull(val) ? null : parseTermCode(val).term },
+                admit_year: { csvColumnName: "ADMITTERM", transform: (val) => isCSVColumnNull(val) ? null : parseTermCode(val).year },
+                admit_code: { csvColumnName: "ADMITCODE", transform: (val) => isCSVColumnNull(val) ? null : val },
+                academic_standing_code: { csvColumnName: "ACADSTANDING", transform: (val) => isCSVColumnNull(val) ? null : val },
                 msu_attempted_hours: { csvColumnName: "MSUATTHOURS" },
                 msu_earned_hours: { csvColumnName: "MSUEARNHOURS" },
                 msu_quality_points: { csvColumnName: "MSUQP" },
@@ -252,9 +256,9 @@ export const csvConfig = createCSVConfig({
                 registration_status_code: { csvColumnName: "RSTSCODE" },
                 instructional_method_code: { csvColumnName: "INSMCODE" },
                 part_of_term_code: { csvColumnName: "PARTOFTERM" },
-                last_attendance: { csvColumnName: "LASTATTEND", transform: (val) => val === '' ? null : val },
-                midterm_grade: { csvColumnName: "MIDGRADE", transform: (val) => val === '' ? null : val },
-                final_grade: { csvColumnName: "FINGRADE", transform: (val) => val === '' ? null : val },
+                last_attendance: { csvColumnName: "LASTATTEND", transform: (val) => isCSVColumnNull(val) ? null : val },
+                midterm_grade: { csvColumnName: "MIDGRADE", transform: (val) => isCSVColumnNull(val) ? null : val },
+                final_grade: { csvColumnName: "FINGRADE", transform: (val) => isCSVColumnNull(val) ? null : val },
             },
         },
         studentPrograms: {

@@ -11,7 +11,7 @@ export const dataConformer = (
   column: Column
 ) => {
   // Convert common null representations to actual null
-  if (value === "NULL" || value === "null" || value === "") {
+  if (value?.toLowerCase() === "null" || value === "") {
     value = null;
   }
 
