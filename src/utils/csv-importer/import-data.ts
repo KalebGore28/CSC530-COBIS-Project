@@ -10,8 +10,12 @@ export const importData = async (
   db: MySql2Database<any>,
   results: ParseResult<Record<string, string>>,
   pattern: string,
-  configMapping: ReturnType<typeof createCSVConfig>
+  configMapping: ReturnType<typeof createCSVConfig>,
+  progress?: { write: (msg: string) => void; end?: () => void }
 ) => {
+  const emit = (type: string, data: any) =>
+    progress?.write(JSON.stringify({ type, data }))
+
   // Get tables matching the filename
   const tableConfigMap = findMatchingTables(pattern, configMapping);
   if (!tableConfigMap.size) {
@@ -86,6 +90,7 @@ export const importData = async (
             mapped[columnName] = transform ? transform(value) : dataConformer(value, column);
           } catch (err) {
             console.error(`Error conforming value for ${tableName}.${columnName}:`, err);
+            emit('error', { message: `Error conforming value for ${tableName}.${columnName}: ${err}` });
             throw err;
           }
         }
@@ -108,7 +113,17 @@ export const importData = async (
   }
 
   // Begin inserting data into tables
+  let tableIterations = 0;
   for (const [tableName, rows] of tableDataMap.entries()) {
+    tableIterations++;
+    emit('progress', {
+      message: `Processing table ${tableName} (${tableIterations}/${tableDataMap.size})`,
+      table: tableName,
+      currentTable: tableIterations,
+      totalTables: tableDataMap.size,
+      currentRow: 0,
+      totalRows: rows.length,
+    });
 
     const table = configMapping.schema[tableName as keyof typeof configMapping.schema];
     const foreignKeys = configMapping.tables[tableName as keyof typeof configMapping.tables]?.meta.foreignKeys;
@@ -123,7 +138,9 @@ export const importData = async (
       continue;
     }
 
+    let importedRows = 0;
     try {
+
       // Iterate over each row and perform an individual insert or update
       for (const row of rows) {
 
@@ -141,6 +158,7 @@ export const importData = async (
 
           const existsInCache = cacheData.has(fk.foreignTableName, ...keyParts);
           if (!existsInCache) {
+            emit('warning', { message: `Missing foreign key for table ${fk.foreignTableName} with key '${keyParts.join('|')}'. Attempting to resolve...` });
             // Call the missing row resolver to get the missing data
             const missingData = foreignTableConfig.missingRowResolver(keyParts);
             if (missingData) {
@@ -154,6 +172,8 @@ export const importData = async (
                 .values(missingData)
                 .execute();
 
+              emit('progress', { message: `Inserted missing foreign key '${keyParts.join('|')}' row into ${fk.foreignTableName}` });
+
               // Add to cache
               cacheData.add(fk.foreignTableName, ...keyParts);
             }
@@ -166,7 +186,20 @@ export const importData = async (
             .values(row)
             .onDuplicateKeyUpdate({ set: row })
             .execute();
+          importedRows++;
+          emit('progress', {
+            message: `Imported ${importedRows}/${rows.length} rows into ${tableName}`,
+            table: tableName,
+            currentTable: tableIterations,
+            totalTables: tableDataMap.size,
+            currentRow: importedRows,
+            totalRows: rows.length,
+          });
         } catch (err) {
+          emit('error', {
+            message: `Failed to insert/update row in ${tableName}: ${err}`,
+            error: String(err),
+          });
           console.error(`❌ Failed to insert/update row in ${tableName}:`);
         }
       }

@@ -1,6 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
 import { useImport } from '@/hooks/use-import';
@@ -12,6 +19,28 @@ import { FileUpload } from '@/components/csv-import/file-upload'
 import { CsvPreview } from '@/components/csv-import/csv-preview'
 import { TablePreview } from '@/components/csv-import/table-preview';
 
+import { ImportSummary } from '@/components/csv-import/import-summary';
+
+export type IssueMessage = {
+  message: string;
+  error?: string;
+}
+
+export type ProgressMessage = {
+  message: string;
+  table: string;
+  currentTable: number;
+  totalTables: number;
+  currentRow: number;
+  totalRows: number;
+}
+
+export type ProgressData = {
+  progressMessages: ProgressMessage[];
+  warnings: IssueMessage[];
+  errors: IssueMessage[];
+}
+
 export const Route = createFileRoute(
   '/_authenticated/_layout/cobis-tools/_layout/import',
 )({
@@ -21,11 +50,45 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [csvData, setCsvData] = useState<ParseResult<Record<string, string>> | null>(null);
-  const importMutation = useImport();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [progressData, setProgressData] = useState<ProgressData>({
+    progressMessages: [],
+    warnings: [],
+    errors: [],
+  });
+  const importMutation = useImport((event) => {
+    if (event.type === 'progress') {
+      setProgressData((prev) => ({
+        ...prev,
+        progressMessages: [...prev.progressMessages, event.data as ProgressMessage],
+      }));
+    } else if (event.type === 'warning') {
+      setProgressData((prev) => ({
+        ...prev,
+        warnings: [...prev.warnings, { message: event.data?.message }],
+      }));
+      console.warn('Warning:', event.data?.message);
+    } else if (event.type === 'complete') {
+      console.log('Import finished!')
+    } else if (event.type === 'error') {
+      setProgressData((prev) => ({
+        ...prev,
+        errors: [...prev.errors, { message: event.data?.message, error: event.data?.error }],
+      }));
+      console.error('Import error:', event.error)
+    }
+  });
 
   const resetImport = () => {
     setSelectedFile(null);
     setCsvData(null);
+    importMutation.reset();
+    setDrawerOpen(false);
+    setProgressData({
+      progressMessages: [],
+      warnings: [],
+      errors: [],
+    });
   };
 
   const handleImport = () => {
@@ -36,7 +99,6 @@ function RouteComponent() {
         onSuccess: (data) => {
           if (data.success) {
             toast.success('Import completed successfully!')
-            resetImport()
           } else {
             toast.error(data.error || 'Import failed')
           }
@@ -95,15 +157,49 @@ function RouteComponent() {
             <div>
               <Separator className="my-6" />
               <CardFooter className="flex justify-end">
-                <Button variant="secondary" onClick={resetImport} className="mr-4">
-                  Cancel
-                </Button>
-                <Button
-                  onClick={handleImport}
-                  disabled={importMutation.isPending}
-                >
-                  {importMutation.isPending ? 'Importing…' : 'Confirm Import'}
-                </Button>
+                <div className={`${importMutation.isSuccess ? 'hidden pointer-events-none' : ''} flex`}>
+                  <Button variant="secondary" onClick={resetImport} className="mr-4">
+                    Cancel
+                  </Button>
+                  <Button
+                    className={`${importMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    onClick={handleImport}
+                    disabled={importMutation.isPending || importMutation.isSuccess}
+                  >
+                    {importMutation.isPending ? 'Importing…' : 'Confirm Import'}
+                  </Button>
+                </div>
+                <Drawer open={importMutation.isPending || drawerOpen} onOpenChange={(e) => setDrawerOpen(e)}>
+                  <DrawerContent>
+                    <DrawerHeader>
+                      <DrawerTitle>Import Results</DrawerTitle>
+                      <DrawerDescription>
+                        {importMutation.isPending && 'Import in progress...'}
+                        {importMutation.isSuccess && 'Import completed successfully!'}
+                      </DrawerDescription>
+                    </DrawerHeader>
+
+                    <div className="h-[75vh] px-4">
+                      <ImportSummary
+                        progressMessages={progressData.progressMessages}
+                        warnings={progressData.warnings}
+                        errors={progressData.errors}
+                        isImporting={importMutation.isPending}
+                      />
+                    </div>
+
+                  </DrawerContent>
+                </Drawer>
+                {importMutation.isSuccess && (
+                  <>
+                    <Button variant="outline" onClick={() => setDrawerOpen(true)} className="mr-4">
+                      View Results
+                    </Button>
+                    <Button variant="outline" onClick={resetImport}>
+                      New Import
+                    </Button>
+                  </>
+                )}
               </CardFooter>
             </div>
           )}
