@@ -175,7 +175,7 @@ function RouteComponent() {
         description="Fill in the details to provision this user."
         size="xl"
       >
-        <div className="flex flex-col p-4 w-full h-[700px]">
+  <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
           <div className="flex-1 overflow-y-auto space-y-6">
 
             <span className="font-medium">Faculty:</span>
