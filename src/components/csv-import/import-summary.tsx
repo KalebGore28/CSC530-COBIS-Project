@@ -154,7 +154,7 @@ export function ImportSummary({
             {/* Right column: overall summary & issue stream */}
             <div className="flex flex-col h-full space-y-4">
                 {/* Overall Summary */}
-                <Card className="border border-muted bg-muted/30 h-[25%] flex flex-col">
+                <Card className="border border-muted bg-muted/30 flex flex-col">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-base font-semibold">Overall Progress</CardTitle>
                     </CardHeader>
