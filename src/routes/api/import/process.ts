@@ -10,28 +10,40 @@ export const Route = createFileRoute('/api/import/process')({
         middleware: [loadUser, isEnabled],
         handlers: {
             POST: async ({ request }) => {
-                const { filename, csvData } = await request.json();
-                const { orm } = await getDbConnection();
+                const { filename, csvData } = await request.json()
+                const { orm } = await getDbConnection()
 
-                try {
-                    await importData(orm, csvData, filename, csvConfig);
-                } catch (error) {
-                    console.error('Error during import:', error);
-                    return new Response(JSON.stringify({ error: 'Import failed' }),
-                        {
-                            status: 500,
-                            headers: { 'Content-Type': 'application/json' },
+                // Create a readable stream that will send progress events
+                const stream = new ReadableStream({
+                    async start(controller) {
+                        const encoder = new TextEncoder()
+                        const write = (msg: string) =>
+                            controller.enqueue(encoder.encode(msg + '\n'))
+
+                        try {
+                            await importData(orm, csvData, filename, csvConfig, {
+                                write,
+                                end: () => controller.close(),
+                            })
+
+                            write(JSON.stringify({ type: 'complete' }))
+                            controller.close()
+                        } catch (error) {
+                            write(JSON.stringify({ type: 'error', error: String(error) }))
+                            controller.close()
                         }
-                    )
-                }
+                    },
+                })
 
-                return new Response(JSON.stringify({ success: true }),
-                    {
-                        status: 200,
-                        headers: { 'Content-Type': 'application/json' },
-                    }
-                )
-            }
-        }
-    }
+                return new Response(stream, {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'text/event-stream; charset=utf-8',
+                        'Cache-Control': 'no-cache',
+                        Connection: 'keep-alive',
+                    },
+                })
+            },
+        },
+    },
 })

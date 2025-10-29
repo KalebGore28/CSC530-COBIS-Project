@@ -42,7 +42,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
     }
 
     // --- No matching tables found ---
-    if (!data?.tables?.length) {
+    if (!data?.tableNames?.length) {
         return (
             <Alert variant="destructive" className="border-destructive/50">
                 <AlertCircle className="h-5 w-5" />
@@ -68,7 +68,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex flex-wrap gap-2">
-                {data.tables.map((table: string) => (
+                {data.tableNames.map((table: string) => (
                     <Badge
                         key={table}
                         variant="secondary"
