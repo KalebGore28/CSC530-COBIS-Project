@@ -9,7 +9,7 @@ export const coursesCollection = createCollection(
     queryCollectionOptions({
         queryKey: ['courses'],
         queryFn: async () => {
-            const response = await fetch(`/api/courses`)
+            const response = await fetch(`/api/data/courses`)
             return await response.json() as Course[]
         },
         getKey: (course) => `${course.subject}${course.number}${course.suffix || ''}`,

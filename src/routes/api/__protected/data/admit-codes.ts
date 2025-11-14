@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
-import { terms } from '@/db/schema'
+import { admitCodes } from '@/db/schema'
 
-export const Route = createFileRoute('/api/__protected/terms')({
+export const Route = createFileRoute('/api/__protected/data/admit-codes')({
     server: {
         handlers: {
             GET: async () => {
                 const { orm } = await getDbConnection()
 
-                const termResults = await orm.select().from(terms)
+                const admitCodeResults = await orm.select().from(admitCodes)
 
-                return new Response(JSON.stringify(termResults), {
+                return new Response(JSON.stringify(admitCodeResults), {
                     status: 200,
                     headers: {
                         'Content-Type': 'application/json',

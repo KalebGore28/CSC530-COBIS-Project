@@ -9,7 +9,7 @@ export const academicStandingCollection = createCollection(
     queryCollectionOptions({
         queryKey: ['academicStanding'],
         queryFn: async () => {
-            const response = await fetch(`/api/academic-standing`)
+            const response = await fetch(`/api/data/academic-standing`)
             return await response.json() as AcademicStanding[]
         },
         getKey: (standing) => standing.code,

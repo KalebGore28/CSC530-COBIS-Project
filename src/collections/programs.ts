@@ -9,7 +9,7 @@ export const programsCollection = createCollection(
     queryCollectionOptions({
         queryKey: ['programs'],
         queryFn: async () => {
-            const response = await fetch(`/api/programs`)
+            const response = await fetch(`/api/data/programs`)
             return await response.json() as Program[]
         },
         getKey: (program) => program.code,

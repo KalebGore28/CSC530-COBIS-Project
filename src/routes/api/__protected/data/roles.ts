@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
-import { instructionalMethods } from '@/db/schema'
+import { roles } from '@/db/schema'
 
-export const Route = createFileRoute('/api/__protected/instructional-methods')({
+export const Route = createFileRoute('/api/__protected/data/roles')({
     server: {
         handlers: {
             GET: async () => {
                 const { orm } = await getDbConnection()
 
-                const instructionalMethodResults = await orm.select().from(instructionalMethods)
+                const roleResults = await orm.select().from(roles)
 
-                return new Response(JSON.stringify(instructionalMethodResults), {
+                return new Response(JSON.stringify(roleResults), {
                     status: 200,
                     headers: {
                         'Content-Type': 'application/json',

@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { programs } from '@/db/schema'
 
-export const Route = createFileRoute('/api/__protected/programs')({
+export const Route = createFileRoute('/api/__protected/data/programs')({
   server: {
     handlers: {
       GET: async () => {
