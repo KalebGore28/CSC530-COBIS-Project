@@ -22,8 +22,6 @@ async function main() {
 		await importCSVFile(db, path.join(__dirname, 'csvs/roles.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/part_of_term.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/major_minor.csv'), csvConfig);
-		await importCSVFile(db, path.join(__dirname, 'csvs/reg_cuba_demographic_202510_20250117.csv'), csvConfig);
-		await importCSVFile(db, path.join(__dirname, 'csvs/reg_cuba_courses_during_term_202510_20250117.csv'), csvConfig);
 
 		console.log('All imports complete');
 	} catch (err) {

@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRouteWithContext } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { Suspense } from 'react';
 
 // Providers
@@ -6,13 +6,8 @@ import { ThemeProvider } from '@/components/provider/theme'
 import { SessionProvider } from '@/components/provider/session';
 
 import appCss from '../styles.css?url'
-import type { QueryClient } from '@tanstack/react-query'
 
-interface MyRouterContext {
-  queryClient: QueryClient
-}
-
-export const Route = createRootRouteWithContext<MyRouterContext>()({
+export const Route = createRootRoute({
   head: () => ({
     meta: [
       {
