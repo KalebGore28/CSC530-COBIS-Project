@@ -4,41 +4,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
-import fuzzysort from 'fuzzysort'
 
-import { courses } from '@/db/schema'
-
-type Course = typeof courses.$inferSelect
-
-// GraphQL imports
-import { useQuery } from '@tanstack/react-query'
-import { execute } from '@/graphql/execute'
-import { graphql } from '@/graphql'
-
-const coursesPageQuery = graphql(`
-  query coursesPageQuery {
-    courses {
-      subject
-      suffix
-      number
-      title
-      hours
-      last_updated
-      department_code
-      college_code
-    }
-  }
-`);
-
-function fuzzySearchCourses(courses: Course[], searchTerm: string) {
-  if (!searchTerm) return courses
-  const results = fuzzysort.go(searchTerm, courses, {
-    keys: ['subject', 'suffix', 'number', 'title'],
-    threshold: -10000,
-  })
-  // @ts-ignore
-  return results.map((r) => r.obj)
-}
+import { useLiveQuery, ilike, or, coalesce, concat } from '@tanstack/react-db'
+import { coursesCollection } from '@/collections/courses'
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/_layout/courses',
@@ -50,27 +18,18 @@ function RouteComponent() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['coursesPageQuery'],
-    queryFn: () => execute(coursesPageQuery),
-  })
-
-  const courses = data?.courses ?? []
-  // Convert last_updated from string to Date for each course
-  const normalizedCourses = courses.map((c) => ({
-    subject: c.subject,
-    suffix: c.suffix,
-    number: c.number,
-    title: c.title,
-    hours: c.hours,
-    department_code: c.department_code ?? null,
-    college_code: c.college_code ?? null,
-    last_updated: c.last_updated ? new Date(c.last_updated) : new Date(0),
-  }))
-
-  const allFiltered = fuzzySearchCourses(normalizedCourses, search)
-  const limitedCourses = allFiltered.slice(0, 20)
-
+  const { data: courses, isLoading } = useLiveQuery((q) =>
+    q.from({ courses: coursesCollection })
+      .where(({ courses }) =>
+        or(
+          ilike(concat(courses.subject, coalesce(courses.number, ''), courses.suffix), `%${search}%`),
+          ilike(courses.title, `%${search}%`)
+        )
+      )
+      .limit(100)
+      .orderBy(({ courses }) => courses.subject, 'asc'),
+    [search] // Re-run when search changes
+  )
 
   return (
     <Card className="max-w-4xl mx-auto mt-6">
@@ -92,19 +51,18 @@ function RouteComponent() {
               <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
-        ) : limitedCourses.length === 0 ? (
+        ) : courses.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">
             No courses found.
           </p>
         ) : (
           <>
             <p className="text-xs text-muted-foreground mb-2">
-              Showing {limitedCourses.length} of {allFiltered.length} results
-              {allFiltered.length > 20 && ' (limited to 20)'}
+              Limited to 100 results. Refine your search for more specific results.
             </p>
 
             <div className="space-y-3">
-              {limitedCourses.map((course) => (
+              {courses.map((course) => (
                 <div
                   key={`${course.subject}-${course.number}-${course.suffix || ''}`}
                   onClick={() =>

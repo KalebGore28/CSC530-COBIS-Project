@@ -4,44 +4,9 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
-import fuzzysort from 'fuzzysort'
 
-import { programs } from '@/db/schema'
-
-type Program = typeof programs.$inferSelect
-
-// GraphQL imports
-import { useQuery } from '@tanstack/react-query'
-import { execute } from '@/graphql/execute'
-import { graphql } from '@/graphql'
-
-const programsPageQuery = graphql(`
-  query programsPageQuery {
-    programs {
-      code
-      description
-      cip_code
-      is_major
-      is_minor
-      has_concentration
-      is_discontinued
-      is_aacsb
-      department_code
-      college_code
-      last_updated
-    }
-  }
-`)
-
-function fuzzySearchPrograms(programs: Program[], searchTerm: string) {
-  if (!searchTerm) return programs
-  const results = fuzzysort.go(searchTerm, programs, {
-    keys: ['code', 'description'],
-    threshold: -10000,
-  })
-  // @ts-ignore
-  return results.map((r) => r.obj)
-}
+import { useLiveQuery, like, or } from '@tanstack/react-db'
+import { programsCollection } from '@/collections/programs'
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/_layout/programs'
@@ -53,28 +18,18 @@ function RouteComponent() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['programsPageQuery'],
-    queryFn: () => execute(programsPageQuery),
-  })
-
-  const programsRaw = data?.programs ?? []
-  const programs: Program[] = programsRaw.map((p) => ({
-    code: p.code,
-    description: p.description,
-    cip_code: p.cip_code ?? null,
-    is_major: p.is_major,
-    is_minor: p.is_minor,
-    has_concentration: p.has_concentration,
-    is_discontinued: p.is_discontinued,
-    is_aacsb: p.is_aacsb,
-    department_code: p.department_code ?? null,
-    college_code: p.college_code ?? null,
-    last_updated: p.last_updated ? new Date(p.last_updated) : new Date(0),
-  }))
-  
-  const allFiltered = fuzzySearchPrograms(programs, search)
-  const limitedPrograms = allFiltered.slice(0, 20)
+  const { data: programs, isLoading } = useLiveQuery((q) =>
+    q.from({ programs: programsCollection })
+      .where(({ programs }) =>
+        or(
+          like(programs.code, `%${search}%`),
+          like(programs.description, `%${search}%`)
+        )
+      )
+      .limit(100)
+      .orderBy(({ programs }) => programs.code, 'asc'),
+    [search] // Re-run when search changes
+  )
 
   return (
     <Card className="max-w-4xl mx-auto mt-6">
@@ -96,18 +51,17 @@ function RouteComponent() {
               <Skeleton key={i} className="h-12 w-full" />
             ))}
           </div>
-        ) : limitedPrograms.length === 0 ? (
+        ) : programs.length === 0 ? (
           <p className="text-sm text-muted-foreground italic">
             No programs found.
           </p>
         ) : (
           <>
             <p className="text-xs text-muted-foreground mb-2">
-              Showing {limitedPrograms.length} of {allFiltered.length} results
-              {allFiltered.length > 20 && ' (limited to 20)'}
+              Limited to 100 results. Refine your search for more specific results.
             </p>
             <div className="space-y-3">
-              {limitedPrograms.map((program) => (
+              {programs.map((program) => (
                 <div
                   key={program.code}
                   onClick={() =>
