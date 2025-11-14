@@ -16,6 +16,7 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                         },
                     })
                 }
+                
                 const { orm } = await getDbConnection()
 
                 const facultyResults = await orm.select().from(faculty)

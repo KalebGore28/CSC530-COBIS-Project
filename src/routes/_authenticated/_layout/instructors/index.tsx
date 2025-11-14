@@ -8,35 +8,13 @@ import { Search, Users, Mail } from 'lucide-react';
 import { useSession } from '@/components/provider/session';
 import { useNavigate } from '@tanstack/react-router';
 import { useState } from 'react';
-import fuzzysort from 'fuzzysort';
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { departmentsCollection } from '@/collections/departments';
+import { facultyCollection } from '@/collections/faculty';
+import { usersCollection } from '@/collections/users';
 
+import { useLiveQuery, or, ilike, eq } from '@tanstack/react-db';
 
-const instructorsQuery = graphql(`
-    query instructorsQuery {
-        faculty {
-            mnumber
-            first_name
-            last_name
-            department_code
-            department {
-                description
-            }
-            college_code
-            college{
-                description
-            }
-            user{
-                email
-                image
-            }
-        } 
-    }
-`);
 
 // Helper function to get initials from name
 const getInitials = (name: string): string => {
@@ -123,34 +101,24 @@ function RouteComponent() {
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['instructors'],
-        queryFn: async () => {
-            const result = await execute(instructorsQuery);
-            return result
-        },
-    });
-
-    // Always define variables before any return
-    const instructors = data?.faculty ?? [];
-
-    // Fuzzy filtering (no useMemo)
-    let filteredInstructors = instructors;
-    if (searchQuery.trim()) {
-        // Add a simple full_name property to satisfy fuzzysort's keys typing
-        const preparedInstructors = instructors.map((i) => ({
-            ...i,
-            full_name: `${i.first_name} ${i.last_name}`,
-        }));
-
-        const results = fuzzysort.go(searchQuery, preparedInstructors, {
-            keys: ['first_name', 'last_name', 'mnumber', 'full_name'],
-            threshold: -10000,
-            limit: 50,
-        });
-        filteredInstructors = results.map((r) => r.obj);
-    }
-
+    const { data, isLoading } = useLiveQuery((q) =>
+        q.from({ faculty: facultyCollection })
+            .where(({ faculty }) =>
+                or(
+                    ilike(faculty.first_name, `%${searchQuery}%`),
+                    ilike(faculty.last_name, `%${searchQuery}%`),
+                    ilike(faculty.mnumber, `%${searchQuery}%`)
+                )
+            )
+            .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
+                eq(faculty.department_code, departments.code)
+            )
+            .leftJoin({ users: usersCollection }, ({ faculty, users }) =>
+                eq(faculty.mnumber, users.mnumber)
+            )
+            .orderBy(({ faculty }) => faculty.last_name, 'asc'),
+        [searchQuery] // Re-run when searchQuery changes
+    );
 
     if (isLoading) return (
         <div className="w-full p-6 mx-auto space-y-6">
@@ -166,7 +134,7 @@ function RouteComponent() {
         </div>
     )
 
-    if (!data) {
+    if (!data || data.length === 0) {
         <div className="w-full p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
@@ -209,7 +177,7 @@ function RouteComponent() {
                                 Instructor Directory
                             </CardTitle>
                             <CardDescription>
-                                {filteredInstructors.length} instructor{filteredInstructors.length !== 1 ? 's' : ''} found
+                                {data.length} instructor{data.length !== 1 ? 's' : ''} found
                             </CardDescription>
                         </div>
                         {/* Search and Filter Controls*/}
@@ -228,7 +196,7 @@ function RouteComponent() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {filteredInstructors.length > 0 ? (
+                    {data.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -238,43 +206,43 @@ function RouteComponent() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {filteredInstructors.map((instructor) => (
+                                {data.map((d) => (
                                     <TableRow
-                                        key={instructor.mnumber}
-                                        className={`cursor-pointer hover:bg-muted/50 ${session?.faculty.department !== instructor.department_code ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        key={d.faculty.mnumber}
+                                        className={`cursor-pointer hover:bg-muted/50 ${session?.faculty.department !== d.faculty.department_code ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => {
-                                            if (session?.faculty.department === instructor.department_code) {
-                                                handleSelectInstructor(instructor.mnumber);
+                                            if (session?.faculty.department === d.faculty.department_code) {
+                                                handleSelectInstructor(d.faculty.mnumber);
                                             }
                                         }}
                                     >
                                         <TableCell className="truncate max-w-[120px]">
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
-                                                    <AvatarImage src={instructor.user?.image ?? undefined} alt={instructor.first_name || ''} />
-                                                    <AvatarFallback>{getInitials(`${instructor.first_name} ${instructor.last_name}`)}</AvatarFallback>
+                                                    <AvatarImage src={d.users?.image ?? undefined} alt={d.faculty.first_name || ''} />
+                                                    <AvatarFallback>{getInitials(`${d.faculty.first_name} ${d.faculty.last_name}`)}</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
-                                                    <span className="font-medium">{`${instructor.first_name} ${instructor.last_name}`}</span>
-                                                    <span className="text-sm text-muted-foreground">{instructor.mnumber}</span>
+                                                    <span className="font-medium">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
+                                                    <span className="text-sm text-muted-foreground">{d.faculty.mnumber}</span>
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="truncate max-w-[120px]">
                                             <div className="flex flex-col">
-                                                <span>{instructor.department?.description}</span>
+                                                <span>{d.departments?.description}</span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="truncate max-w-[120px]">
                                             <div className="flex items-center gap-2">
                                                 <Mail className="h-4 w-4 text-muted-foreground" />
-                                                {instructor.user?.email ? (
+                                                {d.users?.email ? (
                                                     <a
-                                                        href={`mailto:${instructor.user.email}`}
+                                                        href={`mailto:${d.users.email}`}
                                                         className="hover:underline"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
-                                                        {instructor.user.email}
+                                                        {d.users.email}
                                                     </a>
                                                 ) : (
                                                     <span className="text-muted-foreground">N/A</span>
@@ -287,7 +255,7 @@ function RouteComponent() {
                         </Table>
 
                     ) : (
-                        filteredInstructors.length === 0 && (
+                        data.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
                                 <Users className="h-12 w-12 text-muted-foreground mb-4" />
                                 <h3 className="text-lg font-medium">No instructors found</h3>
