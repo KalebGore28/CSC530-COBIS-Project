@@ -7,10 +7,17 @@ import { useState } from 'react';
 import { type Enrollment, EnrollmentTrends } from '@/components/charts/enrollment-trends';
 import { type TermRange, TermRangeSelector } from '@/components/selectors/term-range-selector';
 
+import { programsCollection } from '@/collections/programs';
+import { departmentsCollection } from '@/collections/departments';
+import { collegesCollection } from '@/collections/colleges';
+// import { studentProgramsCollection } from '@/collections/student-programs';
+import { useLiveQuery, eq } from '@tanstack/react-db';
+
 // GraphQL imports
 import { useQuery } from '@tanstack/react-query'
 import { execute } from '@/graphql/execute'
 import { graphql } from '@/graphql'
+import { departments, programs } from '@/db/schema';
 
 const getCurrentYearTermQuery = graphql(`
   query getCurrentYearTermQuery {
@@ -77,23 +84,41 @@ function RouteComponent() {
 
   const currentYearTerm = currentYearTermData?.getCurrentYearTerm ?? null;
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['detailsProgram', programCode, termRange, currentYearTerm],
-    queryFn: () => {
-      const fallbackYear = currentYearTerm?.year ?? new Date().getFullYear();
+  const { data: programs, isLoading } = useLiveQuery((q) =>
+    q.from({ programs: programsCollection })
+      .where(({ programs }) => eq(programs.code, programCode))
+      .leftJoin({ departments: departmentsCollection }, ({ programs, departments }) =>
+        eq(programs.department_code, departments.code)
+      )
+      .leftJoin({ colleges: collegesCollection }, ({ programs, colleges }) =>
+        eq(programs.college_code, colleges.code)
+      )
+      .select(({ programs, departments, colleges }) => ({
+        code: programs.code,
+        has_concentration: programs.has_concentration,
+        is_aacsb: programs.is_aacsb,
+        is_discontinued: programs.is_discontinued,
+        is_major: programs.is_major,
+        is_minor: programs.is_minor,
+        cip_code: programs.cip_code,
+        last_updated: programs.last_updated,
+        description: programs.description,
+        department_description: departments?.description,
+        college_description: colleges?.description,
+      })),
+    [programCode]
+  )
 
-      return execute(detailsProgramQuery, {
-        code: programCode,
-        startYear: termRange?.startYear ?? fallbackYear - 1,
-        startTerm: termRange?.startTerm ?? "10",
-        endYear: termRange?.endYear ?? fallbackYear,
-        endTerm: termRange?.endTerm ?? "90",
-      });
-    },
-    enabled: !!programCode && !!currentYearTerm && !!termRange,
-  });
+
+
+  if (!isLoading){
+    console.log('Program Details:', programs);
+  }
 
   if (!currentYearTerm) return null;
+
+
+
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -120,13 +145,13 @@ function RouteComponent() {
       ) : (
         <>
           {/* Data Available */}
-          {data?.programsSingle && (
+          {/* {programs && (
             <EnrollmentTrends
               enrollments={data.programsSingle.student_programs as Enrollment[]}
               title={`Enrollments for Program ${data.programsSingle.code}`}
               description={data.programsSingle.description || undefined}
             />
-          )}
+          )} */}
         </>
       )}
     </div>

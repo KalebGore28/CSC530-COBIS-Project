@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
-import { SQLWrapper, eq, ilike, and } from 'drizzle-orm'
 import { students } from '@/db/schema'
+
+import { urlParamsWhereParser } from '@/utils/url-params-where-parser'
 
 export const Route = createFileRoute('/api/__protected/data/students')({
     server: {
@@ -11,24 +12,12 @@ export const Route = createFileRoute('/api/__protected/data/students')({
 
                 const url = new URL(request.url)
                 const params = url.searchParams
+                console.log(params)
 
-                const whereConditions: SQLWrapper[] = []
-                params.forEach((value, key) => {
-                    if (key.endsWith('_eq')) {
-                        const field = key.slice(0, -3)
-                        const col = (students as any)[field]
-                        if (!col) return
-                        whereConditions.push(eq(col, value))
-                    } else if (key.endsWith('_like')) {
-                        const field = key.slice(0, -5)
-                        const col = (students as any)[field]
-                        if (!col) return
-                        whereConditions.push(ilike(col, `%${value}%`))
-                    }
-                })
+                const whereConditions = urlParamsWhereParser(params, students)
 
-                const results = whereConditions.length
-                    ? await orm.select().from(students).where(and(...whereConditions))
+                const results = whereConditions
+                    ? await orm.select().from(students).where(whereConditions)
                     : await orm.select().from(students)
 
                 return new Response(JSON.stringify(results), {

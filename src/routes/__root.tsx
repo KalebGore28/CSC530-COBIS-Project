@@ -39,7 +39,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {/* <Header /> */}
         <SessionProvider>
           <ThemeProvider>
             <Suspense fallback={<div>Loading...</div>}>
