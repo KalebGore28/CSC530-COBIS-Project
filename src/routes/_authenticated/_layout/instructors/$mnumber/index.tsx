@@ -5,8 +5,7 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   beforeLoad: async (context) => {
-    throw redirect({ to: '/instructors/$mnumber/current-term', params: context.params } )
-
+    throw redirect({ to: '/instructors/$mnumber/current-term', params: context.params })
   }
 })
 
