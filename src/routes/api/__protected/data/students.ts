@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { students } from '@/db/schema'
 
-import { urlParamsWhereParser } from '@/utils/url-params-where-parser'
+import { urlParamsParser } from '@/utils/url-params-parser'
 
 export const Route = createFileRoute('/api/__protected/data/students')({
     server: {
@@ -14,7 +14,9 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                 const params = url.searchParams
                 console.log(params)
 
-                const whereConditions = urlParamsWhereParser(params, students)
+                const { limit, whereConditions, sort } = urlParamsParser(params, students)
+
+                console.log(limit, sort)
 
                 const results = whereConditions
                     ? await orm.select().from(students).where(whereConditions)
