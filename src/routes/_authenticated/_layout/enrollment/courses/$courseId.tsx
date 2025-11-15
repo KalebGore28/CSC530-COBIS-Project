@@ -13,6 +13,7 @@ import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { studentCoursesCollection } from '@/collections/student-courses';
 import { useLiveQuery, eq, and, gte, lte } from '@tanstack/react-db';
+import { CourseCard } from '@/components/course-card';
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/courses/$courseId',
@@ -25,15 +26,13 @@ function RouteComponent() {
   const navigate = useNavigate()
   // Split courseId into subject, number, suffix. Example: CSC100A => ['CSC', '100', 'A']
   const [subject, number, suffix] = params.courseId!.split(/(\d+)([A-Z]*)/)
-  console.log({ subject, number, suffix })
-
 
   const [startYear, setStartYear] = useState<number>(new Date().getFullYear())
   const [startTerm, setStartTerm] = useState<string>('10')
   const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
   const [endTerm, setEndTerm] = useState<string>('90')
 
-  const { data, isLoading } = useLiveQuery((q) =>
+  const { data: courseEnrollment, isLoading } = useLiveQuery((q) =>
     q.from({ courses: coursesCollection })
       .leftJoin({ departments: departmentsCollection }, ({ courses, departments }) =>
         eq(courses.department_code, departments.code)
@@ -43,14 +42,11 @@ function RouteComponent() {
       )
       .leftJoin(
         { studentCourses: studentCoursesCollection }, ({ courses, studentCourses }) =>
-        eq([courses.subject, courses.number, courses.suffix], [studentCourses.course_subject, studentCourses.course_number, studentCourses.course_suffix])
+        eq(courses.code, studentCourses.course_id)
       )
       .where(({ courses }) =>
-        and(
-          eq(courses.subject, subject),
-          eq(courses.number, Number(number)),
-          eq(courses.suffix, suffix || ''),
-        ))
+        eq(courses.code, params.courseId!)
+      )
       .where(({ studentCourses }) =>
         and(
           gte(studentCourses?.year, startYear),
@@ -60,6 +56,7 @@ function RouteComponent() {
         )
       )
       .select(({ courses, departments, colleges, studentCourses }) => ({
+        code: courses.code,
         subject: courses.subject,
         number: courses.number,
         suffix: courses.suffix,
@@ -74,6 +71,44 @@ function RouteComponent() {
     [subject, number, suffix, startYear, startTerm, endYear, endTerm]
   )
 
+  const exportToCSV = () => {
+    if (!courseEnrollment || courseEnrollment.length === 0) {
+      toast.warning('No enrollment data available to export. Try adjusting the date range.');
+      return;
+    }
+
+    // Prepare the data for CSV export
+    const csvData = courseEnrollment
+      .filter(e => e.term && e.year)
+      .map(e => ({
+        'Course Code': e.code,
+        'Year': e.year,
+        'Term': e.term,
+        'Title': e.title || '',
+        'Department': e.department_description || '',
+        'College': e.college_description || '',
+        'Subject': e.subject || '',
+        'Number': e.number || '',
+        'Suffix': e.suffix || '',
+        'Hours': e.hours || '',
+      }));
+
+    // Convert to CSV
+    const csv = Papa.unparse(csvData);
+
+    // Create a blob and download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `enrollment-${params.courseId}-${startYear}-${endYear}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -91,18 +126,44 @@ function RouteComponent() {
         </Button>
       </div>
 
+      <CourseCard
+        courseCode={params.courseId!}
+        startYear={startYear}
+        startTerm={startTerm}
+        endYear={endYear}
+        endTerm={endTerm}
+        setStartYear={setStartYear}
+        setStartTerm={setStartTerm}
+        setEndYear={setEndYear}
+        setEndTerm={setEndTerm}
+        exportData={exportToCSV}
+      />
+
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
           {/* Data Available */}
-          {/* {data?.coursesSingle && (
-            <EnrollmentTrends
-              enrollments={data.coursesSingle.student_courses as Enrollment[]}
-              title={`Enrollments for Course ${data.coursesSingle.subject} ${data.coursesSingle.number}${data.coursesSingle.suffix}`}
-              description={data.coursesSingle.title || undefined}
-            />
-          )} */}
+          {courseEnrollment && (
+            <div className="max-w-4xl mx-auto">
+              <EnrollmentTrends
+                className='max-w-4xl'
+                enrollments={courseEnrollment.map(e => {
+                  if (!e.term || !e.year) {
+                    return false
+                  }
+
+                  return {
+                    term_code: e.term!,
+                    year: e.year!,
+                  } as Enrollment
+
+                }).filter(Boolean) as Enrollment[]}
+                title={`Enrollments for Course ${params.courseId}`}
+                description={courseEnrollment[0]?.title || undefined}
+              />
+            </div>
+          )}
         </>
       )}
     </div>

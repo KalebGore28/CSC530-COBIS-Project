@@ -16,7 +16,6 @@ const termCodeMap: Record<string, string> = {
     '90': 'Winter',
 }
 
-
 type ProgramCardProps = {
     programCode: string
     startYear: number
@@ -31,7 +30,17 @@ type ProgramCardProps = {
 }
 
 export function ProgramCard({
-    programCode, startYear, startTerm, endYear, endTerm, setStartYear, setStartTerm, setEndYear, setEndTerm, exportData }: ProgramCardProps) {
+    programCode,
+    startYear,
+    startTerm,
+    endYear,
+    endTerm,
+    setStartYear,
+    setStartTerm,
+    setEndYear,
+    setEndTerm,
+    exportData
+}: ProgramCardProps) {
 
     const { data: program } = useLiveQuery((q) =>
         q.from({ programs: programsCollection })
