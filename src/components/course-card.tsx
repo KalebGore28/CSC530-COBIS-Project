@@ -1,7 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label';
 
 import { coursesCollection } from '@/collections/courses';
@@ -42,7 +41,7 @@ export function CourseCard({
     exportData,
 }: CourseCardProps) {
 
-    const { data: course, isLoading } = useLiveQuery((q) =>
+    const { data: course } = useLiveQuery((q) =>
         q.from({ courses: coursesCollection })
             .leftJoin({ departments: departmentsCollection }, ({ courses, departments }) =>
                 eq(courses.department_code, departments.code)

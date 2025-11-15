@@ -3,33 +3,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { departments } from "@/db/schema";
-import fuzzysort from "fuzzysort";
 
 type Department = typeof departments.$inferSelect;
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { departmentsCollection } from "@/collections/departments";
+import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
-export const GetDepartmentsQuery = graphql(`
-    query getDepartmentsQuery {
-        departments {
-            code
-            description
-            college_code
-        }
-    }
-`)
-
-export function findDepartmentMatchFuzzy(input: string, departments: Department[]): Department[] {
-    const results = fuzzysort.go(input, departments, {
-        keys: ["description", (d) => d.code],
-        threshold: -1000,
-        limit: 10,
-    });
-    return results.map(result => result.obj);
-}
 
 interface DepartmentSelectorProps {
     /** Optional department code to preselect a department */
@@ -39,13 +18,26 @@ interface DepartmentSelectorProps {
 }
 export function DepartmentSelector({ departmentCode, onSelectChange }: DepartmentSelectorProps) {
     const [query, setQuery] = useState("");
-    const [filteredDepartments, setFilteredDepartments] = useState<Department[]>([]);
     const [selected, setSelected] = useState<Department | null>(null);
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getDepartments'],
-        queryFn: () => execute(GetDepartmentsQuery),
-    });
+    const { data: departments } = useLiveQuery((q) =>
+        q.from({ departments: departmentsCollection })
+            .orderBy(({ departments }) => departments.code, 'asc'),
+        [] // Run only once
+    );
+
+    const { data: filteredDepartments, isLoading } = useLiveQuery((q) =>
+        q.from({ departments: departmentsCollection })
+            .where(({ departments }) =>
+                or(
+                    ilike(departments.code, `%${query}%`),
+                    ilike(departments.description, `%${query}%`)
+                )
+            )
+            .orderBy(({ departments }) => departments.code, 'asc')
+            .limit(query !== "" ? 10 : 0),
+        [query] // Re-run when query changes
+    );
 
     // Runs only once to set default selection if departmentCode prop is provided
     useEffect(() => {
@@ -56,12 +48,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
             onSelectChange?.(defaultDepartment);
         }
     }, [departmentCode, isLoading]);
-
-    const departments: Department[] = (data?.departments ?? []).map(dept => ({
-        code: dept.code,
-        description: dept.description,
-        college_code: dept.college_code ?? null,
-    }));
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
 
@@ -76,7 +62,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                     size="sm"
                     onClick={() => {
                         setSelected(null);
-                        setFilteredDepartments([]);
                         setQuery("");
                     }}
                 >
@@ -94,8 +79,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        const results = findDepartmentMatchFuzzy(e.target.value, departments);
-                        setFilteredDepartments(results);
                     }}
                 />
                 {departmentCode && !selected && (
@@ -104,7 +87,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                         size="default"
                         onClick={() => {
                             setSelected(departments.find((d) => d.code === departmentCode) || null);
-                            setFilteredDepartments([]);
                             setQuery("");
                         }}
                     >
@@ -117,7 +99,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                 onSelect={(dept) => {
                     setSelected(dept);
                     onSelectChange && onSelectChange(dept);
-                    setFilteredDepartments([]);
                     setQuery("");
                 }}
             />

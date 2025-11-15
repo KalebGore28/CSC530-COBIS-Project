@@ -3,32 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { colleges } from "@/db/schema";
-import fuzzysort from "fuzzysort";
 
 type College = typeof colleges.$inferSelect;
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-export const GetCollegesQuery = graphql(`
-    query getCollegesQuery {
-        colleges {
-            code
-            description
-        }
-    }
-`)
-
-export function findCollegeMatchFuzzy(input: string, colleges: College[]): College[] {
-    const results = fuzzysort.go(input, colleges, {
-        keys: ["description", (c) => c.code],
-        threshold: -1000,
-        limit: 10,
-    });
-    return results.map(result => result.obj);
-}
+import { collegesCollection } from "@/collections/colleges";
+import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
 interface CollegeSelectorProps {
     collegeCode?: string;
@@ -37,23 +16,31 @@ interface CollegeSelectorProps {
 }
 export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelectorProps) {
     const [query, setQuery] = useState("");
-    const [filteredColleges, setFilteredColleges] = useState<College[]>([]);
     const [selected, setSelected] = useState<College | null>(null);
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getColleges'],
-        queryFn: () => execute(GetCollegesQuery),
-    });
+    const { data: colleges } = useLiveQuery((q) =>
+        q.from({ colleges: collegesCollection })
+            .orderBy(({ colleges }) => colleges.code, 'asc'),
+        [] // Run only once
+    );
 
-    const colleges: College[] = (data?.colleges ?? []).map(college => ({
-        code: college.code,
-        description: college.description,
-    }));
-
+    const { data: filteredColleges, isLoading, isReady } = useLiveQuery((q) =>
+        q.from({ colleges: collegesCollection })
+            .where(({ colleges }) =>
+                or(
+                    ilike(colleges.code, `%${query}%`),
+                    ilike(colleges.description, `%${query}%`)
+                )
+            )
+            .orderBy(({ colleges }) => colleges.code, 'asc')
+            .limit(query !== "" ? 10 : 0),
+        [query] // Re-run when query changes
+    );
 
     // Runs only once to set default selection if collegeCode prop is provided
     useEffect(() => {
-        if (!collegeCode || !colleges.length || isLoading) return;
+        if (!isReady|| isLoading) return;
+        console.log("Setting default college selection for code:", collegeCode);
         const defaultCollege = colleges.find((c) => c.code === collegeCode);
         if (defaultCollege && (!selected || selected.code !== defaultCollege.code)) {
             setSelected(defaultCollege);
@@ -74,7 +61,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                     size="sm"
                     onClick={() => {
                         setSelected(null);
-                        setFilteredColleges([]);
                         setQuery("");
                     }}
                 >
@@ -92,8 +78,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        const results = findCollegeMatchFuzzy(e.target.value, colleges);
-                        setFilteredColleges(results);
                     }}
                 />
                 {collegeCode && !selected && (
@@ -102,7 +86,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                         size="default"
                         onClick={() => {
                             setSelected(colleges.find((c) => c.code === collegeCode) || null);
-                            setFilteredColleges([]);
                             setQuery("");
                         }}
                     >
@@ -115,7 +98,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                 onSelect={(college) => {
                     setSelected(college);
                     onSelectChange && onSelectChange(college);
-                    setFilteredColleges([]);
                     setQuery("");
                 }}
             />
