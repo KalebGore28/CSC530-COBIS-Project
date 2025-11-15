@@ -3,67 +3,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import Papa from 'papaparse';
 
 import { type Enrollment, EnrollmentTrends } from '@/components/charts/enrollment-trends';
-import { type TermRange, TermRangeSelector } from '@/components/selectors/term-range-selector';
 
-// GraphQL imports
-import { useQuery } from '@tanstack/react-query'
-import { execute } from '@/graphql/execute'
-import { graphql } from '@/graphql'
-
-const getCurrentYearTermQuery = graphql(`
-  query getCurrentYearTermQuery {
-    getCurrentYearTerm {
-      year
-      term
-      term_code
-    }
-  }
-`)
-
-const detailsCourseQuery = graphql(`
-  query detailsCourseQuery(
-    $subject: String!
-    $number: Int!
-    $suffix: String!
-    $startYear: Int!
-    $endTerm: String!
-    $endYear: Int!
-    $startTerm: String!
-  ) {
-    coursesSingle(
-      where: {
-        subject: { eq: $subject }
-        number: { eq: $number }
-        suffix: { eq: $suffix }
-      }
-    ) {
-      subject
-      number
-      suffix
-      title
-      hours
-      last_updated
-      student_courses(
-        startYear: $startYear
-        endTerm: $endTerm
-        endYear: $endYear
-        startTerm: $startTerm
-      ) {
-        # student {
-        # 	citizenship
-        # 	gender
-        # }
-        term {
-          code
-          description
-        }
-        year
-      }
-    }
-  }
-`);
+import { coursesCollection } from '@/collections/courses';
+import { departmentsCollection } from '@/collections/departments';
+import { collegesCollection } from '@/collections/colleges';
+import { studentCoursesCollection } from '@/collections/student-courses';
+import { useLiveQuery, eq, and, gte, lte } from '@tanstack/react-db';
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/courses/$courseId',
@@ -74,42 +23,56 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const params = useParams({ from: '/_authenticated/_layout/enrollment/courses/$courseId' })
   const navigate = useNavigate()
-  const courseId = params.courseId!
+  // Split courseId into subject, number, suffix. Example: CSC100A => ['CSC', '100', 'A']
+  const [subject, number, suffix] = params.courseId!.split(/(\d+)([A-Z]*)/)
+  console.log({ subject, number, suffix })
 
-  const [termRange, setTermRange] = useState<TermRange | null>(null)
 
-  const { data: currentYearTermData } = useQuery({
-    queryKey: ['getCurrentYearTerm'],
-    queryFn: () => execute(getCurrentYearTermQuery),
-  })
+  const [startYear, setStartYear] = useState<number>(new Date().getFullYear())
+  const [startTerm, setStartTerm] = useState<string>('10')
+  const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
+  const [endTerm, setEndTerm] = useState<string>('90')
 
-  const currentYearTerm = currentYearTermData?.getCurrentYearTerm || null
-
-  const { data, isLoading } = useQuery({
-    queryKey: ['detailsCourse', courseId, termRange, currentYearTerm],
-    queryFn: () => {
-      // Parse courseId like "ACC100T" → { subject: "ACC", number: 100, suffix: "T" }
-      const match = courseId.match(/^([A-Za-z]+)(\d+)([A-Za-z]*)$/);
-      const subject = match?.[1] ?? '';
-      const number = match?.[2] ? Number(match[2]) : 0;
-      const suffix = match?.[3] ?? '';
-
-      const fallbackYear = currentYearTerm?.year ?? new Date().getFullYear();
-
-      return execute(detailsCourseQuery, {
-        subject,
-        number,
-        suffix,
-        startYear: termRange?.startYear ?? fallbackYear - 4,
-        startTerm: termRange?.startTerm ?? '10',
-        endYear: termRange?.endYear ?? fallbackYear,
-        endTerm: termRange?.endTerm ?? '90',
-      });
-    },
-    enabled: !!courseId && !!currentYearTerm && !!termRange,
-  });
-
-  if (!currentYearTerm) return null;
+  const { data, isLoading } = useLiveQuery((q) =>
+    q.from({ courses: coursesCollection })
+      .leftJoin({ departments: departmentsCollection }, ({ courses, departments }) =>
+        eq(courses.department_code, departments.code)
+      )
+      .leftJoin({ colleges: collegesCollection }, ({ courses, colleges }) =>
+        eq(courses.college_code, colleges.code)
+      )
+      .leftJoin(
+        { studentCourses: studentCoursesCollection }, ({ courses, studentCourses }) =>
+        eq([courses.subject, courses.number, courses.suffix], [studentCourses.course_subject, studentCourses.course_number, studentCourses.course_suffix])
+      )
+      .where(({ courses }) =>
+        and(
+          eq(courses.subject, subject),
+          eq(courses.number, Number(number)),
+          eq(courses.suffix, suffix || ''),
+        ))
+      .where(({ studentCourses }) =>
+        and(
+          gte(studentCourses?.year, startYear),
+          lte(studentCourses?.year, endYear),
+          gte(studentCourses?.term_code, startTerm),
+          lte(studentCourses?.term_code, endTerm)
+        )
+      )
+      .select(({ courses, departments, colleges, studentCourses }) => ({
+        subject: courses.subject,
+        number: courses.number,
+        suffix: courses.suffix,
+        title: courses.title,
+        hours: courses.hours,
+        last_updated: courses.last_updated,
+        department_description: departments?.description,
+        college_description: colleges?.description,
+        term: studentCourses?.term_code,
+        year: studentCourses?.year,
+      })),
+    [subject, number, suffix, startYear, startTerm, endYear, endTerm]
+  )
 
 
   return (
@@ -127,23 +90,19 @@ function RouteComponent() {
           Back to Courses
         </Button>
       </div>
-      <TermRangeSelector
-        years={Array.from({ length: 10 }, (_, i) => currentYearTerm!.year! - 9 + i)}
-        onChange={setTermRange}
-      />
 
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
           {/* Data Available */}
-          {data?.coursesSingle && (
+          {/* {data?.coursesSingle && (
             <EnrollmentTrends
               enrollments={data.coursesSingle.student_courses as Enrollment[]}
               title={`Enrollments for Course ${data.coursesSingle.subject} ${data.coursesSingle.number}${data.coursesSingle.suffix}`}
               description={data.coursesSingle.title || undefined}
             />
-          )}
+          )} */}
         </>
       )}
     </div>

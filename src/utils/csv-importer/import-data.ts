@@ -74,13 +74,16 @@ export const importData = async (
       const mappedRows = results.data.map((row) => {
         const mapped: Record<string, any> = {};
 
-        for (const [columnName, columnConfig] of Object.entries(config as Record<string, { csvColumnName: string | string[]; transform?: (v: any) => any }>)) {
-          const { csvColumnName, transform } = columnConfig;
+        for (const [columnName, columnConfig] of Object.entries(config as Record<string, { csvColumnName: string | string[]; transform?: (v: any) => any; combineCSVColumns?: boolean }>)) {
+          const { csvColumnName, transform, combineCSVColumns } = columnConfig;
           // Normalize CSV column names to array
           const csvNames = Array.isArray(csvColumnName) ? csvColumnName : [csvColumnName];
 
           // Find first matching value
-          let value = csvNames.map((name) => row[name]).find((v) => v !== undefined);
+
+          let value = combineCSVColumns
+            ? csvNames.map((name) => row[name] || '').join(' ')
+            : csvNames.map((name) => row[name]).find((v) => v !== undefined);
 
           const column = columns[columnName];
           if (!column) throw new Error(`Column ${columnName} not found in table ${tableName}`);

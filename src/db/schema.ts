@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, boolean, datetime, int, real, primaryKey, foreignKey, check } from 'drizzle-orm/mysql-core';
+import { mysqlTable, varchar, boolean, datetime, int, real, primaryKey, foreignKey, check, uniqueIndex } from 'drizzle-orm/mysql-core';
 import { sql } from "drizzle-orm";
 
 export const academicStanding = mysqlTable("academic_standing", {
@@ -69,6 +69,7 @@ export const colleges = mysqlTable("colleges", {
 });
 
 export const courses = mysqlTable("courses", {
+	code: varchar("code", { length: 100 }).primaryKey(), // e.g. "CSC100A"
 	subject: varchar("subject", { length: 50 }).notNull(), // e.g. "ACC"
 	number: int("number").notNull(),
 	suffix: varchar("suffix", { length: 50 }).notNull().default(""), // e.g. "T" for "101T", default to empty string
@@ -78,7 +79,8 @@ export const courses = mysqlTable("courses", {
 	department_code: varchar("department_code", { length: 10 }),
 	college_code: varchar("college_code", { length: 10 }),
 }, (table) => [
-	primaryKey({ columns: [table.subject, table.number, table.suffix], name: "pk_courses" }),
+	// primaryKey({ columns: [table.subject, table.number, table.suffix], name: "pk_courses" }), Deprecated
+	uniqueIndex("ux_courses_subject_number_suffix").on(table.subject, table.number, table.suffix),
 	foreignKey({ columns: [table.department_code], foreignColumns: [departments.code], name: "fk_courses_department" }),
 	foreignKey({ columns: [table.college_code], foreignColumns: [colleges.code], name: "fk_courses_college" }),
 ]);
@@ -111,13 +113,13 @@ export const instructorCourses = mysqlTable("instructor_courses", {
 	mnumber: varchar("mnumber", { length: 10 }).notNull().references(() => faculty.mnumber),
 	term_code: varchar("term_code", { length: 10 }).notNull().references(() => terms.code),
 	year: int("year").notNull(),
+	course_id: varchar("course_id", { length: 100 }).notNull().references(() => courses.code),
 	course_subject: varchar("course_subject", { length: 50 }).notNull(),
 	course_number: int("course_number").notNull(),
 	course_suffix: varchar("course_suffix", { length: 50 }).notNull().default(""),
 	course_section: varchar("course_section", { length: 50 }).notNull().default(""),
 }, (table) => [
-	primaryKey({ columns: [table.mnumber, table.term_code, table.year, table.course_subject, table.course_number, table.course_suffix, table.course_section], name: "pk_instructor_courses" }),
-	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix], name: "fk_instructor_courses_course" }),
+	primaryKey({ columns: [table.mnumber, table.term_code, table.year, table.course_id, table.course_section], name: "pk_instructor_courses" }),
 ]);
 
 export const nations = mysqlTable("nations", {
@@ -213,6 +215,7 @@ export const studentCourses = mysqlTable("student_courses", {
 	term_code: varchar("term_code", { length: 10 }).notNull(),
 	year: int("year").notNull(),
 	part_of_term_code: varchar("part_of_term_code", { length: 10 }),
+	course_id: varchar("course_id", { length: 100 }).notNull().references(() => courses.code),
 	course_subject: varchar("course_subject", { length: 50 }).notNull(),
 	course_number: int("course_number").notNull(),
 	course_suffix: varchar("course_suffix", { length: 50 }).notNull().default(""),
@@ -225,12 +228,11 @@ export const studentCourses = mysqlTable("student_courses", {
 	midterm_grade: varchar("midterm_grade", { length: 50 }),
 	final_grade: varchar("final_grade", { length: 50 }),
 }, (table) => [
-	primaryKey({ columns: [table.mnumber, table.term_code, table.year, table.course_subject, table.course_number, table.course_suffix, table.course_section], name: "pk_student_courses" }),
+	primaryKey({ columns: [table.mnumber, table.term_code, table.year, table.course_id, table.course_section], name: "pk_student_courses" }), // New Version
 	foreignKey({ columns: [table.term_code], foreignColumns: [terms.code], name: "fk_student_courses_term" }),
 	foreignKey({ columns: [table.part_of_term_code], foreignColumns: [partOfTerm.code], name: "fk_student_courses_part_of_term" }),
 	foreignKey({ columns: [table.registration_status_code], foreignColumns: [registrationStatus.code], name: "fk_student_courses_registration_status" }),
 	foreignKey({ columns: [table.instructional_method_code], foreignColumns: [instructionalMethods.code], name: "fk_student_courses_instructional_method" }),
-	foreignKey({ columns: [table.course_subject, table.course_number, table.course_suffix], foreignColumns: [courses.subject, courses.number, courses.suffix], name: "fk_student_courses_course" }),
 ]);
 
 export const studentPrograms = mysqlTable("student_programs", {

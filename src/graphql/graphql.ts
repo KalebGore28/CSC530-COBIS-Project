@@ -1110,6 +1110,7 @@ export type CoursesFilters = {
   college_code?: InputMaybe<CoursesCollege_CodeFilters>;
   department_code?: InputMaybe<CoursesDepartment_CodeFilters>;
   hours?: InputMaybe<CoursesHoursFilters>;
+  id?: InputMaybe<CoursesIdFilters>;
   last_updated?: InputMaybe<CoursesLast_UpdatedFilters>;
   number?: InputMaybe<CoursesNumberFilters>;
   subject?: InputMaybe<CoursesSubjectFilters>;
@@ -1121,6 +1122,7 @@ export type CoursesFiltersOr = {
   college_code?: InputMaybe<CoursesCollege_CodeFilters>;
   department_code?: InputMaybe<CoursesDepartment_CodeFilters>;
   hours?: InputMaybe<CoursesHoursFilters>;
+  id?: InputMaybe<CoursesIdFilters>;
   last_updated?: InputMaybe<CoursesLast_UpdatedFilters>;
   number?: InputMaybe<CoursesNumberFilters>;
   subject?: InputMaybe<CoursesSubjectFilters>;
@@ -1167,10 +1169,50 @@ export type CoursesHoursfiltersOr = {
   notLike?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type CoursesIdFilters = {
+  OR?: InputMaybe<Array<CoursesIdfiltersOr>>;
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CoursesIdfiltersOr = {
+  eq?: InputMaybe<Scalars['String']['input']>;
+  gt?: InputMaybe<Scalars['String']['input']>;
+  gte?: InputMaybe<Scalars['String']['input']>;
+  ilike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  inArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  isNotNull?: InputMaybe<Scalars['Boolean']['input']>;
+  isNull?: InputMaybe<Scalars['Boolean']['input']>;
+  like?: InputMaybe<Scalars['String']['input']>;
+  lt?: InputMaybe<Scalars['String']['input']>;
+  lte?: InputMaybe<Scalars['String']['input']>;
+  ne?: InputMaybe<Scalars['String']['input']>;
+  notIlike?: InputMaybe<Scalars['String']['input']>;
+  /** Array<undefined> */
+  notInArray?: InputMaybe<Array<Scalars['String']['input']>>;
+  notLike?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type CoursesInsertInput = {
   college_code?: InputMaybe<Scalars['String']['input']>;
   department_code?: InputMaybe<Scalars['String']['input']>;
   hours: Scalars['Int']['input'];
+  id: Scalars['String']['input'];
   /** Date */
   last_updated?: InputMaybe<Scalars['String']['input']>;
   number: Scalars['Int']['input'];
@@ -1273,6 +1315,7 @@ export type CoursesOrderBy = {
   college_code?: InputMaybe<InnerOrder>;
   department_code?: InputMaybe<InnerOrder>;
   hours?: InputMaybe<InnerOrder>;
+  id?: InputMaybe<InnerOrder>;
   last_updated?: InputMaybe<InnerOrder>;
   number?: InputMaybe<InnerOrder>;
   subject?: InputMaybe<InnerOrder>;
@@ -1287,6 +1330,7 @@ export type CoursesSelectItem = {
   department?: Maybe<DepartmentsSelectItem>;
   department_code?: Maybe<Scalars['String']['output']>;
   hours: Scalars['Int']['output'];
+  id: Scalars['String']['output'];
   /** Date */
   last_updated: Scalars['String']['output'];
   number: Scalars['Int']['output'];
@@ -1425,6 +1469,7 @@ export type CoursesUpdateInput = {
   college_code?: InputMaybe<Scalars['String']['input']>;
   department_code?: InputMaybe<Scalars['String']['input']>;
   hours?: InputMaybe<Scalars['Int']['input']>;
+  id?: InputMaybe<Scalars['String']['input']>;
   /** Date */
   last_updated?: InputMaybe<Scalars['String']['input']>;
   number?: InputMaybe<Scalars['Int']['input']>;
@@ -9189,40 +9234,6 @@ export type UsersQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type UsersQueryQuery = { __typename?: 'Query', user: Array<{ __typename?: 'UserSelectItem', id: string, mnumber?: string | null, name: string, email: string, emailVerified: boolean, image: string, createdAt: string, updatedAt: string, isEnabled: boolean, lastLogin?: string | null, faculty?: { __typename?: 'FacultySelectItem', college?: { __typename?: 'CollegesSelectItem', code: string, description: string } | null, department?: { __typename?: 'DepartmentsSelectItem', code: string, description: string } | null } | null, roles: Array<{ __typename?: 'UserRolesSelectItem', role: { __typename?: 'RolesSelectItem', id: number, name: string } }> }> };
 
-export type CoursesPageQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type CoursesPageQueryQuery = { __typename?: 'Query', courses: Array<{ __typename?: 'CoursesSelectItem', subject: string, suffix: string, number: number, title: string, hours: number, last_updated: string, department_code?: string | null, college_code?: string | null }> };
-
-export type ProgramsPageQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type ProgramsPageQueryQuery = { __typename?: 'Query', programs: Array<{ __typename?: 'ProgramsSelectItem', code: string, description: string, cip_code?: string | null, is_major: boolean, is_minor: boolean, has_concentration: boolean, is_discontinued: boolean, is_aacsb: boolean, department_code?: string | null, college_code?: string | null, last_updated: string }> };
-
-export type DetailsCourseQueryQueryVariables = Exact<{
-  subject: Scalars['String']['input'];
-  number: Scalars['Int']['input'];
-  suffix: Scalars['String']['input'];
-  startYear: Scalars['Int']['input'];
-  endTerm: Scalars['String']['input'];
-  endYear: Scalars['Int']['input'];
-  startTerm: Scalars['String']['input'];
-}>;
-
-
-export type DetailsCourseQueryQuery = { __typename?: 'Query', coursesSingle?: { __typename?: 'CoursesSelectItem', subject: string, number: number, suffix: string, title: string, hours: number, last_updated: string, student_courses?: Array<{ __typename?: 'StudentCoursesSelectItem', year: number, term: { __typename?: 'TermsSelectItem', code: string, description: string } } | null> | null } | null };
-
-export type DetailsProgramQueryQueryVariables = Exact<{
-  code: Scalars['String']['input'];
-  startYear: Scalars['Int']['input'];
-  endTerm: Scalars['String']['input'];
-  endYear: Scalars['Int']['input'];
-  startTerm: Scalars['String']['input'];
-}>;
-
-
-export type DetailsProgramQueryQuery = { __typename?: 'Query', programsSingle?: { __typename?: 'ProgramsSelectItem', code: string, has_concentration: boolean, is_aacsb: boolean, is_discontinued: boolean, is_major: boolean, is_minor: boolean, description: string, cip_code?: string | null, last_updated: string, department?: { __typename?: 'DepartmentsSelectItem', code: string, description: string } | null, college?: { __typename?: 'CollegesSelectItem', code: string, description: string } | null, student_programs?: Array<{ __typename?: 'StudentProgramsSelectItem', year: number, term: { __typename?: 'TermsSelectItem', code: string, description: string } } | null> | null } | null };
-
 export type CourseTermQueryQueryVariables = Exact<{
   mnumber: Scalars['String']['input'];
   startTerm?: InputMaybe<Scalars['String']['input']>;
@@ -9258,11 +9269,6 @@ export type TermDetailsQueryQueryVariables = Exact<{
 
 
 export type TermDetailsQueryQuery = { __typename?: 'Query', facultySingle?: { __typename?: 'FacultySelectItem', courses_taught?: Array<{ __typename?: 'InstructorCoursesSelectItem', course_section: string, total_credit_hours: number, total_students: number, course: { __typename?: 'CoursesSelectItem', title: string, subject: string, number: number, suffix: string } } | null> | null } | null };
-
-export type InstructorsQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-export type InstructorsQueryQuery = { __typename?: 'Query', faculty: Array<{ __typename?: 'FacultySelectItem', mnumber: string, first_name: string, last_name: string, department_code?: string | null, college_code?: string | null, department?: { __typename?: 'DepartmentsSelectItem', description: string } | null, college?: { __typename?: 'CollegesSelectItem', description: string } | null, user?: { __typename?: 'UserSelectItem', email: string, image: string } | null }> };
 
 export type StudentLookupQueryQueryVariables = Exact<{
   filters: StudentLookupInput;
@@ -9684,98 +9690,6 @@ export const UsersQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<UsersQueryQuery, UsersQueryQueryVariables>;
-export const CoursesPageQueryDocument = new TypedDocumentString(`
-    query coursesPageQuery {
-  courses {
-    subject
-    suffix
-    number
-    title
-    hours
-    last_updated
-    department_code
-    college_code
-  }
-}
-    `) as unknown as TypedDocumentString<CoursesPageQueryQuery, CoursesPageQueryQueryVariables>;
-export const ProgramsPageQueryDocument = new TypedDocumentString(`
-    query programsPageQuery {
-  programs {
-    code
-    description
-    cip_code
-    is_major
-    is_minor
-    has_concentration
-    is_discontinued
-    is_aacsb
-    department_code
-    college_code
-    last_updated
-  }
-}
-    `) as unknown as TypedDocumentString<ProgramsPageQueryQuery, ProgramsPageQueryQueryVariables>;
-export const DetailsCourseQueryDocument = new TypedDocumentString(`
-    query detailsCourseQuery($subject: String!, $number: Int!, $suffix: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!, $startTerm: String!) {
-  coursesSingle(
-    where: {subject: {eq: $subject}, number: {eq: $number}, suffix: {eq: $suffix}}
-  ) {
-    subject
-    number
-    suffix
-    title
-    hours
-    last_updated
-    student_courses(
-      startYear: $startYear
-      endTerm: $endTerm
-      endYear: $endYear
-      startTerm: $startTerm
-    ) {
-      term {
-        code
-        description
-      }
-      year
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<DetailsCourseQueryQuery, DetailsCourseQueryQueryVariables>;
-export const DetailsProgramQueryDocument = new TypedDocumentString(`
-    query detailsProgramQuery($code: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!, $startTerm: String!) {
-  programsSingle(where: {code: {eq: $code}}) {
-    code
-    has_concentration
-    is_aacsb
-    is_discontinued
-    is_major
-    is_minor
-    description
-    cip_code
-    last_updated
-    department {
-      code
-      description
-    }
-    college {
-      code
-      description
-    }
-    student_programs(
-      startYear: $startYear
-      endTerm: $endTerm
-      endYear: $endYear
-      startTerm: $startTerm
-    ) {
-      term {
-        code
-        description
-      }
-      year
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<DetailsProgramQueryQuery, DetailsProgramQueryQueryVariables>;
 export const CourseTermQueryDocument = new TypedDocumentString(`
     query courseTermQuery($mnumber: String!, $startTerm: String, $startYear: Int, $endTerm: String, $endYear: Int) {
   facultySingle(where: {mnumber: {eq: $mnumber}}) {
@@ -9860,27 +9774,6 @@ export const TermDetailsQueryDocument = new TypedDocumentString(`
   }
 }
     `) as unknown as TypedDocumentString<TermDetailsQueryQuery, TermDetailsQueryQueryVariables>;
-export const InstructorsQueryDocument = new TypedDocumentString(`
-    query instructorsQuery {
-  faculty {
-    mnumber
-    first_name
-    last_name
-    department_code
-    department {
-      description
-    }
-    college_code
-    college {
-      description
-    }
-    user {
-      email
-      image
-    }
-  }
-}
-    `) as unknown as TypedDocumentString<InstructorsQueryQuery, InstructorsQueryQueryVariables>;
 export const StudentLookupQueryDocument = new TypedDocumentString(`
     query studentLookupQuery($filters: StudentLookupInput!, $offset: Int!, $limit: Int!) {
   lookupStudents(filters: $filters, offset: $offset, limit: $limit) {

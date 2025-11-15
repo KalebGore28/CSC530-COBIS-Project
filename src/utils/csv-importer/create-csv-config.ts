@@ -93,6 +93,7 @@ type ColumnHasDefault<C> =
 type ColumnConfig = {
   csvColumnName: string | string[];
   transform?: (value: any) => any;
+  combineCSVColumns?: boolean;
 };
 
 // --- Map table columns to configuration objects ---

@@ -17,14 +17,9 @@
    "termSelectorQuery": "5c04421356879b908671eddf6e24cc338319436c865d41e56f58a72777432dad",
    "studentDetailQuery": "948dd443dabbe00b167a8e7f2741ec134c7caa3e3d5b5a0ea0e89533299a1c20",
    "usersQuery": "a78b16c2b797bef813eee444e0ad602f0f20ae5972122654f620fa43495a8c9c",
-   "coursesPageQuery": "b4811bbb582c029a7e4b8818eee6ce4c5ec0027110c25ad46bcdb3f6adaeb1de",
-   "programsPageQuery": "720cb8bce28e398e8a9168f69cef3a8a025ebecd3a60002ced582b6b92805764",
-   "detailsCourseQuery": "69468130315b8b1d8bdc77a8cbaa171f322741c0c267ce60934d66bbfd896bbb",
-   "detailsProgramQuery": "baf93e4d176eb6271365ffd223a8282ecc24a22a12f12622c0fd995f0b39d3d3",
    "courseTermQuery": "e0a4d49473306d99daa66b27820b1ab1fc4344cacfa8e50e2015f580aa236645",
    "termHistoryQuery": "18e3eb6e650b5dbf8d7e8615133a274b952cb3da4efc5da7f86cfa4ad508709f",
    "getInstructorQuery": "b438308abd1fc554c5e8e6aec4e4fb1ec060fc2d0583797058b1d4abfc7f03aa",
    "termDetailsQuery": "6425f853057af9b69d1c020c1e04811e21eca8ef0dbda7e80353b18a72c2b144",
-   "instructorsQuery": "325781dfb35b610cdd75e4e988d74f1f3db3dc9de10ada286a5be84042be4564",
    "studentLookupQuery": "e45522f9b75264697f1113f77d087ef7257c01202629b160b18504141d53fc98"
 }

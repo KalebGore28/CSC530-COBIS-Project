@@ -29,6 +29,7 @@ table colleges {
 }
 
 table courses {
+  code varchar(100) [pk, not null]
   subject varchar(50) [not null]
   number int [not null]
   suffix varchar(50) [not null, default: '']
@@ -39,7 +40,7 @@ table courses {
   college_code varchar(10)
 
   indexes {
-    (subject, number, suffix) [pk]
+    (subject, number, suffix) [name: 'ux_courses_subject_number_suffix', unique]
     
     
   }
@@ -68,14 +69,14 @@ table instructor_courses {
   mnumber varchar(10) [not null]
   term_code varchar(10) [not null]
   year int [not null]
+  course_id varchar(100) [not null]
   course_subject varchar(50) [not null]
   course_number int [not null]
   course_suffix varchar(50) [not null, default: '']
   course_section varchar(50) [not null, default: '']
 
   indexes {
-    (mnumber, term_code, year, course_subject, course_number, course_suffix, course_section) [pk]
-    
+    (mnumber, term_code, year, course_id, course_section) [pk]
   }
 }
 
@@ -181,6 +182,7 @@ table student_courses {
   term_code varchar(10) [not null]
   year int [not null]
   part_of_term_code varchar(10)
+  course_id varchar(100) [not null]
   course_subject varchar(50) [not null]
   course_number int [not null]
   course_suffix varchar(50) [not null, default: '']
@@ -194,8 +196,7 @@ table student_courses {
   final_grade varchar(50)
 
   indexes {
-    (mnumber, term_code, year, course_subject, course_number, course_suffix, course_section) [pk]
-    
+    (mnumber, term_code, year, course_id, course_section) [pk]
     
     
     

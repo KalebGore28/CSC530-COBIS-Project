@@ -80,6 +80,7 @@ export const csvConfig = createCSVConfig({
         courses: {
             patterns: [/^reg_cuba_catalog_\d{6}_\d{8}\.csv$/i],
             config: {
+                code: { csvColumnName: "COURSE" },
                 subject: { csvColumnName: "COURSE", transform: (val) => parseCourseCode(val).subject },
                 number: { csvColumnName: "COURSE", transform: (val) => parseCourseCode(val).number },
                 suffix: { csvColumnName: "COURSE", transform: (val) => parseCourseCode(val).suffix },
@@ -88,9 +89,10 @@ export const csvConfig = createCSVConfig({
             },
             missingRowResolver: (missingData) => {
                 return {
-                    subject: missingData[0],
-                    number: missingData[1],
-                    suffix: missingData[2] || '',
+                    code: missingData[0],
+                    subject: missingData[1],
+                    number: missingData[2],
+                    suffix: missingData[3] || '',
                     title: "Unknown Course",
                     hours: 0,
                 };
@@ -190,6 +192,7 @@ export const csvConfig = createCSVConfig({
                 mnumber: { csvColumnName: "INSTMNUMBER" },
                 term_code: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).term },
                 year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
+                course_id: { csvColumnName: ["CRSESUBJ", "CRSENUMB"], combineCSVColumns: true }, // Combine subject and number for course_id
                 course_subject: { csvColumnName: "CRSESUBJ" },
                 course_number: { csvColumnName: "CRSENUMB" },
                 course_suffix: { csvColumnName: "_NOT_PROVIDED", transform: () => '' },
@@ -247,6 +250,7 @@ export const csvConfig = createCSVConfig({
                 mnumber: { csvColumnName: "MNUMBER" },
                 term_code: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).term },
                 year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
+                course_id: { csvColumnName: ["CRSESUBJ", "CRSENUMB"], combineCSVColumns: true }, // Combine subject and number for course_id
                 course_subject: { csvColumnName: "CRSESUBJ" },
                 course_number: { csvColumnName: "CRSENUMB" },
                 course_suffix: { csvColumnName: "_NOT_PROVIDED", transform: () => '' }, // Suffix not provided, default to ''
