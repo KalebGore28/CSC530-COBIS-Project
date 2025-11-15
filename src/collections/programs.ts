@@ -14,5 +14,15 @@ export const programsCollection = createCollection(
         },
         getKey: (program) => program.code,
         queryClient: getQueryClient(),
+        onUpdate: async ({ transaction }) => {
+            const { original, modified } = transaction.mutations[0]
+            await fetch(`/api/data/programs`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...modified,
+                    code: original.code,
+                }),
+            })
+        }
     })
 )

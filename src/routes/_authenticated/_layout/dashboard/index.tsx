@@ -105,7 +105,7 @@ function DashboardPage() {
             {gradeDistributionRoles.some(role => session.roles.includes(role)) &&
                 <TermGradeDistribution mnumber={session.mnumber!} title="Term Grade Distributions" description="View the distribution of grades over recent terms." />
             }
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {visibleCards.map((card) => (
                     <Card key={card.link} className="transition-all hover:shadow-md">

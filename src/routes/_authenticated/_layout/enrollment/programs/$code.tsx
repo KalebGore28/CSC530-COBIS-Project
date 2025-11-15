@@ -1,68 +1,19 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { useSession } from '@/components/provider/session';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 import { type Enrollment, EnrollmentTrends } from '@/components/charts/enrollment-trends';
-import { type TermRange, TermRangeSelector } from '@/components/selectors/term-range-selector';
+import { ProgramCard } from '@/components/program-card';
 
 import { programsCollection } from '@/collections/programs';
 import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
-// import { studentProgramsCollection } from '@/collections/student-programs';
-import { useLiveQuery, eq } from '@tanstack/react-db';
-
-// GraphQL imports
-import { useQuery } from '@tanstack/react-query'
-import { execute } from '@/graphql/execute'
-import { graphql } from '@/graphql'
-import { departments, programs } from '@/db/schema';
-
-const getCurrentYearTermQuery = graphql(`
-  query getCurrentYearTermQuery {
-    getCurrentYearTerm {
-      year
-      term
-      term_code
-    }
-  }
-`)
-
-const detailsProgramQuery = graphql(`
-  query detailsProgramQuery($code: String!, $startYear: Int!, $endTerm: String!, $endYear: Int!, $startTerm: String!) {
-    programsSingle(where: { code: { eq: $code } }) {
-      code
-      has_concentration
-      is_aacsb
-      is_discontinued
-      is_major
-      is_minor
-      description
-      cip_code
-      last_updated
-      department {
-        code
-        description
-      }
-      college {
-        code
-        description
-      }
-			student_programs(startYear: $startYear, endTerm: $endTerm, endYear: $endYear, startTerm: $startTerm) {
-				# student {
-				# 	citizenship
-				# 	gender
-				# }
-				term {
-					code
-					description
-				}
-				year
-			}
-    }
-  }
-`);
+import { studentProgramsCollection } from '@/collections/student-programs';
+import { useLiveQuery, eq, and, gte, lte, count } from '@tanstack/react-db';
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/programs/$code',
@@ -75,25 +26,20 @@ function RouteComponent() {
   const navigate = useNavigate()
   const programCode = params.code!
 
-  const [termRange, setTermRange] = useState<TermRange | null>(null)
-
-  const { data: currentYearTermData } = useQuery({
-    queryKey: ['getCurrentYearTerm'],
-    queryFn: () => execute(getCurrentYearTermQuery),
-  })
-
-  const currentYearTerm = currentYearTermData?.getCurrentYearTerm ?? null;
-
-  const { data: programs, isLoading } = useLiveQuery((q) =>
+  const { data: programEnrollment, isLoading } = useLiveQuery((q) =>
     q.from({ programs: programsCollection })
-      .where(({ programs }) => eq(programs.code, programCode))
       .leftJoin({ departments: departmentsCollection }, ({ programs, departments }) =>
         eq(programs.department_code, departments.code)
       )
       .leftJoin({ colleges: collegesCollection }, ({ programs, colleges }) =>
         eq(programs.college_code, colleges.code)
       )
-      .select(({ programs, departments, colleges }) => ({
+      .leftJoin(
+        { studentPrograms: studentProgramsCollection }, ({ programs, studentPrograms }) =>
+        eq(programs.code, studentPrograms.program_code)
+      )
+      .where(({ programs }) => eq(programs.code, programCode))
+      .select(({ programs, departments, colleges, studentPrograms }) => ({
         code: programs.code,
         has_concentration: programs.has_concentration,
         is_aacsb: programs.is_aacsb,
@@ -105,18 +51,15 @@ function RouteComponent() {
         description: programs.description,
         department_description: departments?.description,
         college_description: colleges?.description,
+        term: studentPrograms?.term_code,
+        year: studentPrograms?.year,
       })),
     [programCode]
   )
 
-
-
-  if (!isLoading){
-    console.log('Program Details:', programs);
+  if (!isLoading) {
+    console.log('Program Details:', programEnrollment);
   }
-
-  if (!currentYearTerm) return null;
-
 
 
 
@@ -135,15 +78,13 @@ function RouteComponent() {
           Back to Programs
         </Button>
       </div>
-      <TermRangeSelector
-        years={Array.from({ length: 10 }, (_, i) => currentYearTerm!.year! - 9 + i)}
-        onChange={setTermRange}
-      />
+
 
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
+          <ProgramCard programCode={programCode} />
           {/* Data Available */}
           {/* {programs && (
             <EnrollmentTrends

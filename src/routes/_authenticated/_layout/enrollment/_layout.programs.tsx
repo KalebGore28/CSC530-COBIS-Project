@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { useState } from 'react'
 
-import { useLiveQuery, like, or } from '@tanstack/react-db'
+import { useLiveQuery, ilike, or } from '@tanstack/react-db'
 import { programsCollection } from '@/collections/programs'
 
 export const Route = createFileRoute(
@@ -22,8 +22,8 @@ function RouteComponent() {
     q.from({ programs: programsCollection })
       .where(({ programs }) =>
         or(
-          like(programs.code, `%${search}%`),
-          like(programs.description, `%${search}%`)
+          ilike(programs.code, `%${search}%`),
+          ilike(programs.description, `%${search}%`)
         )
       )
       .limit(100)

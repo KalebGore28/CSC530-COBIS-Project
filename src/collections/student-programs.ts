@@ -12,7 +12,7 @@ export const studentProgramsCollection = createCollection(
             const { filters, sorts, limit } = parseLoadSubsetOptions(ctx.meta?.loadSubsetOptions as any)
 
             const params = new URLSearchParams()
-            
+
             filters.forEach(({ field, operator, value }) => {
                 params.set(`${field.join('.')}_${operator}`, String(value))
             })
@@ -27,9 +27,9 @@ export const studentProgramsCollection = createCollection(
             if (limit) params.set('limit', String(limit))
 
             const response = await fetch(`/api/data/student-programs?${params}`)
-            return (await response.json()) as StudentProgram[]
+            return await response.json() as StudentProgram[]
         },
-        getKey: (studentProgram) => `${studentProgram.mnumber}-${studentProgram.term_code}-${studentProgram.year}`,
+        getKey: (studentProgram) => `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_code}`,
         queryClient: getQueryClient(),
         syncMode: 'on-demand'
     })

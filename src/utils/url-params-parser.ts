@@ -1,11 +1,5 @@
-import { SQLWrapper, and, eq, like, ilike, lt, lte, gt, gte } from "drizzle-orm"
+import { SQLWrapper, and, eq, like, ilike, lt, lte, gt, gte, asc, desc, SQL, inArray } from "drizzle-orm"
 import { AnyMySqlTable } from "drizzle-orm/mysql-core"
-
-type SortCondition = {
-    column: any
-    direction: 'asc' | 'desc'
-    nulls: 'first' | 'last' | null
-}
 
 /**
  * Parses URLSearchParams to generate Drizzle ORM where conditions, limit and sorting.
@@ -20,19 +14,20 @@ type SortCondition = {
 export function urlParamsParser(params: URLSearchParams, table: AnyMySqlTable) {
     const limit = parseInt(params.get('limit') || '0', 10)
     const whereConditions: SQLWrapper[] = []
-    const sortCondition: SortCondition[] = []
+    const sortCondition: SQL[] = []
 
     params.forEach((value, key) => {
         if (key === 'limit') return
         if (key === 'sort') {
-            const [field, direction, nulls] = value.split(':')
+            const [field, direction, _nulls] = value.split(':')
             const col = (table as any)[field]
             if (!col) return
-            sortCondition.push({
-                column: col,
-                direction: direction === 'desc' ? 'desc' : 'asc',
-                nulls: nulls === 'first' ? 'first' : nulls === 'last' ? 'last' : null
-            })
+
+            if (direction === 'asc') {
+                sortCondition.push(asc(col))
+            } else {
+                sortCondition.push(desc(col))
+            }
         } else if (key.endsWith('_eq')) {
             const field = key.slice(0, -3)
             const col = (table as any)[field]
@@ -68,12 +63,17 @@ export function urlParamsParser(params: URLSearchParams, table: AnyMySqlTable) {
             const col = (table as any)[field]
             if (!col) return
             whereConditions.push(ilike(col, `%${value}%`))
+        } else if (key.endsWith('_in')) {
+            const field = key.slice(0, -3)
+            const col = (table as any)[field]
+            if (!col) return
+            whereConditions.push(inArray(col, value.split(',')))
         }
     })
 
     return {
         limit: limit === 0 ? undefined : limit,
         sort: sortCondition,
-        whereConditions: and(...whereConditions)
+        whereConditions: whereConditions.length > 0 ? and(...whereConditions) : undefined
     }
 }
