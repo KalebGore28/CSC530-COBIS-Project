@@ -111,7 +111,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label htmlFor="start-year" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Year</Label>
                                             <Select onValueChange={(value) => setStartYear(parseInt(value))} value={startYear.toString()}>
-                                                <SelectTrigger className="bg-white">
+                                                <SelectTrigger className="bg-white border border-gray-200">
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -128,7 +128,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label htmlFor="start-term" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Term</Label>
                                             <Select onValueChange={(value) => setStartTerm(value)} defaultValue={startTerm}>
-                                                <SelectTrigger className="bg-white">
+                                                <SelectTrigger className="bg-white border border-gray-200">
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -150,7 +150,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label htmlFor="end-year" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Year</Label>
                                             <Select onValueChange={(value) => setEndYear(parseInt(value))} value={endYear.toString()}>
-                                                <SelectTrigger className="bg-white">
+                                                <SelectTrigger className="bg-white border border-gray-200">
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -167,7 +167,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label htmlFor="end-term" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Term</Label>
                                             <Select onValueChange={(value) => setEndTerm(value)} value={endTerm}>
-                                                <SelectTrigger className="bg-white">
+                                                <SelectTrigger className="bg-white border border-gray-200">
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
