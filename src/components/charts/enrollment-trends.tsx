@@ -16,10 +16,7 @@ import {
 } from "@/components/ui/chart"
 
 export interface Enrollment {
-	term: {
-		code: "10" | "50" | "80" | "90"
-		description: string
-	}
+	term_code: "10" | "50" | "80" | "90"
 	year: number
 }
 
@@ -63,7 +60,7 @@ export const EnrollmentTrends: React.FC<EnrollmentTrendsProps> = ({
 
 		for (const e of enrollments) {
 			const y = e.year
-			const code = e.term.code
+			const code = e.term_code
 			if (!bucket[y]) {
 				bucket[y] = {}
 			}
@@ -97,7 +94,11 @@ export const EnrollmentTrends: React.FC<EnrollmentTrendsProps> = ({
 		<Card className={className}>
 			<CardHeader>
 				<CardTitle>{title}</CardTitle>
-				{description && <CardDescription>{description}</CardDescription>}
+				{description &&
+					<CardDescription className="text-xs font-semibold text-gray-500 uppercase tracking-wide ">
+						{description}
+					</CardDescription>
+				}
 			</CardHeader>
 
 			<CardContent>

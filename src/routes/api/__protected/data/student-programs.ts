@@ -20,6 +20,8 @@ export const Route = createFileRoute('/api/__protected/data/student-programs')({
                     .orderBy(...sort)
                     .limit(limit || 1000) // Default limit to 1000 if not specified
 
+                console.log('Fetched student programs:', results.length);
+
                 return new Response(JSON.stringify(results), {
                     status: 200,
                     headers: {

@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label';
 
@@ -15,15 +16,17 @@ const termCodeMap: Record<string, string> = {
     '90': 'Winter',
 }
 
+
 type ProgramCardProps = {
     programCode: string
     setStartYear?: (year: number) => void
     setStartTerm?: (term: string) => void
     setEndYear?: (year: number) => void
     setEndTerm?: (term: string) => void
+    exportData?: () => void
 }
 
-export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYear, setEndTerm }: ProgramCardProps) {
+export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYear, setEndTerm, exportData }: ProgramCardProps) {
 
     const { data: program } = useLiveQuery((q) =>
         q.from({ programs: programsCollection })
@@ -49,129 +52,153 @@ export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYea
             .where(({ programs }) =>
                 eq(programs.code, programCode)
             )
-            .findOne()
+            .findOne(),
+        [programCode]
     )
 
     return (
-        <Card className="mx-auto border rounded-2xl overflow-hidden">
-            <CardHeader>
-                <CardTitle className="text-lg font-bold">
-                    {program ? `${program.code} - ${program.description}` : 'Program Not Found'}
-                </CardTitle>
+        <Card className="max-w-4xl mx-auto border-2 rounded-2xl shadow-lg overflow-hidden">
+            <CardHeader className="bg-blue-950 text-white pb-6">
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <div className="text-sm font-semibold opacity-90 mb-1">{program?.code || 'N/A'}</div>
+                        <CardTitle className="text-2xl font-bold leading-tight">
+                            {program?.description || 'Program Not Found'}
+                        </CardTitle>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-end mt-4">
+                        {program?.is_major && <Badge className="bg-white text-blue-600 hover:bg-gray-100">Major</Badge>}
+                        {program?.is_minor && <Badge className="bg-white text-blue-600 hover:bg-gray-100">Minor</Badge>}
+                        {program?.is_aacsb && <Badge className="bg-amber-400 text-amber-900 hover:bg-amber-300">AACSB</Badge>}
+                        {program?.has_concentration && <Badge className="bg-white text-blue-600 hover:bg-gray-100">Concentration</Badge>}
+                        {program?.is_discontinued && <Badge variant="destructive">Discontinued</Badge>}
+                    </div>
+                </div>
             </CardHeader>
 
-            <CardContent>
+            <CardContent className="pb-6">
                 {program ? (
-                    <div className="space-y-4">
-                        <p className="text-gray-600">{program.description || 'No description available'}</p>
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-700">
-                            <div><span className="font-medium">Department:</span> {program.department_description || 'N/A'}</div>
-                            <div><span className="font-medium">College:</span> {program.college_description || 'N/A'}</div>
-                            <div><span className="font-medium">CIP Code:</span> {program.cip_code || 'N/A'}</div>
-                            <div><span className="font-medium">Last Updated:</span> {program.last_updated ? new Date(program.last_updated).toLocaleDateString() : 'N/A'}</div>
-                            <div><span className="font-medium">Program Type:</span> {program.is_major ? 'Major' : program.is_minor ? 'Minor' : 'N/A'}</div>
-                            <div><span className="font-medium">Accreditation:</span> {program.is_aacsb ? 'AACSB' : 'N/A'}</div>
-                        </div>
-
-                        <div className="flex flex-wrap gap-2 mt-2">
-                            {program.is_major && <Badge variant="default">Major</Badge>}
-                            {program.is_minor && <Badge variant="default">Minor</Badge>}
-                            {program.is_aacsb && <Badge variant="default">AACSB</Badge>}
-                            {program.has_concentration && <Badge variant="default">Concentration</Badge>}
-                            {program.is_discontinued && <Badge variant="destructive">Discontinued</Badge>}
-                        </div>
-
-                        {/* Range selectors */}
-                        <div className="flex flex-wrap gap-4">
-                            <div className="flex space-x-4">
-                                <div className="space-y-1">
-                                    <Label htmlFor="start-year">Start Year</Label>
-                                    <Select
-                                        onValueChange={(value) => setStartYear?.(parseInt(value))}
-                                        defaultValue=""
-                                    >
-                                        <SelectTrigger className='w-35'>
-                                            <SelectValue placeholder="Select Year" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {/* Render the last 20 years up until the current year */}
-                                            {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 19 + i)
-                                                .sort((a, b) => b - a) // Sort descending
-                                                .map((year) => (
-                                                    <SelectItem key={year} value={year.toString()}>
-                                                        {year}
-                                                    </SelectItem>
-                                                ))}
-
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-1">
-                                    <Label htmlFor="start-term">Start Term</Label>
-                                    <Select
-                                        onValueChange={(value) => setStartTerm?.(value)}
-                                        defaultValue=""
-                                    >
-                                        <SelectTrigger className='w-35'>
-                                            <SelectValue placeholder="Select Term" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Object.entries(termCodeMap).map(([code, name]) => (
-                                                <SelectItem key={code} value={code}>
-                                                    {name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                    <div className="space-y-6">
+                        {/* Info Grid */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department</div>
+                                <div className="text-sm font-medium text-gray-900">{program.department_description || 'N/A'}</div>
                             </div>
-                            <div className="flex space-x-4">
-                                <div className="space-y-1">
-                                    <Label htmlFor="end-year">End Year</Label>
-                                    <Select
-                                        onValueChange={(value) => setEndYear?.(parseInt(value))}
-                                        defaultValue=""
-                                    >
-                                        <SelectTrigger className='w-35'>
-                                            <SelectValue placeholder="Select Year" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {/* Render the last 20 years up until the current year */}
-                                            {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 19 + i)
-                                                .sort((a, b) => b - a) // Sort descending
-                                                .map((year) => (
-                                                    <SelectItem key={year} value={year.toString()}>
-                                                        {year}
-                                                    </SelectItem>
-                                                ))}
+                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">College</div>
+                                <div className="text-sm font-medium text-gray-900">{program.college_description || 'N/A'}</div>
+                            </div>
+                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">CIP Code</div>
+                                <div className="text-sm font-medium text-gray-900">{program.cip_code || 'N/A'}</div>
+                            </div>
+                        </div>
 
-                                        </SelectContent>
-                                    </Select>
+                        {/* Date Range Selectors */}
+                        <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
+                            <h3 className="text-sm font-semibold text-gray-700 mb-4">Select Date Range</h3>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {/* Start Date */}
+                                <div className="space-y-3">
+                                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Start Period</div>
+                                    <div className="flex gap-3">
+                                        <div className="flex-1">
+                                            <Label htmlFor="start-year" className="text-xs text-gray-600 mb-1">Year</Label>
+                                            <Select onValueChange={(value) => setStartYear?.(parseInt(value))} defaultValue={new Date().getFullYear().toString()}>
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Year" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 19 + i)
+                                                        .sort((a, b) => b - a)
+                                                        .map((year) => (
+                                                            <SelectItem key={year} value={year.toString()}>
+                                                                {year}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="flex-1">
+                                            <Label htmlFor="start-term" className="text-xs text-gray-600 mb-1">Term</Label>
+                                            <Select onValueChange={(value) => setStartTerm?.(value)} defaultValue={"10"}>
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Term" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Object.entries(termCodeMap).map(([code, name]) => (
+                                                        <SelectItem key={code} value={code}>
+                                                            {name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-1">
-                                    <Label htmlFor="end-term">End Term</Label>
-                                    <Select
-                                        onValueChange={(value) => setEndTerm?.(value)}
-                                        defaultValue=""
-                                    >
-                                        <SelectTrigger className='w-35'>
-                                            <SelectValue placeholder="Select Term" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {Object.entries(termCodeMap).map(([code, name]) => (
-                                                <SelectItem key={code} value={code}>
-                                                    {name}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
+
+                                {/* End Date */}
+                                <div className="space-y-3">
+                                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">End Period</div>
+                                    <div className="flex gap-3">
+                                        <div className="flex-1">
+                                            <Label htmlFor="end-year" className="text-xs text-gray-600 mb-1">Year</Label>
+                                            <Select onValueChange={(value) => setEndYear?.(parseInt(value))} defaultValue={new Date().getFullYear().toString()}>
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Year" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Array.from({ length: 20 }, (_, i) => new Date().getFullYear() - 19 + i)
+                                                        .sort((a, b) => b - a)
+                                                        .map((year) => (
+                                                            <SelectItem key={year} value={year.toString()}>
+                                                                {year}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                        <div className="flex-1">
+                                            <Label htmlFor="end-term" className="text-xs text-gray-600 mb-1">Term</Label>
+                                            <Select onValueChange={(value) => setEndTerm?.(value)} defaultValue={"90"}>
+                                                <SelectTrigger className="bg-white">
+                                                    <SelectValue placeholder="Term" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {Object.entries(termCodeMap).map(([code, name]) => (
+                                                        <SelectItem key={code} value={code}>
+                                                            {name}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {/* Footer Info */}
+                        {program.last_updated && (
+                            <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-200">
+                                Last updated: {new Date(program.last_updated).toLocaleDateString('en-US', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                })}
+                            </div>
+                        )}
+                        {exportData && (
+                            <div className="text-center">
+                                <Button onClick={exportData}>Export Data</Button>
+                            </div>
+                        )}
                     </div>
                 ) : (
-                    <p className="text-gray-500">No program details found for code: {programCode}</p>
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">No program details found for code: {programCode}</p>
+                    </div>
                 )}
             </CardContent>
         </Card>

@@ -1,10 +1,8 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
-import { useSession } from '@/components/provider/session';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
 
 import { type Enrollment, EnrollmentTrends } from '@/components/charts/enrollment-trends';
 import { ProgramCard } from '@/components/program-card';
@@ -14,6 +12,13 @@ import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { studentProgramsCollection } from '@/collections/student-programs';
 import { useLiveQuery, eq, and, gte, lte, count } from '@tanstack/react-db';
+
+type TermRange = {
+  startYear: number | null
+  startTerm: string | null
+  endYear: number | null
+  endTerm: string | null
+}
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/programs/$code',
@@ -25,6 +30,13 @@ function RouteComponent() {
   const params = useParams({ from: '/_authenticated/_layout/enrollment/programs/$code' })
   const navigate = useNavigate()
   const programCode = params.code!
+
+  const [termRange, setTermRange] = useState<TermRange>({
+    startYear: null,
+    startTerm: null,
+    endYear: null,
+    endTerm: null,
+  })
 
   const { data: programEnrollment, isLoading } = useLiveQuery((q) =>
     q.from({ programs: programsCollection })
@@ -54,14 +66,12 @@ function RouteComponent() {
         term: studentPrograms?.term_code,
         year: studentPrograms?.year,
       })),
-    [programCode]
+    [programCode, termRange]
   )
 
   if (!isLoading) {
     console.log('Program Details:', programEnrollment);
   }
-
-
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -84,15 +94,43 @@ function RouteComponent() {
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
-          <ProgramCard programCode={programCode} />
+          <ProgramCard
+            programCode={programCode}
+            setStartYear={(sy) => {
+              setTermRange((prev) => ({ ...prev, startYear: sy }))
+            }}
+            setStartTerm={(st) => {
+              setTermRange((prev) => ({ ...prev, startTerm: st }))
+            }}
+            setEndYear={(ey) => {
+              setTermRange((prev) => ({ ...prev, endYear: ey }))
+            }}
+            setEndTerm={(et) => {
+              setTermRange((prev) => ({ ...prev, endTerm: et }))
+            }}
+            exportData={() => { }}
+          />
           {/* Data Available */}
-          {/* {programs && (
-            <EnrollmentTrends
-              enrollments={data.programsSingle.student_programs as Enrollment[]}
-              title={`Enrollments for Program ${data.programsSingle.code}`}
-              description={data.programsSingle.description || undefined}
-            />
-          )} */}
+          {programEnrollment && (
+            <div className="max-w-4xl mx-auto">
+              <EnrollmentTrends
+                className='max-w-4xl'
+                enrollments={programEnrollment.map(e => {
+                  if (!e.term || !e.year) {
+                    return false
+                  }
+
+                  return {
+                    term_code: e.term!,
+                    year: e.year!,
+                  } as Enrollment
+
+                }).filter(Boolean) as Enrollment[]}
+                title={`Enrollments for Program ${programEnrollment[0]?.code}`}
+                description={programEnrollment[0]?.description || undefined}
+              />
+            </div>
+          )}
         </>
       )}
     </div>
