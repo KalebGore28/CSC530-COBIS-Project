@@ -1,8 +1,8 @@
 {
   "version": "5",
   "dialect": "mysql",
-  "id": "909dfb7f-1563-4828-8a33-b9a7d5d63dad",
-  "prevId": "fc9c0815-0b41-48d6-802d-f9965af1f852",
+  "id": "972a8d70-6556-4f10-8c14-d91398f14d7c",
+  "prevId": "909dfb7f-1563-4828-8a33-b9a7d5d63dad",
   "tables": {
     "academic_standing": {
       "name": "academic_standing",
@@ -215,8 +215,8 @@
     "courses": {
       "name": "courses",
       "columns": {
-        "id": {
-          "name": "id",
+        "code": {
+          "name": "code",
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": true,
@@ -321,10 +321,10 @@
         }
       },
       "compositePrimaryKeys": {
-        "courses_id": {
-          "name": "courses_id",
+        "courses_code": {
+          "name": "courses_code",
           "columns": [
-            "id"
+            "code"
           ]
         }
       },
@@ -517,6 +517,13 @@
           "notNull": true,
           "autoincrement": false
         },
+        "course_id": {
+          "name": "course_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "course_subject": {
           "name": "course_subject",
           "type": "varchar(50)",
@@ -576,19 +583,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "fk_instructor_courses_course": {
-          "name": "fk_instructor_courses_course",
+        "instructor_courses_course_id_courses_code_fk": {
+          "name": "instructor_courses_course_id_courses_code_fk",
           "tableFrom": "instructor_courses",
           "tableTo": "courses",
           "columnsFrom": [
-            "course_subject",
-            "course_number",
-            "course_suffix"
+            "course_id"
           ],
           "columnsTo": [
-            "subject",
-            "number",
-            "suffix"
+            "code"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -601,9 +604,7 @@
             "mnumber",
             "term_code",
             "year",
-            "course_subject",
-            "course_number",
-            "course_suffix",
+            "course_id",
             "course_section"
           ]
         }
@@ -1391,6 +1392,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "course_id": {
+          "name": "course_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "course_subject": {
           "name": "course_subject",
           "type": "varchar(50)",
@@ -1485,6 +1493,19 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
+        "student_courses_course_id_courses_code_fk": {
+          "name": "student_courses_course_id_courses_code_fk",
+          "tableFrom": "student_courses",
+          "tableTo": "courses",
+          "columnsFrom": [
+            "course_id"
+          ],
+          "columnsTo": [
+            "code"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
         "fk_student_courses_term": {
           "name": "fk_student_courses_term",
           "tableFrom": "student_courses",
@@ -1536,23 +1557,6 @@
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
-        },
-        "fk_student_courses_course": {
-          "name": "fk_student_courses_course",
-          "tableFrom": "student_courses",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "course_subject",
-            "course_number",
-            "course_suffix"
-          ],
-          "columnsTo": [
-            "subject",
-            "number",
-            "suffix"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -1562,9 +1566,7 @@
             "mnumber",
             "term_code",
             "year",
-            "course_subject",
-            "course_number",
-            "course_suffix",
+            "course_id",
             "course_section"
           ]
         }
