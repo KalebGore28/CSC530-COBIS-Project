@@ -31,6 +31,6 @@ export const studentProgramsCollection = createCollection(
         },
         getKey: (studentProgram) => `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_code}`,
         queryClient: getQueryClient(),
-        syncMode: 'on-demand'
+        // syncMode: 'on-demand'
     })
 )

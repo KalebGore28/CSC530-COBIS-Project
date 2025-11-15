@@ -11,14 +11,7 @@ import { programsCollection } from '@/collections/programs';
 import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { studentProgramsCollection } from '@/collections/student-programs';
-import { useLiveQuery, eq, and, gte, lte, count } from '@tanstack/react-db';
-
-type TermRange = {
-  startYear: number | null
-  startTerm: string | null
-  endYear: number | null
-  endTerm: string | null
-}
+import { useLiveQuery, eq, and, gte, lte } from '@tanstack/react-db';
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/enrollment/programs/$code',
@@ -31,12 +24,10 @@ function RouteComponent() {
   const navigate = useNavigate()
   const programCode = params.code!
 
-  const [termRange, setTermRange] = useState<TermRange>({
-    startYear: null,
-    startTerm: null,
-    endYear: null,
-    endTerm: null,
-  })
+  const [startYear, setStartYear] = useState<number>(new Date().getFullYear())
+  const [startTerm, setStartTerm] = useState<string>('10')
+  const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
+  const [endTerm, setEndTerm] = useState<string>('90')
 
   const { data: programEnrollment, isLoading } = useLiveQuery((q) =>
     q.from({ programs: programsCollection })
@@ -51,6 +42,14 @@ function RouteComponent() {
         eq(programs.code, studentPrograms.program_code)
       )
       .where(({ programs }) => eq(programs.code, programCode))
+      .where(({ studentPrograms }) =>
+        and(
+          gte(studentPrograms?.year, startYear),
+          lte(studentPrograms?.year, endYear),
+          gte(studentPrograms?.term_code, startTerm),
+          lte(studentPrograms?.term_code, endTerm)
+        )
+      )
       .select(({ programs, departments, colleges, studentPrograms }) => ({
         code: programs.code,
         has_concentration: programs.has_concentration,
@@ -66,12 +65,8 @@ function RouteComponent() {
         term: studentPrograms?.term_code,
         year: studentPrograms?.year,
       })),
-    [programCode, termRange]
+    [programCode, startYear, startTerm, endYear, endTerm]
   )
-
-  if (!isLoading) {
-    console.log('Program Details:', programEnrollment);
-  }
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -89,27 +84,24 @@ function RouteComponent() {
         </Button>
       </div>
 
+      <ProgramCard
+        programCode={programCode}
+        startYear={startYear}
+        startTerm={startTerm}
+        endYear={endYear}
+        endTerm={endTerm}
+        setStartYear={setStartYear}
+        setStartTerm={setStartTerm}
+        setEndYear={setEndYear}
+        setEndTerm={setEndTerm}
+        exportData={() => { }}
+      />
+
 
       {isLoading ? (
         <Skeleton className="h-64 w-full" />
       ) : (
         <>
-          <ProgramCard
-            programCode={programCode}
-            setStartYear={(sy) => {
-              setTermRange((prev) => ({ ...prev, startYear: sy }))
-            }}
-            setStartTerm={(st) => {
-              setTermRange((prev) => ({ ...prev, startTerm: st }))
-            }}
-            setEndYear={(ey) => {
-              setTermRange((prev) => ({ ...prev, endYear: ey }))
-            }}
-            setEndTerm={(et) => {
-              setTermRange((prev) => ({ ...prev, endTerm: et }))
-            }}
-            exportData={() => { }}
-          />
           {/* Data Available */}
           {programEnrollment && (
             <div className="max-w-4xl mx-auto">
@@ -126,7 +118,7 @@ function RouteComponent() {
                   } as Enrollment
 
                 }).filter(Boolean) as Enrollment[]}
-                title={`Enrollments for Program ${programEnrollment[0]?.code}`}
+                title={`Enrollments for Program ${programCode}`}
                 description={programEnrollment[0]?.description || undefined}
               />
             </div>

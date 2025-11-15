@@ -19,14 +19,19 @@ const termCodeMap: Record<string, string> = {
 
 type ProgramCardProps = {
     programCode: string
-    setStartYear?: (year: number) => void
-    setStartTerm?: (term: string) => void
-    setEndYear?: (year: number) => void
-    setEndTerm?: (term: string) => void
+    startYear: number
+    startTerm: string
+    endYear: number
+    endTerm: string
+    setStartYear: (year: number) => void
+    setStartTerm: (term: string) => void
+    setEndYear: (year: number) => void
+    setEndTerm: (term: string) => void
     exportData?: () => void
 }
 
-export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYear, setEndTerm, exportData }: ProgramCardProps) {
+export function ProgramCard({
+    programCode, startYear, startTerm, endYear, endTerm, setStartYear, setStartTerm, setEndYear, setEndTerm, exportData }: ProgramCardProps) {
 
     const { data: program } = useLiveQuery((q) =>
         q.from({ programs: programsCollection })
@@ -105,7 +110,7 @@ export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYea
                                     <div className="flex gap-3">
                                         <div className="flex-1">
                                             <Label htmlFor="start-year" className="text-xs text-gray-600 mb-1">Year</Label>
-                                            <Select onValueChange={(value) => setStartYear?.(parseInt(value))} defaultValue={new Date().getFullYear().toString()}>
+                                            <Select onValueChange={(value) => setStartYear(parseInt(value))} value={startYear.toString()}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
@@ -122,7 +127,7 @@ export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYea
                                         </div>
                                         <div className="flex-1">
                                             <Label htmlFor="start-term" className="text-xs text-gray-600 mb-1">Term</Label>
-                                            <Select onValueChange={(value) => setStartTerm?.(value)} defaultValue={"10"}>
+                                            <Select onValueChange={(value) => setStartTerm(value)} defaultValue={startTerm}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
@@ -144,7 +149,7 @@ export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYea
                                     <div className="flex gap-3">
                                         <div className="flex-1">
                                             <Label htmlFor="end-year" className="text-xs text-gray-600 mb-1">Year</Label>
-                                            <Select onValueChange={(value) => setEndYear?.(parseInt(value))} defaultValue={new Date().getFullYear().toString()}>
+                                            <Select onValueChange={(value) => setEndYear(parseInt(value))} value={endYear.toString()}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
@@ -161,7 +166,7 @@ export function ProgramCard({ programCode, setStartYear, setStartTerm, setEndYea
                                         </div>
                                         <div className="flex-1">
                                             <Label htmlFor="end-term" className="text-xs text-gray-600 mb-1">Term</Label>
-                                            <Select onValueChange={(value) => setEndTerm?.(value)} defaultValue={"90"}>
+                                            <Select onValueChange={(value) => setEndTerm(value)} value={endTerm}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
