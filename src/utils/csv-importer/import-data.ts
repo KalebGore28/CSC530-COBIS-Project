@@ -82,7 +82,7 @@ export const importData = async (
           // Find first matching value
 
           let value = combineCSVColumns
-            ? csvNames.map((name) => row[name] || '').join(' ')
+            ? csvNames.map((name) => row[name] || '').join('')
             : csvNames.map((name) => row[name]).find((v) => v !== undefined);
 
           const column = columns[columnName];

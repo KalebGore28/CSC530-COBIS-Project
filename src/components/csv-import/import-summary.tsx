@@ -115,8 +115,8 @@ export function ImportSummary({
                                     <Progress value={progress} />
                                     <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>
-                                            {table.currentRow.toLocaleString()} /{" "}
-                                            {table.totalRows.toLocaleString()} rows
+                                            {table.currentRow?.toLocaleString()} /{" "}
+                                            {table.totalRows?.toLocaleString()} rows
                                         </span>
                                         <span>{table.message}</span>
                                     </div>

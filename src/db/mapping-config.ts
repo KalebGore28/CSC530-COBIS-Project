@@ -88,11 +88,13 @@ export const csvConfig = createCSVConfig({
                 hours: { csvColumnName: "CREDITHRS" },
             },
             missingRowResolver: (missingData) => {
+                const courseId = missingData[0];
+                const { subject, number, suffix } = parseCourseCode(courseId);
                 return {
-                    code: missingData[0],
-                    subject: missingData[1],
-                    number: missingData[2],
-                    suffix: missingData[3] || '',
+                    code: courseId,
+                    subject,
+                    number,
+                    suffix,
                     title: "Unknown Course",
                     hours: 0,
                 };
