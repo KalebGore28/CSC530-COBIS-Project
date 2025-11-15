@@ -3,6 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
+import Papa from 'papaparse';
 
 import { type Enrollment, EnrollmentTrends } from '@/components/charts/enrollment-trends';
 import { ProgramCard } from '@/components/program-card';
@@ -68,6 +70,47 @@ function RouteComponent() {
     [programCode, startYear, startTerm, endYear, endTerm]
   )
 
+  const exportToCSV = () => {
+    if (!programEnrollment || programEnrollment.length === 0) {
+      toast.warning('No enrollment data available to export. Try adjusting the date range.');
+      return;
+    }
+
+    // Prepare the data for CSV export
+    const csvData = programEnrollment
+      .filter(e => e.term && e.year)
+      .map(e => ({
+        'Program Code': e.code,
+        'Year': e.year,
+        'Term': e.term,
+        'Description': e.description || '',
+        'Department': e.department_description || '',
+        'College': e.college_description || '',
+        'CIP Code': e.cip_code || '',
+        'Is Major': e.is_major ? 'Yes' : 'No',
+        'Is Minor': e.is_minor ? 'Yes' : 'No',
+        'Has Concentration': e.has_concentration ? 'Yes' : 'No',
+        'Is AACSB': e.is_aacsb ? 'Yes' : 'No',
+        'Is Discontinued': e.is_discontinued ? 'Yes' : 'No',
+      }));
+
+    // Convert to CSV
+    const csv = Papa.unparse(csvData);
+
+    // Create a blob and download
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute('href', url);
+    link.setAttribute('download', `enrollment-${programCode}-${startYear}-${endYear}.csv`);
+    link.style.visibility = 'hidden';
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="w-full mx-auto p-6 space-y-6">
       <div className="flex flex-col">
@@ -94,7 +137,7 @@ function RouteComponent() {
         setStartTerm={setStartTerm}
         setEndYear={setEndYear}
         setEndTerm={setEndTerm}
-        exportData={() => { }}
+        exportData={exportToCSV}
       />
 
 

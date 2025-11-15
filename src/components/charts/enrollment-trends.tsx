@@ -131,9 +131,9 @@ export const EnrollmentTrends: React.FC<EnrollmentTrendsProps> = ({
 						<Line
 							dataKey="count"
 							type="natural"
-							stroke="hsl(var(--chart-1))"
+							stroke="var(--chart-1)"
 							strokeWidth={2}
-							dot={{ fill: "hsl(var(--chart-1))" }}
+							dot={{ fill: "var(--chart-1)" }}
 							activeDot={{ r: 5 }}
 						/>
 					</LineChart>

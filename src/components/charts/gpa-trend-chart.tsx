@@ -27,11 +27,11 @@ import {
 const chartConfig = {
 	overall_gpa: {
 		label: "Overall",
-		color: "hsl(var(--chart-1))",
+		color: "var(--chart-1)",
 	},
 	msu_gpa: {
 		label: "MSU",
-		color: "hsl(var(--chart-2))",
+		color: "var(--chart-2)",
 	},
 } satisfies ChartConfig
 

@@ -86,30 +86,30 @@ export function ProgramCard({
                     <div className="space-y-6">
                         {/* Info Grid */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Department</div>
-                                <div className="text-sm font-medium text-gray-900">{program.department_description || 'N/A'}</div>
+                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Department</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{program.department_description || 'N/A'}</div>
                             </div>
-                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">College</div>
-                                <div className="text-sm font-medium text-gray-900">{program.college_description || 'N/A'}</div>
+                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">College</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{program.college_description || 'N/A'}</div>
                             </div>
-                            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-                                <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">CIP Code</div>
-                                <div className="text-sm font-medium text-gray-900">{program.cip_code || 'N/A'}</div>
+                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">CIP Code</div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{program.cip_code || 'N/A'}</div>
                             </div>
                         </div>
 
                         {/* Date Range Selectors */}
-                        <div className="bg-blue-50 p-5 rounded-xl border border-blue-100">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-4">Select Date Range</h3>
+                        <div className="bg-blue-50 dark:bg-blue-950 p-5 rounded-xl border border-blue-100 dark:border-blue-800">
+                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Select Date Range</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {/* Start Date */}
                                 <div className="space-y-3">
-                                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Start Period</div>
+                                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">Start Period</div>
                                     <div className="flex gap-3">
                                         <div className="flex-1">
-                                            <Label htmlFor="start-year" className="text-xs text-gray-600 mb-1">Year</Label>
+                                            <Label htmlFor="start-year" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Year</Label>
                                             <Select onValueChange={(value) => setStartYear(parseInt(value))} value={startYear.toString()}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Year" />
@@ -126,7 +126,7 @@ export function ProgramCard({
                                             </Select>
                                         </div>
                                         <div className="flex-1">
-                                            <Label htmlFor="start-term" className="text-xs text-gray-600 mb-1">Term</Label>
+                                            <Label htmlFor="start-term" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Term</Label>
                                             <Select onValueChange={(value) => setStartTerm(value)} defaultValue={startTerm}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Term" />
@@ -145,10 +145,10 @@ export function ProgramCard({
 
                                 {/* End Date */}
                                 <div className="space-y-3">
-                                    <div className="text-xs font-semibold text-gray-600 uppercase tracking-wide">End Period</div>
+                                    <div className="text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wide">End Period</div>
                                     <div className="flex gap-3">
                                         <div className="flex-1">
-                                            <Label htmlFor="end-year" className="text-xs text-gray-600 mb-1">Year</Label>
+                                            <Label htmlFor="end-year" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Year</Label>
                                             <Select onValueChange={(value) => setEndYear(parseInt(value))} value={endYear.toString()}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Year" />
@@ -165,7 +165,7 @@ export function ProgramCard({
                                             </Select>
                                         </div>
                                         <div className="flex-1">
-                                            <Label htmlFor="end-term" className="text-xs text-gray-600 mb-1">Term</Label>
+                                            <Label htmlFor="end-term" className="text-xs text-gray-600 dark:text-gray-400 mb-1">Term</Label>
                                             <Select onValueChange={(value) => setEndTerm(value)} value={endTerm}>
                                                 <SelectTrigger className="bg-white">
                                                     <SelectValue placeholder="Term" />
