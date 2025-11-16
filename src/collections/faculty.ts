@@ -14,5 +14,6 @@ export const facultyCollection = createCollection(
         },
         getKey: (faculty) => faculty.mnumber,
         queryClient: getQueryClient(),
+        staleTime: 1000 * 60 * 5, // 5 minutes. Faculty data may change more frequently
     })
 )

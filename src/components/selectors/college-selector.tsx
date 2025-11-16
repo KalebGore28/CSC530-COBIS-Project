@@ -39,8 +39,7 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
 
     // Runs only once to set default selection if collegeCode prop is provided
     useEffect(() => {
-        if (!isReady|| isLoading) return;
-        console.log("Setting default college selection for code:", collegeCode);
+        if (!isReady || isLoading) return;
         const defaultCollege = colleges.find((c) => c.code === collegeCode);
         if (defaultCollege && (!selected || selected.code !== defaultCollege.code)) {
             setSelected(defaultCollege);

@@ -14,5 +14,6 @@ export const departmentsCollection = createCollection(
         },
         getKey: (department) => department.code,
         queryClient: getQueryClient(),
+        staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     })
 )

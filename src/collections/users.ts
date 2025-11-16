@@ -14,5 +14,6 @@ export const usersCollection = createCollection(
         },
         getKey: (user) => user.id,
         queryClient: getQueryClient(),
+        staleTime: 1000 * 60 * 5, // 5 minutes. Users may change more frequently
     })
 )

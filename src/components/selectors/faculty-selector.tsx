@@ -3,35 +3,11 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { faculty } from "@/db/schema";
-import fuzzysort from "fuzzysort";
 
 type Faculty = typeof faculty.$inferSelect;
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-export const GetFacultyQuery = graphql(`
-    query getFacultyQuery {
-        faculty {
-            mnumber
-            first_name
-            last_name
-            department_code
-            college_code
-        }
-    }
-`)
-
-export function findFacultyMatchFuzzy(input: string, facultyList: Faculty[]): Faculty[] {
-    const results = fuzzysort.go(input, facultyList, {
-        keys: ["first_name", "last_name", (f) => f.mnumber],
-        threshold: -1000,
-        limit: 10,
-    });
-    return results.map(result => result.obj);
-}
+import { facultyCollection } from "@/collections/faculty";
+import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
 interface FacultySelectorProps {
     /** Optional M number to preselect a faculty member */
@@ -41,26 +17,32 @@ interface FacultySelectorProps {
 }
 export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProps) {
     const [query, setQuery] = useState("");
-    const [filteredFaculty, setFilteredFaculty] = useState<Faculty[]>([]);
     const [selected, setSelected] = useState<Faculty | null>(null);
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getFaculty'],
-        queryFn: () => execute(GetFacultyQuery),
-    });
+    const { data: faculty } = useLiveQuery((q) =>
+        q.from({ faculty: facultyCollection })
+            .orderBy(({ faculty }) => faculty.mnumber, 'asc'),
+        [] // Run only once
+    );
 
-    const facultyList: Faculty[] = (data?.faculty ?? []).map(faculty => ({
-        mnumber: faculty.mnumber,
-        first_name: faculty.first_name,
-        last_name: faculty.last_name,
-        department_code: faculty.department_code ?? null,
-        college_code: faculty.college_code ?? null,
-    }));
+    const { data: filteredFaculty, isLoading, isReady } = useLiveQuery((q) =>
+        q.from({ faculty: facultyCollection })
+            .where(({ faculty }) =>
+                or(
+                    ilike(faculty.mnumber, `%${query}%`),
+                    ilike(faculty.first_name, `%${query}%`),
+                    ilike(faculty.last_name, `%${query}%`)
+                )
+            )
+            .orderBy(({ faculty }) => faculty.mnumber, 'asc')
+            .limit(query !== "" ? 10 : 0),
+        [query] // Re-run when query changes
+    );
 
     // Runs only once to set default selection if mnumber prop is provided
     useEffect(() => {
-        if (!mnumber || !facultyList.length || isLoading) return;
-        const defaultFaculty = facultyList.find((f) => f.mnumber === mnumber);
+        if (!isReady || isLoading) return;
+        const defaultFaculty = faculty.find((f) => f.mnumber === mnumber);
         if (defaultFaculty && (!selected || selected.mnumber !== defaultFaculty.mnumber)) {
             setSelected(defaultFaculty);
             onSelectChange?.(defaultFaculty);
@@ -80,7 +62,6 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                     size="sm"
                     onClick={() => {
                         setSelected(null);
-                        setFilteredFaculty([]);
                         setQuery("");
                     }}
                 >
@@ -98,8 +79,6 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                     value={query}
                     onChange={(e) => {
                         setQuery(e.target.value);
-                        const results = findFacultyMatchFuzzy(e.target.value, facultyList);
-                        setFilteredFaculty(results);
                     }}
                 />
                 {mnumber && !selected && (
@@ -107,8 +86,7 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                         variant="destructive"
                         size="default"
                         onClick={() => {
-                            setSelected(facultyList.find((f) => f.mnumber === mnumber) || null);
-                            setFilteredFaculty([]);
+                            setSelected(faculty.find((f) => f.mnumber === mnumber) || null);
                             setQuery("");
                         }}
                     >
@@ -121,7 +99,6 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                 onSelect={(faculty) => {
                     setSelected(faculty);
                     onSelectChange && onSelectChange(faculty);
-                    setFilteredFaculty([]);
                     setQuery("");
                 }}
             />

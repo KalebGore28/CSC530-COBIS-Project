@@ -6,19 +6,8 @@ import { useState } from "react";
 
 type Role = typeof roles.$inferSelect;
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-const rolesQuery = graphql(`
-    query rolesQuery {
-        roles {
-            id
-            name
-        }
-    }
-`);
+import { rolesCollection } from "@/collections/roles";
+import { useLiveQuery } from "@tanstack/react-db";
 
 interface MultiRoleSelectorProps {
     /**
@@ -34,18 +23,17 @@ export function MultiRoleSelector({ userMnumber, roles, onRolesChange }: MultiRo
     const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
     const { session } = useSession();
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['roles'],
-        queryFn: async () => execute(rolesQuery),
-    });
-
-    const roleList = data?.roles || [];
+    const { data: rolesList, isLoading } = useLiveQuery((q) =>
+        q.from({ roles: rolesCollection })
+            .orderBy(({ roles }) => roles.name, 'asc'),
+        [] // Run only once
+    );
 
     if (isLoading) return <Skeleton className="h-40 w-full" />;
 
     // Initialize from props after data loads, but only if empty
-    if (selectedRoles.length === 0 && roles && roleList.length > 0) {
-        const mappedRoles = roleList.filter((r) => roles.includes(r.name));
+    if (selectedRoles.length === 0 && roles && rolesList.length > 0) {
+        const mappedRoles = rolesList.filter((r) => roles.includes(r.name));
         if (mappedRoles.length > 0) {
             setSelectedRoles(mappedRoles);
             queueMicrotask(() => onRolesChange?.(mappedRoles));
@@ -56,11 +44,11 @@ export function MultiRoleSelector({ userMnumber, roles, onRolesChange }: MultiRo
         <div className="w-full border rounded-md shadow-sm">
             <Command>
                 <CommandList>
-                    {roleList.length === 0 ? (
+                    {rolesList.length === 0 ? (
                         <CommandEmpty>No roles found</CommandEmpty>
                     ) : (
                         <CommandGroup>
-                            {roleList.map((role) => {
+                            {rolesList.map((role) => {
                                 const isSelected = selectedRoles.some((r) => r.id === role.id);
                                 const isAdminRole = role.name === "cobis_administrator";
                                 const isOwnAccount = userMnumber === session?.mnumber;

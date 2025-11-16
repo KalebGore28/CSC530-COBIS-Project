@@ -10,11 +10,18 @@ import { DepartmentSelector } from '@/components/selectors/department-selector';
 import { FacultySelector } from '@/components/selectors/faculty-selector';
 import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
 import { useSession } from '@/components/provider/session';
-import { roles } from '@/db/schema';
 import { useState } from 'react';
 import { useProvisionUser, ProvisionParams } from '@/hooks/use-provision-user';
 import { toast } from "sonner";
 import fuzzysort from 'fuzzysort';
+
+import { usersCollection } from '@/collections/users';
+import { facultyCollection } from '@/collections/faculty';
+import { departmentsCollection } from '@/collections/departments';
+import { collegesCollection } from '@/collections/colleges';
+import { userRolesCollection } from '@/collections/user-roles';
+import { rolesCollection } from '@/collections/roles';
+import { useLiveQuery, ilike, or, eq, count } from '@tanstack/react-db';
 
 // Import GraphQL imports
 import { useQuery } from '@tanstack/react-query';
@@ -96,6 +103,45 @@ function RouteComponent() {
     userId: "",
   });
 
+  const { data: _filteredUsers, isLoading } = useLiveQuery((q) =>
+    q.from({ users: usersCollection })
+      .leftJoin({ faculty: facultyCollection }, ({ users, faculty }) =>
+        eq(users.mnumber, faculty.mnumber)
+      )
+      .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
+        eq(faculty?.department_code, departments.code)
+      )
+      .leftJoin({ colleges: collegesCollection }, ({ faculty, colleges }) =>
+        eq(faculty?.college_code, colleges.code)
+      )
+      .where(({ users }) =>
+        or(
+          ilike(users.name, `%${query}%`),
+          ilike(users.mnumber, `%${query}%`),
+          ilike(users.email, `%${query}%`)
+        )
+      )
+      .select(({ users, departments, colleges }) => ({
+        id: users.id,
+        mnumber: users.mnumber,
+        name: users.name,
+        email: users.email,
+        emailVerified: users.emailVerified,
+        image: users.image,
+        createdAt: users.createdAt,
+        updatedAt: users.updatedAt,
+        isEnabled: users.isEnabled,
+        lastLogin: users.lastLogin,
+        department_description: departments?.description,
+        college_description: colleges?.description,
+      })),
+    [query] // Re-run when query changes
+  );
+
+  if (!isLoading) {
+    console.log("Filtered users count:", _filteredUsers);
+  }
+
   const { data } = useQuery({
     queryKey: ['users'],
     queryFn: async () => execute(usersQuery),
@@ -175,7 +221,7 @@ function RouteComponent() {
         description="Fill in the details to provision this user."
         size="xl"
       >
-  <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
+        <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
           <div className="flex-1 overflow-y-auto space-y-6">
 
             <span className="font-medium">Faculty:</span>
