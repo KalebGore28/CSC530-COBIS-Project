@@ -74,6 +74,12 @@ export const loadUser = createMiddleware({ type: 'request' })
         const base = combined[0]
         const rolesList = combined.map((r) => r.roleName).filter(Boolean)
 
+        // Lastly update user last login
+        await orm
+            .update(user)
+            .set({ lastLogin: new Date() })
+            .where(eq(user.id, session.user.id))
+
         return next({
             context: {
                 session: session.session,

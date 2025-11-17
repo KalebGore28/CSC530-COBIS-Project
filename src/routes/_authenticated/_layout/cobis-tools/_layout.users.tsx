@@ -103,6 +103,7 @@ function RouteComponent() {
                   </div>
                   <div className="text-sm text-gray-500">{user.email}</div>
                   <div className="text-sm text-gray-500">M#: {user.mnumber}</div>
+                  <div className="text-xs text-gray-500">Last Login: {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : 'Never'}</div>
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => {
