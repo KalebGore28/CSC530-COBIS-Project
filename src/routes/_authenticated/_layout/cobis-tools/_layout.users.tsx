@@ -1,75 +1,18 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Modal } from '@/components/ui/custom/modal';
-import { CollegeSelector } from '@/components/selectors/college-selector';
-import { DepartmentSelector } from '@/components/selectors/department-selector';
-import { FacultySelector } from '@/components/selectors/faculty-selector';
-import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
-import { useSession } from '@/components/provider/session';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useState } from 'react';
-import { useProvisionUser, ProvisionParams } from '@/hooks/use-provision-user';
-import { toast } from "sonner";
-import fuzzysort from 'fuzzysort';
 
 import { usersCollection } from '@/collections/users';
 import { facultyCollection } from '@/collections/faculty';
 import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
-import { userRolesCollection } from '@/collections/user-roles';
-import { rolesCollection } from '@/collections/roles';
-import { useLiveQuery, ilike, or, eq, count } from '@tanstack/react-db';
+import { useLiveQuery, ilike, or, eq } from '@tanstack/react-db';
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-const usersQuery = graphql(`
-  query usersQuery {
-    user {
-      id
-      mnumber
-      name
-      email
-      emailVerified
-      image
-      createdAt
-      updatedAt
-      isEnabled
-      lastLogin
-      faculty {
-        college {
-          code
-          description
-        }
-        department {
-          code
-          description
-        }
-      }
-      roles {
-        role {
-          id
-          name
-        }
-      }
-    }
-  }
-`);
-
-function fuzzySearchUsers(users: any[], searchTerm: string) {
-  if (!searchTerm) return users;
-  const options = {
-    keys: ['name', 'mnumber', 'email'],
-    threshold: -10000, // Adjust this value to control the fuzziness
-  };
-  // @ts-ignore
-  return fuzzysort.go(searchTerm, users, options).map(result => result.obj);
-}
+import { UserCard } from '@/components/user-card';
 
 const getInitials = (name: string | null | undefined): string => {
   if (!name) {
@@ -89,21 +32,11 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-  const { session } = useSession();
-  const provision = useProvisionUser();
   const [query, setQuery] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
-  const [provisionParams, setProvisionParams] = useState<ProvisionParams>({
-    roles: [],
-    isEnabled: false,
-    collegeCode: "",
-    departmentCode: "",
-    mnumber: "",
-    userId: "",
-  });
+  const [selectedUser, setSelectedUser] = useState<string | null>(null);
 
-  const { data: _filteredUsers, isLoading } = useLiveQuery((q) =>
+  const { data: filteredUsers, isLoading } = useLiveQuery((q) =>
     q.from({ users: usersCollection })
       .leftJoin({ faculty: facultyCollection }, ({ users, faculty }) =>
         eq(users.mnumber, faculty.mnumber)
@@ -126,10 +59,7 @@ function RouteComponent() {
         mnumber: users.mnumber,
         name: users.name,
         email: users.email,
-        emailVerified: users.emailVerified,
         image: users.image,
-        createdAt: users.createdAt,
-        updatedAt: users.updatedAt,
         isEnabled: users.isEnabled,
         lastLogin: users.lastLogin,
         department_description: departments?.description,
@@ -138,16 +68,7 @@ function RouteComponent() {
     [query] // Re-run when query changes
   );
 
-  if (!isLoading) {
-    console.log("Filtered users count:", _filteredUsers);
-  }
-
-  const { data } = useQuery({
-    queryKey: ['users'],
-    queryFn: async () => execute(usersQuery),
-  });
-
-  const filteredUsers = fuzzySearchUsers(data?.user ?? [], query);
+  if (isLoading) return <Skeleton className="h-10 w-full" />;
 
   return (
     <div className="space-y-4">
@@ -185,16 +106,8 @@ function RouteComponent() {
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => {
-                setSelectedUser(user);
+                setSelectedUser(user.id);
                 setModalOpen(true);
-                setProvisionParams({
-                  roles: user.roles.map((r: any) => r.role),
-                  isEnabled: user.isEnabled,
-                  collegeCode: user.faculty?.college?.code || "",
-                  departmentCode: user.faculty?.department?.code || "",
-                  mnumber: user.mnumber,
-                  userId: user.id,
-                });
               }}>
                 View Details
               </Button>
@@ -203,141 +116,15 @@ function RouteComponent() {
         ))}
       </div>
 
-      <Modal
-        isOpen={modalOpen}
-        onClose={() => {
-          setModalOpen(false);
-          setSelectedUser(null);
-          setProvisionParams({
-            roles: [],
-            isEnabled: false,
-            collegeCode: "",
-            departmentCode: "",
-            mnumber: "",
-            userId: "",
-          });
-        }}
-        title="Provision User"
-        description="Fill in the details to provision this user."
-        size="xl"
-      >
-        <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
-          <div className="flex-1 overflow-y-auto space-y-6">
 
-            <span className="font-medium">Faculty:</span>
-            <FacultySelector
-              mnumber={selectedUser?.mnumber}
-              onSelectChange={(value) => {
-                setProvisionParams((prev) => ({
-                  ...prev,
-                  mnumber: value?.mnumber || "",
-                  userId: selectedUser?.id || "",
-                }));
-              }}
-            />
+      {selectedUser && (
+        <UserCard
+          userId={selectedUser}
+          modalOpen={modalOpen}
+          setModalOpen={setModalOpen}
+        />
+      )}
 
-            <span className="font-medium">Department:</span>
-            <DepartmentSelector
-              departmentCode={selectedUser?.faculty?.department?.code}
-              onSelectChange={(value) => {
-                setProvisionParams((prev) => ({
-                  ...prev,
-                  departmentCode: value?.code || "",
-                }));
-              }}
-            />
-
-            <span className="font-medium">College:</span>
-            <CollegeSelector
-              collegeCode={selectedUser?.faculty?.college?.code}
-              onSelectChange={(value) => {
-                setProvisionParams((prev) => ({
-                  ...prev,
-                  collegeCode: value?.code || "",
-                }));
-              }}
-            />
-
-            <span className="font-medium">
-              Account Enabled:
-              {selectedUser?.mnumber === session?.mnumber && (
-                <span className="text-sm text-red-500 ml-2">
-                  (You cannot change your own account status)
-                </span>
-              )}
-            </span>
-
-            {/* Account Enabled Toggle Conditionally Enabled Based on User */}
-            <fieldset disabled={selectedUser?.mnumber === session?.mnumber}>
-              <Tabs
-                defaultValue={selectedUser?.isEnabled ? "yes" : "no"}
-                onValueChange={(value) => {
-                  setProvisionParams((prev) => ({
-                    ...prev,
-                    isEnabled: value === "yes",
-                  }));
-
-                }}
-              >
-                <TabsList className="grid grid-cols-2">
-                  <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    Yes
-                  </TabsTrigger>
-                  <TabsTrigger value="no" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                    No
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </fieldset>
-
-            <span className="font-medium">Roles:</span>
-            <MultiRoleSelector
-              userMnumber={selectedUser?.mnumber}
-              roles={selectedUser?.roles.map((r: any) => r.role.name)}
-              onRolesChange={(value) => {
-                setProvisionParams((prev) => ({
-                  ...prev,
-                  roles: value,
-                }));
-              }}
-            />
-            <div className="mt-auto flex justify-end space-x-2">
-              <Button
-                onClick={() => {
-                  const selfProvision = selectedUser?.mnumber === session?.mnumber;
-                  const finalParams = {
-                    ...provisionParams,
-                    isEnabled: selfProvision ? true : provisionParams.isEnabled,
-                  };
-
-                  provision.mutate(finalParams, {
-                    onSuccess: () => {
-                      toast.success("User provisioned successfully");
-                    },
-                    onError: (err) => {
-                      toast.error(err.message);
-                    },
-                  });
-                  setModalOpen(false);
-                  setSelectedUser(null);
-                  setProvisionParams({
-                    roles: [],
-                    isEnabled: false,
-                    collegeCode: "",
-                    departmentCode: "",
-                    mnumber: "",
-                    userId: "",
-                  });
-                }}
-                disabled={provision.isPending}
-              >
-                {provision.isPending ? "Provisioning..." : "Provision"}
-              </Button>
-
-            </div>
-          </div>
-        </div>
-      </Modal>
     </div>
   )
 }

@@ -11,7 +11,7 @@ import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
 interface FacultySelectorProps {
     /** Optional M number to preselect a faculty member */
-    mnumber?: string;
+    mnumber: string | null;
     /** Called whenever the selected faculty changes */
     onSelectChange?: (selected: Faculty | null) => void;
 }
