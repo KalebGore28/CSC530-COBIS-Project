@@ -1,48 +1,55 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AdvisedStudents } from '@/components/advised-students'
 import { useSession } from '@/components/provider/session'
+import { useState } from 'react'
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { currentTermCollection } from '@/collections/current-term';
+import { termsCollection } from '@/collections/terms';
+import { eq, useLiveQuery } from '@tanstack/react-db';
+
+import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card';
+import { StudentDetailModal } from '@/components/advised-students/student-detail';
 
 export const Route = createFileRoute('/_authenticated/_layout/advisor-page')({
   component: RouteComponent,
 })
 
-const getCurrentYearTermQuery = graphql(`
-	query getCurrentYearTermQuery {
-		getCurrentYearTerm {
-			year
-			term
-			term_code
-		}
-	}
-`);
-
 function RouteComponent() {
   const { session } = useSession()
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['getCurrentYearTermQuery'],
-    queryFn: async () => await execute(getCurrentYearTermQuery),
-  });
+  const { data: currentTerm, isLoading } = useLiveQuery((q) =>
+    q.from({ currentTerm: currentTermCollection })
+      .leftJoin({ term: termsCollection }, ({ currentTerm, term }) =>
+        eq(currentTerm.term_code, term.code)
+      )
+      .select(({ currentTerm, term }) => ({
+        year: currentTerm.year,
+        term_code: currentTerm.term_code,
+        description: term?.description,
+      }))
+      .findOne(),
+  )
 
-  if (!session || !session.mnumber || isLoading) return null;
-
-  if (!data?.getCurrentYearTerm) {
-    return <div>No current term information available.</div>
-  }
+  if (!session || !session.mnumber || isLoading || !currentTerm) return null;
 
   return <div>
     <div className="mx-auto p-6 w-full">
-      <AdvisedStudents
-        mnumber={session.mnumber}
-        term_info={data?.getCurrentYearTerm!}
-        title='My Advised Students'
-        modalOpen={true}
+      <AdvisedStudentsCard
+        advisorMnumber={session.mnumber}
+        term_info={currentTerm}
+        setModalOpen={setIsModalOpen}
+        setSelectedStudent={setSelectedStudent}
       />
+
+      {selectedStudent && (
+        <StudentDetailModal
+          modalOpen={isModalOpen}
+          setModalOpen={setIsModalOpen}
+          studentMnumber={selectedStudent}
+        />
+      )}
     </div>
   </div>
 }

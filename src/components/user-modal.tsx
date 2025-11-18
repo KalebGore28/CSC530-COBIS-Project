@@ -26,7 +26,7 @@ type UserCardProps = {
     setModalOpen: (open: boolean) => void;
 };
 
-export function UserCard({ userId, modalOpen, setModalOpen }: UserCardProps) {
+export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
     const provision = useProvisionUser();
     const { session } = useSession();
     const [provisionParams, setProvisionParams] = useState<ProvisionParams>({
@@ -75,8 +75,6 @@ export function UserCard({ userId, modalOpen, setModalOpen }: UserCardProps) {
             })),
         [userId]
     );
-
-
 
     if (isLoading || !user) return null;
 

@@ -1,6 +1,6 @@
 // src/routes/api/user/me.ts
 import { createFileRoute } from '@tanstack/react-router'
-import { loadUser } from '@/middleware/load-user';
+import { loadUser } from '@/middleware/load-user'
 import { auth } from '@/lib/server/auth'
 
 export const Route = createFileRoute('/api/user/me')({
@@ -35,21 +35,21 @@ export const Route = createFileRoute('/api/user/me')({
 })
 
 export type UserInfoResponse = {
-  user: {
-    id: string
-    name: string | null
-    email: string
-    image?: string | null
-    createdAt?: string | Date
-    updatedAt?: string | Date
-  }
-  mnumber: string | null
-  isEnabled: boolean
-  roles: string[]
-  faculty: {
-    firstName: string
-    lastName: string
-    department: string
-    college: string
-  }
+    user: {
+        id: string
+        name: string | null
+        email: string
+        image?: string | null
+        createdAt?: string | Date
+        updatedAt?: string | Date
+    }
+    mnumber: string | null
+    isEnabled: boolean
+    roles: string[]
+    faculty: {
+        firstName: string
+        lastName: string
+        department: string
+        college: string
+    }
 }

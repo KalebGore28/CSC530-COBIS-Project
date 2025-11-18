@@ -12,7 +12,7 @@ import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { useLiveQuery, ilike, or, eq } from '@tanstack/react-db';
 
-import { UserCard } from '@/components/user-card';
+import { UserModal} from '@/components/user-modal';
 
 const getInitials = (name: string | null | undefined): string => {
   if (!name) {
@@ -119,7 +119,7 @@ function RouteComponent() {
 
 
       {selectedUser && (
-        <UserCard
+        <UserModal
           userId={selectedUser}
           modalOpen={modalOpen}
           setModalOpen={setModalOpen}

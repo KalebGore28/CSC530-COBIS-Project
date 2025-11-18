@@ -4,17 +4,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label';
 
+import { termsCollection } from '@/collections/terms';
 import { programsCollection } from '@/collections/programs';
 import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { useLiveQuery, eq } from '@tanstack/react-db';
-
-const termCodeMap: Record<string, string> = {
-    '10': 'Spring',
-    '50': 'Summer',
-    '80': 'Fall',
-    '90': 'Winter',
-}
 
 type ProgramCardProps = {
     programCode: string
@@ -69,6 +63,8 @@ export function ProgramCard({
             .findOne(),
         [programCode]
     )
+
+    const { data: terms } = useLiveQuery((q) => q.from({ terms: termsCollection }))
 
     return (
         <Card className="max-w-4xl mx-auto border-2 rounded-2xl shadow-lg overflow-hidden">
@@ -130,7 +126,8 @@ export function ProgramCard({
                                                             <SelectItem key={year} value={year.toString()}>
                                                                 {year}
                                                             </SelectItem>
-                                                        ))}
+                                                        ))
+                                                    }
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -141,9 +138,9 @@ export function ProgramCard({
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {Object.entries(termCodeMap).map(([code, name]) => (
-                                                        <SelectItem key={code} value={code}>
-                                                            {name}
+                                                    {terms.map((term) => (
+                                                        <SelectItem key={term.code} value={term.code}>
+                                                            {term.description}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>
@@ -169,7 +166,8 @@ export function ProgramCard({
                                                             <SelectItem key={year} value={year.toString()}>
                                                                 {year}
                                                             </SelectItem>
-                                                        ))}
+                                                        ))
+                                                    }
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -180,9 +178,9 @@ export function ProgramCard({
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {Object.entries(termCodeMap).map(([code, name]) => (
-                                                        <SelectItem key={code} value={code}>
-                                                            {name}
+                                                    {terms.map((term) => (
+                                                        <SelectItem key={term.code} value={term.code}>
+                                                            {term.description}
                                                         </SelectItem>
                                                     ))}
                                                 </SelectContent>

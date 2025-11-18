@@ -6,7 +6,7 @@ import { user, faculty, userRoles } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { getDbConnection } from '@/db'
 
-export const Route = createFileRoute('/api/user/provision')({
+export const Route = createFileRoute('/api/__protected/user/provision')({
     server: {
         middleware: [loadUser, isEnabled, requireCobisAdmin],
         handlers: {
