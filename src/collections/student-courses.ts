@@ -29,8 +29,9 @@ export const studentCoursesCollection = createCollection(
             const response = await fetch(`/api/data/student-courses?${params}`)
             return await response.json() as StudentCourse[]
         },
-        getKey: (studentCourse) => `${studentCourse.mnumber}-${studentCourse.term_code}-${studentCourse.year}-${studentCourse.course_subject}-${studentCourse.course_number}-${studentCourse.course_suffix}-${studentCourse.course_section}`,
+        getKey: (studentCourse) => `${studentCourse.mnumber}-${studentCourse.term_code}-${studentCourse.year}-${studentCourse.course_id}-${studentCourse.course_section}`,
         queryClient: getQueryClient(),
-        // syncMode: 'on-demand' // Bug. Will NEED to be used in production eventually. GitHub issue: https://github.com/TanStack/db/issues/821
+        syncMode: 'on-demand',
+        staleTime: 1000 * 60 * 5, // 5 minutes
     })
 )

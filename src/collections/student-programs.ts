@@ -31,6 +31,7 @@ export const studentProgramsCollection = createCollection(
         },
         getKey: (studentProgram) => `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_code}`,
         queryClient: getQueryClient(),
-        // syncMode: 'on-demand' // Bug. Will NEED to be used in production eventually. GitHub issue: https://github.com/TanStack/db/issues/821
+        syncMode: 'on-demand',
+        staleTime: 1000 * 60 * 5, // 5 minutes
     })
 )

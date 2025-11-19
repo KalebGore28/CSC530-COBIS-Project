@@ -31,6 +31,7 @@ export const studentAdvisorsCollection = createCollection(
         },
         getKey: (studentAdvisor) => `${studentAdvisor.advisor_mnumber}-${studentAdvisor.student_mnumber}-${studentAdvisor.term_code}-${studentAdvisor.year}`,
         queryClient: getQueryClient(),
-        // syncMode: 'on-demand' // Bug. Will NEED to be used in production eventually.
+        syncMode: 'on-demand',
+        staleTime: 1000 * 60 * 5, // 5 minutes
     })
 )
