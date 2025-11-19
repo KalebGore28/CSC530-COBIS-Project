@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { CourseGradeChart } from '@/components/charts/course-grade-distributions';
-import { AdvisedStudents } from '@/components/advised-students';
+// import { AdvisedStudents } from '@/components/advised-students';
 import { ArrowLeft, BookOpen, Users, Calculator } from 'lucide-react';
 
 // Import GraphQL imports
@@ -189,12 +189,12 @@ function RouteComponent() {
 
       <CourseGradeChart mnumber={mnumber} term={termCode} year={year} />
 
-      <AdvisedStudents
+      {/* <AdvisedStudents
         mnumber={mnumber}
         term_info={{ term_code: termCode!, year: year!, term: termMappings[termCode!] }}
         title='My Advised Students'
         modalOpen={false}
-      />
+      /> */}
     </div>
   )
 }
