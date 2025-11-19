@@ -1,5 +1,18 @@
-import { Modal } from '@/components/ui/custom/modal';
-import { StudentDetail } from '../ui/custom/student-detail';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { GPATrendChart } from '@/components/charts/gpa-trend-chart';
+import { ProgramTable } from "./program-table";
+import { AdvisorTable } from "./advisor-table";
+
+import { termsCollection } from "@/collections/terms";
+import { programsCollection } from "@/collections/programs";
+import { studentsCollection } from "@/collections/students";
+import { usersCollection } from "@/collections/users";
+import { studentAcademicInfoCollection } from "@/collections/student-academic-info";
+import { studentAdvisorsCollection } from "@/collections/student-advisors";
+import { academicStandingCollection } from "@/collections/academic-standing";
+import { studentProgramsCollection } from "@/collections/student-programs";
+import { eq, useLiveQuery } from "@tanstack/react-db";
 
 type StudentDetailProps = {
     studentMnumber: string;
@@ -9,19 +22,188 @@ type StudentDetailProps = {
 
 export function StudentDetailModal({ studentMnumber, modalOpen, setModalOpen }: StudentDetailProps) {
 
+    const { data: studentDetails } = useLiveQuery((q) =>
+        q.from({ student: studentsCollection })
+            .where(({ student }) => eq(student.mnumber, studentMnumber))
+            .findOne()
+    );
+
+    const { data: academicInfo } = useLiveQuery((q) =>
+        q.from({ academicInfo: studentAcademicInfoCollection })
+            .leftJoin({ term: termsCollection }, ({ academicInfo, term }) =>
+                eq(academicInfo.term_code, term.code)
+            )
+            .leftJoin({ standing: academicStandingCollection }, ({ academicInfo, standing }) =>
+                eq(academicInfo.academic_standing_code, standing.code)
+            )
+            .where(({ academicInfo }) => eq(academicInfo.mnumber, studentMnumber))
+            .orderBy(({ academicInfo }) => academicInfo.year, 'desc')
+            .orderBy(({ academicInfo }) => academicInfo.term_code, 'desc')
+            .select(({ academicInfo, term, standing }) => ({
+                msu_gpa: academicInfo.msu_gpa,
+                overall_gpa: academicInfo.overall_gpa,
+                msu_attempted_hours: academicInfo.msu_attempted_hours,
+                msu_earned_hours: academicInfo.msu_earned_hours,
+                overall_attempted_hours: academicInfo.overall_attempted_hours,
+                overall_earned_hours: academicInfo.overall_earned_hours,
+                academic_standing_description: standing?.description,
+                admit_year: academicInfo.admit_year,
+                year: academicInfo.year,
+                term_description: term?.description,
+            }))
+            .limit(10)
+    );
+
+    const { data: studentPrograms } = useLiveQuery((q) =>
+        q.from({ studentProgram: studentProgramsCollection })
+            .leftJoin({ term: termsCollection }, ({ studentProgram, term }) =>
+                eq(studentProgram.term_code, term.code)
+            )
+            .leftJoin({ program: programsCollection }, ({ studentProgram, program }) =>
+                eq(studentProgram.program_code, program.code)
+            )
+            .where(({ studentProgram }) => eq(studentProgram.mnumber, studentMnumber))
+            .select(({ studentProgram, program, term }) => ({
+                program_code: studentProgram.program_code,
+                program_description: program?.description,
+                program_level: studentProgram.level,
+                program_type: studentProgram.type,
+                term_description: term?.description,
+                year: studentProgram.year,
+            }))
+            .orderBy(({ studentProgram }) => studentProgram.year, 'desc')
+            .orderBy(({ studentProgram }) => studentProgram.term_code, 'desc')
+            .limit(4)
+    );
+
+    const { data: studentAdvisors } = useLiveQuery((q) =>
+        q.from({ studentAdvisor: studentAdvisorsCollection })
+            .leftJoin({ term: termsCollection }, ({ studentAdvisor, term }) =>
+                eq(studentAdvisor.term_code, term.code)
+            )
+            .leftJoin({ user: usersCollection }, ({ studentAdvisor, user }) =>
+                eq(studentAdvisor.advisor_mnumber, user.mnumber)
+            )
+            .where(({ studentAdvisor }) => eq(studentAdvisor.student_mnumber, studentMnumber))
+            .select(({ studentAdvisor, term, user }) => ({
+                advisor_mnumber: studentAdvisor.advisor_mnumber,
+                advisor_name: user?.name,
+                advisor_email: user?.email,
+                term_description: term?.description,
+                year: studentAdvisor.year,
+            }))
+            .orderBy(({ studentAdvisor }) => studentAdvisor.year, 'desc')
+            .orderBy(({ studentAdvisor }) => studentAdvisor.term_code, 'desc')
+            .limit(4)
+    );
+
     return (
-        <Modal
-            isOpen={modalOpen}
-            onClose={() => {
-                setModalOpen(false);
-            }}
-            title="Student Detail"
-            description="View the details of this student."
-            size="xl"
-        >
-            <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
-                <StudentDetail mnumber={studentMnumber} />
-            </div>
-        </Modal>
+        <Dialog open={modalOpen} onOpenChange={(open) => {
+            if (!open) setModalOpen(false);
+        }}>
+            <DialogContent className="max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>Student Detail</DialogTitle>
+                    <DialogDescription>
+                        Detailed academic information for {studentDetails?.first_name} {studentDetails?.last_name} ({studentMnumber})
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
+
+                    {/* Student Detail Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Academic Information</CardTitle>
+                            <CardDescription>
+                                GPA, hours, standing, and admission details.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
+                            <div>
+                                <strong>MSU GPA:</strong> {academicInfo?.[0]?.msu_gpa || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Overall GPA:</strong> {academicInfo?.[0]?.overall_gpa || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>MSU Attempted Hours:</strong>{' '}
+                                {academicInfo?.[0]?.msu_attempted_hours || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>MSU Earned Hours:</strong>{' '}
+                                {academicInfo?.[0]?.msu_earned_hours || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Overall Attempted Hours:</strong>{' '}
+                                {academicInfo?.[0]?.overall_attempted_hours || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Overall Earned Hours:</strong>{' '}
+                                {academicInfo?.[0]?.overall_earned_hours || 'N/A'}
+                            </div>
+                            <div>
+                                <strong>Academic Standing:</strong>{' '}
+                                {academicInfo?.[0]?.academic_standing_description || ''}
+                            </div>
+                            <div>
+                                <strong>Admit Year:</strong>{' '}
+                                {academicInfo?.[0]?.admit_year || 'N/A'}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* GPA Trend Card */}
+                    <GPATrendChart gpaTrend={academicInfo.map((info) => {
+                        return {
+                            year_term: `${info.term_description} ${info.year}`,
+                            msu_gpa: info.msu_gpa || 0,
+                            overall_gpa: info.overall_gpa || 0,
+                        };
+                    }).sort((a, b) => a.year_term.localeCompare(b.year_term))} />
+
+                    {/* Programs Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Student Majors & Minors</CardTitle>
+                            <CardDescription>
+                                List of student's majors and minors.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex justify-center overflow-x-auto max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
+                            <ProgramTable data={studentPrograms.map((program) => ({
+                                id: program.program_code,
+                                description: program.program_description || 'Unknown',
+                                level: program.program_level || 'Unknown',
+                                type: program.program_type || 'Unknown',
+                                year_term: `${program.term_description} ${program.year}`,
+                            }))} />
+                            {/* <div className="overflow-x-auto max-w-[70vw] flex justify-center">
+
+                            </div> */}
+                        </CardContent>
+                    </Card>
+
+                    {/* Advisors Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Student Advisors</CardTitle>
+                            <CardDescription>
+                                List of student's advisors.
+                            </CardDescription>
+                            <CardContent className="flex justify-center overflow-x-auto max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
+                                <AdvisorTable data={studentAdvisors.map((advisor) => ({
+                                    id: `advisor-${advisor.advisor_mnumber}-${advisor.year}-${advisor.term_description}`,
+                                    mnumber: advisor.advisor_mnumber || 'Unknown',
+                                    name: advisor.advisor_name || 'Unknown',
+                                    email: advisor.advisor_email || 'Unknown',
+                                    year_term: `${advisor.term_description} ${advisor.year}`,
+                                }))} />
+                            </CardContent>
+                        </CardHeader>
+                    </Card>
+
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

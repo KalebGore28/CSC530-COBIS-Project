@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { AdvisedStudents } from '@/components/advised-students'
 import { useSession } from '@/components/provider/session'
 import { useState } from 'react'
 

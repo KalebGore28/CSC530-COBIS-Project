@@ -31,6 +31,6 @@ export const studentAdvisorsCollection = createCollection(
         },
         getKey: (studentAdvisor) => `${studentAdvisor.advisor_mnumber}-${studentAdvisor.student_mnumber}-${studentAdvisor.term_code}-${studentAdvisor.year}`,
         queryClient: getQueryClient(),
-        // syncMode: 'on-demand' // Bug. Will NEED to be used in production eventually. GitHub issue: https://github.com/TanStack/query/issues/821
+        // syncMode: 'on-demand' // Bug. Will NEED to be used in production eventually.
     })
 )
