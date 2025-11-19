@@ -68,7 +68,7 @@ export function AdvisedStudentsCard({ advisorMnumber, term_info, setModalOpen, s
                             {advisedStudents && advisedStudents.length > 0 ? (
                                 advisedStudents.map((s) => (
                                     <TableRow
-                                        key={s.mnumber}
+                                        key={`advised-student-${s.mnumber}-${s.term}-${s.year}`}
                                         className="cursor-pointer hover:bg-muted/50 transition"
                                         onClick={() => {
                                             setSelectedStudent(s.mnumber!);
