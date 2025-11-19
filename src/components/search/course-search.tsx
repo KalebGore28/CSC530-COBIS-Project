@@ -5,39 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { courses } from "@/db/schema";
-import fuzzysort from "fuzzysort";
+
+import { coursesCollection } from "@/collections/courses";
+import { useLiveQuery, ilike, or, coalesce, concat } from '@tanstack/react-db'
 
 type Course = typeof courses.$inferSelect;
-
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-
-export const GetCoursesQuery = graphql(`
-  query getCoursesQuery {
-    courses {
-        subject
-        number
-        suffix
-        title
-        hours
-        last_updated
-        department_code
-        college_code
-    }
-  }
-`);
-
-export function findCourseMatchFuzzy(input: string, courses: Course[]): Course[] {
-    const results = fuzzysort.go(input, courses, {
-        keys: ["title", (c) => `${c.subject}${c.number}${c.suffix ?? ""}`],
-        threshold: -1000,
-        limit: 10,
-    });
-    return results.map(result => result.obj);
-}
 
 export type ExtendedCourseSearch = Course & {
     taken?: boolean;
@@ -58,29 +30,26 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
     }
     type Operator = "=" | ">=" | "<=";
     const [query, setQuery] = useState("");
-    const [filteredCourses, setFilteredCourses] = useState<Course[]>([]);
     const [selected, setSelected] = useState<Course | null>(null);
     const [taken, setTaken] = useState(false);
     const [operator, setOperator] = useState<Operator>("=");
     const [grade, setGrade] = useState("A");
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getCourses'],
-        queryFn: () => execute(GetCoursesQuery),
-    });
+    const { data: filteredCourses, isLoading } = useLiveQuery((q) =>
+        q.from({ courses: coursesCollection })
+            .where(({ courses }) =>
+                or(
+                    ilike(concat(courses.subject, coalesce(courses.number, ''), courses.suffix), `%${query}%`),
+                    ilike(courses.title, `%${query}%`)
+                )
+            )
+            .orderBy(({ courses }) => courses.subject, 'asc')
+            .orderBy(({ courses }) => courses.number, 'asc')
+            .limit(query !== "" ? 10 : 0),
+        [query] // Re-run when query changes
+    );
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
-
-    const courses: Course[] = (data?.courses ?? []).map((course) => ({
-        subject: course.subject,
-        number: course.number,
-        suffix: course.suffix,
-        title: course.title,
-        hours: course.hours,
-        last_updated: course.last_updated ? new Date(course.last_updated) : new Date(),
-        department_code: course.department_code ?? null,
-        college_code: course.college_code ?? null,
-    }));
 
     if (selected) {
         return (
@@ -99,7 +68,6 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         size="sm"
                         onClick={() => {
                             setSelected(null);
-                            setFilteredCourses([]);
                             setQuery("");
                             setTaken(false);
                             setOperator("=");
@@ -202,8 +170,6 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                 value={query}
                 onChange={(e) => {
                     setQuery(e.target.value);
-                    const results = findCourseMatchFuzzy(e.target.value, courses);
-                    setFilteredCourses(results);
                 }}
             />
             <CourseResults
@@ -216,7 +182,6 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                         operator: operatorKey[operator],
                         grade
                     });
-                    setFilteredCourses([]);
                     setQuery("");
                 }}
             />

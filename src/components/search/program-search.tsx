@@ -6,41 +6,12 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { programs } from "@/db/schema";
-import fuzzysort from "fuzzysort";
+
+import { programsCollection } from "@/collections/programs";
+import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
 type Program = typeof programs.$inferSelect;
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-export const GetProgramsQuery = graphql(`
-    query getProgramsQuery {
-        programs {
-            code
-            description
-            cip_code
-            is_major
-            is_minor
-            has_concentration
-            is_discontinued
-            is_aacsb
-            department_code
-            college_code
-            last_updated
-        }
-    }
-`)
-
-export function findProgramMatchFuzzy(input: string, programs: Program[]): Program[] {
-    const results = fuzzysort.go(input, programs, {
-        keys: ["description", (p) => p.code],
-        threshold: -1000,
-        limit: 10,
-    });
-    return results.map(result => result.obj);
-}
 
 export type ExtendedProgramSearch = Program & {
     selectedAs?: "major" | "minor" | null;
@@ -54,31 +25,24 @@ interface ProgramSearchBoxProps {
 
 export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
     const [query, setQuery] = useState("");
-    const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
     const [selected, setSelected] = useState<Program | null>(null);
     const [isMajor, setIsMajor] = useState(true);
     const [isMinor, setIsMinor] = useState(false);
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getPrograms'],
-        queryFn: () => execute(GetProgramsQuery),
-    });
+    const { data: filteredPrograms, isLoading } = useLiveQuery((q) =>
+        q.from({ programs: programsCollection })
+            .where(({ programs }) =>
+                or(
+                    ilike(programs.code, `%${query}%`),
+                    ilike(programs.description, `%${query}%`)
+                )
+            )
+            .orderBy(({ programs }) => programs.code, 'asc')
+            .limit(query !== "" ? 10 : 0),
+        [query] // Re-run when query changes
+    );
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
-
-    const programs: Program[] = (data?.programs ?? []).map(prog => ({
-        code: prog.code,
-        description: prog.description,
-        cip_code: prog.cip_code ?? null,
-        is_major: prog.is_major,
-        is_minor: prog.is_minor,
-        has_concentration: prog.has_concentration,
-        is_discontinued: prog.is_discontinued,
-        is_aacsb: prog.is_aacsb,
-        department_code: prog.department_code ?? null,
-        college_code: prog.college_code ?? null,
-        last_updated: prog.last_updated ? new Date(prog.last_updated) : new Date(),
-    }));
 
     if (selected) {
         return (
@@ -178,7 +142,6 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
         );
     }
 
-
     return (
         <div className="space-y-2">
             <Input
@@ -186,8 +149,6 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                 value={query}
                 onChange={(e) => {
                     setQuery(e.target.value);
-                    const results = findProgramMatchFuzzy(e.target.value, programs);
-                    setFilteredPrograms(results);
                 }}
             />
             <ProgramResults
@@ -198,7 +159,6 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                         ...prog,
                         selectedAs: isMajor ? "major" : isMinor ? "minor" : null,
                     });
-                    setFilteredPrograms([]);
                     setQuery("");
                 }}
             />
