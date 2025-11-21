@@ -32,7 +32,7 @@ export const Route = createFileRoute(
                         advisorCheck: true,
                     })
                     results = results.filter((student) =>
-                        studentAccess.mnumbers.includes(student.mnumber)
+                        studentAccess.mnumbers.has(student.mnumber)
                     )
                 }
 

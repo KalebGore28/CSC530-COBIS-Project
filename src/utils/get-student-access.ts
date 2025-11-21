@@ -12,10 +12,10 @@ export async function getStudentAccess(
         instructorCheck: boolean;
         advisorCheck: boolean;
     }
-): Promise<{ mnumbers: string[] }> {
+): Promise<{ mnumbers: Set<string>  }> {
     const { orm } = await getDbConnection();
 
-    const allStudentMnumbersMap: Record<string, true> = {};
+    const allStudentMnumbers = new Set<string>();
 
     // Get Student MNumbers for courses taught by the instructor with userMnumber
     if (checks.instructorCheck === true) {
@@ -29,9 +29,7 @@ export async function getStudentAccess(
                 eq(instructorCourses.mnumber, userMnumber)
             );
 
-        studentMnumbers.forEach((s) => {
-            allStudentMnumbersMap[s.student_mnumber] = true;
-        });
+        studentMnumbers.forEach(s => allStudentMnumbers.add(s.student_mnumber));
     }
 
     // Get Student MNumbers for students advised by the advisor with userMnumber
@@ -45,12 +43,8 @@ export async function getStudentAccess(
                 eq(studentAdvisors.advisor_mnumber, userMnumber)
             );
 
-        advisedStudents.forEach((s) => {
-            allStudentMnumbersMap[s.student_mnumber] = true;
-        });
+        advisedStudents.forEach(s => allStudentMnumbers.add(s.student_mnumber));
     }
-
-    const allStudentMnumbers = Object.keys(allStudentMnumbersMap);
 
     return {
         mnumbers: allStudentMnumbers,

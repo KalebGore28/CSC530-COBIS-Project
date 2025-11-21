@@ -30,9 +30,7 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                         instructorCheck: true,
                         advisorCheck: true,
                     })
-                    results = results.filter((student) =>
-                        studentAccess.mnumbers.includes(student.mnumber)
-                    )
+                    results = results.filter(student => studentAccess.mnumbers.has(student.mnumber));
                 }
 
                 const json = JSON.stringify(results)
