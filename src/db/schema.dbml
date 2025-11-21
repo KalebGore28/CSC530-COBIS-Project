@@ -191,12 +191,14 @@ table student_courses {
   course_level varchar(50)
   registration_status_code varchar(10)
   instructional_method_code varchar(10)
+  instructor_mnumber varchar(10) [not null]
   last_attendance varchar(50)
   midterm_grade varchar(50)
   final_grade varchar(50)
 
   indexes {
     (mnumber, term_code, year, course_id, course_section) [pk]
+    
     
     
     

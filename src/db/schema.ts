@@ -224,6 +224,7 @@ export const studentCourses = mysqlTable("student_courses", {
 	course_level: varchar("course_level", { length: 50 }),
 	registration_status_code: varchar("registration_status_code", { length: 10 }),
 	instructional_method_code: varchar("instructional_method_code", { length: 10 }),
+	instructor_mnumber: varchar("instructor_mnumber", { length: 10 }).notNull().references(() => faculty.mnumber),
 	last_attendance: varchar("last_attendance", { length: 50 }),
 	midterm_grade: varchar("midterm_grade", { length: 50 }),
 	final_grade: varchar("final_grade", { length: 50 }),
@@ -233,6 +234,7 @@ export const studentCourses = mysqlTable("student_courses", {
 	foreignKey({ columns: [table.part_of_term_code], foreignColumns: [partOfTerm.code], name: "fk_student_courses_part_of_term" }),
 	foreignKey({ columns: [table.registration_status_code], foreignColumns: [registrationStatus.code], name: "fk_student_courses_registration_status" }),
 	foreignKey({ columns: [table.instructional_method_code], foreignColumns: [instructionalMethods.code], name: "fk_student_courses_instructional_method" }),
+	foreignKey({ columns: [table.instructor_mnumber], foreignColumns: [faculty.mnumber], name: "fk_student_courses_instructor" }),
 ]);
 
 export const studentPrograms = mysqlTable("student_programs", {

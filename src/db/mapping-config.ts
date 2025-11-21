@@ -262,6 +262,7 @@ export const csvConfig = createCSVConfig({
                 registration_status_code: { csvColumnName: "RSTSCODE" },
                 instructional_method_code: { csvColumnName: "INSMCODE" },
                 part_of_term_code: { csvColumnName: "PARTOFTERM" },
+                instructor_mnumber: { csvColumnName: "INSTMNUMBER" },
                 last_attendance: { csvColumnName: "LASTATTEND", transform: (val) => isCSVColumnNull(val) ? null : val },
                 midterm_grade: { csvColumnName: "MIDGRADE", transform: (val) => isCSVColumnNull(val) ? null : val },
                 final_grade: { csvColumnName: "FINGRADE", transform: (val) => isCSVColumnNull(val) ? null : val },

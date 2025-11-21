@@ -22,6 +22,13 @@
       "when": 1763235774001,
       "tag": "0002_strong_miss_america",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1763664597457,
+      "tag": "0003_lovely_marvel_zombies",
+      "breakpoints": true
     }
   ]
 }

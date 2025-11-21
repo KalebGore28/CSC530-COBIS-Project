@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { userRoles } from '@/db/schema'
+import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/user-roles')({
     server: {
@@ -21,10 +22,14 @@ export const Route = createFileRoute('/api/__protected/data/user-roles')({
 
                 const userRolesResults = await orm.select().from(userRoles)
 
-                return new Response(JSON.stringify(userRolesResults), {
+                const json = JSON.stringify(userRolesResults)
+                const compressed = gzipSync(Buffer.from(json))
+
+                return new Response(compressed, {
                     status: 200,
                     headers: {
                         'Content-Type': 'application/json',
+                        'Content-Encoding': 'gzip',
                     },
                 })
             }

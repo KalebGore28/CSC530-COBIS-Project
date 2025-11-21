@@ -8,7 +8,7 @@ WORKDIR /app
 COPY bun.lock package*.json ./
 
 # Install all dependencies including devDependencies
-RUN bun install
+RUN bun install --frozen-lockfile
 
 # Copy the rest of the source code
 COPY . .
@@ -29,7 +29,7 @@ COPY --from=builder /app/bun.lock ./
 COPY --from=builder /app/server.ts ./
 
 # Install only production dependencies
-RUN bun install --production
+RUN bun install --production  --frozen-lockfile
 
 # Expose application port
 EXPOSE 8080

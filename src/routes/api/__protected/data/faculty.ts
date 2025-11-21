@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { faculty } from '@/db/schema'
+import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/faculty')({
     server: {
@@ -16,15 +17,19 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                         },
                     })
                 }
-                
+
                 const { orm } = await getDbConnection()
 
                 const facultyResults = await orm.select().from(faculty)
 
-                return new Response(JSON.stringify(facultyResults), {
+                const json = JSON.stringify(facultyResults)
+                const compressed = gzipSync(Buffer.from(json))
+
+                return new Response(compressed, {
                     status: 200,
                     headers: {
                         'Content-Type': 'application/json',
+                        'Content-Encoding': 'gzip',
                     },
                 })
             }

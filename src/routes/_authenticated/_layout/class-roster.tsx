@@ -2,13 +2,12 @@ import { useState } from "react";
 import { createFileRoute } from '@tanstack/react-router'
 import { useSession } from "@/components/provider/session";
 
-import { type ExtendedTerm, TermSelector } from "@/components/selectors/term-selector";
-import { type ExtendedCourse, CourseSelector } from "@/components/selectors/course-selector";
-
 import { RosterInfoCard } from "@/components/roster/roster-info-card";
 import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
 import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
 import { RosterStudents } from "@/components/roster/roster-students";
+
+import { TermCourseSelector, SelectedCourse } from "@/components/selectors/term-course-selector";
 
 export const Route = createFileRoute('/_authenticated/_layout/class-roster')({
   component: ClassRosterPage,
@@ -17,8 +16,7 @@ export const Route = createFileRoute('/_authenticated/_layout/class-roster')({
 function ClassRosterPage() {
   const { session } = useSession();
 
-  const [selectedTerm, setSelectedTerm] = useState<ExtendedTerm | null>(null);
-  const [selectedCourse, setSelectedCourse] = useState<ExtendedCourse | null>(null);
+  const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
 
   if (!session || !session.mnumber) return null;
 
@@ -27,28 +25,18 @@ function ClassRosterPage() {
       <h1 className="text-2xl font-bold">Class Roster</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
-        {/* Term Selector */}
-        <TermSelector
-          className={"col-span-2 md:col-span-1"}
-          showStats={true}
+        <TermCourseSelector
+          className={"col-span-2"}
           mnumber={session.mnumber}
-          onTermSelect={setSelectedTerm}
+          showStats={true}
+          selectedCourseChanged={setSelectedCourse}
         />
-        {/* Course Selector */}
-        {selectedTerm && (
-          <CourseSelector
-            className={"col-span-2 md:col-span-1"}
-            showStats={true}
-            mnumber={session.mnumber}
-            selectedTerm={selectedTerm}
-            onCourseSelect={setSelectedCourse}
-          />
-        )}
 
         {/* Roster and Info Cards */}
-        {selectedTerm && selectedCourse && (
+        {selectedCourse && (
           <>
-            <RosterInfoCard
+            Roster
+            {/* <RosterInfoCard
               className={"col-span-2"}
               course={selectedCourse}
               term={selectedTerm}
@@ -70,7 +58,7 @@ function ClassRosterPage() {
               mnumber={session.mnumber}
               course={selectedCourse}
               term={selectedTerm}
-            />
+            /> */}
           </>
         )}
       </div>

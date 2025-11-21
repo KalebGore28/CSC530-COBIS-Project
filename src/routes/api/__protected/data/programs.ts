@@ -2,39 +2,44 @@ import { createFileRoute } from '@tanstack/react-router'
 import { getDbConnection } from '@/db'
 import { programs } from '@/db/schema'
 import { eq } from 'drizzle-orm'
+import { gzipSync } from 'node:zlib'
 
 type Program = typeof programs.$inferSelect
 
 export const Route = createFileRoute('/api/__protected/data/programs')({
-  server: {
-    handlers: {
-      GET: async () => {
-        const { orm } = await getDbConnection()
+    server: {
+        handlers: {
+            GET: async () => {
+                const { orm } = await getDbConnection()
 
-        const programResults = await orm.select().from(programs)
+                const programResults = await orm.select().from(programs)
 
-        return new Response(JSON.stringify(programResults), {
-          status: 200,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        })
-      },
-      PUT: async ({ request }) => {
-        const { orm } = await getDbConnection()
+                const json = JSON.stringify(programResults)
+                const compressed = gzipSync(Buffer.from(json))
 
-        const updatedProgram: Program = await request.json()
+                return new Response(compressed, {
+                    status: 200,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Encoding': 'gzip',
+                    },
+                })
+            },
+            PUT: async ({ request }) => {
+                const { orm } = await getDbConnection()
 
-        const { code, ...updateData } = updatedProgram
+                const updatedProgram: Program = await request.json()
 
-        await orm
-          .update(programs)
-          .set(updateData)
-          .where(eq(programs.code, code))
-          .execute()
+                const { code, ...updateData } = updatedProgram
 
-        return new Response(null, { status: 204 })
-      }
+                await orm
+                    .update(programs)
+                    .set(updateData)
+                    .where(eq(programs.code, code))
+                    .execute()
+
+                return new Response(null, { status: 204 })
+            }
+        }
     }
-  }
 })

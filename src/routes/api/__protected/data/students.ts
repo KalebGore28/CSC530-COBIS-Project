@@ -3,6 +3,7 @@ import { getDbConnection } from '@/db'
 import { students } from '@/db/schema'
 import { urlParamsParser } from '@/utils/url-params-parser'
 import { getStudentAccess } from '@/utils/get-student-access'
+import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/students')({
     server: {
@@ -34,11 +35,15 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                     )
                 }
 
-                return new Response(JSON.stringify(results), {
+                const json = JSON.stringify(results)
+                const compressed = gzipSync(Buffer.from(json))
+
+                return new Response(compressed, {
                     status: 200,
                     headers: {
                         'Content-Type': 'application/json',
-                    }
+                        'Content-Encoding': 'gzip',
+                    },
                 })
             }
         }
