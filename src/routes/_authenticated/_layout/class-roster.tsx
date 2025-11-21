@@ -35,13 +35,11 @@ function ClassRosterPage() {
         {/* Roster and Info Cards */}
         {selectedCourse && (
           <>
-            Roster
-            {/* <RosterInfoCard
+            <RosterInfoCard
               className={"col-span-2"}
               course={selectedCourse}
-              term={selectedTerm}
             />
-            <RosterGradeDistributions
+            {/* <RosterGradeDistributions
               className={"col-span-1"}
               mnumber={session.mnumber}
               course={selectedCourse}

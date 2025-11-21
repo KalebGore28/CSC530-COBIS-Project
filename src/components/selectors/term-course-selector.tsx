@@ -21,6 +21,7 @@ type SelectedTerm = {
 export type SelectedCourse = {
     course_id: string;
     course_section: string;
+    course_hours: number;
     course_title?: string;
     year: number;
     term_code: string;
@@ -201,6 +202,7 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
                 course_id: studentCourse.course_id,
                 course_section: studentCourse.course_section,
                 course_title: course?.title,
+                course_hours: studentCourse.course_hours,
                 year: studentCourse.year,
                 term_code: studentCourse.term_code,
                 term_description: term?.description,
@@ -211,6 +213,7 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
                 studentCourse.course_id,
                 studentCourse.course_section,
                 course?.title,
+                studentCourse.course_hours,
                 studentCourse.year,
                 studentCourse.term_code,
                 term?.description,
@@ -227,6 +230,7 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
                 course_id: firstCourse.course_id,
                 course_section: firstCourse.course_section,
                 course_title: firstCourse.course_title,
+                course_hours: firstCourse.course_hours,
                 year: firstCourse.year,
                 term_code: firstCourse.term_code,
                 term_description: firstCourse.term_description,
@@ -269,6 +273,7 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
                             course_id: course_id,
                             course_section: course_section,
                             course_title: selectedCourseObj?.course_title,
+                            course_hours: selectedCourseObj ? selectedCourseObj.course_hours : 0,
                             year: selectedCourseObj ? selectedCourseObj.year : 0,
                             term_code: selectedCourseObj ? selectedCourseObj.term_code : "",
                             term_description: selectedCourseObj?.term_description,
