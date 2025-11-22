@@ -2,15 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { useEffect } from "react";
 
-import { termsCollection } from "@/collections/terms";
-import { coursesCollection } from "@/collections/courses";
-import { studentCoursesCollection } from "@/collections/student-courses";
-import { useLiveQuery, eq, count, sum } from '@tanstack/react-db';
-import { useState, useEffect } from "react";
+import type { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
 
-
-type SelectedTerm = {
+export type SelectedTerm = {
     year: number;
     term_code: string;
     term_description?: string;
@@ -31,14 +27,26 @@ export type SelectedCourse = {
 }
 
 type TermCourseSelectorProps = {
-    mnumber: string;
+    studentCourses: StudentCourse[];
+    isLoading?: boolean;
     showStats?: boolean;
     className?: string;
-    selectedCourseChanged?: (course: SelectedCourse) => SelectedCourse | void;
+    selectedTerm?: SelectedTerm;
+    selectedCourse?: SelectedCourse;
+    setSelectedTerm: (term: SelectedTerm) => void;
+    setSelectedCourse: (course: SelectedCourse) => void;
 }
-export function TermCourseSelector({ mnumber, showStats, className, selectedCourseChanged }: TermCourseSelectorProps) {
-    const [selectedTerm, setSelectedTerm] = useState<SelectedTerm | null>(null);
-    const [selectedCourse, setSelectedCourse] = useState<SelectedCourse | null>(null);
+
+export function TermCourseSelector({
+    studentCourses,
+    isLoading,
+    showStats,
+    className,
+    selectedTerm,
+    selectedCourse,
+    setSelectedTerm,
+    setSelectedCourse
+}: TermCourseSelectorProps) {
 
     return (
         <Card className={className}>
@@ -49,7 +57,8 @@ export function TermCourseSelector({ mnumber, showStats, className, selectedCour
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Term Selector Component */}
                 <TermSelector
-                    mnumber={mnumber}
+                    studentCourses={studentCourses}
+                    isLoading={isLoading}
                     showStats={showStats}
                     setSelectedTerm={setSelectedTerm}
                     selectedTerm={selectedTerm || undefined}
@@ -57,14 +66,12 @@ export function TermCourseSelector({ mnumber, showStats, className, selectedCour
                 {/* Course Selector Component */}
                 {selectedTerm && (
                     <CourseSelector
-                        mnumber={mnumber}
+                        studentCourses={studentCourses}
+                        isLoading={isLoading}
                         showStats={showStats}
                         selectedTerm={selectedTerm}
-                        selectedCourse={selectedCourse || undefined}
-                        onCourseSelect={(value) => {
-                            setSelectedCourse(value);
-                            selectedCourseChanged && selectedCourseChanged(value);
-                        }}
+                        selectedCourse={selectedCourse}
+                        setSelectedCourse={setSelectedCourse}
                     />
                 )}
             </CardContent>
@@ -73,46 +80,23 @@ export function TermCourseSelector({ mnumber, showStats, className, selectedCour
 }
 
 type TermSelectorProps = {
-    mnumber: string;
+    studentCourses: StudentCourse[];
+    isLoading?: boolean;
     showStats?: boolean;
     selectedTerm?: SelectedTerm;
     setSelectedTerm?: (term: SelectedTerm) => void;
 }
 
-function TermSelector({ mnumber, showStats, selectedTerm, setSelectedTerm }: TermSelectorProps) {
-    const { data: instructorTerms, isLoading, isReady } = useLiveQuery((q) =>
-        q.from({ studentCourse: studentCoursesCollection })
-            .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_code, term.code)
-            )
-            .where(({ studentCourse }) => eq(studentCourse.instructor_mnumber, mnumber))
-            .select(({ studentCourse, term }) => ({
-                year: studentCourse.year,
-                term_code: studentCourse.term_code,
-                term_description: term?.description,
-                student_count: count(studentCourse.mnumber),
-                credit_hours_delivered: sum(studentCourse.course_hours),
-            }))
-            .groupBy(({ studentCourse, term }) => [studentCourse.year, studentCourse.term_code, term?.description])
-            .distinct()
-    )
+function TermSelector({
+    studentCourses,
+    isLoading,
+    showStats,
+    selectedTerm,
+    setSelectedTerm
+}: TermSelectorProps) {
 
-    // Runs once to set default selection to first term if none selected
-    useEffect(() => {
-        if (!isReady || isLoading) return;
-        if (!selectedTerm && instructorTerms && instructorTerms.length > 0) {
-            const firstTerm = instructorTerms[0];
-            setSelectedTerm && setSelectedTerm({
-                year: firstTerm.year,
-                term_code: firstTerm.term_code,
-                term_description: firstTerm.term_description,
-                studentCount: firstTerm.student_count || 0,
-                creditHoursDelivered: firstTerm.credit_hours_delivered || 0,
-            });
-        }
-    }, [instructorTerms, isLoading]);
-
-    if (isLoading || !instructorTerms || instructorTerms.length === 0) {
+    // Loading state
+    if (isLoading) {
         return (
             <Card>
                 <CardContent>
@@ -128,33 +112,52 @@ function TermSelector({ mnumber, showStats, selectedTerm, setSelectedTerm }: Ter
         )
     }
 
+    // Extract unique terms from studentCourses
+    const terms = new Map<string, SelectedTerm>();
+
+    for (const c of studentCourses) {
+        const key = `${c.year}-${c.term_code}`;
+
+        let term = terms.get(key);
+        if (!term) {
+            term = {
+                year: c.year,
+                term_code: c.term_code,
+                term_description: c.term_description,
+                studentCount: 0,
+                creditHoursDelivered: 0,
+            };
+
+            terms.set(key, term);
+        }
+
+        // Update aggregates
+        term.studentCount += 1;
+        term.creditHoursDelivered += c.course_hours;
+    }
+
+    // Run once to select the first term if none is selected
+    useEffect(() => {
+        if (!selectedTerm && terms.size > 0) {
+            const firstTerm = terms.values().next().value;
+            setSelectedTerm && setSelectedTerm(firstTerm!);
+        }
+    }, [terms]);
     return (
         <Card>
             <CardContent>
                 <Select
                     value={selectedTerm ? `${selectedTerm.year}-${selectedTerm.term_code}` : "Select Term"}
                     onValueChange={(value) => {
-                        const [year, term_code] = value.split("-");
-
-                        // Get the selected term object
-                        const selectedTermObj = instructorTerms?.find((term =>
-                            term.year === Number(year) && term.term_code === term_code
-                        ));
-
-                        setSelectedTerm && setSelectedTerm({
-                            year: Number(year),
-                            term_code: term_code,
-                            term_description: selectedTermObj?.term_description,
-                            studentCount: selectedTermObj ? selectedTermObj.student_count : 0,
-                            creditHoursDelivered: selectedTermObj ? selectedTermObj.credit_hours_delivered : 0,
-                        });
+                        const term = terms.get(value);
+                        setSelectedTerm && term && setSelectedTerm(term);
                     }}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Term" />
                     </SelectTrigger>
                     <SelectContent>
-                        {instructorTerms?.map((term, index) => (
+                        {Array.from(terms.values()).map((term, index) => (
                             <SelectItem key={index} value={`${term.year}-${term.term_code}`}>
                                 {term.term_description} {term.year}
                             </SelectItem>
@@ -169,78 +172,34 @@ function TermSelector({ mnumber, showStats, selectedTerm, setSelectedTerm }: Ter
                         {selectedTerm.studentCount === 1 ? "Student" : "Students"}
                     </Badge>
                     <Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
-                        {selectedTerm.creditHoursDelivered} Credit Hours
+                        {selectedTerm.creditHoursDelivered} Total Credit Hours
                     </Badge>
                 </CardFooter>
             )}
         </Card>
     )
-
 }
 
 type CourseSelectorProps = {
-    mnumber: string;
+    studentCourses: StudentCourse[];
+    isLoading?: boolean;
     showStats?: boolean;
     selectedTerm: SelectedTerm;
-    selectedCourse?: SelectedCourse; // Replace 'any' with actual course type
-    onCourseSelect?: (course: SelectedCourse) => void; // Replace 'any' with actual course type
+    selectedCourse?: SelectedCourse;
+    setSelectedCourse?: (course: SelectedCourse) => void;
 }
 
-function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCourseSelect }: CourseSelectorProps) {
-    const { data: instructorCourses, isLoading, isReady } = useLiveQuery((q) =>
-        q.from({ studentCourse: studentCoursesCollection })
-            .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_code, term.code)
-            )
-            .leftJoin({ course: coursesCollection }, ({ studentCourse, course }) =>
-                eq(studentCourse.course_id, course.code)
-            )
-            .where(({ studentCourse }) => eq(studentCourse.instructor_mnumber, mnumber))
-            .where(({ studentCourse }) => eq(studentCourse.year, selectedTerm.year))
-            .where(({ studentCourse }) => eq(studentCourse.term_code, selectedTerm.term_code))
-            .select(({ studentCourse, term, course }) => ({
-                course_id: studentCourse.course_id,
-                course_section: studentCourse.course_section,
-                course_title: course?.title,
-                course_hours: studentCourse.course_hours,
-                year: studentCourse.year,
-                term_code: studentCourse.term_code,
-                term_description: term?.description,
-                student_count: count(studentCourse.mnumber),
-                credit_hours_delivered: sum(studentCourse.course_hours),
-            }))
-            .groupBy(({ studentCourse, term, course }) => [
-                studentCourse.course_id,
-                studentCourse.course_section,
-                course?.title,
-                studentCourse.course_hours,
-                studentCourse.year,
-                studentCourse.term_code,
-                term?.description,
-            ])
-            .distinct()
-    )
+function CourseSelector({
+    studentCourses,
+    isLoading,
+    showStats,
+    selectedTerm,
+    selectedCourse,
+    setSelectedCourse
+}: CourseSelectorProps) {
 
-    // Runs once to set default selection to first course if none selected
-    useEffect(() => {
-        if (!isReady || isLoading) return;
-        if (!selectedCourse && instructorCourses && instructorCourses.length > 0) {
-            const firstCourse = instructorCourses[0];
-            onCourseSelect && onCourseSelect({
-                course_id: firstCourse.course_id,
-                course_section: firstCourse.course_section,
-                course_title: firstCourse.course_title,
-                course_hours: firstCourse.course_hours,
-                year: firstCourse.year,
-                term_code: firstCourse.term_code,
-                term_description: firstCourse.term_description,
-                student_count: firstCourse.student_count || 0,
-                credit_hours_delivered: firstCourse.credit_hours_delivered || 0,
-            });
-        }
-    }, [instructorCourses, isLoading]);
-
-    if (isLoading || !instructorCourses || instructorCourses.length === 0) {
+    // Loading state
+    if (isLoading) {
         return (
             <Card>
                 <CardContent>
@@ -256,37 +215,64 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
         )
     }
 
+    // Filter studentCourses for the selected term
+    const filteredCourses = studentCourses.filter(c =>
+        c.year === selectedTerm.year && c.term_code === selectedTerm.term_code
+    );
+
+    // Extract courses for the selected term
+    const termCourses = new Map<string, SelectedCourse>();
+
+    for (const c of filteredCourses) {
+        const key = `${c.course_id}-${c.course_section}`;
+
+        const course = termCourses.get(key);
+        if (!course) {
+            termCourses.set(key, {
+                course_id: c.course_id,
+                course_section: c.course_section,
+                course_title: c.course_title,
+                course_hours: c.course_hours,
+                year: c.year,
+                term_code: c.term_code,
+                term_description: c.term_description,
+                student_count: 0,
+                credit_hours_delivered: 0,
+            });
+        }
+
+        // Update aggregates
+        const updatedCourse = termCourses.get(key);
+        if (updatedCourse) {
+            updatedCourse.student_count += 1;
+            updatedCourse.credit_hours_delivered += c.course_hours;
+            termCourses.set(key, updatedCourse);
+        }
+    }
+
+    // Run once to select the first course if none is selected
+    useEffect(() => {
+        if (!selectedCourse && termCourses.size > 0) {
+            const firstTerm = termCourses.values().next().value;
+            setSelectedCourse && setSelectedCourse(firstTerm!);
+        }
+    }, [termCourses]);
+
     return (
         <Card>
             <CardContent>
                 <Select
                     value={selectedCourse ? `${selectedCourse.course_id}-${selectedCourse.course_section}` : "Select Course"}
                     onValueChange={(value) => {
-                        const [course_id, course_section] = value.split("-");
-
-                        // Get the selected course object
-                        const selectedCourseObj = instructorCourses?.find((course =>
-                            course.course_id === course_id && course.course_section === course_section
-                        ));
-
-                        onCourseSelect && onCourseSelect({
-                            course_id: course_id,
-                            course_section: course_section,
-                            course_title: selectedCourseObj?.course_title,
-                            course_hours: selectedCourseObj ? selectedCourseObj.course_hours : 0,
-                            year: selectedCourseObj ? selectedCourseObj.year : 0,
-                            term_code: selectedCourseObj ? selectedCourseObj.term_code : "",
-                            term_description: selectedCourseObj?.term_description,
-                            student_count: selectedCourseObj ? selectedCourseObj.student_count : 0,
-                            credit_hours_delivered: selectedCourseObj ? selectedCourseObj.credit_hours_delivered : 0,
-                        });
+                        const course = termCourses.get(value);
+                        setSelectedCourse && course && setSelectedCourse(course);
                     }}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Course" />
                     </SelectTrigger>
                     <SelectContent>
-                        {instructorCourses?.map((course, index) => (
+                        {Array.from(termCourses.values()).map((course, index) => (
                             <SelectItem key={index} value={`${course.course_id}-${course.course_section}`}>
                                 {course.course_title} ({course.course_id}-{course.course_section})
                             </SelectItem>
@@ -301,7 +287,7 @@ function CourseSelector({ mnumber, showStats, selectedTerm, selectedCourse, onCo
                         {selectedCourse.student_count === 1 ? "Student" : "Students"}
                     </Badge>
                     <Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
-                        {selectedCourse.credit_hours_delivered} Credit Hours
+                        {selectedCourse.credit_hours_delivered} Total Credit Hours
                     </Badge>
                 </CardFooter>
             )}

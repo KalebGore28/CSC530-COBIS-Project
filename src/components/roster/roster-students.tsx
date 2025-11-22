@@ -1,90 +1,21 @@
 import { useState } from "react";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Download, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
-import { exportToCSV } from "@/utils/csv-export";
-import { programs, students } from "@/db/schema";
-import type { ExtendedCourse } from "@/components/selectors/course-selector";
-import type { ExtendedTerm } from "@/components/selectors/course-selector";
+import { toast } from 'sonner';
+import Papa from 'papaparse';
 
-type Program = typeof programs.$inferSelect;
-type Student = typeof students.$inferSelect;
+import { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { programsCollection } from "@/collections/programs";
+import { studentProgramsCollection } from "@/collections/student-programs";
+import { useLiveQuery, inArray, eq } from '@tanstack/react-db';
 
-
-const rosterStudentsQuery = graphql(`
-	query rosterStudentsQuery(
-	$mnumber: String!
-	$subject: String!
-	$number: Int!
-	$suffix: String!
-	$section: String!
-	) {
-		instructorCoursesSingle(
-			where: {
-			mnumber: { eq: $mnumber }
-			course_subject: { eq: $subject }
-			course_number: { eq: $number }
-			course_suffix: { eq: $suffix }
-			course_section: { eq: $section }
-			}
-		) {
-			term_code
-			year
-			course_subject
-			course_number
-			course_suffix
-			course_section
-			students {
-				student {
-					mnumber
-					first_name
-					middle_name
-					last_name
-					suffix
-					email
-					programs {
-						program {
-							description
-							code
-						}
-					}
-				}
-				midterm_grade
-				final_grade
-			}
-		}
-	}
-`);
 
 const getGradeColorClass = (grade: string) => {
 	if (grade === "N/A" || !grade) return "bg-gray-100 text-gray-800 border-gray-300";
@@ -95,83 +26,58 @@ const getGradeColorClass = (grade: string) => {
 	return "bg-red-100 text-red-800 border-red-300";
 };
 
-interface RosterProgram
-	extends Omit<
-		Program,
-		| "cip_code"
-		| "is_major"
-		| "is_minor"
-		| "has_concentration"
-		| "is_discontinued"
-		| "is_aacsb"
-		| "department_code"
-		| "college_code"
-		| "last_updated"
-	> { }
-
-export interface RosterStudent
-	extends Omit<
-		Student,
-		| "gender"
-		| "birthdate"
-		| "citizenship"
-		| "race_code"
-		| "race"
-		| "residency"
-		| "cell_phone"
-	> {
-	programs: RosterProgram[];
-	midterm_grade?: string;
-	final_grade?: string;
-}
-
 export interface RosterStudentsProps {
-	mnumber: string;
-	course: ExtendedCourse;
-	term: ExtendedTerm;
+	studentCourses: StudentCourse[];
 	className?: string;
 }
 
-export function RosterStudents({ mnumber, course, term, className }: RosterStudentsProps) {
+export function RosterStudents({ studentCourses, className }: RosterStudentsProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [gradeFilter, setGradeFilter] = useState("all");
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const [sortField, setSortField] = useState<"name" | "midterm" | "final">("name");
 
-	const exportFilename = `${course.course_subject}${course.course_number}${course.course_suffix}-${course.course_section}_${term.description}_${term.year}`;
+	const studentMnumbers = studentCourses.map((sc) => sc.mnumber);
 
-	const { data, isLoading } = useQuery({
-		queryKey: ['rosterStudentsQuery', course.course_subject, course.course_number, course.course_suffix, course.course_section],
-		queryFn: async () => await execute(rosterStudentsQuery, {
-			mnumber: mnumber,
-			subject: course.course_subject,
-			number: course.course_number,
-			suffix: course.course_suffix,
-			section: course.course_section,
-		}),
-	});
+	const { data: studentPrograms, isLoading } = useLiveQuery((q) =>
+		q.from({ studentProgram: studentProgramsCollection })
+			.where(({ studentProgram }) => inArray(studentProgram.mnumber, studentMnumbers))
+			.leftJoin({ program: programsCollection }, ({ studentProgram, program }) =>
+				eq(studentProgram.program_code, program.code)
+			)
+			.select(({ studentProgram, program }) => ({
+				mnumber: studentProgram.mnumber,
+				description: program?.description,
+			}))
+	);
 
-	if (isLoading) <Skeleton className="h-10 w-full" />;
+	if (isLoading) {
+		return (
+			<div className={className}>
+				<p>Loading student programs...</p>
+			</div>
+		);
+	}
 
-	if (!data || !data.instructorCoursesSingle) return <div>No data available.</div>;
+	const studentProgramsMap = new Map<string, { mnumber: string; description: string }[]>();
+	if (!isLoading && studentPrograms) {
+		studentPrograms?.forEach((sp) => {
+			if (!studentProgramsMap.has(sp.mnumber)) {
+				studentProgramsMap.set(sp.mnumber, []);
+			}
+			studentProgramsMap.get(sp.mnumber)?.push({
+				mnumber: sp.mnumber,
+				description: sp.description || "Unknown",
+			});
+		});
+	}
 
-	// Map the data to RosterStudent format
-	const students: RosterStudent[] = data.instructorCoursesSingle.students.map((sc) => ({
-		mnumber: sc.student.mnumber,
-		first_name: sc.student.first_name,
-		middle_name: sc.student.middle_name || null,
-		last_name: sc.student.last_name,
-		suffix: sc.student.suffix || null,
-		email: sc.student.email || null,
-		programs: sc.student.programs
-			?.filter((p): p is NonNullable<typeof sc.student.programs[number]> => p != null)
-			.map((p) => p.program) ?? [],
-		midterm_grade: sc.midterm_grade ?? "N/A",
-		final_grade: sc.final_grade ?? "N/A"
-	}));
+	const courseDetail = studentCourses[0];
+
+	const exportFilename = `${courseDetail.course_id}-${courseDetail.course_section}_${courseDetail.term_description}_${courseDetail.year}`;
 
 	// Filter and sort students
-	const filteredStudents = students
+	const filteredStudents = studentCourses
 		.filter((student) => {
 			const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
 			const matchesSearch = fullName.includes(searchQuery.toLowerCase()) ||
@@ -211,13 +117,44 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 		}
 	};
 
+	const exportToCSV = () => {
+		if (filteredStudents.length === 0) {
+			toast.error("No students to export.");
+			return;
+		}
+
+		// Prepare data for CSV
+		const csvData = filteredStudents.map((student) => ({
+			"M-Number": student.mnumber,
+			"First Name": student.first_name || "",
+			"Last Name": student.last_name || "",
+			"Email": student.email || "",
+			"Programs": (studentProgramsMap.get(student.mnumber) || []).map(p => p.description).join(", "),
+			"Midterm Grade": student.midterm_grade || "N/A",
+			"Final Grade": student.final_grade || "N/A",
+		}));
+
+		const csv = Papa.unparse(csvData);
+
+		// Trigger download
+		const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement("a");
+
+		link.setAttribute('href', url);
+		link.setAttribute("download", `${exportFilename}_roster.csv`);
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+
 	return (
 		<Card className={className}>
 			<CardHeader className="flex flex-wrap items-center justify-between gap-4">
 				<div>
 					<CardTitle>Student Roster</CardTitle>
 					<CardDescription>
-						{filteredStudents.length} of {students.length} students
+						{filteredStudents.length} of {studentCourses.length} students
 					</CardDescription>
 				</div>
 				<div className="flex flex-wrap gap-4">
@@ -248,41 +185,7 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 					</Select>
 					<Button
 						variant="outline"
-						onClick={() => {
-							if (filteredStudents.length) {
-								exportToCSV<RosterStudent>(filteredStudents, {
-									filename: exportFilename,
-									fields: [
-										'mnumber',
-										'first_name',
-										'last_name',
-										'middle_name',
-										'suffix',
-										'email',
-										'programs',
-										'midterm_grade',
-										'final_grade',
-									],
-									headers: [
-										'mnumber',
-										'first_name',
-										'last_name',
-										'middle_name',
-										'suffix',
-										'email',
-										'programs',
-										'midterm_grade',
-										'final_grade',
-									], // these must match the fields. most likely didn't initially make it for the headers to be different.
-									fieldTransformers: {
-										programs: (value: Program[]) =>
-											Array.isArray(value)
-												? value.map((p) => `${p.code}: ${p.description}`).join(', ')
-												: String(value),
-									},
-								});
-							}
-						}}
+						onClick={exportToCSV}
 					>
 						<Download className="mr-2 h-4 w-4" />
 						Export as CSV
@@ -345,7 +248,6 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 										<TableRow key={student.mnumber}>
 											<TableCell className="font-medium">
 												{student.last_name}, {student.first_name}
-												{student.suffix && ` ${student.suffix}`}
 											</TableCell>
 											<TableCell>{student.mnumber}</TableCell>
 											<TableCell>
@@ -357,9 +259,7 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 												</a>
 											</TableCell>
 											<TableCell>
-												{student.programs
-													.map((program) => program.description)
-													.join(", ") || "Undeclared"}
+												{(studentProgramsMap.get(student.mnumber) || []).map(p => p.description).join(", ") || "Undeclared"}
 											</TableCell>
 											<TableCell>
 												<Badge
@@ -393,7 +293,6 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 											<UserRound className="h-6 w-6 text-muted-foreground" />
 											<CardTitle className="text-lg">
 												{student.last_name}, {student.first_name}
-												{student.suffix && ` ${student.suffix}`}
 											</CardTitle>
 										</div>
 										<CardDescription>{student.mnumber}</CardDescription>
@@ -411,9 +310,7 @@ export function RosterStudents({ mnumber, course, term, className }: RosterStude
 											</div>
 											<div>
 												<span className="font-medium">Major/Minor(s): </span>
-												{student.programs
-													.map((program) => program.description)
-													.join(", ") || "Undeclared"}
+												{(studentProgramsMap.get(student.mnumber) || []).map(p => p.description).join(", ") || "Undeclared"}
 											</div>
 											<div className="flex gap-2">
 												<Badge

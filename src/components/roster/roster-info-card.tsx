@@ -6,19 +6,25 @@ import { currentTermCollection } from "@/collections/current-term";
 import { useLiveQuery } from '@tanstack/react-db';
 
 // Import types
-import type { SelectedCourse } from "../selectors/term-course-selector";
+import type { StudentCourse } from "../selectors/term-course-selector";
 
 export type RosterInfoCardProps = {
-	course: SelectedCourse;
+	studentCourses: StudentCourse[];
 	className?: string;
 }
 
-export function RosterInfoCard({ course, className }: RosterInfoCardProps) {
-
+export function RosterInfoCard({ studentCourses, className }: RosterInfoCardProps) {
 	const { data: currentTerm, isLoading } = useLiveQuery((q) =>
 		q.from({ collection: currentTermCollection })
 			.findOne()
 	);
+
+	const course = studentCourses[0];
+	const totalStudents = studentCourses.length;
+	const totalCreditHours = studentCourses.reduce((sum, sc) => sum + sc.course_hours, 0);
+
+	// We need to get all unique credit hours from studentCourses to account for variable credit courses
+	const uniqueCreditHours = Array.from(new Set(studentCourses.map(sc => sc.course_hours))).sort((a, b) => a - b);
 
 	if (isLoading) {
 		return (
@@ -57,7 +63,8 @@ export function RosterInfoCard({ course, className }: RosterInfoCardProps) {
 						</h2>
 						<p className="text-xl text-foreground">{course.course_title}</p>
 						<p className="text-sm text-muted-foreground">
-							{course.term_description} {course.year} • {course.course_hours} Credit Hours (Total Hours: {course.credit_hours_delivered})
+							{course.term_description} {course.year} • {uniqueCreditHours.length > 1 ? "Variable Credit Hours" : "Credit Hours"}: ({uniqueCreditHours.join(", ")}) •
+							Total Hours: {totalCreditHours}
 						</p>
 					</div>
 					<div className="flex flex-col justify-between items-end h-full gap-4">
@@ -71,7 +78,7 @@ export function RosterInfoCard({ course, className }: RosterInfoCardProps) {
 						</Badge>
 						<div className="text-right">
 							<p className="text-2xl font-bold text-foreground">
-								{course.student_count} <span className="text-lg font-normal text-muted-foreground">students</span>
+								{totalStudents} <span className="text-lg font-normal text-muted-foreground">students</span>
 							</p>
 						</div>
 					</div>

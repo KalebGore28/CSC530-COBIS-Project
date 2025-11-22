@@ -17,7 +17,7 @@
     "db:seed": "tsx src/db/seed/seed.ts"
   },
   "dependencies": {
-    "@apollo/server": "^5.1.0",
+    "@apollo/server": "^5.2.0",
     "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-checkbox": "^1.3.3",
     "@radix-ui/react-collapsible": "^1.1.12",
@@ -34,16 +34,16 @@
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/vite": "^4.1.17",
     "@tanstack/query-broadcast-client-experimental": "^5.90.10",
-    "@tanstack/query-db-collection": "^1.0.2",
-    "@tanstack/react-db": "^0.1.47",
+    "@tanstack/query-db-collection": "^1.0.4",
+    "@tanstack/react-db": "^0.1.49",
     "@tanstack/react-query": "^5.90.10",
-    "@tanstack/react-query-devtools": "^5.90.2",
-    "@tanstack/react-router": "^1.139.0",
-    "@tanstack/react-router-ssr-query": "^1.139.0",
-    "@tanstack/react-start": "^1.139.0",
+    "@tanstack/react-query-devtools": "^5.91.0",
+    "@tanstack/react-router": "^1.139.1",
+    "@tanstack/react-router-ssr-query": "^1.139.1",
+    "@tanstack/react-start": "^1.139.2",
     "@tanstack/react-table": "^8.21.3",
-    "@tanstack/router-plugin": "^1.139.0",
-    "better-auth": "^1.3.34",
+    "@tanstack/router-plugin": "^1.139.1",
+    "better-auth": "^1.4.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -69,7 +69,7 @@
     "vite-tsconfig-paths": "^5.1.4"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "^0.3.2",
+    "@tanstack/eslint-config": "^0.3.3",
     "@tanstack/eslint-plugin-query": "^5.91.2",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/react": "^16.3.0",
@@ -87,6 +87,6 @@
     "tsx": "^4.20.6",
     "typescript": "^5.9.3",
     "vite": "^7.2.4",
-    "vitest": "^4.0.12"
+    "vitest": "^4.0.13"
   }
 }

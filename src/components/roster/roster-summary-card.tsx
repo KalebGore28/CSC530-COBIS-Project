@@ -1,34 +1,42 @@
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import type { StudentCourse } from '@/routes/_authenticated/_layout/class-roster';
 
 type RosterSummaryCardProps = {
-	totalStudents: number;
-	classGPA: number;
-	midtermAverage: number;
-	finalAverage: number;
+	studentCourses: StudentCourse[];
 	className?: string;
 };
 
-export function RosterSummaryCard({ totalStudents, classGPA, midtermAverage, finalAverage, className }: RosterSummaryCardProps) {
-	// Calculate Average Trend
-	const getClassStatistics = () => {
-		const averageTrend = finalAverage - midtermAverage;
-		const trendDescription =
-			averageTrend > 0
-				? `Up by ${averageTrend.toFixed(2)} grade points`
-				: averageTrend < 0
-					? `Down by ${Math.abs(averageTrend).toFixed(2)} grade points`
-					: 'Stable';
+const gradeValues = new Map<string, number>([
+	['A', 4.0],
+	['B', 3.0],
+	['C', 2.0],
+	['D', 1.0],
+	['E', 0.0],
+]);
 
-		return { trendDescription };
-	};
+export function RosterSummaryCard({ studentCourses, className }: RosterSummaryCardProps) {
 
-	const stats = getClassStatistics();
+	const totalStudents = studentCourses.length;
+
+	// Calculate Class GPA
+	const classGPA =
+		studentCourses.reduce((acc, sc) => acc + (sc.student_gpa || 0), 0) /
+		(totalStudents || 1);
+
+	// Calculate Midterm and Final Averages
+	const midtermAverage =
+		studentCourses.reduce((acc, sc) => {
+			const grade = sc.midterm_grade ? gradeValues.get(sc.midterm_grade) || 0 : 0;
+			return acc + grade;
+		}, 0) / (totalStudents || 1);
+
+	const finalAverage =
+		studentCourses.reduce((acc, sc) => {
+			const grade = sc.final_grade ? gradeValues.get(sc.final_grade) || 0 : 0;
+			return acc + grade;
+		}, 0) / (totalStudents || 1);
+
+	const averageTrend = finalAverage - midtermAverage;
 
 	return (
 		<Card className={className}>
@@ -79,7 +87,12 @@ export function RosterSummaryCard({ totalStudents, classGPA, midtermAverage, fin
 													: 'inherit',
 									}}
 								>
-									{stats.trendDescription}
+									{averageTrend > 0
+										? `Up by ${averageTrend.toFixed(2)} grade points`
+										: averageTrend < 0
+											? `Down by ${Math.abs(averageTrend).toFixed(2)} grade points`
+											: 'Stable'
+									}
 								</dd>
 							</div>
 						</dl>

@@ -2,109 +2,45 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
-import { Skeleton } from "@/components/ui/skeleton";
 
-import type { ExtendedCourse } from "@/components/selectors/course-selector";
+import type { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-// Custom skeleton for RosterGradeDistributions
-const RosterGradeDistributionsSkeleton: React.FC<{ className?: string }> = ({ className }) => (
-	<Card className={className}>
-		<CardContent>
-			<div className="flex flex-col md:flex-row justify-between gap-6">
-				<div>
-					<Skeleton className="h-8 w-[200px] mb-2" />
-					<Skeleton className="h-7 w-[150px] mb-2" />
-					<Skeleton className="h-5 w-[120px]" />
-				</div>
-				<div className="flex flex-col justify-between items-end h-full gap-4">
-					<Skeleton className="h-6 w-16 rounded-full" />
-					<div className="text-right">
-						<Skeleton className="h-8 w-32" />
-					</div>
-				</div>
-			</div>
-			<div className="mt-4">
-				<Skeleton className="h-48 w-full" />
-			</div>
-		</CardContent>
-	</Card>
-);
-
-const rosterGradeDistributionsQuery = graphql(`
-	query rosterGradeDistributionsQuery(
-	$mnumber: String!
-	$subject: String!
-	$number: Int!
-	$suffix: String!
-	$section: String!
-	) {
-		instructorCoursesSingle(
-			where: {
-			mnumber: { eq: $mnumber }
-			course_subject: { eq: $subject }
-			course_number: { eq: $number }
-			course_suffix: { eq: $suffix }
-			course_section: { eq: $section }
-			}
-		) {
-			course_subject
-			course_number
-			course_suffix
-			course_section
-			term_code
-			year
-			midterm_grade_distribution {
-			grade
-			count
-			}
-			final_grade_distribution {
-			grade
-			count
-			}
-		}
-	}
-`);
+type AllowedGrade = "A" | "B" | "C" | "D" | "E" | "N/A";
+type GradeEntry = {
+	grade: AllowedGrade;
+	count: number;
+}
 
 type RosterGradeDistributionsProps = {
-	mnumber: string;
-	course: ExtendedCourse;
+	studentCourses: StudentCourse[];
 	className?: string;
 }
 
-export function RosterGradeDistributions({ mnumber, course, className }: RosterGradeDistributionsProps) {
+export function RosterGradeDistributions({ studentCourses, className }: RosterGradeDistributionsProps) {
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
+	
 
-	const { data, isLoading } = useQuery({
-		queryKey: ['rosterGradeDistributionsQuery', course.course_subject, course.course_number, course.course_suffix, course.course_section],
-		queryFn: async () => await execute(rosterGradeDistributionsQuery, {
-			mnumber: mnumber,
-			subject: course.course_subject,
-			number: course.course_number,
-			suffix: course.course_suffix,
-			section: course.course_section,
-		}),
+	const midtermGrades: GradeEntry[] = [];
+	const finalGrades: GradeEntry[] = [];
+
+	studentCourses.forEach((sc) => {
+		const midtermGrade = sc.midterm_grade ? sc.midterm_grade : "N/A";
+		const finalGrade = sc.final_grade ? sc.final_grade : "N/A";
+
+		const midtermEntry = midtermGrades.find((entry) => entry.grade === midtermGrade);
+		if (midtermEntry) {
+			midtermEntry.count += 1;
+		} else {
+			midtermGrades.push({ grade: midtermGrade as AllowedGrade, count: 1 });
+		}
+
+		const finalEntry = finalGrades.find((entry) => entry.grade === finalGrade);
+		if (finalEntry) {
+			finalEntry.count += 1;
+		} else {
+			finalGrades.push({ grade: finalGrade as AllowedGrade, count: 1 });
+		}
 	});
-
-	if (isLoading) return <RosterGradeDistributionsSkeleton />;
-
-	const _allowedGrades = ["A", "B", "C", "D", "E", "N/A"] as const;
-	type _AllowedGrade = typeof _allowedGrades[number];
-
-	const mapToGradeDistribution = (arr: { grade: string; count: number }[] | undefined) => {
-		const list = arr || [];
-		return list.map(({ grade, count }) => {
-			const g = _allowedGrades.includes(grade as _AllowedGrade) ? (grade as _AllowedGrade) : "N/A";
-			return { grade: g, count };
-		});
-	};
-
-	const midterm_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.midterm_grade_distribution);
-	const final_grades = mapToGradeDistribution(data?.instructorCoursesSingle?.final_grade_distribution);
 
 	return (
 		<Card className={className}>
@@ -134,7 +70,7 @@ export function RosterGradeDistributions({ mnumber, course, className }: RosterG
 			</CardHeader>
 			<CardContent>
 				<PieChartDonut
-					data={gradeType === "midterm" ? midterm_grades : final_grades}
+					data={gradeType === "midterm" ? midtermGrades : finalGrades}
 				/>
 			</CardContent>
 		</Card>

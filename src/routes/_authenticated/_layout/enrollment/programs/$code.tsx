@@ -99,8 +99,8 @@ function RouteComponent() {
 
     // Create a blob and download
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
 
     link.setAttribute('href', url);
     link.setAttribute('download', `enrollment-${programCode}-${startYear}-${endYear}.csv`);
