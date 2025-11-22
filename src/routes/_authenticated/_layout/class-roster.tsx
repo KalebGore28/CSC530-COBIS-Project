@@ -3,7 +3,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useSession } from "@/components/provider/session";
 
 import { studentsCollection } from "@/collections/students";
-import { studentProgramsCollection } from "@/collections/student-programs";
 import { studentAcademicInfoCollection } from "@/collections/student-academic-info";
 import { termsCollection } from "@/collections/terms";
 import { coursesCollection } from "@/collections/courses";

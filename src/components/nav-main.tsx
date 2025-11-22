@@ -77,7 +77,7 @@ export function NavMain({ open }: { open?: boolean }) {
 	const { session } = useSession();
 	const navigate = useNavigate()
 	if (!session) return null;
-	
+
 	// Filter nav_main_data based on user roles and route permissions
 	const filtered_nav_main_data = nav_main_data.filter((item) =>
 		hasRouteAccess(item.url, session.roles)
@@ -106,9 +106,12 @@ export function NavMain({ open }: { open?: boolean }) {
 									<CollapsibleContent>
 										<SidebarMenuSub>
 											{item.items.map((subItem) => (
-												<SidebarMenuSubItem key={subItem.title} className="text-nowrap">
-													<SidebarMenuSubButton onClick={() => navigate({ to: subItem.url })}>
-														<span className="text-white">{subItem.title}</span>
+												<SidebarMenuSubItem key={subItem.title}>
+													<SidebarMenuSubButton
+														onClick={() => navigate({ to: subItem.url })}
+														className="text-white"
+													>
+														{subItem.title}
 													</SidebarMenuSubButton>
 												</SidebarMenuSubItem>
 											))}
