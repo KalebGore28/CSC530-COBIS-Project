@@ -15,5 +15,17 @@ export const facultyCollection = createCollection(
         getKey: (faculty) => faculty.mnumber,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 5, // 5 minutes. Faculty data may change more frequently
+        onUpdate: async ({ transaction }) => {
+            const { original, modified } = transaction.mutations[0]
+            await fetch(`/api/data/faculty`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...modified, // only modify department and college to be modified
+                    mnumber: original.mnumber,
+                    first_name: original.first_name,
+                    last_name: original.last_name,
+                }),
+            })
+        }
     })
 )

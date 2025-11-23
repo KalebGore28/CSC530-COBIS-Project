@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from '@/components/ui/button';
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -101,7 +102,7 @@ function RouteComponent() {
 
     const [searchQuery, setSearchQuery] = useState('');
 
-    const { data, isLoading } = useLiveQuery((q) =>
+    const { data: faculty, isLoading } = useLiveQuery((q) =>
         q.from({ faculty: facultyCollection })
             .where(({ faculty }) =>
                 or(
@@ -134,7 +135,7 @@ function RouteComponent() {
         </div>
     )
 
-    if (!data || data.length === 0) {
+    if (!faculty || faculty.length === 0) {
         <div className="w-full p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
@@ -147,6 +148,11 @@ function RouteComponent() {
             <p className="text-center text-muted-foreground">No data available.</p>
         </div>
     }
+
+    const filteredFaculty =
+        searchQuery !== '' ?
+            faculty
+            : faculty.filter((d) => d.faculty.department_code === session?.faculty.department)
 
     // Handle instructor selection
     const handleSelectInstructor = (mnumber: string) => {
@@ -171,13 +177,18 @@ function RouteComponent() {
             <Card>
                 <CardHeader className="pb-3">
                     <div className="flex flex-wrap justify-between items-center">
-                        <div className='pr-4 pb-4'>
+                        <div className='pb-4'>
                             <CardTitle className="text-xl flex items-center gap-2">
                                 <Users className="h-5 w-5" />
                                 Instructor Directory
                             </CardTitle>
-                            <CardDescription>
-                                {data.length} instructor{data.length !== 1 ? 's' : ''} found
+                            <CardDescription className='flex flex-col'>
+                                <span>
+                                    Currently only showing instructors from your department. Use the search to find other instructors.
+                                </span>
+                                <span>
+                                    Showing {filteredFaculty.length} instructor{filteredFaculty.length !== 1 ? 's' : ''}.
+                                </span>
                             </CardDescription>
                         </div>
                         {/* Search and Filter Controls*/}
@@ -196,7 +207,7 @@ function RouteComponent() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                    {data.length > 0 ? (
+                    {filteredFaculty.length > 0 ? (
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -206,10 +217,10 @@ function RouteComponent() {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {data.map((d) => (
+                                {filteredFaculty.map((d) => (
                                     <TableRow
                                         key={d.faculty.mnumber}
-                                        className={`cursor-pointer hover:bg-muted/50 ${session?.faculty.department !== d.faculty.department_code ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        className={`cursor-pointer hover:bg-muted/50 ${session?.faculty.department === d.faculty.department_code ? 'bg-background' : 'opacity-50 cursor-not-allowed'}`}
                                         onClick={() => {
                                             if (session?.faculty.department === d.faculty.department_code) {
                                                 handleSelectInstructor(d.faculty.mnumber);
@@ -219,7 +230,7 @@ function RouteComponent() {
                                         <TableCell className="truncate max-w-[120px]">
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
-                                                    <AvatarImage src={d.users?.image ?? undefined} alt={d.faculty.first_name || ''} />
+                                                    <AvatarImage src={d.users?.image ?? undefined} alt={d.faculty.first_name} />
                                                     <AvatarFallback>{getInitials(`${d.faculty.first_name} ${d.faculty.last_name}`)}</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex flex-col">
@@ -230,7 +241,27 @@ function RouteComponent() {
                                         </TableCell>
                                         <TableCell className="truncate max-w-[120px]">
                                             <div className="flex flex-col">
-                                                <span>{d.departments?.description}</span>
+                                                <span>{
+                                                    d.departments?.description ?
+                                                        d.departments.description
+                                                        : <Button variant="outline" size="sm"
+                                                            className='cursor-pointer'
+                                                            onClick={(e) => {
+                                                                if (!session?.faculty.department) {
+                                                                    console.error("User session does not have a department assigned.");
+                                                                    return;
+                                                                };
+                                                                facultyCollection.update(d.faculty.mnumber,
+                                                                    (draft) => {
+                                                                        draft.department_code = session.faculty.department!;
+                                                                    }
+                                                                )
+                                                                e.stopPropagation();
+                                                            }}
+                                                        >
+                                                            Claim Instructor
+                                                        </Button>
+                                                }</span>
                                             </div>
                                         </TableCell>
                                         <TableCell className="truncate max-w-[120px]">
@@ -255,7 +286,7 @@ function RouteComponent() {
                         </Table>
 
                     ) : (
-                        data.length === 0 && (
+                        filteredFaculty.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
                                 <Users className="h-12 w-12 text-muted-foreground mb-4" />
                                 <h3 className="text-lg font-medium">No instructors found</h3>
