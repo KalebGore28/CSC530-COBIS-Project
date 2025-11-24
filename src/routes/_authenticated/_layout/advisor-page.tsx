@@ -1,10 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useSession } from '@/components/provider/session'
 import { useState } from 'react'
-
-import { currentTermCollection } from '@/collections/current-term';
-import { termsCollection } from '@/collections/terms';
-import { eq, useLiveQuery } from '@tanstack/react-db';
+import { useCurrentTerm } from '@/providers/current-term-provider';
 
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card';
 import { StudentDetailModal } from '@/components/advised-students/student-detail';
@@ -18,18 +15,7 @@ function RouteComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
-  const { data: currentTerm, isLoading } = useLiveQuery((q) =>
-    q.from({ currentTerm: currentTermCollection })
-      .leftJoin({ term: termsCollection }, ({ currentTerm, term }) =>
-        eq(currentTerm.term_code, term.code)
-      )
-      .select(({ currentTerm, term }) => ({
-        year: currentTerm.year,
-        term_code: currentTerm.term_code,
-        description: term?.description,
-      }))
-      .findOne(),
-  )
+  const { currentTerm, isLoading } = useCurrentTerm();
 
   if (!session || !session.mnumber || isLoading || !currentTerm) return null;
 

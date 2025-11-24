@@ -1,150 +1,147 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from '@tanstack/react-router';
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { studentCoursesCollection } from '@/collections/student-courses'
+import { termsCollection } from '@/collections/terms';
+import { TeachingHistoryTable } from '@/components/tables/teaching-history-table';
+import { useLiveQuery, eq} from '@tanstack/react-db';
 
-
-
-// Custom skeleton for TermHistoryTable
 function TermHistoryTableSkeleton() {
-  return (
-    <div className='border rounded-lg'>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead className="w-1/4">Term</TableHead>
-            <TableHead className="w-1/4">Total Courses</TableHead>
-            <TableHead className="w-1/4">Total Students</TableHead>
-            <TableHead className="w-1/4">Total Credit Hours</TableHead>
-            <TableHead className="w-1/4">Action</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {Array.from({ length: 4 }).map((_, index) => (
-            <TableRow key={index}>
-              <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-              <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
-  );
+    return (
+        <div className='border rounded-lg'>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead className="w-1/4">Term</TableHead>
+                        <TableHead className="w-1/4">Total Courses</TableHead>
+                        <TableHead className="w-1/4">Total Students</TableHead>
+                        <TableHead className="w-1/4">Total Credit Hours</TableHead>
+                        <TableHead className="w-1/4">Action</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {Array.from({ length: 4 }).map((_, index) => (
+                        <TableRow key={index}>
+                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </div>
+    );
 }
 
-const termHistoryQuery = graphql(`
-  query termHistoryQuery($mnumber: String!) {
-    facultySingle(where: { mnumber: { eq: $mnumber }}) {
-      mnumber
-      courses_taught {
-				total_credit_hours
-				total_students
-				year
-        term_code
-				term {
-					code
-					description
-				}
-			}
-
-    }
-  }
-`);
-
 export const Route = createFileRoute(
-  '/_authenticated/_layout/instructors/$mnumber/_layout/term-history',
+    '/_authenticated/_layout/instructors/$mnumber/_layout/term-history',
 )({
-  component: RouteComponent,
+    component: RouteComponent,
 })
 
 function RouteComponent() {
-  const params = useParams({ from: '/_authenticated/_layout/instructors/$mnumber' })
-  const mnumber = params.mnumber!
-  const navigate = useNavigate();
+    const params = useParams({ from: '/_authenticated/_layout/instructors/$mnumber' })
+    const mnumber = params.mnumber!
+    const navigate = useNavigate();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['termHistory', mnumber],
-    queryFn: () => execute(termHistoryQuery, { mnumber }),
-  });
+    const { data: termHistory, isLoading } = useLiveQuery((q) =>
+        q.from({ student: studentCoursesCollection })
+            .where(({ student }) => eq(student.instructor_mnumber, mnumber))
+            .leftJoin({ terms: termsCollection }, ({ student, terms }) => eq(student.term_code, terms.code))
+            .select(({ student, terms }) => ({
+                course_id: student.course_id,
+                course_section: student.course_section,
+                course_hours: student.course_hours,
+                course_title: terms?.description,
+                year: student.year,
+                term_code: student.term_code,
+                term_description: terms?.description,
+            }))
+            .orderBy(({ student }) => student.year, 'desc')
+            .orderBy(({ student }) => student.term_code, 'desc')
+    )
 
-  if (isLoading) return <TermHistoryTableSkeleton />;
+    if (isLoading) return <TermHistoryTableSkeleton />;
 
-  const coursesTaught = data?.facultySingle?.courses_taught || [];
+    type TermHistoryRecord = {
+        term_code: string;
+        year: number;
+        course_id: string;
+        course_section: string;
+        course_hours: number;
+        course_title: string | undefined;
+        term_description: string | undefined;
+        total_students: number;
+        total_credit_hours: number;
+        total_courses: number;
+    };
 
-  if (coursesTaught.length === 0) {
-    return <div>No term history available.</div>;
-  }
+    const termHistoryMap: Map<string, TermHistoryRecord> = new Map();
+    termHistory.forEach((record) => {
+        const key = `${record.year}-${record.term_code}`;
+        if (!termHistoryMap.has(key)) {
+            termHistoryMap.set(key, {
+                course_id: record.course_id,
+                course_section: record.course_section,
+                course_hours: record.course_hours,
+                course_title: record.course_title,
+                year: record.year,
+                term_code: record.term_code,
+                term_description: record.term_description || '',
+                total_students: 0,
+                total_credit_hours: 0,
+                total_courses: 0,
+            });
+        }
+        const entry = termHistoryMap.get(key)!;
+        entry.total_students += 1;
+        entry.total_credit_hours += record.course_hours || 0;
 
-  // Aggregate data by term and year
-  const termYearMap: Record<string, { year: number; term: { code: string; description: string }; totalCourses: number; totalStudents: number; totalCreditHours: number }> = {};
+        // Use a Set to track unique courses
+        const courseKey = `${record.course_id}-${record.course_section}`;
+        if (!('uniqueCourses' in entry)) {
+            (entry as any).uniqueCourses = new Set<string>();
+        }
+        (entry as any).uniqueCourses.add(courseKey);
+        entry.total_courses = (entry as any).uniqueCourses.size;
+    });
 
-  coursesTaught.forEach(course => {
-    const key = `${course?.year}-${course?.term.code}`;
-    if (!termYearMap[key]) {
-      termYearMap[key] = {
-        year: course?.year || 0,
-        term: course?.term || { code: '', description: '' },
-        totalCourses: 0,
-        totalStudents: 0,
-        totalCreditHours: 0,
-      };
+    if (termHistory.length === 0) {
+        return (
+            <div className="border rounded-lg">
+                <p className="p-4 text-center text-muted-foreground">
+                    No term history available.
+                </p>
+            </div>
+        )
     }
-    termYearMap[key].totalCourses += 1;
-    termYearMap[key].totalStudents += course?.total_students || 0;
-    termYearMap[key].totalCreditHours += course?.total_credit_hours || 0;
-  });
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Term History</CardTitle>
-        <CardDescription>
-          {/* {getCurrentYearTerm.term.description} {getCurrentYearTerm.year} */}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className='border rounded-lg'>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="max-w-[120px] truncate">Term</TableHead>
-                <TableHead className="max-w-[120px] truncate">Courses</TableHead>
-                <TableHead className="max-w-[120px] truncate">Students</TableHead>
-                <TableHead className="max-w-[120px] truncate">Credit Hours</TableHead>
-                <TableHead className="max-w-[120px] truncate">Action</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Object.values(termYearMap).map(({ year, term, totalCourses, totalStudents, totalCreditHours }) => (
-                <TableRow key={`${year}-${term.code}`}>
-                  <TableCell className='max-w-[120px] truncate'>{`${term.description} ${year}`}</TableCell>
-                  <TableCell className='max-w-[120px] truncate'>{totalCourses}</TableCell>
-                  <TableCell className='max-w-[120px] truncate'>{totalStudents}</TableCell>
-                  <TableCell className='max-w-[120px] truncate'>{totalCreditHours}</TableCell>
-                  <TableCell className='max-w-[120px] truncate'>
-                    <Button
-                      variant="outline"
-                      onClick={() => navigate({ to: `/instructors/${mnumber}/term-history/${year}${term.code}` })}
-                    >
-                      View Details
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
-  )
+    return (
+        <Card className='p-0'>
+            <CardContent className='p-1 m-0 bg-blue-950 border bg-primary rounded-xl'>
+                <div className='border rounded-lg bg-white dark:bg-gray-800'>
+                    <TeachingHistoryTable data={Array.from(termHistoryMap.values()).map((term) => ({
+                        term: `${term.term_description} ${term.year}`,
+                        total_courses: term.total_courses,
+                        total_students: term.total_students || 0,
+                        total_credit_hours: term.total_credit_hours || 0,
+                        action: (
+                            <Button
+                                size="sm"
+                                onClick={() => navigate({ to: `/instructors/${mnumber}/term-history/${term.year}${term.term_code}` })}
+                            >
+                                View Details
+                            </Button>
+                        ),
+                    }))} />
+                </div>
+            </CardContent>
+        </Card>
+    )
 }

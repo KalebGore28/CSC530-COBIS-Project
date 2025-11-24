@@ -1,51 +1,16 @@
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from '@/components/ui/button';
 import { CourseGradeChart } from '@/components/charts/course-grade-distributions';
-// import { AdvisedStudents } from '@/components/advised-students';
+import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card';
 import { ArrowLeft, BookOpen, Users, Calculator } from 'lucide-react';
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { CoursesTable } from '@/components/tables/courses-table';
+import { coursesCollection } from '@/collections/courses';
+import { studentCoursesCollection } from '@/collections/student-courses'
+import { termsCollection } from '@/collections/terms';
+import { useLiveQuery, eq, and } from '@tanstack/react-db';
 
-const termMappings: Record<string, string> = {
-  '10': 'Spring',
-  '50': 'Summer',
-  '80': 'Fall',
-  '90': 'Winter'
-};
-
-const termDetailsQuery = graphql(`
-  query termDetailsQuery(
-    $mnumber: String!
-    $startTerm: String
-    $startYear: Int
-    $endTerm: String
-    $endYear: Int
-  ) {
-    facultySingle(where: { mnumber: { eq: $mnumber } }) {
-      courses_taught(
-        startTerm: $startTerm
-        startYear: $startYear
-        endTerm: $endTerm
-        endYear: $endYear
-      ) {
-        course {
-					title
-					subject
-					number
-					suffix
-				}
-        course_section
-        total_credit_hours
-        total_students
-      }
-    }
-  }
-`)
 
 export const Route = createFileRoute(
   '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/',
@@ -62,24 +27,63 @@ function RouteComponent() {
   const termCode = yearTerm?.slice(-2);
   const year = parseInt(yearTerm?.slice(0, 4) || '0', 10);
 
-  const { data } = useQuery({
-    queryKey: ['termDetails', mnumber, termCode, year],
-    queryFn: () => execute(termDetailsQuery, {
-      mnumber,
-      startTerm: termCode,
-      startYear: year,
-      endTerm: termCode,
-      endYear: year,
-    }),
+  const { data: termHistory, isLoading } = useLiveQuery((q) =>
+    q.from({ student: studentCoursesCollection })
+      .where(({ student }) =>
+        and(
+          eq(student.instructor_mnumber, mnumber),
+          eq(student.year, year),
+          eq(student.term_code, termCode)
+        )
+      )
+      .leftJoin({ terms: termsCollection }, ({ student, terms }) => eq(student.term_code, terms.code))
+      .leftJoin({ courses: coursesCollection }, ({ student, courses }) => eq(student.course_id, courses.code))
+      .select(({ student, terms, courses }) => ({
+        course_id: student.course_id,
+        course_section: student.course_section,
+        course_hours: student.course_hours,
+        course_title: courses?.title,
+        year: student.year,
+        term_code: student.term_code,
+        term_description: terms?.description,
+      }))
+      .orderBy(({ student }) => student.year, 'desc')
+      .orderBy(({ student }) => student.term_code, 'desc')
+  )
+
+  if (isLoading) return <div>Loading...</div>;
+
+  // Count the unique courses taught in the term
+  const totalCourses = new Set(termHistory.map(course => `${course.course_id}-${course.course_section}`)).size;
+  const totalStudents = termHistory.length;
+  const totalCreditHours = termHistory.reduce((acc, course) => acc + (course.course_hours || 0), 0);
+
+  type Course = {
+    course_id: string;
+    course_section: string;
+    course_title: string;
+    credit_hour: number;
+    total_students: number;
+    total_credit_hours: number;
+  }
+  const coursesMap: Map<string, Course> = new Map();
+  termHistory.forEach((course) => {
+    const key = `${course.course_id}-${course.course_section}`;
+    if (!coursesMap.has(key)) {
+      coursesMap.set(key, {
+        course_id: course.course_id,
+        course_section: course.course_section,
+        course_title: course.course_title || 'N/A',
+        credit_hour: course.course_hours || 0,
+        total_students: 0,
+        total_credit_hours: 0,
+      });
+    }
+    const existing = coursesMap.get(key)!;
+    existing.total_students += 1;
+    existing.total_credit_hours += course.course_hours || 0;
   });
 
-  const termDetailsData = data?.facultySingle?.courses_taught || [];
-
-  const summary = termDetailsData.reduce((acc, course) => {
-    acc.totalStudents += course?.total_students || 0;
-    acc.totalCreditHours += course?.total_credit_hours || 0;
-    return acc;
-  }, { totalStudents: 0, totalCreditHours: 0 });
 
   return (
     <div className="w-full mx-auto p-6 space-y-6">
@@ -100,13 +104,17 @@ function RouteComponent() {
           </Button>
         </div>
 
+        <div className='col-span-3 text-center'>
+          <h2 className="text-2xl font-bold">{termHistory[0]?.term_description} {year}</h2>
+        </div>
+
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <BookOpen className="h-8 w-8 text-primary" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Courses</p>
-                <p className="text-3xl font-bold">{termDetailsData.length}</p>
+                <p className="text-3xl font-bold">{totalCourses}</p>
               </div>
             </div>
           </CardContent>
@@ -118,7 +126,7 @@ function RouteComponent() {
               <Users className="h-8 w-8 text-primary" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Students</p>
-                <p className="text-3xl font-bold">{summary.totalStudents}</p>
+                <p className="text-3xl font-bold">{totalStudents}</p>
               </div>
             </div>
           </CardContent>
@@ -130,7 +138,7 @@ function RouteComponent() {
               <Calculator className="h-8 w-8 text-primary" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Credit Hours</p>
-                <p className="text-3xl font-bold">{summary.totalCreditHours}</p>
+                <p className="text-3xl font-bold">{totalCreditHours}</p>
               </div>
             </div>
           </CardContent>
@@ -138,63 +146,38 @@ function RouteComponent() {
       </div>
 
       {/* Course details table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Course Details</CardTitle>
-          <CardDescription>
-            {termDetailsData.length} course{termDetailsData.length !== 1 ? 's' : ''} taught in {termMappings[termCode!]} {year}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className='border rounded-lg'>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='max-w-[120px] truncate'>Course</TableHead>
-                  <TableHead className='max-w-[120px] truncate'>Title</TableHead>
-                  <TableHead className='max-w-[120px] truncate'>Students</TableHead>
-                  <TableHead className='max-w-[120px] truncate'>Credit Hours</TableHead>
-                  <TableHead className='max-w-[120px] truncate'>Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {termDetailsData.map((instructorCourse) => (
-                  <TableRow key={`${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`}>
-                    <TableCell className='max-w-[120px] truncate'>
-                      {`${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`}
-                    </TableCell>
-                    <TableCell className='max-w-[120px] truncate'>{instructorCourse?.course.title}</TableCell>
-                    <TableCell className='max-w-[120px] truncate'>{instructorCourse?.total_students}</TableCell>
-                    <TableCell className='max-w-[120px] truncate'>{instructorCourse?.total_credit_hours}</TableCell>
-                    <TableCell className='max-w-[120px] truncate'>
-                      <Button
-                        variant='outline'
-                        onClick={() => {
-                          navigate({
-                            to: `/instructors/${mnumber}/term-history/${year}${termCode}/${instructorCourse?.course.subject}${instructorCourse?.course.number}${instructorCourse?.course.suffix}-${instructorCourse?.course_section}`
-                          });
-                        }}
-                      >
-                        View Roster
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-
-            </Table>
+      <Card className='p-0'>
+        <CardContent className='p-1 m-0 bg-blue-950 border bg-primary rounded-xl'>
+          <div className='border rounded-lg bg-white dark:bg-gray-800'>
+            <CoursesTable data={Array.from(coursesMap.values()).map((course) => ({
+              course: course.course_id,
+              title: course.course_title,
+              credit_hour: course.credit_hour,
+              total_students: course.total_students,
+              total_credit_hours: course.total_credit_hours,
+              action: (
+                <Button
+                  size="sm"
+                  onClick={() => navigate({ to: `/instructors/${mnumber}/term-history/${year}${termCode}/${course.course_id}-${course.course_section}` })}
+                >
+                  View Roster
+                </Button>
+              ),
+            }))} />
           </div>
         </CardContent>
       </Card>
 
       <CourseGradeChart mnumber={mnumber} term={termCode} year={year} />
 
-      {/* <AdvisedStudents
-        mnumber={mnumber}
-        term_info={{ term_code: termCode!, year: year!, term: termMappings[termCode!] }}
-        title='My Advised Students'
-        modalOpen={false}
-      /> */}
+      <AdvisedStudentsCard
+        advisorMnumber={mnumber}
+        term_info={{
+          term_code: termCode!,
+          year: year,
+          description: termHistory[0]?.term_description || ''
+        }}
+      />
     </div>
   )
 }

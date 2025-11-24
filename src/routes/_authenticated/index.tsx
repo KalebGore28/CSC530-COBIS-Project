@@ -5,10 +5,4 @@ export const Route = createFileRoute('/_authenticated/')({
         // Redirect to the dashboard as the default authenticated route
         throw redirect({ to: '/dashboard' });
     },
-    component: RouteComponent,
 })
-
-function RouteComponent() {
-    // This component will never actually render,
-    return null;
-}

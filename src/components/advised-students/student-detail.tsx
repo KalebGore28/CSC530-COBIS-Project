@@ -177,9 +177,6 @@ export function StudentDetailModal({ studentMnumber, modalOpen, setModalOpen }: 
                                 type: program.program_type || 'Unknown',
                                 year_term: `${program.term_description} ${program.year}`,
                             }))} />
-                            {/* <div className="overflow-x-auto max-w-[70vw] flex justify-center">
-
-                            </div> */}
                         </CardContent>
                     </Card>
 

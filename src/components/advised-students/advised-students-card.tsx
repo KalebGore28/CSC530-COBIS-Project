@@ -14,8 +14,8 @@ type CurrentTerm = {
 type AdvisedStudentsCardProps = {
     advisorMnumber: string;
     term_info: CurrentTerm;
-    setModalOpen: (open: boolean) => void;
-    setSelectedStudent: (mnumber: string) => void;
+    setModalOpen?: (open: boolean) => void;
+    setSelectedStudent?: (mnumber: string) => void;
 }
 
 export function AdvisedStudentsCard({ advisorMnumber, term_info, setModalOpen, setSelectedStudent }: AdvisedStudentsCardProps) {
@@ -71,8 +71,8 @@ export function AdvisedStudentsCard({ advisorMnumber, term_info, setModalOpen, s
                                         key={`advised-student-${s.mnumber}-${s.term}-${s.year}`}
                                         className="cursor-pointer hover:bg-muted/50 transition"
                                         onClick={() => {
-                                            setSelectedStudent(s.mnumber!);
-                                            setModalOpen(true);
+                                            setSelectedStudent && setSelectedStudent(s.mnumber!);
+                                            setModalOpen && setModalOpen(true);
                                         }}
                                     >
                                         <TableCell>{s.mnumber}</TableCell>

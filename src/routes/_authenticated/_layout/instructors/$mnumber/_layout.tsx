@@ -1,51 +1,48 @@
 import { createFileRoute, Outlet, useNavigate, useParams, useLocation } from '@tanstack/react-router'
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle } from 'lucide-react';
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { facultyCollection } from '@/collections/faculty';
+import { usersCollection } from '@/collections/users';
+import { departmentsCollection } from '@/collections/departments';
+import { collegesCollection } from '@/collections/colleges';
+import { useLiveQuery, eq } from '@tanstack/react-db';
 
-const getInstructorQuery = graphql(`
-  query getInstructorQuery($mnumber: String!) {
-    facultySingle(where: { mnumber: { eq: $mnumber } }) {
-      mnumber
-      first_name
-      last_name
-      department_code
-      college_code
-      department {
-        description
-      }
-      college{
-        description
-      }
-      user{
-        image
-        email
-      }
-    }
-  }
-`);
-
-// Custom skeleton for InstructorPage
 function InstructorPageSkeleton() {
     return (
-        <Card>
-            <CardHeader>
-                <Skeleton className="h-6 w-1/2" />
-                <Skeleton className="h-4 w-1/3" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-            </CardContent>
-        </Card>
+        <div className="p-6 space-y-6">
+            {/* Profile section */}
+            <Card>
+                <CardContent>
+                    <div className="flex items-center gap-4">
+                        {/* Avatar */}
+                        <Skeleton className="h-24 w-24 rounded-full" />
+
+                        {/* Name + details */}
+                        <div className="space-y-2 w-full max-w-sm">
+                            <Skeleton className="h-8 w-3/4" />  {/* name */}
+                            <Skeleton className="h-4 w-2/3" />  {/* department */}
+                            <Skeleton className="h-4 w-1/2" />  {/* college */}
+                            <Skeleton className="h-4 w-1/3" />  {/* email */}
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Tabs */}
+            <div className="w-full flex justify-center">
+                <div className="bg-background border rounded-lg w-full max-w-md">
+                    <div className="grid grid-cols-3">
+                        <Skeleton className="h-10 w-full rounded-none" />
+                        <Skeleton className="h-10 w-full rounded-none" />
+                        <Skeleton className="h-10 w-full rounded-none" />
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -72,15 +69,25 @@ function RouteComponent() {
     const mnumber = params.mnumber!
     const activeTab = location.pathname.split("/").pop() || "current-term";
 
-    const { data, isLoading } = useQuery({
-        queryKey: ['getInstructorQuery', mnumber],
-        queryFn: async () => await execute(getInstructorQuery, { mnumber }),
-        staleTime: 5 * 60 * 1000, // 5 minutes
-    });
+    const { data: instructor, isLoading } = useLiveQuery((q) =>
+        q.from({ faculty: facultyCollection })
+            .where(({ faculty }) => eq(faculty.mnumber, mnumber))
+            .leftJoin({ users: usersCollection }, ({ faculty, users }) => eq(faculty.mnumber, users.mnumber))
+            .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) => eq(faculty.department_code, departments.code))
+            .leftJoin({ colleges: collegesCollection }, ({ faculty, colleges }) => eq(faculty.college_code, colleges.code))
+            .select(({ faculty, users, departments, colleges }) => ({
+                ...faculty,
+                email: users?.email,
+                image: users?.image,
+                department_description: departments?.description,
+                college_description: colleges?.description,
+            }))
+            .findOne()
+    )
 
-    if (isLoading) return <InstructorPageSkeleton />;
-
-    const instructor = data?.facultySingle;
+    if (isLoading) {
+        return <InstructorPageSkeleton />;
+    }
 
     if (!instructor) {
         return (
@@ -100,22 +107,22 @@ function RouteComponent() {
                 <CardContent>
                     <div className="flex items-center gap-4">
                         <Avatar className="h-24 w-24 border-2 border-primary">
-                            <AvatarImage src={instructor.user?.image || undefined} alt={instructor.first_name} />
+                            <AvatarImage src={instructor.image || undefined} alt={instructor.first_name} />
                             <AvatarFallback className="text-2xl">
                                 {getInitials(`${instructor.first_name} ${instructor.last_name}`)}
                             </AvatarFallback>
                         </Avatar>
                         <div>
                             <h1 className="text-3xl font-bold">{`${instructor.first_name} ${instructor.last_name}`}</h1>
-                            <p className="text-sm text-muted-foreground">Department: {instructor.department?.description}</p>
-                            <p className="text-sm text-muted-foreground">College: {instructor.college?.description}</p>
+                            <p className="text-sm text-muted-foreground">Department: {instructor.department_description}</p>
+                            <p className="text-sm text-muted-foreground">College: {instructor.college_description}</p>
                             <span className="inline-flex items-center text-sm space-x-1">
-                                {instructor.user?.email && (
+                                {instructor.email && (
                                     <a
-                                        href={`mailto:${instructor.user.email}`}
+                                        href={`mailto:${instructor.email}`}
                                         className="hover:underline"
                                     >
-                                        <span>{instructor.user?.email}</span>
+                                        <span>{instructor.email}</span>
                                     </a>
                                 )}
                             </span>
@@ -125,23 +132,23 @@ function RouteComponent() {
             </Card>
 
             <div className='w-full flex justify-center'>
-            {/* Tabs */}
-            <Tabs
-                value={activeTab}
-                onValueChange={(value) => {
-                    navigate({
-                        to: `/instructors/$mnumber/${value}`,
-                        params: { mnumber },
-                    });
-                }}
-                className="bg-background border rounded-lg"
-            >
-                <TabsList className="grid grid-cols-3">
-                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="current-term">Current Term</TabsTrigger>
-                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="term-history">Teaching History</TabsTrigger>
-                    <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="grade-distribution">Grade Distributions</TabsTrigger>
-                </TabsList>
-            </Tabs>
+                {/* Tabs */}
+                <Tabs
+                    value={activeTab}
+                    onValueChange={(value) => {
+                        navigate({
+                            to: `/instructors/$mnumber/${value}`,
+                            params: { mnumber },
+                        });
+                    }}
+                    className="bg-background border rounded-lg"
+                >
+                    <TabsList className="grid grid-cols-3">
+                        <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="current-term">Current Term</TabsTrigger>
+                        <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="term-history">Teaching History</TabsTrigger>
+                        <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="grade-distribution">Grade Distributions</TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </div>
 
             {/* Nested routes render here */}

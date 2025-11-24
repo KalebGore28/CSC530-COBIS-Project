@@ -4,7 +4,10 @@ import { AppSidebar } from '@/components/sidebar';
 import { SiteHeader } from '@/components/header';
 import { Toaster } from "@/components/ui/sonner";
 
+import { CurrentTermProvider } from '@/providers/current-term-provider';
+
 // Import collections to preload data
+import { currentTermCollection } from '@/collections/current-term';
 import { academicStandingCollection } from '@/collections/academic-standing';
 import { admitCodesCollection } from '@/collections/admit-codes';
 import { collegesCollection } from '@/collections/colleges';
@@ -22,6 +25,7 @@ export const Route = createFileRoute('/_authenticated/_layout')({
 
 function App() {
   // Preload all small to midsized collections for faster access throughout the app
+  currentTermCollection.preload()
   academicStandingCollection.preload()
   admitCodesCollection.preload()
   collegesCollection.preload()
@@ -34,13 +38,15 @@ function App() {
   termsCollection.preload()
 
   return (
-    <SidebarProvider>
-      <Toaster richColors />
-      <AppSidebar />
-      <SidebarInset>
-        <SiteHeader />
-        <Outlet />
-      </SidebarInset>
-    </SidebarProvider>
+    <CurrentTermProvider>
+      <SidebarProvider>
+        <Toaster richColors />
+        <AppSidebar />
+        <SidebarInset>
+          <SiteHeader />
+          <Outlet />
+        </SidebarInset>
+      </SidebarProvider>
+    </CurrentTermProvider>
   )
 }
