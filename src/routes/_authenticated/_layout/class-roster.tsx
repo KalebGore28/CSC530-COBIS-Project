@@ -14,23 +14,6 @@ import { RosterGradeDistributions } from "@/components/roster/roster-grade-distr
 import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
 import { RosterStudents } from "@/components/roster/roster-students";
 
-export type StudentCourse = {
-  mnumber: string;
-  first_name: string | undefined;
-  last_name: string | undefined;
-  email: string | undefined;
-  term_code: string;
-  year: number;
-  term_description: string | undefined;
-  course_id: string;
-  course_section: string;
-  course_hours: number;
-  last_attendance: string | null;
-  midterm_grade: string | null;
-  final_grade: string | null;
-  course_title: string | undefined;
-  student_gpa: number | null;
-}
 
 import { TermCourseSelector, SelectedCourse, SelectedTerm } from "@/components/selectors/term-course-selector";
 

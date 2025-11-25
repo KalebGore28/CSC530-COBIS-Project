@@ -4,8 +4,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useEffect } from "react";
 
-import type { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
-
 export type SelectedTerm = {
     year: number;
     term_code: string;
@@ -26,8 +24,18 @@ export type SelectedCourse = {
     credit_hours_delivered: number;
 }
 
+type RequiredStudentCourseProps = {
+    year: number;
+    term_code: string;
+    term_description?: string;
+    course_hours: number;
+    course_id: string;
+    course_section: string;
+    course_title?: string;
+} & Record<string, unknown>
+
 type TermCourseSelectorProps = {
-    studentCourses: StudentCourse[];
+    studentCourses: RequiredStudentCourseProps[];
     isLoading?: boolean;
     showStats?: boolean;
     className?: string;
@@ -80,7 +88,7 @@ export function TermCourseSelector({
 }
 
 type TermSelectorProps = {
-    studentCourses: StudentCourse[];
+    studentCourses: RequiredStudentCourseProps[];
     isLoading?: boolean;
     showStats?: boolean;
     selectedTerm?: SelectedTerm;
@@ -181,7 +189,7 @@ function TermSelector({
 }
 
 type CourseSelectorProps = {
-    studentCourses: StudentCourse[];
+    studentCourses: RequiredStudentCourseProps[];
     isLoading?: boolean;
     showStats?: boolean;
     selectedTerm: SelectedTerm;

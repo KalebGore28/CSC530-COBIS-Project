@@ -1,8 +1,13 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import type { StudentCourse } from '@/routes/_authenticated/_layout/class-roster';
+
+type RequiredStudentCourseProps = {
+	midterm_grade: string | null;
+	final_grade: string | null;
+	student_gpa: number | null;
+} & Record<string, unknown>
 
 type RosterSummaryCardProps = {
-	studentCourses: StudentCourse[];
+	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
 };
 

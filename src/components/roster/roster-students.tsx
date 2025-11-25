@@ -10,8 +10,6 @@ import { Download, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-r
 import { toast } from 'sonner';
 import Papa from 'papaparse';
 
-import { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
-
 import { programsCollection } from "@/collections/programs";
 import { studentProgramsCollection } from "@/collections/student-programs";
 import { useLiveQuery, inArray, eq } from '@tanstack/react-db';
@@ -26,8 +24,21 @@ const getGradeColorClass = (grade: string) => {
 	return "bg-red-100 text-red-800 border-red-300";
 };
 
+type RequiredStudentCourseProps = {
+	mnumber: string;
+	first_name: string | undefined;
+	last_name: string | undefined;
+	email: string | undefined;
+	midterm_grade: string | null;
+	final_grade: string | null;
+	course_id: string;
+	course_section: string;
+	year: number;
+	term_description: string | undefined;
+} & Record<string, unknown>
+
 export interface RosterStudentsProps {
-	studentCourses: StudentCourse[];
+	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
 }
 

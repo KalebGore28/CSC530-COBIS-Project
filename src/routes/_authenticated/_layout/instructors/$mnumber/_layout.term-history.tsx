@@ -8,7 +8,7 @@ import { useNavigate, useParams } from '@tanstack/react-router';
 import { studentCoursesCollection } from '@/collections/student-courses'
 import { termsCollection } from '@/collections/terms';
 import { TeachingHistoryTable } from '@/components/tables/teaching-history-table';
-import { useLiveQuery, eq} from '@tanstack/react-db';
+import { useLiveQuery, eq } from '@tanstack/react-db';
 
 function TermHistoryTableSkeleton() {
     return (
@@ -62,6 +62,8 @@ function RouteComponent() {
                 year: student.year,
                 term_code: student.term_code,
                 term_description: terms?.description,
+                midterm_grade: student.midterm_grade,
+                final_grade: student.final_grade,
             }))
             .orderBy(({ student }) => student.year, 'desc')
             .orderBy(({ student }) => student.term_code, 'desc')

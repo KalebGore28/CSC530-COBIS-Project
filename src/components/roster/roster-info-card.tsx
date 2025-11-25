@@ -5,11 +5,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { currentTermCollection } from "@/collections/current-term";
 import { useLiveQuery } from '@tanstack/react-db';
 
-// Import types
-import type { StudentCourse } from "../selectors/term-course-selector";
+type RequiredStudentCourseProps = {
+	year: number;
+	term_code: string;
+	course_hours: number;
+	term_description: string | undefined;
+	course_id: string;
+	course_section: string;
+	course_title: string | undefined;
+} & Record<string, unknown>
 
-export type RosterInfoCardProps = {
-	studentCourses: StudentCourse[];
+type RosterInfoCardProps = {
+	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
 }
 

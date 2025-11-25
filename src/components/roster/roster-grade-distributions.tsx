@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
-import type { StudentCourse } from "@/routes/_authenticated/_layout/class-roster";
 
 type AllowedGrade = "A" | "B" | "C" | "D" | "E" | "N/A";
 type GradeEntry = {
@@ -11,14 +10,18 @@ type GradeEntry = {
 	count: number;
 }
 
+type RequiredStudentCourseProps = {
+	midterm_grade: string | null;
+	final_grade: string | null;
+} & Record<string, unknown>
+
 type RosterGradeDistributionsProps = {
-	studentCourses: StudentCourse[];
+	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
 }
 
 export function RosterGradeDistributions({ studentCourses, className }: RosterGradeDistributionsProps) {
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
-	
 
 	const midtermGrades: GradeEntry[] = [];
 	const finalGrades: GradeEntry[] = [];
