@@ -46,6 +46,8 @@ function RouteComponent() {
         year: student.year,
         term_code: student.term_code,
         term_description: terms?.description,
+        midterm_grade: student.midterm_grade,
+        final_grade: student.final_grade,
       }))
       .orderBy(({ student }) => student.year, 'desc')
       .orderBy(({ student }) => student.term_code, 'desc')
@@ -150,7 +152,7 @@ function RouteComponent() {
         <CardContent className='p-1 m-0 bg-blue-950 border bg-primary rounded-xl'>
           <div className='border rounded-lg bg-white dark:bg-gray-800'>
             <CoursesTable data={Array.from(coursesMap.values()).map((course) => ({
-              course: course.course_id,
+              course: course.course_id + '-' + course.course_section,
               title: course.course_title,
               credit_hour: course.credit_hour,
               total_students: course.total_students,
@@ -168,7 +170,7 @@ function RouteComponent() {
         </CardContent>
       </Card>
 
-      <CourseGradeChart mnumber={mnumber} term={termCode} year={year} />
+      <CourseGradeChart studentCourses={termHistory} />
 
       <AdvisedStudentsCard
         advisorMnumber={mnumber}

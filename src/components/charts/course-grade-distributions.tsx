@@ -1,115 +1,84 @@
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { type ChartConfig, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent, ChartContainer } from "@/components/ui/chart"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { type ChartConfig, ChartTooltip, ChartTooltipContent, ChartContainer } from "@/components/ui/chart"
 import { Button } from "@/components/ui/button"
 import { BarChart, CartesianGrid, XAxis, YAxis, Bar } from "recharts"
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
-
-const defaultChartConfig: ChartConfig = {
+const chartConfig = {
 	A: { label: "A", color: "var(--chart-1)" },
 	B: { label: "B", color: "var(--chart-2)" },
 	C: { label: "C", color: "var(--chart-3)" },
 	D: { label: "D", color: "var(--chart-4)" },
 	E: { label: "E", color: "var(--chart-5)" },
 	"N/A": { label: "N/A", color: "var(--chart-6)" },
+} satisfies ChartConfig;
+
+type AllowedGrade = "A" | "B" | "C" | "D" | "E" | "N/A";
+type GradeEntry = {
+	course_id: string;
+} & Record<AllowedGrade, number>
+
+type RequiredStudentCourseProps = {
+	course_id: string;
+	course_section: string;
+	midterm_grade: string | null;
+	final_grade: string | null;
+} & Record<string, unknown>
+
+function convertToPercentages(data: GradeEntry[]) {
+	return data.map((entry) => {
+		const total =
+			entry.A +
+			entry.B +
+			entry.C +
+			entry.D +
+			entry.E +
+			entry["N/A"];
+
+		const pctEntry: GradeEntry = { ...entry };
+
+		if (total > 0) {
+			(["A", "B", "C", "D", "E", "N/A"] as AllowedGrade[]).forEach((g) => {
+				pctEntry[g] = Number(((entry[g] as number) / total * 100).toFixed(2));
+			});
+		}
+
+		return pctEntry;
+	});
 }
 
-const termMappings: Record<string, string> = {
-	'10': 'Spring',
-	'50': 'Summer',
-	'80': 'Fall',
-	'90': 'Winter'
-};
+type CourseGradeChartProps = {
+	studentCourses: RequiredStudentCourseProps[];
+}
 
-const allGrades = ["A", "B", "C", "D", "E", "N/A"]
-
-const courseGradeDistributionsQuery = graphql(`
-	query courseGradeDistributionsQuery(
-		$mnumber: String!
-		$startTerm: String!
-		$startYear: Int!
-		$endTerm: String!
-		$endYear: Int!
-	) {
-		facultySingle(where: { mnumber: { eq: $mnumber }}) {
-			mnumber
-			courses_taught(startTerm: $startTerm, endTerm: $endTerm, startYear: $startYear, endYear: $endYear) {
-				final_grade_distribution {
-					grade
-					count
-					percentage
-				}
-				midterm_grade_distribution {
-					grade
-					count
-					percentage
-				}
-				course {
-					number
-					subject
-					suffix
-					title
-				}
-				course_section
-			}
-		}
-	}
-`);
-
-export function CourseGradeChart({ mnumber, term, year }: {
-	mnumber: string, term: string, year: number
-}) {
+export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
 	const [view, setView] = useState<"midterm" | "final">("final")
 
-	const { data } = useQuery({
-		queryKey: ['courseGradeDistributions', mnumber, term, year],
-		queryFn: () => execute(courseGradeDistributionsQuery, {
-			mnumber,
-			startTerm: term,
-			startYear: year,
-			endTerm: term,
-			endYear: year,
-		}),
-	})
+	const courseMidtermData: GradeEntry[] = [];
+	const courseFinalData: GradeEntry[] = [];
 
-	const gradeDistributionData = data?.facultySingle?.courses_taught || []
+	studentCourses.forEach((sc) => {
+		const courseKey = `${sc.course_id}-${sc.course_section}`;
 
-	const _allowedGrades = ["A", "B", "C", "D", "E", "N/A"] as const;
-	type _AllowedGrade = typeof _allowedGrades[number];
-
-	// Conditionally transform data for chart based on view
-	const chartData = gradeDistributionData.map((course) => {
-		const distribution =
-			view === "final"
-				? course?.final_grade_distribution
-				: course?.midterm_grade_distribution;
-
-		const record: Record<string, string | number> = {
-			course: `${course?.course.subject}${course?.course.number}${course?.course.suffix}-${course?.course_section}`,
-		};
-
-		allGrades.forEach((g) => {
-			const bucket = distribution?.find((d) => d.grade === g);
-
-			// If grade not in allowed list or bucket missing, mark N/A
-			if (!_allowedGrades.includes(g as _AllowedGrade)) {
-				record[g] = "N/A";
-			} else {
-				record[g] = bucket ? bucket.percentage : 0;
-			}
-		});
-
-		// Optionally: add "N/A" bucket if no grades matched
-		if (!record["N/A"]) {
-			record["N/A"] = 0;
+		let courseMidtermEntry = courseMidtermData.find((entry) => entry.course_id === courseKey);
+		if (!courseMidtermEntry) {
+			courseMidtermEntry = { course_id: courseKey, A: 0, B: 0, C: 0, D: 0, E: 0, "N/A": 0 };
+			courseMidtermData.push(courseMidtermEntry);
 		}
+		const midtermGrade = sc.midterm_grade ? sc.midterm_grade : "N/A";
+		courseMidtermEntry[midtermGrade as AllowedGrade] = (courseMidtermEntry[midtermGrade as AllowedGrade] as number) + 1;
 
-		return record;
+		let courseFinalEntry = courseFinalData.find((entry) => entry.course_id === courseKey);
+		if (!courseFinalEntry) {
+			courseFinalEntry = { course_id: courseKey, A: 0, B: 0, C: 0, D: 0, E: 0, "N/A": 0 };
+			courseFinalData.push(courseFinalEntry);
+		}
+		const finalGrade = sc.final_grade ? sc.final_grade : "N/A";
+		courseFinalEntry[finalGrade as AllowedGrade] = (courseFinalEntry[finalGrade as AllowedGrade] as number) + 1;
 	});
+
+	const midtermPercentages = convertToPercentages(courseMidtermData);
+	const finalPercentages = convertToPercentages(courseFinalData);
 
 	return (
 		<Card>
@@ -119,9 +88,6 @@ export function CourseGradeChart({ mnumber, term, year }: {
 						<CardTitle>
 							{view === "final" ? "Final" : "Midterm"} Grade Distribution
 						</CardTitle>
-						<CardDescription>
-							Term: {termMappings[term]} {year}
-						</CardDescription>
 					</div>
 					<div className="flex gap-2">
 						<Button
@@ -143,17 +109,17 @@ export function CourseGradeChart({ mnumber, term, year }: {
 			</CardHeader>
 			<CardContent>
 				<ChartContainer
-					config={defaultChartConfig}
+					config={chartConfig}
 					className="w-full h-60"
 				>
 					<BarChart
-						data={chartData}
+						data={view === "final" ? finalPercentages : midtermPercentages}
 						accessibilityLayer
 						barCategoryGap="30%"
 					>
 						<CartesianGrid vertical={false} />
 						<XAxis
-							dataKey="course"
+							dataKey="course_id"
 							tickLine={false}
 							axisLine={false}
 							tickMargin={8}
@@ -169,8 +135,7 @@ export function CourseGradeChart({ mnumber, term, year }: {
 							tickLine={false}
 						/>
 						<ChartTooltip content={<ChartTooltipContent />} />
-						<ChartLegend content={<ChartLegendContent />} />
-						{Object.entries(defaultChartConfig).map(
+						{Object.entries(chartConfig).map(
 							([grade, cfg]) => (
 								<Bar
 									key={grade}
