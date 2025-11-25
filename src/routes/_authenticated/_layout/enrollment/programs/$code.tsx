@@ -39,8 +39,7 @@ function RouteComponent() {
       .leftJoin({ colleges: collegesCollection }, ({ programs, colleges }) =>
         eq(programs.college_code, colleges.code)
       )
-      .leftJoin(
-        { studentPrograms: studentProgramsCollection }, ({ programs, studentPrograms }) =>
+      .leftJoin({ studentPrograms: studentProgramsCollection }, ({ programs, studentPrograms }) =>
         eq(programs.code, studentPrograms.program_code)
       )
       .where(({ programs }) => eq(programs.code, programCode))
