@@ -106,7 +106,7 @@ function DashboardPage() {
             <Separator />
 
             {gradeDistributionRoles.some(role => session.roles.includes(role)) && !isLoading &&
-                <TermGradeDistribution mnumber={session.mnumber!} title="Term Grade Distributions" description="View the distribution of grades over recent terms." />
+                <TermGradeDistribution mnumber={session.mnumber!} title="Term Grade Distributions" description="View the distribution of class grades over your recent terms." />
             }
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
