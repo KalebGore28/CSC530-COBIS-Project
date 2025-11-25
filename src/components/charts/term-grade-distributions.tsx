@@ -1,13 +1,14 @@
 import { useState } from "react"
-import { ChartConfig, ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { ChartConfig, ChartContainer, ChartLegend, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Area, AreaChart, XAxis, YAxis, LabelList, CartesianGrid } from "recharts"
+import { Area, AreaChart, XAxis, YAxis, CartesianGrid } from "recharts"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-// Import GraphQL imports
-import { useQuery } from '@tanstack/react-query';
-import { execute } from '@/graphql/execute';
-import { graphql } from '@/graphql';
+import { useCurrentTerm } from "@/providers/current-term-provider"
+import { termsCollection } from "@/collections/terms"
+import { studentCoursesCollection } from "@/collections/student-courses"
+import { useLiveQuery, eq, gte, and } from '@tanstack/react-db';
 
 const defaultChartConfig: ChartConfig = {
 	A: { label: "A", color: "var(--chart-1)" },
@@ -18,90 +19,76 @@ const defaultChartConfig: ChartConfig = {
 	"N/A": { label: "N/A", color: "var(--chart-6)" },
 }
 
-const yearMap: Record<string, number> = {
-	"1y": 1,
-	"2y": 2,
-	"3y": 3,
-	"5y": 5,
-	"10y": 10,
-};
+type AllowedGrade = "A" | "B" | "C" | "D" | "E" | "N/A";
+type GradeEntry = {
+	year_term: string;
+} & Record<AllowedGrade, number>
 
-// Map term codes to sort order for chronological sorting
-const termSortOrder: { [key: string]: number } = {
-	'10': 1, // Spring
-	'50': 2, // Summer
-	'80': 3, // Fall
-	'90': 4, // Winter
-};
+type RequiredStudentCourseProps = {
+	year: number;
+	term: string | undefined;
+	midterm_grade: string | null;
+	final_grade: string | null;
+} & Record<string, unknown>
 
-const allGrades = ['A', 'B', 'C', 'D', 'E', 'N/A'];
+function convertToPercentages(data: GradeEntry[]) {
+	return data.map((entry) => {
+		const total =
+			entry.A +
+			entry.B +
+			entry.C +
+			entry.D +
+			entry.E +
+			entry["N/A"];
 
-const getCurrentYearTermQuery = graphql(`
-	query getCurrentYearTermQuery {
-		getCurrentYearTerm {
-			year
-			term
-			term_code
+		const pctEntry: GradeEntry = { ...entry };
+
+		if (total > 0) {
+			(["A", "B", "C", "D", "E", "N/A"] as AllowedGrade[]).forEach((g) => {
+				pctEntry[g] = Number(((entry[g] as number) / total * 100).toFixed(2));
+			});
 		}
-	}
-`);
 
-const termGradeDistributionsQuery = graphql(`
-	query termGradeDistributionsQuery($mnumber: String!, $startTerm: String!, $startYear: Int!) {
-		facultySingle(where: { mnumber: { eq: $mnumber }}) {
-			mnumber
-			grade_distribution_trend(startTerm: $startTerm, startYear: $startYear) {
-				distributions {
-					count
-					grade
-					percentage
-				}
-				term {
-					code
-					description
-				}
-				year
-			}
-		}
-	}
-`);
+		return pctEntry;
+	});
+}
 
 export function TermGradeDistribution({ mnumber, title, description }: {
 	mnumber: string
 	title: string
 	description: string
 }) {
-	const [timeRange, setTimeRange] = useState("1y")
-	const [offset, setOffset] = useState(1)
+	const { currentTerm } = useCurrentTerm();
+	const [offset, setOffset] = useState("1") // in years
+	const [view, setView] = useState<"midterm" | "final">("final")
 
-	const { data: getCurrentYearTermData, isLoading: isLoadingCurrentYearTerm } = useQuery({
-		queryKey: ['getCurrentYearTerm'],
-		queryFn: () => execute(getCurrentYearTermQuery),
-	});
+	const { data: grade_distribution_data, isLoading } = useLiveQuery((q) =>
+		q.from({ studentCourse: studentCoursesCollection })
+			.where(({ studentCourse }) => and(
+				eq(studentCourse.instructor_mnumber, mnumber),
+				gte(studentCourse.year, currentTerm.year - 10) // Fetch last 10 years for max offset
+			))
+			.leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
+				eq(studentCourse.term_code, term.code)
+			)
+			.select(({ studentCourse, term }) => ({
+				year: studentCourse.year,
+				term: term?.description,
+				midterm_grade: studentCourse.midterm_grade,
+				final_grade: studentCourse.final_grade,
+			}))
+	)
 
-	const getCurrentYearTerm = getCurrentYearTermData?.getCurrentYearTerm;
-
-	const { data: gradeDistributionDataQueryData } = useQuery({
-		queryKey: ['termGradeDistributions', mnumber, offset, getCurrentYearTerm],
-		queryFn: () => execute(termGradeDistributionsQuery, {
-			mnumber,
-			startTerm: getCurrentYearTerm!.term_code!,
-			startYear: getCurrentYearTerm!.year! - offset,
-		}),
-		enabled: !!getCurrentYearTerm && !!getCurrentYearTerm.year && !!getCurrentYearTerm.term_code && !isLoadingCurrentYearTerm,
-	});
-
-	const gradeDistributionData = gradeDistributionDataQueryData?.facultySingle;
-
-	// Handle time range change
-	const handleTimeRangeChange = (value: string) => {
-		setTimeRange(value)
-		setOffset(yearMap[value] ?? 1);
+	if (isLoading) {
+		return null;
 	}
 
+	// Filter data based on offset
+	const filteredData = grade_distribution_data?.filter((sc) => sc.year >= currentTerm.year - Number(offset));
+
 	return (
-		<Card className="gap-0">
-			<CardHeader className="grid grid-cols-1 sm:grid-cols-[1fr_auto] items-center border-b gap-4 py-4">
+		<Card className="gap-0 flex flex-col">
+			<CardHeader className="items-center border-b-0 pb-0">
 				{/* Left column: title + description */}
 				<div className="text-center sm:text-left">
 					<CardTitle>{title}</CardTitle>
@@ -109,86 +96,100 @@ export function TermGradeDistribution({ mnumber, title, description }: {
 				</div>
 
 				{/* Right column: fetch / select controls */}
-				<div className="flex items-center justify-center sm:justify-end space-x-2">
-					<Select value={timeRange} onValueChange={handleTimeRangeChange}>
+				<div className="flex justify-around sm:justify-start gap-4">
+					{/* Select view */}
+					<Tabs
+						defaultValue="final"
+						onValueChange={(val) => setView(val as "midterm" | "final")}
+					>
+						<TabsList className="rounded-lg">
+							<TabsTrigger
+								value="midterm"
+								className="rounded-lg"
+							>
+								Midterm
+							</TabsTrigger>
+							<TabsTrigger
+								value="final"
+								className="rounded-lg"
+							>
+								Final
+							</TabsTrigger>
+						</TabsList>
+					</Tabs>
+
+					{/* Select offset */}
+					<Select onValueChange={(val) => setOffset(val)} defaultValue="1">
 						<SelectTrigger
 							className="w-[160px] rounded-lg"
 							aria-label="Select time range"
 						>
-							<SelectValue placeholder="All time" />
+							<SelectValue placeholder="Select time range" />
 						</SelectTrigger>
 						<SelectContent className="rounded-xl">
-							<SelectItem value="10y" className="rounded-lg">
+							<SelectItem value="10" className="rounded-lg">
 								Last 10 years
 							</SelectItem>
-							<SelectItem value="5y" className="rounded-lg">
+							<SelectItem value="5" className="rounded-lg">
 								Last 5 years
 							</SelectItem>
-							<SelectItem value="3y" className="rounded-lg">
+							<SelectItem value="3" className="rounded-lg">
 								Last 3 years
 							</SelectItem>
-							<SelectItem value="2y" className="rounded-lg">
+							<SelectItem value="2" className="rounded-lg">
 								Last 2 years
 							</SelectItem>
-							<SelectItem value="1y" className="rounded-lg">
+							<SelectItem value="1" className="rounded-lg">
 								Last year
 							</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
 			</CardHeader>
-
-			<CardContent className="mx-4 px-0">
-				{gradeDistributionData && gradeDistributionData.grade_distribution_trend && (
+			<CardContent className="p-2">
+				{!isLoading && (
 					<GradeDistributionChart
-						//@ts-ignore
-						grade_distribution_data={gradeDistributionData.grade_distribution_trend}
+						studentCourses={filteredData}
+						view={view}
 					/>
-				)
-				}
+				)}
 			</CardContent>
 		</Card>
 	)
 }
 
-type GradeDistributionTrendItem = {
-	distributions: { count?: number; grade: string; percentage: number }[];
-	term: { code: string; description: string };
-	year: number;
+type GradeDistributionChartProps = {
+	studentCourses: RequiredStudentCourseProps[];
+	view: "midterm" | "final";
 };
 
-const GradeDistributionChart: React.FC<{ grade_distribution_data: GradeDistributionTrendItem[] }> = ({ grade_distribution_data }) => {
-	// Transform the data into a format suitable for the chart
-	const transformedData = (grade_distribution_data)
-		.map((item) => {
-			// Initialize gradeData with all grades set to 0
-			const gradeData = allGrades.reduce((acc, grade) => {
-				acc[grade] = 0; // Default to 0
-				return acc;
-			}, {} as Record<string, number>);
+function GradeDistributionChart({ studentCourses, view }: GradeDistributionChartProps) {
 
-			// Populate actual grade percentages
-			item.distributions.forEach((distribution) => {
-				const grade = distribution.grade;
-				const percentage = distribution.percentage;
-				gradeData[grade] = percentage;
-			});
+	const yearTermMidtermData: GradeEntry[] = [];
+	const yearTermFinalData: GradeEntry[] = [];
 
-			return {
-				date: `${item.term.description}-${item.year}`, // e.g., "Fall-2023"
-				termCode: item.term.code, // e.g., "80"
-				year: item.year, // e.g., 2023
-				...gradeData,
-			};
-		})
-		.sort((a, b) => {
-			// Sort by year first
-			if (a.year !== b.year) {
-				return a.year - b.year; // Ascending year (e.g., 2023 before 2024)
-			}
-			// If years are equal, sort by term code
-			return termSortOrder[a.termCode] - termSortOrder[b.termCode]; // Ascending term (Spring < Summer < Fall < Winter)
-		});
+	studentCourses.forEach((sc) => {
+		const yearTermKey = `${sc.term} ${sc.year}`;
+
+		let yearTermMidtermEntry = yearTermMidtermData.find((entry) => entry.year_term === yearTermKey);
+		if (!yearTermMidtermEntry) {
+			yearTermMidtermEntry = { year_term: yearTermKey, A: 0, B: 0, C: 0, D: 0, E: 0, "N/A": 0 };
+			yearTermMidtermData.push(yearTermMidtermEntry);
+		}
+		const midtermGrade = sc.midterm_grade ? sc.midterm_grade : "N/A";
+		yearTermMidtermEntry[midtermGrade as AllowedGrade] = (yearTermMidtermEntry[midtermGrade as AllowedGrade] as number) + 1;
+
+		let yearTermFinalEntry = yearTermFinalData.find((entry) => entry.year_term === yearTermKey);
+		if (!yearTermFinalEntry) {
+			yearTermFinalEntry = { year_term: yearTermKey, A: 0, B: 0, C: 0, D: 0, E: 0, "N/A": 0 };
+			yearTermFinalData.push(yearTermFinalEntry);
+		}
+		const finalGrade = sc.final_grade ? sc.final_grade : "N/A";
+		yearTermFinalEntry[finalGrade as AllowedGrade] = (yearTermFinalEntry[finalGrade as AllowedGrade] as number) + 1;
+	});
+
+	const midtermPercentages = convertToPercentages(yearTermMidtermData);
+	const finalPercentages = convertToPercentages(yearTermFinalData);
 
 	return (
 		<ChartContainer
@@ -196,7 +197,7 @@ const GradeDistributionChart: React.FC<{ grade_distribution_data: GradeDistribut
 			className="aspect-auto h-[400px] w-full"
 		>
 			<AreaChart
-				data={transformedData}
+				data={view === "final" ? finalPercentages : midtermPercentages}
 				margin={{
 					top: 40,
 					right: 30,
@@ -229,7 +230,7 @@ const GradeDistributionChart: React.FC<{ grade_distribution_data: GradeDistribut
 				<CartesianGrid vertical={false} />
 
 				<XAxis
-					dataKey="date"
+					dataKey="year_term"
 					tickLine={false}
 					axisLine={false}
 					tickMargin={8}
@@ -271,39 +272,10 @@ const GradeDistributionChart: React.FC<{ grade_distribution_data: GradeDistribut
 						fill={`url(#fill${grade})`}
 						stroke={config.color}
 						stackId="a"
-					>
-						<LabelList
-							dataKey={grade}
-							position="bottom"
-							offset={0}
-							content={(renderProps) => <CustomizedLabel {...renderProps} dataKey={grade} />}
-						/>
-
-					</Area>
+					/>
 				))}
-				<ChartLegend
-					content={<ChartLegendContent />}
-					verticalAlign="bottom"
-				/>
+				<ChartLegend verticalAlign="bottom" />
 			</AreaChart>
 		</ChartContainer>
 	)
 }
-
-// Custom Label Component for LabelList
-const CustomizedLabel: React.FC<any> = ({ x, y, value, dataKey }) => {
-	const MIN_PERCENTAGE_TO_SHOW = 5;
-	if (value < MIN_PERCENTAGE_TO_SHOW || isNaN(x) || isNaN(y)) return null;
-	return (
-		<text
-			x={x}
-			y={y + 15}
-			fill="var(--primary)"
-			fontSize={10}
-			textAnchor="middle"
-			dominantBaseline="middle"
-		>
-			{`${dataKey}-${value.toFixed(0)}%`}
-		</text>
-	);
-};

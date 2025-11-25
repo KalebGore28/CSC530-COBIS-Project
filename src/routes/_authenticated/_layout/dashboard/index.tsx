@@ -6,6 +6,7 @@ import { Users, LineChart, BarChart3, Telescope, School, Contact, ChartColumnInc
 import { useSession } from "@/components/provider/session";
 import { hasRouteAccess } from '@/components/provider/session';
 import { TermGradeDistribution } from '@/components/charts/term-grade-distributions';
+import { useCurrentTerm } from '@/providers/current-term-provider';
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     component: DashboardPage,
@@ -83,6 +84,8 @@ function DashboardPage() {
     const { session } = useSession();
     if (!session) return null;
 
+    const { isLoading } = useCurrentTerm();
+
     // Filter cards based on user roles and route permissions
     const visibleCards = dashboardCardsStructure.filter(card =>
         hasRouteAccess(card.link, session.roles)
@@ -102,7 +105,7 @@ function DashboardPage() {
 
             <Separator />
 
-            {gradeDistributionRoles.some(role => session.roles.includes(role)) &&
+            {gradeDistributionRoles.some(role => session.roles.includes(role)) && !isLoading &&
                 <TermGradeDistribution mnumber={session.mnumber!} title="Term Grade Distributions" description="View the distribution of grades over recent terms." />
             }
 
