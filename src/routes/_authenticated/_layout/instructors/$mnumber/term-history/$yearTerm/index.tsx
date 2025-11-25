@@ -152,7 +152,7 @@ function RouteComponent() {
         <CardContent className='p-1 m-0 bg-blue-950 border bg-primary rounded-xl'>
           <div className='border rounded-lg bg-white dark:bg-gray-800'>
             <CoursesTable data={Array.from(coursesMap.values()).map((course) => ({
-              course: course.course_id + '-' + course.course_section,
+              course: `${course.course_id}-${course.course_section}`,
               title: course.course_title,
               credit_hour: course.credit_hour,
               total_students: course.total_students,

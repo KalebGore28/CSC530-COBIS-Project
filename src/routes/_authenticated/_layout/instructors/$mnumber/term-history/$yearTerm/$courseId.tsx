@@ -3,6 +3,18 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Roster } from '@/components/roster';
 
+import { studentsCollection } from "@/collections/students";
+import { studentAcademicInfoCollection } from "@/collections/student-academic-info";
+import { termsCollection } from "@/collections/terms";
+import { coursesCollection } from "@/collections/courses";
+import { studentCoursesCollection } from "@/collections/student-courses";
+import { useLiveQuery, eq, and } from '@tanstack/react-db';
+
+import { RosterInfoCard } from "@/components/roster/roster-info-card";
+import { RosterGradeDistributions } from "@/components/roster/roster-grade-distributions";
+import { RosterSummaryCard } from "@/components/roster/roster-summary-card";
+import { RosterStudents } from "@/components/roster/roster-students";
+
 export const Route = createFileRoute(
   '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/$courseId',
 )({
@@ -13,19 +25,71 @@ function RouteComponent() {
   const params = useParams({ from: '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/$courseId' })
   const mnumber = params.mnumber!
   const yearTerm = params.yearTerm!
-  const courseId = params.courseId!
+  const courseParam = params.courseId!
   const navigate = useNavigate();
 
   const termCode = yearTerm?.slice(-2);
   const year = parseInt(yearTerm?.slice(0, 4) || '0', 10);
-
-  const courseProps = courseId.match(/^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/);
-
+  const courseProps = courseParam.match(/^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/);
   const course = {
-    subject: courseProps ? courseProps[1] : '',
-    number: courseProps ? parseInt(courseProps[2]) : 0,
-    suffix: courseProps ? courseProps[3] : '',
+    course_id: courseProps ? courseProps[1] + courseProps[2] + courseProps[3] : '',
     section: courseProps ? courseProps[4] : '',
+  }
+
+  const { data: instructorCourses, isLoading } = useLiveQuery((q) =>
+    q.from({ studentCourse: studentCoursesCollection })
+      .where(({ studentCourse }) => and(
+        eq(studentCourse.instructor_mnumber, mnumber),
+        eq(studentCourse.year, year),
+        eq(studentCourse.term_code, termCode),
+        eq(studentCourse.course_id, course.course_id),
+        eq(studentCourse.course_section, course.section)
+      ))
+      .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
+        eq(studentCourse.term_code, term.code)
+      )
+      .leftJoin({ course: coursesCollection }, ({ studentCourse, course }) =>
+        eq(studentCourse.course_id, course.code)
+      )
+      .leftJoin({ student: studentsCollection }, ({ studentCourse, student }) =>
+        eq(studentCourse.mnumber, student.mnumber)
+      )
+      .leftJoin({ studentAcademicInfo: studentAcademicInfoCollection }, ({ studentCourse, studentAcademicInfo }) =>
+        eq(studentCourse.mnumber, studentAcademicInfo.mnumber)
+      )
+      .select(({ studentCourse, term, course, studentAcademicInfo, student }) => ({
+        mnumber: studentCourse.mnumber,
+        first_name: student?.first_name,
+        last_name: student?.last_name,
+        email: student?.email || undefined,
+        course_id: studentCourse.course_id,
+        course_section: studentCourse.course_section,
+        course_title: course?.title,
+        course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
+        year: studentCourse.year,
+        term_code: studentCourse.term_code,
+        term_description: term?.description,
+        midterm_grade: studentCourse.midterm_grade,
+        final_grade: studentCourse.final_grade,
+        last_attendance: studentCourse.last_attendance,
+        student_gpa: studentAcademicInfo?.overall_gpa || null,
+      })),
+  )
+
+  if (!isLoading && (!instructorCourses || instructorCourses.length === 0)) {
+    return (
+      <div className="container p-6 mx-auto">
+        <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
+        <p>No roster found for this course.</p>
+      </div>
+    );
+  }
+
+  if(isLoading){
+    return <div className="container p-6 mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
+      <p>Loading...</p>
+    </div>
   }
 
   return (
@@ -45,12 +109,24 @@ function RouteComponent() {
         </Button>
       </div>
 
-        <Roster
-          mnumber={mnumber}
-          course={course}
-          term_code={termCode}
-          year={year}
-         />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
+        <RosterInfoCard
+          className={"col-span-2"}
+          studentCourses={instructorCourses}
+        />
+        <RosterGradeDistributions
+          className={"col-span-2 md:col-span-1"}
+          studentCourses={instructorCourses}
+        />
+        <RosterSummaryCard
+          className={"col-span-2 md:col-span-1"}
+          studentCourses={instructorCourses}
+        />
+        <RosterStudents
+          className={"col-span-2"}
+          studentCourses={instructorCourses}
+        />
+      </div>
     </div>
   )
 }
