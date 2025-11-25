@@ -40,9 +40,10 @@ type RequiredStudentCourseProps = {
 export interface RosterStudentsProps {
 	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
+	isLoading?: boolean;
 }
 
-export function RosterStudents({ studentCourses, className }: RosterStudentsProps) {
+export function RosterStudents({ studentCourses, className, isLoading }: RosterStudentsProps) {
 	const [searchQuery, setSearchQuery] = useState("");
 	const [gradeFilter, setGradeFilter] = useState("all");
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
@@ -50,7 +51,7 @@ export function RosterStudents({ studentCourses, className }: RosterStudentsProp
 
 	const studentMnumbers = studentCourses.map((sc) => sc.mnumber);
 
-	const { data: studentPrograms, isLoading } = useLiveQuery((q) =>
+	const { data: studentPrograms, isLoading: programsLoading } = useLiveQuery((q) =>
 		q.from({ studentProgram: studentProgramsCollection })
 			.where(({ studentProgram }) => inArray(studentProgram.mnumber, studentMnumbers))
 			.leftJoin({ program: programsCollection }, ({ studentProgram, program }) =>
@@ -62,7 +63,7 @@ export function RosterStudents({ studentCourses, className }: RosterStudentsProp
 			}))
 	);
 
-	if (isLoading) {
+	if (isLoading || programsLoading) {
 		return (
 			<div className={className}>
 				<p>Loading student programs...</p>

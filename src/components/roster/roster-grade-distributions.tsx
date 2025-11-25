@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
-
 type AllowedGrade = "A" | "B" | "C" | "D" | "E" | "N/A";
 type GradeEntry = {
 	grade: AllowedGrade;
@@ -18,10 +17,29 @@ type RequiredStudentCourseProps = {
 type RosterGradeDistributionsProps = {
 	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
+	isLoading?: boolean;
 }
 
-export function RosterGradeDistributions({ studentCourses, className }: RosterGradeDistributionsProps) {
+export function RosterGradeDistributions({ studentCourses, className, isLoading }: RosterGradeDistributionsProps) {
 	const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
+
+	if (isLoading) {
+		return (
+			<Card className={className}>
+				<CardHeader className="flex flex-wrap items-center justify-between gap-4">
+					<div>
+						<CardTitle>Grade Distributions</CardTitle>
+						<CardDescription className="text-sm text-muted-foreground">
+							Loading grade distributions...
+						</CardDescription>
+					</div>
+				</CardHeader>
+				<CardContent>
+					<p>Loading data...</p>
+				</CardContent>
+			</Card>
+		);
+	}
 
 	const midtermGrades: GradeEntry[] = [];
 	const finalGrades: GradeEntry[] = [];

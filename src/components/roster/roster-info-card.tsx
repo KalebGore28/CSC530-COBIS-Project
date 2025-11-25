@@ -18,13 +18,39 @@ type RequiredStudentCourseProps = {
 type RosterInfoCardProps = {
 	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
+	isLoading?: boolean;
 }
 
-export function RosterInfoCard({ studentCourses, className }: RosterInfoCardProps) {
-	const { data: currentTerm, isLoading } = useLiveQuery((q) =>
+function RosterInfoCardSkeleton({ className }: { className?: string }) {
+	return (
+		<Card className={className}>
+			<CardContent>
+				<div className="flex flex-col md:flex-row justify-between gap-6">
+					{/* Left column */}
+					<div className="flex flex-col gap-2">
+						<Skeleton className="h-7 w-40" /> {/* course_id-section */}
+						<Skeleton className="h-5 w-56" /> {/* course_title */}
+						<Skeleton className="h-4 w-72" /> {/* term/year/hours */}
+					</div>
+
+					{/* Right column */}
+					<div className="flex flex-col justify-between items-end gap-4">
+						<Skeleton className="h-6 w-20 rounded-full" /> {/* Badge */}
+						<Skeleton className="h-7 w-24" /> {/* student count */}
+					</div>
+				</div>
+			</CardContent>
+		</Card>
+	)
+}
+
+export function RosterInfoCard({ studentCourses, className, isLoading }: RosterInfoCardProps) {
+	const { data: currentTerm, isLoading: currentTermLoading } = useLiveQuery((q) =>
 		q.from({ collection: currentTermCollection })
 			.findOne()
 	);
+
+	if (isLoading || currentTermLoading) return <RosterInfoCardSkeleton className={className} />;
 
 	const course = studentCourses[0];
 	const totalStudents = studentCourses.length;
@@ -33,28 +59,6 @@ export function RosterInfoCard({ studentCourses, className }: RosterInfoCardProp
 	// We need to get all unique credit hours from studentCourses to account for variable credit courses
 	const uniqueCreditHours = Array.from(new Set(studentCourses.map(sc => sc.course_hours))).sort((a, b) => a - b);
 
-	if (isLoading) {
-		return (
-			<Card className={className}>
-				<CardContent>
-					<div className="flex flex-col md:flex-row justify-between gap-6">
-						{/* Left column */}
-						<div className="flex flex-col gap-2">
-							<Skeleton className="h-7 w-40" /> {/* course_id-section */}
-							<Skeleton className="h-5 w-56" /> {/* course_title */}
-							<Skeleton className="h-4 w-72" /> {/* term/year/hours */}
-						</div>
-
-						{/* Right column */}
-						<div className="flex flex-col justify-between items-end gap-4">
-							<Skeleton className="h-6 w-20 rounded-full" /> {/* Badge */}
-							<Skeleton className="h-7 w-24" /> {/* student count */}
-						</div>
-					</div>
-				</CardContent>
-			</Card>
-		);
-	}
 
 	const isActive = currentTerm
 		? (course.year === currentTerm.year && course.term_code === currentTerm.term_code)

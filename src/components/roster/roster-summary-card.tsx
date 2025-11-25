@@ -1,4 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 type RequiredStudentCourseProps = {
 	midterm_grade: string | null;
@@ -9,6 +10,7 @@ type RequiredStudentCourseProps = {
 type RosterSummaryCardProps = {
 	studentCourses: RequiredStudentCourseProps[];
 	className?: string;
+	isLoading?: boolean;
 };
 
 const gradeValues = new Map<string, number>([
@@ -19,7 +21,87 @@ const gradeValues = new Map<string, number>([
 	['E', 0.0],
 ]);
 
-export function RosterSummaryCard({ studentCourses, className }: RosterSummaryCardProps) {
+function RosterSummaryCardSkeleton({ className }: { className?: string }) {
+	return (
+		<Card className={className}>
+			<CardHeader>
+				<CardTitle>
+					<Skeleton className="h-5 w-32" />
+				</CardTitle>
+				<CardDescription>
+					<Skeleton className="h-4 w-48" />
+				</CardDescription>
+			</CardHeader>
+
+			<CardContent>
+				<div className="space-y-6">
+
+					{/* Core Metrics */}
+					<dl className="grid grid-cols-1 gap-4 text-sm">
+						<div className="flex items-center justify-between">
+							<dt className="text-muted-foreground">
+								<Skeleton className="h-4 w-28" />
+							</dt>
+							<dd>
+								<Skeleton className="h-4 w-10" />
+							</dd>
+						</div>
+
+						<div className="flex items-center justify-between">
+							<dt className="text-muted-foreground">
+								<Skeleton className="h-4 w-20" />
+							</dt>
+							<dd>
+								<Skeleton className="h-4 w-10" />
+							</dd>
+						</div>
+
+						<div className="flex items-center justify-between">
+							<dt className="text-muted-foreground">
+								<Skeleton className="h-4 w-28" />
+							</dt>
+							<dd>
+								<Skeleton className="h-4 w-12" />
+							</dd>
+						</div>
+
+						<div className="flex items-center justify-between">
+							<dt className="text-muted-foreground">
+								<Skeleton className="h-4 w-24" />
+							</dt>
+							<dd>
+								<Skeleton className="h-4 w-12" />
+							</dd>
+						</div>
+					</dl>
+
+					{/* Additional Statistics */}
+					<div>
+						<h3 className="text-sm font-semibold mb-2">
+							<Skeleton className="h-4 w-32" />
+						</h3>
+
+						<dl className="grid grid-cols-1 gap-4 text-sm">
+							<div className="flex items-center justify-between">
+								<dt className="text-muted-foreground">
+									<Skeleton className="h-4 w-28" />
+								</dt>
+								<dd>
+									<Skeleton className="h-4 w-40" />
+								</dd>
+							</div>
+						</dl>
+					</div>
+
+				</div>
+			</CardContent>
+		</Card>
+	);
+}
+
+export function RosterSummaryCard({ studentCourses, className, isLoading }: RosterSummaryCardProps) {
+
+	if (isLoading) return <RosterSummaryCardSkeleton className={className} />;
 
 	const totalStudents = studentCourses.length;
 

@@ -1,7 +1,6 @@
 import { createFileRoute, useParams, useNavigate } from '@tanstack/react-router'
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Roster } from '@/components/roster';
 
 import { studentsCollection } from "@/collections/students";
 import { studentAcademicInfoCollection } from "@/collections/student-academic-info";
@@ -85,13 +84,6 @@ function RouteComponent() {
     );
   }
 
-  if(isLoading){
-    return <div className="container p-6 mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
-      <p>Loading...</p>
-    </div>
-  }
-
   return (
     <div className="w-full mx-auto p-6 space-y-6">
       <div className="flex flex-col">
@@ -113,18 +105,22 @@ function RouteComponent() {
         <RosterInfoCard
           className={"col-span-2"}
           studentCourses={instructorCourses}
+          isLoading={isLoading}
         />
         <RosterGradeDistributions
           className={"col-span-2 md:col-span-1"}
           studentCourses={instructorCourses}
+          isLoading={isLoading}
         />
         <RosterSummaryCard
           className={"col-span-2 md:col-span-1"}
           studentCourses={instructorCourses}
+          isLoading={isLoading}
         />
         <RosterStudents
           className={"col-span-2"}
           studentCourses={instructorCourses}
+          isLoading={isLoading}
         />
       </div>
     </div>
