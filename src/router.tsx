@@ -1,6 +1,7 @@
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental'
+import { NotFound } from './not-found'
 import pkg from '../package.json'
 
 // Import the generated route tree
@@ -18,6 +19,7 @@ export const getRouter = () => {
     scrollRestoration: true,
     defaultPreload: 'intent',
     defaultPreloadStaleTime: 0,
+    defaultNotFoundComponent: () => <NotFound />,
   })
 
   // By default, the integration wraps your router with a QueryClientProvider.
