@@ -5,9 +5,7 @@ import { urlParamsParser } from '@/utils/url-params-parser'
 import { getStudentAccess } from '@/utils/get-student-access'
 import { gzipSync } from 'node:zlib'
 
-export const Route = createFileRoute(
-    '/api/__protected/data/student-academic-info',
-)({
+export const Route = createFileRoute('/api/__protected/data/student-academic-info')({
     server: {
         handlers: {
             GET: async ({ request, context }) => {
