@@ -18,7 +18,6 @@ export type ExtendedCourseSearch = Course & {
 };
 
 interface CourseSearchBoxProps {
-    /** Called whenever the selected course or its state changes */
     onSelectChange?: (selected: ExtendedCourseSearch | null) => void;
 }
 
@@ -27,8 +26,9 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
         "=": "EQ",
         ">=": "GTE",
         "<=": "LTE",
+        "≠": "NE",
     }
-    type Operator = "=" | ">=" | "<=";
+    type Operator = "=" | ">=" | "<=" | "≠";
     const [query, setQuery] = useState("");
     const [selected, setSelected] = useState<Course | null>(null);
     const [taken, setTaken] = useState(false);
@@ -129,6 +129,7 @@ export function CourseSearchBox({ onSelectChange }: CourseSearchBoxProps) {
                                         <SelectItem value="=">=</SelectItem>
                                         <SelectItem value=">=">&gt;=</SelectItem>
                                         <SelectItem value="<=">&lt;=</SelectItem>
+                                        <SelectItem value="≠">≠</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

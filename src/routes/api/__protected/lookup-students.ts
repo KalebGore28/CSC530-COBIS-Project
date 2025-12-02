@@ -328,10 +328,13 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     .offset(parsed.data.offset || 0)
                     .limit(parsed.data.limit || 100);
 
+                // Figure out if we have a next cursor
+                const hasMore = studentRows.length === (parsed.data.limit || 100);
 
                 const json = JSON.stringify({
                     students: studentRows,
                     errors: errors.length ? errors : undefined,
+                    nextCursor: hasMore ? (parsed.data.offset || 0) + (parsed.data.limit || 100) : undefined,
                 });
 
                 const compressed = gzipSync(Buffer.from(json))
