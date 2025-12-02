@@ -30,9 +30,10 @@ function RouteComponent() {
                         })}
                         className="w-full"
                     >
-                        <TabsList className="grid grid-cols-2">
+                        <TabsList className="grid grid-cols-3">
                             <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="import">Import</TabsTrigger>
                             <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="users">Users</TabsTrigger>
+                            <TabsTrigger className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground' value="manage-tables">Manage Tables</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </CardContent>

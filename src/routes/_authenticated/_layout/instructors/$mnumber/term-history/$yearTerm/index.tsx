@@ -5,7 +5,7 @@ import { CourseGradeChart } from '@/components/charts/course-grade-distributions
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card';
 import { ArrowLeft, BookOpen, Users, Calculator } from 'lucide-react';
 
-import { CoursesTable } from '@/components/tables/courses-table';
+import { CoursesTable } from '@/components/tables/current-term-courses-table';
 import { coursesCollection } from '@/collections/courses';
 import { studentCoursesCollection } from '@/collections/student-courses'
 import { termsCollection } from '@/collections/terms';

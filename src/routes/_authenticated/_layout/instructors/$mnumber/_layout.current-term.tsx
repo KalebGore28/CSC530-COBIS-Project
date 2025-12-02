@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { studentCoursesCollection } from '@/collections/student-courses'
 import { coursesCollection } from '@/collections/courses'
-import { CoursesTable } from '@/components/tables/courses-table'
+import { CoursesTable } from '@/components/tables/current-term-courses-table'
 import { useLiveQuery, eq, and, count, sum } from '@tanstack/react-db'
 
 

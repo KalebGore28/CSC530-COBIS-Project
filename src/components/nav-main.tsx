@@ -55,6 +55,7 @@ const nav_main_data = [
 		items: [
 			{ title: "Import", url: "/cobis-tools/import" },
 			{ title: "Users", url: "/cobis-tools/users" },
+			{ title: "Manage Tables", url: "/cobis-tools/manage-tables" },
 		],
 	},
 	{
