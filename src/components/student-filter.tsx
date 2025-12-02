@@ -4,40 +4,31 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { Loader2 } from "lucide-react";
 
-import { courses } from "@/db/schema";
+import { courses, programs } from "@/db/schema";
 
 type Course = typeof courses.$inferSelect;
+type Program = typeof programs.$inferSelect;
 
-import { ProgramSearchBox, ExtendedProgramSearch } from "@/components/search/program-search";
-import { CourseSearchBox, ExtendedCourseSearch } from "@/components/search/course-search";
-
-enum ComparisonOperator {
-	EQ = "Equal",
-	NE = "Not Equal",
-	LT = "Less Than",
-	LTE = "Less Than or Equal",
-	GT = "Greater Than",
-	GTE = "Greater Than or Equal",
-}
-
-type OperatorKey = keyof typeof ComparisonOperator;
-
+import { ProgramSearchBox } from "@/components/search/program-search";
+import { CourseSearchBox } from "@/components/search/course-search";
+import { OperatorVal } from "@/types/operators";
+import { GradeKey } from "@/types/grades";
 
 export interface FilterState {
 	academicLevels?: string[];
 	gpaMax?: number;
 	gpaMin?: number;
-	program?: {
-		code: string;
-		is_major?: boolean;
-		is_minor?: boolean;
-	};
-	course?: {
-		course_id: string;
-		taken: boolean;
-		operator?: OperatorKey;
-		grade?: string;
-	};
+
+	// Program filters
+	program?: Program;
+	majorOnly?: boolean;
+	minorOnly?: boolean;
+
+	// Course filters
+	course?: Course;
+	taken?: boolean;
+	operator?: OperatorVal;
+	grade?: GradeKey;
 }
 
 interface StudentFiltersProps {
@@ -52,7 +43,6 @@ export const StudentFilters = ({
 	isLoading,
 }: StudentFiltersProps) => {
 	const academicLevelOptions = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
-	const courseKey = (c: Course) => `${c.subject}${c.number}${c.suffix}`;
 
 	// academic & GPA
 	const [filters, setFilters] = useState<FilterState>({
@@ -80,45 +70,6 @@ export const StudentFilters = ({
 			gpaMax: vals[1],
 		}));
 
-	// Program functions
-	const setProgram = (p: ExtendedProgramSearch | null) => {
-		if (!p) {
-			setFilters((f) => ({
-				...f,
-				program: undefined,
-			}));
-			return;
-		}
-		setFilters((f) => ({
-			...f,
-			program: {
-				code: p.code,
-				is_major: p.selectedAs === "major",
-				is_minor: p.selectedAs === "minor",
-			},
-		}));
-	}
-
-	// Course functions
-	const setCourse = (c: ExtendedCourseSearch | null) => {
-		if (!c) {
-			setFilters((f) => ({
-				...f,
-				course: undefined,
-			}));
-			return;
-		}
-		const key = courseKey(c);
-		setFilters((f) => ({
-			...f,
-			course: {
-				course_id: key,
-				taken: !!c.taken,
-				operator: c.operator as OperatorKey,
-				grade: c.grade,
-			},
-		}));
-	}
 
 	return (
 		<Card className="w-full">
@@ -169,11 +120,17 @@ export const StudentFilters = ({
 				{/* Program & Course Filters */}
 				<div className="flex flex-col gap-2">
 					<span className="text-md font-semibold">Program Filter</span>
-					<ProgramSearchBox onSelectChange={setProgram} />
+					<ProgramSearchBox
+						filterState={filters}
+						onSetFilterState={setFilters}
+					/>
 				</div>
 				<div className="flex flex-col gap-2">
 					<span className="text-md font-semibold">Course Filter</span>
-					<CourseSearchBox onSelectChange={setCourse} />
+					<CourseSearchBox
+						filterState={filters}
+						onSetFilterState={setFilters}
+					/>
 				</div>
 
 				{/* Action Buttons */}
@@ -214,6 +171,5 @@ export const StudentFilters = ({
 				</div>
 			</CardContent>
 		</Card>
-
 	);
 };

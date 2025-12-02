@@ -23,26 +23,25 @@ const makePreHeader = (filters: FilterState): string[] => {
   const lines: string[] = [];
 
   if (filters.academicLevels && filters.academicLevels.length) {
-    lines.push(`Academic Levels,${filters.academicLevels.join("|")}`);
+    lines.push(`# Academic Levels,${filters.academicLevels.join("|")}`);
   }
   if (filters.gpaMin !== undefined && filters.gpaMax !== undefined) {
-    lines.push(`GPA,${filters.gpaMin}-${filters.gpaMax}`);
+    lines.push(`# GPA,${filters.gpaMin}-${filters.gpaMax}`);
   }
 
   if (filters.program) {
     const programLine = `${filters.program.code} - ${filters.program.is_major ? " (major)" : ""
       }${filters.program.is_minor ? " (minor)" : ""}`;
-    lines.push(`Programs,${programLine}`);
+    lines.push(`# Programs,${programLine}`);
   }
 
   if (filters.course) {
-    const courseLine = `${filters.course.course_id} - ${filters.course.taken ? "Taken" : "Not Taken"
-      } ${filters.course.operator ? filters.course.operator : ""
-      } ${filters.course.grade ? filters.course.grade : ""}`;
-    lines.push(`Courses,${courseLine}`);
+    const courseLine = `${filters.course.code} - ${filters.taken ? "Taken" : "Not Taken"
+      } ${filters.operator ? filters.operator : ""
+      } ${filters.grade ? filters.grade : ""}`;
+    lines.push(`# Courses,${courseLine}`);
   }
 
-  lines.push(`Exported At,${format(new Date(), "yyyy-MM-dd HH:mm:ss")}`);
   return lines;
 };
 
@@ -55,7 +54,9 @@ function StudentLookup() {
     params.append("limit", "10");
     if (filters) {
       if (filters.academicLevels && filters.academicLevels.length) {
-        params.append("academicLevel", filters.academicLevels.join(","));
+        for (const level of filters.academicLevels) {
+          params.append("academicLevel", level);
+        }
       }
       if (filters.gpaMin !== undefined) {
         params.append("gpaMin", filters.gpaMin.toString());
@@ -65,17 +66,22 @@ function StudentLookup() {
       }
       if (filters.program) {
         params.append("program_id", filters.program.code);
-        params.append("isMajor", String(!!filters.program.is_major));
-        params.append("isMinor", String(!!filters.program.is_minor));
+
+        if (filters.majorOnly) {
+          params.append("is_major", "true");
+        }
+        if (filters.minorOnly) {
+          params.append("is_minor", "true");
+        }
       }
       if (filters.course) {
-        params.append("course_id", filters.course.course_id);
-        params.append("taken", String(!!filters.course.taken));
-        if (filters.course.operator) {
-          params.append("operator", filters.course.operator);
+        params.append("course_id", filters.course.code);
+        params.append("taken", String(!!filters.taken));
+        if (filters.operator) {
+          params.append("operator", filters.operator);
         }
-        if (filters.course.grade) {
-          params.append("grade", filters.course.grade);
+        if (filters.grade) {
+          params.append("grade", filters.grade);
         }
       }
     }
@@ -118,7 +124,8 @@ function StudentLookup() {
       return;
     }
 
-    // const preHeader = makePreHeader(currentFilters); // TODO: Come back to this later 
+    const header = makePreHeader(currentFilters).join("\n");
+
     const studentData = data.pages.flatMap(page => page.students).map((student) => [
       student.mnumber,
       student.first_name,
@@ -131,7 +138,7 @@ function StudentLookup() {
     });
 
     // Create a blob and download
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const blob = new Blob([header + "\n" + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
 

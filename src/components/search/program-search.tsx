@@ -5,29 +5,22 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { programs } from "@/db/schema";
 
-import { programsCollection } from "@/collections/programs";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
+import { programs } from "@/db/schema";
 
 type Program = typeof programs.$inferSelect;
 
-
-export type ExtendedProgramSearch = Program & {
-    selectedAs?: "major" | "minor" | null;
-};
+import { programsCollection } from "@/collections/programs";
+import { useLiveQuery, ilike, or } from "@tanstack/react-db";
+import type { FilterState } from "../student-filter";
 
 interface ProgramSearchBoxProps {
-    onSelectChange?: (
-        selected: ExtendedProgramSearch | null
-    ) => void;
+    filterState: FilterState;
+    onSetFilterState: (filterState: FilterState) => void;
 }
 
-export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
+export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearchBoxProps) {
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<Program | null>(null);
-    const [isMajor, setIsMajor] = useState(true);
-    const [isMinor, setIsMinor] = useState(false);
 
     const { data: filteredPrograms, isLoading } = useLiveQuery((q) =>
         q.from({ programs: programsCollection })
@@ -44,6 +37,9 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
 
+    // Grab current selection from filter state
+    const selected = filterState.program
+
     if (selected) {
         return (
             <div className="flex flex-col gap-2 border rounded-md px-3 py-2 bg-muted/30">
@@ -55,9 +51,11 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                            setSelected(null);
                             setQuery("");
-                            onSelectChange && onSelectChange(null);
+                            onSetFilterState({
+                                ...filterState,
+                                program: undefined,
+                            });
                         }}
                     >
                         Remove
@@ -70,28 +68,26 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="major"
-                                checked={isMajor}
+                                checked={selected.is_major && (filterState.majorOnly ?? false)}
                                 disabled={!selected.is_minor} // disable if only major available
                                 onCheckedChange={(checked) => {
                                     const nextMajor = !!checked;
 
                                     // Only toggle if both flags exist
                                     if (selected.is_minor) {
-                                        setIsMajor(nextMajor);
-                                        setIsMinor(!nextMajor);
-                                        onSelectChange?.({
-                                            ...selected,
-                                            selectedAs: nextMajor
-                                                ? "major"
-                                                : "minor",
+                                        onSetFilterState({
+                                            ...filterState,
+                                            program: selected,
+                                            majorOnly: nextMajor,
+                                            minorOnly: !nextMajor,
                                         });
                                     } else {
                                         // If only major exists, force it true + disabled
-                                        setIsMajor(true);
-                                        setIsMinor(false);
-                                        onSelectChange?.({
-                                            ...selected,
-                                            selectedAs: "major",
+                                        onSetFilterState({
+                                            ...filterState,
+                                            program: selected,
+                                            majorOnly: true,
+                                            minorOnly: false,
                                         });
                                     }
                                 }}
@@ -106,28 +102,26 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="minor"
-                                checked={isMinor}
+                                checked={selected.is_minor && (filterState.minorOnly ?? false)}
                                 disabled={!selected.is_major} // disable if only minor available
                                 onCheckedChange={(checked) => {
                                     const nextMinor = !!checked;
 
                                     // Only toggle if both flags exist
                                     if (selected.is_major) {
-                                        setIsMinor(nextMinor);
-                                        setIsMajor(!nextMinor);
-                                        onSelectChange?.({
-                                            ...selected,
-                                            selectedAs: nextMinor
-                                                ? "minor"
-                                                : "major",
+                                        onSetFilterState({
+                                            ...filterState,
+                                            program: selected,
+                                            majorOnly: !nextMinor,
+                                            minorOnly: nextMinor,
                                         });
                                     } else {
                                         // If only minor exists, force it true + disabled
-                                        setIsMinor(true);
-                                        setIsMajor(false);
-                                        onSelectChange?.({
-                                            ...selected,
-                                            selectedAs: "minor",
+                                        onSetFilterState({
+                                            ...filterState,
+                                            program: selected,
+                                            majorOnly: false,
+                                            minorOnly: true,
                                         });
                                     }
                                 }}
@@ -154,10 +148,13 @@ export function ProgramSearchBox({ onSelectChange }: ProgramSearchBoxProps) {
             <ProgramResults
                 filteredPrograms={filteredPrograms}
                 onSelect={(prog) => {
-                    setSelected(prog);
-                    onSelectChange && onSelectChange({
-                        ...prog,
-                        selectedAs: isMajor ? "major" : isMinor ? "minor" : null,
+                    onSetFilterState({
+                        ...filterState,
+                        program: prog,
+                        // Default majorOnly if program is major
+                        majorOnly: prog.is_major ? true : false,
+                        // Only default minorOnly if not major
+                        minorOnly: !prog.is_major && prog.is_minor ? true : false,
                     });
                     setQuery("");
                 }}

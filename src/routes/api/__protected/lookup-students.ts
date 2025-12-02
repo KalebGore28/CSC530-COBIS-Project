@@ -98,7 +98,6 @@ export const searchParamsSchema = z.object({
             });
         }
         if (val.taken) {
-            console.log('Taken is true', val.taken);
             // If taken is true, grade and operator are required
             if (!val.grade) {
                 ctx.addIssue({
