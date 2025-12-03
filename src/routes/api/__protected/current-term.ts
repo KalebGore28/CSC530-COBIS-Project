@@ -1,16 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { instructorCourses } from '@/db/schema'
 import { max, desc, eq } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/__protected/current-term')({
     server: {
         handlers: {
-            GET: async () => {
-                const { orm } = await getDbConnection()
-
+            GET: async ({ context }) => {
                 // First, find the maximum year in the instructorCourses table
-                const [result] = await orm
+                const [result] = await context.db
                     .select({
                         year: instructorCourses.year,
                         term_code: instructorCourses.term_code,
@@ -18,7 +15,7 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                     .from(instructorCourses)
                     .where(
                         eq(instructorCourses.year,
-                            orm.select({ max: max(instructorCourses.year) }).from(instructorCourses)
+                            context.db.select({ max: max(instructorCourses.year) }).from(instructorCourses)
                         )
                     )
                     .orderBy(desc(instructorCourses.term_code))

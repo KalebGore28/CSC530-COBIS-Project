@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { faculty } from '@/db/schema'
 import { gzipSync } from 'node:zlib'
 import { eq } from 'drizzle-orm'
@@ -21,9 +20,7 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                     })
                 }
 
-                const { orm } = await getDbConnection()
-
-                const facultyResults = await orm.select().from(faculty)
+                const facultyResults = await context.db.select().from(faculty)
 
                 const json = JSON.stringify(facultyResults)
                 const compressed = gzipSync(Buffer.from(json))
@@ -50,10 +47,8 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
 
                 const updatedFaculty: Faculty = await request.json()
 
-                const { orm } = await getDbConnection()
-
                 // First check if the faculty member is already assigned to a department
-                const [existingFaculty] = await orm
+                const [existingFaculty] = await context.db
                     .select()
                     .from(faculty)
                     .where(eq(faculty.mnumber, updatedFaculty.mnumber))
@@ -70,7 +65,7 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                     )
                 }
 
-                await orm
+                await context.db
                     .update(faculty)
                     .set({
                         department_code: updatedFaculty.department_code,

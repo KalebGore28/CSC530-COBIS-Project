@@ -1,7 +1,5 @@
-// src/routes/api/user/me.ts
 import { createFileRoute } from '@tanstack/react-router'
 import { loadUser } from '@/middleware/load-user'
-import { auth } from '@/lib/server/auth'
 
 export const Route = createFileRoute('/api/user/me')({
     server: {
@@ -9,7 +7,7 @@ export const Route = createFileRoute('/api/user/me')({
         handlers: {
             GET: async ({ request, context }) => {
                 const { mnumber, isEnabled, roles, faculty } = context;
-                const session = await auth.api.getSession({
+                const session = await context.auth.api.getSession({
                     headers: request.headers,
                 });
 

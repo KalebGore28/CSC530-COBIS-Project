@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 // import { reactStartCookies } from "better-auth/react-start";
-import { getDbConnection } from "../../db";
-
-const { orm } = await getDbConnection();
+import { getDbConnection } from "@/db";
 
 export const auth = betterAuth({
 	session: {
@@ -16,7 +14,7 @@ export const auth = betterAuth({
 		expiresIn: 60 * 60 * 24 * 7, // 7 days
 		updateAge: 60 * 60 * 24 // 1 day (every 1 day the session expiration is updated)
 	},
-	database: drizzleAdapter(orm, {
+	database: drizzleAdapter(await getDbConnection(), {
 		provider: "mysql",
 	}),
 	baseURL: process.env.BETTER_AUTH_URL as string,

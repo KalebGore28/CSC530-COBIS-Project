@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { userRoles } from '@/db/schema'
 import { gzipSync } from 'node:zlib'
 
@@ -18,9 +17,7 @@ export const Route = createFileRoute('/api/__protected/data/user-roles')({
                     })
                 }
 
-                const { orm } = await getDbConnection()
-
-                const userRolesResults = await orm.select().from(userRoles)
+                const userRolesResults = await context.db.select().from(userRoles)
 
                 const json = JSON.stringify(userRolesResults)
                 const compressed = gzipSync(Buffer.from(json))

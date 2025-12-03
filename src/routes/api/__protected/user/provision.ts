@@ -4,7 +4,6 @@ import { isEnabled } from '@/middleware/is-enabled'
 import { requireCobisAdmin } from '@/middleware/require-cobis-admin'
 import { user, faculty, userRoles } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { getDbConnection } from '@/db'
 
 export const Route = createFileRoute('/api/__protected/user/provision')({
     server: {
@@ -29,10 +28,8 @@ export const Route = createFileRoute('/api/__protected/user/provision')({
                     )
                 }
 
-                const { orm } = await getDbConnection()
-
                 // Fetch the user to be provisioned
-                const dbUser = await orm
+                const dbUser = await context.db
                     .select()
                     .from(user)
                     .where(eq(user.id, userId))
@@ -73,13 +70,13 @@ export const Route = createFileRoute('/api/__protected/user/provision')({
                 }
                
                 // Update user details
-                await orm.update(user).set({
+                await context.db.update(user).set({
                     mnumber,
                     isEnabled: isEnabled === 'true'
                 }).where(eq(user.id, userId))
 
                 // Update faculty college, department details
-                await orm.update(faculty).set({
+                await context.db.update(faculty).set({
                     college_code: college,
                     department_code: department,
                 }).where(eq(faculty.mnumber, mnumber))
@@ -87,11 +84,11 @@ export const Route = createFileRoute('/api/__protected/user/provision')({
 
                 // Update user roles
                 // First, remove existing roles
-                await orm.delete(userRoles).where(eq(userRoles.user_id, userId))
+                await context.db.delete(userRoles).where(eq(userRoles.user_id, userId))
 
                 // Then, add new roles
                 for (const role_id of role_ids) {
-                    await orm.insert(userRoles).values({
+                    await context.db.insert(userRoles).values({
                         user_id: userId,
                         role_id: parseInt(role_id, 10),
                     })

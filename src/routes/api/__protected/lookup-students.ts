@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { students, studentAcademicInfo, studentPrograms, studentCourses } from '@/db/schema'
 import { type SQLWrapper, eq, and, or, gte, lte, gt, lt, desc, exists, notExists, ne } from 'drizzle-orm'
 import { z } from "zod";
@@ -120,8 +119,7 @@ export const searchParamsSchema = z.object({
 export const Route = createFileRoute('/api/__protected/lookup-students')({
     server: {
         handlers: {
-            GET: async ({ request }) => {
-                const { orm } = await getDbConnection()
+            GET: async ({ request, context }) => {
                 const params = new URL(request.url).searchParams
 
                 const errors: string[] = [];
@@ -158,7 +156,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                 }
 
                 // First get the latest year and term_code found in the student_academic_info table
-                const [latestRecord] = await orm
+                const [latestRecord] = await context.db
                     .select({
                         max_year: studentAcademicInfo.year,
                         max_term: studentAcademicInfo.term_code,
@@ -239,7 +237,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     // Add the exists subquery to the main where clauses
                     whereClauses.push(
                         exists(
-                            orm
+                            context.db
                                 .select()
                                 .from(studentPrograms)
                                 .where(and(...progWhere))
@@ -288,7 +286,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
 
                         whereClauses.push(
                             exists(
-                                orm
+                                context.db
                                     .select()
                                     .from(studentCourses)
                                     .where(and(...courseWhere))
@@ -299,7 +297,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                         // If not taken, we want to ensure no records exist for this student and course
                         whereClauses.push(
                             notExists(
-                                orm
+                                context.db
                                     .select()
                                     .from(studentCourses)
                                     .where(and(...courseWhere))
@@ -311,7 +309,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
 
                 const finalWhere = whereClauses.length ? and(...whereClauses) : undefined;
 
-                const studentRows = await orm
+                const studentRows = await context.db
                     .select({
                         mnumber: students.mnumber,
                         first_name: students.first_name,

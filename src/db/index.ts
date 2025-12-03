@@ -3,16 +3,9 @@ import mysql from "mysql2/promise";
 import 'dotenv/config';
 import * as schema from './schema';
 
-export interface DbConnection {
-	db: mysql.Pool;
-	orm: MySql2Database<typeof schema>;
-}
+let dbConnection: Promise<MySql2Database<typeof schema>> | null = null;
 
-const globalForDb = globalThis as unknown as {
-	_dbConnection?: Promise<DbConnection>;
-};
-
-const createDb = async (): Promise<DbConnection> => {
+const createDb = async (): Promise<MySql2Database<typeof schema>> => {
 
 	const poolConnection = mysql.createPool({
 		host: process.env.DB_HOST,
@@ -28,21 +21,12 @@ const createDb = async (): Promise<DbConnection> => {
 	}
 
 	console.log(`✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`);
-	return { db: poolConnection, orm: db };
+	return db;
 };
 
-export const getDbConnection = async (): Promise<DbConnection> => {
-	if (!globalForDb._dbConnection) {
-		globalForDb._dbConnection = createDb();
+export const getDbConnection = async (): Promise<MySql2Database<typeof schema>> => {
+	if (!dbConnection) {
+		dbConnection = createDb();
 	}
-	return globalForDb._dbConnection;
-};
-
-export const seedDb = async (
-	dbConn: DbConnection,
-	seeders: Array<(orm: DbConnection['orm']) => Promise<void>>
-): Promise<void> => {
-	for (const seeder of seeders) {
-		await seeder(dbConn.orm);
-	}
+	return dbConnection;
 };

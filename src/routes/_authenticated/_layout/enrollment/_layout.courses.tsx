@@ -86,12 +86,6 @@ function RouteComponent() {
                       {course.hours && (
                         <Badge variant="outline">{course.hours} hr{course.hours > 1 ? 's' : ''}</Badge>
                       )}
-                      {course.department_code && (
-                        <Badge variant="secondary">{course.department_code}</Badge>
-                      )}
-                      {course.college_code && (
-                        <Badge variant="default">{course.college_code}</Badge>
-                      )}
                     </div>
                   </div>
 

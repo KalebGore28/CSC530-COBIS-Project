@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 async function main() {
-	const db = (await getDbConnection()).orm;
+	const db = await getDbConnection()
 	try {
 		await importCSVFile(db, path.join(__dirname, 'csvs/terms.csv'), csvConfig);
 		await importCSVFile(db, path.join(__dirname, 'csvs/admit_codes.csv'), csvConfig);

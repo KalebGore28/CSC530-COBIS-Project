@@ -1,11 +1,9 @@
-// routes/api/auth/$.ts
 import { createFileRoute } from '@tanstack/react-router'
-import { auth } from '@/lib/server/auth'
 
 export const Route = createFileRoute('/api/auth/$')({
   server: {
     handlers: {
-      GET: ({ request }) => {
+      GET: ({ request, context }) => {
         const url = new URL(request.url)
 
         if (url.pathname.startsWith('/api/auth/callback/google')) {
@@ -25,10 +23,10 @@ export const Route = createFileRoute('/api/auth/$')({
           }
         }
 
-        return auth.handler(request)
+        return context.auth.handler(request)
       },
-      POST: ({ request }) => {
-        return auth.handler(request)
+      POST: ({ request, context }) => {
+        return context.auth.handler(request)
       },
     },
   },

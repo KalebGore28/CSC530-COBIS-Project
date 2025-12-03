@@ -1,12 +1,10 @@
 import { createMiddleware } from '@tanstack/react-start'
-import { getDbConnection } from '@/db'
-import { auth } from '@/lib/server/auth'
 import { user, userRoles, roles, faculty } from '@/db/schema'
 import { eq } from "drizzle-orm";
 
 export const loadUser = createMiddleware({ type: 'request' })
-    .server(async ({ next, request }) => {
-        const session = await auth.api.getSession({ headers: request.headers })
+    .server(async ({ next, request, context }) => {
+        const session = await context.auth.api.getSession({ headers: request.headers })
 
         if (!session?.user) {
             return {
@@ -20,6 +18,7 @@ export const loadUser = createMiddleware({ type: 'request' })
                 request,
                 pathname: new URL(request.url).pathname,
                 context: {
+                    ...context, // carry over existing context
                     session: {
                         id: '',
                         createdAt: new Date(0),
@@ -52,9 +51,7 @@ export const loadUser = createMiddleware({ type: 'request' })
             }
         }
 
-        const { orm } = await getDbConnection()
-
-        const combined = await orm
+        const combined = await context.db
             .select({
                 mnumber: user.mnumber,
                 isEnabled: user.isEnabled,
@@ -75,7 +72,7 @@ export const loadUser = createMiddleware({ type: 'request' })
         const rolesList = combined.map((r) => r.roleName).filter(Boolean)
 
         // Lastly update user last login
-        await orm
+        await context.db
             .update(user)
             .set({ lastLogin: new Date() })
             .where(eq(user.id, session.user.id))

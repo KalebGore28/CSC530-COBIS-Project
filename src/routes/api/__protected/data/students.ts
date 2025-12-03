@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { students } from '@/db/schema'
 import { urlParamsParser } from '@/utils/url-params-parser'
 import { getStudentAccess } from '@/utils/get-student-access'
@@ -11,13 +10,11 @@ export const Route = createFileRoute('/api/__protected/data/students')({
             GET: async ({ request, context }) => {
                 const user_roles = context.roles
 
-                const { orm } = await getDbConnection()
-
                 const params = new URL(request.url).searchParams
 
                 const { limit, whereConditions, sort } = urlParamsParser(params, students)
 
-                let results = await orm
+                let results = await context.db
                     .select()
                     .from(students)
                     .where(whereConditions)

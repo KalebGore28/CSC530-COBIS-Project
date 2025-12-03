@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { getDbConnection } from '@/db'
 import { user } from '@/db/schema'
 
 export const Route = createFileRoute('/api/__protected/data/users')({
@@ -8,9 +7,7 @@ export const Route = createFileRoute('/api/__protected/data/users')({
             GET: async ({ context }) => {
                 const user_roles = context.roles
 
-                const { orm } = await getDbConnection()
-
-                let userResults = await orm.select().from(user)
+                let userResults = await context.db.select().from(user)
 
                 // Filter results based on roles
                 if (!user_roles.includes('cobis_administrator') && !user_roles.includes('department_chair')) {
