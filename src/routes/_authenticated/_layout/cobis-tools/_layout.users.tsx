@@ -12,7 +12,7 @@ import { departmentsCollection } from '@/collections/departments';
 import { collegesCollection } from '@/collections/colleges';
 import { useLiveQuery, ilike, or, eq } from '@tanstack/react-db';
 
-import { UserModal} from '@/components/user-modal';
+import { UserModal } from '@/components/user-modal';
 
 const getInitials = (name: string | null | undefined): string => {
   if (!name) {

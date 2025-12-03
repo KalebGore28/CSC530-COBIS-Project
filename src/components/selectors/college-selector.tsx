@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,22 +9,18 @@ type College = typeof colleges.$inferSelect;
 import { collegesCollection } from "@/collections/colleges";
 import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
+import type { ProvisionState } from "../user-modal";
+
 interface CollegeSelectorProps {
-    collegeCode?: string;
-    /** Called whenever the selected college changes */
-    onSelectChange?: (selected: College | null) => void;
+    provisionParams?: ProvisionState;
+    setProvisionParams?: (params: ProvisionState) => void;
 }
-export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelectorProps) {
+export function CollegeSelector({ provisionParams, setProvisionParams }: CollegeSelectorProps) {
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<College | null>(null);
 
-    const { data: colleges } = useLiveQuery((q) =>
-        q.from({ colleges: collegesCollection })
-            .orderBy(({ colleges }) => colleges.code, 'asc'),
-        [] // Run only once
-    );
+    const selected = provisionParams?.college
 
-    const { data: filteredColleges, isLoading, isReady } = useLiveQuery((q) =>
+    const { data: filteredColleges, isLoading } = useLiveQuery((q) =>
         q.from({ colleges: collegesCollection })
             .where(({ colleges }) =>
                 or(
@@ -36,16 +32,6 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
             .limit(query !== "" ? 10 : 0),
         [query] // Re-run when query changes
     );
-
-    // Runs only once to set default selection if collegeCode prop is provided
-    useEffect(() => {
-        if (!isReady || isLoading) return;
-        const defaultCollege = colleges.find((c) => c.code === collegeCode);
-        if (defaultCollege && (!selected || selected.code !== defaultCollege.code)) {
-            setSelected(defaultCollege);
-            onSelectChange?.(defaultCollege);
-        }
-    }, [collegeCode, isLoading]);
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
 
@@ -59,7 +45,10 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setSelected(null);
+                        setProvisionParams && setProvisionParams({
+                            ...provisionParams!,
+                            college: null,
+                        });
                         setQuery("");
                     }}
                 >
@@ -79,24 +68,14 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                         setQuery(e.target.value);
                     }}
                 />
-                {collegeCode && !selected && (
-                    <Button
-                        variant="destructive"
-                        size="default"
-                        onClick={() => {
-                            setSelected(colleges.find((c) => c.code === collegeCode) || null);
-                            setQuery("");
-                        }}
-                    >
-                        Undo
-                    </Button>
-                )}
             </div>
             <CollegeResults
                 filteredColleges={filteredColleges}
                 onSelect={(college) => {
-                    setSelected(college);
-                    onSelectChange && onSelectChange(college);
+                    setProvisionParams && setProvisionParams({
+                        ...provisionParams!,
+                        college: college,
+                    });
                     setQuery("");
                 }}
             />

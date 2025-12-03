@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,22 +9,16 @@ type Department = typeof departments.$inferSelect;
 import { departmentsCollection } from "@/collections/departments";
 import { useLiveQuery, ilike, or } from "@tanstack/react-db";
 
+import type { ProvisionState } from "../user-modal";
 
 interface DepartmentSelectorProps {
-    /** Optional department code to preselect a department */
-    departmentCode?: string;
-    /** Called whenever the selected department changes */
-    onSelectChange?: (selected: Department | null) => void;
+    provisionParams?: ProvisionState;
+    setProvisionParams?: (params: ProvisionState) => void;
 }
-export function DepartmentSelector({ departmentCode, onSelectChange }: DepartmentSelectorProps) {
+export function DepartmentSelector({ provisionParams, setProvisionParams }: DepartmentSelectorProps) {
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<Department | null>(null);
 
-    const { data: departments } = useLiveQuery((q) =>
-        q.from({ departments: departmentsCollection })
-            .orderBy(({ departments }) => departments.code, 'asc'),
-        [] // Run only once
-    );
+    const selected = provisionParams?.department
 
     const { data: filteredDepartments, isLoading } = useLiveQuery((q) =>
         q.from({ departments: departmentsCollection })
@@ -39,16 +33,6 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
         [query] // Re-run when query changes
     );
 
-    // Runs only once to set default selection if departmentCode prop is provided
-    useEffect(() => {
-        if (!departmentCode || !departments.length || isLoading) return;
-        const defaultDepartment = departments.find((d) => d.code === departmentCode);
-        if (defaultDepartment && (!selected || selected.code !== defaultDepartment.code)) {
-            setSelected(defaultDepartment);
-            onSelectChange?.(defaultDepartment);
-        }
-    }, [departmentCode, isLoading]);
-
     if (isLoading) return <Skeleton className="h-10 w-full" />;
 
     if (selected) {
@@ -61,7 +45,10 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setSelected(null);
+                        setProvisionParams && setProvisionParams({
+                            ...provisionParams!,
+                            department: null,
+                        });
                         setQuery("");
                     }}
                 >
@@ -81,24 +68,29 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                         setQuery(e.target.value);
                     }}
                 />
-                {departmentCode && !selected && (
+                {/* {!selected && (
                     <Button
                         variant="destructive"
                         size="default"
                         onClick={() => {
-                            setSelected(departments.find((d) => d.code === departmentCode) || null);
+                            setProvisionParams && setProvisionParams({
+                                ...provisionParams!,
+                                department: null,
+                            });
                             setQuery("");
                         }}
                     >
                         Undo
                     </Button>
-                )}
+                )} */}
             </div>
             <DepartmentResults
                 filteredDepartments={filteredDepartments}
                 onSelect={(dept) => {
-                    setSelected(dept);
-                    onSelectChange && onSelectChange(dept);
+                    setProvisionParams && setProvisionParams({
+                        ...provisionParams!,
+                        department: dept,
+                    });
                     setQuery("");
                 }}
             />

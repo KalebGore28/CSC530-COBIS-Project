@@ -45,6 +45,8 @@ export const dataConformer = (
       return Number(value);
     case "number int32":
       return Number(value);
+    case "number double":
+      return Number(value);
     case "boolean":
       // Check if value is a valid boolean representation
       const validBooleanValues = ["1", "0", "true", "false"];

@@ -6,26 +6,46 @@ import { faculty } from "@/db/schema";
 
 type Faculty = typeof faculty.$inferSelect;
 
+import { collegesCollection } from "@/collections/colleges";
+import { departmentsCollection } from "@/collections/departments";
 import { facultyCollection } from "@/collections/faculty";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
+import { useLiveQuery, ilike, or, eq } from "@tanstack/react-db";
+import { user } from "@/db/schema";
+
+type User = typeof user.$inferSelect;
+
+import type { ProvisionState } from "../user-modal";
 
 interface FacultySelectorProps {
-    /** Optional M number to preselect a faculty member */
-    mnumber: string | null;
-    /** Called whenever the selected faculty changes */
-    onSelectChange?: (selected: Faculty | null) => void;
+    user: User | null;
+    provisionParams?: ProvisionState;
+    setProvisionParams?: (params: ProvisionState) => void;
 }
-export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProps) {
+export function FacultySelector({ user, provisionParams, setProvisionParams }: FacultySelectorProps) {
     const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<Faculty | null>(null);
 
-    const { data: faculty } = useLiveQuery((q) =>
-        q.from({ faculty: facultyCollection })
-            .orderBy(({ faculty }) => faculty.mnumber, 'asc'),
+
+    const { data: departments } = useLiveQuery((q) =>
+        q.from({ departments: departmentsCollection })
+            .orderBy(({ departments }) => departments.code, 'asc'),
         [] // Run only once
     );
 
-    const { data: filteredFaculty, isLoading, isReady } = useLiveQuery((q) =>
+    const { data: colleges } = useLiveQuery((q) =>
+        q.from({ colleges: collegesCollection })
+            .orderBy(({ colleges }) => colleges.code, 'asc'),
+        [] // Run only once
+    );
+
+    const selected = provisionParams?.faculty;
+
+    const { data: facultyByUser } = useLiveQuery((q) =>
+        q.from({ faculty: facultyCollection })
+            .where(({ faculty }) => eq(faculty.mnumber, user?.mnumber || ''))
+            .findOne(),
+    );
+
+    const { data: filteredFaculty, isLoading } = useLiveQuery((q) =>
         q.from({ faculty: facultyCollection })
             .where(({ faculty }) =>
                 or(
@@ -39,15 +59,18 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
         [query] // Re-run when query changes
     );
 
-    // Runs only once to set default selection if mnumber prop is provided
     useEffect(() => {
-        if (!isReady || isLoading) return;
-        const defaultFaculty = faculty.find((f) => f.mnumber === mnumber);
-        if (defaultFaculty && (!selected || selected.mnumber !== defaultFaculty.mnumber)) {
-            setSelected(defaultFaculty);
-            onSelectChange?.(defaultFaculty);
+        // If there's faculty associated with the user and no faculty is selected yet, set it
+        if (facultyByUser && !provisionParams?.faculty) {
+            setProvisionParams && setProvisionParams({
+                ...provisionParams!,
+                isEnabled: user?.isEnabled || false,
+                faculty: facultyByUser,
+                department: departments.find((d) => d.code === facultyByUser.department_code) || null,
+                college: colleges.find((c) => c.code === facultyByUser.college_code) || null,
+            });
         }
-    }, [mnumber, isLoading]);
+    }, []); // Run only once on mount
 
     if (isLoading) return <Skeleton className="h-10 w-full" />;
 
@@ -61,7 +84,10 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setSelected(null);
+                        setProvisionParams && setProvisionParams({
+                            ...provisionParams!,
+                            faculty: null,
+                        });
                         setQuery("");
                     }}
                 >
@@ -81,24 +107,17 @@ export function FacultySelector({ mnumber, onSelectChange }: FacultySelectorProp
                         setQuery(e.target.value);
                     }}
                 />
-                {mnumber && !selected && (
-                    <Button
-                        variant="destructive"
-                        size="default"
-                        onClick={() => {
-                            setSelected(faculty.find((f) => f.mnumber === mnumber) || null);
-                            setQuery("");
-                        }}
-                    >
-                        Undo
-                    </Button>
-                )}
             </div>
             <FacultyResults
                 filteredFaculty={filteredFaculty}
                 onSelect={(faculty) => {
-                    setSelected(faculty);
-                    onSelectChange && onSelectChange(faculty);
+                    setProvisionParams && setProvisionParams({
+                        ...provisionParams!,
+                        isEnabled: user?.isEnabled || false,
+                        faculty: faculty,
+                        department: departments.find((d) => d.code === faculty.department_code) || null,
+                        college: colleges.find((c) => c.code === faculty.college_code) || null,
+                    });
                     setQuery("");
                 }}
             />
@@ -122,15 +141,7 @@ function FacultyResults({
                     <li
                         key={faculty.mnumber}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() =>
-                            onSelect({
-                                mnumber: faculty.mnumber,
-                                first_name: faculty.first_name,
-                                last_name: faculty.last_name,
-                                department_code: faculty.department_code,
-                                college_code: faculty.college_code,
-                            })
-                        }
+                        onClick={() => onSelect(faculty)}
                     >
                         <strong>{faculty.mnumber}</strong> — {faculty.first_name} {faculty.last_name}
                     </li>
