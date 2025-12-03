@@ -53,88 +53,156 @@ function RouteComponent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatusCard
                 title="Admit Codes"
-                description="Overview of"
                 isLoading={isAdmitCodesLoading}
                 totalItems={admitCodes?.length}
+                navigateTo="/cobis-tools/manage-tables/admit-codes"
                 stats={[
-                    { label: 'Missing description', count: admitCodesWithUnknownDescription },
+                    {
+                        label: 'Description',
+                        count: admitCodesWithUnknownDescription,
+                        variant: 'secondary',
+                        filterColumn: "description",
+                        filterValue: "unknown"
+                    },
                 ]}
             />
 
             <StatusCard
                 title="Colleges"
-                description="Overview of"
                 isLoading={isCollegesLoading}
                 totalItems={colleges?.length}
+                navigateTo="/cobis-tools/manage-tables/colleges"
                 stats={[
-                    { label: 'Missing description', count: collegesWithUnknownDescription },
+                    {
+                        label: 'Description',
+                        count: collegesWithUnknownDescription,
+                        variant: 'secondary',
+                        filterColumn: "description",
+                        filterValue: "unknown"
+                    },
                 ]}
             />
 
             <StatusCard
                 title="Courses"
-                description="Overview of"
                 isLoading={isCoursesLoading}
                 totalItems={courses?.length}
-                emptyMessage="No courses found."
+                navigateTo="/cobis-tools/manage-tables/courses"
                 stats={[
-                    { label: 'Missing title', count: coursesWithUnknownTitle },
-                    { label: 'Missing department', count: coursesWithMissingDepartment },
-                    { label: 'Missing college', count: coursesWithMissingCollege },
+                    {
+                        label: 'Title',
+                        count: coursesWithUnknownTitle,
+                        variant: 'secondary',
+                        filterColumn: "title",
+                        filterValue: "Not known to COBIS yet"
+                    },
+                    {
+                        label: 'Department',
+                        count: coursesWithMissingDepartment,
+                        variant: 'secondary',
+                        filterColumn: "department_code",
+                        filterValue: "\"null\""
+                    },
+                    {
+                        label: 'College',
+                        count: coursesWithMissingCollege,
+                        variant: 'secondary',
+                        filterColumn: "college_code",
+                        filterValue: "\"null\""
+                    },
                 ]}
             />
-
 
             <StatusCard
                 title="Departments"
-                description="Overview of"
                 isLoading={isDepartmentsLoading}
                 totalItems={departments?.length}
+                navigateTo="/cobis-tools/manage-tables/departments"
                 stats={[
-                    { label: 'Missing college', count: departmentsMissingCollege },
+                    {
+                        label: 'College',
+                        count: departmentsMissingCollege,
+                        variant: 'secondary',
+                        filterColumn: "college_code",
+                        filterValue: "\"null\""
+                    },
                 ]}
             />
 
-
             <StatusCard
                 title="Instructional Methods"
-                description="Overview of"
                 isLoading={isInstructionalMethodsLoading}
                 totalItems={instructionalMethods?.length}
+                navigateTo="/cobis-tools/manage-tables/instructional-methods"
                 stats={[
-                    { label: 'Missing description', count: instructionalMethodsWithUnknownDescription },
+                    {
+                        label: 'Description',
+                        count: instructionalMethodsWithUnknownDescription,
+                        variant: 'secondary',
+                        filterColumn: "description",
+                        filterValue: "unknown"
+                    },
                 ]}
             />
 
             <StatusCard
                 title="Part of Terms"
-                description="Overview of"
                 isLoading={isPartOfTermLoading}
                 totalItems={partOfTerm?.length}
+                navigateTo="/cobis-tools/manage-tables/part-of-term"
                 stats={[
-                    { label: 'Missing description', count: partOfTermWithUnknownDescription },
+                    {
+                        label: 'Description',
+                        count: partOfTermWithUnknownDescription,
+                        variant: 'secondary',
+                        filterColumn: "description",
+                        filterValue: "unknown"
+                    },
                 ]}
             />
 
             <StatusCard
                 title="Programs"
-                description="Overview of"
                 isLoading={isProgramsLoading}
                 totalItems={programs?.length}
+                navigateTo="/cobis-tools/manage-tables/programs"
                 stats={[
-                    { label: 'Missing department', count: programsWithMissingDepartment },
-                    { label: 'Missing college', count: programsWithMissingCollege },
-                    { label: 'Missing both major/minor flag', count: programsWithMissingFlag },
+                    {
+                        label: 'Department',
+                        count: programsWithMissingDepartment,
+                        variant: 'secondary',
+                        filterColumn: "department_code",
+                        filterValue: "\"null\""
+                    },
+                    {
+                        label: 'College',
+                        count: programsWithMissingCollege,
+                        variant: 'secondary',
+                        filterColumn: "college_code",
+                        filterValue: "\"null\""
+                    },
+                    // {
+                    //     label: 'Major/Minor',
+                    //     count: programsWithMissingFlag,
+                    //     variant: 'secondary',
+                    //     navigateFilter: "flag"
+                    // },
                 ]}
             />
 
             <StatusCard
                 title="Registration Status"
-                description="Overview of"
                 isLoading={isRegistrationStatusLoading}
                 totalItems={registrationStatus?.length}
+                navigateTo="/cobis-tools/manage-tables/registration-status"
                 stats={[
-                    { label: 'Missing description', count: registrationStatusWithUnknownDescription },
+                    {
+                        label: 'Description',
+                        count: registrationStatusWithUnknownDescription,
+                        variant: 'secondary',
+                        filterColumn: "description",
+                        filterValue: "unknown"
+                    },
                 ]}
             />
         </div>

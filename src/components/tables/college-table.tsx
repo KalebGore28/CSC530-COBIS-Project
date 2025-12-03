@@ -1,0 +1,53 @@
+import { ColumnDef } from "@tanstack/react-table"
+import { EditableDataTable } from "./editable-data-table"
+import { Checkbox } from "@/components/ui/checkbox"
+import { colleges } from "@/db/schema"
+
+type College = typeof colleges.$inferSelect
+
+const columns: ColumnDef<College>[] = [
+    {
+        id: "select",
+        header: ({ table }) => (
+            <Checkbox
+                checked={
+                    table.getIsAllPageRowsSelected() ||
+                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                }
+                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
+            />
+        ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
+            />
+        ),
+        enableSorting: false,
+        enableHiding: false,
+    },
+    {
+        accessorKey: "code",
+        header: "Code",
+    },
+    {
+        accessorKey: "description",
+        header: "Description",
+    },
+]
+
+export function CollegeTable({
+    data,
+    defaultFilterColumn,
+    defaultFilterColumnValue,
+}: { data: College[], defaultFilterColumn?: string, defaultFilterColumnValue?: string }) {
+    return <EditableDataTable
+        filterColumns={["code", "description"]}
+        defaultFilterColumn={defaultFilterColumn}
+        defaultFilterColumnValue={defaultFilterColumnValue}
+        columns={columns}
+        data={data}
+    />
+}

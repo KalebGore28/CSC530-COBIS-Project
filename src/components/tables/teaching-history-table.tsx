@@ -1,5 +1,5 @@
 import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/ui/data-table"
+import { DataTable } from "@/components/tables/data-table"
 import type { JSX } from "react"
 
 type TeachingHistory = {
