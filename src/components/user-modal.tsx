@@ -77,8 +77,6 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
         provisionParams.roles?.length > 0 &&
         provisionParams.isEnabled !== undefined;
 
-    console.log('Provision Params:', provisionParams);
-
     return (
         <Dialog
             open={modalOpen}
