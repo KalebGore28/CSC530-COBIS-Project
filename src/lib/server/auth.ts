@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 // import { reactStartCookies } from "better-auth/react-start";
+import * as schema from "@/db/schema";
 import { getDbConnection } from "@/db";
 
 export const auth = betterAuth({
@@ -16,6 +17,7 @@ export const auth = betterAuth({
 	},
 	database: drizzleAdapter(await getDbConnection(), {
 		provider: "mysql",
+		schema: schema,
 	}),
 	baseURL: process.env.BETTER_AUTH_URL as string,
 	trustedOrigins: [process.env.TRUSTED_ORIGIN as string],

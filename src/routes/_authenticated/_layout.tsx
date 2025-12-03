@@ -13,7 +13,6 @@ import { admitCodesCollection } from '@/collections/admit-codes';
 import { collegesCollection } from '@/collections/colleges';
 import { departmentsCollection } from '@/collections/departments';
 import { instructionalMethodsCollection } from '@/collections/instructional-methods';
-import { nationsCollection } from '@/collections/nations';
 import { partOfTermCollection } from '@/collections/part-of-term';
 import { registrationStatusCollection } from '@/collections/registration-status';
 import { rolesCollection } from '@/collections/roles';
@@ -31,7 +30,6 @@ function App() {
   collegesCollection.preload()
   departmentsCollection.preload()
   instructionalMethodsCollection.preload()
-  nationsCollection.preload()
   partOfTermCollection.preload()
   registrationStatusCollection.preload()
   rolesCollection.preload()

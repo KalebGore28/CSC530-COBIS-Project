@@ -41,8 +41,6 @@ table courses {
 
   indexes {
     (subject, number, suffix) [name: 'ux_courses_subject_number_suffix', unique]
-    
-    
   }
 }
 
@@ -61,26 +59,6 @@ table faculty {
 }
 
 table instructional_methods {
-  code varchar(10) [pk, not null]
-  description varchar(255) [not null]
-}
-
-table instructor_courses {
-  mnumber varchar(10) [not null]
-  term_code varchar(10) [not null]
-  year int [not null]
-  course_id varchar(100) [not null]
-  course_subject varchar(50) [not null]
-  course_number int [not null]
-  course_suffix varchar(50) [not null, default: '']
-  course_section varchar(50) [not null, default: '']
-
-  indexes {
-    (mnumber, term_code, year, course_id, course_section) [pk]
-  }
-}
-
-table nations {
   code varchar(10) [pk, not null]
   description varchar(255) [not null]
 }
@@ -144,23 +122,7 @@ table student_academic_info {
 
   indexes {
     (mnumber, term_code, year) [pk]
-    
-    
-    
-    
-    
   }
-}
-
-table student_addresses {
-  mnumber varchar(10) [pk, not null]
-  street1 varchar(100)
-  street2 varchar(100)
-  city varchar(50)
-  state varchar(50)
-  zip varchar(10)
-  nation_code varchar(10)
-  phone varchar(15)
 }
 
 table student_advisors {
@@ -171,9 +133,6 @@ table student_advisors {
 
   indexes {
     (student_mnumber, term_code, year, advisor_mnumber) [pk]
-    
-    
-    
   }
 }
 
@@ -198,11 +157,6 @@ table student_courses {
 
   indexes {
     (mnumber, term_code, year, course_id, course_section) [pk]
-    
-    
-    
-    
-    
   }
 }
 
@@ -216,8 +170,6 @@ table student_programs {
 
   indexes {
     (mnumber, type, program_code) [pk]
-    
-    
     
     
   }

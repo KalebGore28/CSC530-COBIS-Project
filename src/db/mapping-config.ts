@@ -9,7 +9,6 @@ import {
     departments,
     faculty,
     instructionalMethods,
-    instructorCourses,
     registrationStatus,
     roles,
     students,
@@ -17,7 +16,6 @@ import {
     studentAcademicInfo,
     studentCourses,
     studentPrograms,
-    nations,
     partOfTerm,
     programs,
     terms,
@@ -35,7 +33,6 @@ export const csvConfig = createCSVConfig({
     departments,
     faculty,
     instructionalMethods,
-    instructorCourses,
     registrationStatus,
     roles,
     students,
@@ -43,7 +40,6 @@ export const csvConfig = createCSVConfig({
     studentAcademicInfo,
     studentCourses,
     studentPrograms,
-    nations,
     partOfTerm,
     programs,
     terms
@@ -171,35 +167,12 @@ export const csvConfig = createCSVConfig({
             },
             missingRowResolver: (missingData) => ({ code: missingData[0], description: "Unknown Program" }),
         },
-        nations: {
-            patterns: [/^nations\.csv$/i],
-            config: {
-                code: { csvColumnName: "CODE" },
-                description: { csvColumnName: "DESCRIPTION" },
-            },
-        },
         partOfTerm: {
             patterns: [/^part_of_term\.csv$/i],
             config: {
                 code: { csvColumnName: "CODE" },
                 description: { csvColumnName: "DESCRIPTION" },
             },
-        },
-        instructorCourses: {
-            patterns: [
-                /reg_cuba_courses_during_term_\d+_\d+\.csv$/i,
-                /\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i
-            ],
-            config: {
-                mnumber: { csvColumnName: "INSTMNUMBER" },
-                term_code: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).term },
-                year: { csvColumnName: "TERM", transform: (val) => parseTermCode(val).year },
-                course_id: { csvColumnName: ["CRSESUBJ", "CRSENUMB"], combineCSVColumns: true }, // Combine subject and number for course_id
-                course_subject: { csvColumnName: "CRSESUBJ" },
-                course_number: { csvColumnName: "CRSENUMB" },
-                course_suffix: { csvColumnName: "_NOT_PROVIDED", transform: () => '' },
-                course_section: { csvColumnName: "SECTION" },
-            }
         },
         registrationStatus: {
             patterns: [/^registration_status\.csv$/i],
