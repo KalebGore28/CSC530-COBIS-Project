@@ -14,7 +14,9 @@
     "gen": "drizzle-kit generate && tsx src/db/dbml.ts && tsx src/db/export-schema.ts",
     "db:mig": "drizzle-kit migrate && tsx src/db/dbml.ts",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx src/db/seed/seed.ts"
+    "db:seed": "tsx src/db/seed/seed.ts",
+    "docker:build": "docker build -t cobis-app:latest .",
+    "docker:run": "docker run -d --env-file .env.docker -p 3000:3000 cobis-app:latest"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.11",
