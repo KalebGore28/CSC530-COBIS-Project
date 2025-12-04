@@ -2,7 +2,7 @@ import type { createCSVConfig } from "./create-csv-config";
 import type { ParseResult } from "papaparse";
 import { findMatchingTables } from "./find-matching-tables";
 import { MySql2Database } from "drizzle-orm/mysql2";
-import { type SQL, getColumns, sql  } from "drizzle-orm";
+import { type SQL, getColumns, sql } from "drizzle-orm";
 import { MySqlTable } from "drizzle-orm/mysql-core";
 import { dataConformer } from "./data-conformer";
 import { CompositeCache } from "./composite-cache";
@@ -233,13 +233,11 @@ export const importData = async (
                 }
 
                 try {
-                    const [resultHeader] = await db
+                    await db
                         .insert(table)
                         .values(row)
                         .onDuplicateKeyUpdate({ set: row })
 
-                    console.log(`Inserted: ${resultHeader.affectedRows === 1 ? 1 : Math.floor(resultHeader.affectedRows / 2)}`);
-                    console.log(`Updated: ${Math.floor(resultHeader.affectedRows / 2)}`);
                     importedRows++;
 
                     // Only emit progress every N rows OR on the last row
