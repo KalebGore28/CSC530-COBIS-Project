@@ -23,21 +23,40 @@ export function ImportProgressList({ messages }: Props) {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4 pr-4">
+            <div className="space-y-4">
                 <span className="text-lg font-medium">Table Import Progress</span>
                 {Object.entries(tables).map(([tableName, table]) => (
                     <Card key={tableName} className="border">
                         <CardHeader>
                             <CardTitle>{table.tableName}</CardTitle>
-                            <CardDescription>
-                                {table.rowIndex}/{table.totalRows} rows imported
-                                ({Math.round((table.rowIndex / table.totalRows) * 100)}%)
+                            <CardDescription className="space-x-2">
+                                {/* Is Table Import Finished? */}
+                                {table.rowIndex >= table.totalRows ? (
+                                    <span className="text-green-600 font-medium">Import Finished</span>
+                                ) : (
+                                    <span className="text-blue-600 font-medium">Import In Progress</span>
+                                )}
+
+                                {/* Total rows imported minus failures */}
+                                <span>
+                                    {table.rowIndex - table.failureCount}/{table.totalRows} rows imported
+                                </span>
+
+                                {/* Percentage */}
+                                <span>
+                                ({Math.round(((table.rowIndex - table.failureCount) / table.totalRows) * 100)}%)
+                                </span>
+
+                                {/* Failures */}
+                                {table.failureCount > 0 && (
+                                    <span className="text-red-600"> {table.failureCount} failures</span>
+                                )}
                             </CardDescription>
                         </CardHeader>
                     </Card>
                 ))}
             </div>
-            <div className="space-y-4 pl-4">
+            <div className="space-y-4">
                 <span className="text-lg font-medium">Logs & Issues</span>
 
                 <Card className="border p-0">
@@ -107,6 +126,7 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
             tableIndex: number;
             totalTables: number;
             logMessages?: LogMessage[];
+            failureCount: number;
         }
     > = {};
 
@@ -119,6 +139,7 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
                     totalRows: msg.data.totalRows ?? 0,
                     tableIndex: msg.data.tableIndex,
                     totalTables: msg.data.totalTables,
+                    failureCount: 0,
                 };
                 break;
 
@@ -131,11 +152,38 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
                         totalRows: msg.data.totalRows,
                         tableIndex: msg.data.tableIndex,
                         totalTables: msg.data.totalTables,
+                        failureCount: 0,
                     };
                 }
 
                 tables[msg.data.table].rowIndex = msg.data.rowIndex;
                 tables[msg.data.table].totalRows = msg.data.totalRows;
+                break;
+            case "row-failure":
+                // Initialize table entry if it doesn't exist
+                if (!tables[msg.data.table]) {
+                    tables[msg.data.table] = {
+                        tableName: msg.data.table,
+                        rowIndex: 0,
+                        totalRows: msg.data.totalRows,
+                        tableIndex: msg.data.tableIndex,
+                        totalTables: msg.data.totalTables,
+                        failureCount: 0,
+                    };
+                }
+
+                tables[msg.data.table].rowIndex = msg.data.rowIndex;
+                tables[msg.data.table].totalRows = msg.data.totalRows;
+
+                if (!tables[msg.data.table].logMessages) {
+                    tables[msg.data.table].logMessages = [];
+                }
+
+                tables[msg.data.table].logMessages?.push({
+                    type: 'error',
+                    message: msg.error,
+                });
+                tables[msg.data.table].failureCount++;
                 break;
 
             case "table-complete":

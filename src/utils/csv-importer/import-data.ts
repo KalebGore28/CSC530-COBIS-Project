@@ -2,13 +2,27 @@ import type { createCSVConfig } from "./create-csv-config";
 import type { ParseResult } from "papaparse";
 import { findMatchingTables } from "./find-matching-tables";
 import { MySql2Database } from "drizzle-orm/mysql2";
-import { getColumns } from "drizzle-orm";
+import { type SQL, getColumns, sql  } from "drizzle-orm";
+import { MySqlTable } from "drizzle-orm/mysql-core";
 import { dataConformer } from "./data-conformer";
 import { CompositeCache } from "./composite-cache";
 import { ImportStreamMessage } from "./import-types";
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// Helper to build conflict update columns
+// FUTURE USE: Plan to use this for batch inserts with conflict handling instead of single row inserts
+// BENEFIT: This will hopefully improve performance for large imports
+const buildConflictUpdateColumns = <T extends MySqlTable, Q extends keyof T['_']['columns']>(
+    table: T,
+    columns: Q[],
+) => {
+    const cls = getColumns(table);
+    return columns.reduce((acc, column) => {
+        acc[column] = sql`values(${cls[column]})`;
+        return acc;
+    }, {} as Record<Q, SQL>);
+};
 
 export const importData = async (
     db: MySql2Database<any>,
@@ -219,11 +233,13 @@ export const importData = async (
                 }
 
                 try {
-                    await db
+                    const [resultHeader] = await db
                         .insert(table)
                         .values(row)
                         .onDuplicateKeyUpdate({ set: row })
-                        .execute();
+
+                    console.log(`Inserted: ${resultHeader.affectedRows === 1 ? 1 : Math.floor(resultHeader.affectedRows / 2)}`);
+                    console.log(`Updated: ${Math.floor(resultHeader.affectedRows / 2)}`);
                     importedRows++;
 
                     // Only emit progress every N rows OR on the last row
@@ -240,14 +256,16 @@ export const importData = async (
                             },
                         });
                     }
-
-
                 } catch (err) {
                     await emit({
-                        type: 'error',
+                        type: 'row-failure',
                         data: {
+                            message: `Failed to import row ${importedRows} into table ${tableName}`,
                             table: tableName,
                             rowIndex: importedRows,
+                            totalRows: rows.length,
+                            tableIndex: tableIterations,
+                            totalTables: tableDataMap.size,
                         },
                         error: String(err),
                     });

@@ -4,6 +4,7 @@ export type ImportStreamMessage =
     | TableProgressMessage
     | TableCompleteMessage
     | RowProgressMessage
+    | RowFailureMessage
     | CompleteMessage
     | LogMessage
     | ErrorMessage
@@ -59,6 +60,19 @@ type RowProgressMessage = {
         tableIndex: number;
         totalTables: number;
     };
+};
+
+type RowFailureMessage = {
+    type: "row-failure";
+    data: {
+        message: string;
+        table: string;
+        rowIndex: number;
+        totalRows: number;
+        tableIndex: number;
+        totalTables: number;
+    };
+    error: string;
 };
 
 type CompleteMessage = {
