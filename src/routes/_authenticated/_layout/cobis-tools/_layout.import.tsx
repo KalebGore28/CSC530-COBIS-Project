@@ -115,6 +115,7 @@ function RouteComponent() {
                         <div>
                             <Separator className="my-6" />
                             <CardFooter className="flex justify-end">
+                                {/* Import and Cancel Buttons */}
                                 {!isSuccess && (
                                     <div className={`${isFetching ? 'hidden pointer-events-none' : ''} flex`}>
                                         <Button variant="secondary" onClick={resetImport} className="mr-4">
@@ -129,11 +130,13 @@ function RouteComponent() {
                                         </Button>
                                     </div>
                                 )}
+                                {/* Importing Indicator */}
                                 {isFetching && !isSuccess && (
                                     <div className="flex items-center space-x-2">
                                         <span>Importing data, please wait...</span>
                                     </div>
                                 )}
+                                {/* Import Success Buttons */}
                                 {isSuccess && (
                                     <>
                                         <Button variant="outline" onClick={() => setDrawerOpen(true)} className="mr-4">
@@ -165,7 +168,6 @@ function RouteComponent() {
                             </CardFooter>
                         </div>
                     )}
-
                 </CardContent>
             </Card>
         </div>

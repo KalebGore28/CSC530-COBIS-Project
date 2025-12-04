@@ -1,4 +1,5 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Button } from "../ui/button";
 import type { ImportStreamMessage } from "@/utils/csv-importer";
 
 type Props = {
@@ -13,32 +14,85 @@ type LogMessage = {
 export function ImportProgressList({ messages }: Props) {
     const tables = buildTableProgress(messages);
 
+    const allLogs = Object.entries(tables).flatMap(([tableName, table]) =>
+        (table.logMessages || []).map(logMsg => ({
+            ...logMsg,
+            tableName
+        }))
+    );
+
     return (
-        <div className="space-y-4">
-            {Object.entries(tables).map(([tableName, table]) => (
-                <Card key={tableName}>
-                    <CardHeader>
-                        <CardTitle>{table.tableName}</CardTitle>
-                        <CardDescription>
-                            {table.rowIndex}/{table.totalRows} rows imported
-                            ({Math.round((table.rowIndex / table.totalRows) * 100)}%)
-                        </CardDescription>
-                        <CardContent>
-                            <div className="space-y-2">
-                                {table.logMessages?.map((logMsg, index) => (
-                                    <div key={index} className={
-                                        logMsg.type === 'error' ? 'text-red-600' :
-                                        logMsg.type === 'warning' ? 'text-yellow-600' :
-                                        'text-gray-800'
-                                    }>
-                                        [{logMsg.type.toUpperCase()}] {logMsg.message}
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </CardHeader>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-4 pr-4">
+                <span className="text-lg font-medium">Table Import Progress</span>
+                {Object.entries(tables).map(([tableName, table]) => (
+                    <Card key={tableName} className="border">
+                        <CardHeader>
+                            <CardTitle>{table.tableName}</CardTitle>
+                            <CardDescription>
+                                {table.rowIndex}/{table.totalRows} rows imported
+                                ({Math.round((table.rowIndex / table.totalRows) * 100)}%)
+                            </CardDescription>
+                        </CardHeader>
+                    </Card>
+                ))}
+            </div>
+            <div className="space-y-4 pl-4">
+                <span className="text-lg font-medium">Logs & Issues</span>
+
+                <Card className="border p-0">
+                    <CardContent className="p-1">
+                        <Button
+                            onClick={() => {
+                                const logContent = allLogs.length > 0
+                                    ? allLogs.map(log => `[${log.type.toUpperCase()}] ${log.tableName}: ${log.message}`).join('\n')
+                                    : 'No logs or issues.';
+
+                                const blob = new Blob([logContent], { type: 'text/plain' });
+                                const url = URL.createObjectURL(blob);
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.download = `logs_${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                URL.revokeObjectURL(url);
+                            }}
+                            className="w-full"
+                        >
+                            Download All Logs
+                        </Button>
+                    </CardContent>
                 </Card>
-            ))}
+
+                <Card className="border">
+                    <CardHeader>
+                        <CardTitle>Logs</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                            {(() => {
+                                return allLogs.length > 0 ? (
+                                    allLogs.map((logMsg, index) => (
+                                        <div
+                                            key={index}
+                                            className={
+                                                logMsg.type === 'error' ? 'text-red-600' :
+                                                    logMsg.type === 'warning' ? 'text-yellow-600' :
+                                                        'text-gray-800'
+                                            }
+                                        >
+                                            [{logMsg.type.toUpperCase()}] {logMsg.tableName}: {logMsg.message}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="text-gray-500">No logs or issues.</div>
+                                );
+                            })()}
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
