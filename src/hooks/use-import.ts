@@ -1,63 +1,55 @@
-import { useMutation } from '@tanstack/react-query'
+import { experimental_streamedQuery as streamedQuery, queryOptions } from '@tanstack/react-query'
 import type { ParseResult } from 'papaparse'
+import type { ImportStreamMessage } from '@/utils/csv-importer'
 
-interface ImportPayload {
+interface ImportProps {
     filename: string
     csvData: ParseResult<Record<string, string>>
 }
 
-interface ImportProgress {
-    type: string
-    data?: any
-    error?: string
-}
+async function importFetch({ filename, csvData }: ImportProps): Promise<AsyncIterable<ImportStreamMessage>> {
+    const response = await fetch('/api/import/process', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename, csvData }),
+    })
 
-interface ImportResult {
-    success?: boolean
-    error?: string
-}
+    if (!response.ok) {
+        throw new Error(`Import failed: ${response.statusText}`)
+    }
 
-export function useImport(onProgress?: (event: ImportProgress) => void) {
-    return useMutation<ImportResult, Error, ImportPayload>({
-        mutationFn: async ({ filename, csvData }) => {
-            const response = await fetch('/api/import/process', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename, csvData }),
-            })
+    const reader = response.body?.getReader()
+    if (!reader) {
+        throw new Error('No response body')
+    }
 
-            if (!response.ok) {
-                throw new Error(`Import failed: ${response.statusText}`)
-            }
-
-            // --- Stream the progress ---
-            const reader = response.body?.getReader()
-            if (!reader) throw new Error('No readable stream in response')
-
+    return {
+        async *[Symbol.asyncIterator]() {
             const decoder = new TextDecoder()
-            let buffer = ''
 
             while (true) {
                 const { done, value } = await reader.read()
                 if (done) break
-                buffer += decoder.decode(value, { stream: true })
 
-                const lines = buffer.split('\n')
-                buffer = lines.pop() || '' // keep incomplete chunk
+                const chunk = decoder.decode(value, { stream: true })
 
-                for (const line of lines) {
+                for (const line of chunk.split('\n')) {
                     if (!line.trim()) continue
-                    try {
-                        const event: ImportProgress = JSON.parse(line)
-                        onProgress?.(event)
-                    } catch {
-                        console.warn('Bad JSON line:', line)
-                    }
+                    yield JSON.parse(line) as ImportStreamMessage
                 }
             }
-
-            // Wait for a final completion event (optional)
-            return { success: true }
         },
-    })
+    }
+
 }
+
+export const importQueryOptions = ({ filename, csvData }: ImportProps) =>
+    queryOptions({
+        queryKey: ['import', filename, csvData],
+        queryFn: streamedQuery({
+            streamFn: () => importFetch({ filename, csvData }),
+            refetchMode: 'append'
+        }),
+        staleTime: Infinity,
+        enabled: false
+    })

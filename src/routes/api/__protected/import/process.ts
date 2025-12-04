@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { csvConfig } from '@/db/mapping-config'
-import { importData } from '@/utils/csv-importer'
+import { importData, ImportStreamMessage } from '@/utils/csv-importer'
 
 export const Route = createFileRoute('/api/__protected/import/process')({
     server: {
@@ -9,24 +9,23 @@ export const Route = createFileRoute('/api/__protected/import/process')({
                 const { filename, csvData } = await request.json()
 
                 // Create a readable stream that will send progress events
+                const encoder = new TextEncoder()
                 const stream = new ReadableStream({
                     async start(controller) {
-                        const encoder = new TextEncoder()
-                        const write = (msg: string) =>
-                            controller.enqueue(encoder.encode(msg + '\n'))
+                        const send = async (obj: ImportStreamMessage) => {
+                            controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'))
+                        }
 
                         try {
                             await importData(context.db, csvData, filename, csvConfig, {
-                                write,
+                                send,
                                 end: () => controller.close(),
+                                batchSize: 10,
                             })
-
-                            write(JSON.stringify({ type: 'complete' }))
-                            controller.close()
-                        } catch (error) {
-                            write(JSON.stringify({ type: 'error', error: String(error) }))
-                            controller.close()
+                        } catch (err) {
+                            await send({ type: 'error', error: String(err) })
                         }
+                        controller.close()
                     },
                 })
 

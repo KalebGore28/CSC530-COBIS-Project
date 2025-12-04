@@ -10,7 +10,9 @@ import {
 } from "@/components/ui/drawer";
 import { Separator } from "@radix-ui/react-separator";
 import { Button } from "@/components/ui/button";
-import { useImport } from '@/hooks/use-import';
+import { importQueryOptions } from '@/hooks/use-import';
+import { useQuery } from '@tanstack/react-query';
+import { ImportProgressList } from '@/components/csv-import/import-progress-list';
 import { toast } from "sonner";
 
 import type { ParseResult } from 'papaparse';
@@ -18,8 +20,6 @@ import type { ParseResult } from 'papaparse';
 import { FileUpload } from '@/components/csv-import/file-upload'
 import { CsvPreview } from '@/components/csv-import/csv-preview'
 import { TablePreview } from '@/components/csv-import/table-preview';
-
-import { ImportSummary } from '@/components/csv-import/import-summary';
 
 export type IssueMessage = {
   message: string;
@@ -51,61 +51,22 @@ function RouteComponent() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [csvData, setCsvData] = useState<ParseResult<Record<string, string>> | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [progressData, setProgressData] = useState<ProgressData>({
-    progressMessages: [],
-    warnings: [],
-    errors: [],
-  });
-  const importMutation = useImport((event) => {
-    if (event.type === 'progress') {
-      setProgressData((prev) => ({
-        ...prev,
-        progressMessages: [...prev.progressMessages, event.data as ProgressMessage],
-      }));
-    } else if (event.type === 'warning') {
-      setProgressData((prev) => ({
-        ...prev,
-        warnings: [...prev.warnings, { message: event.data?.message }],
-      }));
-      console.warn('Warning:', event.data?.message);
-    } else if (event.type === 'complete') {
-      console.log('Import finished!')
-    } else if (event.type === 'error') {
-      setProgressData((prev) => ({
-        ...prev,
-        errors: [...prev.errors, { message: event.data?.message, error: event.data?.error }],
-      }));
-      console.error('Import error:', event.error)
-    }
-  });
+
+  const { data: importResults = [], isLoading: isImporting, refetch: sendImport, isSuccess } = useQuery(importQueryOptions({
+    filename: selectedFile?.name || '',
+    csvData: csvData!,
+  }))
 
   const resetImport = () => {
     setSelectedFile(null);
     setCsvData(null);
-    importMutation.reset();
     setDrawerOpen(false);
-    setProgressData({
-      progressMessages: [],
-      warnings: [],
-      errors: [],
-    });
   };
 
   const handleImport = () => {
     if (!selectedFile || !csvData) return
-    importMutation.mutate(
-      { filename: selectedFile.name, csvData },
-      {
-        onSuccess: (data) => {
-          if (data.success) {
-            toast.success('Import completed successfully!')
-          } else {
-            toast.error(data.error || 'Import failed')
-          }
-        },
-        onError: (err) => toast.error(err.message),
-      }
-    )
+    setDrawerOpen(true);
+    sendImport();
   }
 
 
@@ -151,46 +112,43 @@ function RouteComponent() {
             <TablePreview fileName={selectedFile.name} />
           </div>}
 
-
           {/* Step 4: Import Confirmation */}
           {selectedFile && csvData && (
             <div>
               <Separator className="my-6" />
               <CardFooter className="flex justify-end">
-                <div className={`${importMutation.isSuccess ? 'hidden pointer-events-none' : ''} flex`}>
+                <div className={`${isSuccess ? 'hidden pointer-events-none' : ''} flex`}>
                   <Button variant="secondary" onClick={resetImport} className="mr-4">
                     Cancel
                   </Button>
                   <Button
-                    className={`${importMutation.isPending ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    className={`${isImporting ? 'opacity-70 cursor-not-allowed' : ''}`}
                     onClick={handleImport}
-                    disabled={importMutation.isPending || importMutation.isSuccess}
+                    disabled={isImporting || isSuccess}
                   >
-                    {importMutation.isPending ? 'Importing…' : 'Confirm Import'}
+                    {isImporting ? 'Importing…' : 'Confirm Import'}
                   </Button>
                 </div>
-                <Drawer open={importMutation.isPending || drawerOpen} onOpenChange={(e) => setDrawerOpen(e)}>
+                <Drawer
+                  open={drawerOpen}
+                  onOpenChange={(e) => setDrawerOpen(e)}
+                >
                   <DrawerContent>
                     <DrawerHeader>
                       <DrawerTitle>Import Results</DrawerTitle>
                       <DrawerDescription>
-                        {importMutation.isPending && 'Import in progress...'}
-                        {importMutation.isSuccess && 'Import completed successfully!'}
+                        {isImporting && 'Import in progress...'}
+                        {isSuccess && 'Import completed successfully!'}
                       </DrawerDescription>
                     </DrawerHeader>
 
                     <div className="h-[75vh] px-4">
-                      <ImportSummary
-                        progressMessages={progressData.progressMessages}
-                        warnings={progressData.warnings}
-                        errors={progressData.errors}
-                        isImporting={importMutation.isPending}
-                      />
+                      <ImportProgressList messages={importResults} />
                     </div>
 
                   </DrawerContent>
                 </Drawer>
-                {importMutation.isSuccess && (
+                {isSuccess && (
                   <>
                     <Button variant="outline" onClick={() => setDrawerOpen(true)} className="mr-4">
                       View Results
