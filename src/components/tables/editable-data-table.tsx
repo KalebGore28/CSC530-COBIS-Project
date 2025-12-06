@@ -35,26 +35,24 @@ import { Input } from "@/components/ui/input"
 
 interface DataTableProps<TData, TValue> {
     filterColumns: string[]
-    defaultFilterColumn?: string
-    defaultFilterColumnValue?: string
+    defaultFilters?: { id: string; value: string }[]
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
 }
 
 export function EditableDataTable<TData, TValue>({
     filterColumns,
-    defaultFilterColumn,
-    defaultFilterColumnValue,
+    defaultFilters,
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-        { id: defaultFilterColumn || filterColumns[0], value: defaultFilterColumnValue || "" },
+        ...(defaultFilters || []),
     ])
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = useState({})
-    const [activeFilterColumn, setActiveFilterColumn] = useState(defaultFilterColumn || filterColumns[0])
+    const [activeFilterColumn, setActiveFilterColumn] = useState(filterColumns[0])
 
     const table = useReactTable({
         data,

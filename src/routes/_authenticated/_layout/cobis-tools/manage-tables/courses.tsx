@@ -28,8 +28,11 @@ function RouteComponent() {
             {!isLoading && (
                 <CourseTable
                     data={courses}
-                    defaultFilterColumn={filterColumn}
-                    defaultFilterColumnValue={filterValue}
+                    defaultFilters={
+                        [
+                            { id: filterColumn || 'code', value: filterValue || '' }
+                        ]
+                    }
                 />
             )}
         </div>

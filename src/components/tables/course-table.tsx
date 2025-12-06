@@ -46,6 +46,7 @@ const columns: ColumnDef<Course>[] = [
     {
         accessorKey: "number",
         header: "Number",
+        filterFn: 'includesString'
     },
     {
         accessorKey: "suffix",
@@ -58,6 +59,7 @@ const columns: ColumnDef<Course>[] = [
     {
         accessorKey: "hours",
         header: "Hours",
+        filterFn: 'includesString'
     },
     {
         accessorKey: "department_code",
@@ -80,17 +82,14 @@ const columns: ColumnDef<Course>[] = [
 
 export function CourseTable({
     data,
-    defaultFilterColumn,
-    defaultFilterColumnValue,
+    defaultFilters
 }: {
     data: Course[],
-    defaultFilterColumn?: string,
-    defaultFilterColumnValue?: string
+    defaultFilters?: { id: string; value: string }[]
 }) {
     return <EditableDataTable
         filterColumns={['code', 'title', 'department_code', 'college_code']}
-        defaultFilterColumn={defaultFilterColumn}
-        defaultFilterColumnValue={defaultFilterColumnValue}
+        defaultFilters={defaultFilters}
         columns={columns}
         data={data}
     />
