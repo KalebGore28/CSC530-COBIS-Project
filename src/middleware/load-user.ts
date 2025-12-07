@@ -79,6 +79,7 @@ export const loadUser = createMiddleware({ type: 'request' })
 
         return next({
             context: {
+                ...context,
                 session: session.session,
                 user: session.user,
                 mnumber: base?.mnumber || null,

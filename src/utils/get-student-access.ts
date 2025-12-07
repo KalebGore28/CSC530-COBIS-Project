@@ -1,6 +1,5 @@
 import { getDbConnection } from "@/db";
 import {
-    instructorCourses,
     studentCourses,
     studentAdvisors
 } from "@/db/schema";
@@ -13,20 +12,19 @@ export async function getStudentAccess(
         advisorCheck: boolean;
     }
 ): Promise<{ mnumbers: Set<string>  }> {
-    const { orm } = await getDbConnection();
+    const db = await getDbConnection();
 
     const allStudentMnumbers = new Set<string>();
 
     // Get Student MNumbers for courses taught by the instructor with userMnumber
     if (checks.instructorCheck === true) {
-        const studentMnumbers = await orm
+        const studentMnumbers = await db
             .select({
                 student_mnumber: studentCourses.mnumber,
             })
             .from(studentCourses)
-            .leftJoin(instructorCourses, eq(studentCourses.course_id, instructorCourses.course_id))
             .where(
-                eq(instructorCourses.mnumber, userMnumber)
+                eq(studentCourses.instructor_mnumber, userMnumber)
             );
 
         studentMnumbers.forEach(s => allStudentMnumbers.add(s.student_mnumber));
@@ -34,7 +32,7 @@ export async function getStudentAccess(
 
     // Get Student MNumbers for students advised by the advisor with userMnumber
     if (checks.advisorCheck === true) {
-        const advisedStudents = await orm
+        const advisedStudents = await db
             .select({
                 student_mnumber: studentAdvisors.student_mnumber,
             })
