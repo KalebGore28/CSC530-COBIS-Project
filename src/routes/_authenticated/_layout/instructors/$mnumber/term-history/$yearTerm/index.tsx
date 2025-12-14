@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams, redirect } from '@tanstack/react-router'
 import { ArrowLeft, BookOpen, Calculator, Users } from 'lucide-react'
 import { and, eq, useLiveQuery } from '@tanstack/react-db'
 import { Card, CardContent } from '@/components/ui/card'
@@ -14,6 +14,15 @@ import { termsCollection } from '@/integrations/tanstack-db/terms'
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/',
 )({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: RouteComponent,
 })
 
@@ -177,7 +186,7 @@ function RouteComponent() {
 
             {/* Course details table */}
             <Card className="p-0">
-                <CardContent className="p-1 m-0 bg-blue-950 border bg-primary rounded-xl">
+                <CardContent className="p-1 m-0 border bg-primary rounded-xl">
                     <div className="border rounded-lg bg-white dark:bg-gray-800">
                         <CoursesTable
                             data={Array.from(coursesMap.values()).map(

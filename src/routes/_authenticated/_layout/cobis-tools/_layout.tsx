@@ -3,6 +3,7 @@ import {
     createFileRoute,
     useLocation,
     useNavigate,
+    redirect
 } from '@tanstack/react-router'
 import {
     Card,
@@ -16,6 +17,11 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout',
 )({
+    beforeLoad: ({ context }) => {
+        if (!context.userSession?.roles.includes('cobis_administrator')) {
+            throw redirect({ to: '/dashboard' })
+        }
+    },
     component: RouteComponent,
 })
 

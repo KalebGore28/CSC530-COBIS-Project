@@ -3,6 +3,7 @@ import {
     createFileRoute,
     useLocation,
     useNavigate,
+    redirect
 } from '@tanstack/react-router'
 import {
     Card,
@@ -16,6 +17,15 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 export const Route = createFileRoute(
     '/_authenticated/_layout/enrollment/_layout',
 )({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: RouteComponent,
 })
 

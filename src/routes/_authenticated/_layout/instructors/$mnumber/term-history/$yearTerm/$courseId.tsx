@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, useParams, redirect } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { and, eq, useLiveQuery } from '@tanstack/react-db'
 import { Button } from '@/components/ui/button'
@@ -17,6 +17,15 @@ import { RosterStudents } from '@/components/roster/roster-students'
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/$courseId',
 )({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: RouteComponent,
 })
 

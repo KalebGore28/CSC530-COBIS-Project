@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { Download } from 'lucide-react'
 import { format } from 'date-fns'
 import { toast } from 'sonner'
@@ -18,6 +18,15 @@ import { StudentLookupTable } from '@/components/tables/student-lookup-table'
 import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/_authenticated/_layout/student-lookup')({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: StudentLookup,
 })
 

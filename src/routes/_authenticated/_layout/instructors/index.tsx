@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
 import { Mail, Search, Users } from 'lucide-react'
 import { useState } from 'react'
 import { eq, ilike, or, useLiveQuery } from '@tanstack/react-db'
@@ -54,8 +54,8 @@ function InstructorsPageSkeleton() {
 
                     {/* Search & filter skeletons */}
                     <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-                        <Skeleton className="h-10 w-[250px] rounded-lg" />
-                        <Skeleton className="h-10 w-[150px] rounded-lg" />
+                        <Skeleton className="h-10 w-62.5 rounded-lg" />
+                        <Skeleton className="h-10 w-37.5 rounded-lg" />
                     </div>
                 </div>
             </CardHeader>
@@ -103,6 +103,15 @@ function InstructorsPageSkeleton() {
 }
 
 export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: RouteComponent,
 })
 
@@ -235,7 +244,7 @@ function RouteComponent() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="w-[250px]">
+                                    <TableHead className="w-62.5">
                                         Instructor
                                     </TableHead>
                                     <TableHead>Department</TableHead>
@@ -259,7 +268,7 @@ function RouteComponent() {
                                             }
                                         }}
                                     >
-                                        <TableCell className="truncate max-w-[120px]">
+                                        <TableCell className="truncate max-w-30">
                                             <div className="flex items-center gap-3">
                                                 <Avatar>
                                                     <AvatarImage
@@ -285,7 +294,7 @@ function RouteComponent() {
                                                 </div>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="truncate max-w-[120px]">
+                                        <TableCell className="truncate max-w-30">
                                             <div className="flex flex-col">
                                                 <span>
                                                     {d.departments
@@ -325,7 +334,7 @@ function RouteComponent() {
                                                 </span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="truncate max-w-[120px]">
+                                        <TableCell className="truncate max-w-30">
                                             <div className="flex items-center gap-2">
                                                 <Mail className="h-4 w-4 text-muted-foreground" />
                                                 {d.users?.email ? (

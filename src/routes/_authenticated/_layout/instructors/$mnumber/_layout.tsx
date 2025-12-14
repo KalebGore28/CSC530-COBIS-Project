@@ -4,6 +4,7 @@ import {
     useLocation,
     useNavigate,
     useParams,
+    redirect
 } from '@tanstack/react-router'
 import { AlertCircle } from 'lucide-react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
@@ -65,6 +66,15 @@ const getInitials = (name: string): string => {
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/_layout',
 )({
+    beforeLoad: ({ context }) => {
+        const permittedRoles = new Set([
+            'department_chair',
+            'cobis_administrator',
+        ])
+        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+            throw redirect({ to: '/login' })
+        }
+    },
     component: RouteComponent,
 })
 
