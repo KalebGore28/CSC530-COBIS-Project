@@ -1,12 +1,22 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import {
+    HeadContent,
+    Scripts,
+    createRootRouteWithContext,
+} from '@tanstack/react-router'
 import { Suspense } from 'react'
+import appCss from '../styles.css?url'
+import type { getQueryClient } from '@/providers/queryClient'
+import { authQuery } from '@/lib/queries'
 
 // Providers
-import appCss from '../styles.css?url'
 import { ThemeProvider } from '@/components/provider/theme'
 import { SessionProvider } from '@/components/provider/session'
 
-export const Route = createRootRoute({
+interface RootRouteContext {
+    queryClient: ReturnType<typeof getQueryClient>
+}
+
+export const Route = createRootRouteWithContext<RootRouteContext>()({
     head: () => ({
         meta: [
             {
@@ -27,8 +37,13 @@ export const Route = createRootRoute({
             },
         ],
     }),
-
     shellComponent: RootDocument,
+    beforeLoad: async ({ context }) => {
+        const userSession = await context.queryClient.fetchQuery(
+            authQuery.user(),
+        )
+        return { userSession }
+    },
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {

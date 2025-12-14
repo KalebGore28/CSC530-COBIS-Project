@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
 import {
     Card,
     CardContent,
@@ -7,24 +7,20 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useSession } from '@/components/provider/session'
 
 import { authClient } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/waiting')({
+    beforeLoad: ({ context }) => {
+        if (context.userSession?.user.mnumber && context.userSession.roles.length > 0) {
+            throw redirect({ to: '/' })
+        }
+    },
     component: RouteComponent,
 })
 
 function RouteComponent() {
-    const { session, isLoading } = useSession()
     const navigate = useNavigate()
-
-    if (isLoading) return null
-    if (!session) navigate({ to: '/login' })
-
-    // Check if the user is authenticated and has an enabled account with roles
-    if (session?.isEnabled && session.mnumber && session.roles.length > 0)
-        navigate({ to: '/' })
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-background">

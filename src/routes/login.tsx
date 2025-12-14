@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 import { signinGoogle } from '../lib/auth-client'
 import {
     Card,
@@ -8,20 +8,18 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { useSession } from '@/components/provider/session'
 import primaryLogo from '/primary_white.png?url'
 
 export const Route = createFileRoute('/login')({
+    beforeLoad: ({ context }) => {
+        if (context.userSession?.session) {
+            throw redirect({ to: '/' })
+        }
+    },
     component: RouteComponent,
 })
 
 function RouteComponent() {
-    const { session, isLoading } = useSession()
-    const navigate = useNavigate()
-
-    if (isLoading) return null
-    if (session) return navigate({ to: '/' })
-
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-blue-950">
             <div className="flex w-full max-w-sm flex-col gap-6 items-center justify-center">
