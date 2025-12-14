@@ -1,4 +1,4 @@
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, ClientOnly, Outlet } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_authenticated')({
     beforeLoad: ({ context }) => {
@@ -6,4 +6,14 @@ export const Route = createFileRoute('/_authenticated')({
             throw redirect({ to: '/login' })
         }
     },
+    component: RouteComponent
 })
+
+// Wrap the authenticated layout in ClientOnly to prevent hydration issues
+function RouteComponent() {
+    return (
+        <ClientOnly>
+            <Outlet />
+        </ClientOnly>
+    )
+}
