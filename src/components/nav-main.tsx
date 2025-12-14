@@ -9,7 +9,8 @@ import {
     TerminalSquareIcon,
 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import { hasRouteAccess, useSession } from './provider/session'
+import { hasRouteAccess } from './provider/session'
+import { useAuthentication } from '@/lib/auth-client'
 import {
     Collapsible,
     CollapsibleContent,
@@ -74,13 +75,13 @@ const nav_main_data = [
 ]
 
 export function NavMain({ open }: { open?: boolean }) {
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
     const navigate = useNavigate()
-    if (!session) return null
+    if (!userSession) return null
 
     // Filter nav_main_data based on user roles and route permissions
     const filtered_nav_main_data = nav_main_data.filter((item) =>
-        hasRouteAccess(item.url, session.roles),
+        hasRouteAccess(item.url, userSession.roles),
     )
 
     return (

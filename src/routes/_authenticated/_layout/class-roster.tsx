@@ -5,7 +5,7 @@ import type {
     SelectedCourse,
     SelectedTerm,
 } from '@/components/selectors/term-course-selector'
-import { useSession } from '@/components/provider/session'
+import { useAuthentication } from '@/lib/auth-client'
 
 import { studentsCollection } from '@/collections/students'
 import { studentAcademicInfoCollection } from '@/collections/student-academic-info'
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_authenticated/_layout/class-roster')({
 })
 
 function ClassRosterPage() {
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
     const [selectedTerm, setSelectedTerm] = useState<SelectedTerm | undefined>(
         undefined,
     )
@@ -37,7 +37,10 @@ function ClassRosterPage() {
         q
             .from({ studentCourse: studentCoursesCollection })
             .where(({ studentCourse }) =>
-                eq(studentCourse.instructor_mnumber, session?.mnumber || ''),
+                eq(
+                    studentCourse.instructor_mnumber,
+                    userSession?.user.mnumber || '',
+                ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
                 eq(studentCourse.term_code, term.code),
@@ -84,7 +87,7 @@ function ClassRosterPage() {
             ),
     )
 
-    if (!session || !session.mnumber) return null
+    if (!userSession || !userSession.user.mnumber) return null
 
     if (!isLoading && (!instructorCourses || instructorCourses.length === 0)) {
         return (

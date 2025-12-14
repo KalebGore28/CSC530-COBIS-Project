@@ -52,8 +52,6 @@ export function CollegeTable({
     return (
         <EditableDataTable
             filterColumns={['code', 'description']}
-            defaultFilterColumn={defaultFilterColumn}
-            defaultFilterColumnValue={defaultFilterColumnValue}
             columns={columns}
             data={data}
         />

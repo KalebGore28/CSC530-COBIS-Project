@@ -3,14 +3,14 @@ import {
     Scripts,
     createRootRouteWithContext,
 } from '@tanstack/react-router'
-import { Suspense } from 'react'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import appCss from '../styles.css?url'
-import type { getQueryClient } from '@/providers/queryClient'
+import type { getQueryClient } from '@/integrations/tanstack-query/provider'
 import { authQuery } from '@/lib/queries'
+import { TanstackQueryProvider } from '@/integrations/tanstack-query/provider'
 
 // Providers
 import { ThemeProvider } from '@/components/provider/theme'
-import { SessionProvider } from '@/components/provider/session'
 
 interface RootRouteContext {
     queryClient: ReturnType<typeof getQueryClient>
@@ -53,13 +53,10 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <HeadContent />
             </head>
             <body>
-                <SessionProvider>
-                    <ThemeProvider>
-                        <Suspense fallback={<div>Loading...</div>}>
-                            {children}
-                        </Suspense>
-                    </ThemeProvider>
-                </SessionProvider>
+                <TanstackQueryProvider>
+                    <ThemeProvider>{children}</ThemeProvider>
+                </TanstackQueryProvider>
+                <TanStackRouterDevtools position="bottom-right" />
                 <Scripts />
             </body>
         </html>

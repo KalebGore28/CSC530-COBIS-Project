@@ -21,7 +21,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSession } from '@/components/provider/session'
+import { useAuthentication } from '@/lib/auth-client'
 
 import { departmentsCollection } from '@/collections/departments'
 import { facultyCollection } from '@/collections/faculty'
@@ -107,7 +107,7 @@ export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
 })
 
 function RouteComponent() {
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
     const navigate = useNavigate()
 
     const [searchQuery, setSearchQuery] = useState('')
@@ -171,7 +171,8 @@ function RouteComponent() {
             ? faculty
             : faculty.filter(
                   (d) =>
-                      d.faculty.department_code === session?.faculty.department,
+                      d.faculty.department_code ===
+                      userSession?.faculty.department_code,
               )
 
     // Handle instructor selection
@@ -245,10 +246,11 @@ function RouteComponent() {
                                 {filteredFaculty.map((d) => (
                                     <TableRow
                                         key={d.faculty.mnumber}
-                                        className={`cursor-pointer hover:bg-muted/50 ${session?.faculty.department === d.faculty.department_code ? 'bg-background' : 'opacity-50 cursor-not-allowed'}`}
+                                        className={`cursor-pointer hover:bg-muted/50 ${userSession?.faculty.department_code === d.faculty.department_code ? 'bg-background' : 'opacity-50 cursor-not-allowed'}`}
                                         onClick={() => {
                                             if (
-                                                session?.faculty.department ===
+                                                userSession?.faculty
+                                                    .department_code ===
                                                 d.faculty.department_code
                                             ) {
                                                 handleSelectInstructor(
@@ -297,9 +299,9 @@ function RouteComponent() {
                                                             className="cursor-pointer"
                                                             onClick={(e) => {
                                                                 if (
-                                                                    !session
+                                                                    !userSession
                                                                         ?.faculty
-                                                                        .department
+                                                                        .department_code
                                                                 ) {
                                                                     console.error(
                                                                         'User session does not have a department assigned.',
@@ -311,7 +313,7 @@ function RouteComponent() {
                                                                         .mnumber,
                                                                     (draft) => {
                                                                         draft.department_code =
-                                                                            session.faculty.department!
+                                                                            userSession.faculty.department_code!
                                                                     },
                                                                 )
                                                                 e.stopPropagation()

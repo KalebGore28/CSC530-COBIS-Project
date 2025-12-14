@@ -16,12 +16,12 @@ import {
     DialogTitle,
 } from '@/components/ui/dialog'
 import { useProvisionUser } from '@/hooks/use-provision-user'
-import { useSession } from '@/components/provider/session'
+import { useAuthentication } from '@/lib/auth-client'
 
 import { usersCollection } from '@/collections/users'
 import { userRolesCollection } from '@/collections/user-roles'
 import { rolesCollection } from '@/collections/roles'
-import { getQueryClient } from '@/providers/queryClient'
+import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 type Role = typeof roles.$inferSelect
 type Department = typeof departments.$inferSelect
@@ -46,7 +46,7 @@ type UserCardProps = {
 
 export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
     const provision = useProvisionUser()
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
     const [provisionParams, setProvisionParams] = useState<
         ProvisionState | undefined
     >(undefined)
@@ -128,7 +128,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
 
                     <span className="font-medium">
                         Account Enabled:
-                        {user.mnumber === session?.mnumber && (
+                        {user.mnumber === userSession?.user.mnumber && (
                             <span className="text-sm text-red-500 ml-2">
                                 (You cannot change your own account status)
                             </span>
@@ -136,7 +136,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     </span>
 
                     {/* Account Enabled Toggle Conditionally Enabled Based on User */}
-                    <fieldset disabled={user.mnumber === session?.mnumber}>
+                    <fieldset disabled={user.mnumber === userSession?.user.mnumber}>
                         <Tabs
                             defaultValue={user.isEnabled ? 'yes' : 'no'}
                             onValueChange={(value) => {
@@ -185,7 +185,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                                 }
 
                                 const selfProvisioning =
-                                    user.mnumber === session?.mnumber
+                                    user.mnumber === userSession?.user.mnumber
 
                                 provision.mutate(
                                     {

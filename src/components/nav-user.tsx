@@ -16,11 +16,11 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 
-import { useSession } from '@/components/provider/session'
+import { useAuthentication } from '@/lib/auth-client'
 import { authClient } from '@/lib/auth-client'
 
 export function NavUser() {
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
     const { isMobile } = useSidebar()
 
     return (
@@ -34,11 +34,11 @@ export function NavUser() {
                         >
                             <Avatar className="h-8 w-8 rounded-lg grayscale">
                                 <AvatarImage
-                                    src={session?.user.image ?? undefined}
-                                    alt={session?.user.name ?? undefined}
+                                    src={userSession?.user.image ?? undefined}
+                                    alt={userSession?.user.name ?? undefined}
                                 />
                                 <AvatarFallback className="rounded-lg text-black">
-                                    {(session?.user.name ?? '')
+                                    {(userSession?.user.name ?? '')
                                         .split(' ')
                                         .map((name) => name[0])
                                         .join('')}
@@ -46,10 +46,10 @@ export function NavUser() {
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
                                 <span className="truncate font-medium">
-                                    {session?.user.name}
+                                    {userSession?.user.name}
                                 </span>
                                 <span className="truncate text-xs text-muted-foreground">
-                                    {session?.user.email}
+                                    {userSession?.user.email}
                                 </span>
                             </div>
                             <MoreVerticalIcon className="ml-auto size-4" />
@@ -65,10 +65,10 @@ export function NavUser() {
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
-                                        src={session?.user.image || undefined}
+                                        src={userSession?.user.image || undefined}
                                     />
                                     <AvatarFallback className="rounded-lg text-black">
-                                        {(session?.user.name ?? '')
+                                        {(userSession?.user.name ?? '')
                                             .split(' ')
                                             .map((name) => name[0])
                                             .join('')}
@@ -76,10 +76,10 @@ export function NavUser() {
                                 </Avatar>
                                 <div className="grid flex-1 text-left text-sm leading-tight">
                                     <span className="truncate font-medium">
-                                        {session?.user.name}
+                                        {userSession?.user.name}
                                     </span>
                                     <span className="truncate text-xs text-muted-foreground">
-                                        {session?.user.email}
+                                        {userSession?.user.email}
                                     </span>
                                 </div>
                             </div>

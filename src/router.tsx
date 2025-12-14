@@ -1,13 +1,12 @@
 import { createRouter } from '@tanstack/react-router'
-import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { broadcastQueryClient } from '@tanstack/query-broadcast-client-experimental'
 import pkg from '../package.json'
 import { NotFound } from './not-found'
+import { ErrorComponent } from './error'
 
 // Import the generated route tree
 import { routeTree } from './routeTree.gen'
-
-import { getQueryClient } from '@/providers/queryClient'
+import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 // Create a new router instance
 export const getRouter = () => {
@@ -20,12 +19,9 @@ export const getRouter = () => {
         defaultPreload: 'intent',
         defaultPreloadStaleTime: 0,
         defaultNotFoundComponent: () => <NotFound />,
-    })
-
-    // By default, the integration wraps your router with a QueryClientProvider.
-    setupRouterSsrQueryIntegration({
-        router,
-        queryClient,
+        defaultErrorComponent: ({ error, reset, info }) => (
+            <ErrorComponent error={error} reset={reset} info={info} />
+        ),
     })
 
     // Setup broadcasting for queryClient updates across tabs/windows

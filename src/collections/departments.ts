@@ -1,7 +1,7 @@
 import { createCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import type { departments } from '@/db/schema'
-import { getQueryClient } from '@/providers/queryClient'
+import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 type Department = typeof departments.$inferSelect
 

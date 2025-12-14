@@ -1,7 +1,7 @@
 import { createCollection, parseLoadSubsetOptions } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import type { studentAcademicInfo } from '@/db/schema'
-import { getQueryClient } from '@/providers/queryClient'
+import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 type StudentAcademicInfo = typeof studentAcademicInfo.$inferSelect
 

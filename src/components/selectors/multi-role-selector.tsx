@@ -10,8 +10,7 @@ import {
     CommandShortcut,
 } from '@/components/ui/command'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useSession } from '@/components/provider/session'
-
+import { useAuthentication } from '@/lib/auth-client'
 import { rolesCollection } from '@/collections/roles'
 
 type Role = typeof roles.$inferSelect
@@ -32,7 +31,7 @@ export function MultiRoleSelector({
     onRolesChange,
 }: MultiRoleSelectorProps) {
     const [selectedRoles, setSelectedRoles] = useState<Array<Role>>([])
-    const { session } = useSession()
+    const { userSession } = useAuthentication()
 
     const { data: rolesList, isLoading } = useLiveQuery(
         (q) =>
@@ -68,7 +67,7 @@ export function MultiRoleSelector({
                                 const isAdminRole =
                                     role.name === 'cobis_administrator'
                                 const isOwnAccount =
-                                    userMnumber === session?.mnumber
+                                    userMnumber === userSession?.user.mnumber
                                 const isDisabled = isAdminRole && isOwnAccount
 
                                 return (

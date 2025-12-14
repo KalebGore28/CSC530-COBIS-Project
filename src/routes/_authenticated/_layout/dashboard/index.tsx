@@ -17,9 +17,10 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { hasRouteAccess, useSession } from '@/components/provider/session'
+import { hasRouteAccess } from '@/components/provider/session'
 import { TermGradeDistribution } from '@/components/charts/term-grade-distributions'
 import { useCurrentTerm } from '@/providers/current-term-provider'
+import { useAuthentication } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     component: DashboardPage,
@@ -95,21 +96,21 @@ const dashboardCardsStructure = [
 ]
 
 function DashboardPage() {
-    const { session } = useSession()
-    if (!session) return null
+    const { userSession } = useAuthentication()
+    if (!userSession) return null
 
     const { isLoading } = useCurrentTerm()
 
     // Filter cards based on user roles and route permissions
     const visibleCards = dashboardCardsStructure.filter((card) =>
-        hasRouteAccess(card.link, session.roles),
+        hasRouteAccess(card.link, userSession.roles),
     )
 
     return (
         <div className="container p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
-                    Welcome Back, {session?.user.name}
+                    Welcome Back, {userSession.user.name}
                 </h2>
                 <p className="text-muted-foreground col-span-full text-center">
                     Access your tools and information from this dashboard
@@ -119,11 +120,11 @@ function DashboardPage() {
             <Separator />
 
             {gradeDistributionRoles.some((role) =>
-                session.roles.includes(role),
+                userSession.roles.includes(role),
             ) &&
                 !isLoading && (
                     <TermGradeDistribution
-                        mnumber={session.mnumber!}
+                        mnumber={userSession.user.mnumber}
                         title="Term Grade Distributions"
                         description="View the distribution of class grades over your recent terms."
                     />

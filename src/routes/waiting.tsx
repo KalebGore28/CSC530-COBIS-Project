@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import {
     Card,
     CardContent,
@@ -12,7 +12,10 @@ import { authClient } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/waiting')({
     beforeLoad: ({ context }) => {
-        if (context.userSession?.user.mnumber && context.userSession.roles.length > 0) {
+        if (
+            context.userSession?.user.mnumber &&
+            context.userSession.roles.length > 0
+        ) {
             throw redirect({ to: '/' })
         }
     },
