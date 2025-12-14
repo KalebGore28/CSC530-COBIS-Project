@@ -73,7 +73,7 @@ export function RosterInfoCard({
 
     const isActive = currentTerm
         ? course.year === currentTerm.year &&
-        course.term_code === currentTerm.term_code
+          course.term_code === currentTerm.term_code
         : false
 
     return (

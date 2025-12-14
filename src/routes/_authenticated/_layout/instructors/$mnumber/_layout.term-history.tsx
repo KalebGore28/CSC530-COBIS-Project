@@ -131,9 +131,9 @@ function RouteComponent() {
         // Use a Set to track unique courses
         const courseKey = `${record.course_id}-${record.course_section}`
         if (!('uniqueCourses' in entry)) {
-            ; (entry as any).uniqueCourses = new Set<string>()
+            ;(entry as any).uniqueCourses = new Set<string>()
         }
-        ; (entry as any).uniqueCourses.add(courseKey)
+        ;(entry as any).uniqueCourses.add(courseKey)
         entry.total_courses = (entry as any).uniqueCourses.size
     })
 

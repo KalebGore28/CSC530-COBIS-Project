@@ -57,7 +57,7 @@ function convertToPercentages(data: Array<GradeEntry>) {
         const pctEntry: GradeEntry = { ...entry }
 
         if (total > 0) {
-            ; (['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
+            ;(['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
                 (g) => {
                     pctEntry[g] = Number(((entry[g] / total) * 100).toFixed(2))
                 },

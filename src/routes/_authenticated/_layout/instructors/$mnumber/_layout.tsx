@@ -1,10 +1,10 @@
 import {
     Outlet,
     createFileRoute,
+    redirect,
     useLocation,
     useNavigate,
     useParams,
-    redirect
 } from '@tanstack/react-router'
 import { AlertCircle } from 'lucide-react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
@@ -71,7 +71,9 @@ export const Route = createFileRoute(
             'department_chair',
             'cobis_administrator',
         ])
-        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+        if (
+            !context.userSession?.roles.some((role) => permittedRoles.has(role))
+        ) {
             throw redirect({ to: '/login' })
         }
     },

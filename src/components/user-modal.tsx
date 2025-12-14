@@ -136,7 +136,9 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     </span>
 
                     {/* Account Enabled Toggle Conditionally Enabled Based on User */}
-                    <fieldset disabled={user.mnumber === userSession?.user.mnumber}>
+                    <fieldset
+                        disabled={user.mnumber === userSession?.user.mnumber}
+                    >
                         <Tabs
                             defaultValue={user.isEnabled ? 'yes' : 'no'}
                             onValueChange={(value) => {

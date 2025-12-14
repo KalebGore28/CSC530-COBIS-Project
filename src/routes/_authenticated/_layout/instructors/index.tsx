@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, redirect } from '@tanstack/react-router'
+import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
 import { Mail, Search, Users } from 'lucide-react'
 import { useState } from 'react'
 import { eq, ilike, or, useLiveQuery } from '@tanstack/react-db'
@@ -108,7 +108,9 @@ export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
             'department_chair',
             'cobis_administrator',
         ])
-        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+        if (
+            !context.userSession?.roles.some((role) => permittedRoles.has(role))
+        ) {
             throw redirect({ to: '/login' })
         }
     },
@@ -160,7 +162,7 @@ function RouteComponent() {
         )
 
     if (!faculty || faculty.length === 0) {
-        ; <div className="w-full p-6 mx-auto space-y-6">
+        ;<div className="w-full p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
                     Instructors
@@ -179,10 +181,10 @@ function RouteComponent() {
         searchQuery !== ''
             ? faculty
             : faculty.filter(
-                (d) =>
-                    d.faculty.department_code ===
-                    userSession?.faculty.department_code,
-            )
+                  (d) =>
+                      d.faculty.department_code ===
+                      userSession?.faculty.department_code,
+              )
 
     // Handle instructor selection
     const handleSelectInstructor = (mnumber: string) => {

@@ -134,8 +134,8 @@ function RouteComponent() {
                                         Last Login:{' '}
                                         {user.lastLogin
                                             ? new Date(
-                                                user.lastLogin,
-                                            ).toLocaleString()
+                                                  user.lastLogin,
+                                              ).toLocaleString()
                                             : 'Never'}
                                     </div>
                                 </div>

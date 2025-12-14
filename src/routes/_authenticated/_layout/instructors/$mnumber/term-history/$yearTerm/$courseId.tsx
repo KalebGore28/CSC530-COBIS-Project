@@ -1,4 +1,9 @@
-import { createFileRoute, useNavigate, useParams, redirect } from '@tanstack/react-router'
+import {
+    createFileRoute,
+    redirect,
+    useNavigate,
+    useParams,
+} from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
 import { and, eq, useLiveQuery } from '@tanstack/react-db'
 import { Button } from '@/components/ui/button'
@@ -22,7 +27,9 @@ export const Route = createFileRoute(
             'department_chair',
             'cobis_administrator',
         ])
-        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+        if (
+            !context.userSession?.roles.some((role) => permittedRoles.has(role))
+        ) {
             throw redirect({ to: '/login' })
         }
     },

@@ -16,8 +16,7 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 
-import { useAuthentication } from '@/lib/auth-client'
-import { authClient } from '@/lib/auth-client'
+import { authClient, useAuthentication  } from '@/lib/auth-client'
 
 export function NavUser() {
     const { userSession } = useAuthentication()
@@ -65,7 +64,9 @@ export function NavUser() {
                             <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                                 <Avatar className="h-8 w-8 rounded-lg">
                                     <AvatarImage
-                                        src={userSession?.user.image || undefined}
+                                        src={
+                                            userSession?.user.image || undefined
+                                        }
                                     />
                                     <AvatarFallback className="rounded-lg text-black">
                                         {(userSession?.user.name ?? '')

@@ -23,7 +23,9 @@ export const Route = createFileRoute('/_authenticated/_layout/student-lookup')({
             'department_chair',
             'cobis_administrator',
         ])
-        if (!context.userSession?.roles.some(role => permittedRoles.has(role))) {
+        if (
+            !context.userSession?.roles.some((role) => permittedRoles.has(role))
+        ) {
             throw redirect({ to: '/login' })
         }
     },

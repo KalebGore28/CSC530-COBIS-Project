@@ -102,12 +102,12 @@ function ClassRosterPage() {
     const filteredInstructorCourses =
         selectedTerm && selectedCourse
             ? instructorCourses?.filter(
-                (course) =>
-                    course.year === selectedTerm.year &&
-                    course.term_code === selectedTerm.term_code &&
-                    course.course_id === selectedCourse.course_id &&
-                    course.course_section === selectedCourse.course_section,
-            )
+                  (course) =>
+                      course.year === selectedTerm.year &&
+                      course.term_code === selectedTerm.term_code &&
+                      course.course_id === selectedCourse.course_id &&
+                      course.course_section === selectedCourse.course_section,
+              )
             : instructorCourses
 
     return (

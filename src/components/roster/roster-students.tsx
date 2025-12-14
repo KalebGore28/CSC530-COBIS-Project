@@ -344,7 +344,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.midterm_grade ||
-                                                        'N/A',
+                                                            'N/A',
                                                     )}
                                                 >
                                                     {student.midterm_grade ||
@@ -356,7 +356,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.final_grade ||
-                                                        'N/A',
+                                                            'N/A',
                                                     )}
                                                 >
                                                     {student.final_grade ||
@@ -419,7 +419,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.midterm_grade ||
-                                                        'N/A',
+                                                            'N/A',
                                                     )}
                                                 >
                                                     Mid:{' '}
@@ -430,7 +430,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.final_grade ||
-                                                        'N/A',
+                                                            'N/A',
                                                     )}
                                                 >
                                                     Final:{' '}

@@ -93,10 +93,11 @@ export function MultiRoleSelector({
                                             setSelectedRoles(updatedRoles)
                                             onRolesChange?.(updatedRoles)
                                         }}
-                                        className={`flex items-center justify-between ${isDisabled
+                                        className={`flex items-center justify-between ${
+                                            isDisabled
                                                 ? 'opacity-50 pointer-events-none'
                                                 : ''
-                                            }`}
+                                        }`}
                                     >
                                         {role.name}
                                         {isSelected && (

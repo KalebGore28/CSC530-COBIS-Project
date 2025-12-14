@@ -134,7 +134,7 @@ export function CourseSearchBox({
                                         Object.keys(OPERATORS).find(
                                             (key) =>
                                                 OPERATORS[
-                                                key as OperatorKey
+                                                    key as OperatorKey
                                                 ] === filterState.operator,
                                         ) || ''
                                     }

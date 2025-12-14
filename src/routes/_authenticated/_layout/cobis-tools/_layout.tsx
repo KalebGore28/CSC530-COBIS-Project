@@ -1,9 +1,9 @@
 import {
     Outlet,
     createFileRoute,
+    redirect,
     useLocation,
     useNavigate,
-    redirect
 } from '@tanstack/react-router'
 import {
     Card,
