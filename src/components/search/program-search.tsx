@@ -1,41 +1,45 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from 'react'
+import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import type { FilterState } from '../student-filter'
+import type { programs } from '@/db/schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Badge } from '@/components/ui/badge'
+import { Label } from '@/components/ui/label'
+import { Skeleton } from '@/components/ui/skeleton'
 
-import { programs } from "@/db/schema";
+import { programsCollection } from '@/integrations/tanstack-db/programs'
 
-type Program = typeof programs.$inferSelect;
-
-import { programsCollection } from "@/collections/programs";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
-import type { FilterState } from "../student-filter";
+type Program = typeof programs.$inferSelect
 
 interface ProgramSearchBoxProps {
-    filterState: FilterState;
-    onSetFilterState: (filterState: FilterState) => void;
+    filterState: FilterState
+    onSetFilterState: (filterState: FilterState) => void
 }
 
-export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearchBoxProps) {
-    const [query, setQuery] = useState("");
+export function ProgramSearchBox({
+    filterState,
+    onSetFilterState,
+}: ProgramSearchBoxProps) {
+    const [query, setQuery] = useState('')
 
-    const { data: filteredPrograms, isLoading } = useLiveQuery((q) =>
-        q.from({ programs: programsCollection })
-            .where(({ programs }) =>
-                or(
-                    ilike(programs.code, `%${query}%`),
-                    ilike(programs.description, `%${query}%`)
+    const { data: filteredPrograms, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ programs: programsCollection })
+                .where(({ programs }) =>
+                    or(
+                        ilike(programs.code, `%${query}%`),
+                        ilike(programs.description, `%${query}%`),
+                    ),
                 )
-            )
-            .orderBy(({ programs }) => programs.code, 'asc')
-            .limit(query !== "" ? 10 : 0),
-        [query] // Re-run when query changes
-    );
+                .orderBy(({ programs }) => programs.code, 'asc')
+                .limit(query !== '' ? 10 : 0),
+        [query], // Re-run when query changes
+    )
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    if (isLoading) return <Skeleton className="h-10 w-full" />
 
     // Grab current selection from filter state
     const selected = filterState.program
@@ -45,17 +49,18 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
             <div className="flex flex-col gap-2 border rounded-md px-3 py-2 bg-muted/30">
                 <div className="flex items-center justify-between gap-2">
                     <div>
-                        <strong>{selected.code}</strong> — {selected.description}
+                        <strong>{selected.code}</strong> —{' '}
+                        {selected.description}
                     </div>
                     <Button
                         variant="outline"
                         size="sm"
                         onClick={() => {
-                            setQuery("");
+                            setQuery('')
                             onSetFilterState({
                                 ...filterState,
                                 program: undefined,
-                            });
+                            })
                         }}
                     >
                         Remove
@@ -68,10 +73,13 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="major"
-                                checked={selected.is_major && (filterState.majorOnly ?? false)}
+                                checked={
+                                    selected.is_major &&
+                                    (filterState.majorOnly ?? false)
+                                }
                                 disabled={!selected.is_minor} // disable if only major available
                                 onCheckedChange={(checked) => {
-                                    const nextMajor = !!checked;
+                                    const nextMajor = !!checked
 
                                     // Only toggle if both flags exist
                                     if (selected.is_minor) {
@@ -80,7 +88,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                                             program: selected,
                                             majorOnly: nextMajor,
                                             minorOnly: !nextMajor,
-                                        });
+                                        })
                                     } else {
                                         // If only major exists, force it true + disabled
                                         onSetFilterState({
@@ -88,7 +96,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                                             program: selected,
                                             majorOnly: true,
                                             minorOnly: false,
-                                        });
+                                        })
                                     }
                                 }}
                             />
@@ -102,10 +110,13 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="minor"
-                                checked={selected.is_minor && (filterState.minorOnly ?? false)}
+                                checked={
+                                    selected.is_minor &&
+                                    (filterState.minorOnly ?? false)
+                                }
                                 disabled={!selected.is_major} // disable if only minor available
                                 onCheckedChange={(checked) => {
-                                    const nextMinor = !!checked;
+                                    const nextMinor = !!checked
 
                                     // Only toggle if both flags exist
                                     if (selected.is_major) {
@@ -114,7 +125,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                                             program: selected,
                                             majorOnly: !nextMinor,
                                             minorOnly: nextMinor,
-                                        });
+                                        })
                                     } else {
                                         // If only minor exists, force it true + disabled
                                         onSetFilterState({
@@ -122,7 +133,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                                             program: selected,
                                             majorOnly: false,
                                             minorOnly: true,
-                                        });
+                                        })
                                     }
                                 }}
                             />
@@ -133,7 +144,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                     )}
                 </div>
             </div>
-        );
+        )
     }
 
     return (
@@ -142,7 +153,7 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                 placeholder="Search programs..."
                 value={query}
                 onChange={(e) => {
-                    setQuery(e.target.value);
+                    setQuery(e.target.value)
                 }}
             />
             <ProgramResults
@@ -154,23 +165,24 @@ export function ProgramSearchBox({ filterState, onSetFilterState }: ProgramSearc
                         // Default majorOnly if program is major
                         majorOnly: prog.is_major ? true : false,
                         // Only default minorOnly if not major
-                        minorOnly: !prog.is_major && prog.is_minor ? true : false,
-                    });
-                    setQuery("");
+                        minorOnly:
+                            !prog.is_major && prog.is_minor ? true : false,
+                    })
+                    setQuery('')
                 }}
             />
         </div>
-    );
+    )
 }
 
 function ProgramResults({
     filteredPrograms,
     onSelect,
 }: {
-    filteredPrograms: Program[];
-    onSelect: (prog: Program) => void;
+    filteredPrograms: Array<Program>
+    onSelect: (prog: Program) => void
 }) {
-    if (filteredPrograms.length === 0) return null;
+    if (filteredPrograms.length === 0) return null
 
     return (
         <ul className="border rounded-md divide-y">
@@ -179,13 +191,11 @@ function ProgramResults({
                     <li
                         key={prog.code}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() =>
-                            onSelect(prog)
-                        }
+                        onClick={() => onSelect(prog)}
                     >
                         <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
-
-                            <strong>{prog.code}</strong>{prog.description}
+                            <strong>{prog.code}</strong>
+                            {prog.description}
                             <div className="space-x-2">
                                 {prog.is_major && (
                                     <Badge
@@ -230,8 +240,8 @@ function ProgramResults({
                             </div>
                         </div>
                     </li>
-                ) : null
+                ) : null,
             )}
         </ul>
-    );
+    )
 }

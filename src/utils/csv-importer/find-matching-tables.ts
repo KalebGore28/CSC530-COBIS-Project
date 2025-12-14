@@ -1,4 +1,4 @@
-import { createCSVConfig } from "./create-csv-config";
+import type { createCSVConfig } from './create-csv-config'
 
 /**
  * Loops through all tables in configMapping and returns an array of
@@ -8,22 +8,27 @@ import { createCSVConfig } from "./create-csv-config";
  * @returns Map of matching table names to their configurations
  */
 export const findMatchingTables = (
-  pattern_input: string,
-  configMapping: ReturnType<typeof createCSVConfig>,
+    pattern_input: string,
+    configMapping: ReturnType<typeof createCSVConfig>,
 ) => {
-  const matchingTables = new Map<string, (typeof configMapping.tables)[string]>();
+    const matchingTables = new Map<
+        string,
+        (typeof configMapping.tables)[string]
+    >()
 
-  for (const [tableName, tableMapping] of Object.entries(configMapping.tables)) {
-    const patterns = tableMapping.patterns;
-    const isMatch = patterns.some((pattern) =>
-      pattern instanceof RegExp
-        ? pattern.test(pattern_input)
-        : new RegExp(pattern).test(pattern_input),
-    );
-    if (isMatch) {
-      matchingTables.set(tableName, tableMapping);
+    for (const [tableName, tableMapping] of Object.entries(
+        configMapping.tables,
+    )) {
+        const patterns = tableMapping.patterns
+        const isMatch = patterns.some((pattern) =>
+            pattern instanceof RegExp
+                ? pattern.test(pattern_input)
+                : new RegExp(pattern).test(pattern_input),
+        )
+        if (isMatch) {
+            matchingTables.set(tableName, tableMapping)
+        }
     }
-  }
 
-  return matchingTables;
-};
+    return matchingTables
+}

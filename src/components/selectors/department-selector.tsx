@@ -1,55 +1,43 @@
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { departments } from "@/db/schema";
+import { useState } from 'react'
+import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import type { ProvisionState } from '../user-modal'
+import type { departments } from '@/db/schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-type Department = typeof departments.$inferSelect;
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
 
-import { departmentsCollection } from "@/collections/departments";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
-
+type Department = typeof departments.$inferSelect
 
 interface DepartmentSelectorProps {
-    /** Optional department code to preselect a department */
-    departmentCode?: string;
-    /** Called whenever the selected department changes */
-    onSelectChange?: (selected: Department | null) => void;
+    provisionParams?: ProvisionState
+    setProvisionParams?: (params: ProvisionState) => void
 }
-export function DepartmentSelector({ departmentCode, onSelectChange }: DepartmentSelectorProps) {
-    const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<Department | null>(null);
+export function DepartmentSelector({
+    provisionParams,
+    setProvisionParams,
+}: DepartmentSelectorProps) {
+    const [query, setQuery] = useState('')
 
-    const { data: departments } = useLiveQuery((q) =>
-        q.from({ departments: departmentsCollection })
-            .orderBy(({ departments }) => departments.code, 'asc'),
-        [] // Run only once
-    );
+    const selected = provisionParams?.department
 
-    const { data: filteredDepartments, isLoading } = useLiveQuery((q) =>
-        q.from({ departments: departmentsCollection })
-            .where(({ departments }) =>
-                or(
-                    ilike(departments.code, `%${query}%`),
-                    ilike(departments.description, `%${query}%`)
+    const { data: filteredDepartments, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ departments: departmentsCollection })
+                .where(({ departments }) =>
+                    or(
+                        ilike(departments.code, `%${query}%`),
+                        ilike(departments.description, `%${query}%`),
+                    ),
                 )
-            )
-            .orderBy(({ departments }) => departments.code, 'asc')
-            .limit(query !== "" ? 10 : 0),
-        [query] // Re-run when query changes
-    );
+                .orderBy(({ departments }) => departments.code, 'asc')
+                .limit(query !== '' ? 10 : 0),
+        [query], // Re-run when query changes
+    )
 
-    // Runs only once to set default selection if departmentCode prop is provided
-    useEffect(() => {
-        if (!departmentCode || !departments.length || isLoading) return;
-        const defaultDepartment = departments.find((d) => d.code === departmentCode);
-        if (defaultDepartment && (!selected || selected.code !== defaultDepartment.code)) {
-            setSelected(defaultDepartment);
-            onSelectChange?.(defaultDepartment);
-        }
-    }, [departmentCode, isLoading]);
-
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    if (isLoading) return <Skeleton className="h-10 w-full" />
 
     if (selected) {
         return (
@@ -61,14 +49,18 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setSelected(null);
-                        setQuery("");
+                        setProvisionParams &&
+                            setProvisionParams({
+                                ...provisionParams,
+                                department: null,
+                            })
+                        setQuery('')
                     }}
                 >
                     Remove
                 </Button>
             </div>
-        );
+        )
     }
 
     return (
@@ -78,42 +70,48 @@ export function DepartmentSelector({ departmentCode, onSelectChange }: Departmen
                     placeholder="Search departments..."
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        setQuery(e.target.value)
                     }}
                 />
-                {departmentCode && !selected && (
+                {/* {!selected && (
                     <Button
                         variant="destructive"
                         size="default"
                         onClick={() => {
-                            setSelected(departments.find((d) => d.code === departmentCode) || null);
+                            setProvisionParams && setProvisionParams({
+                                ...provisionParams!,
+                                department: null,
+                            });
                             setQuery("");
                         }}
                     >
                         Undo
                     </Button>
-                )}
+                )} */}
             </div>
             <DepartmentResults
                 filteredDepartments={filteredDepartments}
                 onSelect={(dept) => {
-                    setSelected(dept);
-                    onSelectChange && onSelectChange(dept);
-                    setQuery("");
+                    setProvisionParams &&
+                        setProvisionParams({
+                            ...provisionParams!,
+                            department: dept,
+                        })
+                    setQuery('')
                 }}
             />
         </div>
-    );
+    )
 }
 
 function DepartmentResults({
     filteredDepartments,
     onSelect,
 }: {
-    filteredDepartments: Department[];
-    onSelect: (dept: Department) => void;
+    filteredDepartments: Array<Department>
+    onSelect: (dept: Department) => void
 }) {
-    if (filteredDepartments.length === 0) return null;
+    if (filteredDepartments.length === 0) return null
 
     return (
         <ul className="border rounded-md divide-y">
@@ -132,8 +130,8 @@ function DepartmentResults({
                     >
                         <strong>{dept.code}</strong> — {dept.description}
                     </li>
-                ) : null
+                ) : null,
             )}
         </ul>
-    );
+    )
 }

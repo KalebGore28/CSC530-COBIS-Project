@@ -1,8 +1,8 @@
+import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { students } from '@/db/schema'
 import { urlParamsParser } from '@/utils/url-params-parser'
 import { getStudentAccess } from '@/utils/get-student-access'
-import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/students')({
     server: {
@@ -12,7 +12,10 @@ export const Route = createFileRoute('/api/__protected/data/students')({
 
                 const params = new URL(request.url).searchParams
 
-                const { limit, whereConditions, sort } = urlParamsParser(params, students)
+                const { limit, whereConditions, sort } = urlParamsParser(
+                    params,
+                    students,
+                )
 
                 let results = await context.db
                     .select()
@@ -22,13 +25,19 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                     .limit(limit || 1000) // Default limit to 1000 if not specified
 
                 // Apply student access restrictions based on roles
-                if (!user_roles.includes('cobis_administrator') && !user_roles.includes('department_chair')) {
-                    const studentAccess = await getStudentAccess(context.mnumber || '', {
-                        instructorCheck: true,
-                        advisorCheck: true,
-                    })
+                if (
+                    !user_roles.includes('cobis_administrator') &&
+                    !user_roles.includes('department_chair')
+                ) {
+                    const studentAccess = await getStudentAccess(
+                        context.user.mnumber || '',
+                        {
+                            instructorCheck: true,
+                            advisorCheck: true,
+                        },
+                    )
                     results = results.filter((student) =>
-                        studentAccess.mnumbers.has(student.mnumber)
+                        studentAccess.mnumbers.has(student.mnumber),
                     )
                 }
 
@@ -42,7 +51,7 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                         'Content-Encoding': 'gzip',
                     },
                 })
-            }
-        }
-    }
+            },
+        },
+    },
 })

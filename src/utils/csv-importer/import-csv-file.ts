@@ -1,9 +1,9 @@
-import fs from "fs";
-import path from "path";
-import type { MySql2Database } from "drizzle-orm/mysql2";
-import { createCSVConfig } from "./create-csv-config";
-import { parseCSV } from "./parse-csv";
-import { importData } from "./import-data";
+import fs from 'node:fs'
+import path from 'node:path'
+import { parseCSV } from './parse-csv'
+import { importData } from './import-data'
+import type { createCSVConfig } from './create-csv-config'
+import type { MySql2Database } from 'drizzle-orm/mysql2'
 
 /**
  * Reads a CSV file, parses it, and imports the data.
@@ -17,8 +17,8 @@ export async function importCSVFile(
     filePath: string,
     csvConfig: ReturnType<typeof createCSVConfig>,
 ) {
-    const fileContent = fs.readFileSync(filePath, "utf8");
-    const parsedData = await parseCSV(fileContent);
-    const fileName = path.basename(filePath);
-    await importData(db, parsedData, fileName, csvConfig);
+    const fileContent = fs.readFileSync(filePath, 'utf8')
+    const parsedData = await parseCSV(fileContent)
+    const fileName = path.basename(filePath)
+    await importData(db, parsedData, fileName, csvConfig)
 }

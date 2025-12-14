@@ -1,19 +1,21 @@
 import {
-    ColumnDef,
     flexRender,
     getCoreRowModel,
-    getSortedRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
+    getSortedRowModel,
     useReactTable,
-    SortingState,
+} from '@tanstack/react-table'
+import { useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import type {
+    ColumnDef,
     ColumnFiltersState,
+    SortingState,
     VisibilityState,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table'
 
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { useState } from "react"
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import {
     Table,
@@ -22,39 +24,40 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 import {
     DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
     DropdownMenuCheckboxItem,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { ChevronDown } from "lucide-react"
-import { Input } from "@/components/ui/input"
+    DropdownMenuContent,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface DataTableProps<TData, TValue> {
-    filterColumns: string[]
-    defaultFilterColumn?: string
-    defaultFilterColumnValue?: string
-    columns: ColumnDef<TData, TValue>[]
-    data: TData[]
+    filterColumns: Array<string>
+    defaultFilters?: Array<{ id: string; value: string }>
+    columns: Array<ColumnDef<TData, TValue>>
+    data: Array<TData>
 }
 
 export function EditableDataTable<TData, TValue>({
     filterColumns,
-    defaultFilterColumn,
-    defaultFilterColumnValue,
+    defaultFilters,
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
     const [sorting, setSorting] = useState<SortingState>([])
     const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-        { id: defaultFilterColumn || filterColumns[0], value: defaultFilterColumnValue || "" },
+        ...(defaultFilters || []),
     ])
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
+    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+        {},
+    )
     const [rowSelection, setRowSelection] = useState({})
-    const [activeFilterColumn, setActiveFilterColumn] = useState(defaultFilterColumn || filterColumns[0])
+    const [activeFilterColumn, setActiveFilterColumn] = useState(
+        filterColumns[0],
+    )
 
     const table = useReactTable({
         data,
@@ -80,30 +83,35 @@ export function EditableDataTable<TData, TValue>({
             <div className="flex flex-col sm:flex-row flex-wrap items-center gap-2 py-4 justify-between mx-auto">
                 <Input
                     placeholder={`Filter by ${activeFilterColumn}...`}
-                    value={(table.getColumn(activeFilterColumn)?.getFilterValue() as string) ?? ""}
+                    value={
+                        (table
+                            .getColumn(activeFilterColumn)
+                            ?.getFilterValue() as string) ?? ''
+                    }
                     onChange={(event) =>
-                        table.getColumn(activeFilterColumn)?.setFilterValue(event.target.value)
+                        table
+                            .getColumn(activeFilterColumn)
+                            ?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
-                <Tabs
-                    value={activeFilterColumn}
-                >
+                <Tabs value={activeFilterColumn}>
                     <TabsList className="ml-4">
                         {filterColumns.map((col) => (
                             <TabsTrigger
                                 key={col}
-                                className='data-[state=active]:bg-primary data-[state=active]:text-primary-foreground'
+                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value={col}
                                 onClick={() => {
-                                    table.getColumn(activeFilterColumn)?.setFilterValue(undefined)
-                                    table.getColumn(col)?.setFilterValue("")
+                                    table
+                                        .getColumn(activeFilterColumn)
+                                        ?.setFilterValue(undefined)
+                                    table.getColumn(col)?.setFilterValue('')
                                     setActiveFilterColumn(col)
                                 }}
                             >
-                                {
-                                    col.charAt(0).toUpperCase() + col.slice(1).replaceAll("_", " ")
-                                }
+                                {col.charAt(0).toUpperCase() +
+                                    col.slice(1).replaceAll('_', ' ')}
                             </TabsTrigger>
                         ))}
                     </TabsList>
@@ -146,9 +154,10 @@ export function EditableDataTable<TData, TValue>({
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
-                                                    header.column.columnDef.header,
-                                                    header.getContext()
-                                                )}
+                                                      header.column.columnDef
+                                                          .header,
+                                                      header.getContext(),
+                                                  )}
                                         </TableHead>
                                     )
                                 })}
@@ -160,13 +169,15 @@ export function EditableDataTable<TData, TValue>({
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
-                                    data-state={row.getIsSelected() && "selected"}
+                                    data-state={
+                                        row.getIsSelected() && 'selected'
+                                    }
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
-                                                cell.getContext()
+                                                cell.getContext(),
                                             )}
                                         </TableCell>
                                     ))}
@@ -187,7 +198,7 @@ export function EditableDataTable<TData, TValue>({
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
                 <div className="text-muted-foreground flex-1 text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
                     {table.getFilteredRowModel().rows.length} row(s) selected.
                 </div>
                 <div className="space-x-2">

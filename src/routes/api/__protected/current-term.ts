@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { instructorCourses } from '@/db/schema'
-import { max, desc, eq } from 'drizzle-orm'
+import { desc, eq, max } from 'drizzle-orm'
+import { studentCourses } from '@/db/schema'
 
 export const Route = createFileRoute('/api/__protected/current-term')({
     server: {
@@ -9,26 +9,35 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                 // First, find the maximum year in the instructorCourses table
                 const [result] = await context.db
                     .select({
-                        year: instructorCourses.year,
-                        term_code: instructorCourses.term_code,
+                        year: studentCourses.year,
+                        term_code: studentCourses.term_code,
                     })
-                    .from(instructorCourses)
+                    .from(studentCourses)
                     .where(
-                        eq(instructorCourses.year,
-                            context.db.select({ max: max(instructorCourses.year) }).from(instructorCourses)
-                        )
+                        eq(
+                            studentCourses.year,
+                            context.db
+                                .select({ max: max(studentCourses.year) })
+                                .from(studentCourses),
+                        ),
                     )
-                    .orderBy(desc(instructorCourses.term_code))
+                    .orderBy(desc(studentCourses.term_code))
                     .limit(1)
 
-
-                if (result.year === null || result.year === undefined) {
-                    return new Response(JSON.stringify([{ year: 1970, term_code: "10" }]), {
-                        status: 200,
-                        headers: {
-                            'Content-Type': 'application/json',
+                if (
+                    !result ||
+                    result.year === null ||
+                    result.year === undefined
+                ) {
+                    return new Response(
+                        JSON.stringify([{ year: 1970, term_code: '10' }]),
+                        {
+                            status: 200,
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
                         },
-                    })
+                    )
                 }
 
                 return new Response(JSON.stringify([result]), {
@@ -37,8 +46,7 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                         'Content-Type': 'application/json',
                     },
                 })
-
-            }
-        }
-    }
+            },
+        },
+    },
 })

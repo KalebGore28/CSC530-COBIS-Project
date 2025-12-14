@@ -1,53 +1,43 @@
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { colleges } from "@/db/schema";
+import { useState } from 'react'
+import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import type { ProvisionState } from '../user-modal'
+import type { colleges } from '@/db/schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-type College = typeof colleges.$inferSelect;
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
-import { collegesCollection } from "@/collections/colleges";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
+type College = typeof colleges.$inferSelect
 
 interface CollegeSelectorProps {
-    collegeCode?: string;
-    /** Called whenever the selected college changes */
-    onSelectChange?: (selected: College | null) => void;
+    provisionParams?: ProvisionState
+    setProvisionParams?: (params: ProvisionState) => void
 }
-export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelectorProps) {
-    const [query, setQuery] = useState("");
-    const [selected, setSelected] = useState<College | null>(null);
+export function CollegeSelector({
+    provisionParams,
+    setProvisionParams,
+}: CollegeSelectorProps) {
+    const [query, setQuery] = useState('')
 
-    const { data: colleges } = useLiveQuery((q) =>
-        q.from({ colleges: collegesCollection })
-            .orderBy(({ colleges }) => colleges.code, 'asc'),
-        [] // Run only once
-    );
+    const selected = provisionParams?.college
 
-    const { data: filteredColleges, isLoading, isReady } = useLiveQuery((q) =>
-        q.from({ colleges: collegesCollection })
-            .where(({ colleges }) =>
-                or(
-                    ilike(colleges.code, `%${query}%`),
-                    ilike(colleges.description, `%${query}%`)
+    const { data: filteredColleges, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ colleges: collegesCollection })
+                .where(({ colleges }) =>
+                    or(
+                        ilike(colleges.code, `%${query}%`),
+                        ilike(colleges.description, `%${query}%`),
+                    ),
                 )
-            )
-            .orderBy(({ colleges }) => colleges.code, 'asc')
-            .limit(query !== "" ? 10 : 0),
-        [query] // Re-run when query changes
-    );
+                .orderBy(({ colleges }) => colleges.code, 'asc')
+                .limit(query !== '' ? 10 : 0),
+        [query], // Re-run when query changes
+    )
 
-    // Runs only once to set default selection if collegeCode prop is provided
-    useEffect(() => {
-        if (!isReady || isLoading) return;
-        const defaultCollege = colleges.find((c) => c.code === collegeCode);
-        if (defaultCollege && (!selected || selected.code !== defaultCollege.code)) {
-            setSelected(defaultCollege);
-            onSelectChange?.(defaultCollege);
-        }
-    }, [collegeCode, isLoading]);
-
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    if (isLoading) return <Skeleton className="h-10 w-full" />
 
     if (selected) {
         return (
@@ -59,14 +49,18 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setSelected(null);
-                        setQuery("");
+                        setProvisionParams &&
+                            setProvisionParams({
+                                ...provisionParams,
+                                college: null,
+                            })
+                        setQuery('')
                     }}
                 >
                     Remove
                 </Button>
             </div>
-        );
+        )
     }
 
     return (
@@ -76,42 +70,33 @@ export function CollegeSelector({ collegeCode, onSelectChange }: CollegeSelector
                     placeholder="Search colleges..."
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        setQuery(e.target.value)
                     }}
                 />
-                {collegeCode && !selected && (
-                    <Button
-                        variant="destructive"
-                        size="default"
-                        onClick={() => {
-                            setSelected(colleges.find((c) => c.code === collegeCode) || null);
-                            setQuery("");
-                        }}
-                    >
-                        Undo
-                    </Button>
-                )}
             </div>
             <CollegeResults
                 filteredColleges={filteredColleges}
                 onSelect={(college) => {
-                    setSelected(college);
-                    onSelectChange && onSelectChange(college);
-                    setQuery("");
+                    setProvisionParams &&
+                        setProvisionParams({
+                            ...provisionParams!,
+                            college: college,
+                        })
+                    setQuery('')
                 }}
             />
         </div>
-    );
+    )
 }
 
 function CollegeResults({
     filteredColleges,
     onSelect,
 }: {
-    filteredColleges: College[];
-    onSelect: (college: College) => void;
+    filteredColleges: Array<College>
+    onSelect: (college: College) => void
 }) {
-    if (filteredColleges.length === 0) return null;
+    if (filteredColleges.length === 0) return null
 
     return (
         <ul className="border rounded-md divide-y">
@@ -129,8 +114,8 @@ function CollegeResults({
                     >
                         <strong>{college.code}</strong> — {college.description}
                     </li>
-                ) : null
+                ) : null,
             )}
         </ul>
-    );
+    )
 }

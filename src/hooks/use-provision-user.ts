@@ -1,29 +1,34 @@
 // src/hooks/use-provision-user.ts
 import { useMutation } from '@tanstack/react-query'
-import { roles } from '@/db/schema';
+import type { colleges, departments, faculty, roles, user } from '@/db/schema'
 
-type Role = typeof roles.$inferSelect;
+type Role = typeof roles.$inferSelect
+type Department = typeof departments.$inferSelect
+type College = typeof colleges.$inferSelect
+type Faculty = typeof faculty.$inferSelect
+type User = typeof user.$inferSelect
 
 export type ProvisionParams = {
-    roles: Role[];
-    isEnabled: boolean;
-    collegeCode: string;
-    departmentCode: string;
-    mnumber: string;
-    userId: string;
+    roles: Array<Role>
+    isEnabled: boolean
+    college: College
+    department: Department
+    faculty: Faculty
+    user: User
 }
 
 export function useProvisionUser() {
     return useMutation({
         mutationFn: async (params: ProvisionParams) => {
-            const { mnumber, isEnabled, collegeCode, departmentCode, roles, userId } = params
+            const { faculty, isEnabled, college, department, roles, user } =
+                params
 
             const url = new URL('/api/user/provision', window.location.origin)
-            url.searchParams.set('mnumber', mnumber)
+            url.searchParams.set('mnumber', faculty.mnumber)
             url.searchParams.set('isEnabled', String(isEnabled))
-            url.searchParams.set('college', collegeCode)
-            url.searchParams.set('department', departmentCode)
-            url.searchParams.set('userId', userId)
+            url.searchParams.set('college', college.code)
+            url.searchParams.set('department', department.code)
+            url.searchParams.set('userId', user.id)
             for (const role of roles) {
                 url.searchParams.append('role_id', String(role.id))
             }

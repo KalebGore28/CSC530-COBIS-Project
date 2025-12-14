@@ -1,34 +1,34 @@
 {
-  "version": "7",
-  "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1760933672585,
-      "tag": "0000_luxuriant_wolverine",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1761687420825,
-      "tag": "0001_rapid_hedge_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1763235774001,
-      "tag": "0002_strong_miss_america",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1763664597457,
-      "tag": "0003_lovely_marvel_zombies",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "mysql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "5",
+            "when": 1760933672585,
+            "tag": "0000_luxuriant_wolverine",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "5",
+            "when": 1761687420825,
+            "tag": "0001_rapid_hedge_knight",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "5",
+            "when": 1763235774001,
+            "tag": "0002_strong_miss_america",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "5",
+            "when": 1763664597457,
+            "tag": "0003_lovely_marvel_zombies",
+            "breakpoints": true
+        }
+    ]
 }

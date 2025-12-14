@@ -2,10 +2,10 @@
  * Result type for parsed course code
  */
 export interface ParsedCourseCode {
-    subject: string;
-    number: number;
-    suffix: string;
-    valid: boolean;
+    subject: string
+    number: number
+    suffix: string
+    valid: boolean
 }
 
 /**
@@ -19,44 +19,44 @@ export function parseCourseCode(courseCode: string): ParsedCourseCode {
         subject: '',
         number: 0,
         suffix: '',
-        valid: false
-    };
+        valid: false,
+    }
 
     // Handle null, undefined, or non-string input
     if (!courseCode) {
-        return invalidResult;
+        return invalidResult
     }
 
     // Ensure it's a string and trim whitespace
-    const cleanCode = String(courseCode).trim();
+    const cleanCode = String(courseCode).trim()
 
     // Match pattern: letters + numbers + optional letter suffix
-    const match = cleanCode.match(/^([A-Za-z]+)(\d+)([A-Za-z]?)$/);
+    const match = cleanCode.match(/^([A-Za-z]+)(\d+)([A-Za-z]?)$/)
 
     if (!match) {
-        return invalidResult;
+        return invalidResult
     }
 
     // Parse the components
-    const subject = match[1].toUpperCase();  // Convert to uppercase
-    const number = parseInt(match[2], 10);
-    const suffix = match[3] || ''; // Empty string if no suffix exists
+    const subject = match[1].toUpperCase() // Convert to uppercase
+    const number = parseInt(match[2], 10)
+    const suffix = match[3] || '' // Empty string if no suffix exists
 
     return {
         subject,
         number,
         suffix,
-        valid: true
-    };
+        valid: true,
+    }
 }
 
 /**
  * Result type for parsed term code
  */
 export interface ParsedTermCode {
-    year: number;
-    term: string;
-    valid: boolean;
+    year: number
+    term: string
+    valid: boolean
 }
 
 /**
@@ -69,31 +69,31 @@ export function parseTermCode(termCode: string): ParsedTermCode {
     const invalidResult: ParsedTermCode = {
         year: 0,
         term: '0',
-        valid: false
-    };
+        valid: false,
+    }
 
     // Handle null, undefined, or non-string input
     if (!termCode) {
-        return invalidResult;
+        return invalidResult
     }
 
     // Ensure it's a string and trim whitespace
-    const cleanTermCode = String(termCode).trim();
+    const cleanTermCode = String(termCode).trim()
 
     // Check the format using regex
-    const match = cleanTermCode.match(/^(\d{4})(\d{2})$/);
+    const match = cleanTermCode.match(/^(\d{4})(\d{2})$/)
 
     if (!match) {
-        return invalidResult;
+        return invalidResult
     }
 
     // Convert captured groups to numbers
-    const year = parseInt(match[1], 10);
-    const term = match[2];
+    const year = parseInt(match[1], 10)
+    const term = match[2]
 
     return {
         year,
         term,
-        valid: true
-    };
+        valid: true,
+    }
 }

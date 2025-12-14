@@ -1,6 +1,6 @@
+import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { colleges } from '@/db/schema'
-import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/colleges')({
     server: {
@@ -18,7 +18,7 @@ export const Route = createFileRoute('/api/__protected/data/colleges')({
                         'Content-Encoding': 'gzip',
                     },
                 })
-            }
-        }
-    }
+            },
+        },
+    },
 })

@@ -1,42 +1,60 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { Card, CardContent } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { useNavigate, useParams } from '@tanstack/react-router';
+import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
+import { eq, useLiveQuery } from '@tanstack/react-db'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 
-import { studentCoursesCollection } from '@/collections/student-courses'
-import { termsCollection } from '@/collections/terms';
-import { TeachingHistoryTable } from '@/components/tables/teaching-history-table';
-import { useLiveQuery, eq } from '@tanstack/react-db';
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { TeachingHistoryTable } from '@/components/tables/teaching-history-table'
 
 function TermHistoryTableSkeleton() {
     return (
-        <div className='border rounded-lg'>
+        <div className="border rounded-lg">
             <Table>
                 <TableHeader>
                     <TableRow>
                         <TableHead className="w-1/4">Term</TableHead>
                         <TableHead className="w-1/4">Total Courses</TableHead>
                         <TableHead className="w-1/4">Total Students</TableHead>
-                        <TableHead className="w-1/4">Total Credit Hours</TableHead>
+                        <TableHead className="w-1/4">
+                            Total Credit Hours
+                        </TableHead>
                         <TableHead className="w-1/4">Action</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {Array.from({ length: 4 }).map((_, index) => (
                         <TableRow key={index}>
-                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
-                            <TableCell><Skeleton className="h-6 w-full" /></TableCell>
+                            <TableCell>
+                                <Skeleton className="h-6 w-full" />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton className="h-6 w-full" />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton className="h-6 w-full" />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton className="h-6 w-full" />
+                            </TableCell>
+                            <TableCell>
+                                <Skeleton className="h-6 w-full" />
+                            </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
         </div>
-    );
+    )
 }
 
 export const Route = createFileRoute(
@@ -46,14 +64,19 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const params = useParams({ from: '/_authenticated/_layout/instructors/$mnumber' })
-    const mnumber = params.mnumber!
-    const navigate = useNavigate();
+    const params = useParams({
+        from: '/_authenticated/_layout/instructors/$mnumber',
+    })
+    const mnumber = params.mnumber
+    const navigate = useNavigate()
 
     const { data: termHistory, isLoading } = useLiveQuery((q) =>
-        q.from({ student: studentCoursesCollection })
+        q
+            .from({ student: studentCoursesCollection })
             .where(({ student }) => eq(student.instructor_mnumber, mnumber))
-            .leftJoin({ terms: termsCollection }, ({ student, terms }) => eq(student.term_code, terms.code))
+            .leftJoin({ terms: termsCollection }, ({ student, terms }) =>
+                eq(student.term_code, terms.code),
+            )
             .select(({ student, terms }) => ({
                 course_id: student.course_id,
                 course_section: student.course_section,
@@ -66,27 +89,27 @@ function RouteComponent() {
                 final_grade: student.final_grade,
             }))
             .orderBy(({ student }) => student.year, 'desc')
-            .orderBy(({ student }) => student.term_code, 'desc')
+            .orderBy(({ student }) => student.term_code, 'desc'),
     )
 
-    if (isLoading) return <TermHistoryTableSkeleton />;
+    if (isLoading) return <TermHistoryTableSkeleton />
 
     type TermHistoryRecord = {
-        term_code: string;
-        year: number;
-        course_id: string;
-        course_section: string;
-        course_hours: number;
-        course_title: string | undefined;
-        term_description: string | undefined;
-        total_students: number;
-        total_credit_hours: number;
-        total_courses: number;
-    };
+        term_code: string
+        year: number
+        course_id: string
+        course_section: string
+        course_hours: number
+        course_title: string | undefined
+        term_description: string | undefined
+        total_students: number
+        total_credit_hours: number
+        total_courses: number
+    }
 
-    const termHistoryMap: Map<string, TermHistoryRecord> = new Map();
+    const termHistoryMap: Map<string, TermHistoryRecord> = new Map()
     termHistory.forEach((record) => {
-        const key = `${record.year}-${record.term_code}`;
+        const key = `${record.year}-${record.term_code}`
         if (!termHistoryMap.has(key)) {
             termHistoryMap.set(key, {
                 course_id: record.course_id,
@@ -99,20 +122,20 @@ function RouteComponent() {
                 total_students: 0,
                 total_credit_hours: 0,
                 total_courses: 0,
-            });
+            })
         }
-        const entry = termHistoryMap.get(key)!;
-        entry.total_students += 1;
-        entry.total_credit_hours += record.course_hours || 0;
+        const entry = termHistoryMap.get(key)!
+        entry.total_students += 1
+        entry.total_credit_hours += record.course_hours || 0
 
         // Use a Set to track unique courses
-        const courseKey = `${record.course_id}-${record.course_section}`;
+        const courseKey = `${record.course_id}-${record.course_section}`
         if (!('uniqueCourses' in entry)) {
-            (entry as any).uniqueCourses = new Set<string>();
+            ;(entry as any).uniqueCourses = new Set<string>()
         }
-        (entry as any).uniqueCourses.add(courseKey);
-        entry.total_courses = (entry as any).uniqueCourses.size;
-    });
+        ;(entry as any).uniqueCourses.add(courseKey)
+        entry.total_courses = (entry as any).uniqueCourses.size
+    })
 
     if (termHistory.length === 0) {
         return (
@@ -125,23 +148,32 @@ function RouteComponent() {
     }
 
     return (
-        <Card className='p-0'>
-            <CardContent className='p-1 m-0 bg-blue-950 border bg-primary rounded-xl'>
-                <div className='border rounded-lg bg-white dark:bg-gray-800'>
-                    <TeachingHistoryTable data={Array.from(termHistoryMap.values()).map((term) => ({
-                        term: `${term.term_description} ${term.year}`,
-                        total_courses: term.total_courses,
-                        total_students: term.total_students || 0,
-                        total_credit_hours: term.total_credit_hours || 0,
-                        action: (
-                            <Button
-                                size="sm"
-                                onClick={() => navigate({ to: `/instructors/${mnumber}/term-history/${term.year}${term.term_code}` })}
-                            >
-                                View Details
-                            </Button>
-                        ),
-                    }))} />
+        <Card className="p-0">
+            <CardContent className="p-1 m-0 bg-blue-950 border bg-primary rounded-xl">
+                <div className="border rounded-lg bg-white dark:bg-gray-800">
+                    <TeachingHistoryTable
+                        data={Array.from(termHistoryMap.values()).map(
+                            (term) => ({
+                                term: `${term.term_description} ${term.year}`,
+                                total_courses: term.total_courses,
+                                total_students: term.total_students || 0,
+                                total_credit_hours:
+                                    term.total_credit_hours || 0,
+                                action: (
+                                    <Button
+                                        size="sm"
+                                        onClick={() =>
+                                            navigate({
+                                                to: `/instructors/${mnumber}/term-history/${term.year}${term.term_code}`,
+                                            })
+                                        }
+                                    >
+                                        View Details
+                                    </Button>
+                                ),
+                            }),
+                        )}
+                    />
                 </div>
             </CardContent>
         </Card>

@@ -1,141 +1,134 @@
-import { CollegeSelector } from '@/components/selectors/college-selector';
-import { DepartmentSelector } from '@/components/selectors/department-selector';
-import { FacultySelector } from '@/components/selectors/faculty-selector';
-import { MultiRoleSelector } from '@/components/selectors/multi-role-selector';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Modal } from '@/components/ui/custom/modal';
-import { useProvisionUser, ProvisionParams } from '@/hooks/use-provision-user';
-import { useSession } from '@/components/provider/session';
-import { useState } from 'react';
-import { toast } from "sonner";
+import { useState } from 'react'
+import { toast } from 'sonner'
+import { eq, useLiveQuery } from '@tanstack/react-db'
+import type { colleges, departments, faculty, roles, user } from '@/db/schema'
+import { CollegeSelector } from '@/components/selectors/college-selector'
+import { DepartmentSelector } from '@/components/selectors/department-selector'
+import { FacultySelector } from '@/components/selectors/faculty-selector'
+import { MultiRoleSelector } from '@/components/selectors/multi-role-selector'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
+import { useProvisionUser } from '@/hooks/use-provision-user'
+import { useAuthentication } from '@/lib/auth-client'
 
-import { usersCollection } from '@/collections/users';
-import { facultyCollection } from '@/collections/faculty';
-import { departmentsCollection } from '@/collections/departments';
-import { collegesCollection } from '@/collections/colleges';
-import { userRolesCollection } from '@/collections/user-roles';
-import { rolesCollection } from '@/collections/roles';
-import { useLiveQuery, eq } from '@tanstack/react-db';
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { userRolesCollection } from '@/integrations/tanstack-db/user-roles'
+import { rolesCollection } from '@/integrations/tanstack-db/roles'
+import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
-import { getQueryClient } from '@/providers/queryClient';
+type Role = typeof roles.$inferSelect
+type Department = typeof departments.$inferSelect
+type College = typeof colleges.$inferSelect
+type Faculty = typeof faculty.$inferSelect
+type User = typeof user.$inferSelect
+
+export type ProvisionState = {
+    roles: Array<Role>
+    isEnabled: boolean
+    college: College | null
+    department: Department | null
+    faculty: Faculty | null
+    user: User | null
+}
 
 type UserCardProps = {
-    userId: string;
-    modalOpen: boolean;
-    setModalOpen: (open: boolean) => void;
-};
+    userId: string
+    modalOpen: boolean
+    setModalOpen: (open: boolean) => void
+}
 
 export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
-    const provision = useProvisionUser();
-    const { session } = useSession();
-    const [provisionParams, setProvisionParams] = useState<ProvisionParams>({
-        roles: [],
-        isEnabled: false,
-        collegeCode: "",
-        departmentCode: "",
-        mnumber: "",
-        userId: "",
-    });
+    const provision = useProvisionUser()
+    const { userSession } = useAuthentication()
+    const [provisionParams, setProvisionParams] = useState<
+        ProvisionState | undefined
+    >(undefined)
 
-    const { data: user, isLoading } = useLiveQuery((q) =>
-        q.from({ users: usersCollection })
-            .leftJoin({ faculty: facultyCollection }, ({ users, faculty }) =>
-                eq(users.mnumber, faculty.mnumber)
-            )
-            .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
-                eq(faculty?.department_code, departments.code)
-            )
-            .leftJoin({ colleges: collegesCollection }, ({ faculty, colleges }) =>
-                eq(faculty?.college_code, colleges.code)
-            )
-            .where(({ users }) => eq(users.id, userId))
-            .select(({ users, departments, colleges }) => ({
-                id: users.id,
-                mnumber: users.mnumber,
-                isEnabled: users.isEnabled,
-                department_code: departments?.code,
-                college_code: colleges?.code,
-            }))
-            .findOne(),
-        [userId]
-    );
+    const { data: user, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ users: usersCollection })
+                .where(({ users }) => eq(users.id, userId))
+                .findOne(),
+        [userId],
+    )
 
-    const { data: userRoles } = useLiveQuery((q) =>
-        q.from({ userRoles: userRolesCollection })
-            .leftJoin({ roles: rolesCollection }, ({ userRoles, roles }) =>
-                eq(userRoles.role_id, roles.id)
-            )
-            .where(({ userRoles }) => eq(userRoles.user_id, userId))
-            .select(({ roles }) => ({
-                role: {
-                    id: roles?.id,
-                    name: roles?.name,
-                },
-            })),
-        [userId]
-    );
+    const { data: userRoles } = useLiveQuery(
+        (q) =>
+            q
+                .from({ userRoles: userRolesCollection })
+                .leftJoin({ roles: rolesCollection }, ({ userRoles, roles }) =>
+                    eq(userRoles.role_id, roles.id),
+                )
+                .where(({ userRoles }) => eq(userRoles.user_id, userId))
+                .select(({ roles }) => ({
+                    role: {
+                        id: roles?.id,
+                        name: roles?.name,
+                    },
+                })),
+        [userId],
+    )
 
-    if (isLoading || !user) return null;
+    if (isLoading || !user) return null
+
+    // Check if all required provision parameters are set
+    const provisionParamsCompleted =
+        provisionParams &&
+        provisionParams.college &&
+        provisionParams.department &&
+        provisionParams.faculty &&
+        provisionParams.roles?.length > 0 &&
+        provisionParams.isEnabled !== undefined
 
     return (
-        <Modal
-            isOpen={modalOpen}
-            onClose={() => {
-                setModalOpen(false);
-                setProvisionParams({
-                    roles: [],
-                    isEnabled: false,
-                    collegeCode: "",
-                    departmentCode: "",
-                    mnumber: "",
-                    userId: "",
-                });
+        <Dialog
+            open={modalOpen}
+            onOpenChange={(open) => {
+                if (!open) {
+                    setModalOpen(false)
+                    setProvisionParams(undefined)
+                }
             }}
-            title="Provision User"
-            description="Fill in the details to provision this user."
-            size="xl"
         >
-            <div className="flex flex-col p-4 w-full max-h-[80vh] overflow-y-auto">
-                <div className="flex-1 overflow-y-auto space-y-6">
-
+            <DialogContent className="max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>User Provisioning</DialogTitle>
+                    <DialogDescription>
+                        Detailed information and provisioning options for{' '}
+                        {user.name}
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2">
                     <span className="font-medium">Faculty:</span>
                     <FacultySelector
-                        mnumber={user.mnumber}
-                        onSelectChange={(value) => {
-                            setProvisionParams((prev) => ({
-                                ...prev,
-                                mnumber: value?.mnumber || "",
-                                userId: user.id || "",
-                            }));
-                        }}
+                        user={user}
+                        provisionParams={provisionParams}
+                        setProvisionParams={setProvisionParams}
                     />
 
                     <span className="font-medium">Department:</span>
                     <DepartmentSelector
-                        departmentCode={user.department_code}
-                        onSelectChange={(value) => {
-                            setProvisionParams((prev) => ({
-                                ...prev,
-                                departmentCode: value?.code || "",
-                            }));
-                        }}
+                        provisionParams={provisionParams}
+                        setProvisionParams={setProvisionParams}
                     />
 
                     <span className="font-medium">College:</span>
                     <CollegeSelector
-                        collegeCode={user.college_code}
-                        onSelectChange={(value) => {
-                            setProvisionParams((prev) => ({
-                                ...prev,
-                                collegeCode: value?.code || "",
-                            }));
-                        }}
+                        provisionParams={provisionParams}
+                        setProvisionParams={setProvisionParams}
                     />
 
                     <span className="font-medium">
                         Account Enabled:
-                        {user.mnumber === session?.mnumber && (
+                        {user.mnumber === userSession?.user.mnumber && (
                             <span className="text-sm text-red-500 ml-2">
                                 (You cannot change your own account status)
                             </span>
@@ -143,22 +136,29 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     </span>
 
                     {/* Account Enabled Toggle Conditionally Enabled Based on User */}
-                    <fieldset disabled={user.mnumber === session?.mnumber}>
+                    <fieldset
+                        disabled={user.mnumber === userSession?.user.mnumber}
+                    >
                         <Tabs
-                            defaultValue={user.isEnabled ? "yes" : "no"}
+                            defaultValue={user.isEnabled ? 'yes' : 'no'}
                             onValueChange={(value) => {
                                 setProvisionParams((prev) => ({
-                                    ...prev,
-                                    isEnabled: value === "yes",
-                                }));
-
+                                    ...prev!,
+                                    isEnabled: value === 'yes',
+                                }))
                             }}
                         >
                             <TabsList className="grid grid-cols-2">
-                                <TabsTrigger value="yes" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                <TabsTrigger
+                                    value="yes"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                                >
                                     Yes
                                 </TabsTrigger>
-                                <TabsTrigger value="no" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                                <TabsTrigger
+                                    value="no"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                                >
                                     No
                                 </TabsTrigger>
                             </TabsList>
@@ -167,54 +167,69 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
 
                     <span className="font-medium">Roles:</span>
                     <MultiRoleSelector
-                        userMnumber={user.mnumber || ""}
-                        roles={userRoles.map((r) => r.role.name || "")}
+                        userMnumber={user.mnumber || ''}
+                        roles={userRoles.map((r) => r.role.name || '')}
                         onRolesChange={(value) => {
                             setProvisionParams((prev) => ({
-                                ...prev,
+                                ...prev!,
                                 roles: value,
-                            }));
+                            }))
                         }}
                     />
                     <div className="mt-auto flex justify-end space-x-2">
                         <Button
                             onClick={() => {
-                                const selfProvision = user.mnumber === session?.mnumber;
-                                const finalParams = {
-                                    ...provisionParams,
-                                    isEnabled: selfProvision ? true : provisionParams.isEnabled,
-                                };
+                                if (!provisionParamsCompleted) {
+                                    toast.error(
+                                        'Please complete all provisioning parameters',
+                                    )
+                                    return
+                                }
 
-                                provision.mutate(finalParams, {
-                                    onSuccess: () => {
-                                        toast.success("User provisioned successfully");
-                                        // Invalidate users query to refresh user data
-                                        getQueryClient().invalidateQueries({ queryKey: ['users'] });
-                                        
+                                const selfProvisioning =
+                                    user.mnumber === userSession?.user.mnumber
+
+                                provision.mutate(
+                                    {
+                                        ...provisionParams,
+                                        // Ensure the user cannot disable their own account. Also handled server-side.
+                                        isEnabled: selfProvisioning
+                                            ? true
+                                            : provisionParams.isEnabled,
+                                        department: provisionParams.department!,
+                                        college: provisionParams.college!,
+                                        faculty: provisionParams.faculty!,
+                                        user: provisionParams.user!,
                                     },
-                                    onError: (err) => {
-                                        toast.error(err.message);
+                                    {
+                                        onSuccess: () => {
+                                            toast.success(
+                                                'User provisioned successfully',
+                                            )
+                                            // Invalidate users query to refresh user data
+                                            getQueryClient().invalidateQueries({
+                                                queryKey: ['users'],
+                                            })
+                                        },
+                                        onError: (err) => {
+                                            toast.error(err.message)
+                                        },
                                     },
-                                });
-                                setModalOpen(false);
-                                setProvisionParams({
-                                    roles: [],
-                                    isEnabled: false,
-                                    collegeCode: "",
-                                    departmentCode: "",
-                                    mnumber: "",
-                                    userId: "",
-                                });
+                                )
+                                setModalOpen(false)
+                                setProvisionParams(undefined)
                             }}
-                            disabled={provision.isPending}
+                            disabled={
+                                provision.isPending || !provisionParamsCompleted
+                            }
                         >
-                            {provision.isPending ? "Provisioning..." : "Provision"}
+                            {provision.isPending
+                                ? 'Provisioning...'
+                                : 'Provision'}
                         </Button>
-
                     </div>
                 </div>
-            </div>
-        </Modal>
+            </DialogContent>
+        </Dialog>
     )
-
 }

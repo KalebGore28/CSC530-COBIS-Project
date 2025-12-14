@@ -1,53 +1,64 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { Suspense } from 'react';
+import {
+    HeadContent,
+    Scripts,
+    createRootRouteWithContext,
+} from '@tanstack/react-router'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import appCss from '../styles.css?url'
+import type { getQueryClient } from '@/integrations/tanstack-query/provider'
+import { authQuery } from '@/lib/queries'
+import { TanstackQueryProvider } from '@/integrations/tanstack-query/provider'
 
 // Providers
-import { ThemeProvider } from '@/components/provider/theme'
-import { SessionProvider } from '@/components/provider/session';
+import { ThemeProvider } from '@/providers/theme'
 
-import appCss from '../styles.css?url'
+interface RootRouteContext {
+    queryClient: ReturnType<typeof getQueryClient>
+}
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: 'utf-8',
-      },
-      {
-        name: 'viewport',
-        content: 'width=device-width, initial-scale=1',
-      },
-      {
-        title: 'COBIS App',
-      },
-    ],
-    links: [
-      {
-        rel: 'stylesheet',
-        href: appCss,
-      },
-    ],
-  }),
-
-  shellComponent: RootDocument,
+export const Route = createRootRouteWithContext<RootRouteContext>()({
+    head: () => ({
+        meta: [
+            {
+                charSet: 'utf-8',
+            },
+            {
+                name: 'viewport',
+                content: 'width=device-width, initial-scale=1',
+            },
+            {
+                title: 'COBIS App',
+            },
+        ],
+        links: [
+            {
+                rel: 'stylesheet',
+                href: appCss,
+            },
+        ],
+    }),
+    shellComponent: RootDocument,
+    beforeLoad: async ({ context }) => {
+        const userSession = await context.queryClient.fetchQuery(
+            authQuery.user(),
+        )
+        return { userSession }
+    },
 })
 
 function RootDocument({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        <SessionProvider>
-          <ThemeProvider>
-            <Suspense fallback={<div>Loading...</div>}>
-              {children}
-            </Suspense>
-          </ThemeProvider>
-        </SessionProvider>
-        <Scripts />
-      </body>
-    </html>
-  )
+    return (
+        <html lang="en">
+            <head>
+                <HeadContent />
+            </head>
+            <body>
+                <TanstackQueryProvider>
+                    <ThemeProvider>{children}</ThemeProvider>
+                </TanstackQueryProvider>
+                <TanStackRouterDevtools position="bottom-right" />
+                <Scripts />
+            </body>
+        </html>
+    )
 }

@@ -1,5 +1,5 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { DataTable } from "@/components/tables/data-table"
+import type { ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@/components/tables/data-table'
 
 type Advisor = {
     id: string
@@ -9,25 +9,25 @@ type Advisor = {
     year_term: string
 }
 
-const columns: ColumnDef<Advisor>[] = [
+const columns: Array<ColumnDef<Advisor>> = [
     {
-        accessorKey: "mnumber",
-        header: "MNumber",
+        accessorKey: 'mnumber',
+        header: 'MNumber',
     },
     {
-        accessorKey: "name",
-        header: "Name",
+        accessorKey: 'name',
+        header: 'Name',
     },
     {
-        accessorKey: "email",
-        header: "Email",
+        accessorKey: 'email',
+        header: 'Email',
     },
     {
-        accessorKey: "year_term",
-        header: "Term",
+        accessorKey: 'year_term',
+        header: 'Term',
     },
 ]
 
-export function AdvisorTable({ data }: { data: Advisor[] }) {
+export function AdvisorTable({ data }: { data: Array<Advisor> }) {
     return <DataTable columns={columns} data={data} />
 }

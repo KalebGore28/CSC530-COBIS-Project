@@ -6,5 +6,5 @@ import { isEnabled } from '@/middleware/is-enabled'
 export const Route = createFileRoute('/api/__protected')({
     server: {
         middleware: [loadUser, isEnabled],
-    }
+    },
 })

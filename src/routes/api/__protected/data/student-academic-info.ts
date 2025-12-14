@@ -1,10 +1,12 @@
+import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { studentAcademicInfo } from '@/db/schema'
 import { urlParamsParser } from '@/utils/url-params-parser'
 import { getStudentAccess } from '@/utils/get-student-access'
-import { gzipSync } from 'node:zlib'
 
-export const Route = createFileRoute('/api/__protected/data/student-academic-info')({
+export const Route = createFileRoute(
+    '/api/__protected/data/student-academic-info',
+)({
     server: {
         handlers: {
             GET: async ({ request, context }) => {
@@ -12,7 +14,10 @@ export const Route = createFileRoute('/api/__protected/data/student-academic-inf
 
                 const params = new URL(request.url).searchParams
 
-                const { limit, whereConditions, sort } = urlParamsParser(params, studentAcademicInfo)
+                const { limit, whereConditions, sort } = urlParamsParser(
+                    params,
+                    studentAcademicInfo,
+                )
 
                 let results = await context.db
                     .select()
@@ -22,13 +27,19 @@ export const Route = createFileRoute('/api/__protected/data/student-academic-inf
                     .limit(limit || 1000) // Default limit to 1000 if not specified
 
                 // Apply student access restrictions based on roles
-                if (!user_roles.includes('cobis_administrator') && !user_roles.includes('department_chair')) {
-                    const studentAccess = await getStudentAccess(context.mnumber || '', {
-                        instructorCheck: false,
-                        advisorCheck: true,
-                    })
+                if (
+                    !user_roles.includes('cobis_administrator') &&
+                    !user_roles.includes('department_chair')
+                ) {
+                    const studentAccess = await getStudentAccess(
+                        context.user.mnumber || '',
+                        {
+                            instructorCheck: false,
+                            advisorCheck: true,
+                        },
+                    )
                     results = results.filter((student) =>
-                        studentAccess.mnumbers.has(student.mnumber)
+                        studentAccess.mnumbers.has(student.mnumber),
                     )
                 }
 
@@ -42,7 +53,7 @@ export const Route = createFileRoute('/api/__protected/data/student-academic-inf
                         'Content-Encoding': 'gzip',
                     },
                 })
-            }
-        }
-    }
+            },
+        },
+    },
 })

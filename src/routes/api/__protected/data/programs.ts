@@ -1,7 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { programs } from '@/db/schema'
-import { eq } from 'drizzle-orm'
 import { gzipSync } from 'node:zlib'
+import { createFileRoute } from '@tanstack/react-router'
+import { eq } from 'drizzle-orm'
+import { programs } from '@/db/schema'
 
 type Program = typeof programs.$inferSelect
 
@@ -23,7 +23,6 @@ export const Route = createFileRoute('/api/__protected/data/programs')({
                 })
             },
             PUT: async ({ request, context }) => {
-
                 const updatedProgram: Program = await request.json()
 
                 const { code, ...updateData } = updatedProgram
@@ -35,7 +34,7 @@ export const Route = createFileRoute('/api/__protected/data/programs')({
                     .execute()
 
                 return new Response(null, { status: 204 })
-            }
-        }
-    }
+            },
+        },
+    },
 })

@@ -1,48 +1,61 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { useEffect } from "react";
+import { useEffect } from 'react'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Badge } from '@/components/ui/badge'
 
 export type SelectedTerm = {
-    year: number;
-    term_code: string;
-    term_description?: string;
-    studentCount: number;
-    creditHoursDelivered: number;
+    year: number
+    term_code: string
+    term_description?: string
+    studentCount: number
+    creditHoursDelivered: number
 }
 
 export type SelectedCourse = {
-    course_id: string;
-    course_section: string;
-    course_hours: number;
-    course_title?: string;
-    year: number;
-    term_code: string;
-    term_description?: string;
-    student_count: number;
-    credit_hours_delivered: number;
+    course_id: string
+    course_section: string
+    course_hours: number
+    course_title?: string
+    year: number
+    term_code: string
+    term_description?: string
+    student_count: number
+    credit_hours_delivered: number
 }
 
 type RequiredStudentCourseProps = {
-    year: number;
-    term_code: string;
-    term_description?: string;
-    course_hours: number;
-    course_id: string;
-    course_section: string;
-    course_title?: string;
+    year: number
+    term_code: string
+    term_description?: string
+    course_hours: number
+    course_id: string
+    course_section: string
+    course_title?: string
 } & Record<string, unknown>
 
 type TermCourseSelectorProps = {
-    studentCourses: RequiredStudentCourseProps[];
-    isLoading?: boolean;
-    showStats?: boolean;
-    className?: string;
-    selectedTerm?: SelectedTerm;
-    selectedCourse?: SelectedCourse;
-    setSelectedTerm: (term: SelectedTerm) => void;
-    setSelectedCourse: (course: SelectedCourse) => void;
+    studentCourses: Array<RequiredStudentCourseProps>
+    isLoading?: boolean
+    showStats?: boolean
+    className?: string
+    selectedTerm?: SelectedTerm
+    selectedCourse?: SelectedCourse
+    setSelectedTerm: (term: SelectedTerm) => void
+    setSelectedCourse: (course: SelectedCourse) => void
 }
 
 export function TermCourseSelector({
@@ -53,14 +66,15 @@ export function TermCourseSelector({
     selectedTerm,
     selectedCourse,
     setSelectedTerm,
-    setSelectedCourse
+    setSelectedCourse,
 }: TermCourseSelectorProps) {
-
     return (
         <Card className={className}>
             <CardHeader>
                 <CardTitle>Term & Course Selector</CardTitle>
-                <CardDescription>Select a term and course to view the class roster.</CardDescription>
+                <CardDescription>
+                    Select a term and course to view the class roster.
+                </CardDescription>
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Term Selector Component */}
@@ -84,15 +98,15 @@ export function TermCourseSelector({
                 )}
             </CardContent>
         </Card>
-    );
+    )
 }
 
 type TermSelectorProps = {
-    studentCourses: RequiredStudentCourseProps[];
-    isLoading?: boolean;
-    showStats?: boolean;
-    selectedTerm?: SelectedTerm;
-    setSelectedTerm?: (term: SelectedTerm) => void;
+    studentCourses: Array<RequiredStudentCourseProps>
+    isLoading?: boolean
+    showStats?: boolean
+    selectedTerm?: SelectedTerm
+    setSelectedTerm?: (term: SelectedTerm) => void
 }
 
 function TermSelector({
@@ -100,9 +114,8 @@ function TermSelector({
     isLoading,
     showStats,
     selectedTerm,
-    setSelectedTerm
+    setSelectedTerm,
 }: TermSelectorProps) {
-
     // Loading state
     if (isLoading) {
         return (
@@ -121,12 +134,12 @@ function TermSelector({
     }
 
     // Extract unique terms from studentCourses
-    const terms = new Map<string, SelectedTerm>();
+    const terms = new Map<string, SelectedTerm>()
 
     for (const c of studentCourses) {
-        const key = `${c.year}-${c.term_code}`;
+        const key = `${c.year}-${c.term_code}`
 
-        let term = terms.get(key);
+        let term = terms.get(key)
         if (!term) {
             term = {
                 year: c.year,
@@ -134,31 +147,35 @@ function TermSelector({
                 term_description: c.term_description,
                 studentCount: 0,
                 creditHoursDelivered: 0,
-            };
+            }
 
-            terms.set(key, term);
+            terms.set(key, term)
         }
 
         // Update aggregates
-        term.studentCount += 1;
-        term.creditHoursDelivered += c.course_hours;
+        term.studentCount += 1
+        term.creditHoursDelivered += c.course_hours
     }
 
     // Run once to select the first term if none is selected
     useEffect(() => {
         if (!selectedTerm && terms.size > 0) {
-            const firstTerm = terms.values().next().value;
-            setSelectedTerm && setSelectedTerm(firstTerm!);
+            const firstTerm = terms.values().next().value
+            setSelectedTerm && setSelectedTerm(firstTerm!)
         }
-    }, [terms]);
+    }, [terms])
     return (
         <Card>
             <CardContent>
                 <Select
-                    value={selectedTerm ? `${selectedTerm.year}-${selectedTerm.term_code}` : "Select Term"}
+                    value={
+                        selectedTerm
+                            ? `${selectedTerm.year}-${selectedTerm.term_code}`
+                            : 'Select Term'
+                    }
                     onValueChange={(value) => {
-                        const term = terms.get(value);
-                        setSelectedTerm && term && setSelectedTerm(term);
+                        const term = terms.get(value)
+                        setSelectedTerm && term && setSelectedTerm(term)
                     }}
                 >
                     <SelectTrigger className="w-full">
@@ -166,7 +183,10 @@ function TermSelector({
                     </SelectTrigger>
                     <SelectContent>
                         {Array.from(terms.values()).map((term, index) => (
-                            <SelectItem key={index} value={`${term.year}-${term.term_code}`}>
+                            <SelectItem
+                                key={index}
+                                value={`${term.year}-${term.term_code}`}
+                            >
                                 {term.term_description} {term.year}
                             </SelectItem>
                         ))}
@@ -175,11 +195,19 @@ function TermSelector({
             </CardContent>
             {showStats && selectedTerm && (
                 <CardFooter className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-green-50 dark:bg-green-900">
-                        {selectedTerm.studentCount}{" "}
-                        {selectedTerm.studentCount === 1 ? "Student" : "Students"}
+                    <Badge
+                        variant="outline"
+                        className="bg-green-50 dark:bg-green-900"
+                    >
+                        {selectedTerm.studentCount}{' '}
+                        {selectedTerm.studentCount === 1
+                            ? 'Student'
+                            : 'Students'}
                     </Badge>
-                    <Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
+                    <Badge
+                        variant="outline"
+                        className="bg-purple-50 dark:bg-purple-900"
+                    >
                         {selectedTerm.creditHoursDelivered} Total Credit Hours
                     </Badge>
                 </CardFooter>
@@ -189,12 +217,12 @@ function TermSelector({
 }
 
 type CourseSelectorProps = {
-    studentCourses: RequiredStudentCourseProps[];
-    isLoading?: boolean;
-    showStats?: boolean;
-    selectedTerm: SelectedTerm;
-    selectedCourse?: SelectedCourse;
-    setSelectedCourse?: (course: SelectedCourse) => void;
+    studentCourses: Array<RequiredStudentCourseProps>
+    isLoading?: boolean
+    showStats?: boolean
+    selectedTerm: SelectedTerm
+    selectedCourse?: SelectedCourse
+    setSelectedCourse?: (course: SelectedCourse) => void
 }
 
 function CourseSelector({
@@ -203,9 +231,8 @@ function CourseSelector({
     showStats,
     selectedTerm,
     selectedCourse,
-    setSelectedCourse
+    setSelectedCourse,
 }: CourseSelectorProps) {
-
     // Loading state
     if (isLoading) {
         return (
@@ -224,17 +251,19 @@ function CourseSelector({
     }
 
     // Filter studentCourses for the selected term
-    const filteredCourses = studentCourses.filter(c =>
-        c.year === selectedTerm.year && c.term_code === selectedTerm.term_code
-    );
+    const filteredCourses = studentCourses.filter(
+        (c) =>
+            c.year === selectedTerm.year &&
+            c.term_code === selectedTerm.term_code,
+    )
 
     // Extract courses for the selected term
-    const termCourses = new Map<string, SelectedCourse>();
+    const termCourses = new Map<string, SelectedCourse>()
 
     for (const c of filteredCourses) {
-        const key = `${c.course_id}-${c.course_section}`;
+        const key = `${c.course_id}-${c.course_section}`
 
-        const course = termCourses.get(key);
+        const course = termCourses.get(key)
         if (!course) {
             termCourses.set(key, {
                 course_id: c.course_id,
@@ -246,60 +275,78 @@ function CourseSelector({
                 term_description: c.term_description,
                 student_count: 0,
                 credit_hours_delivered: 0,
-            });
+            })
         }
 
         // Update aggregates
-        const updatedCourse = termCourses.get(key);
+        const updatedCourse = termCourses.get(key)
         if (updatedCourse) {
-            updatedCourse.student_count += 1;
-            updatedCourse.credit_hours_delivered += c.course_hours;
-            termCourses.set(key, updatedCourse);
+            updatedCourse.student_count += 1
+            updatedCourse.credit_hours_delivered += c.course_hours
+            termCourses.set(key, updatedCourse)
         }
     }
 
     // Run once to select the first course if none is selected
     useEffect(() => {
         if (!selectedCourse && termCourses.size > 0) {
-            const firstTerm = termCourses.values().next().value;
-            setSelectedCourse && setSelectedCourse(firstTerm!);
+            const firstTerm = termCourses.values().next().value
+            setSelectedCourse && setSelectedCourse(firstTerm!)
         }
-    }, [termCourses]);
+    }, [termCourses])
 
     return (
         <Card>
             <CardContent>
                 <Select
-                    value={selectedCourse ? `${selectedCourse.course_id}-${selectedCourse.course_section}` : "Select Course"}
+                    value={
+                        selectedCourse
+                            ? `${selectedCourse.course_id}-${selectedCourse.course_section}`
+                            : 'Select Course'
+                    }
                     onValueChange={(value) => {
-                        const course = termCourses.get(value);
-                        setSelectedCourse && course && setSelectedCourse(course);
+                        const course = termCourses.get(value)
+                        setSelectedCourse && course && setSelectedCourse(course)
                     }}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select Course" />
                     </SelectTrigger>
                     <SelectContent>
-                        {Array.from(termCourses.values()).map((course, index) => (
-                            <SelectItem key={index} value={`${course.course_id}-${course.course_section}`}>
-                                {course.course_title} ({course.course_id}-{course.course_section})
-                            </SelectItem>
-                        ))}
+                        {Array.from(termCourses.values()).map(
+                            (course, index) => (
+                                <SelectItem
+                                    key={index}
+                                    value={`${course.course_id}-${course.course_section}`}
+                                >
+                                    {course.course_title} ({course.course_id}-
+                                    {course.course_section})
+                                </SelectItem>
+                            ),
+                        )}
                     </SelectContent>
                 </Select>
             </CardContent>
             {showStats && selectedCourse && (
                 <CardFooter className="flex flex-wrap gap-2">
-                    <Badge variant="outline" className="bg-green-50 dark:bg-green-900">
-                        {selectedCourse.student_count}{" "}
-                        {selectedCourse.student_count === 1 ? "Student" : "Students"}
+                    <Badge
+                        variant="outline"
+                        className="bg-green-50 dark:bg-green-900"
+                    >
+                        {selectedCourse.student_count}{' '}
+                        {selectedCourse.student_count === 1
+                            ? 'Student'
+                            : 'Students'}
                     </Badge>
-                    <Badge variant="outline" className="bg-purple-50 dark:bg-purple-900">
-                        {selectedCourse.credit_hours_delivered} Total Credit Hours
+                    <Badge
+                        variant="outline"
+                        className="bg-purple-50 dark:bg-purple-900"
+                    >
+                        {selectedCourse.credit_hours_delivered} Total Credit
+                        Hours
                     </Badge>
                 </CardFooter>
             )}
         </Card>
     )
-
 }

@@ -1,2050 +1,1851 @@
 {
-  "version": "5",
-  "dialect": "mysql",
-  "id": "972a8d70-6556-4f10-8c14-d91398f14d7c",
-  "prevId": "909dfb7f-1563-4828-8a33-b9a7d5d63dad",
-  "tables": {
-    "academic_standing": {
-      "name": "academic_standing",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+    "version": "5",
+    "dialect": "mysql",
+    "id": "972a8d70-6556-4f10-8c14-d91398f14d7c",
+    "prevId": "909dfb7f-1563-4828-8a33-b9a7d5d63dad",
+    "tables": {
+        "academic_standing": {
+            "name": "academic_standing",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "academic_standing_code": {
+                    "name": "academic_standing_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
         },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
+        "account": {
+            "name": "account",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "account_id": {
+                    "name": "account_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "provider_id": {
+                    "name": "provider_id",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "access_token": {
+                    "name": "access_token",
+                    "type": "varchar(2048)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "refresh_token": {
+                    "name": "refresh_token",
+                    "type": "varchar(2048)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "id_token": {
+                    "name": "id_token",
+                    "type": "varchar(2048)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "access_token_expires_at": {
+                    "name": "access_token_expires_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "refresh_token_expires_at": {
+                    "name": "refresh_token_expires_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "scope": {
+                    "name": "scope",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "account_user_id_user_id_fk": {
+                    "name": "account_user_id_user_id_fk",
+                    "tableFrom": "account",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "account_id": {
+                    "name": "account_id",
+                    "columns": ["id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "admit_codes": {
+            "name": "admit_codes",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "admit_codes_code": {
+                    "name": "admit_codes_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "colleges": {
+            "name": "colleges",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "colleges_code": {
+                    "name": "colleges_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "courses": {
+            "name": "courses",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "subject": {
+                    "name": "subject",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "number": {
+                    "name": "number",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "suffix": {
+                    "name": "suffix",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                },
+                "title": {
+                    "name": "title",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "hours": {
+                    "name": "hours",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "last_updated": {
+                    "name": "last_updated",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "NOW()"
+                },
+                "department_code": {
+                    "name": "department_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "college_code": {
+                    "name": "college_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {
+                "ux_courses_subject_number_suffix": {
+                    "name": "ux_courses_subject_number_suffix",
+                    "columns": ["subject", "number", "suffix"],
+                    "isUnique": true
+                }
+            },
+            "foreignKeys": {
+                "fk_courses_department": {
+                    "name": "fk_courses_department",
+                    "tableFrom": "courses",
+                    "tableTo": "departments",
+                    "columnsFrom": ["department_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_courses_college": {
+                    "name": "fk_courses_college",
+                    "tableFrom": "courses",
+                    "tableTo": "colleges",
+                    "columnsFrom": ["college_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "courses_code": {
+                    "name": "courses_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "departments": {
+            "name": "departments",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "college_code": {
+                    "name": "college_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "fk_departments_college": {
+                    "name": "fk_departments_college",
+                    "tableFrom": "departments",
+                    "tableTo": "colleges",
+                    "columnsFrom": ["college_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "departments_code": {
+                    "name": "departments_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "faculty": {
+            "name": "faculty",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "first_name": {
+                    "name": "first_name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "last_name": {
+                    "name": "last_name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "college_code": {
+                    "name": "college_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "department_code": {
+                    "name": "department_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "fk_faculty_college": {
+                    "name": "fk_faculty_college",
+                    "tableFrom": "faculty",
+                    "tableTo": "colleges",
+                    "columnsFrom": ["college_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_faculty_department": {
+                    "name": "fk_faculty_department",
+                    "tableFrom": "faculty",
+                    "tableTo": "departments",
+                    "columnsFrom": ["department_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "faculty_mnumber": {
+                    "name": "faculty_mnumber",
+                    "columns": ["mnumber"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "instructional_methods": {
+            "name": "instructional_methods",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "instructional_methods_code": {
+                    "name": "instructional_methods_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "instructor_courses": {
+            "name": "instructor_courses",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "term_code": {
+                    "name": "term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "year": {
+                    "name": "year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_id": {
+                    "name": "course_id",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_subject": {
+                    "name": "course_subject",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_number": {
+                    "name": "course_number",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_suffix": {
+                    "name": "course_suffix",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                },
+                "course_section": {
+                    "name": "course_section",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "instructor_courses_mnumber_faculty_mnumber_fk": {
+                    "name": "instructor_courses_mnumber_faculty_mnumber_fk",
+                    "tableFrom": "instructor_courses",
+                    "tableTo": "faculty",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "instructor_courses_term_code_terms_code_fk": {
+                    "name": "instructor_courses_term_code_terms_code_fk",
+                    "tableFrom": "instructor_courses",
+                    "tableTo": "terms",
+                    "columnsFrom": ["term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "instructor_courses_course_id_courses_code_fk": {
+                    "name": "instructor_courses_course_id_courses_code_fk",
+                    "tableFrom": "instructor_courses",
+                    "tableTo": "courses",
+                    "columnsFrom": ["course_id"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_instructor_courses": {
+                    "name": "pk_instructor_courses",
+                    "columns": [
+                        "mnumber",
+                        "term_code",
+                        "year",
+                        "course_id",
+                        "course_section"
+                    ]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "nations": {
+            "name": "nations",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "nations_code": {
+                    "name": "nations_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "part_of_term": {
+            "name": "part_of_term",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "part_of_term_code": {
+                    "name": "part_of_term_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "programs": {
+            "name": "programs",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "cip_code": {
+                    "name": "cip_code",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "is_major": {
+                    "name": "is_major",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "is_minor": {
+                    "name": "is_minor",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "has_concentration": {
+                    "name": "has_concentration",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "is_discontinued": {
+                    "name": "is_discontinued",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "is_aacsb": {
+                    "name": "is_aacsb",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "department_code": {
+                    "name": "department_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "college_code": {
+                    "name": "college_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "last_updated": {
+                    "name": "last_updated",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "NOW()"
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "fk_programs_department": {
+                    "name": "fk_programs_department",
+                    "tableFrom": "programs",
+                    "tableTo": "departments",
+                    "columnsFrom": ["department_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_programs_college": {
+                    "name": "fk_programs_college",
+                    "tableFrom": "programs",
+                    "tableTo": "colleges",
+                    "columnsFrom": ["college_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "programs_code": {
+                    "name": "programs_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "registration_status": {
+            "name": "registration_status",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "registration_status_code": {
+                    "name": "registration_status_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "roles": {
+            "name": "roles",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "roles_id": {
+                    "name": "roles_id",
+                    "columns": ["id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "session": {
+            "name": "session",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "expires_at": {
+                    "name": "expires_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "token": {
+                    "name": "token",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "ip_address": {
+                    "name": "ip_address",
+                    "type": "varchar(45)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "user_agent": {
+                    "name": "user_agent",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "user_id": {
+                    "name": "user_id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "session_user_id_user_id_fk": {
+                    "name": "session_user_id_user_id_fk",
+                    "tableFrom": "session",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "session_id": {
+                    "name": "session_id",
+                    "columns": ["id"]
+                }
+            },
+            "uniqueConstraints": {
+                "session_token_unique": {
+                    "name": "session_token_unique",
+                    "columns": ["token"]
+                }
+            },
+            "checkConstraint": {}
+        },
+        "student_academic_info": {
+            "name": "student_academic_info",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "term_code": {
+                    "name": "term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "year": {
+                    "name": "year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "admit_term_code": {
+                    "name": "admit_term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "admit_year": {
+                    "name": "admit_year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "admit_code": {
+                    "name": "admit_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "academic_standing_code": {
+                    "name": "academic_standing_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "msu_attempted_hours": {
+                    "name": "msu_attempted_hours",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "msu_earned_hours": {
+                    "name": "msu_earned_hours",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "msu_quality_points": {
+                    "name": "msu_quality_points",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "msu_gpa": {
+                    "name": "msu_gpa",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "overall_attempted_hours": {
+                    "name": "overall_attempted_hours",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "overall_earned_hours": {
+                    "name": "overall_earned_hours",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "overall_quality_points": {
+                    "name": "overall_quality_points",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "overall_gpa": {
+                    "name": "overall_gpa",
+                    "type": "real",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "student_academic_info_mnumber_students_mnumber_fk": {
+                    "name": "student_academic_info_mnumber_students_mnumber_fk",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "students",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "fk_student_academic_info_student": {
+                    "name": "fk_student_academic_info_student",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "students",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_academic_info_term": {
+                    "name": "fk_student_academic_info_term",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "terms",
+                    "columnsFrom": ["term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_academic_info_admit_term": {
+                    "name": "fk_student_academic_info_admit_term",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "terms",
+                    "columnsFrom": ["admit_term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_academic_info_admit_code": {
+                    "name": "fk_student_academic_info_admit_code",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "admit_codes",
+                    "columnsFrom": ["admit_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_academic_info_academic_standing": {
+                    "name": "fk_student_academic_info_academic_standing",
+                    "tableFrom": "student_academic_info",
+                    "tableTo": "academic_standing",
+                    "columnsFrom": ["academic_standing_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_student_academic_info": {
+                    "name": "pk_student_academic_info",
+                    "columns": ["mnumber", "term_code", "year"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "student_addresses": {
+            "name": "student_addresses",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "street1": {
+                    "name": "street1",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "street2": {
+                    "name": "street2",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "city": {
+                    "name": "city",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "state": {
+                    "name": "state",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "zip": {
+                    "name": "zip",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "nation_code": {
+                    "name": "nation_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "phone": {
+                    "name": "phone",
+                    "type": "varchar(15)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "student_addresses_mnumber_students_mnumber_fk": {
+                    "name": "student_addresses_mnumber_students_mnumber_fk",
+                    "tableFrom": "student_addresses",
+                    "tableTo": "students",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "fk_student_addresses_nation": {
+                    "name": "fk_student_addresses_nation",
+                    "tableFrom": "student_addresses",
+                    "tableTo": "nations",
+                    "columnsFrom": ["nation_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "student_addresses_mnumber": {
+                    "name": "student_addresses_mnumber",
+                    "columns": ["mnumber"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "student_advisors": {
+            "name": "student_advisors",
+            "columns": {
+                "student_mnumber": {
+                    "name": "student_mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "term_code": {
+                    "name": "term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "year": {
+                    "name": "year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "advisor_mnumber": {
+                    "name": "advisor_mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "student_advisors_student_mnumber_students_mnumber_fk": {
+                    "name": "student_advisors_student_mnumber_students_mnumber_fk",
+                    "tableFrom": "student_advisors",
+                    "tableTo": "students",
+                    "columnsFrom": ["student_mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "fk_student_advisors_term": {
+                    "name": "fk_student_advisors_term",
+                    "tableFrom": "student_advisors",
+                    "tableTo": "terms",
+                    "columnsFrom": ["term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_advisors_faculty": {
+                    "name": "fk_student_advisors_faculty",
+                    "tableFrom": "student_advisors",
+                    "tableTo": "faculty",
+                    "columnsFrom": ["advisor_mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_advisors_student": {
+                    "name": "fk_student_advisors_student",
+                    "tableFrom": "student_advisors",
+                    "tableTo": "students",
+                    "columnsFrom": ["student_mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_student_advisors": {
+                    "name": "pk_student_advisors",
+                    "columns": [
+                        "student_mnumber",
+                        "term_code",
+                        "year",
+                        "advisor_mnumber"
+                    ]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "student_courses": {
+            "name": "student_courses",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "term_code": {
+                    "name": "term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "year": {
+                    "name": "year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "part_of_term_code": {
+                    "name": "part_of_term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "course_id": {
+                    "name": "course_id",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_subject": {
+                    "name": "course_subject",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_number": {
+                    "name": "course_number",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_suffix": {
+                    "name": "course_suffix",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                },
+                "course_section": {
+                    "name": "course_section",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_hours": {
+                    "name": "course_hours",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "course_level": {
+                    "name": "course_level",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "registration_status_code": {
+                    "name": "registration_status_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "instructional_method_code": {
+                    "name": "instructional_method_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "last_attendance": {
+                    "name": "last_attendance",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "midterm_grade": {
+                    "name": "midterm_grade",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "final_grade": {
+                    "name": "final_grade",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "student_courses_mnumber_students_mnumber_fk": {
+                    "name": "student_courses_mnumber_students_mnumber_fk",
+                    "tableFrom": "student_courses",
+                    "tableTo": "students",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "student_courses_course_id_courses_code_fk": {
+                    "name": "student_courses_course_id_courses_code_fk",
+                    "tableFrom": "student_courses",
+                    "tableTo": "courses",
+                    "columnsFrom": ["course_id"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_courses_term": {
+                    "name": "fk_student_courses_term",
+                    "tableFrom": "student_courses",
+                    "tableTo": "terms",
+                    "columnsFrom": ["term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_courses_part_of_term": {
+                    "name": "fk_student_courses_part_of_term",
+                    "tableFrom": "student_courses",
+                    "tableTo": "part_of_term",
+                    "columnsFrom": ["part_of_term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_courses_registration_status": {
+                    "name": "fk_student_courses_registration_status",
+                    "tableFrom": "student_courses",
+                    "tableTo": "registration_status",
+                    "columnsFrom": ["registration_status_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_courses_instructional_method": {
+                    "name": "fk_student_courses_instructional_method",
+                    "tableFrom": "student_courses",
+                    "tableTo": "instructional_methods",
+                    "columnsFrom": ["instructional_method_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_student_courses": {
+                    "name": "pk_student_courses",
+                    "columns": [
+                        "mnumber",
+                        "term_code",
+                        "year",
+                        "course_id",
+                        "course_section"
+                    ]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "student_programs": {
+            "name": "student_programs",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "term_code": {
+                    "name": "term_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "year": {
+                    "name": "year",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "type": {
+                    "name": "type",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "level": {
+                    "name": "level",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "program_code": {
+                    "name": "program_code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "student_programs_mnumber_students_mnumber_fk": {
+                    "name": "student_programs_mnumber_students_mnumber_fk",
+                    "tableFrom": "student_programs",
+                    "tableTo": "students",
+                    "columnsFrom": ["mnumber"],
+                    "columnsTo": ["mnumber"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "fk_student_programs_term": {
+                    "name": "fk_student_programs_term",
+                    "tableFrom": "student_programs",
+                    "tableTo": "terms",
+                    "columnsFrom": ["term_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                },
+                "fk_student_programs_program": {
+                    "name": "fk_student_programs_program",
+                    "tableFrom": "student_programs",
+                    "tableTo": "programs",
+                    "columnsFrom": ["program_code"],
+                    "columnsTo": ["code"],
+                    "onDelete": "no action",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_student_programs": {
+                    "name": "pk_student_programs",
+                    "columns": ["mnumber", "type", "program_code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {
+                "program_type": {
+                    "name": "program_type",
+                    "value": "`student_programs`.`type` IN ('MAJOR', 'MINOR')"
+                },
+                "program_level": {
+                    "name": "program_level",
+                    "value": "`student_programs`.`level` IN ('UG', 'GR', 'PB')"
+                }
+            }
+        },
+        "students": {
+            "name": "students",
+            "columns": {
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "first_name": {
+                    "name": "first_name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "middle_name": {
+                    "name": "middle_name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "last_name": {
+                    "name": "last_name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "suffix": {
+                    "name": "suffix",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "gender": {
+                    "name": "gender",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "birthdate": {
+                    "name": "birthdate",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "citizenship": {
+                    "name": "citizenship",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "race": {
+                    "name": "race",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "residency": {
+                    "name": "residency",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "cell_phone": {
+                    "name": "cell_phone",
+                    "type": "varchar(15)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "students_mnumber": {
+                    "name": "students_mnumber",
+                    "columns": ["mnumber"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "terms": {
+            "name": "terms",
+            "columns": {
+                "code": {
+                    "name": "code",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "description": {
+                    "name": "description",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "terms_code": {
+                    "name": "terms_code",
+                    "columns": ["code"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "user": {
+            "name": "user",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "mnumber": {
+                    "name": "mnumber",
+                    "type": "varchar(10)",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                },
+                "name": {
+                    "name": "name",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "email": {
+                    "name": "email",
+                    "type": "varchar(100)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "email_verified": {
+                    "name": "email_verified",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "image": {
+                    "name": "image",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": "''"
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "is_enabled": {
+                    "name": "is_enabled",
+                    "type": "boolean",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false,
+                    "default": false
+                },
+                "last_login": {
+                    "name": "last_login",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": false,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "user_id": {
+                    "name": "user_id",
+                    "columns": ["id"]
+                }
+            },
+            "uniqueConstraints": {
+                "user_mnumber_unique": {
+                    "name": "user_mnumber_unique",
+                    "columns": ["mnumber"]
+                },
+                "user_email_unique": {
+                    "name": "user_email_unique",
+                    "columns": ["email"]
+                }
+            },
+            "checkConstraint": {}
+        },
+        "user_roles": {
+            "name": "user_roles",
+            "columns": {
+                "user_id": {
+                    "name": "user_id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "role_id": {
+                    "name": "role_id",
+                    "type": "int",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {
+                "user_roles_user_id_user_id_fk": {
+                    "name": "user_roles_user_id_user_id_fk",
+                    "tableFrom": "user_roles",
+                    "tableTo": "user",
+                    "columnsFrom": ["user_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                },
+                "user_roles_role_id_roles_id_fk": {
+                    "name": "user_roles_role_id_roles_id_fk",
+                    "tableFrom": "user_roles",
+                    "tableTo": "roles",
+                    "columnsFrom": ["role_id"],
+                    "columnsTo": ["id"],
+                    "onDelete": "cascade",
+                    "onUpdate": "no action"
+                }
+            },
+            "compositePrimaryKeys": {
+                "pk_user_roles": {
+                    "name": "pk_user_roles",
+                    "columns": ["user_id", "role_id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
+        },
+        "verification": {
+            "name": "verification",
+            "columns": {
+                "id": {
+                    "name": "id",
+                    "type": "varchar(50)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "identifier": {
+                    "name": "identifier",
+                    "type": "varchar(255)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "value": {
+                    "name": "value",
+                    "type": "varchar(2048)",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "expires_at": {
+                    "name": "expires_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "created_at": {
+                    "name": "created_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                },
+                "updated_at": {
+                    "name": "updated_at",
+                    "type": "datetime",
+                    "primaryKey": false,
+                    "notNull": true,
+                    "autoincrement": false
+                }
+            },
+            "indexes": {},
+            "foreignKeys": {},
+            "compositePrimaryKeys": {
+                "verification_id": {
+                    "name": "verification_id",
+                    "columns": ["id"]
+                }
+            },
+            "uniqueConstraints": {},
+            "checkConstraint": {}
         }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "academic_standing_code": {
-          "name": "academic_standing_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
     },
-    "account": {
-      "name": "account",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "account_id": {
-          "name": "account_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "provider_id": {
-          "name": "provider_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "varchar(2048)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "varchar(2048)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "id_token": {
-          "name": "id_token",
-          "type": "varchar(2048)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "access_token_expires_at": {
-          "name": "access_token_expires_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "refresh_token_expires_at": {
-          "name": "refresh_token_expires_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "scope": {
-          "name": "scope",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "account_user_id_user_id_fk": {
-          "name": "account_user_id_user_id_fk",
-          "tableFrom": "account",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "account_id": {
-          "name": "account_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
+    "views": {},
+    "_meta": {
+        "schemas": {},
+        "tables": {},
+        "columns": {}
     },
-    "admit_codes": {
-      "name": "admit_codes",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "admit_codes_code": {
-          "name": "admit_codes_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "colleges": {
-      "name": "colleges",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "colleges_code": {
-          "name": "colleges_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "courses": {
-      "name": "courses",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "subject": {
-          "name": "subject",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "number": {
-          "name": "number",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "suffix": {
-          "name": "suffix",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "hours": {
-          "name": "hours",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_updated": {
-          "name": "last_updated",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "NOW()"
-        },
-        "department_code": {
-          "name": "department_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "college_code": {
-          "name": "college_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {
-        "ux_courses_subject_number_suffix": {
-          "name": "ux_courses_subject_number_suffix",
-          "columns": [
-            "subject",
-            "number",
-            "suffix"
-          ],
-          "isUnique": true
-        }
-      },
-      "foreignKeys": {
-        "fk_courses_department": {
-          "name": "fk_courses_department",
-          "tableFrom": "courses",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_courses_college": {
-          "name": "fk_courses_college",
-          "tableFrom": "courses",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "courses_code": {
-          "name": "courses_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "departments": {
-      "name": "departments",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "college_code": {
-          "name": "college_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "fk_departments_college": {
-          "name": "fk_departments_college",
-          "tableFrom": "departments",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "departments_code": {
-          "name": "departments_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "faculty": {
-      "name": "faculty",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "college_code": {
-          "name": "college_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "department_code": {
-          "name": "department_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "fk_faculty_college": {
-          "name": "fk_faculty_college",
-          "tableFrom": "faculty",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_faculty_department": {
-          "name": "fk_faculty_department",
-          "tableFrom": "faculty",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "faculty_mnumber": {
-          "name": "faculty_mnumber",
-          "columns": [
-            "mnumber"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "instructional_methods": {
-      "name": "instructional_methods",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "instructional_methods_code": {
-          "name": "instructional_methods_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "instructor_courses": {
-      "name": "instructor_courses",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "term_code": {
-          "name": "term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "year": {
-          "name": "year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_id": {
-          "name": "course_id",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_subject": {
-          "name": "course_subject",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_number": {
-          "name": "course_number",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_suffix": {
-          "name": "course_suffix",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "course_section": {
-          "name": "course_section",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "instructor_courses_mnumber_faculty_mnumber_fk": {
-          "name": "instructor_courses_mnumber_faculty_mnumber_fk",
-          "tableFrom": "instructor_courses",
-          "tableTo": "faculty",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "instructor_courses_term_code_terms_code_fk": {
-          "name": "instructor_courses_term_code_terms_code_fk",
-          "tableFrom": "instructor_courses",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "instructor_courses_course_id_courses_code_fk": {
-          "name": "instructor_courses_course_id_courses_code_fk",
-          "tableFrom": "instructor_courses",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_instructor_courses": {
-          "name": "pk_instructor_courses",
-          "columns": [
-            "mnumber",
-            "term_code",
-            "year",
-            "course_id",
-            "course_section"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "nations": {
-      "name": "nations",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "nations_code": {
-          "name": "nations_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "part_of_term": {
-      "name": "part_of_term",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "part_of_term_code": {
-          "name": "part_of_term_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "programs": {
-      "name": "programs",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "cip_code": {
-          "name": "cip_code",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "is_major": {
-          "name": "is_major",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "is_minor": {
-          "name": "is_minor",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "has_concentration": {
-          "name": "has_concentration",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "is_discontinued": {
-          "name": "is_discontinued",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "is_aacsb": {
-          "name": "is_aacsb",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "department_code": {
-          "name": "department_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "college_code": {
-          "name": "college_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_updated": {
-          "name": "last_updated",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "NOW()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "fk_programs_department": {
-          "name": "fk_programs_department",
-          "tableFrom": "programs",
-          "tableTo": "departments",
-          "columnsFrom": [
-            "department_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_programs_college": {
-          "name": "fk_programs_college",
-          "tableFrom": "programs",
-          "tableTo": "colleges",
-          "columnsFrom": [
-            "college_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "programs_code": {
-          "name": "programs_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "registration_status": {
-      "name": "registration_status",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "registration_status_code": {
-          "name": "registration_status_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "roles": {
-      "name": "roles",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "roles_id": {
-          "name": "roles_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "session": {
-      "name": "session",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "token": {
-          "name": "token",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "ip_address": {
-          "name": "ip_address",
-          "type": "varchar(45)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "user_agent": {
-          "name": "user_agent",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "session_user_id_user_id_fk": {
-          "name": "session_user_id_user_id_fk",
-          "tableFrom": "session",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "session_id": {
-          "name": "session_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {
-        "session_token_unique": {
-          "name": "session_token_unique",
-          "columns": [
-            "token"
-          ]
-        }
-      },
-      "checkConstraint": {}
-    },
-    "student_academic_info": {
-      "name": "student_academic_info",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "term_code": {
-          "name": "term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "year": {
-          "name": "year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "admit_term_code": {
-          "name": "admit_term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "admit_year": {
-          "name": "admit_year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "admit_code": {
-          "name": "admit_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "academic_standing_code": {
-          "name": "academic_standing_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "msu_attempted_hours": {
-          "name": "msu_attempted_hours",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "msu_earned_hours": {
-          "name": "msu_earned_hours",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "msu_quality_points": {
-          "name": "msu_quality_points",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "msu_gpa": {
-          "name": "msu_gpa",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "overall_attempted_hours": {
-          "name": "overall_attempted_hours",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "overall_earned_hours": {
-          "name": "overall_earned_hours",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "overall_quality_points": {
-          "name": "overall_quality_points",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "overall_gpa": {
-          "name": "overall_gpa",
-          "type": "real",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_academic_info_mnumber_students_mnumber_fk": {
-          "name": "student_academic_info_mnumber_students_mnumber_fk",
-          "tableFrom": "student_academic_info",
-          "tableTo": "students",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "fk_student_academic_info_student": {
-          "name": "fk_student_academic_info_student",
-          "tableFrom": "student_academic_info",
-          "tableTo": "students",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_academic_info_term": {
-          "name": "fk_student_academic_info_term",
-          "tableFrom": "student_academic_info",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_academic_info_admit_term": {
-          "name": "fk_student_academic_info_admit_term",
-          "tableFrom": "student_academic_info",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "admit_term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_academic_info_admit_code": {
-          "name": "fk_student_academic_info_admit_code",
-          "tableFrom": "student_academic_info",
-          "tableTo": "admit_codes",
-          "columnsFrom": [
-            "admit_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_academic_info_academic_standing": {
-          "name": "fk_student_academic_info_academic_standing",
-          "tableFrom": "student_academic_info",
-          "tableTo": "academic_standing",
-          "columnsFrom": [
-            "academic_standing_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_student_academic_info": {
-          "name": "pk_student_academic_info",
-          "columns": [
-            "mnumber",
-            "term_code",
-            "year"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "student_addresses": {
-      "name": "student_addresses",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "street1": {
-          "name": "street1",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "street2": {
-          "name": "street2",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "city": {
-          "name": "city",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "state": {
-          "name": "state",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "zip": {
-          "name": "zip",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "nation_code": {
-          "name": "nation_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "phone": {
-          "name": "phone",
-          "type": "varchar(15)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_addresses_mnumber_students_mnumber_fk": {
-          "name": "student_addresses_mnumber_students_mnumber_fk",
-          "tableFrom": "student_addresses",
-          "tableTo": "students",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "fk_student_addresses_nation": {
-          "name": "fk_student_addresses_nation",
-          "tableFrom": "student_addresses",
-          "tableTo": "nations",
-          "columnsFrom": [
-            "nation_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "student_addresses_mnumber": {
-          "name": "student_addresses_mnumber",
-          "columns": [
-            "mnumber"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "student_advisors": {
-      "name": "student_advisors",
-      "columns": {
-        "student_mnumber": {
-          "name": "student_mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "term_code": {
-          "name": "term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "year": {
-          "name": "year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "advisor_mnumber": {
-          "name": "advisor_mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_advisors_student_mnumber_students_mnumber_fk": {
-          "name": "student_advisors_student_mnumber_students_mnumber_fk",
-          "tableFrom": "student_advisors",
-          "tableTo": "students",
-          "columnsFrom": [
-            "student_mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "fk_student_advisors_term": {
-          "name": "fk_student_advisors_term",
-          "tableFrom": "student_advisors",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_advisors_faculty": {
-          "name": "fk_student_advisors_faculty",
-          "tableFrom": "student_advisors",
-          "tableTo": "faculty",
-          "columnsFrom": [
-            "advisor_mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_advisors_student": {
-          "name": "fk_student_advisors_student",
-          "tableFrom": "student_advisors",
-          "tableTo": "students",
-          "columnsFrom": [
-            "student_mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_student_advisors": {
-          "name": "pk_student_advisors",
-          "columns": [
-            "student_mnumber",
-            "term_code",
-            "year",
-            "advisor_mnumber"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "student_courses": {
-      "name": "student_courses",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "term_code": {
-          "name": "term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "year": {
-          "name": "year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "part_of_term_code": {
-          "name": "part_of_term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "course_id": {
-          "name": "course_id",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_subject": {
-          "name": "course_subject",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_number": {
-          "name": "course_number",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_suffix": {
-          "name": "course_suffix",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "course_section": {
-          "name": "course_section",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_hours": {
-          "name": "course_hours",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "course_level": {
-          "name": "course_level",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "registration_status_code": {
-          "name": "registration_status_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "instructional_method_code": {
-          "name": "instructional_method_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_attendance": {
-          "name": "last_attendance",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "midterm_grade": {
-          "name": "midterm_grade",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "final_grade": {
-          "name": "final_grade",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_courses_mnumber_students_mnumber_fk": {
-          "name": "student_courses_mnumber_students_mnumber_fk",
-          "tableFrom": "student_courses",
-          "tableTo": "students",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "student_courses_course_id_courses_code_fk": {
-          "name": "student_courses_course_id_courses_code_fk",
-          "tableFrom": "student_courses",
-          "tableTo": "courses",
-          "columnsFrom": [
-            "course_id"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_courses_term": {
-          "name": "fk_student_courses_term",
-          "tableFrom": "student_courses",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_courses_part_of_term": {
-          "name": "fk_student_courses_part_of_term",
-          "tableFrom": "student_courses",
-          "tableTo": "part_of_term",
-          "columnsFrom": [
-            "part_of_term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_courses_registration_status": {
-          "name": "fk_student_courses_registration_status",
-          "tableFrom": "student_courses",
-          "tableTo": "registration_status",
-          "columnsFrom": [
-            "registration_status_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_courses_instructional_method": {
-          "name": "fk_student_courses_instructional_method",
-          "tableFrom": "student_courses",
-          "tableTo": "instructional_methods",
-          "columnsFrom": [
-            "instructional_method_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_student_courses": {
-          "name": "pk_student_courses",
-          "columns": [
-            "mnumber",
-            "term_code",
-            "year",
-            "course_id",
-            "course_section"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "student_programs": {
-      "name": "student_programs",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "term_code": {
-          "name": "term_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "year": {
-          "name": "year",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "type": {
-          "name": "type",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "level": {
-          "name": "level",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "program_code": {
-          "name": "program_code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "student_programs_mnumber_students_mnumber_fk": {
-          "name": "student_programs_mnumber_students_mnumber_fk",
-          "tableFrom": "student_programs",
-          "tableTo": "students",
-          "columnsFrom": [
-            "mnumber"
-          ],
-          "columnsTo": [
-            "mnumber"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "fk_student_programs_term": {
-          "name": "fk_student_programs_term",
-          "tableFrom": "student_programs",
-          "tableTo": "terms",
-          "columnsFrom": [
-            "term_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "fk_student_programs_program": {
-          "name": "fk_student_programs_program",
-          "tableFrom": "student_programs",
-          "tableTo": "programs",
-          "columnsFrom": [
-            "program_code"
-          ],
-          "columnsTo": [
-            "code"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_student_programs": {
-          "name": "pk_student_programs",
-          "columns": [
-            "mnumber",
-            "type",
-            "program_code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {
-        "program_type": {
-          "name": "program_type",
-          "value": "`student_programs`.`type` IN ('MAJOR', 'MINOR')"
-        },
-        "program_level": {
-          "name": "program_level",
-          "value": "`student_programs`.`level` IN ('UG', 'GR', 'PB')"
-        }
-      }
-    },
-    "students": {
-      "name": "students",
-      "columns": {
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "first_name": {
-          "name": "first_name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "middle_name": {
-          "name": "middle_name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "last_name": {
-          "name": "last_name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "suffix": {
-          "name": "suffix",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "gender": {
-          "name": "gender",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "birthdate": {
-          "name": "birthdate",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "citizenship": {
-          "name": "citizenship",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "race": {
-          "name": "race",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "residency": {
-          "name": "residency",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "cell_phone": {
-          "name": "cell_phone",
-          "type": "varchar(15)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "students_mnumber": {
-          "name": "students_mnumber",
-          "columns": [
-            "mnumber"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "terms": {
-      "name": "terms",
-      "columns": {
-        "code": {
-          "name": "code",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "terms_code": {
-          "name": "terms_code",
-          "columns": [
-            "code"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "user": {
-      "name": "user",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "mnumber": {
-          "name": "mnumber",
-          "type": "varchar(10)",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(100)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "email_verified": {
-          "name": "email_verified",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "image": {
-          "name": "image",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "''"
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "is_enabled": {
-          "name": "is_enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": false
-        },
-        "last_login": {
-          "name": "last_login",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "user_id": {
-          "name": "user_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {
-        "user_mnumber_unique": {
-          "name": "user_mnumber_unique",
-          "columns": [
-            "mnumber"
-          ]
-        },
-        "user_email_unique": {
-          "name": "user_email_unique",
-          "columns": [
-            "email"
-          ]
-        }
-      },
-      "checkConstraint": {}
-    },
-    "user_roles": {
-      "name": "user_roles",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "role_id": {
-          "name": "role_id",
-          "type": "int",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "user_roles_user_id_user_id_fk": {
-          "name": "user_roles_user_id_user_id_fk",
-          "tableFrom": "user_roles",
-          "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "user_roles_role_id_roles_id_fk": {
-          "name": "user_roles_role_id_roles_id_fk",
-          "tableFrom": "user_roles",
-          "tableTo": "roles",
-          "columnsFrom": [
-            "role_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "pk_user_roles": {
-          "name": "pk_user_roles",
-          "columns": [
-            "user_id",
-            "role_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
-    },
-    "verification": {
-      "name": "verification",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "identifier": {
-          "name": "identifier",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "value": {
-          "name": "value",
-          "type": "varchar(2048)",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "expires_at": {
-          "name": "expires_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "datetime",
-          "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "verification_id": {
-          "name": "verification_id",
-          "columns": [
-            "id"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "checkConstraint": {}
+    "internal": {
+        "tables": {},
+        "indexes": {}
     }
-  },
-  "views": {},
-  "_meta": {
-    "schemas": {},
-    "tables": {},
-    "columns": {}
-  },
-  "internal": {
-    "tables": {},
-    "indexes": {}
-  }
 }
