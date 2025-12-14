@@ -1,5 +1,3 @@
-import type { UserInfoResponse } from '@/routes/api/user/me'
-
 // @Deprecated: Use useAuthentication from '@/lib/auth-client' instead
 
 type Route = {

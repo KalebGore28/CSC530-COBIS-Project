@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { hasRouteAccess } from '@/components/provider/session'
+import { hasRouteAccess } from '@/providers/session'
 import { TermGradeDistribution } from '@/components/charts/term-grade-distributions'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { useAuthentication } from '@/lib/auth-client'

@@ -2,8 +2,8 @@ import React from 'react'
 import { Link, useLocation } from '@tanstack/react-router'
 import { Slash } from 'lucide-react'
 import { SidebarTrigger } from '@/components/ui/sidebar'
-import { ModeToggle } from '@/components/provider/theme'
-import { useBreadcrumb } from '@/components/provider/breadcrumb'
+import { ModeToggle } from '@/providers/theme'
+import { useBreadcrumb } from '@/providers/breadcrumb'
 
 import {
     Breadcrumb,

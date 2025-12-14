@@ -10,7 +10,7 @@ import { authQuery } from '@/lib/queries'
 import { TanstackQueryProvider } from '@/integrations/tanstack-query/provider'
 
 // Providers
-import { ThemeProvider } from '@/components/provider/theme'
+import { ThemeProvider } from '@/providers/theme'
 
 interface RootRouteContext {
     queryClient: ReturnType<typeof getQueryClient>

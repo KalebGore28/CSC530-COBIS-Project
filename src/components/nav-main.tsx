@@ -9,7 +9,7 @@ import {
     TerminalSquareIcon,
 } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
-import { hasRouteAccess } from './provider/session'
+import { hasRouteAccess } from '../providers/session'
 import { useAuthentication } from '@/lib/auth-client'
 import {
     Collapsible,
