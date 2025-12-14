@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { programsCollection } from '@/collections/programs'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
 
 type Program = typeof programs.$inferSelect
 

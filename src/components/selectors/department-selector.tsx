@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { departmentsCollection } from '@/collections/departments'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
 
 type Department = typeof departments.$inferSelect
 

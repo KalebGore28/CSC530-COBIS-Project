@@ -23,9 +23,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthentication } from '@/lib/auth-client'
 
-import { departmentsCollection } from '@/collections/departments'
-import { facultyCollection } from '@/collections/faculty'
-import { usersCollection } from '@/collections/users'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { facultyCollection } from '@/integrations/tanstack-db/faculty'
+import { usersCollection } from '@/integrations/tanstack-db/users'
 
 // Helper function to get initials from name
 const getInitials = (name: string): string => {
@@ -151,7 +151,7 @@ function RouteComponent() {
         )
 
     if (!faculty || faculty.length === 0) {
-        ;<div className="w-full p-6 mx-auto space-y-6">
+        ; <div className="w-full p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
                     Instructors
@@ -170,10 +170,10 @@ function RouteComponent() {
         searchQuery !== ''
             ? faculty
             : faculty.filter(
-                  (d) =>
-                      d.faculty.department_code ===
-                      userSession?.faculty.department_code,
-              )
+                (d) =>
+                    d.faculty.department_code ===
+                    userSession?.faculty.department_code,
+            )
 
     // Handle instructor selection
     const handleSelectInstructor = (mnumber: string) => {

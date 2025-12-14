@@ -12,10 +12,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { facultyCollection } from '@/collections/faculty'
-import { usersCollection } from '@/collections/users'
-import { departmentsCollection } from '@/collections/departments'
-import { collegesCollection } from '@/collections/colleges'
+import { facultyCollection } from '@/integrations/tanstack-db/faculty'
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 function InstructorPageSkeleton() {
     return (

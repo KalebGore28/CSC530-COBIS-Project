@@ -13,10 +13,10 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { usersCollection } from '@/collections/users'
-import { facultyCollection } from '@/collections/faculty'
-import { departmentsCollection } from '@/collections/departments'
-import { collegesCollection } from '@/collections/colleges'
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { facultyCollection } from '@/integrations/tanstack-db/faculty'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 import { UserModal } from '@/components/user-modal'
 
@@ -134,8 +134,8 @@ function RouteComponent() {
                                         Last Login:{' '}
                                         {user.lastLogin
                                             ? new Date(
-                                                  user.lastLogin,
-                                              ).toLocaleString()
+                                                user.lastLogin,
+                                            ).toLocaleString()
                                             : 'Never'}
                                     </div>
                                 </div>

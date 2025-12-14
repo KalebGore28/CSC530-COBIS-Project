@@ -37,8 +37,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 
-import { programsCollection } from '@/collections/programs'
-import { studentProgramsCollection } from '@/collections/student-programs'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { studentProgramsCollection } from '@/integrations/tanstack-db/student-programs'
 
 const getGradeColorClass = (grade: string) => {
     if (grade === 'N/A' || !grade)
@@ -344,7 +344,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.midterm_grade ||
-                                                            'N/A',
+                                                        'N/A',
                                                     )}
                                                 >
                                                     {student.midterm_grade ||
@@ -356,7 +356,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.final_grade ||
-                                                            'N/A',
+                                                        'N/A',
                                                     )}
                                                 >
                                                     {student.final_grade ||
@@ -419,7 +419,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.midterm_grade ||
-                                                            'N/A',
+                                                        'N/A',
                                                     )}
                                                 >
                                                     Mid:{' '}
@@ -430,7 +430,7 @@ export function RosterStudents({
                                                     variant="outline"
                                                     className={getGradeColorClass(
                                                         student.final_grade ||
-                                                            'N/A',
+                                                        'N/A',
                                                     )}
                                                 >
                                                     Final:{' '}

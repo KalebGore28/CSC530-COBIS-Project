@@ -25,8 +25,8 @@ import {
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 import { useCurrentTerm } from '@/providers/current-term-provider'
-import { termsCollection } from '@/collections/terms'
-import { studentCoursesCollection } from '@/collections/student-courses'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
 
 const defaultChartConfig: ChartConfig = {
     A: { label: 'A', color: 'var(--chart-1)' },
@@ -57,7 +57,7 @@ function convertToPercentages(data: Array<GradeEntry>) {
         const pctEntry: GradeEntry = { ...entry }
 
         if (total > 0) {
-            ;(['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
+            ; (['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
                 (g) => {
                     pctEntry[g] = Number(((entry[g] / total) * 100).toFixed(2))
                 },

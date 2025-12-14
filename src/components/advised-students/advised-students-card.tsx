@@ -15,8 +15,8 @@ import {
     TableRow,
 } from '@/components/ui/table'
 
-import { studentAdvisorsCollection } from '@/collections/student-advisors'
-import { studentsCollection } from '@/collections/students'
+import { studentAdvisorsCollection } from '@/integrations/tanstack-db/student-advisors'
+import { studentsCollection } from '@/integrations/tanstack-db/students'
 
 type CurrentTerm = {
     year: number

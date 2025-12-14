@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { currentTermCollection } from '@/collections/current-term'
+import { currentTermCollection } from '@/integrations/tanstack-db/current-term'
 
 type RequiredStudentCourseProps = {
     year: number
@@ -73,7 +73,7 @@ export function RosterInfoCard({
 
     const isActive = currentTerm
         ? course.year === currentTerm.year &&
-          course.term_code === currentTerm.term_code
+        course.term_code === currentTerm.term_code
         : false
 
     return (

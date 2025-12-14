@@ -10,10 +10,10 @@ import { Button } from '@/components/ui/button'
 
 import { EnrollmentTrends } from '@/components/charts/enrollment-trends'
 
-import { coursesCollection } from '@/collections/courses'
-import { departmentsCollection } from '@/collections/departments'
-import { collegesCollection } from '@/collections/colleges'
-import { studentCoursesCollection } from '@/collections/student-courses'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
 import { CourseCard } from '@/components/course-card'
 
 export const Route = createFileRoute(

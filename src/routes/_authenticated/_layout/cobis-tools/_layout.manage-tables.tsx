@@ -1,14 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { useLiveQuery } from '@tanstack/react-db'
-import { admitCodesCollection } from '@/collections/admit-codes'
-import { collegesCollection } from '@/collections/colleges'
-import { coursesCollection } from '@/collections/courses'
-import { departmentsCollection } from '@/collections/departments'
-import { instructionalMethodsCollection } from '@/collections/instructional-methods'
-import { partOfTermCollection } from '@/collections/part-of-term'
-import { programsCollection } from '@/collections/programs'
-import { registrationStatusCollection } from '@/collections/registration-status'
+import { admitCodesCollection } from '@/integrations/tanstack-db/admit-codes'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { instructionalMethodsCollection } from '@/integrations/tanstack-db/instructional-methods'
+import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { registrationStatusCollection } from '@/integrations/tanstack-db/registration-status'
 
 import { StatusCard } from '@/components/table-status-card'
 

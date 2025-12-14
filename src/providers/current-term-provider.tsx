@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import type { JSX } from 'react'
-import { currentTermCollection } from '@/collections/current-term'
-import { termsCollection } from '@/collections/terms'
+import { currentTermCollection } from '@/integrations/tanstack-db/current-term'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
 
 type CurrentTermContextValue = {
     currentTerm: {

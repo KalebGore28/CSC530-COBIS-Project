@@ -6,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 
-import { coursesCollection } from '@/collections/courses'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
 
 export const Route = createFileRoute(
     '/_authenticated/_layout/enrollment/_layout/courses',

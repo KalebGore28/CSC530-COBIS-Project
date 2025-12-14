@@ -7,9 +7,9 @@ import { CourseGradeChart } from '@/components/charts/course-grade-distributions
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card'
 
 import { CoursesTable } from '@/components/tables/current-term-courses-table'
-import { coursesCollection } from '@/collections/courses'
-import { studentCoursesCollection } from '@/collections/student-courses'
-import { termsCollection } from '@/collections/terms'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
 
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/',

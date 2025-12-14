@@ -17,14 +17,14 @@ import {
 } from '@/components/ui/card'
 import { GPATrendChart } from '@/components/charts/gpa-trend-chart'
 
-import { termsCollection } from '@/collections/terms'
-import { programsCollection } from '@/collections/programs'
-import { studentsCollection } from '@/collections/students'
-import { usersCollection } from '@/collections/users'
-import { studentAcademicInfoCollection } from '@/collections/student-academic-info'
-import { studentAdvisorsCollection } from '@/collections/student-advisors'
-import { academicStandingCollection } from '@/collections/academic-standing'
-import { studentProgramsCollection } from '@/collections/student-programs'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { studentsCollection } from '@/integrations/tanstack-db/students'
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
+import { studentAdvisorsCollection } from '@/integrations/tanstack-db/student-advisors'
+import { academicStandingCollection } from '@/integrations/tanstack-db/academic-standing'
+import { studentProgramsCollection } from '@/integrations/tanstack-db/student-programs'
 
 type StudentDetailProps = {
     studentMnumber: string

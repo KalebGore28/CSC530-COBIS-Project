@@ -10,10 +10,10 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 
-import { termsCollection } from '@/collections/terms'
-import { coursesCollection } from '@/collections/courses'
-import { departmentsCollection } from '@/collections/departments'
-import { collegesCollection } from '@/collections/colleges'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 type CourseCardProps = {
     courseCode: string

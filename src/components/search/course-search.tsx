@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { coursesCollection } from '@/collections/courses'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
 
 import { OPERATORS } from '@/types/operators'
 import { GRADES } from '@/types/grades'
@@ -134,7 +134,7 @@ export function CourseSearchBox({
                                         Object.keys(OPERATORS).find(
                                             (key) =>
                                                 OPERATORS[
-                                                    key as OperatorKey
+                                                key as OperatorKey
                                                 ] === filterState.operator,
                                         ) || ''
                                     }

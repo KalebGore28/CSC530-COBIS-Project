@@ -7,16 +7,16 @@ import { Toaster } from '@/components/ui/sonner'
 import { CurrentTermProvider } from '@/providers/current-term-provider'
 
 // Import collections to preload data
-import { currentTermCollection } from '@/collections/current-term'
-import { academicStandingCollection } from '@/collections/academic-standing'
-import { admitCodesCollection } from '@/collections/admit-codes'
-import { collegesCollection } from '@/collections/colleges'
-import { departmentsCollection } from '@/collections/departments'
-import { instructionalMethodsCollection } from '@/collections/instructional-methods'
-import { partOfTermCollection } from '@/collections/part-of-term'
-import { registrationStatusCollection } from '@/collections/registration-status'
-import { rolesCollection } from '@/collections/roles'
-import { termsCollection } from '@/collections/terms'
+import { currentTermCollection } from '@/integrations/tanstack-db/current-term'
+import { academicStandingCollection } from '@/integrations/tanstack-db/academic-standing'
+import { admitCodesCollection } from '@/integrations/tanstack-db/admit-codes'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { instructionalMethodsCollection } from '@/integrations/tanstack-db/instructional-methods'
+import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
+import { registrationStatusCollection } from '@/integrations/tanstack-db/registration-status'
+import { rolesCollection } from '@/integrations/tanstack-db/roles'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
 
 export const Route = createFileRoute('/_authenticated/_layout')({
     component: App,

@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/command'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthentication } from '@/lib/auth-client'
-import { rolesCollection } from '@/collections/roles'
+import { rolesCollection } from '@/integrations/tanstack-db/roles'
 
 type Role = typeof roles.$inferSelect
 
@@ -93,11 +93,10 @@ export function MultiRoleSelector({
                                             setSelectedRoles(updatedRoles)
                                             onRolesChange?.(updatedRoles)
                                         }}
-                                        className={`flex items-center justify-between ${
-                                            isDisabled
+                                        className={`flex items-center justify-between ${isDisabled
                                                 ? 'opacity-50 pointer-events-none'
                                                 : ''
-                                        }`}
+                                            }`}
                                     >
                                         {role.name}
                                         {isSelected && (

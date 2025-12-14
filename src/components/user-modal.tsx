@@ -18,9 +18,9 @@ import {
 import { useProvisionUser } from '@/hooks/use-provision-user'
 import { useAuthentication } from '@/lib/auth-client'
 
-import { usersCollection } from '@/collections/users'
-import { userRolesCollection } from '@/collections/user-roles'
-import { rolesCollection } from '@/collections/roles'
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { userRolesCollection } from '@/integrations/tanstack-db/user-roles'
+import { rolesCollection } from '@/integrations/tanstack-db/roles'
 import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 type Role = typeof roles.$inferSelect

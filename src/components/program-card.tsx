@@ -11,10 +11,10 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Label } from '@/components/ui/label'
 
-import { termsCollection } from '@/collections/terms'
-import { programsCollection } from '@/collections/programs'
-import { departmentsCollection } from '@/collections/departments'
-import { collegesCollection } from '@/collections/colleges'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 type ProgramCardProps = {
     programCode: string

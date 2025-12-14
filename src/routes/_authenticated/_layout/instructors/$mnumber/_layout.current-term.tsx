@@ -19,8 +19,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 
 import { useCurrentTerm } from '@/providers/current-term-provider'
-import { studentCoursesCollection } from '@/collections/student-courses'
-import { coursesCollection } from '@/collections/courses'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
 import { CoursesTable } from '@/components/tables/current-term-courses-table'
 
 function SelectedTermTableSkeleton() {

@@ -6,9 +6,9 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 
-import { collegesCollection } from '@/collections/colleges'
-import { departmentsCollection } from '@/collections/departments'
-import { facultyCollection } from '@/collections/faculty'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { facultyCollection } from '@/integrations/tanstack-db/faculty'
 
 type Faculty = typeof faculty.$inferSelect
 

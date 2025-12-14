@@ -12,8 +12,8 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 
-import { studentCoursesCollection } from '@/collections/student-courses'
-import { termsCollection } from '@/collections/terms'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { TeachingHistoryTable } from '@/components/tables/teaching-history-table'
 
 function TermHistoryTableSkeleton() {
@@ -131,9 +131,9 @@ function RouteComponent() {
         // Use a Set to track unique courses
         const courseKey = `${record.course_id}-${record.course_section}`
         if (!('uniqueCourses' in entry)) {
-            ;(entry as any).uniqueCourses = new Set<string>()
+            ; (entry as any).uniqueCourses = new Set<string>()
         }
-        ;(entry as any).uniqueCourses.add(courseKey)
+        ; (entry as any).uniqueCourses.add(courseKey)
         entry.total_courses = (entry as any).uniqueCourses.size
     })
 

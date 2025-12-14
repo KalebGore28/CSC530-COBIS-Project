@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 import { useLiveQuery } from '@tanstack/react-db'
-import { collegesCollection } from '@/collections/colleges'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 import { CollegeTable } from '@/components/tables/college-table'
 
 type RouteParams = {

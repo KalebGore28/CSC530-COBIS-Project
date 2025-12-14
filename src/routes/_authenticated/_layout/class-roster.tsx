@@ -7,11 +7,11 @@ import type {
 } from '@/components/selectors/term-course-selector'
 import { useAuthentication } from '@/lib/auth-client'
 
-import { studentsCollection } from '@/collections/students'
-import { studentAcademicInfoCollection } from '@/collections/student-academic-info'
-import { termsCollection } from '@/collections/terms'
-import { coursesCollection } from '@/collections/courses'
-import { studentCoursesCollection } from '@/collections/student-courses'
+import { studentsCollection } from '@/integrations/tanstack-db/students'
+import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
+import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
 
 import { RosterInfoCard } from '@/components/roster/roster-info-card'
 import { RosterGradeDistributions } from '@/components/roster/roster-grade-distributions'
@@ -102,12 +102,12 @@ function ClassRosterPage() {
     const filteredInstructorCourses =
         selectedTerm && selectedCourse
             ? instructorCourses?.filter(
-                  (course) =>
-                      course.year === selectedTerm.year &&
-                      course.term_code === selectedTerm.term_code &&
-                      course.course_id === selectedCourse.course_id &&
-                      course.course_section === selectedCourse.course_section,
-              )
+                (course) =>
+                    course.year === selectedTerm.year &&
+                    course.term_code === selectedTerm.term_code &&
+                    course.course_id === selectedCourse.course_id &&
+                    course.course_section === selectedCourse.course_section,
+            )
             : instructorCourses
 
     return (
