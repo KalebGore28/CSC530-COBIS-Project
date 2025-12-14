@@ -1,5 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
+import { useLiveQuery } from '@tanstack/react-db'
 import { admitCodesCollection } from '@/collections/admit-codes'
 import { collegesCollection } from '@/collections/colleges'
 import { coursesCollection } from '@/collections/courses'
@@ -8,7 +9,6 @@ import { instructionalMethodsCollection } from '@/collections/instructional-meth
 import { partOfTermCollection } from '@/collections/part-of-term'
 import { programsCollection } from '@/collections/programs'
 import { registrationStatusCollection } from '@/collections/registration-status'
-import { useLiveQuery } from '@tanstack/react-db'
 
 import { StatusCard } from '@/components/table-status-card'
 
@@ -19,35 +19,77 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+    const { data: admitCodes, isLoading: isAdmitCodesLoading } = useLiveQuery(
+        (q) => q.from({ admit_codes: admitCodesCollection }),
+    )
+    const { data: colleges, isLoading: isCollegesLoading } = useLiveQuery((q) =>
+        q.from({ colleges: collegesCollection }),
+    )
+    const { data: courses, isLoading: isCoursesLoading } = useLiveQuery((q) =>
+        q.from({ courses: coursesCollection }),
+    )
+    const { data: departments, isLoading: isDepartmentsLoading } = useLiveQuery(
+        (q) => q.from({ departments: departmentsCollection }),
+    )
+    const {
+        data: instructionalMethods,
+        isLoading: isInstructionalMethodsLoading,
+    } = useLiveQuery((q) =>
+        q.from({ instructional_methods: instructionalMethodsCollection }),
+    )
+    const { data: partOfTerm, isLoading: isPartOfTermLoading } = useLiveQuery(
+        (q) => q.from({ part_of_term: partOfTermCollection }),
+    )
+    const { data: programs, isLoading: isProgramsLoading } = useLiveQuery((q) =>
+        q.from({ programs: programsCollection }),
+    )
+    const { data: registrationStatus, isLoading: isRegistrationStatusLoading } =
+        useLiveQuery((q) =>
+            q.from({ registration_status: registrationStatusCollection }),
+        )
 
-    const { data: admitCodes, isLoading: isAdmitCodesLoading } = useLiveQuery((q) => q.from({ admit_codes: admitCodesCollection }))
-    const { data: colleges, isLoading: isCollegesLoading } = useLiveQuery((q) => q.from({ colleges: collegesCollection }))
-    const { data: courses, isLoading: isCoursesLoading } = useLiveQuery((q) => q.from({ courses: coursesCollection }))
-    const { data: departments, isLoading: isDepartmentsLoading } = useLiveQuery((q) => q.from({ departments: departmentsCollection }))
-    const { data: instructionalMethods, isLoading: isInstructionalMethodsLoading } = useLiveQuery((q) => q.from({ instructional_methods: instructionalMethodsCollection }))
-    const { data: partOfTerm, isLoading: isPartOfTermLoading } = useLiveQuery((q) => q.from({ part_of_term: partOfTermCollection }))
-    const { data: programs, isLoading: isProgramsLoading } = useLiveQuery((q) => q.from({ programs: programsCollection }))
-    const { data: registrationStatus, isLoading: isRegistrationStatusLoading } = useLiveQuery((q) => q.from({ registration_status: registrationStatusCollection }))
+    const admitCodesWithUnknownDescription =
+        admitCodes?.filter((a) => a.description.toLowerCase() === 'unknown')
+            .length || 0
 
-    const admitCodesWithUnknownDescription = admitCodes?.filter((a) => a.description.toLowerCase() === "unknown").length || 0
+    const collegesWithUnknownDescription =
+        colleges?.filter((c) => c.description.toLowerCase() === 'unknown')
+            .length || 0
 
-    const collegesWithUnknownDescription = colleges?.filter((c) => c.description.toLowerCase() === "unknown").length || 0
+    const coursesWithUnknownTitle =
+        courses?.filter(
+            (c) =>
+                c.title.toLowerCase() === 'unknown' ||
+                c.title.toLowerCase() === 'not known to cobis yet',
+        ).length || 0
+    const coursesWithMissingDepartment =
+        courses?.filter((c) => !c.department_code).length || 0
+    const coursesWithMissingCollege =
+        courses?.filter((c) => !c.college_code).length || 0
 
-    const coursesWithUnknownTitle = courses?.filter((c) => c.title.toLowerCase() === "unknown" || c.title.toLowerCase() === "not known to cobis yet").length || 0
-    const coursesWithMissingDepartment = courses?.filter((c) => !c.department_code).length || 0
-    const coursesWithMissingCollege = courses?.filter((c) => !c.college_code).length || 0
+    const departmentsMissingCollege =
+        departments?.filter((d) => !d.college_code).length || 0
 
-    const departmentsMissingCollege = departments?.filter((d) => !d.college_code).length || 0
+    const instructionalMethodsWithUnknownDescription =
+        instructionalMethods?.filter(
+            (im) => im.description.toLowerCase() === 'unknown',
+        ).length || 0
 
-    const instructionalMethodsWithUnknownDescription = instructionalMethods?.filter((im) => im.description.toLowerCase() === "unknown").length || 0
+    const partOfTermWithUnknownDescription =
+        partOfTerm?.filter((p) => p.description.toLowerCase() === 'unknown')
+            .length || 0
 
-    const partOfTermWithUnknownDescription = partOfTerm?.filter((p) => p.description.toLowerCase() === "unknown").length || 0
+    const programsWithMissingDepartment =
+        programs?.filter((p) => !p.department_code).length || 0
+    const programsWithMissingCollege =
+        programs?.filter((p) => !p.college_code).length || 0
+    const programsWithMissingFlag =
+        programs?.filter((p) => !p.is_major && !p.is_minor).length || 0
 
-    const programsWithMissingDepartment = programs?.filter((p) => !p.department_code).length || 0
-    const programsWithMissingCollege = programs?.filter((p) => !p.college_code).length || 0
-    const programsWithMissingFlag = programs?.filter((p) => !p.is_major && !p.is_minor).length || 0
-
-    const registrationStatusWithUnknownDescription = registrationStatus?.filter((r) => r.description.toLowerCase() === "unknown").length || 0
+    const registrationStatusWithUnknownDescription =
+        registrationStatus?.filter(
+            (r) => r.description.toLowerCase() === 'unknown',
+        ).length || 0
 
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -61,8 +103,8 @@ function RouteComponent() {
                         label: 'Description',
                         count: admitCodesWithUnknownDescription,
                         variant: 'secondary',
-                        filterColumn: "description",
-                        filterValue: "unknown"
+                        filterColumn: 'description',
+                        filterValue: 'unknown',
                     },
                 ]}
             />
@@ -77,8 +119,8 @@ function RouteComponent() {
                         label: 'Description',
                         count: collegesWithUnknownDescription,
                         variant: 'secondary',
-                        filterColumn: "description",
-                        filterValue: "unknown"
+                        filterColumn: 'description',
+                        filterValue: 'unknown',
                     },
                 ]}
             />
@@ -93,22 +135,22 @@ function RouteComponent() {
                         label: 'Title',
                         count: coursesWithUnknownTitle,
                         variant: 'secondary',
-                        filterColumn: "title",
-                        filterValue: "Not known to COBIS yet"
+                        filterColumn: 'title',
+                        filterValue: 'Not known to COBIS yet',
                     },
                     {
                         label: 'Department',
                         count: coursesWithMissingDepartment,
                         variant: 'secondary',
-                        filterColumn: "department_code",
-                        filterValue: "\"null\""
+                        filterColumn: 'department_code',
+                        filterValue: '"null"',
                     },
                     {
                         label: 'College',
                         count: coursesWithMissingCollege,
                         variant: 'secondary',
-                        filterColumn: "college_code",
-                        filterValue: "\"null\""
+                        filterColumn: 'college_code',
+                        filterValue: '"null"',
                     },
                 ]}
             />
@@ -123,8 +165,8 @@ function RouteComponent() {
                         label: 'College',
                         count: departmentsMissingCollege,
                         variant: 'secondary',
-                        filterColumn: "college_code",
-                        filterValue: "\"null\""
+                        filterColumn: 'college_code',
+                        filterValue: '"null"',
                     },
                 ]}
             />
@@ -139,8 +181,8 @@ function RouteComponent() {
                         label: 'Description',
                         count: instructionalMethodsWithUnknownDescription,
                         variant: 'secondary',
-                        filterColumn: "description",
-                        filterValue: "unknown"
+                        filterColumn: 'description',
+                        filterValue: 'unknown',
                     },
                 ]}
             />
@@ -155,8 +197,8 @@ function RouteComponent() {
                         label: 'Description',
                         count: partOfTermWithUnknownDescription,
                         variant: 'secondary',
-                        filterColumn: "description",
-                        filterValue: "unknown"
+                        filterColumn: 'description',
+                        filterValue: 'unknown',
                     },
                 ]}
             />
@@ -171,15 +213,15 @@ function RouteComponent() {
                         label: 'Department',
                         count: programsWithMissingDepartment,
                         variant: 'secondary',
-                        filterColumn: "department_code",
-                        filterValue: "\"null\""
+                        filterColumn: 'department_code',
+                        filterValue: '"null"',
                     },
                     {
                         label: 'College',
                         count: programsWithMissingCollege,
                         variant: 'secondary',
-                        filterColumn: "college_code",
-                        filterValue: "\"null\""
+                        filterColumn: 'college_code',
+                        filterValue: '"null"',
                     },
                     // {
                     //     label: 'Major/Minor',
@@ -200,12 +242,11 @@ function RouteComponent() {
                         label: 'Description',
                         count: registrationStatusWithUnknownDescription,
                         variant: 'secondary',
-                        filterColumn: "description",
-                        filterValue: "unknown"
+                        filterColumn: 'description',
+                        filterValue: 'unknown',
                     },
                 ]}
             />
         </div>
     )
-
 }

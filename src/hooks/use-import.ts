@@ -1,4 +1,7 @@
-import { experimental_streamedQuery as streamedQuery, queryOptions } from '@tanstack/react-query'
+import {
+    queryOptions,
+    experimental_streamedQuery as streamedQuery,
+} from '@tanstack/react-query'
 import type { ParseResult } from 'papaparse'
 import type { ImportStreamMessage } from '@/utils/csv-importer'
 
@@ -7,7 +10,10 @@ interface ImportProps {
     csvData: ParseResult<Record<string, string>>
 }
 
-async function importFetch({ filename, csvData }: ImportProps): Promise<AsyncIterable<ImportStreamMessage>> {
+async function importFetch({
+    filename,
+    csvData,
+}: ImportProps): Promise<AsyncIterable<ImportStreamMessage>> {
     const response = await fetch('/api/import/process', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,7 +46,6 @@ async function importFetch({ filename, csvData }: ImportProps): Promise<AsyncIte
             }
         },
     }
-
 }
 
 export const importQueryOptions = ({ filename, csvData }: ImportProps) =>
@@ -48,8 +53,8 @@ export const importQueryOptions = ({ filename, csvData }: ImportProps) =>
         queryKey: ['import', filename, csvData],
         queryFn: streamedQuery({
             streamFn: () => importFetch({ filename, csvData }),
-            refetchMode: 'append'
+            refetchMode: 'append',
         }),
         staleTime: Infinity,
-        enabled: false
+        enabled: false,
     })

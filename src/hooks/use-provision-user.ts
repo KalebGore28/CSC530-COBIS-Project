@@ -1,26 +1,27 @@
 // src/hooks/use-provision-user.ts
 import { useMutation } from '@tanstack/react-query'
-import { roles, departments, colleges, faculty, user } from '@/db/schema';
+import type { colleges, departments, faculty, roles, user } from '@/db/schema'
 
-type Role = typeof roles.$inferSelect;
-type Department = typeof departments.$inferSelect;
-type College = typeof colleges.$inferSelect;
-type Faculty = typeof faculty.$inferSelect;
-type User = typeof user.$inferSelect;
+type Role = typeof roles.$inferSelect
+type Department = typeof departments.$inferSelect
+type College = typeof colleges.$inferSelect
+type Faculty = typeof faculty.$inferSelect
+type User = typeof user.$inferSelect
 
 export type ProvisionParams = {
-    roles: Role[];
-    isEnabled: boolean;
-    college: College;
-    department: Department;
-    faculty: Faculty;
-    user: User;
+    roles: Array<Role>
+    isEnabled: boolean
+    college: College
+    department: Department
+    faculty: Faculty
+    user: User
 }
 
 export function useProvisionUser() {
     return useMutation({
         mutationFn: async (params: ProvisionParams) => {
-            const { faculty, isEnabled, college, department, roles, user } = params
+            const { faculty, isEnabled, college, department, roles, user } =
+                params
 
             const url = new URL('/api/user/provision', window.location.origin)
             url.searchParams.set('mnumber', faculty.mnumber)

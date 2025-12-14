@@ -1,12 +1,14 @@
+import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { admitCodes } from '@/db/schema'
-import { gzipSync } from 'node:zlib'
 
 export const Route = createFileRoute('/api/__protected/data/admit-codes')({
     server: {
         handlers: {
             GET: async ({ context }) => {
-                const admitCodeResults = await context.db.select().from(admitCodes)
+                const admitCodeResults = await context.db
+                    .select()
+                    .from(admitCodes)
 
                 const json = JSON.stringify(admitCodeResults)
                 const compressed = gzipSync(Buffer.from(json))
@@ -18,7 +20,7 @@ export const Route = createFileRoute('/api/__protected/data/admit-codes')({
                         'Content-Encoding': 'gzip',
                     },
                 })
-            }
-        }
-    }
+            },
+        },
+    },
 })

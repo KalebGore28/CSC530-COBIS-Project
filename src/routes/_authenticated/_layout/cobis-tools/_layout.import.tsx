@@ -1,43 +1,49 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react'
+import { Separator } from '@radix-ui/react-separator'
+import { useQuery } from '@tanstack/react-query'
+import type { ParseResult } from 'papaparse'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 import {
     Drawer,
     DrawerContent,
     DrawerDescription,
     DrawerHeader,
     DrawerTitle,
-} from "@/components/ui/drawer";
-import { Separator } from "@radix-ui/react-separator";
-import { Button } from "@/components/ui/button";
-import { importQueryOptions } from '@/hooks/use-import';
-import { useQuery } from '@tanstack/react-query';
-import { ImportProgressList } from '@/components/csv-import/import-progress-list';
-
-import type { ParseResult } from 'papaparse';
+} from '@/components/ui/drawer'
+import { Button } from '@/components/ui/button'
+import { importQueryOptions } from '@/hooks/use-import'
+import { ImportProgressList } from '@/components/csv-import/import-progress-list'
 
 import { FileUpload } from '@/components/csv-import/file-upload'
 import { CsvPreview } from '@/components/csv-import/csv-preview'
-import { TablePreview } from '@/components/csv-import/table-preview';
+import { TablePreview } from '@/components/csv-import/table-preview'
 
 export type IssueMessage = {
-    message: string;
-    error?: string;
+    message: string
+    error?: string
 }
 
 export type ProgressMessage = {
-    message: string;
-    table: string;
-    currentTable: number;
-    totalTables: number;
-    currentRow: number;
-    totalRows: number;
+    message: string
+    table: string
+    currentTable: number
+    totalTables: number
+    currentRow: number
+    totalRows: number
 }
 
 export type ProgressData = {
-    progressMessages: ProgressMessage[];
-    warnings: IssueMessage[];
-    errors: IssueMessage[];
+    progressMessages: Array<ProgressMessage>
+    warnings: Array<IssueMessage>
+    errors: Array<IssueMessage>
 }
 
 export const Route = createFileRoute(
@@ -47,25 +53,34 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [csvData, setCsvData] = useState<ParseResult<Record<string, string>> | null>(null);
-    const [drawerOpen, setDrawerOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [csvData, setCsvData] = useState<ParseResult<
+        Record<string, string>
+    > | null>(null)
+    const [drawerOpen, setDrawerOpen] = useState(false)
 
-    const { data: importResults = [], refetch: sendImport, isFetching, isSuccess } = useQuery(importQueryOptions({
-        filename: selectedFile?.name || '',
-        csvData: csvData!,
-    }))
+    const {
+        data: importResults = [],
+        refetch: sendImport,
+        isFetching,
+        isSuccess,
+    } = useQuery(
+        importQueryOptions({
+            filename: selectedFile?.name || '',
+            csvData: csvData!,
+        }),
+    )
 
     const resetImport = () => {
-        setSelectedFile(null);
-        setCsvData(null);
-        setDrawerOpen(false);
-    };
+        setSelectedFile(null)
+        setCsvData(null)
+        setDrawerOpen(false)
+    }
 
     const handleImport = () => {
         if (!selectedFile || !csvData) return
-        setDrawerOpen(true);
-        sendImport();
+        setDrawerOpen(true)
+        sendImport()
     }
 
     return (
@@ -78,7 +93,6 @@ function RouteComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-10">
-
                     {/* Step 1: File Upload */}
                     <FileUpload
                         onFileChange={(e) => {
@@ -87,28 +101,34 @@ function RouteComponent() {
                             if (!file) resetImport()
                         }}
                         onClearFile={resetImport}
-                        onParsedData={(results) =>
-                            setCsvData(results as ParseResult<Record<string, string>>)
-                        }
+                        onParsedData={(results) => setCsvData(results)}
                         file={selectedFile}
                     />
 
                     {/* Step 2: CSV Preview */}
-                    {csvData && <div>
-                        <h2 className="text-xl font-bold mb-4">Step 2: Preview Your Data</h2>
-                        <CsvPreview
-                            csvData={csvData}
-                            maxRows={5}
-                            highlightSpecialValues={true}
-                            minColumnWidth={150}
-                        />
-                    </div>}
+                    {csvData && (
+                        <div>
+                            <h2 className="text-xl font-bold mb-4">
+                                Step 2: Preview Your Data
+                            </h2>
+                            <CsvPreview
+                                csvData={csvData}
+                                maxRows={5}
+                                highlightSpecialValues={true}
+                                minColumnWidth={150}
+                            />
+                        </div>
+                    )}
 
                     {/* Step 3: Table Preview */}
-                    {selectedFile && <div>
-                        <h2 className="text-xl font-bold mb-4">Step 3: Matching Tables</h2>
-                        <TablePreview fileName={selectedFile.name} />
-                    </div>}
+                    {selectedFile && (
+                        <div>
+                            <h2 className="text-xl font-bold mb-4">
+                                Step 3: Matching Tables
+                            </h2>
+                            <TablePreview fileName={selectedFile.name} />
+                        </div>
+                    )}
 
                     {/* Step 4: Import Confirmation */}
                     {selectedFile && csvData && (
@@ -117,8 +137,14 @@ function RouteComponent() {
                             <CardFooter className="flex justify-end">
                                 {/* Import and Cancel Buttons */}
                                 {!isSuccess && (
-                                    <div className={`${isFetching ? 'hidden pointer-events-none' : ''} flex`}>
-                                        <Button variant="secondary" onClick={resetImport} className="mr-4">
+                                    <div
+                                        className={`${isFetching ? 'hidden pointer-events-none' : ''} flex`}
+                                    >
+                                        <Button
+                                            variant="secondary"
+                                            onClick={resetImport}
+                                            className="mr-4"
+                                        >
                                             Cancel
                                         </Button>
                                         <Button
@@ -126,23 +152,34 @@ function RouteComponent() {
                                             onClick={handleImport}
                                             disabled={isFetching}
                                         >
-                                            {isFetching ? 'Importing…' : 'Confirm Import'}
+                                            {isFetching
+                                                ? 'Importing…'
+                                                : 'Confirm Import'}
                                         </Button>
                                     </div>
                                 )}
                                 {/* Importing Indicator */}
                                 {isFetching && !isSuccess && (
                                     <div className="flex items-center space-x-2">
-                                        <span>Importing data, please wait...</span>
+                                        <span>
+                                            Importing data, please wait...
+                                        </span>
                                     </div>
                                 )}
                                 {/* Import Success Buttons */}
                                 {isSuccess && (
                                     <>
-                                        <Button variant="outline" onClick={() => setDrawerOpen(true)} className="mr-4">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => setDrawerOpen(true)}
+                                            className="mr-4"
+                                        >
                                             View Results
                                         </Button>
-                                        <Button variant="outline" onClick={resetImport}>
+                                        <Button
+                                            variant="outline"
+                                            onClick={resetImport}
+                                        >
                                             New Import
                                         </Button>
                                     </>
@@ -153,16 +190,21 @@ function RouteComponent() {
                                 >
                                     <DrawerContent>
                                         <DrawerHeader>
-                                            <DrawerTitle>Import Results</DrawerTitle>
+                                            <DrawerTitle>
+                                                Import Results
+                                            </DrawerTitle>
                                             <DrawerDescription>
-                                                {isFetching ? 'Importing data, please wait...' : 'Import complete. Review the results below.'}
+                                                {isFetching
+                                                    ? 'Importing data, please wait...'
+                                                    : 'Import complete. Review the results below.'}
                                             </DrawerDescription>
                                         </DrawerHeader>
 
                                         <div className="h-[75vh] px-4">
-                                            <ImportProgressList messages={importResults} />
+                                            <ImportProgressList
+                                                messages={importResults}
+                                            />
                                         </div>
-
                                     </DrawerContent>
                                 </Drawer>
                             </CardFooter>

@@ -1,134 +1,146 @@
 import {
-	Compass,
-	TerminalSquareIcon,
-	ScanSearch,
-	PersonStanding,
-	BookOpen,
-	Telescope,
-	ChartColumnIncreasing,
-	ChevronsUpDown
-} from "lucide-react"
+    BookOpen,
+    ChartColumnIncreasing,
+    ChevronsUpDown,
+    Compass,
+    PersonStanding,
+    ScanSearch,
+    Telescope,
+    TerminalSquareIcon,
+} from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { hasRouteAccess, useSession } from './provider/session'
 import {
-	Collapsible,
-	CollapsibleContent,
-	CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import {
-	SidebarGroup,
-	SidebarGroupContent,
-	SidebarMenu,
-	SidebarMenuSub,
-	SidebarMenuButton,
-	SidebarMenuSubButton,
-	SidebarMenuItem,
-	SidebarMenuSubItem,
-} from "@/components/ui/sidebar"
-import { useSession } from "./provider/session"
-import { useNavigate } from "@tanstack/react-router"
-import { hasRouteAccess } from "./provider/session"
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
+} from '@/components/ui/sidebar'
 
 const nav_main_data = [
-	{
-		title: "Dashboard",
-		url: "/dashboard",
-		icon: Compass,
-	},
-	{
-		title: " Student Lookup",
-		url: "/student-lookup",
-		icon: ScanSearch,
-	},
-	{
-		title: " Instructors",
-		url: "/instructors",
-		icon: PersonStanding,
-	},
-	{
-		title: "Class Roster",
-		url: "/class-roster",
-		icon: BookOpen,
-	},
-	{
-		title: "COBIS Tools",
-		url: "/cobis-tools",
-		icon: TerminalSquareIcon,
-		items: [
-			{ title: "Import", url: "/cobis-tools/import" },
-			{ title: "Users", url: "/cobis-tools/users" },
-			{ title: "Manage Tables", url: "/cobis-tools/manage-tables" },
-		],
-	},
-	{
-		title: "Enrollment Metrics",
-		url: "/enrollment",
-		icon: ChartColumnIncreasing,
-		items: [
-			{ title: "Programs", url: "/enrollment/programs" },
-			{ title: "Courses", url: "/enrollment/courses" },
-		],
-	},
-	{
-		title: "Advisor Page",
-		url: "/advisor-page",
-		icon: Telescope,
-	}
+    {
+        title: 'Dashboard',
+        url: '/dashboard',
+        icon: Compass,
+    },
+    {
+        title: ' Student Lookup',
+        url: '/student-lookup',
+        icon: ScanSearch,
+    },
+    {
+        title: ' Instructors',
+        url: '/instructors',
+        icon: PersonStanding,
+    },
+    {
+        title: 'Class Roster',
+        url: '/class-roster',
+        icon: BookOpen,
+    },
+    {
+        title: 'COBIS Tools',
+        url: '/cobis-tools',
+        icon: TerminalSquareIcon,
+        items: [
+            { title: 'Import', url: '/cobis-tools/import' },
+            { title: 'Users', url: '/cobis-tools/users' },
+            { title: 'Manage Tables', url: '/cobis-tools/manage-tables' },
+        ],
+    },
+    {
+        title: 'Enrollment Metrics',
+        url: '/enrollment',
+        icon: ChartColumnIncreasing,
+        items: [
+            { title: 'Programs', url: '/enrollment/programs' },
+            { title: 'Courses', url: '/enrollment/courses' },
+        ],
+    },
+    {
+        title: 'Advisor Page',
+        url: '/advisor-page',
+        icon: Telescope,
+    },
 ]
 
 export function NavMain({ open }: { open?: boolean }) {
-	const { session } = useSession();
-	const navigate = useNavigate()
-	if (!session) return null;
+    const { session } = useSession()
+    const navigate = useNavigate()
+    if (!session) return null
 
-	// Filter nav_main_data based on user roles and route permissions
-	const filtered_nav_main_data = nav_main_data.filter((item) =>
-		hasRouteAccess(item.url, session.roles)
-	)
+    // Filter nav_main_data based on user roles and route permissions
+    const filtered_nav_main_data = nav_main_data.filter((item) =>
+        hasRouteAccess(item.url, session.roles),
+    )
 
-	return (
-		<SidebarGroup>
-			<SidebarGroupContent className="flex flex-col gap-2">
-				<SidebarMenu>
-					{filtered_nav_main_data.map((item) => (
-						<SidebarMenuItem key={item.title} className="text-nowrap">
-							{item.items && item.items?.length > 0 ? (
-								<Collapsible>
-									<CollapsibleTrigger asChild>
-										<SidebarMenuButton
-											tooltip={item.title}
-											onClick={() => {
-												if (!open) navigate({ to: item.url })
-											}}
-										>
-											{item.icon && <item.icon />}
-											<span>{item.title}</span>
-											<ChevronsUpDown className="ml-auto" />
-										</SidebarMenuButton>
-									</CollapsibleTrigger>
-									<CollapsibleContent>
-										<SidebarMenuSub>
-											{item.items.map((subItem) => (
-												<SidebarMenuSubItem key={subItem.title}>
-													<SidebarMenuSubButton
-														onClick={() => navigate({ to: subItem.url })}
-														className="text-white"
-													>
-														{subItem.title}
-													</SidebarMenuSubButton>
-												</SidebarMenuSubItem>
-											))}
-										</SidebarMenuSub>
-									</CollapsibleContent>
-								</Collapsible>
-							) : (
-								<SidebarMenuButton onClick={() => navigate({ to: item.url })} tooltip={item.title}>
-									{item.icon && <item.icon />}
-									<span>{item.title}</span>
-								</SidebarMenuButton>
-							)}
-						</SidebarMenuItem>
-					))}
-				</SidebarMenu>
-			</SidebarGroupContent>
-		</SidebarGroup>
-	)
+    return (
+        <SidebarGroup>
+            <SidebarGroupContent className="flex flex-col gap-2">
+                <SidebarMenu>
+                    {filtered_nav_main_data.map((item) => (
+                        <SidebarMenuItem
+                            key={item.title}
+                            className="text-nowrap"
+                        >
+                            {item.items && item.items?.length > 0 ? (
+                                <Collapsible>
+                                    <CollapsibleTrigger asChild>
+                                        <SidebarMenuButton
+                                            tooltip={item.title}
+                                            onClick={() => {
+                                                if (!open)
+                                                    navigate({ to: item.url })
+                                            }}
+                                        >
+                                            {item.icon && <item.icon />}
+                                            <span>{item.title}</span>
+                                            <ChevronsUpDown className="ml-auto" />
+                                        </SidebarMenuButton>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            {item.items.map((subItem) => (
+                                                <SidebarMenuSubItem
+                                                    key={subItem.title}
+                                                >
+                                                    <SidebarMenuSubButton
+                                                        onClick={() =>
+                                                            navigate({
+                                                                to: subItem.url,
+                                                            })
+                                                        }
+                                                        className="text-white"
+                                                    >
+                                                        {subItem.title}
+                                                    </SidebarMenuSubButton>
+                                                </SidebarMenuSubItem>
+                                            ))}
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </Collapsible>
+                            ) : (
+                                <SidebarMenuButton
+                                    onClick={() => navigate({ to: item.url })}
+                                    tooltip={item.title}
+                                >
+                                    {item.icon && <item.icon />}
+                                    <span>{item.title}</span>
+                                </SidebarMenuButton>
+                            )}
+                        </SidebarMenuItem>
+                    ))}
+                </SidebarMenu>
+            </SidebarGroupContent>
+        </SidebarGroup>
+    )
 }

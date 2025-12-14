@@ -1,15 +1,15 @@
-import { Moon, Sun } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Moon, Sun } from 'lucide-react'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { cn } from "@/lib/utils" // Assuming you're using this utility for class merging
-import { createContext, useContext, useEffect, useState } from "react"
+} from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils' // Assuming you're using this utility for class merging
 
-type Theme = "dark" | "light" | "system"
+type Theme = 'dark' | 'light' | 'system'
 
 type ThemeProviderProps = {
     children: React.ReactNode
@@ -23,7 +23,7 @@ type ThemeProviderState = {
 }
 
 const initialState: ThemeProviderState = {
-    theme: "system",
+    theme: 'system',
     setTheme: () => null,
 }
 
@@ -31,8 +31,8 @@ const ThemeProviderContext = createContext<ThemeProviderState>(initialState)
 
 export function ThemeProvider({
     children,
-    defaultTheme = "system",
-    storageKey = "vite-ui-theme",
+    defaultTheme = 'system',
+    storageKey = 'vite-ui-theme',
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(defaultTheme)
 
@@ -43,9 +43,9 @@ export function ThemeProvider({
             setTheme(stored)
         } else {
             const systemPrefersDark = window.matchMedia(
-                "(prefers-color-scheme: dark)"
+                '(prefers-color-scheme: dark)',
             ).matches
-            const systemTheme: Theme = systemPrefersDark ? "dark" : "light"
+            const systemTheme: Theme = systemPrefersDark ? 'dark' : 'light'
             localStorage.setItem(storageKey, systemTheme)
             setTheme(systemTheme)
         }
@@ -53,13 +53,13 @@ export function ThemeProvider({
 
     useEffect(() => {
         const root = document.documentElement
-        root.classList.remove("light", "dark")
+        root.classList.remove('light', 'dark')
 
         const applied =
-            theme === "system"
-                ? window.matchMedia("(prefers-color-scheme: dark)").matches
-                    ? "dark"
-                    : "light"
+            theme === 'system'
+                ? window.matchMedia('(prefers-color-scheme: dark)').matches
+                    ? 'dark'
+                    : 'light'
                 : theme
 
         root.classList.add(applied)
@@ -80,12 +80,11 @@ export function ThemeProvider({
     )
 }
 
-
 export const useTheme = () => {
     const context = useContext(ThemeProviderContext)
 
     if (context === undefined)
-        throw new Error("useTheme must be used within a ThemeProvider")
+        throw new Error('useTheme must be used within a ThemeProvider')
 
     return context
 }
@@ -107,13 +106,13 @@ export function ModeToggle({ className }: { className?: string }) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => setTheme('light')}>
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => setTheme('system')}>
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>

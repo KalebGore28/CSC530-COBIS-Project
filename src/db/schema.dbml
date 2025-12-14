@@ -182,11 +182,6 @@ table students {
   last_name varchar(50) [not null]
   suffix varchar(10)
   gender varchar(10)
-  birthdate varchar(10)
-  citizenship varchar(50)
-  race varchar(50)
-  residency varchar(50)
-  cell_phone varchar(15)
   email varchar(100)
 }
 

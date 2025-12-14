@@ -1,27 +1,31 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { EditableDataTable } from "./editable-data-table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { courses } from "@/db/schema"
+import { EditableDataTable } from './editable-data-table'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { courses } from '@/db/schema'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const nullFilter = (row: any, columnId: string, filterValue: string) => {
-    if (filterValue.toLowerCase() === "null") {
+    if (filterValue.toLowerCase() === 'null') {
         return row.getValue(columnId) == null
     }
-    return String(row.getValue(columnId)).toLowerCase().includes(filterValue.toLowerCase())
+    return String(row.getValue(columnId))
+        .toLowerCase()
+        .includes(filterValue.toLowerCase())
 }
 
 type Course = typeof courses.$inferSelect
 
-const columns: ColumnDef<Course>[] = [
+const columns: Array<ColumnDef<Course>> = [
     {
-        id: "select",
+        id: 'select',
         header: ({ table }) => (
             <Checkbox
                 checked={
                     table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                    (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
                 aria-label="Select all"
             />
         ),
@@ -36,61 +40,62 @@ const columns: ColumnDef<Course>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "code",
-        header: "Code",
+        accessorKey: 'code',
+        header: 'Code',
     },
     {
-        accessorKey: "subject",
-        header: "Subject",
+        accessorKey: 'subject',
+        header: 'Subject',
     },
     {
-        accessorKey: "number",
-        header: "Number",
-        filterFn: 'includesString'
+        accessorKey: 'number',
+        header: 'Number',
+        filterFn: 'includesString',
     },
     {
-        accessorKey: "suffix",
-        header: "Suffix",
+        accessorKey: 'suffix',
+        header: 'Suffix',
     },
     {
-        accessorKey: "title",
-        header: "Title",
+        accessorKey: 'title',
+        header: 'Title',
     },
     {
-        accessorKey: "hours",
-        header: "Hours",
-        filterFn: 'includesString'
+        accessorKey: 'hours',
+        header: 'Hours',
+        filterFn: 'includesString',
     },
     {
-        accessorKey: "department_code",
-        header: "Department Code",
-        cell: ({ getValue }) => getValue() ?? "—", // or null
-        filterFn: nullFilter
-
+        accessorKey: 'department_code',
+        header: 'Department Code',
+        cell: ({ getValue }) => getValue() ?? '—', // or null
+        filterFn: nullFilter,
     },
     {
-        accessorKey: "college_code",
-        header: "College Code",
-        cell: ({ getValue }) => getValue() ?? "—", // or null
-        filterFn: nullFilter
+        accessorKey: 'college_code',
+        header: 'College Code',
+        cell: ({ getValue }) => getValue() ?? '—', // or null
+        filterFn: nullFilter,
     },
     {
-        accessorKey: "last_updated",
-        header: "Last Updated",
-    }
+        accessorKey: 'last_updated',
+        header: 'Last Updated',
+    },
 ]
 
 export function CourseTable({
     data,
-    defaultFilters
+    defaultFilters,
 }: {
-    data: Course[],
-    defaultFilters?: { id: string; value: string }[]
+    data: Array<Course>
+    defaultFilters?: Array<{ id: string; value: string }>
 }) {
-    return <EditableDataTable
-        filterColumns={['code', 'title', 'department_code', 'college_code']}
-        defaultFilters={defaultFilters}
-        columns={columns}
-        data={data}
-    />
+    return (
+        <EditableDataTable
+            filterColumns={['code', 'title', 'department_code', 'college_code']}
+            defaultFilters={defaultFilters}
+            columns={columns}
+            data={data}
+        />
+    )
 }

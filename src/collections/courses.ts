@@ -1,7 +1,7 @@
 import { createCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import type { courses } from '@/db/schema'
 import { getQueryClient } from '@/providers/queryClient'
-import { courses } from '@/db/schema'
 
 type Course = typeof courses.$inferSelect
 
@@ -10,10 +10,10 @@ export const coursesCollection = createCollection(
         queryKey: ['courses'],
         queryFn: async () => {
             const response = await fetch(`/api/data/courses`)
-            return await response.json() as Course[]
+            return (await response.json()) as Array<Course>
         },
         getKey: (course) => `${course.subject}${course.number}${course.suffix}`,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
-    })
+    }),
 )

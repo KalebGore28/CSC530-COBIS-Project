@@ -171,8 +171,8 @@ interface InMemoryAsset {
  */
 interface PreloadResult {
     routes: Record<string, (req: Request) => Response | Promise<Response>>
-    loaded: AssetMetadata[]
-    skipped: AssetMetadata[]
+    loaded: Array<AssetMetadata>
+    skipped: Array<AssetMetadata>
 }
 
 /**
@@ -284,10 +284,12 @@ function createCompositeGlobPattern(): Bun.Glob {
 async function initializeStaticRoutes(
     clientDirectory: string,
 ): Promise<PreloadResult> {
-    const routes: Record<string, (req: Request) => Response | Promise<Response>> =
-        {}
-    const loaded: AssetMetadata[] = []
-    const skipped: AssetMetadata[] = []
+    const routes: Record<
+        string,
+        (req: Request) => Response | Promise<Response>
+    > = {}
+    const loaded: Array<AssetMetadata> = []
+    const skipped: Array<AssetMetadata> = []
 
     log.info(`Loading static assets from ${clientDirectory}...`)
     if (VERBOSE) {
@@ -455,8 +457,8 @@ async function initializeStaticRoutes(
                         !isPreloaded && file.size > MAX_PRELOAD_BYTES
                             ? 'too large'
                             : !isPreloaded
-                                ? 'filtered'
-                                : 'preloaded'
+                              ? 'filtered'
+                              : 'preloaded'
                     const route =
                         file.route.length > 30
                             ? file.route.substring(0, 27) + '...'
@@ -481,7 +483,9 @@ async function initializeStaticRoutes(
         }
 
         if (skipped.length > 0) {
-            const tooLarge = skipped.filter((f) => f.size > MAX_PRELOAD_BYTES).length
+            const tooLarge = skipped.filter(
+                (f) => f.size > MAX_PRELOAD_BYTES,
+            ).length
             const filtered = skipped.length - tooLarge
             log.info(
                 `${String(skipped.length)} files will be served on-demand (${String(tooLarge)} too large, ${String(filtered)} filtered)`,
@@ -506,7 +510,9 @@ async function initializeServer() {
     let handler: { fetch: (request: Request) => Response | Promise<Response> }
     try {
         const serverModule = (await import(SERVER_ENTRY_POINT)) as {
-            default: { fetch: (request: Request) => Response | Promise<Response> }
+            default: {
+                fetch: (request: Request) => Response | Promise<Response>
+            }
         }
         handler = serverModule.default
         log.success('TanStack Start application handler initialized')
@@ -532,7 +538,9 @@ async function initializeServer() {
                     return handler.fetch(req)
                 } catch (error) {
                     log.error(`Server handler error: ${String(error)}`)
-                    return new Response('Internal Server Error', { status: 500 })
+                    return new Response('Internal Server Error', {
+                        status: 500,
+                    })
                 }
             },
         },

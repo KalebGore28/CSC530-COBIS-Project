@@ -1,19 +1,23 @@
 import { createMiddleware } from '@tanstack/react-start'
-import { user, userRoles, roles, faculty } from '@/db/schema'
-import { eq } from "drizzle-orm";
+import { eq } from 'drizzle-orm'
+import { user } from '@/db/schema'
+import { getAuthUser } from '@/functions/get-auth-user'
 
-export const loadUser = createMiddleware({ type: 'request' })
-    .server(async ({ next, request, context }) => {
-        const session = await context.auth.api.getSession({ headers: request.headers })
+export const loadUser = createMiddleware().server(
+    async ({ next, request, context }) => {
+        const session = await getAuthUser()
 
         if (!session?.user) {
             return {
                 response: new Response(
-                    JSON.stringify({ error: 'Unauthorized', message: 'User not signed in' }),
+                    JSON.stringify({
+                        error: 'Unauthorized',
+                        message: 'User not signed in',
+                    }),
                     {
                         status: 401,
                         headers: { 'Content-Type': 'application/json' },
-                    }
+                    },
                 ),
                 request,
                 pathname: new URL(request.url).pathname,
@@ -37,41 +41,22 @@ export const loadUser = createMiddleware({ type: 'request' })
                         emailVerified: false,
                         name: '',
                         image: null,
+                        mnumber: '',
+                        isEnabled: false,
+                        lastLogin: new Date(0),
                     },
-                    mnumber: null,
-                    isEnabled: false,
-                    roles: [],
                     faculty: {
                         firstName: '',
                         lastName: '',
-                        department: '',
-                        college: '',
+                        department_code: '',
+                        college_code: '',
                     },
+                    roles: [],
                 },
             }
         }
 
-        const combined = await context.db
-            .select({
-                mnumber: user.mnumber,
-                isEnabled: user.isEnabled,
-                roleName: roles.name,
-                firstName: faculty.first_name,
-                lastName: faculty.last_name,
-                department: faculty.department_code,
-                college: faculty.college_code,
-            })
-            .from(user)
-            .leftJoin(userRoles, eq(userRoles.user_id, user.id))
-            .leftJoin(roles, eq(userRoles.role_id, roles.id))
-            .leftJoin(faculty, eq(faculty.mnumber, user.mnumber))
-            .where(eq(user.id, session.user.id))
-
-        // Handle aggregation — because a user may have multiple roles
-        const base = combined[0]
-        const rolesList = combined.map((r) => r.roleName).filter(Boolean)
-
-        // Lastly update user last login
+        // Update last login timestamp
         await context.db
             .update(user)
             .set({ lastLogin: new Date() })
@@ -82,17 +67,9 @@ export const loadUser = createMiddleware({ type: 'request' })
                 ...context,
                 session: session.session,
                 user: session.user,
-                mnumber: base?.mnumber || null,
-                isEnabled: base?.isEnabled || false,
-                roles: rolesList,
-                faculty: base
-                    ? {
-                        firstName: base.firstName,
-                        lastName: base.lastName,
-                        department: base.department,
-                        college: base.college,
-                    }
-                    : null,
+                faculty: session.faculty,
+                roles: session.roles,
             },
         })
-    })
+    },
+)

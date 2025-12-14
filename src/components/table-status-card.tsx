@@ -1,7 +1,13 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useNavigate } from '@tanstack/react-router'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useNavigate } from '@tanstack/react-router'
 
 type StatusItem = {
     label: string
@@ -17,7 +23,7 @@ type StatusCardProps = {
     totalItems?: number
     emptyMessage?: string
     allGoodMessage?: string
-    stats?: StatusItem[]
+    stats?: Array<StatusItem>
     navigateTo: string
 }
 
@@ -33,13 +39,14 @@ export function StatusCard({
     const navigate = useNavigate()
     return (
         <Card
-            className='hover:shadow-lg transition-shadow duration-300 cursor-pointer'
+            className="hover:shadow-lg transition-shadow duration-300 cursor-pointer"
             onClick={() => navigate({ to: navigateTo })}
         >
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 <CardDescription>
-                    Overview of {totalItems !== undefined ? totalItems : ''} {title}.
+                    Overview of {totalItems !== undefined ? totalItems : ''}{' '}
+                    {title}.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -51,9 +58,13 @@ export function StatusCard({
                         ))}
                     </div>
                 ) : totalItems === 0 ? (
-                    <div className="text-sm text-muted-foreground">{emptyMessage}</div>
+                    <div className="text-sm text-muted-foreground">
+                        {emptyMessage}
+                    </div>
                 ) : stats.every((item) => item.count === 0) ? (
-                    <div className="text-sm text-green-600">{allGoodMessage}</div>
+                    <div className="text-sm text-green-600">
+                        {allGoodMessage}
+                    </div>
                 ) : (
                     <div>
                         <span className="font-medium">Missing Data:</span>
@@ -62,12 +73,17 @@ export function StatusCard({
                                 <Badge
                                     onClick={(e) => {
                                         e.stopPropagation()
-                                        if (item.filterColumn && item.filterValue) {
-                                            navigate({ to: `${navigateTo}?filterColumn=${item.filterColumn}&filterValue=${item.filterValue}` })
+                                        if (
+                                            item.filterColumn &&
+                                            item.filterValue
+                                        ) {
+                                            navigate({
+                                                to: `${navigateTo}?filterColumn=${item.filterColumn}&filterValue=${item.filterValue}`,
+                                            })
                                         }
                                     }}
                                     key={item.label}
-                                    variant={item.variant || "destructive"}
+                                    variant={item.variant || 'destructive'}
                                     className="max-w-full whitespace-normal cursor-pointer select-none transition hover:opacity-90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                                 >
                                     <span>{item.label}:</span> {item.count}

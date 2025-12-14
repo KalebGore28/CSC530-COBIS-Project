@@ -1,20 +1,22 @@
-import { ColumnDef } from "@tanstack/react-table"
-import { EditableDataTable } from "./editable-data-table"
-import { Checkbox } from "@/components/ui/checkbox"
-import { colleges } from "@/db/schema"
+import { EditableDataTable } from './editable-data-table'
+import type { ColumnDef } from '@tanstack/react-table'
+import type { colleges } from '@/db/schema'
+import { Checkbox } from '@/components/ui/checkbox'
 
 type College = typeof colleges.$inferSelect
 
-const columns: ColumnDef<College>[] = [
+const columns: Array<ColumnDef<College>> = [
     {
-        id: "select",
+        id: 'select',
         header: ({ table }) => (
             <Checkbox
                 checked={
                     table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
+                    (table.getIsSomePageRowsSelected() && 'indeterminate')
                 }
-                onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                onCheckedChange={(value) =>
+                    table.toggleAllPageRowsSelected(!!value)
+                }
                 aria-label="Select all"
             />
         ),
@@ -29,12 +31,12 @@ const columns: ColumnDef<College>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "code",
-        header: "Code",
+        accessorKey: 'code',
+        header: 'Code',
     },
     {
-        accessorKey: "description",
-        header: "Description",
+        accessorKey: 'description',
+        header: 'Description',
     },
 ]
 
@@ -42,12 +44,18 @@ export function CollegeTable({
     data,
     defaultFilterColumn,
     defaultFilterColumnValue,
-}: { data: College[], defaultFilterColumn?: string, defaultFilterColumnValue?: string }) {
-    return <EditableDataTable
-        filterColumns={["code", "description"]}
-        defaultFilterColumn={defaultFilterColumn}
-        defaultFilterColumnValue={defaultFilterColumnValue}
-        columns={columns}
-        data={data}
-    />
+}: {
+    data: Array<College>
+    defaultFilterColumn?: string
+    defaultFilterColumnValue?: string
+}) {
+    return (
+        <EditableDataTable
+            filterColumns={['code', 'description']}
+            defaultFilterColumn={defaultFilterColumn}
+            defaultFilterColumnValue={defaultFilterColumnValue}
+            columns={columns}
+            data={data}
+        />
+    )
 }

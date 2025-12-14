@@ -1,10 +1,10 @@
 import handler, { createServerEntry } from '@tanstack/react-start/server-entry'
 import { getDbConnection } from './db'
-import { auth } from './lib/server/auth'
+import { auth } from './lib/auth'
 
 type RequestContext = {
     auth: typeof auth
-    db: Awaited<ReturnType<typeof getDbConnection>>
+    db: ReturnType<typeof getDbConnection>
 }
 
 declare module '@tanstack/react-start' {
@@ -17,12 +17,12 @@ declare module '@tanstack/react-start' {
 
 export default createServerEntry({
     async fetch(request) {
-        const db = await getDbConnection()
+        const db = getDbConnection()
         return handler.fetch(request, {
             context: {
                 auth,
                 db,
-            }
+            },
         })
     },
 })

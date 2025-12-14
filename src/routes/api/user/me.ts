@@ -1,32 +1,27 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { loadUser } from '@/middleware/load-user'
 
+// API is going to be deprecated
 export const Route = createFileRoute('/api/user/me')({
     server: {
         middleware: [loadUser],
         handlers: {
-            GET: async ({ request, context }) => {
-                const { mnumber, isEnabled, roles, faculty } = context;
-                const session = await context.auth.api.getSession({
-                    headers: request.headers,
-                });
+            GET: ({ context }) => {
+                const { user, roles, faculty } = context
 
-                if (!session) {
-                    return new Response(
-                        JSON.stringify({ error: 'Unauthorized' }),
-                        {
-                            status: 401,
-                            headers: { 'Content-Type': 'application/json' },
-                        }
-                    );
-                }
-
-                const { user } = session;
-
-                return new Response(JSON.stringify({ user, mnumber, isEnabled, roles, faculty }), {
-                    status: 200,
-                    headers: { 'Content-Type': 'application/json' },
-                });
+                return new Response(
+                    JSON.stringify({
+                        user: user,
+                        mnumber: user.mnumber,
+                        isEnabled: user.isEnabled,
+                        roles,
+                        faculty,
+                    }),
+                    {
+                        status: 200,
+                        headers: { 'Content-Type': 'application/json' },
+                    },
+                )
             },
         },
     },
@@ -43,7 +38,7 @@ export type UserInfoResponse = {
     }
     mnumber: string | null
     isEnabled: boolean
-    roles: string[]
+    roles: Array<string>
     faculty: {
         firstName: string
         lastName: string

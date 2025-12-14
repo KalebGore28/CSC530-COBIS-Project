@@ -8,107 +8,107 @@ export type ImportStreamMessage =
     | CompleteMessage
     | LogMessage
     | ErrorMessage
-    | WarningMessage;
+    | WarningMessage
 
 type StartMessage = {
-    type: "start";
+    type: 'start'
     data: {
-        message: string;
-        totalTables: number;
-    };
-};
+        message: string
+        totalTables: number
+    }
+}
 
 type TableStartMessage = {
-    type: "table-start";
+    type: 'table-start'
     data: {
-        message: string;
-        table: string;
-        tableIndex: number;
-        totalTables: number;
-        totalRows?: number; // available if known early
-    };
-};
+        message: string
+        table: string
+        tableIndex: number
+        totalTables: number
+        totalRows?: number // available if known early
+    }
+}
 
 type TableProgressMessage = {
-    type: "table-progress";
+    type: 'table-progress'
     data: {
-        message: string;
-        table: string;
-        tableIndex: number;
-        totalTables: number;
-    };
-};
+        message: string
+        table: string
+        tableIndex: number
+        totalTables: number
+    }
+}
 
 type TableCompleteMessage = {
-    type: "table-complete";
+    type: 'table-complete'
     data: {
-        message: string;
-        table: string;
-        tableIndex: number;
-        totalTables: number;
-        totalRows: number;
-    };
-};
+        message: string
+        table: string
+        tableIndex: number
+        totalTables: number
+        totalRows: number
+    }
+}
 
 type RowProgressMessage = {
-    type: "row-progress";
+    type: 'row-progress'
     data: {
-        message: string;
-        table: string;
-        rowIndex: number;
-        totalRows: number;
-        tableIndex: number;
-        totalTables: number;
-    };
-};
+        message: string
+        table: string
+        rowIndex: number
+        totalRows: number
+        tableIndex: number
+        totalTables: number
+    }
+}
 
 type RowFailureMessage = {
-    type: "row-failure";
+    type: 'row-failure'
     data: {
-        message: string;
-        table: string;
-        rowIndex: number;
-        totalRows: number;
-        tableIndex: number;
-        totalTables: number;
-    };
-    error: string;
-};
+        message: string
+        table: string
+        rowIndex: number
+        totalRows: number
+        tableIndex: number
+        totalTables: number
+    }
+    error: string
+}
 
 type CompleteMessage = {
-    type: "complete";
+    type: 'complete'
     data: {
-        message: string;
-        totalTables: number;
-    };
-};
+        message: string
+        totalTables: number
+    }
+}
 
 type LogMessage = {
-    type: "log";
+    type: 'log'
     data: {
-        table: string;
-        rowIndex: number;
-        message: string;
-        meta?: Record<string, unknown>;
-    };
-};
+        table: string
+        rowIndex: number
+        message: string
+        meta?: Record<string, unknown>
+    }
+}
 
 type WarningMessage = {
-    type: "warning";
+    type: 'warning'
     data: {
-        message: string;
-        table: string;
-        rowIndex: number;
-        meta?: Record<string, unknown>;
-    };
-};
+        message: string
+        table: string
+        rowIndex: number
+        meta?: Record<string, unknown>
+    }
+}
 
 type ErrorMessage = {
-    type: "error";
-    error: string;
+    type: 'error'
+    error: string
     data: {
-        table: string;
-        rowIndex: number;
-        meta?: Record<string, unknown>;
-    };
-};
+        table: string
+        rowIndex: number
+        meta?: Record<string, unknown>
+    }
+}

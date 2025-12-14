@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
+import type { ImportStreamMessage } from '@/utils/csv-importer'
 import { csvConfig } from '@/db/mapping-config'
-import { importData, ImportStreamMessage } from '@/utils/csv-importer'
+import { importData } from '@/utils/csv-importer'
 
 export const Route = createFileRoute('/api/__protected/import/process')({
     server: {
@@ -12,18 +13,31 @@ export const Route = createFileRoute('/api/__protected/import/process')({
                 const encoder = new TextEncoder()
                 const stream = new ReadableStream({
                     async start(controller) {
-                        const send = async (obj: ImportStreamMessage) => {
-                            controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'))
+                        const send = (obj: ImportStreamMessage) => {
+                            controller.enqueue(
+                                encoder.encode(JSON.stringify(obj) + '\n'),
+                            )
                         }
 
                         try {
-                            await importData(context.db, csvData, filename, csvConfig, {
-                                send,
-                                end: () => controller.close(),
-                                batchSize: 10,
-                            })
+                            await importData(
+                                context.db,
+                                csvData,
+                                filename,
+                                csvConfig,
+                                {
+                                    send,
+                                    end: () => controller.close(),
+                                    batchSize: 10,
+                                },
+                            )
                         } catch (err) {
-                            await send({ type: 'error', error: String(err) })
+                            send({
+                                type: 'error',
+                                error: String(err),
+                                // @ts-ignore: Temporal workaround for strict null checks
+                                data: undefined,
+                            })
                         }
                         controller.close()
                     },

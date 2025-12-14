@@ -1,39 +1,43 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { colleges } from "@/db/schema";
+import { useState } from 'react'
+import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import type { ProvisionState } from '../user-modal'
+import type { colleges } from '@/db/schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-type College = typeof colleges.$inferSelect;
+import { collegesCollection } from '@/collections/colleges'
 
-import { collegesCollection } from "@/collections/colleges";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
-
-import type { ProvisionState } from "../user-modal";
+type College = typeof colleges.$inferSelect
 
 interface CollegeSelectorProps {
-    provisionParams?: ProvisionState;
-    setProvisionParams?: (params: ProvisionState) => void;
+    provisionParams?: ProvisionState
+    setProvisionParams?: (params: ProvisionState) => void
 }
-export function CollegeSelector({ provisionParams, setProvisionParams }: CollegeSelectorProps) {
-    const [query, setQuery] = useState("");
+export function CollegeSelector({
+    provisionParams,
+    setProvisionParams,
+}: CollegeSelectorProps) {
+    const [query, setQuery] = useState('')
 
     const selected = provisionParams?.college
 
-    const { data: filteredColleges, isLoading } = useLiveQuery((q) =>
-        q.from({ colleges: collegesCollection })
-            .where(({ colleges }) =>
-                or(
-                    ilike(colleges.code, `%${query}%`),
-                    ilike(colleges.description, `%${query}%`)
+    const { data: filteredColleges, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ colleges: collegesCollection })
+                .where(({ colleges }) =>
+                    or(
+                        ilike(colleges.code, `%${query}%`),
+                        ilike(colleges.description, `%${query}%`),
+                    ),
                 )
-            )
-            .orderBy(({ colleges }) => colleges.code, 'asc')
-            .limit(query !== "" ? 10 : 0),
-        [query] // Re-run when query changes
-    );
+                .orderBy(({ colleges }) => colleges.code, 'asc')
+                .limit(query !== '' ? 10 : 0),
+        [query], // Re-run when query changes
+    )
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    if (isLoading) return <Skeleton className="h-10 w-full" />
 
     if (selected) {
         return (
@@ -45,17 +49,18 @@ export function CollegeSelector({ provisionParams, setProvisionParams }: College
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setProvisionParams && setProvisionParams({
-                            ...provisionParams!,
-                            college: null,
-                        });
-                        setQuery("");
+                        setProvisionParams &&
+                            setProvisionParams({
+                                ...provisionParams,
+                                college: null,
+                            })
+                        setQuery('')
                     }}
                 >
                     Remove
                 </Button>
             </div>
-        );
+        )
     }
 
     return (
@@ -65,32 +70,33 @@ export function CollegeSelector({ provisionParams, setProvisionParams }: College
                     placeholder="Search colleges..."
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        setQuery(e.target.value)
                     }}
                 />
             </div>
             <CollegeResults
                 filteredColleges={filteredColleges}
                 onSelect={(college) => {
-                    setProvisionParams && setProvisionParams({
-                        ...provisionParams!,
-                        college: college,
-                    });
-                    setQuery("");
+                    setProvisionParams &&
+                        setProvisionParams({
+                            ...provisionParams!,
+                            college: college,
+                        })
+                    setQuery('')
                 }}
             />
         </div>
-    );
+    )
 }
 
 function CollegeResults({
     filteredColleges,
     onSelect,
 }: {
-    filteredColleges: College[];
-    onSelect: (college: College) => void;
+    filteredColleges: Array<College>
+    onSelect: (college: College) => void
 }) {
-    if (filteredColleges.length === 0) return null;
+    if (filteredColleges.length === 0) return null
 
     return (
         <ul className="border rounded-md divide-y">
@@ -108,8 +114,8 @@ function CollegeResults({
                     >
                         <strong>{college.code}</strong> — {college.description}
                     </li>
-                ) : null
+                ) : null,
             )}
         </ul>
-    );
+    )
 }

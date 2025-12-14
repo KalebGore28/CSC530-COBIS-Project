@@ -1,39 +1,43 @@
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { departments } from "@/db/schema";
+import { useState } from 'react'
+import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import type { ProvisionState } from '../user-modal'
+import type { departments } from '@/db/schema'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Skeleton } from '@/components/ui/skeleton'
 
-type Department = typeof departments.$inferSelect;
+import { departmentsCollection } from '@/collections/departments'
 
-import { departmentsCollection } from "@/collections/departments";
-import { useLiveQuery, ilike, or } from "@tanstack/react-db";
-
-import type { ProvisionState } from "../user-modal";
+type Department = typeof departments.$inferSelect
 
 interface DepartmentSelectorProps {
-    provisionParams?: ProvisionState;
-    setProvisionParams?: (params: ProvisionState) => void;
+    provisionParams?: ProvisionState
+    setProvisionParams?: (params: ProvisionState) => void
 }
-export function DepartmentSelector({ provisionParams, setProvisionParams }: DepartmentSelectorProps) {
-    const [query, setQuery] = useState("");
+export function DepartmentSelector({
+    provisionParams,
+    setProvisionParams,
+}: DepartmentSelectorProps) {
+    const [query, setQuery] = useState('')
 
     const selected = provisionParams?.department
 
-    const { data: filteredDepartments, isLoading } = useLiveQuery((q) =>
-        q.from({ departments: departmentsCollection })
-            .where(({ departments }) =>
-                or(
-                    ilike(departments.code, `%${query}%`),
-                    ilike(departments.description, `%${query}%`)
+    const { data: filteredDepartments, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ departments: departmentsCollection })
+                .where(({ departments }) =>
+                    or(
+                        ilike(departments.code, `%${query}%`),
+                        ilike(departments.description, `%${query}%`),
+                    ),
                 )
-            )
-            .orderBy(({ departments }) => departments.code, 'asc')
-            .limit(query !== "" ? 10 : 0),
-        [query] // Re-run when query changes
-    );
+                .orderBy(({ departments }) => departments.code, 'asc')
+                .limit(query !== '' ? 10 : 0),
+        [query], // Re-run when query changes
+    )
 
-    if (isLoading) return <Skeleton className="h-10 w-full" />;
+    if (isLoading) return <Skeleton className="h-10 w-full" />
 
     if (selected) {
         return (
@@ -45,17 +49,18 @@ export function DepartmentSelector({ provisionParams, setProvisionParams }: Depa
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                        setProvisionParams && setProvisionParams({
-                            ...provisionParams!,
-                            department: null,
-                        });
-                        setQuery("");
+                        setProvisionParams &&
+                            setProvisionParams({
+                                ...provisionParams,
+                                department: null,
+                            })
+                        setQuery('')
                     }}
                 >
                     Remove
                 </Button>
             </div>
-        );
+        )
     }
 
     return (
@@ -65,7 +70,7 @@ export function DepartmentSelector({ provisionParams, setProvisionParams }: Depa
                     placeholder="Search departments..."
                     value={query}
                     onChange={(e) => {
-                        setQuery(e.target.value);
+                        setQuery(e.target.value)
                     }}
                 />
                 {/* {!selected && (
@@ -87,25 +92,26 @@ export function DepartmentSelector({ provisionParams, setProvisionParams }: Depa
             <DepartmentResults
                 filteredDepartments={filteredDepartments}
                 onSelect={(dept) => {
-                    setProvisionParams && setProvisionParams({
-                        ...provisionParams!,
-                        department: dept,
-                    });
-                    setQuery("");
+                    setProvisionParams &&
+                        setProvisionParams({
+                            ...provisionParams!,
+                            department: dept,
+                        })
+                    setQuery('')
                 }}
             />
         </div>
-    );
+    )
 }
 
 function DepartmentResults({
     filteredDepartments,
     onSelect,
 }: {
-    filteredDepartments: Department[];
-    onSelect: (dept: Department) => void;
+    filteredDepartments: Array<Department>
+    onSelect: (dept: Department) => void
 }) {
-    if (filteredDepartments.length === 0) return null;
+    if (filteredDepartments.length === 0) return null
 
     return (
         <ul className="border rounded-md divide-y">
@@ -124,8 +130,8 @@ function DepartmentResults({
                     >
                         <strong>{dept.code}</strong> — {dept.description}
                     </li>
-                ) : null
+                ) : null,
             )}
         </ul>
-    );
+    )
 }

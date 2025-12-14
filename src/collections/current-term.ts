@@ -12,9 +12,9 @@ export const currentTermCollection = createCollection(
         queryKey: ['currentTerm'],
         queryFn: async () => {
             const response = await fetch(`/api/current-term`)
-            return await response.json() as CurrentTerm[]
+            return (await response.json()) as Array<CurrentTerm>
         },
         getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_code}`,
         queryClient: getQueryClient(),
-    })
+    }),
 )

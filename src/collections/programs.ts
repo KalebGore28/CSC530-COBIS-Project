@@ -1,7 +1,7 @@
 import { createCollection } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import type { programs } from '@/db/schema'
 import { getQueryClient } from '@/providers/queryClient'
-import { programs } from '@/db/schema'
 
 type Program = typeof programs.$inferSelect
 
@@ -10,7 +10,7 @@ export const programsCollection = createCollection(
         queryKey: ['programs'],
         queryFn: async () => {
             const response = await fetch(`/api/data/programs`)
-            return await response.json() as Program[]
+            return (await response.json()) as Array<Program>
         },
         getKey: (program) => program.code,
         queryClient: getQueryClient(),
@@ -24,6 +24,6 @@ export const programsCollection = createCollection(
                     code: original.code,
                 }),
             })
-        }
-    })
+        },
+    }),
 )

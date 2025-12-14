@@ -1,5 +1,5 @@
 // queryClient.ts
-import { isServer, QueryClient } from '@tanstack/react-query'
+import { QueryClient, isServer } from '@tanstack/react-query'
 
 function makeQueryClient() {
     return new QueryClient({

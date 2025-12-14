@@ -1,30 +1,38 @@
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Button } from "../ui/button";
-import type { ImportStreamMessage } from "@/utils/csv-importer";
+import { Button } from '../ui/button'
+import type { ImportStreamMessage } from '@/utils/csv-importer'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 
 type Props = {
-    messages: ImportStreamMessage[];
-};
+    messages: Array<ImportStreamMessage>
+}
 
 type LogMessage = {
-    type: 'log' | 'warning' | 'error';
-    message: string;
+    type: 'log' | 'warning' | 'error'
+    message: string
 }
 
 export function ImportProgressList({ messages }: Props) {
-    const tables = buildTableProgress(messages);
+    const tables = buildTableProgress(messages)
 
     const allLogs = Object.entries(tables).flatMap(([tableName, table]) =>
-        (table.logMessages || []).map(logMsg => ({
+        (table.logMessages || []).map((logMsg) => ({
             ...logMsg,
-            tableName
-        }))
-    );
+            tableName,
+        })),
+    )
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-4">
-                <span className="text-lg font-medium">Table Import Progress</span>
+                <span className="text-lg font-medium">
+                    Table Import Progress
+                </span>
                 {Object.entries(tables).map(([tableName, table]) => (
                     <Card key={tableName} className="border">
                         <CardHeader>
@@ -32,24 +40,38 @@ export function ImportProgressList({ messages }: Props) {
                             <CardDescription className="space-x-2">
                                 {/* Is Table Import Finished? */}
                                 {table.rowIndex >= table.totalRows ? (
-                                    <span className="text-green-600 font-medium">Import Finished</span>
+                                    <span className="text-green-600 font-medium">
+                                        Import Finished
+                                    </span>
                                 ) : (
-                                    <span className="text-blue-600 font-medium">Import In Progress</span>
+                                    <span className="text-blue-600 font-medium">
+                                        Import In Progress
+                                    </span>
                                 )}
 
                                 {/* Total rows imported minus failures */}
                                 <span>
-                                    {table.rowIndex - table.failureCount}/{table.totalRows} rows imported
+                                    {table.rowIndex - table.failureCount}/
+                                    {table.totalRows} rows imported
                                 </span>
 
                                 {/* Percentage */}
                                 <span>
-                                ({Math.round(((table.rowIndex - table.failureCount) / table.totalRows) * 100)}%)
+                                    (
+                                    {Math.round(
+                                        ((table.rowIndex - table.failureCount) /
+                                            table.totalRows) *
+                                            100,
+                                    )}
+                                    %)
                                 </span>
 
                                 {/* Failures */}
                                 {table.failureCount > 0 && (
-                                    <span className="text-red-600"> {table.failureCount} failures</span>
+                                    <span className="text-red-600">
+                                        {' '}
+                                        {table.failureCount} failures
+                                    </span>
                                 )}
                             </CardDescription>
                         </CardHeader>
@@ -63,19 +85,27 @@ export function ImportProgressList({ messages }: Props) {
                     <CardContent className="p-1">
                         <Button
                             onClick={() => {
-                                const logContent = allLogs.length > 0
-                                    ? allLogs.map(log => `[${log.type.toUpperCase()}] ${log.tableName}: ${log.message}`).join('\n')
-                                    : 'No logs or issues.';
+                                const logContent =
+                                    allLogs.length > 0
+                                        ? allLogs
+                                              .map(
+                                                  (log) =>
+                                                      `[${log.type.toUpperCase()}] ${log.tableName}: ${log.message}`,
+                                              )
+                                              .join('\n')
+                                        : 'No logs or issues.'
 
-                                const blob = new Blob([logContent], { type: 'text/plain' });
-                                const url = URL.createObjectURL(blob);
-                                const a = document.createElement('a');
-                                a.href = url;
-                                a.download = `logs_${new Date().toISOString().replace(/[:.]/g, '-')}.log`;
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                URL.revokeObjectURL(url);
+                                const blob = new Blob([logContent], {
+                                    type: 'text/plain',
+                                })
+                                const url = URL.createObjectURL(blob)
+                                const a = document.createElement('a')
+                                a.href = url
+                                a.download = `logs_${new Date().toISOString().replace(/[:.]/g, '-')}.log`
+                                document.body.appendChild(a)
+                                a.click()
+                                document.body.removeChild(a)
+                                URL.revokeObjectURL(url)
                             }}
                             className="w-full"
                         >
@@ -96,43 +126,48 @@ export function ImportProgressList({ messages }: Props) {
                                         <div
                                             key={index}
                                             className={
-                                                logMsg.type === 'error' ? 'text-red-600' :
-                                                    logMsg.type === 'warning' ? 'text-yellow-600' :
-                                                        'text-gray-800'
+                                                logMsg.type === 'error'
+                                                    ? 'text-red-600'
+                                                    : logMsg.type === 'warning'
+                                                      ? 'text-yellow-600'
+                                                      : 'text-gray-800'
                                             }
                                         >
-                                            [{logMsg.type.toUpperCase()}] {logMsg.tableName}: {logMsg.message}
+                                            [{logMsg.type.toUpperCase()}]{' '}
+                                            {logMsg.tableName}: {logMsg.message}
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="text-gray-500">No logs or issues.</div>
-                                );
+                                    <div className="text-gray-500">
+                                        No logs or issues.
+                                    </div>
+                                )
                             })()}
                         </div>
                     </CardContent>
                 </Card>
             </div>
         </div>
-    );
+    )
 }
 
-function buildTableProgress(messages: ImportStreamMessage[]) {
+function buildTableProgress(messages: Array<ImportStreamMessage>) {
     const tables: Record<
         string,
         {
-            tableName: string;
-            rowIndex: number;
-            totalRows: number;
-            tableIndex: number;
-            totalTables: number;
-            logMessages?: LogMessage[];
-            failureCount: number;
+            tableName: string
+            rowIndex: number
+            totalRows: number
+            tableIndex: number
+            totalTables: number
+            logMessages?: Array<LogMessage>
+            failureCount: number
         }
-    > = {};
+    > = {}
 
     for (const msg of messages) {
         switch (msg.type) {
-            case "table-start":
+            case 'table-start':
                 tables[msg.data.table] = {
                     tableName: msg.data.table,
                     rowIndex: 0,
@@ -140,10 +175,10 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
                     tableIndex: msg.data.tableIndex,
                     totalTables: msg.data.totalTables,
                     failureCount: 0,
-                };
-                break;
+                }
+                break
 
-            case "row-progress":
+            case 'row-progress':
                 // Initialize table entry if it doesn't exist
                 if (!tables[msg.data.table]) {
                     tables[msg.data.table] = {
@@ -153,13 +188,13 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
                         tableIndex: msg.data.tableIndex,
                         totalTables: msg.data.totalTables,
                         failureCount: 0,
-                    };
+                    }
                 }
 
-                tables[msg.data.table].rowIndex = msg.data.rowIndex;
-                tables[msg.data.table].totalRows = msg.data.totalRows;
-                break;
-            case "row-failure":
+                tables[msg.data.table].rowIndex = msg.data.rowIndex
+                tables[msg.data.table].totalRows = msg.data.totalRows
+                break
+            case 'row-failure':
                 // Initialize table entry if it doesn't exist
                 if (!tables[msg.data.table]) {
                     tables[msg.data.table] = {
@@ -169,77 +204,76 @@ function buildTableProgress(messages: ImportStreamMessage[]) {
                         tableIndex: msg.data.tableIndex,
                         totalTables: msg.data.totalTables,
                         failureCount: 0,
-                    };
+                    }
                 }
 
-                tables[msg.data.table].rowIndex = msg.data.rowIndex;
-                tables[msg.data.table].totalRows = msg.data.totalRows;
+                tables[msg.data.table].rowIndex = msg.data.rowIndex
+                tables[msg.data.table].totalRows = msg.data.totalRows
 
                 if (!tables[msg.data.table].logMessages) {
-                    tables[msg.data.table].logMessages = [];
+                    tables[msg.data.table].logMessages = []
                 }
 
                 tables[msg.data.table].logMessages?.push({
                     type: 'error',
                     message: msg.error,
-                });
-                tables[msg.data.table].failureCount++;
-                break;
+                })
+                tables[msg.data.table].failureCount++
+                break
 
-            case "table-complete":
-                if (!tables[msg.data.table]) break;
+            case 'table-complete':
+                if (!tables[msg.data.table]) break
 
-                tables[msg.data.table].rowIndex = msg.data.totalRows;
-                tables[msg.data.table].totalRows = msg.data.totalRows;
-                break;
+                tables[msg.data.table].rowIndex = msg.data.totalRows
+                tables[msg.data.table].totalRows = msg.data.totalRows
+                break
 
-            case "warning":
-                if (!tables[msg.data.table]) break;
+            case 'warning':
+                if (!tables[msg.data.table]) break
 
                 if (!tables[msg.data.table].logMessages) {
-                    tables[msg.data.table].logMessages = [];
+                    tables[msg.data.table].logMessages = []
                 }
 
-                tables[msg.data.table].rowIndex = msg.data.rowIndex;
+                tables[msg.data.table].rowIndex = msg.data.rowIndex
                 tables[msg.data.table].logMessages?.push({
                     type: 'warning',
                     message: msg.data.message,
-                });
-                break;
+                })
+                break
 
-            case "error":
-                if (!tables[msg.data.table]) break;
+            case 'error':
+                if (!tables[msg.data.table]) break
 
                 if (!tables[msg.data.table].logMessages) {
-                    tables[msg.data.table].logMessages = [];
+                    tables[msg.data.table].logMessages = []
                 }
 
-                tables[msg.data.table].rowIndex = msg.data.rowIndex;
+                tables[msg.data.table].rowIndex = msg.data.rowIndex
                 tables[msg.data.table].logMessages?.push({
                     type: 'error',
                     message: msg.error,
-                });
-                break;
+                })
+                break
 
-            case "log":
-                if (!tables[msg.data.table]) break;
+            case 'log':
+                if (!tables[msg.data.table]) break
 
                 if (!tables[msg.data.table].logMessages) {
-                    tables[msg.data.table].logMessages = [];
+                    tables[msg.data.table].logMessages = []
                 }
 
-                tables[msg.data.table].rowIndex = msg.data.rowIndex;
+                tables[msg.data.table].rowIndex = msg.data.rowIndex
                 tables[msg.data.table].logMessages?.push({
                     type: 'log',
                     message: msg.data.message,
-                });
-                break;
+                })
+                break
 
             default:
-                break;
+                break
         }
     }
 
-    return tables;
+    return tables
 }
-

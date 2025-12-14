@@ -1,7 +1,7 @@
 import { createCollection, parseLoadSubsetOptions } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
+import type { students } from '@/db/schema'
 import { getQueryClient } from '@/providers/queryClient'
-import { students } from '@/db/schema'
 
 type Student = typeof students.$inferSelect
 
@@ -9,7 +9,9 @@ export const studentsCollection = createCollection(
     queryCollectionOptions({
         queryKey: ['students'],
         queryFn: async (ctx) => {
-            const { filters, sorts, limit } = parseLoadSubsetOptions(ctx.meta?.loadSubsetOptions as any)
+            const { filters, sorts, limit } = parseLoadSubsetOptions(
+                ctx.meta?.loadSubsetOptions as any,
+            )
 
             const params = new URLSearchParams()
 
@@ -20,17 +22,15 @@ export const studentsCollection = createCollection(
             })
 
             sorts.forEach(({ field, direction, nulls }) => {
-                let sortParam = field.join('.')
-                if (direction) sortParam += `:${direction}`
-                if (nulls) sortParam += `:${nulls}`
+                const sortParam = `${field.join('.')}:${direction}:${nulls}`
                 params.append('sort', sortParam)
             })
 
             const response = await fetch(`/api/data/students?${params}`)
-            return await response.json() as Student[]
+            return (await response.json()) as Array<Student>
         },
         getKey: (student) => student.mnumber,
         queryClient: getQueryClient(),
-        syncMode: 'on-demand'
-    })
+        syncMode: 'on-demand',
+    }),
 )

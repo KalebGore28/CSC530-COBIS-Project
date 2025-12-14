@@ -10,9 +10,14 @@ export const Route = createFileRoute('/api/__protected/data/users')({
                 let userResults = await context.db.select().from(user)
 
                 // Filter results based on roles
-                if (!user_roles.includes('cobis_administrator') && !user_roles.includes('department_chair')) {
+                if (
+                    !user_roles.includes('cobis_administrator') &&
+                    !user_roles.includes('department_chair')
+                ) {
                     // Filter to only the current user
-                    userResults = userResults.filter((u) => u.id === context.user.id)
+                    userResults = userResults.filter(
+                        (u) => u.id === context.user.id,
+                    )
                 }
 
                 return new Response(JSON.stringify(userResults), {
@@ -21,7 +26,7 @@ export const Route = createFileRoute('/api/__protected/data/users')({
                         'Content-Type': 'application/json',
                     },
                 })
-            }
-        }
-    }
+            },
+        },
+    },
 })
