@@ -140,9 +140,8 @@ export function ImportSummary({
                                     <Progress value={progress} />
                                     <div className="flex justify-between text-xs text-muted-foreground">
                                         <span>
-                                            {table.currentRow?.toLocaleString()}{' '}
-                                            /{' '}
-                                            {table.totalRows?.toLocaleString()}{' '}
+                                            {table.currentRow.toLocaleString()}{' '}
+                                            / {table.totalRows.toLocaleString()}{' '}
                                             rows
                                         </span>
                                         <span>{table.message}</span>
@@ -292,9 +291,9 @@ export function ImportSummary({
                                         }`}
                                     >
                                         {issue.error ? (
-                                            <AlertCircle className="h-4 w-4 text-red-500 mt-[1px]" />
+                                            <AlertCircle className="h-4 w-4 text-red-500 mt-px" />
                                         ) : (
-                                            <TriangleAlert className="h-4 w-4 text-yellow-500 mt-[1px]" />
+                                            <TriangleAlert className="h-4 w-4 text-yellow-500 mt-px" />
                                         )}
                                         <div className="flex-1">
                                             <p className="font-medium">

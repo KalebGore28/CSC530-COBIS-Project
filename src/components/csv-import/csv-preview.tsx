@@ -47,7 +47,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
     const [page, setPage] = useState(0)
     const headers = Object.keys(csvData.data[0] ?? {})
 
-    if (!csvData || csvData.data.length === 0) {
+    if (csvData.data.length === 0) {
         return (
             <div className="mb-6 w-full">
                 <div className="flex items-center justify-between mb-2">
@@ -173,7 +173,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                     >
                         <TableHeader className="bg-muted/30 sticky top-0">
                             <TableRow>
-                                <TableHead className="w-[40px] text-center">
+                                <TableHead className="w-10 text-center">
                                     #
                                 </TableHead>
                                 {headers.map((header, index) => (
@@ -201,7 +201,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                                     key={rowIndex}
                                     className="hover:bg-muted/20"
                                 >
-                                    <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-[40px]">
+                                    <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-10">
                                         {pageStart + rowIndex + 1}
                                     </TableCell>
                                     {headers.map((header, colIndex) => {
@@ -238,7 +238,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
             {hasSpecialValues && (
                 <div className="flex items-start gap-2 mt-3 p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 w-full">
-                    <Info className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
                     <div className="text-sm">
                         <p>Special values in the preview are highlighted:</p>
                         <div className="flex flex-wrap gap-3 mt-1">

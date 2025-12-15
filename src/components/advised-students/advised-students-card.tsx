@@ -55,10 +55,10 @@ export function AdvisedStudentsCard({
             .select(({ students, studentAdvisors }) => ({
                 mnumber: students?.mnumber,
                 first_name: students?.first_name,
-                middle_name: students?.middle_name,
+                middle_name: students?.middle_name ?? undefined,
                 last_name: students?.last_name,
-                suffix: students?.suffix,
-                email: students?.email,
+                suffix: students?.suffix ?? undefined,
+                email: students?.email ?? undefined,
                 term: studentAdvisors.term_code,
                 year: studentAdvisors.year,
             })),
@@ -67,11 +67,9 @@ export function AdvisedStudentsCard({
     return (
         <Card className="w-full">
             <CardHeader>
-                <CardTitle>
-                    {advisedStudents?.length ?? 0} Advised Students
-                </CardTitle>
+                <CardTitle>{advisedStudents.length} Advised Students</CardTitle>
                 <CardDescription>
-                    Term: {term_info?.description} {term_info.year}
+                    Term: {term_info.description} {term_info.year}
                 </CardDescription>
             </CardHeader>
             <CardContent className="px-4">
@@ -85,7 +83,7 @@ export function AdvisedStudentsCard({
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {advisedStudents && advisedStudents.length > 0 ? (
+                            {advisedStudents.length > 0 ? (
                                 advisedStudents.map((s) => (
                                     <TableRow
                                         key={`advised-student-${s.mnumber}-${s.term}-${s.year}`}
@@ -97,10 +95,10 @@ export function AdvisedStudentsCard({
                                         }}
                                     >
                                         <TableCell>{s.mnumber}</TableCell>
-                                        <TableCell className="truncate max-w-[120px]">
+                                        <TableCell className="truncate max-w-30">
                                             {`${s.last_name}, ${s.first_name}${s.middle_name ? ' ' + s.middle_name : ''}${s.suffix ? ' ' + s.suffix : ''}`}
                                         </TableCell>
-                                        <TableCell className="truncate max-w-[120px]">
+                                        <TableCell className="truncate max-w-30">
                                             {s.email ?? (
                                                 <a
                                                     href={`mailto:${s.email}`}

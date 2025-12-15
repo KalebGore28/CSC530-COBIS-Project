@@ -117,17 +117,15 @@ export function RosterStudents({
         string,
         Array<{ mnumber: string; description: string }>
     >()
-    if (!isLoading && studentPrograms) {
-        studentPrograms?.forEach((sp) => {
-            if (!studentProgramsMap.has(sp.mnumber)) {
-                studentProgramsMap.set(sp.mnumber, [])
-            }
-            studentProgramsMap.get(sp.mnumber)?.push({
-                mnumber: sp.mnumber,
-                description: sp.description || 'Unknown',
-            })
+    studentPrograms.forEach((sp) => {
+        if (!studentProgramsMap.has(sp.mnumber)) {
+            studentProgramsMap.set(sp.mnumber, [])
+        }
+        studentProgramsMap.get(sp.mnumber)?.push({
+            mnumber: sp.mnumber,
+            description: sp.description || 'Unknown',
         })
-    }
+    })
 
     const courseDetail = studentCourses[0]
 
@@ -266,7 +264,7 @@ export function RosterStudents({
                                 <TableHeader>
                                     <TableRow>
                                         <TableHead
-                                            className="w-[200px] cursor-pointer"
+                                            className="w-50 cursor-pointer"
                                             onClick={() =>
                                                 handleHeaderClick('name')
                                             }

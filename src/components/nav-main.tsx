@@ -93,7 +93,7 @@ export function NavMain({ open }: { open?: boolean }) {
                             key={item.title}
                             className="text-nowrap"
                         >
-                            {item.items && item.items?.length > 0 ? (
+                            {item.items && item.items.length > 0 ? (
                                 <Collapsible>
                                     <CollapsibleTrigger asChild>
                                         <SidebarMenuButton

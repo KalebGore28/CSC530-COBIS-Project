@@ -152,7 +152,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                         e.stopPropagation()
                         e.currentTarget.classList.remove('bg-blue-100')
 
-                        const droppedFile = e.dataTransfer.files?.[0]
+                        // TODO: Recheck this drag-and-drop file handling. Doesn't look right. Why the unknown casting?
+                        const droppedFile = e.dataTransfer.files[0]
                         if (droppedFile) {
                             // Manually trigger file parsing
                             const fakeEvent = {

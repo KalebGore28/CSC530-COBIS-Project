@@ -69,7 +69,7 @@ export function ProgramSearchBox({
 
                 {/* Conditional Major / Minor checkboxes */}
                 <div className="flex gap-6 pl-1 items-center">
-                    {selected.is_major && (
+                    {selected.is_major === true && (
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="major"

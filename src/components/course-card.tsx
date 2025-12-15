@@ -99,7 +99,7 @@ export function CourseCard({
                                     Department
                                 </div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {course?.department_description || 'N/A'}
+                                    {course.department_description || 'N/A'}
                                 </div>
                             </div>
                             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
@@ -107,7 +107,7 @@ export function CourseCard({
                                     College
                                 </div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                                    {course?.college_description || 'N/A'}
+                                    {course.college_description || 'N/A'}
                                 </div>
                             </div>
                         </div>

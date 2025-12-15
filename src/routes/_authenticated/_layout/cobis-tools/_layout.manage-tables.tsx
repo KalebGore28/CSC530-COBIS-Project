@@ -49,26 +49,26 @@ function RouteComponent() {
         )
 
     const admitCodesWithUnknownDescription =
-        admitCodes?.filter((a) => a.description.toLowerCase() === 'unknown')
+        admitCodes.filter((a) => a.description.toLowerCase() === 'unknown')
             .length || 0
 
     const collegesWithUnknownDescription =
-        colleges?.filter((c) => c.description.toLowerCase() === 'unknown')
+        colleges.filter((c) => c.description.toLowerCase() === 'unknown')
             .length || 0
 
     const coursesWithUnknownTitle =
-        courses?.filter(
+        courses.filter(
             (c) =>
                 c.title.toLowerCase() === 'unknown' ||
                 c.title.toLowerCase() === 'not known to cobis yet',
         ).length || 0
     const coursesWithMissingDepartment =
-        courses?.filter((c) => !c.department_code).length || 0
+        courses.filter((c) => !c.department_code).length || 0
     const coursesWithMissingCollege =
-        courses?.filter((c) => !c.college_code).length || 0
+        courses.filter((c) => !c.college_code).length || 0
 
     const departmentsMissingCollege =
-        departments?.filter((d) => !d.college_code).length || 0
+        departments.filter((d) => !d.college_code).length || 0
 
     const instructionalMethodsWithUnknownDescription =
         instructionalMethods?.filter(
@@ -76,18 +76,17 @@ function RouteComponent() {
         ).length || 0
 
     const partOfTermWithUnknownDescription =
-        partOfTerm?.filter((p) => p.description.toLowerCase() === 'unknown')
+        partOfTerm.filter((p) => p.description.toLowerCase() === 'unknown')
             .length || 0
 
     const programsWithMissingDepartment =
-        programs?.filter((p) => !p.department_code).length || 0
+        programs.filter((p) => !p.department_code).length || 0
     const programsWithMissingCollege =
-        programs?.filter((p) => !p.college_code).length || 0
+        programs.filter((p) => !p.college_code).length || 0
     const programsWithMissingFlag =
-        programs?.filter((p) => !p.is_major && !p.is_minor).length || 0
-
+        programs.filter((p) => !p.is_major && !p.is_minor).length || 0
     const registrationStatusWithUnknownDescription =
-        registrationStatus?.filter(
+        registrationStatus.filter(
             (r) => r.description.toLowerCase() === 'unknown',
         ).length || 0
 

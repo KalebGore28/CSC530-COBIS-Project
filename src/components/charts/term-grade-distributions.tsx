@@ -106,7 +106,7 @@ export function TermGradeDistribution({
     }
 
     // Filter data based on offset
-    const filteredData = grade_distribution_data?.filter(
+    const filteredData = grade_distribution_data.filter(
         (sc) => sc.year >= currentTerm.year - Number(offset),
     )
 
@@ -144,7 +144,7 @@ export function TermGradeDistribution({
                         defaultValue="1"
                     >
                         <SelectTrigger
-                            className="w-[160px] rounded-lg"
+                            className="w-40 rounded-lg"
                             aria-label="Select time range"
                         >
                             <SelectValue placeholder="Select time range" />
@@ -170,12 +170,10 @@ export function TermGradeDistribution({
                 </div>
             </CardHeader>
             <CardContent className="p-2">
-                {!isLoading && (
-                    <GradeDistributionChart
-                        studentCourses={filteredData}
-                        view={view}
-                    />
-                )}
+                <GradeDistributionChart
+                    studentCourses={filteredData}
+                    view={view}
+                />
             </CardContent>
         </Card>
     )

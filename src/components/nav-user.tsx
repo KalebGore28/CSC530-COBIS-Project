@@ -16,7 +16,7 @@ import {
     useSidebar,
 } from '@/components/ui/sidebar'
 
-import { authClient, useAuthentication  } from '@/lib/auth-client'
+import { authClient, useAuthentication } from '@/lib/auth-client'
 
 export function NavUser() {
     const { userSession } = useAuthentication()
