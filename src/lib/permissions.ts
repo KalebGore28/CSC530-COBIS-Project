@@ -26,7 +26,7 @@ type RouteConfig = {
     allowedRoles: ReadonlySet<Role>
 }
 
-const createRoute = (name: string, roles: Role[]): RouteConfig => ({
+const createRoute = (name: string, roles: Array<Role>): RouteConfig => ({
     name,
     allowedRoles: new Set(roles),
 })
@@ -84,7 +84,7 @@ export type RoutePath = keyof typeof ROUTE_PERMISSIONS
  */
 export const hasRouteAccess = (
     route: string,
-    userRoles: readonly string[],
+    userRoles: ReadonlyArray<string>,
 ): boolean => {
     const routeInfo = ROUTE_PERMISSIONS[route as RoutePath]
     if (!routeInfo) return false
@@ -99,13 +99,13 @@ export const hasRouteAccess = (
 /**
  * Check if a user with given roles has access to ANY of the specified required roles
  * Time complexity: O(min(m, n)) where m = userRoles.length, n = requiredRoles.size
- * 
+ *
  * @param userRoles - Array of roles the user has
  * @param requiredRoles - Set of roles required for access (at least one must match)
  * @returns true if user has at least one of the required roles
  */
 export const hasAnyRole = (
-    userRoles: readonly string[],
+    userRoles: ReadonlyArray<string>,
     requiredRoles: ReadonlySet<string>,
 ): boolean => {
     if (userRoles.length === 0 || requiredRoles.size === 0) return false
@@ -130,7 +130,7 @@ export const hasAnyRole = (
  * Time complexity: O(n) where n = requiredRoles.size
  */
 export const hasAllRoles = (
-    userRoles: readonly string[],
+    userRoles: ReadonlyArray<string>,
     requiredRoles: ReadonlySet<string>,
 ): boolean => {
     if (requiredRoles.size === 0) return true
@@ -149,7 +149,7 @@ export const hasAllRoles = (
  * Time complexity: O(r * min(m, n)) where r = number of routes
  */
 export const getAccessibleRoutes = (
-    userRoles: readonly string[],
+    userRoles: ReadonlyArray<string>,
 ): Array<{ path: RoutePath; name: string }> => {
     if (userRoles.length === 0) return []
 
