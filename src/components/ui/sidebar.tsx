@@ -26,8 +26,7 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-const SIDEBAR_COOKIE_NAME = 'sidebar_state'
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
+const LOCAL_STORAGE_KEY = 'sidebar-open'
 const SIDEBAR_WIDTH = '16rem'
 const SIDEBAR_WIDTH_MOBILE = '18rem'
 const SIDEBAR_WIDTH_ICON = '3rem'
@@ -70,10 +69,18 @@ function SidebarProvider({
     const isMobile = useIsMobile()
     const [openMobile, setOpenMobile] = React.useState(false)
 
-    // This is the internal state of the sidebar.
-    // We use openProp and setOpenProp for control from outside the component.
-    const [_open, _setOpen] = React.useState(defaultOpen)
+    // Initialize state from localStorage if available
+    const [initialOpen] = React.useState(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem(LOCAL_STORAGE_KEY)
+            if (stored !== null) return stored === 'true'
+        }
+        return defaultOpen
+    })
+
+    const [_open, _setOpen] = React.useState(initialOpen)
     const open = openProp ?? _open
+
     const setOpen = React.useCallback(
         (value: boolean | ((value: boolean) => boolean)) => {
             const openState = typeof value === 'function' ? value(open) : value
@@ -83,8 +90,10 @@ function SidebarProvider({
                 _setOpen(openState)
             }
 
-            // This sets the cookie to keep the sidebar state.
-            document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
+            // Persist in localStorage
+            if (typeof window !== 'undefined') {
+                localStorage.setItem(LOCAL_STORAGE_KEY, openState.toString())
+            }
         },
         [setOpenProp, open],
     )
@@ -107,7 +116,6 @@ function SidebarProvider({
                 toggleSidebar()
             }
         }
-
         window.addEventListener('keydown', handleKeyDown)
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [toggleSidebar])
@@ -306,7 +314,7 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
             onClick={toggleSidebar}
             title="Toggle Sidebar"
             className={cn(
-                'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex',
+                'hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-0.5 sm:flex',
                 'in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize',
                 '[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize',
                 'hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full',

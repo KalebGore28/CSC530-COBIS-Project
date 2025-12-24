@@ -8,8 +8,7 @@ import {
     Telescope,
     TerminalSquareIcon,
 } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
-import { hasRouteAccess } from '../providers/session'
+import { Link } from '@tanstack/react-router'
 import { useAuthentication } from '@/lib/auth-client'
 import {
     Collapsible,
@@ -27,119 +26,182 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
-const nav_main_data = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: Compass,
-    },
-    {
-        title: ' Student Lookup',
-        url: '/student-lookup',
-        icon: ScanSearch,
-    },
-    {
-        title: ' Instructors',
-        url: '/instructors',
-        icon: PersonStanding,
-    },
-    {
-        title: 'Class Roster',
-        url: '/class-roster',
-        icon: BookOpen,
-    },
-    {
-        title: 'COBIS Tools',
-        url: '/cobis-tools',
-        icon: TerminalSquareIcon,
-        items: [
-            { title: 'Import', url: '/cobis-tools/import' },
-            { title: 'Users', url: '/cobis-tools/users' },
-            { title: 'Manage Tables', url: '/cobis-tools/manage-tables' },
-        ],
-    },
-    {
-        title: 'Enrollment Metrics',
-        url: '/enrollment',
-        icon: ChartColumnIncreasing,
-        items: [
-            { title: 'Programs', url: '/enrollment/programs' },
-            { title: 'Courses', url: '/enrollment/courses' },
-        ],
-    },
-    {
-        title: 'Advisor Page',
-        url: '/advisor-page',
-        icon: Telescope,
-    },
-]
+type MenuButtonProps = {
+    item: {
+        title: string
+        url: string
+        icon?: React.ComponentType<any>
+    }
+    isCollapsible?: boolean
+}
 
-export function NavMain({ open }: { open?: boolean }) {
-    const { userSession } = useAuthentication()
-    const navigate = useNavigate()
-    if (!userSession) return null
-
-    // Filter nav_main_data based on user roles and route permissions
-    const filtered_nav_main_data = nav_main_data.filter((item) =>
-        hasRouteAccess(item.url, userSession.roles),
+function MenuButton({ item, isCollapsible }: MenuButtonProps) {
+    return (
+        <SidebarMenuButton tooltip={item.title}>
+            {item.icon && <item.icon />}
+            <span>{item.title}</span>
+            {isCollapsible && <ChevronsUpDown className="ml-auto" />}
+        </SidebarMenuButton>
     )
+}
+
+export function NavMain() {
+    const { userSession } = useAuthentication()
+    if (!userSession) return null
 
     return (
         <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-2">
                 <SidebarMenu>
-                    {filtered_nav_main_data.map((item) => (
-                        <SidebarMenuItem
-                            key={item.title}
-                            className="text-nowrap"
-                        >
-                            {item.items && item.items.length > 0 ? (
-                                <Collapsible>
-                                    <CollapsibleTrigger asChild>
-                                        <SidebarMenuButton
-                                            tooltip={item.title}
-                                            onClick={() => {
-                                                if (!open)
-                                                    navigate({ to: item.url })
-                                            }}
-                                        >
-                                            {item.icon && <item.icon />}
-                                            <span>{item.title}</span>
-                                            <ChevronsUpDown className="ml-auto" />
-                                        </SidebarMenuButton>
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            {item.items.map((subItem) => (
-                                                <SidebarMenuSubItem
-                                                    key={subItem.title}
-                                                >
-                                                    <SidebarMenuSubButton
-                                                        onClick={() =>
-                                                            navigate({
-                                                                to: subItem.url,
-                                                            })
-                                                        }
-                                                        className="text-white"
-                                                    >
-                                                        {subItem.title}
-                                                    </SidebarMenuSubButton>
-                                                </SidebarMenuSubItem>
-                                            ))}
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </Collapsible>
-                            ) : (
-                                <SidebarMenuButton
-                                    onClick={() => navigate({ to: item.url })}
-                                    tooltip={item.title}
-                                >
-                                    {item.icon && <item.icon />}
-                                    <span>{item.title}</span>
-                                </SidebarMenuButton>
-                            )}
-                        </SidebarMenuItem>
-                    ))}
+                    {/* Dashboard */}
+                    <SidebarMenuItem key="dashboard" className="text-nowrap">
+                        <Link to="/dashboard">
+                            <MenuButton
+                                item={{
+                                    title: 'Dashboard',
+                                    url: '/dashboard',
+                                    icon: Compass,
+                                }}
+                            />
+                        </Link>
+                    </SidebarMenuItem>
+
+                    {/* Student Lookup */}
+                    <SidebarMenuItem
+                        key="student-lookup"
+                        className="text-nowrap"
+                    >
+                        <Link to="/student-lookup">
+                            <MenuButton
+                                item={{
+                                    title: 'Student Lookup',
+                                    url: '/student-lookup',
+                                    icon: ScanSearch,
+                                }}
+                            />
+                        </Link>
+                    </SidebarMenuItem>
+
+                    {/* Instructors */}
+                    <SidebarMenuItem key="instructors" className="text-nowrap">
+                        <Link to="/instructors">
+                            <MenuButton
+                                item={{
+                                    title: 'Instructors',
+                                    url: '/instructors',
+                                    icon: PersonStanding,
+                                }}
+                            />
+                        </Link>
+                    </SidebarMenuItem>
+
+                    {/* Class Roster */}
+                    <SidebarMenuItem key="class-roster" className="text-nowrap">
+                        <Link to="/class-roster">
+                            <MenuButton
+                                item={{
+                                    title: 'Class Roster',
+                                    url: '/class-roster',
+                                    icon: BookOpen,
+                                }}
+                            />
+                        </Link>
+                    </SidebarMenuItem>
+
+                    {/* COBIS Tools */}
+                    <SidebarMenuItem key="cobis-tools" className="text-nowrap">
+                        <Collapsible>
+                            <CollapsibleTrigger asChild>
+                                <Link to="/cobis-tools">
+                                    <MenuButton
+                                        item={{
+                                            title: 'COBIS Tools',
+                                            url: '/cobis-tools',
+                                            icon: TerminalSquareIcon,
+                                        }}
+                                        isCollapsible
+                                    />
+                                </Link>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <SidebarMenuSub>
+                                    <SidebarMenuSubItem key="import">
+                                        <Link to="/cobis-tools/import">
+                                            <SidebarMenuSubButton className="text-white">
+                                                Import
+                                            </SidebarMenuSubButton>
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                    <SidebarMenuSubItem key="users">
+                                        <Link to="/cobis-tools/users">
+                                            <SidebarMenuSubButton className="text-white">
+                                                Users
+                                            </SidebarMenuSubButton>
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                    <SidebarMenuSubItem key="manage-tables">
+                                        <Link to="/cobis-tools/manage-tables">
+                                            <SidebarMenuSubButton className="text-white">
+                                                Manage Tables
+                                            </SidebarMenuSubButton>
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                            </CollapsibleContent>
+                        </Collapsible>
+                    </SidebarMenuItem>
+
+                    {/* Enrollment Metrics */}
+                    <SidebarMenuItem
+                        key="enrollment-metrics"
+                        className="text-nowrap"
+                    >
+                        <Collapsible>
+                            <CollapsibleTrigger asChild>
+                                <Link to="/enrollment">
+                                    <MenuButton
+                                        item={{
+                                            title: 'Enrollment Metrics',
+                                            url: '/enrollment',
+                                            icon: ChartColumnIncreasing,
+                                        }}
+                                        isCollapsible
+                                    />
+                                </Link>
+                            </CollapsibleTrigger>
+                            <CollapsibleContent>
+                                <SidebarMenuSub>
+                                    <SidebarMenuSubItem key="programs">
+                                        <Link to="/enrollment/programs">
+                                            <SidebarMenuSubButton className="text-white">
+                                                Programs
+                                            </SidebarMenuSubButton>
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                    <SidebarMenuSubItem key="courses">
+                                        <Link to="/enrollment/courses">
+                                            <SidebarMenuSubButton className="text-white">
+                                                Courses
+                                            </SidebarMenuSubButton>
+                                        </Link>
+                                    </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                            </CollapsibleContent>
+                        </Collapsible>
+                    </SidebarMenuItem>
+
+                    {/* Advisor Page */}
+                    <SidebarMenuItem key="advisor-page" className="text-nowrap">
+                        <Link to="/advisor-page">
+                            <MenuButton
+                                item={{
+                                    title: 'Advisor Page',
+                                    url: '/advisor-page',
+                                    icon: Telescope,
+                                }}
+                            />
+                        </Link>
+                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarGroupContent>
         </SidebarGroup>

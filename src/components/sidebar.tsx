@@ -1,4 +1,4 @@
-import { Navigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 import {
     Sidebar,
     SidebarContent,
@@ -15,30 +15,25 @@ import logo from '/primary_white.png'
 import logoIcon from '/primary-icon.png'
 
 export function AppSidebar() {
-    const { open } = useSidebar()
+    const { open, isMobile } = useSidebar()
 
     return (
         <Sidebar collapsible="icon">
-            <div className="h-full bg-blue-950 dark:bg-gray-900 text-white justify-between flex flex-col">
+            <div className="h-full bg-primary text-white justify-between flex flex-col">
                 <SidebarHeader>
                     <SidebarMenu>
                         <SidebarMenuItem>
-                            <div
-                                className="cursor-pointer"
-                                onClick={() => {
-                                    Navigate({ to: '/dashboard' })
-                                }}
-                            >
+                            <Link to="/dashboard" className="cursor-pointer">
                                 <img
-                                    src={open === true ? logo : logoIcon}
+                                    src={(open || isMobile) === true ? logo : logoIcon}
                                     className={
-                                        open === true
+                                        (open || isMobile) === true
                                             ? 'w-auto h-auto mt-4'
                                             : 'w-8 h-10 my-2'
                                     }
                                     alt="Murray Logo"
                                 />
-                            </div>
+                            </Link>
                         </SidebarMenuItem>
                         <SidebarMenuItem className="text-center">
                             <span
@@ -55,7 +50,7 @@ export function AppSidebar() {
                     </SidebarMenu>
                 </SidebarHeader>
                 <SidebarContent>
-                    <NavMain open={open} />
+                    <NavMain />
                 </SidebarContent>
                 <SidebarFooter>
                     <NavUser />
