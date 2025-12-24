@@ -1,9 +1,9 @@
 import {
+    Link,
     Outlet,
     createFileRoute,
     redirect,
     useLocation,
-    useNavigate,
 } from '@tanstack/react-router'
 import {
     Card,
@@ -26,7 +26,6 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const navigate = useNavigate()
     const location = useLocation()
 
     const activeTab = location.pathname.split('/').pop() || 'import'
@@ -40,33 +39,40 @@ function RouteComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs
-                        value={activeTab}
-                        onValueChange={(value) =>
-                            navigate({
-                                to: `/cobis-tools/${value}`,
-                            })
-                        }
-                        className="w-full"
-                    >
+                    <Tabs value={activeTab} className="w-full">
                         <TabsList className="grid grid-cols-3">
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="import"
                             >
-                                Import
+                                <Link
+                                    to="/cobis-tools/import"
+                                    className="w-full"
+                                >
+                                    Import
+                                </Link>
                             </TabsTrigger>
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="users"
                             >
-                                Users
+                                <Link
+                                    to="/cobis-tools/users"
+                                    className="w-full"
+                                >
+                                    Users
+                                </Link>
                             </TabsTrigger>
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="manage-tables"
                             >
-                                Manage Tables
+                                <Link
+                                    to="/cobis-tools/manage-tables"
+                                    className="w-full"
+                                >
+                                    Manage Tables
+                                </Link>
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>

@@ -15,6 +15,16 @@ import { StatusCard } from '@/components/table-status-card'
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/manage-tables',
 )({
+    beforeLoad: () => {
+        admitCodesCollection.preload()
+        collegesCollection.preload()
+        coursesCollection.preload()
+        departmentsCollection.preload()
+        instructionalMethodsCollection.preload()
+        partOfTermCollection.preload()
+        programsCollection.preload()
+        registrationStatusCollection.preload()
+    },
     component: RouteComponent,
 })
 

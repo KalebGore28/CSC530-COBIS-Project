@@ -17,16 +17,19 @@ import {
 interface DataTableProps<TData, TValue> {
     columns: Array<ColumnDef<TData, TValue>>
     data: Array<TData>
+    onRowSelect?: (row: TData) => void
 }
 
 export function DataTable<TData, TValue>({
     columns,
     data,
+    onRowSelect,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        enableRowSelection: true,
     })
 
     return (
@@ -57,6 +60,11 @@ export function DataTable<TData, TValue>({
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && 'selected'}
+                                className={onRowSelect ? 'cursor-pointer' : ''}
+                                onClick={() => {
+                                    row.toggleSelected()
+                                    onRowSelect?.(row.original)
+                                }}
                             >
                                 {row.getVisibleCells().map((cell) => (
                                     <TableCell key={cell.id}>

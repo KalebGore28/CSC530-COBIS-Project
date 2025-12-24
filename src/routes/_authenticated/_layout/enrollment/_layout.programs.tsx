@@ -11,6 +11,9 @@ import { programsCollection } from '@/integrations/tanstack-db/programs'
 export const Route = createFileRoute(
     '/_authenticated/_layout/enrollment/_layout/programs',
 )({
+    beforeLoad: () => {
+        programsCollection.preload()
+    },
     component: RouteComponent,
 })
 

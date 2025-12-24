@@ -60,12 +60,15 @@ function TermHistoryTableSkeleton() {
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/_layout/term-history',
 )({
+    beforeLoad: () => {
+        termsCollection.preload()
+    },
     component: RouteComponent,
 })
 
 function RouteComponent() {
     const params = useParams({
-        from: '/_authenticated/_layout/instructors/$mnumber',
+        from: '/_authenticated/_layout/instructors/$mnumber/_layout/term-history',
     })
     const mnumber = params.mnumber
     const navigate = useNavigate()
@@ -149,7 +152,7 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="p-1 m-0 bg-blue-950 border bg-primary rounded-xl">
+            <CardContent className="p-1 m-0 border bg-primary rounded-xl">
                 <div className="border rounded-lg bg-white dark:bg-gray-800">
                     <TeachingHistoryTable
                         data={Array.from(termHistoryMap.values()).map(

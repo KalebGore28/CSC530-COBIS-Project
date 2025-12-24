@@ -34,6 +34,12 @@ const getInitials = (name: string | null | undefined): string => {
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/users',
 )({
+    beforeLoad: () => {
+        usersCollection.preload()
+        facultyCollection.preload()
+        departmentsCollection.preload()
+        collegesCollection.preload()
+    },
     component: RouteComponent,
 })
 

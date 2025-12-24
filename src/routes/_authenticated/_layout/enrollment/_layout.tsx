@@ -1,9 +1,9 @@
 import {
+    Link,
     Outlet,
     createFileRoute,
     redirect,
     useLocation,
-    useNavigate,
 } from '@tanstack/react-router'
 import {
     Card,
@@ -32,7 +32,6 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const navigate = useNavigate()
     const location = useLocation()
 
     const activeTab = location.pathname.split('/').pop() || 'import'
@@ -46,27 +45,29 @@ function RouteComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs
-                        value={activeTab}
-                        onValueChange={(value) =>
-                            navigate({
-                                to: `/enrollment/${value}`,
-                            })
-                        }
-                        className="w-full"
-                    >
+                    <Tabs value={activeTab} className="w-full">
                         <TabsList className="grid grid-cols-2">
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="programs"
                             >
-                                Programs
+                                <Link
+                                    to="/enrollment/programs"
+                                    className="w-full"
+                                >
+                                    Programs
+                                </Link>
                             </TabsTrigger>
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="courses"
                             >
-                                Courses
+                                <Link
+                                    to="/enrollment/courses"
+                                    className="w-full"
+                                >
+                                    Courses
+                                </Link>
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>

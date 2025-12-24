@@ -11,6 +11,9 @@ import { coursesCollection } from '@/integrations/tanstack-db/courses'
 export const Route = createFileRoute(
     '/_authenticated/_layout/enrollment/_layout/courses',
 )({
+    beforeLoad: () => {
+        coursesCollection.preload()
+    },
     component: RouteComponent,
 })
 

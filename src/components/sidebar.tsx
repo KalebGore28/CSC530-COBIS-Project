@@ -25,7 +25,11 @@ export function AppSidebar() {
                         <SidebarMenuItem>
                             <Link to="/dashboard" className="cursor-pointer">
                                 <img
-                                    src={(open || isMobile) === true ? logo : logoIcon}
+                                    src={
+                                        (open || isMobile) === true
+                                            ? logo
+                                            : logoIcon
+                                    }
                                     className={
                                         (open || isMobile) === true
                                             ? 'w-auto h-auto mt-4'

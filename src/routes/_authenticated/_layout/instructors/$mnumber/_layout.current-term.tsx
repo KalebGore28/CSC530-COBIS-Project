@@ -1,12 +1,6 @@
 import { createFileRoute, useNavigate, useParams } from '@tanstack/react-router'
 import { and, count, eq, sum, useLiveQuery } from '@tanstack/react-db'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
     Table,
     TableBody,
@@ -28,28 +22,21 @@ function SelectedTermTableSkeleton() {
         <Card>
             <CardHeader>
                 <CardTitle>Current Term Courses</CardTitle>
-                <CardDescription>
-                    {/* {getCurrentYearTerm.term.description} {getCurrentYearTerm.year} */}
-                </CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="border rounded-lg">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[100px]">
-                                    Course
-                                </TableHead>
-                                <TableHead className="w-[100px]">
-                                    Title
-                                </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-25">Course</TableHead>
+                                <TableHead className="w-25">Title</TableHead>
+                                <TableHead className="w-25">
                                     Credit Hours
                                 </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-25">
                                     Total Students
                                 </TableHead>
-                                <TableHead className="w-[100px]">
+                                <TableHead className="w-25">
                                     Total Credit Hours
                                 </TableHead>
                             </TableRow>
@@ -85,12 +72,15 @@ function SelectedTermTableSkeleton() {
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/_layout/current-term',
 )({
+    beforeLoad: () => {
+        coursesCollection.preload()
+    },
     component: RouteComponent,
 })
 
 function RouteComponent() {
     const params = useParams({
-        from: '/_authenticated/_layout/instructors/$mnumber',
+        from: '/_authenticated/_layout/instructors/$mnumber/_layout/current-term',
     })
     const mnumber = params.mnumber
     const navigate = useNavigate()
@@ -145,7 +135,7 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="p-1 m-0 bg-blue-950 border bg-primary rounded-xl">
+            <CardContent className="p-1 m-0 border bg-primary rounded-xl">
                 <div className="border rounded-lg bg-white dark:bg-gray-800">
                     <CoursesTable
                         data={currentTermData.map((course) => ({

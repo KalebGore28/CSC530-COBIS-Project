@@ -26,25 +26,6 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
-type MenuButtonProps = {
-    item: {
-        title: string
-        url: string
-        icon?: React.ComponentType<any>
-    }
-    isCollapsible?: boolean
-}
-
-function MenuButton({ item, isCollapsible }: MenuButtonProps) {
-    return (
-        <SidebarMenuButton tooltip={item.title}>
-            {item.icon && <item.icon />}
-            <span>{item.title}</span>
-            {isCollapsible && <ChevronsUpDown className="ml-auto" />}
-        </SidebarMenuButton>
-    )
-}
-
 export function NavMain() {
     const { userSession } = useAuthentication()
     if (!userSession) return null
@@ -56,13 +37,10 @@ export function NavMain() {
                     {/* Dashboard */}
                     <SidebarMenuItem key="dashboard" className="text-nowrap">
                         <Link to="/dashboard">
-                            <MenuButton
-                                item={{
-                                    title: 'Dashboard',
-                                    url: '/dashboard',
-                                    icon: Compass,
-                                }}
-                            />
+                            <SidebarMenuButton tooltip="Dashboard">
+                                <Compass />
+                                Dashboard
+                            </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
 
@@ -72,39 +50,30 @@ export function NavMain() {
                         className="text-nowrap"
                     >
                         <Link to="/student-lookup">
-                            <MenuButton
-                                item={{
-                                    title: 'Student Lookup',
-                                    url: '/student-lookup',
-                                    icon: ScanSearch,
-                                }}
-                            />
+                            <SidebarMenuButton tooltip="Student Lookup">
+                                <ScanSearch />
+                                Student Lookup
+                            </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
 
                     {/* Instructors */}
                     <SidebarMenuItem key="instructors" className="text-nowrap">
                         <Link to="/instructors">
-                            <MenuButton
-                                item={{
-                                    title: 'Instructors',
-                                    url: '/instructors',
-                                    icon: PersonStanding,
-                                }}
-                            />
+                            <SidebarMenuButton tooltip="Instructors">
+                                <PersonStanding />
+                                Instructors
+                            </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
 
                     {/* Class Roster */}
                     <SidebarMenuItem key="class-roster" className="text-nowrap">
                         <Link to="/class-roster">
-                            <MenuButton
-                                item={{
-                                    title: 'Class Roster',
-                                    url: '/class-roster',
-                                    icon: BookOpen,
-                                }}
-                            />
+                            <SidebarMenuButton tooltip="Class Roster">
+                                <BookOpen />
+                                Class Roster
+                            </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
 
@@ -113,14 +82,11 @@ export function NavMain() {
                         <Collapsible>
                             <CollapsibleTrigger asChild>
                                 <Link to="/cobis-tools">
-                                    <MenuButton
-                                        item={{
-                                            title: 'COBIS Tools',
-                                            url: '/cobis-tools',
-                                            icon: TerminalSquareIcon,
-                                        }}
-                                        isCollapsible
-                                    />
+                                    <SidebarMenuButton tooltip="COBIS Tools">
+                                        <TerminalSquareIcon />
+                                        COBIS Tools
+                                        <ChevronsUpDown className="ml-auto" />
+                                    </SidebarMenuButton>
                                 </Link>
                             </CollapsibleTrigger>
                             <CollapsibleContent>
@@ -159,14 +125,13 @@ export function NavMain() {
                         <Collapsible>
                             <CollapsibleTrigger asChild>
                                 <Link to="/enrollment">
-                                    <MenuButton
-                                        item={{
-                                            title: 'Enrollment Metrics',
-                                            url: '/enrollment',
-                                            icon: ChartColumnIncreasing,
-                                        }}
-                                        isCollapsible
-                                    />
+                                    <SidebarMenuButton
+                                        tooltip={'Enrollment Metrics'}
+                                    >
+                                        <ChartColumnIncreasing />
+                                        Enrollment Metrics
+                                        <ChevronsUpDown className="ml-auto" />
+                                    </SidebarMenuButton>
                                 </Link>
                             </CollapsibleTrigger>
                             <CollapsibleContent>
@@ -193,13 +158,11 @@ export function NavMain() {
                     {/* Advisor Page */}
                     <SidebarMenuItem key="advisor-page" className="text-nowrap">
                         <Link to="/advisor-page">
-                            <MenuButton
-                                item={{
-                                    title: 'Advisor Page',
-                                    url: '/advisor-page',
-                                    icon: Telescope,
-                                }}
-                            />
+                            <SidebarMenuButton tooltip={'Advisor Page'}>
+                                <Telescope />
+                                Advisor Page
+                                <ChevronsUpDown className="ml-auto" />
+                            </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
                 </SidebarMenu>

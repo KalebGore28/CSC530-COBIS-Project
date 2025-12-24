@@ -1,9 +1,9 @@
 import {
+    Link,
     Outlet,
     createFileRoute,
     redirect,
     useLocation,
-    useNavigate,
     useParams,
 } from '@tanstack/react-router'
 import { AlertCircle } from 'lucide-react'
@@ -82,9 +82,8 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
     const params = useParams({
-        from: '/_authenticated/_layout/instructors/$mnumber',
+        from: '/_authenticated/_layout/instructors/$mnumber/_layout',
     })
-    const navigate = useNavigate()
     const location = useLocation()
 
     const mnumber = params.mnumber
@@ -178,12 +177,6 @@ function RouteComponent() {
                 {/* Tabs */}
                 <Tabs
                     value={activeTab}
-                    onValueChange={(value) => {
-                        navigate({
-                            to: `/instructors/$mnumber/${value}`,
-                            params: { mnumber },
-                        })
-                    }}
                     className="bg-background border rounded-lg"
                 >
                     <TabsList className="grid grid-cols-3">
@@ -191,19 +184,37 @@ function RouteComponent() {
                             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                             value="current-term"
                         >
-                            Current Term
+                            <Link
+                                to="/instructors/$mnumber/current-term"
+                                params={{ mnumber }}
+                                className="w-full"
+                            >
+                                Current Term
+                            </Link>
                         </TabsTrigger>
                         <TabsTrigger
                             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                             value="term-history"
                         >
-                            Teaching History
+                            <Link
+                                to="/instructors/$mnumber/term-history"
+                                params={{ mnumber }}
+                                className="w-full"
+                            >
+                                Teaching History
+                            </Link>
                         </TabsTrigger>
                         <TabsTrigger
                             className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                             value="grade-distribution"
                         >
-                            Grade Distributions
+                            <Link
+                                to="/instructors/$mnumber/grade-distribution"
+                                params={{ mnumber }}
+                                className="w-full"
+                            >
+                                Grade Distributions
+                            </Link>
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>

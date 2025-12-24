@@ -9,7 +9,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
     const params = useParams({
-        from: '/_authenticated/_layout/instructors/$mnumber',
+        from: '/_authenticated/_layout/instructors/$mnumber/_layout/grade-distribution',
     })
     const mnumber = params.mnumber
 

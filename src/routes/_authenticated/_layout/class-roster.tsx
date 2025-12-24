@@ -21,6 +21,10 @@ import { RosterStudents } from '@/components/roster/roster-students'
 import { TermCourseSelector } from '@/components/selectors/term-course-selector'
 
 export const Route = createFileRoute('/_authenticated/_layout/class-roster')({
+    beforeLoad: () => {
+        termsCollection.preload()
+        coursesCollection.preload()
+    },
     component: ClassRosterPage,
 })
 

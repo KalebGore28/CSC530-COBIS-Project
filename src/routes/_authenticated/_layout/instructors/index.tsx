@@ -1,7 +1,8 @@
 import { createFileRoute, redirect, useNavigate } from '@tanstack/react-router'
-import { Mail, Search, Users } from 'lucide-react'
+import { Search, Users } from 'lucide-react'
 import { useState } from 'react'
 import { eq, ilike, or, useLiveQuery } from '@tanstack/react-db'
+import { InstructorsTable } from '@/components/tables/instructors-table'
 import {
     Card,
     CardContent,
@@ -17,13 +18,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthentication } from '@/lib/auth-client'
 
 import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 import { facultyCollection } from '@/integrations/tanstack-db/faculty'
 import { usersCollection } from '@/integrations/tanstack-db/users'
 
@@ -119,6 +120,7 @@ export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
 
 function RouteComponent() {
     const { userSession } = useAuthentication()
+
     const navigate = useNavigate()
 
     const [searchQuery, setSearchQuery] = useState('')
@@ -138,6 +140,11 @@ function RouteComponent() {
                     { departments: departmentsCollection },
                     ({ faculty, departments }) =>
                         eq(faculty.department_code, departments.code),
+                )
+                .leftJoin(
+                    { colleges: collegesCollection },
+                    ({ faculty, colleges }) =>
+                        eq(faculty.college_code, colleges.code),
                 )
                 .leftJoin({ users: usersCollection }, ({ faculty, users }) =>
                     eq(faculty.mnumber, users.mnumber),
@@ -185,11 +192,6 @@ function RouteComponent() {
                       d.faculty.department_code ===
                       userSession?.faculty.department_code,
               )
-
-    // Handle instructor selection
-    const handleSelectInstructor = (mnumber: string) => {
-        navigate({ to: '/instructors/$mnumber', params: { mnumber } })
-    }
 
     // Handle search input change with debounce
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,123 +245,44 @@ function RouteComponent() {
                 </CardHeader>
                 <CardContent>
                     {filteredFaculty.length > 0 ? (
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead className="w-62.5">
-                                        Instructor
-                                    </TableHead>
-                                    <TableHead>Department</TableHead>
-                                    <TableHead>Email</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredFaculty.map((d) => (
-                                    <TableRow
-                                        key={d.faculty.mnumber}
-                                        className={`cursor-pointer hover:bg-muted/50 ${userSession?.faculty.department_code === d.faculty.department_code ? 'bg-background' : 'opacity-50 cursor-not-allowed'}`}
-                                        onClick={() => {
-                                            if (
-                                                userSession?.faculty
-                                                    .department_code ===
-                                                d.faculty.department_code
-                                            ) {
-                                                handleSelectInstructor(
-                                                    d.faculty.mnumber,
-                                                )
-                                            }
-                                        }}
-                                    >
-                                        <TableCell className="truncate max-w-30">
-                                            <div className="flex items-center gap-3">
-                                                <Avatar>
-                                                    <AvatarImage
-                                                        src={
-                                                            d.users?.image ??
-                                                            undefined
-                                                        }
-                                                        alt={
-                                                            d.faculty.first_name
-                                                        }
-                                                    />
-                                                    <AvatarFallback>
-                                                        {getInitials(
-                                                            `${d.faculty.first_name} ${d.faculty.last_name}`,
-                                                        )}
-                                                    </AvatarFallback>
-                                                </Avatar>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
-                                                    <span className="text-sm text-muted-foreground">
-                                                        {d.faculty.mnumber}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="truncate max-w-30">
-                                            <div className="flex flex-col">
-                                                <span>
-                                                    {d.departments
-                                                        ?.description ? (
-                                                        d.departments
-                                                            .description
-                                                    ) : (
-                                                        <Button
-                                                            variant="outline"
-                                                            size="sm"
-                                                            className="cursor-pointer"
-                                                            onClick={(e) => {
-                                                                if (
-                                                                    !userSession
-                                                                        ?.faculty
-                                                                        .department_code
-                                                                ) {
-                                                                    console.error(
-                                                                        'User session does not have a department assigned.',
-                                                                    )
-                                                                    return
-                                                                }
-                                                                facultyCollection.update(
-                                                                    d.faculty
-                                                                        .mnumber,
-                                                                    (draft) => {
-                                                                        draft.department_code =
-                                                                            userSession.faculty.department_code!
-                                                                    },
-                                                                )
-                                                                e.stopPropagation()
-                                                            }}
-                                                        >
-                                                            Claim Instructor
-                                                        </Button>
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="truncate max-w-30">
-                                            <div className="flex items-center gap-2">
-                                                <Mail className="h-4 w-4 text-muted-foreground" />
-                                                {d.users?.email ? (
-                                                    <a
-                                                        href={`mailto:${d.users.email}`}
-                                                        className="hover:underline"
-                                                        onClick={(e) =>
-                                                            e.stopPropagation()
-                                                        }
-                                                    >
-                                                        {d.users.email}
-                                                    </a>
-                                                ) : (
-                                                    <span className="text-muted-foreground">
-                                                        N/A
-                                                    </span>
+                        <InstructorsTable
+                            data={filteredFaculty.map((d) => ({
+                                instructor: (
+                                    <div className="flex items-center gap-3">
+                                        <Avatar>
+                                            <AvatarImage
+                                                src={
+                                                    d.users?.image ?? undefined
+                                                }
+                                                alt={d.faculty.first_name}
+                                            />
+                                            <AvatarFallback>
+                                                {getInitials(
+                                                    `${d.faculty.first_name} ${d.faculty.last_name}`,
                                                 )}
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex flex-col">
+                                            <span className="font-medium">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
+                                            <span className="text-sm text-muted-foreground">
+                                                {d.faculty.mnumber}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ),
+                                mnumber: d.faculty.mnumber,
+                                department:
+                                    d.departments?.description ?? 'Unassigned',
+                                college:
+                                    d.colleges?.description ?? 'Unassigned',
+                                email: d.users?.email ?? 'N/A',
+                            }))}
+                            onRowSelect={(row) => {
+                                navigate({
+                                    to: `/instructors/${row.mnumber}`,
+                                })
+                            }}
+                        />
                     ) : (
                         filteredFaculty.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
