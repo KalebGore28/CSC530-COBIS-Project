@@ -105,15 +105,19 @@ function InstructorsPageSkeleton() {
 
 export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
     beforeLoad: ({ context }) => {
-        const permittedRoles = new Set([
-            'department_chair',
-            'cobis_administrator',
-        ])
+        const roles = context.userSession?.roles
         if (
-            !context.userSession?.roles.some((role) => permittedRoles.has(role))
+            !roles ||
+            (!roles.has('department_chair') &&
+                !roles.has('cobis_administrator'))
         ) {
             throw redirect({ to: '/login' })
         }
+
+        facultyCollection.preload()
+        departmentsCollection.preload()
+        collegesCollection.preload()
+        usersCollection.preload()
     },
     component: RouteComponent,
 })

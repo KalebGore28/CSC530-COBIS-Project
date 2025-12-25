@@ -6,7 +6,7 @@ export const requireCobisAdmin = createMiddleware()
     .server(async ({ next, request, context }) => {
         const roles = context.roles
 
-        if (!roles || !roles.includes('cobis_administrator')) {
+        if (!roles || !roles.has('cobis_administrator')) {
             return {
                 response: new Response('Forbidden', { status: 403 }),
                 request,

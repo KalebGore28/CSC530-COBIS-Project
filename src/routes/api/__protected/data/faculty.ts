@@ -12,8 +12,8 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                 // Check if user is either cobis_administrator or department_chair
                 const user_roles = context.roles
                 if (
-                    !user_roles.includes('cobis_administrator') &&
-                    !user_roles.includes('department_chair')
+                    !user_roles.has('cobis_administrator') &&
+                    !user_roles.has('department_chair')
                 ) {
                     return new Response(
                         JSON.stringify({ error: 'Unauthorized' }),
@@ -43,8 +43,8 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                 // Check if user is either cobis_administrator or department_chair
                 const user_roles = context.roles
                 if (
-                    !user_roles.includes('cobis_administrator') &&
-                    !user_roles.includes('department_chair')
+                    !user_roles.has('cobis_administrator') &&
+                    !user_roles.has('department_chair')
                 ) {
                     return new Response(
                         JSON.stringify({ error: 'Unauthorized' }),

@@ -11,8 +11,8 @@ export const Route = createFileRoute('/api/__protected/data/users')({
 
                 // Filter results based on roles
                 if (
-                    !user_roles.includes('cobis_administrator') &&
-                    !user_roles.includes('department_chair')
+                    !user_roles.has('cobis_administrator') &&
+                    !user_roles.has('department_chair')
                 ) {
                     // Filter to only the current user
                     userResults = userResults.filter(

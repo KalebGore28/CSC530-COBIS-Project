@@ -10,6 +10,8 @@ import { useInView } from 'react-intersection-observer'
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import type { FilterState } from '@/components/student-filter'
 import type { StudentLookup } from '@/components/tables/student-lookup-table'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
 import { StudentFilters } from '@/components/student-filter'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
@@ -28,6 +30,8 @@ export const Route = createFileRoute('/_authenticated/_layout/student-lookup')({
         ) {
             throw redirect({ to: '/login' })
         }
+        programsCollection.preload()
+        coursesCollection.preload()
     },
     component: StudentLookup,
 })

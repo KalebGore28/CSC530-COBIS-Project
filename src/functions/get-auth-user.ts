@@ -35,7 +35,7 @@ export const getAuthUser = createServerFn({ method: 'GET' }).handler(
                 session: session.session,
                 user: session.user,
                 faculty: dbFaculty || null,
-                roles: userRolesData.map((r) => r.roleName),
+                roles: new Set(userRolesData.map((r) => r.roleName)),
             }
         }
 

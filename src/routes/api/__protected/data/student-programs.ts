@@ -26,8 +26,8 @@ export const Route = createFileRoute('/api/__protected/data/student-programs')({
 
                 // Apply student access restrictions based on roles
                 if (
-                    !user_roles.includes('cobis_administrator') &&
-                    !user_roles.includes('department_chair')
+                    !user_roles.has('cobis_administrator') &&
+                    !user_roles.has('department_chair')
                 ) {
                     const studentAccess = await getStudentAccess(
                         context.user.mnumber || '',

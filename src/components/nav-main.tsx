@@ -161,7 +161,6 @@ export function NavMain() {
                             <SidebarMenuButton tooltip={'Advisor Page'}>
                                 <Telescope />
                                 Advisor Page
-                                <ChevronsUpDown className="ml-auto" />
                             </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>

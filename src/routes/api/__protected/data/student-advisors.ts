@@ -25,8 +25,8 @@ export const Route = createFileRoute('/api/__protected/data/student-advisors')({
 
                 // If not cobis_administrator or department_chair, filter to only the advisors' own students
                 if (
-                    !user_roles.includes('cobis_administrator') &&
-                    !user_roles.includes('department_chair')
+                    !user_roles.has('cobis_administrator') &&
+                    !user_roles.has('department_chair')
                 ) {
                     results = results.filter(
                         (sa) => sa.advisor_mnumber === context.user.mnumber,
