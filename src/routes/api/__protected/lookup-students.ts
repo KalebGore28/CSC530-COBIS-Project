@@ -13,7 +13,7 @@ import {
     notExists,
     or,
 } from 'drizzle-orm'
-import { z } from 'zod'
+import * as z from 'zod'
 import type { SQLWrapper } from 'drizzle-orm'
 import {
     studentAcademicInfo,
