@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Separator } from '@/components/ui/separator'
 import { TermGradeDistribution } from '@/components/charts/term-grade-distributions'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { useAuthentication } from '@/lib/auth-client'
@@ -18,17 +17,6 @@ function DashboardPage() {
 
     return (
         <div className="container p-6 mx-auto space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
-                <h2 className="col-span-full text-center font-bold text-2xl">
-                    Welcome Back, {userSession.user.name}
-                </h2>
-                <p className="text-muted-foreground col-span-full text-center">
-                    Access your tools and information from this dashboard
-                </p>
-            </div>
-
-            <Separator />
-
             {gradeDistributionRoles.some((role) =>
                 userSession.roles.has(role),
             ) &&

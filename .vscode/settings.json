@@ -10,10 +10,5 @@
     },
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.enablePromptUseWorkspaceTsdk": true,
-    "cSpell.words": [
-        "cobis",
-        "ilike",
-        "mnumber",
-        "mnumbers"
-    ]
+    "cSpell.words": ["cobis", "ilike", "mnumber", "mnumbers"]
 }
