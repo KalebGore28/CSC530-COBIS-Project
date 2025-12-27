@@ -171,7 +171,7 @@ export const StudentFilters = ({
                     )}
                     {/* Search button with loader when selected */}
                     <button
-                        className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                         onClick={() => onApplyFilters(filters)}
                         disabled={isLoading}
                     >
