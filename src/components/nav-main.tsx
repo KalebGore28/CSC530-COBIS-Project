@@ -67,17 +67,19 @@ export function NavMain() {
                     </SidebarMenuItem>
 
                     {/* Student Lookup */}
-                    {roles.has('department_chair') && (<SidebarMenuItem
-                        key="student-lookup"
-                        className="text-nowrap"
-                    >
-                        <Link to="/student-lookup">
-                            <SidebarMenuButton tooltip="Student Lookup">
-                                <ScanSearch />
-                                Student Lookup
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>)}
+                    {roles.has('department_chair') && (
+                        <SidebarMenuItem
+                            key="student-lookup"
+                            className="text-nowrap"
+                        >
+                            <Link to="/student-lookup">
+                                <SidebarMenuButton tooltip="Student Lookup">
+                                    <ScanSearch />
+                                    Student Lookup
+                                </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                    )}
 
                     {/* Instructors */}
                     {roles.has('department_chair') && (
