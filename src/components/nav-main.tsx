@@ -30,6 +30,8 @@ export function NavMain() {
     const { userSession } = useAuthentication()
     if (!userSession) return null
 
+    const roles = userSession.roles
+
     return (
         <SidebarGroup>
             <SidebarGroupContent className="flex flex-col gap-2">
@@ -44,29 +46,6 @@ export function NavMain() {
                         </Link>
                     </SidebarMenuItem>
 
-                    {/* Student Lookup */}
-                    <SidebarMenuItem
-                        key="student-lookup"
-                        className="text-nowrap"
-                    >
-                        <Link to="/student-lookup">
-                            <SidebarMenuButton tooltip="Student Lookup">
-                                <ScanSearch />
-                                Student Lookup
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-
-                    {/* Instructors */}
-                    <SidebarMenuItem key="instructors" className="text-nowrap">
-                        <Link to="/instructors">
-                            <SidebarMenuButton tooltip="Instructors">
-                                <PersonStanding />
-                                Instructors
-                            </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-
                     {/* Class Roster */}
                     <SidebarMenuItem key="class-roster" className="text-nowrap">
                         <Link to="/class-roster">
@@ -75,84 +54,6 @@ export function NavMain() {
                                 Class Roster
                             </SidebarMenuButton>
                         </Link>
-                    </SidebarMenuItem>
-
-                    {/* COBIS Tools */}
-                    <SidebarMenuItem key="cobis-tools" className="text-nowrap">
-                        <Collapsible>
-                            <CollapsibleTrigger asChild>
-                                <Link to="/cobis-tools">
-                                    <SidebarMenuButton tooltip="COBIS Tools">
-                                        <TerminalSquareIcon />
-                                        COBIS Tools
-                                        <ChevronsUpDown className="ml-auto" />
-                                    </SidebarMenuButton>
-                                </Link>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <SidebarMenuSub>
-                                    <SidebarMenuSubItem key="import">
-                                        <Link to="/cobis-tools/import">
-                                            <SidebarMenuSubButton className="text-white">
-                                                Import
-                                            </SidebarMenuSubButton>
-                                        </Link>
-                                    </SidebarMenuSubItem>
-                                    <SidebarMenuSubItem key="users">
-                                        <Link to="/cobis-tools/users">
-                                            <SidebarMenuSubButton className="text-white">
-                                                Users
-                                            </SidebarMenuSubButton>
-                                        </Link>
-                                    </SidebarMenuSubItem>
-                                    <SidebarMenuSubItem key="manage-tables">
-                                        <Link to="/cobis-tools/manage-tables">
-                                            <SidebarMenuSubButton className="text-white">
-                                                Manage Tables
-                                            </SidebarMenuSubButton>
-                                        </Link>
-                                    </SidebarMenuSubItem>
-                                </SidebarMenuSub>
-                            </CollapsibleContent>
-                        </Collapsible>
-                    </SidebarMenuItem>
-
-                    {/* Enrollment Metrics */}
-                    <SidebarMenuItem
-                        key="enrollment-metrics"
-                        className="text-nowrap"
-                    >
-                        <Collapsible>
-                            <CollapsibleTrigger asChild>
-                                <Link to="/enrollment">
-                                    <SidebarMenuButton
-                                        tooltip={'Enrollment Metrics'}
-                                    >
-                                        <ChartColumnIncreasing />
-                                        Enrollment Metrics
-                                        <ChevronsUpDown className="ml-auto" />
-                                    </SidebarMenuButton>
-                                </Link>
-                            </CollapsibleTrigger>
-                            <CollapsibleContent>
-                                <SidebarMenuSub>
-                                    <SidebarMenuSubItem key="programs">
-                                        <Link to="/enrollment/programs">
-                                            <SidebarMenuSubButton className="text-white">
-                                                Programs
-                                            </SidebarMenuSubButton>
-                                        </Link>
-                                    </SidebarMenuSubItem>
-                                    <SidebarMenuSubItem key="courses">
-                                        <Link to="/enrollment/courses">
-                                            <SidebarMenuSubButton className="text-white">
-                                                Courses
-                                            </SidebarMenuSubButton>
-                                        </Link>
-                                    </SidebarMenuSubItem>
-                                </SidebarMenuSub>
-                            </CollapsibleContent>
-                        </Collapsible>
                     </SidebarMenuItem>
 
                     {/* Advisor Page */}
@@ -164,6 +65,119 @@ export function NavMain() {
                             </SidebarMenuButton>
                         </Link>
                     </SidebarMenuItem>
+
+                    {/* Student Lookup */}
+                    {roles.has('department_chair') && (<SidebarMenuItem
+                        key="student-lookup"
+                        className="text-nowrap"
+                    >
+                        <Link to="/student-lookup">
+                            <SidebarMenuButton tooltip="Student Lookup">
+                                <ScanSearch />
+                                Student Lookup
+                            </SidebarMenuButton>
+                        </Link>
+                    </SidebarMenuItem>)}
+
+                    {/* Instructors */}
+                    {roles.has('department_chair') && (
+                        <SidebarMenuItem
+                            key="instructors"
+                            className="text-nowrap"
+                        >
+                            <Link to="/instructors">
+                                <SidebarMenuButton tooltip="Instructors">
+                                    <PersonStanding />
+                                    Instructors
+                                </SidebarMenuButton>
+                            </Link>
+                        </SidebarMenuItem>
+                    )}
+
+                    {/* COBIS Tools */}
+                    {roles.has('cobis_administrator') && (
+                        <SidebarMenuItem
+                            key="cobis-tools"
+                            className="text-nowrap"
+                        >
+                            <Collapsible>
+                                <CollapsibleTrigger asChild>
+                                    <Link to="/cobis-tools">
+                                        <SidebarMenuButton tooltip="COBIS Tools">
+                                            <TerminalSquareIcon />
+                                            COBIS Tools
+                                            <ChevronsUpDown className="ml-auto" />
+                                        </SidebarMenuButton>
+                                    </Link>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <SidebarMenuSub>
+                                        <SidebarMenuSubItem key="import">
+                                            <Link to="/cobis-tools/import">
+                                                <SidebarMenuSubButton className="text-white">
+                                                    Import
+                                                </SidebarMenuSubButton>
+                                            </Link>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem key="users">
+                                            <Link to="/cobis-tools/users">
+                                                <SidebarMenuSubButton className="text-white">
+                                                    Users
+                                                </SidebarMenuSubButton>
+                                            </Link>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem key="manage-tables">
+                                            <Link to="/cobis-tools/manage-tables">
+                                                <SidebarMenuSubButton className="text-white">
+                                                    Manage Tables
+                                                </SidebarMenuSubButton>
+                                            </Link>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSub>
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </SidebarMenuItem>
+                    )}
+
+                    {/* Enrollment Metrics */}
+                    {roles.has('department_chair') && (
+                        <SidebarMenuItem
+                            key="enrollment-metrics"
+                            className="text-nowrap"
+                        >
+                            <Collapsible>
+                                <CollapsibleTrigger asChild>
+                                    <Link to="/enrollment">
+                                        <SidebarMenuButton
+                                            tooltip={'Enrollment Metrics'}
+                                        >
+                                            <ChartColumnIncreasing />
+                                            Enrollment Metrics
+                                            <ChevronsUpDown className="ml-auto" />
+                                        </SidebarMenuButton>
+                                    </Link>
+                                </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <SidebarMenuSub>
+                                        <SidebarMenuSubItem key="programs">
+                                            <Link to="/enrollment/programs">
+                                                <SidebarMenuSubButton className="text-white">
+                                                    Programs
+                                                </SidebarMenuSubButton>
+                                            </Link>
+                                        </SidebarMenuSubItem>
+                                        <SidebarMenuSubItem key="courses">
+                                            <Link to="/enrollment/courses">
+                                                <SidebarMenuSubButton className="text-white">
+                                                    Courses
+                                                </SidebarMenuSubButton>
+                                            </Link>
+                                        </SidebarMenuSubItem>
+                                    </SidebarMenuSub>
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </SidebarMenuItem>
+                    )}
                 </SidebarMenu>
             </SidebarGroupContent>
         </SidebarGroup>
