@@ -16,7 +16,7 @@ export function NavUser() {
             <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.image ?? undefined} alt={user.name} />
                 <AvatarFallback className="rounded-lg text-black">
-                    {faculty.firstName.charAt(0)}
+                    {faculty?.firstName.charAt(0)}
                 </AvatarFallback>
             </Avatar>
             {(open || isMobile) && (

@@ -1,8 +1,7 @@
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-// import { reactStartCookies } from "better-auth/react-start";
 import * as schema from '@/db/schema'
-import { getDbConnection } from '@/db'
+import { getDb } from '@/db'
 
 export const auth = betterAuth({
     session: {
@@ -15,7 +14,7 @@ export const auth = betterAuth({
         expiresIn: 60 * 60 * 24 * 7, // 7 days
         updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
     },
-    database: drizzleAdapter(await getDbConnection(), {
+    database: drizzleAdapter(getDb(), {
         provider: 'mysql',
         schema: schema,
     }),
@@ -24,13 +23,11 @@ export const auth = betterAuth({
     socialProviders: {
         // This app was only designed to work with Google OAuth even though better-auth supports more.
         // It is not recommended to use another provider, otherwise domain restrictions will not work.
-        // Domain restrictions are enforced in the restrictGoogleCallback middleware.
         google: {
             clientId: process.env.GOOGLE_CLIENT_ID as string,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
     },
-    // plugins: [reactStartCookies()],
     user: {
         additionalFields: {
             mnumber: {
@@ -40,7 +37,7 @@ export const auth = betterAuth({
             isEnabled: {
                 type: 'boolean',
                 nullAllowed: false,
-                defaultValue: true,
+                defaultValue: false,
             },
             lastLogin: {
                 type: 'date',

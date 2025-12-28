@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm'
-import { getDbConnection } from '@/db'
+import { getDb } from '@/db'
 import { studentAdvisors, studentCourses } from '@/db/schema'
 
 export async function getStudentAccess(
@@ -9,7 +9,7 @@ export async function getStudentAccess(
         advisorCheck: boolean
     },
 ): Promise<{ mnumbers: Set<string> }> {
-    const db = await getDbConnection()
+    const db = getDb()
 
     const allStudentMnumbers = new Set<string>()
 

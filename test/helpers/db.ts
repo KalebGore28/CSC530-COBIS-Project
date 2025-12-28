@@ -2,10 +2,11 @@ import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/mysql2'
 import type { MySql2Database } from 'drizzle-orm/mysql2'
 import mysql from 'mysql2/promise'
-import * as schema from '../../src/db/schema.ts'
+import * as schema from '@/db/schema.ts'
+import { relations } from '@/db/relations.ts'
 import { reset } from 'drizzle-seed'
 
-let db: MySql2Database | null = null
+let db: MySql2Database<typeof schema | typeof relations> | null = null
 let poolConnection: mysql.Pool | null = null
 
 export function getDb() {
@@ -17,10 +18,12 @@ export function getDb() {
             password: process.env.DB_PASSWORD,
             database: process.env.DB_NAME,
         })
-        db = drizzle({ client: poolConnection })
+        db = drizzle({ client: poolConnection, relations })
     }
     return db
 }
+
+
 
 export async function resetDb() {
     const database = getDb()

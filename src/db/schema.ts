@@ -11,16 +11,6 @@ import {
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
-export const academicStanding = mysqlTable('academic_standing', {
-    code: varchar('code', { length: 10 }).primaryKey(),
-    description: varchar('description', { length: 255 }).notNull(),
-})
-
-export const admitCodes = mysqlTable('admit_codes', {
-    code: varchar('code', { length: 10 }).primaryKey(),
-    description: varchar('description', { length: 255 }).notNull(),
-})
-
 // --- BETTERAUTH TABLES ---
 
 export const user = mysqlTable('user', {
@@ -76,6 +66,16 @@ export const verification = mysqlTable('verification', {
 })
 
 // --- END BETTERAUTH TABLES ---
+
+export const academicStanding = mysqlTable('academic_standing', {
+    code: varchar('code', { length: 10 }).primaryKey(),
+    description: varchar('description', { length: 255 }).notNull(),
+})
+
+export const admitCodes = mysqlTable('admit_codes', {
+    code: varchar('code', { length: 10 }).primaryKey(),
+    description: varchar('description', { length: 255 }).notNull(),
+})
 
 export const colleges = mysqlTable('colleges', {
     code: varchar('code', { length: 10 }).primaryKey(),
