@@ -131,18 +131,18 @@ async function seedTestDatabase() {
             userRoles: undefined,
         },
         // This seed config ensures consistent data generation across runs
-        { seed: 12345 },
+        // { seed: 12345 },
     ).refine((f) => ({
         students: {
-            count: 100,
+            count: 50,
             columns: {
                 mnumber: f.phoneNumber({ template: 'M#########' }), // M number format
                 gender: f.valuesFromArray({ values: ['M', 'F'] }),
             },
             with: {
                 studentPrograms: 2,
-                studentAcademicInfo: 1,
-                studentCourses: 5,
+                studentAcademicInfo: 2,
+                studentCourses: 4,
                 studentAdvisors: 1,
             },
         },

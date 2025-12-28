@@ -81,17 +81,17 @@ function RouteComponent() {
                 ({ studentCourse, student }) =>
                     eq(studentCourse.mnumber, student.mnumber),
             )
-            .leftJoin(
-                { studentAcademicInfo: studentAcademicInfoCollection },
-                ({ studentCourse, studentAcademicInfo }) =>
-                    eq(studentCourse.mnumber, studentAcademicInfo.mnumber),
-            )
+            // .leftJoin(
+            //     { studentAcademicInfo: studentAcademicInfoCollection },
+            //     ({ studentCourse, studentAcademicInfo }) =>
+            //         eq(studentCourse.mnumber, studentAcademicInfo.mnumber),
+            // )
             .select(
                 ({
                     studentCourse,
                     term,
                     course,
-                    studentAcademicInfo,
+                    // studentAcademicInfo,
                     student,
                 }) => ({
                     mnumber: studentCourse.mnumber,
@@ -108,7 +108,7 @@ function RouteComponent() {
                     midterm_grade: studentCourse.midterm_grade,
                     final_grade: studentCourse.final_grade,
                     last_attendance: studentCourse.last_attendance,
-                    student_gpa: studentAcademicInfo?.overall_gpa || null,
+                    // student_gpa: studentAcademicInfo?.overall_gpa || null,
                 }),
             ),
     )
