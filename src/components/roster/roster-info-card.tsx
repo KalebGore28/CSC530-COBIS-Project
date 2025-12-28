@@ -66,6 +66,8 @@ export function RosterInfoCard({
         0,
     )
 
+    console.log('studentCourses', studentCourses)
+
     // We need to get all unique credit hours from studentCourses to account for variable credit courses
     const uniqueCreditHours = Array.from(
         new Set(studentCourses.map((sc) => sc.course_hours)),
@@ -73,7 +75,7 @@ export function RosterInfoCard({
 
     const isActive = currentTerm
         ? course.year === currentTerm.year &&
-          course.term_code === currentTerm.term_code
+        course.term_code === currentTerm.term_code
         : false
 
     return (

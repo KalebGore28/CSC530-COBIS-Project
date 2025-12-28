@@ -106,7 +106,6 @@ async function seedTestDatabase() {
         colleges: undefined,
         courses: undefined,
         departments: undefined,
-        faculty: undefined,
         instructionalMethods: undefined,
         partOfTerm: undefined,
         programs: undefined,
@@ -114,11 +113,6 @@ async function seedTestDatabase() {
         roles: undefined,
         terms: undefined,
         userRoles: undefined,
-        // temp ignore
-        studentAcademicInfo: undefined,
-        studentAdvisors: undefined,
-        studentCourses: undefined,
-        // studentPrograms: undefined,
 
     }).refine((f) => ({
         students: {
@@ -127,7 +121,10 @@ async function seedTestDatabase() {
                 gender: f.valuesFromArray({ values: ['M', 'F'] })
             },
             with: {
-                studentPrograms: 2
+                studentPrograms: 2,
+                studentAcademicInfo: 2,
+                studentCourses: 5,
+                studentAdvisors: 2,
             }
         },
         studentPrograms: {
@@ -137,6 +134,54 @@ async function seedTestDatabase() {
                 year: f.number({ minValue: 2020, maxValue: 2025 }),
                 type: f.valuesFromArray({ values: ['MAJOR', 'MINOR'] }),
                 level: f.valuesFromArray({ values: ['UG', 'GR', 'PB'] }),
+            }
+        },
+        studentAcademicInfo: {
+            columns: {
+                term_code: f.valuesFromArray({ values: terms.map(t => t.code) }),
+                year: f.number({ minValue: 2020, maxValue: 2025 }),
+                admit_term_code: f.valuesFromArray({ values: terms.map(t => t.code) }),
+                admit_year: f.number({ minValue: 2020, maxValue: 2025 }),
+                admit_code: f.valuesFromArray({ values: admitCodes.map(a => a.code) }),
+                academic_standing_code: f.valuesFromArray({ values: academicStandings.map(a => a.code) }),
+                msu_attempted_hours: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                msu_earned_hours: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                msu_quality_points: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                msu_gpa: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                overall_attempted_hours: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                overall_earned_hours: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                overall_quality_points: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+                overall_gpa: f.number({ minValue: 0, maxValue: 4, precision: 10 }),
+            }
+        },
+        studentCourses: {
+            columns: {
+                term_code: f.valuesFromArray({ values: terms.map(t => t.code) }),
+                year: f.number({ minValue: 2020, maxValue: 2025 }),
+                part_of_term_code: f.valuesFromArray({ values: partOfTerms.map(pot => pot.code) }),
+                course_id: f.valuesFromArray({ values: courses.map(c => c.code) }),
+                course_subject: f.valuesFromArray({ values: courses.map(c => c.subject) }),
+                course_number: f.number({ minValue: 100, maxValue: 499 }),
+                course_suffix: f.valuesFromArray({ values: ['', 'A', 'B', 'C'] }),
+                course_hours: f.number({ minValue: 1, maxValue: 4, precision: 10 }),
+                course_section: f.string({}),
+                registration_status_code: f.valuesFromArray({ values: registrationStatuses.map(rs => rs.code) }),
+                instructional_method_code: f.valuesFromArray({ values: instructionalMethods.map(im => im.code) }),
+                midterm_grade: f.valuesFromArray({ values: ['A', 'B', 'C', 'D', 'E'] }),
+                final_grade: f.valuesFromArray({ values: ['A', 'B', 'C', 'D', 'E'] }),
+            }
+        },
+        studentAdvisors: {
+            columns: {
+                term_code: f.valuesFromArray({ values: terms.map(t => t.code) }),
+                year: f.number({ minValue: 2020, maxValue: 2025 }),
+            }
+        },
+        faculty: {
+            columns: {
+                mnumber: f.phoneNumber({ template: 'M#########' }), // M number format
+                department_code: f.valuesFromArray({ values: departments.map(d => d.code) }),
+                college_code: f.valuesFromArray({ values: colleges.map(c => c.code) }),
             }
         }
     }))

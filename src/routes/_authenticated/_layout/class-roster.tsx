@@ -102,6 +102,8 @@ function ClassRosterPage() {
         )
     }
 
+    console.log('instructorCourses', instructorCourses, selectedTerm, selectedCourse)
+
     // Filter instructorCourses based on selectedCourses
     const filteredInstructorCourses =
         selectedTerm && selectedCourse
