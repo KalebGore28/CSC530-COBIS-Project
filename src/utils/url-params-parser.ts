@@ -28,8 +28,8 @@ function sanitizeParamValue(value: string): string {
 
     // Block SQL-like keywords and special characters that could be problematic
     // Allow: letters, numbers, spaces, hyphens, underscores, @, ., commas
-    if (!/^[a-zA-Z0-9\s\-_@.,]*$/.test(sanitized)) {
-        throw new Error('Invalid characters in input')
+    if (!/^[a-zA-Z0-9\s\-_@.,:]*$/.test(sanitized)) {
+        throw new Error('Invalid characters in input: ' + sanitized)
     }
 
     return sanitized.trim()

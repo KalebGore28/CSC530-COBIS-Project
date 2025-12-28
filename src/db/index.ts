@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/mysql2'
 import mysql from 'mysql2/promise'
 import type { MySql2Database } from 'drizzle-orm/mysql2'
-import * as schema from '@/db/schema.ts'
+import type * as schema from '@/db/schema.ts'
 import { relations } from '@/db/relations'
 import 'dotenv/config'
 
@@ -23,7 +23,6 @@ export function getDb() {
                 '❌ Failed to create database connection. Please check your environment variables.',
             )
         }
-
 
         console.log(
             `✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,

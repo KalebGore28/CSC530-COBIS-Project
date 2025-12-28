@@ -255,11 +255,6 @@ export const studentCourses = mysqlTable(
         course_id: varchar('course_id', { length: 100 })
             .notNull()
             .references(() => courses.code, { onDelete: 'cascade' }),
-        course_subject: varchar('course_subject', { length: 50 }).notNull(),
-        course_number: int('course_number').notNull(),
-        course_suffix: varchar('course_suffix', { length: 50 })
-            .notNull()
-            .default(''),
         course_section: varchar('course_section', { length: 50 }).notNull(),
         course_hours: int('course_hours').notNull(),
         course_level: varchar('course_level', { length: 50 }),
@@ -274,7 +269,7 @@ export const studentCourses = mysqlTable(
         instructor_mnumber: varchar('instructor_mnumber', { length: 10 })
             .notNull()
             .references(() => faculty.mnumber, { onDelete: 'cascade' }),
-        last_attendance: varchar('last_attendance', { length: 50 }),
+        last_attendance: datetime('last_attendance'),
         midterm_grade: varchar('midterm_grade', { length: 50 }),
         final_grade: varchar('final_grade', { length: 50 }),
     },

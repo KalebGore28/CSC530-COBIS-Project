@@ -142,16 +142,13 @@ table student_courses {
   year int [not null]
   part_of_term_code varchar(10)
   course_id varchar(100) [not null]
-  course_subject varchar(50) [not null]
-  course_number int [not null]
-  course_suffix varchar(50) [not null, default: '']
   course_section varchar(50) [not null]
   course_hours int [not null]
   course_level varchar(50)
   registration_status_code varchar(10)
   instructional_method_code varchar(10)
   instructor_mnumber varchar(10) [not null]
-  last_attendance varchar(50)
+  last_attendance datetime
   midterm_grade varchar(50)
   final_grade varchar(50)
 

@@ -39,19 +39,19 @@ export const relations = defineRelations({ ...schema }, (r) => ({
         }),
     },
     studentPrograms: {
-        students: r.one.students({
+        student: r.one.students({
             from: r.studentPrograms.mnumber,
             to: r.students.mnumber,
         }),
     },
     studentAcademicInfo: {
-        students: r.one.students({
+        student: r.one.students({
             from: r.studentAcademicInfo.mnumber,
             to: r.students.mnumber,
         }),
     },
     studentAdvisors: {
-        students: r.one.students({
+        student: r.one.students({
             from: r.studentAdvisors.student_mnumber,
             to: r.students.mnumber,
         }),
@@ -61,7 +61,7 @@ export const relations = defineRelations({ ...schema }, (r) => ({
         }),
     },
     studentCourses: {
-        students: r.one.students({
+        student: r.one.students({
             from: r.studentCourses.mnumber,
             to: r.students.mnumber,
         }),
@@ -69,5 +69,5 @@ export const relations = defineRelations({ ...schema }, (r) => ({
             from: r.studentCourses.instructor_mnumber,
             to: r.faculty.mnumber,
         }),
-    }
+    },
 }))

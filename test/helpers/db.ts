@@ -1,10 +1,10 @@
 import 'dotenv/config'
 import { drizzle } from 'drizzle-orm/mysql2'
-import type { MySql2Database } from 'drizzle-orm/mysql2'
 import mysql from 'mysql2/promise'
+import { reset } from 'drizzle-seed'
+import type { MySql2Database } from 'drizzle-orm/mysql2'
 import * as schema from '@/db/schema.ts'
 import { relations } from '@/db/relations.ts'
-import { reset } from 'drizzle-seed'
 
 let db: MySql2Database<typeof schema | typeof relations> | null = null
 let poolConnection: mysql.Pool | null = null
@@ -23,11 +23,20 @@ export function getDb() {
     return db
 }
 
-
-
 export async function resetDb() {
     const database = getDb()
-    await reset(database, schema)
+
+    // This removes tables that are not allowed to be reset
+    // This is done to maintain the auth tables for convenience while testing
+    const allowableResets = {
+        ...schema,
+        user: undefined,
+        session: undefined,
+        account: undefined,
+        verification: undefined,
+        userRoles: undefined,
+    }
+    await reset(database, allowableResets)
 }
 
 export async function closeDb() {

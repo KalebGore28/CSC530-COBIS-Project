@@ -1,0 +1,1 @@
+ALTER TABLE `student_courses` MODIFY COLUMN `last_attendance` datetime;

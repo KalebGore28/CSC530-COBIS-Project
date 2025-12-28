@@ -14,7 +14,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
-import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 
 export type SelectedTerm = {
@@ -54,13 +53,12 @@ type TermCourseSelectorProps = {
     className?: string
     selectedTerm?: SelectedTerm
     selectedCourse?: SelectedCourse
-    setSelectedTerm: (term: SelectedTerm) => void
-    setSelectedCourse: (course: SelectedCourse) => void
+    setSelectedTerm: (term: SelectedTerm | undefined) => void
+    setSelectedCourse: (course: SelectedCourse | undefined) => void
 }
 
 export function TermCourseSelector({
     studentCourses,
-    isLoading,
     showStats,
     className,
     selectedTerm,
@@ -68,6 +66,24 @@ export function TermCourseSelector({
     setSelectedTerm,
     setSelectedCourse,
 }: TermCourseSelectorProps) {
+    // Extract unique terms from studentCourses
+    const terms = extractTerms(studentCourses)
+
+    // Extract courses for the selected term
+    const termCourses = extractTermCourses(studentCourses, selectedTerm)
+
+    // Run once to select the first term and its first course by default
+    useEffect(() => {
+        if (!selectedTerm && terms.size > 0) {
+            const firstTerm = terms.values().next().value
+            setSelectedTerm && setSelectedTerm(firstTerm)
+            const newTermCourses = extractTermCourses(studentCourses, firstTerm)
+            newTermCourses &&
+                setSelectedCourse &&
+                setSelectedCourse(newTermCourses.values().next().value)
+        }
+    }, [terms])
+
     return (
         <Card className={className}>
             <CardHeader>
@@ -78,61 +94,131 @@ export function TermCourseSelector({
             </CardHeader>
             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Term Selector Component */}
-                <TermSelector
-                    studentCourses={studentCourses}
-                    isLoading={isLoading}
-                    showStats={showStats}
-                    setSelectedTerm={setSelectedTerm}
-                    selectedTerm={selectedTerm || undefined}
-                />
+                <Card>
+                    <CardContent>
+                        <Select
+                            value={
+                                selectedTerm
+                                    ? `${selectedTerm.year}-${selectedTerm.term_code}`
+                                    : 'Select Term'
+                            }
+                            onValueChange={(value) => {
+                                const term = terms.get(value)
+
+                                const newTermCourses = extractTermCourses(
+                                    studentCourses,
+                                    term,
+                                )
+                                setSelectedTerm && term && setSelectedTerm(term)
+                                newTermCourses &&
+                                    setSelectedCourse &&
+                                    setSelectedCourse(
+                                        newTermCourses.values().next().value,
+                                    )
+                            }}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select Term" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Array.from(terms.values()).map(
+                                    (term, index) => (
+                                        <SelectItem
+                                            key={index}
+                                            value={`${term.year}-${term.term_code}`}
+                                        >
+                                            {term.term_description} {term.year}
+                                        </SelectItem>
+                                    ),
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </CardContent>
+                    {showStats && selectedTerm && (
+                        <CardFooter className="flex flex-wrap gap-2">
+                            <Badge
+                                variant="outline"
+                                className="bg-green-50 dark:bg-green-900"
+                            >
+                                {selectedTerm.studentCount}{' '}
+                                {selectedTerm.studentCount === 1
+                                    ? 'Student'
+                                    : 'Students'}
+                            </Badge>
+                            <Badge
+                                variant="outline"
+                                className="bg-purple-50 dark:bg-purple-900"
+                            >
+                                {selectedTerm.creditHoursDelivered} Total Credit
+                                Hours
+                            </Badge>
+                        </CardFooter>
+                    )}
+                </Card>
                 {/* Course Selector Component */}
-                {selectedTerm && (
-                    <CourseSelector
-                        studentCourses={studentCourses}
-                        isLoading={isLoading}
-                        showStats={showStats}
-                        selectedTerm={selectedTerm}
-                        selectedCourse={selectedCourse}
-                        setSelectedCourse={setSelectedCourse}
-                    />
+                {selectedTerm && termCourses && (
+                    <Card>
+                        <CardContent>
+                            <Select
+                                value={
+                                    selectedCourse
+                                        ? `${selectedCourse.course_id}-${selectedCourse.course_section}`
+                                        : 'Select Course'
+                                }
+                                onValueChange={(value) => {
+                                    const course = termCourses.get(value)
+                                    setSelectedCourse &&
+                                        course &&
+                                        setSelectedCourse(course)
+                                }}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Select Course" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {Array.from(termCourses.values()).map(
+                                        (course, index) => (
+                                            <SelectItem
+                                                key={index}
+                                                value={`${course.course_id}-${course.course_section}`}
+                                            >
+                                                {course.course_title} (
+                                                {course.course_id}-
+                                                {course.course_section})
+                                            </SelectItem>
+                                        ),
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        </CardContent>
+                        {showStats && selectedCourse && (
+                            <CardFooter className="flex flex-wrap gap-2">
+                                <Badge
+                                    variant="outline"
+                                    className="bg-green-50 dark:bg-green-900"
+                                >
+                                    {selectedCourse.student_count}{' '}
+                                    {selectedCourse.student_count === 1
+                                        ? 'Student'
+                                        : 'Students'}
+                                </Badge>
+                                <Badge
+                                    variant="outline"
+                                    className="bg-purple-50 dark:bg-purple-900"
+                                >
+                                    {selectedCourse.credit_hours_delivered}{' '}
+                                    Total Credit Hours
+                                </Badge>
+                            </CardFooter>
+                        )}
+                    </Card>
                 )}
             </CardContent>
         </Card>
     )
 }
 
-type TermSelectorProps = {
-    studentCourses: Array<RequiredStudentCourseProps>
-    isLoading?: boolean
-    showStats?: boolean
-    selectedTerm?: SelectedTerm
-    setSelectedTerm?: (term: SelectedTerm) => void
-}
-
-function TermSelector({
-    studentCourses,
-    isLoading,
-    showStats,
-    selectedTerm,
-    setSelectedTerm,
-}: TermSelectorProps) {
-    // Loading state
-    if (isLoading) {
-        return (
-            <Card>
-                <CardContent>
-                    <Skeleton className="h-10 w-full" />
-                    {showStats && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                            <Skeleton className="h-5 w-24 mt-2" />
-                            <Skeleton className="h-5 w-28 mt-2" />
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        )
-    }
-
+function extractTerms(studentCourses: Array<RequiredStudentCourseProps>) {
     // Extract unique terms from studentCourses
     const terms = new Map<string, SelectedTerm>()
 
@@ -157,98 +243,14 @@ function TermSelector({
         term.creditHoursDelivered += c.course_hours
     }
 
-    // Run once to select the first term if none is selected
-    useEffect(() => {
-        if (!selectedTerm && terms.size > 0) {
-            const firstTerm = terms.values().next().value
-            setSelectedTerm && setSelectedTerm(firstTerm!)
-        }
-    }, [terms])
-    return (
-        <Card>
-            <CardContent>
-                <Select
-                    value={
-                        selectedTerm
-                            ? `${selectedTerm.year}-${selectedTerm.term_code}`
-                            : 'Select Term'
-                    }
-                    onValueChange={(value) => {
-                        const term = terms.get(value)
-                        setSelectedTerm && term && setSelectedTerm(term)
-                    }}
-                >
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Term" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Array.from(terms.values()).map((term, index) => (
-                            <SelectItem
-                                key={index}
-                                value={`${term.year}-${term.term_code}`}
-                            >
-                                {term.term_description} {term.year}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
-                </Select>
-            </CardContent>
-            {showStats && selectedTerm && (
-                <CardFooter className="flex flex-wrap gap-2">
-                    <Badge
-                        variant="outline"
-                        className="bg-green-50 dark:bg-green-900"
-                    >
-                        {selectedTerm.studentCount}{' '}
-                        {selectedTerm.studentCount === 1
-                            ? 'Student'
-                            : 'Students'}
-                    </Badge>
-                    <Badge
-                        variant="outline"
-                        className="bg-purple-50 dark:bg-purple-900"
-                    >
-                        {selectedTerm.creditHoursDelivered} Total Credit Hours
-                    </Badge>
-                </CardFooter>
-            )}
-        </Card>
-    )
+    return terms
 }
 
-type CourseSelectorProps = {
-    studentCourses: Array<RequiredStudentCourseProps>
-    isLoading?: boolean
-    showStats?: boolean
-    selectedTerm: SelectedTerm
-    selectedCourse?: SelectedCourse
-    setSelectedCourse?: (course: SelectedCourse) => void
-}
-
-function CourseSelector({
-    studentCourses,
-    isLoading,
-    showStats,
-    selectedTerm,
-    selectedCourse,
-    setSelectedCourse,
-}: CourseSelectorProps) {
-    // Loading state
-    if (isLoading) {
-        return (
-            <Card>
-                <CardContent>
-                    <Skeleton className="h-10 w-full" />
-                    {showStats && (
-                        <div className="flex flex-wrap gap-2 mt-4">
-                            <Skeleton className="h-5 w-24 mt-2" />
-                            <Skeleton className="h-5 w-28 mt-2" />
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        )
-    }
+function extractTermCourses(
+    studentCourses: Array<RequiredStudentCourseProps>,
+    selectedTerm: SelectedTerm | undefined,
+) {
+    if (!selectedTerm) return undefined
 
     // Filter studentCourses for the selected term
     const filteredCourses = studentCourses.filter(
@@ -286,67 +288,5 @@ function CourseSelector({
             termCourses.set(key, updatedCourse)
         }
     }
-
-    // Run once to select the first course if none is selected
-    useEffect(() => {
-        if (!selectedCourse && termCourses.size > 0) {
-            const firstTerm = termCourses.values().next().value
-            setSelectedCourse && setSelectedCourse(firstTerm!)
-        }
-    }, [termCourses])
-
-    return (
-        <Card>
-            <CardContent>
-                <Select
-                    value={
-                        selectedCourse
-                            ? `${selectedCourse.course_id}-${selectedCourse.course_section}`
-                            : 'Select Course'
-                    }
-                    onValueChange={(value) => {
-                        const course = termCourses.get(value)
-                        setSelectedCourse && course && setSelectedCourse(course)
-                    }}
-                >
-                    <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select Course" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Array.from(termCourses.values()).map(
-                            (course, index) => (
-                                <SelectItem
-                                    key={index}
-                                    value={`${course.course_id}-${course.course_section}`}
-                                >
-                                    {course.course_title} ({course.course_id}-
-                                    {course.course_section})
-                                </SelectItem>
-                            ),
-                        )}
-                    </SelectContent>
-                </Select>
-            </CardContent>
-            {showStats && selectedCourse && (
-                <CardFooter className="flex flex-wrap gap-2">
-                    <Badge
-                        variant="outline"
-                        className="bg-green-50 dark:bg-green-900"
-                    >
-                        {selectedCourse.student_count}{' '}
-                        {selectedCourse.student_count === 1
-                            ? 'Student'
-                            : 'Students'}
-                    </Badge>
-                    <Badge
-                        variant="outline"
-                        className="bg-purple-50 dark:bg-purple-900"
-                    >
-                        {selectedCourse.credit_hours_delivered} Total Credit
-                        Hours
-                    </Badge>
-                </CardFooter>
-            )}
-        </Card>
-    )
+    return termCourses
 }

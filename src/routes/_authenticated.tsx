@@ -11,7 +11,10 @@ export const Route = createFileRoute('/_authenticated')({
             throw redirect({ to: '/login' })
         }
 
-        if (!context.userSession?.user.isEnabled || !context.userSession?.user.mnumber) {
+        if (
+            !context.userSession?.user.isEnabled ||
+            !context.userSession?.user.mnumber
+        ) {
             throw redirect({ to: '/waiting' })
         }
     },

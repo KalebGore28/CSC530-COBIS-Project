@@ -8,7 +8,7 @@ import type {
 import { useAuthentication } from '@/lib/auth-client'
 
 import { studentsCollection } from '@/integrations/tanstack-db/students'
-import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
+// import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
 import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
@@ -59,36 +59,23 @@ function ClassRosterPage() {
                 ({ studentCourse, student }) =>
                     eq(studentCourse.mnumber, student.mnumber),
             )
-            .leftJoin(
-                { studentAcademicInfo: studentAcademicInfoCollection },
-                ({ studentCourse, studentAcademicInfo }) =>
-                    eq(studentCourse.mnumber, studentAcademicInfo.mnumber),
-            )
-            .select(
-                ({
-                    studentCourse,
-                    term,
-                    course,
-                    studentAcademicInfo,
-                    student,
-                }) => ({
-                    mnumber: studentCourse.mnumber,
-                    first_name: student?.first_name,
-                    last_name: student?.last_name,
-                    email: student?.email || undefined,
-                    course_id: studentCourse.course_id,
-                    course_section: studentCourse.course_section,
-                    course_title: course?.title,
-                    course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
-                    year: studentCourse.year,
-                    term_code: studentCourse.term_code,
-                    term_description: term?.description,
-                    midterm_grade: studentCourse.midterm_grade,
-                    final_grade: studentCourse.final_grade,
-                    last_attendance: studentCourse.last_attendance,
-                    student_gpa: studentAcademicInfo?.overall_gpa || null,
-                }),
-            ),
+            .select(({ studentCourse, term, course, student }) => ({
+                mnumber: studentCourse.mnumber,
+                first_name: student?.first_name,
+                last_name: student?.last_name,
+                email: student?.email || undefined,
+                course_id: studentCourse.course_id,
+                course_section: studentCourse.course_section,
+                course_title: course?.title,
+                course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
+                year: studentCourse.year,
+                term_code: studentCourse.term_code,
+                term_description: term?.description,
+                midterm_grade: studentCourse.midterm_grade,
+                final_grade: studentCourse.final_grade,
+                last_attendance: studentCourse.last_attendance,
+                // student_gpa: studentAcademicInfo?.overall_gpa || null,
+            })),
     )
 
     if (!userSession || !userSession.user.mnumber) return null
@@ -101,8 +88,6 @@ function ClassRosterPage() {
             </div>
         )
     }
-
-    console.log('instructorCourses', instructorCourses, selectedTerm, selectedCourse)
 
     // Filter instructorCourses based on selectedCourses
     const filteredInstructorCourses =
