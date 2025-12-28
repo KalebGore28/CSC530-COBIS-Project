@@ -9,7 +9,7 @@ import { and, eq, useLiveQuery } from '@tanstack/react-db'
 import { Button } from '@/components/ui/button'
 
 import { studentsCollection } from '@/integrations/tanstack-db/students'
-import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
+// import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
 import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
