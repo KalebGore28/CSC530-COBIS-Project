@@ -1,9 +1,0 @@
-import { createFileRoute } from '@tanstack/react-router'
-
-export const Route = createFileRoute('/api/graphql')({
-  component: RouteComponent,
-})
-
-function RouteComponent() {
-  return <div>Hello "/api/graphql"!</div>
-}
