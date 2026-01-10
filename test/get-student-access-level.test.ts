@@ -17,7 +17,6 @@ describe('getStudentAccessLevel', async () => {
         .set({ department_code: 'CSC' })
         .where(eq(faculty.mnumber, 'M711403719'))
 
-    // The faculty should have full access to this student as department_chair: M806281144
     it('department chair should have full access to a student enrolled in a program in the same department', async () => {
         const result = await getStudentAccessLevel(
             'M711403719',
@@ -32,19 +31,17 @@ describe('getStudentAccessLevel', async () => {
         )
     })
 
-    // The faculty should have no access to this student as faculty: M806281144
     it('department chair should have no access to a student not enrolled in one of their courses or a program in their same department', async () => {
         const result = await getStudentAccessLevel(
             'M711403719',
-            new Set(['role_irrelevant_for_test']),
+            new Set(['department_chair']),
             'CSC',
         )
 
         expect(result.mnumbers).toBeDefined()
-        expect(result.mnumbers?.get('M806281144')).toBeUndefined()
+        expect(result.mnumbers?.get('M000708613')).toBeUndefined()
     })
 
-    // The faculty should have limited access to this student as admin_assistant: M806281144
     it('admin assistant should have limited access to a student in their department', async () => {
         const result = await getStudentAccessLevel(
             'M711403719',
@@ -61,7 +58,6 @@ describe('getStudentAccessLevel', async () => {
         )
     })
 
-    // Faculty should have course_scoped access to their own students: M806281144
     it('faculty should have course_scoped access to their own students', async () => {
         const result = await getStudentAccessLevel(
             'M711403719',
@@ -74,5 +70,17 @@ describe('getStudentAccessLevel', async () => {
             'course_scoped',
         )
         expect(result.mnumbers?.get('M000271999')?.reason).toBe('instructor')
+    })
+
+    it('advisor should have full access to their own advised students', async () => {
+        const result = await getStudentAccessLevel(
+            'M711403719',
+            new Set(['role_irrelevant_for_test']),
+            'CSC',
+        )
+
+        expect(result.mnumbers).toBeDefined()
+        expect(result.mnumbers?.get('M766995777')?.accessLevel).toBe('full')
+        expect(result.mnumbers?.get('M766995777')?.reason).toBe('advisor')
     })
 })
