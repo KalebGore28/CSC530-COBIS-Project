@@ -1,13 +1,18 @@
 import { eq } from 'drizzle-orm'
 import { getDb } from '@/db'
-import { studentAdvisors, studentCourses, studentPrograms, programs } from '@/db/schema'
+import {
+    programs,
+    studentAdvisors,
+    studentCourses,
+    studentPrograms,
+} from '@/db/schema'
 
 /**
  * Roles that this function checks for:
  * - Faculty: Access to students enrolled in their courses
  * - Advisor: Access to students they advise
  * - Program Coordinator: Access to students in their programs
- * - Admin Assistant: Access to students in their department. 
+ * - Admin Assistant: Access to students in their department.
  * - Department Chair: Access to students in their department's programs
  * - COBIS Administrator: Technically has access to all student data on backend database if they maintain it, but front-end will restrict access unless one of the other roles are present.
  */
@@ -24,34 +29,33 @@ const ROLE_ACCESS_LEVELS = {
 
 const ACCESS_LEVEL = {
     LIMITED: 'limited', // Basic Student Info Only. No grades or GPAs
-    COURSE_SCOPED: 'course_scoped', // Access to own course grades
+    COURSE_SCOPED: 'course_scoped', // Access to own student course grades, no GPA access
     FULL: 'full', // Full Access to all student data
 } as const
-
-
 
 export async function getStudentAccessLevel(
     user_mnumber: string,
     user_roles: Set<string>,
     user_department_code: string,
-): Promise<{ mnumbers: Map<string, typeof ACCESS_LEVEL[keyof typeof ACCESS_LEVEL]> | undefined }> {
-
-    // Return if no roles to check
-    if (
-        !user_roles.has(ROLE_ACCESS_LEVELS.PROGRAM_COORDINATOR) &&
-        !user_roles.has(ROLE_ACCESS_LEVELS.ADMIN_ASSISTANT) &&
-        !user_roles.has(ROLE_ACCESS_LEVELS.DEPARTMENT_CHAIR) &&
-        !user_roles.has(ROLE_ACCESS_LEVELS.COBIS_ADMINISTRATOR)
-    ) {
-        console.warn('No relevant roles found for user in function(getStudentAccessLevel):', user_mnumber)
-        return { mnumbers: undefined }
-    }
-
+): Promise<{
+    mnumbers: Map<
+        string,
+        {
+            accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
+            reason: string
+        }
+    >
+}> {
     const db = getDb()
 
     // A student map of mnumbers with their access levels
-    const studentAccessMap = new Map<string, typeof ACCESS_LEVEL[keyof typeof ACCESS_LEVEL]>()
-
+    const studentAccessMap = new Map<
+        string,
+        {
+            accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
+            reason: string
+        }
+    >()
     // We start from lowest access level to highest, so that higher levels can overwrite lower levels.
 
     // --- Limited Access Level ---
@@ -72,7 +76,10 @@ export async function getStudentAccessLevel(
             .where(eq(programs.department_code, user_department_code))
 
         studentMnumbers.forEach((s) => {
-            studentAccessMap.set(s.student_mnumber, ACCESS_LEVEL.LIMITED)
+            studentAccessMap.set(s.student_mnumber, {
+                accessLevel: ACCESS_LEVEL.LIMITED,
+                reason: 'admin_assistant',
+            })
         })
     }
 
@@ -87,7 +94,10 @@ export async function getStudentAccessLevel(
         .where(eq(studentCourses.instructor_mnumber, user_mnumber))
 
     studentMnumbers.forEach((s) =>
-        studentAccessMap.set(s.student_mnumber, ACCESS_LEVEL.COURSE_SCOPED),
+        studentAccessMap.set(s.student_mnumber, {
+            accessLevel: ACCESS_LEVEL.COURSE_SCOPED,
+            reason: 'instructor',
+        }),
     )
 
     // --- Full Access Level ---
@@ -96,7 +106,10 @@ export async function getStudentAccessLevel(
         // Right now we don't have a way to link Program Coordinators to specific programs.
         // We need more info on whether Program Coordinators can be over multiple programs or just one.
         // We can't implement this until we have that info.
-        console.warn('Program Coordinator access level not implemented yet in function(getStudentAccessLevel):', user_mnumber)
+        console.warn(
+            'Program Coordinator access level not implemented yet in function(getStudentAccessLevel):',
+            user_mnumber,
+        )
     }
 
     // Get Student MNumbers available for Department Chairs - Full Level Access
@@ -115,7 +128,10 @@ export async function getStudentAccessLevel(
             .where(eq(programs.department_code, user_department_code))
 
         studentMnumbers.forEach((s) => {
-            studentAccessMap.set(s.student_mnumber, ACCESS_LEVEL.FULL)
+            studentAccessMap.set(s.student_mnumber, {
+                accessLevel: ACCESS_LEVEL.FULL,
+                reason: 'department_chair',
+            })
         })
     }
 
@@ -129,7 +145,10 @@ export async function getStudentAccessLevel(
         .where(eq(studentAdvisors.advisor_mnumber, user_mnumber))
 
     advisedStudents.forEach((s) =>
-        studentAccessMap.set(s.student_mnumber, ACCESS_LEVEL.FULL),
+        studentAccessMap.set(s.student_mnumber, {
+            accessLevel: ACCESS_LEVEL.FULL,
+            reason: 'advisor',
+        }),
     )
 
     return {
