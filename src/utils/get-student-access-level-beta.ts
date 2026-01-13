@@ -42,7 +42,8 @@ const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
 const accessCache = new Map<
     string,
     {
-        data: Map<
+        students: Set<string> // For base student table - just mnumbers
+        terms: Map< // For term-specific access
             AccessKey,
             {
                 student_mnumber: string
@@ -66,7 +67,8 @@ export async function getStudentAccessLevel(
         bypassCache?: boolean
     },
 ): Promise<{
-    mnumbers: Map<
+    students: Set<string>  // For base student table - just mnumbers
+    terms: Map<
         AccessKey,
         {
             student_mnumber: string
@@ -89,16 +91,23 @@ export async function getStudentAccessLevel(
     if (!options?.bypassCache) {
         const cached = accessCache.get(cacheKey)
         if (cached && isCacheValid(cached.timestamp)) {
-            console.log(`Cache hit for user: ${user_mnumber}`)
-            return { mnumbers: cached.data }
+            console.log(`Cache hit for faculty user: ${user_mnumber}`)
+            return {
+                students: cached.students,
+                terms: cached.terms
+            }
         }
     }
 
-    console.log(`Cache miss for user: ${user_mnumber}, fetching from DB...`)
+    console.log(`Cache miss for faculty user: ${user_mnumber}, fetching from DB...`)
 
-    // Your existing logic here...
     const db = getDb()
-    const studentAccessMap = new Map<
+
+    // Set of all accessible student mnumbers (for base table queries)
+    const accessibleStudents = new Set<string>()
+
+    // Map of term-specific access (for term-scoped table queries)
+    const termAccessMap = new Map<
         AccessKey,
         {
             student_mnumber: string
@@ -121,9 +130,12 @@ export async function getStudentAccessLevel(
         .where(eq(studentCourses.instructor_mnumber, user_mnumber))
 
     studentMnumbers.forEach((s) => {
-        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        // Add to overall accessible students
+        accessibleStudents.add(s.student_mnumber)
 
-        studentAccessMap.set(key, {
+        // Add to term-specific access map
+        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        termAccessMap.set(key, {
             student_mnumber: s.student_mnumber,
             year: s.year,
             term_code: s.term_code,
@@ -144,9 +156,12 @@ export async function getStudentAccessLevel(
         .where(eq(studentAdvisors.advisor_mnumber, user_mnumber))
 
     advisedStudents.forEach((s) => {
-        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        // Add to overall accessible students
+        accessibleStudents.add(s.student_mnumber)
 
-        studentAccessMap.set(key, {
+        // Add to term-specific access map
+        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        termAccessMap.set(key, {
             student_mnumber: s.student_mnumber,
             year: s.year,
             term_code: s.term_code,
@@ -158,17 +173,22 @@ export async function getStudentAccessLevel(
 
     // Store in cache before returning
     accessCache.set(cacheKey, {
-        data: studentAccessMap,
+        students: accessibleStudents,
+        terms: termAccessMap,
         timestamp: Date.now(),
     })
 
-    return { mnumbers: studentAccessMap }
+    return { students: accessibleStudents, terms: termAccessMap }
 }
 
 /**
  * Create access key for a student-year-term combination
+ * @param student_mnumber 
+ * @param year 
+ * @param term_code 
+ * @returns string in format "M12345:2024-10"
  */
-function createAccessKey(
+export function createAccessKey(
     student_mnumber: string,
     year: number,
     term_code: string
