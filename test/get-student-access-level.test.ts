@@ -50,9 +50,7 @@ describe('getStudentAccessLevel', async () => {
         )
 
         expect(result.mnumbers).toBeDefined()
-        expect(result.mnumbers?.get('M806281144')?.accessLevel).toBe(
-            'limited',
-        )
+        expect(result.mnumbers?.get('M806281144')?.accessLevel).toBe('limited')
         expect(result.mnumbers?.get('M806281144')?.reason).toBe(
             'admin_assistant',
         )

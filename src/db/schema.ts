@@ -165,6 +165,10 @@ export const programs = mysqlTable('programs', {
     last_updated: datetime('last_updated')
         .notNull()
         .default(sql`NOW()`),
+    coordinator: varchar('coordinator', { length: 10 }).references(
+        () => faculty.mnumber,
+        { onDelete: 'set null' },
+    ),
 })
 
 export const registrationStatus = mysqlTable('registration_status', {

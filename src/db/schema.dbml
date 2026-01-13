@@ -80,6 +80,7 @@ table programs {
   department_code varchar(10)
   college_code varchar(10)
   last_updated datetime [not null, default: `NOW()`]
+  coordinator varchar(10)
 }
 
 table registration_status {
