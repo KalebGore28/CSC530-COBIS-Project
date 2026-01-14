@@ -88,6 +88,7 @@ export async function getStudentAccessLevel(
     )
 
     // Check cache first (unless bypass requested)
+    // TODO: need to invalidate specific cache on isCacheValid returning false
     if (!options?.bypassCache) {
         const cached = accessCache.get(cacheKey)
         if (cached && isCacheValid(cached.timestamp)) {
@@ -119,6 +120,41 @@ export async function getStudentAccessLevel(
         }
     >()
 
+    // Get Student MNumbers available for Admin Assistants - Lowest Level Access
+    if (user_roles.has(ROLES.ADMIN_ASSISTANT)) {
+        // In order to get the department the student is in, we can look at what programs they are enrolled in.
+        // We need to join the studentPrograms table with the programs table to get the department code.
+        const studentMnumbers = await db
+            .select({
+                student_mnumber: studentPrograms.mnumber,
+                term_code: studentPrograms.term_code,
+                year: studentPrograms.year,
+            })
+            .from(studentPrograms)
+            // INNER JOIN: only include students actively enrolled in valid programs for this department
+            .innerJoin(
+                programs,
+                eq(studentPrograms.program_code, programs.code),
+            )
+            .where(eq(programs.department_code, user_department_code))
+
+        studentMnumbers.forEach((s) => {
+            // Add to overall accessible students
+            accessibleStudents.add(s.student_mnumber)
+
+            // Add to term-specific access map
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            termAccessMap.set(key, {
+                student_mnumber: s.student_mnumber,
+                year: s.year,
+                term_code: s.term_code,
+                accessLevel: ACCESS_LEVEL.LIMITED,
+                reason: 'admin_assistant',
+                role: ROLES.ADMIN_ASSISTANT,
+            })
+        })
+    }
+
     // Get Student MNumbers available for Faculty - Course Scoped Level Access
     const studentMnumbers = await db
         .select({
@@ -144,6 +180,52 @@ export async function getStudentAccessLevel(
             role: ROLES.INSTRUCTOR,
         })
     })
+
+    // Get Student MNumbers available for Program Coordinators - Full Level Access
+    if (user_roles.has(ROLES.PROGRAM_COORDINATOR)) {
+        // Right now we don't have a way to link Program Coordinators to specific programs.
+        // We need more info on whether Program Coordinators can be over multiple programs or just one.
+        // We can't implement this until we have that info.
+        console.warn(
+            'Program Coordinator access level not implemented yet in function(getStudentAccessLevel):',
+            user_mnumber,
+        )
+    }
+
+    // Get Student MNumbers available for Department Chairs - Full Level Access
+    // TODO: Not finished. Consider course_scoped for students taking courses in their department.
+    if (user_roles.has(ROLES.DEPARTMENT_CHAIR)) {
+        // In order to get the department the student is in, we can look at what programs they are enrolled in.
+        // We need to join the studentPrograms table with the programs table to get the department code.
+        const studentMnumbers = await db
+            .select({
+                student_mnumber: studentPrograms.mnumber,
+                term_code: studentPrograms.term_code,
+                year: studentPrograms.year,
+            })
+            .from(studentPrograms)
+            .innerJoin(
+                programs,
+                eq(studentPrograms.program_code, programs.code),
+            )
+            .where(eq(programs.department_code, user_department_code))
+
+        studentMnumbers.forEach((s) => {
+            // Add to overall accessible students
+            accessibleStudents.add(s.student_mnumber)
+
+            // Add to term-specific access map
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            termAccessMap.set(key, {
+                student_mnumber: s.student_mnumber,
+                year: s.year,
+                term_code: s.term_code,
+                accessLevel: ACCESS_LEVEL.FULL,
+                reason: 'department_chair',
+                role: ROLES.DEPARTMENT_CHAIR,
+            })
+        })
+    }
 
     // Get Student MNumbers available for Advisors - Full Level Access
     const advisedStudents = await db
