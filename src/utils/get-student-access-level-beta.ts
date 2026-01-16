@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { getDb } from '@/db'
 import {
+    courses,
     programs,
     studentAdvisors,
     studentCourses,
@@ -36,14 +37,14 @@ const ACCESS_LEVEL = {
     FULL: 'full', // Full Access to all student data
 } as const
 
-
 // Cache configuration
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
 const accessCache = new Map<
     string,
     {
         students: Set<string> // For base student table - just mnumbers
-        terms: Map< // For term-specific access
+        terms: Map<
+            // For term-specific access
             AccessKey,
             {
                 student_mnumber: string
@@ -67,7 +68,7 @@ export async function getStudentAccessLevel(
         bypassCache?: boolean
     },
 ): Promise<{
-    students: Set<string>  // For base student table - just mnumbers
+    students: Set<string> // For base student table - just mnumbers
     terms: Map<
         AccessKey,
         {
@@ -88,19 +89,21 @@ export async function getStudentAccessLevel(
     )
 
     // Check cache first (unless bypass requested)
-    // TODO: need to invalidate specific cache on isCacheValid returning false
+    // If cache is invalid, the cache will be replaced below to ensure fresh data and avoid stale reads
     if (!options?.bypassCache) {
         const cached = accessCache.get(cacheKey)
         if (cached && isCacheValid(cached.timestamp)) {
             console.log(`Cache hit for faculty user: ${user_mnumber}`)
             return {
                 students: cached.students,
-                terms: cached.terms
+                terms: cached.terms,
             }
         }
     }
 
-    console.log(`Cache miss for faculty user: ${user_mnumber}, fetching from DB...`)
+    console.log(
+        `Cache miss for faculty user: ${user_mnumber}, fetching from DB...`,
+    )
 
     const db = getDb()
 
@@ -149,14 +152,14 @@ export async function getStudentAccessLevel(
                 year: s.year,
                 term_code: s.term_code,
                 accessLevel: ACCESS_LEVEL.LIMITED,
-                reason: 'admin_assistant',
+                reason: 'within_department',
                 role: ROLES.ADMIN_ASSISTANT,
             })
         })
     }
 
     // Get Student MNumbers available for Faculty - Course Scoped Level Access
-    const studentMnumbers = await db
+    const instructorStudents = await db
         .select({
             student_mnumber: studentCourses.mnumber,
             term_code: studentCourses.term_code,
@@ -165,7 +168,7 @@ export async function getStudentAccessLevel(
         .from(studentCourses)
         .where(eq(studentCourses.instructor_mnumber, user_mnumber))
 
-    studentMnumbers.forEach((s) => {
+    instructorStudents.forEach((s) => {
         // Add to overall accessible students
         accessibleStudents.add(s.student_mnumber)
 
@@ -176,28 +179,42 @@ export async function getStudentAccessLevel(
             year: s.year,
             term_code: s.term_code,
             accessLevel: ACCESS_LEVEL.COURSE_SCOPED,
-            reason: 'instructor_course_assignment',
+            reason: 'instructor',
             role: ROLES.INSTRUCTOR,
         })
     })
 
-    // Get Student MNumbers available for Program Coordinators - Full Level Access
-    if (user_roles.has(ROLES.PROGRAM_COORDINATOR)) {
-        // Right now we don't have a way to link Program Coordinators to specific programs.
-        // We need more info on whether Program Coordinators can be over multiple programs or just one.
-        // We can't implement this until we have that info.
-        console.warn(
-            'Program Coordinator access level not implemented yet in function(getStudentAccessLevel):',
-            user_mnumber,
-        )
-    }
-
-    // Get Student MNumbers available for Department Chairs - Full Level Access
-    // TODO: Not finished. Consider course_scoped for students taking courses in their department.
+    // Get Student MNumbers available for Department Chairs - Course Scoped/Full Level Access
     if (user_roles.has(ROLES.DEPARTMENT_CHAIR)) {
-        // In order to get the department the student is in, we can look at what programs they are enrolled in.
-        // We need to join the studentPrograms table with the programs table to get the department code.
-        const studentMnumbers = await db
+        // Course Scoped Access
+        const courseStudents = await db
+            .select({
+                student_mnumber: studentCourses.mnumber,
+                term_code: studentCourses.term_code,
+                year: studentCourses.year,
+            })
+            .from(studentCourses)
+            .innerJoin(courses, eq(studentCourses.course_id, courses.code))
+            .where(eq(courses.department_code, user_department_code))
+
+        courseStudents.forEach((s) => {
+            // Add to overall accessible students
+            accessibleStudents.add(s.student_mnumber)
+
+            // Add to term-specific access map
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            termAccessMap.set(key, {
+                student_mnumber: s.student_mnumber,
+                year: s.year,
+                term_code: s.term_code,
+                accessLevel: ACCESS_LEVEL.COURSE_SCOPED,
+                reason: 'student_course_in_department',
+                role: ROLES.DEPARTMENT_CHAIR,
+            })
+        })
+
+        // Full Level Access
+        const studentMnumbersFull = await db
             .select({
                 student_mnumber: studentPrograms.mnumber,
                 term_code: studentPrograms.term_code,
@@ -210,6 +227,39 @@ export async function getStudentAccessLevel(
             )
             .where(eq(programs.department_code, user_department_code))
 
+        studentMnumbersFull.forEach((s) => {
+            // Add to overall accessible students
+            accessibleStudents.add(s.student_mnumber)
+
+            // Add to term-specific access map
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            termAccessMap.set(key, {
+                student_mnumber: s.student_mnumber,
+                year: s.year,
+                term_code: s.term_code,
+                accessLevel: ACCESS_LEVEL.FULL,
+                reason: 'within_department',
+                role: ROLES.DEPARTMENT_CHAIR,
+            })
+        })
+    }
+
+    // Get Student MNumbers available for Program Coordinators - Full Level Access
+    if (user_roles.has(ROLES.PROGRAM_COORDINATOR)) {
+        const studentMnumbers = await db
+            .select({
+                student_mnumber: studentPrograms.mnumber,
+                term_code: studentPrograms.term_code,
+                year: studentPrograms.year,
+            })
+            .from(studentPrograms)
+            // INNER JOIN: only include students actively enrolled in valid programs for which this user is the coordinator
+            .innerJoin(
+                programs,
+                eq(studentPrograms.program_code, programs.code),
+            )
+            .where(eq(programs.coordinator, user_mnumber))
+
         studentMnumbers.forEach((s) => {
             // Add to overall accessible students
             accessibleStudents.add(s.student_mnumber)
@@ -221,8 +271,8 @@ export async function getStudentAccessLevel(
                 year: s.year,
                 term_code: s.term_code,
                 accessLevel: ACCESS_LEVEL.FULL,
-                reason: 'department_chair',
-                role: ROLES.DEPARTMENT_CHAIR,
+                reason: 'within_department',
+                role: ROLES.PROGRAM_COORDINATOR,
             })
         })
     }
@@ -248,12 +298,14 @@ export async function getStudentAccessLevel(
             year: s.year,
             term_code: s.term_code,
             accessLevel: ACCESS_LEVEL.FULL,
-            reason: 'advisor_assignment',
+            reason: 'advisor',
             role: ROLES.ADVISOR,
         })
     })
 
-    // Store in cache before returning
+    console.log(termAccessMap)
+
+    // Store/replace data in cache
     accessCache.set(cacheKey, {
         students: accessibleStudents,
         terms: termAccessMap,
@@ -265,15 +317,15 @@ export async function getStudentAccessLevel(
 
 /**
  * Create access key for a student-year-term combination
- * @param student_mnumber 
- * @param year 
- * @param term_code 
+ * @param student_mnumber
+ * @param year
+ * @param term_code
  * @returns string in format "M12345:2024-10"
  */
 export function createAccessKey(
     student_mnumber: string,
     year: number,
-    term_code: string
+    term_code: string,
 ): AccessKey {
     return `${student_mnumber}:${year}-${term_code}`
 }
@@ -300,6 +352,7 @@ function getCacheKey(
 
 /**
  * Manually invalidate cache for a specific user or all users
+ * @param user_mnumber MNumber of the user whose cache should be invalidated. If not provided, the entire cache is cleared.
  */
 export function invalidateAccessCache(user_mnumber?: string) {
     if (user_mnumber) {
