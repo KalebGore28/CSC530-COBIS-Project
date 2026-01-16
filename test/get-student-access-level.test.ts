@@ -5,7 +5,7 @@ import {
     createAccessKey,
     getStudentAccessLevel,
     invalidateAccessCache,
-} from '@/utils/get-student-access-level-beta'
+} from '@/utils/get-student-access-level'
 import { faculty } from '@/db/schema'
 
 vi.mock('@/db', () => ({
