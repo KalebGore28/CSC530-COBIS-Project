@@ -97,6 +97,10 @@ export const csvConfig = createCSVConfig(
                 },
                 title: { csvColumnName: 'CRSETITLE' },
                 hours: { csvColumnName: 'CREDITHRS' },
+                department_code: {
+                    csvColumnName: 'COURSE',
+                    transform: (val) => parseCourseCode(val).subject,
+                },
             },
             missingRowResolver: (missingData) => {
                 const courseId = missingData[0]
@@ -121,6 +125,10 @@ export const csvConfig = createCSVConfig(
                     transform: (val) => (isCSVColumnNull(val) ? null : val),
                 },
             },
+            missingRowResolver: (missingData) => ({
+                code: missingData[0],
+                description: 'Unknown Department',
+            }),
         },
         faculty: {
             patterns: [

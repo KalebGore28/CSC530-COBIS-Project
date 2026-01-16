@@ -271,7 +271,7 @@ export async function getStudentAccessLevel(
                 year: s.year,
                 term_code: s.term_code,
                 accessLevel: ACCESS_LEVEL.FULL,
-                reason: 'within_department',
+                reason: 'within_program',
                 role: ROLES.PROGRAM_COORDINATOR,
             })
         })
@@ -302,8 +302,6 @@ export async function getStudentAccessLevel(
             role: ROLES.ADVISOR,
         })
     })
-
-    console.log(termAccessMap)
 
     // Store/replace data in cache
     accessCache.set(cacheKey, {

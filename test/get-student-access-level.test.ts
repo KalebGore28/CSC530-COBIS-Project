@@ -6,7 +6,7 @@ import {
     getStudentAccessLevel,
     invalidateAccessCache,
 } from '@/utils/get-student-access-level'
-import { faculty } from '@/db/schema'
+import { faculty, programs } from '@/db/schema'
 
 vi.mock('@/db', () => ({
     getDb: () => getTestDb(),
@@ -173,5 +173,85 @@ describe('getStudentAccessLevelBeta', async () => {
         expect(result.terms?.get(studentCacheKey)?.accessLevel).toBe('full')
         expect(result.terms?.get(studentCacheKey)?.reason).toBe('advisor')
         expect(result.terms?.get(studentCacheKey)?.role).toBe('advisor')
+    })
+
+    it('admin assistant should have limited access to students in their department', async () => {
+        const studentCacheKey = createAccessKey('M766995777', 2022, '90')
+        const result = await getStudentAccessLevel(
+            'M711403719',
+            new Set(['admin_assistant']),
+            'CSC',
+        )
+
+        expect(result.terms).toBeDefined()
+        expect(result.terms?.get(studentCacheKey)?.accessLevel).toBe('limited')
+        expect(result.terms?.get(studentCacheKey)?.reason).toBe(
+            'within_department',
+        )
+        expect(result.terms?.get(studentCacheKey)?.role).toBe('admin_assistant')
+    })
+
+    it('department chair should have course scoped access to students taking classes in their department', async () => {
+        const studentCacheKey = createAccessKey('M862301697', 2023, '10')
+        const result = await getStudentAccessLevel(
+            'M711403719',
+            new Set(['department_chair']),
+            'ACC',
+        )
+
+        expect(result.terms).toBeDefined()
+        expect(result.terms?.get(studentCacheKey)?.accessLevel).toBe(
+            'course_scoped',
+        )
+        expect(result.terms?.get(studentCacheKey)?.reason).toBe(
+            'student_course_in_department',
+        )
+        expect(result.terms?.get(studentCacheKey)?.role).toBe(
+            'department_chair',
+        )
+    })
+
+    it('department chair should have full access to students in their department', async () => {
+        const studentCacheKey = createAccessKey('M766995777', 2022, '90')
+        const result = await getStudentAccessLevel(
+            'M711403719',
+            new Set(['department_chair']),
+            'CSC',
+        )
+
+        expect(result.terms).toBeDefined()
+        expect(result.terms?.get(studentCacheKey)?.accessLevel).toBe('full')
+        expect(result.terms?.get(studentCacheKey)?.reason).toBe(
+            'within_department',
+        )
+        expect(result.terms?.get(studentCacheKey)?.role).toBe(
+            'department_chair',
+        )
+    })
+
+    it('program coordinator should have full access to students in their programs', async () => {
+        // First we need to assign M711403719 as program coordinator for program 'A015'
+        await db
+            .update(programs)
+            .set({
+                coordinator: 'M711403719',
+            })
+            .where(eq(programs.code, 'A015'))
+
+        const studentCacheKey = createAccessKey('M000520156', 2021, '80')
+        const result = await getStudentAccessLevel(
+            'M711403719',
+            new Set(['program_coordinator']),
+            'CSC',
+        )
+
+        expect(result.terms).toBeDefined()
+        expect(result.terms?.get(studentCacheKey)?.accessLevel).toBe('full')
+        expect(result.terms?.get(studentCacheKey)?.reason).toBe(
+            'within_program',
+        )
+        expect(result.terms?.get(studentCacheKey)?.role).toBe(
+            'program_coordinator',
+        )
     })
 })
