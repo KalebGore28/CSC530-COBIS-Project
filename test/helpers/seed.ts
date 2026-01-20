@@ -33,6 +33,28 @@ const academicStandings = (await getCSVData('academic_standing.csv')) as Array<
 const colleges = (await getCSVData('colleges.csv')) as Array<
     typeof schema.colleges.$inferSelect
 >
+
+const coursePrefixData = await getCSVData('course_prefixes.csv')
+const coursePrefixes = (coursePrefixData as Array<Record<string, string>>).map((row) => {
+    return {
+        code: row.prefix,
+        department_code: row.crsedept,
+        college_code: row.crsecoll
+    }
+}) as Array<typeof schema.courses.$inferSelect>
+
+type CoursePrefixValue = {
+    department_code: string | null
+    college_code: string | null
+}
+const coursePrefixMap = new Map<string, CoursePrefixValue>()
+for (const row of coursePrefixes) {
+    coursePrefixMap.set(row.code, {
+        department_code: row.department_code,
+        college_code: row.college_code
+    })
+}
+
 const coursesData = await getCSVData('reg_cuba_catalog_202510_20250117.csv')
 const courses = (coursesData as Array<Record<string, string>>).map((row) => {
     const course = row.course || ''
@@ -52,6 +74,8 @@ const courses = (coursesData as Array<Record<string, string>>).map((row) => {
         title: row.crsetitle,
         hours: Number(row.credithrs),
         last_updated: new Date(Date.now()),
+        department_code: coursePrefixMap.get(subject)?.department_code,
+        college_code: coursePrefixMap.get(subject)?.college_code
     }
 }) as Array<typeof schema.courses.$inferSelect>
 const departments = (await getCSVData('departments.csv')) as Array<
@@ -91,8 +115,9 @@ async function seedStaticLookups(db: ReturnType<typeof getDb>) {
     await db.insert(schema.admitCodes).values(admitCodes)
     await db.insert(schema.academicStanding).values(academicStandings)
     await db.insert(schema.colleges).values(colleges)
-    await db.insert(schema.courses).values(courses)
     await db.insert(schema.departments).values(departments)
+    await db.insert(schema.courses).values(courses)
+    await db.insert(schema.coursePrefixes).values(coursePrefixes)
     await db.insert(schema.instructionalMethods).values(instructionalMethods)
     await db.insert(schema.registrationStatus).values(registrationStatuses)
     await db.insert(schema.roles).values(roles)
@@ -121,6 +146,7 @@ async function seedTestDatabase() {
             admitCodes: undefined,
             colleges: undefined,
             courses: undefined,
+            coursePrefixes: undefined,
             departments: undefined,
             instructionalMethods: undefined,
             partOfTerm: undefined,

@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { getDbConnection } from '..'
+import { getDb } from '..'
 import { csvConfig } from '../mapping-config'
 import { importCSVFile } from '@/utils/csv-importer'
 
@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 async function main() {
-    const db = await getDbConnection()
+    const db = getDb()
     try {
         await importCSVFile(
             db,
@@ -23,6 +23,11 @@ async function main() {
         await importCSVFile(
             db,
             path.join(__dirname, 'csvs/academic_standing.csv'),
+            csvConfig,
+        )
+        await importCSVFile(
+            db,
+            path.join(__dirname, 'csvs/course_prefixes.csv'),
             csvConfig,
         )
         await importCSVFile(

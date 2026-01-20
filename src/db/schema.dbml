@@ -28,6 +28,12 @@ table colleges {
   description varchar(255) [not null]
 }
 
+table course_prefixes {
+  code varchar(10) [pk, not null]
+  department_code varchar(10)
+  college_code varchar(10)
+}
+
 table courses {
   code varchar(100) [pk, not null]
   subject varchar(50) [not null]

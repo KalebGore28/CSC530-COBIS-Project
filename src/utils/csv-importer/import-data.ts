@@ -113,7 +113,7 @@ export const importData = async (
 
             const columns = getColumns(table)
 
-            const mappedRows = results.data.map((row) => {
+            const mappedRows = await Promise.all(results.data.map(async (row) => {
                 const mapped: Record<string, any> = {}
 
                 for (const [columnName, columnConfig] of Object.entries(
@@ -137,8 +137,8 @@ export const importData = async (
                     const value = combineCSVColumns
                         ? csvNames.map((name) => row[name] || '').join('')
                         : csvNames
-                              .map((name) => row[name])
-                              .find((v) => v !== undefined)
+                            .map((name) => row[name])
+                            .find((v) => v !== undefined)
 
                     const column = columns[columnName]
                     if (!column)
@@ -149,8 +149,9 @@ export const importData = async (
                     try {
                         // If transform is provided, use it; otherwise, use dataConformer
                         mapped[columnName] = transform
-                            ? transform(value)
+                            ? await transform(value)
                             : dataConformer(value, column)
+                        // console.log(columnName, mapped[columnName])
                     } catch (err) {
                         emit({
                             type: 'error',
@@ -167,7 +168,7 @@ export const importData = async (
                 }
 
                 return mapped
-            })
+            }))
 
             tableDataMap.set(tableName, mappedRows)
             continue
@@ -230,7 +231,8 @@ export const importData = async (
                     ) {
                         continue
                     }
-                    const keyParts = fk.columns.map((col) => row[col] || '') // Foreign Key can't be null so use '' for missing values
+                    // TODO: Need to do more testing here.
+                    const keyParts = fk.columns.map((col) => row[col])
 
                     const existsInCache = cacheData.has(
                         fk.foreignTableName,
@@ -249,6 +251,7 @@ export const importData = async (
                         // Call the missing row resolver to get the missing data
                         const missingData =
                             foreignTableConfig.missingRowResolver(keyParts)
+                        // console.log('Missing Parts', keyParts, tableName,missingData, fk, row)
                         if (missingData) {
                             // Insert the missing data into the foreign table
                             if (!foreignTableSchema) {
@@ -278,6 +281,7 @@ export const importData = async (
                 }
 
                 try {
+                    // Row here is being printed as a promise for some reason
                     await db
                         .insert(table)
                         .values(row)

@@ -112,6 +112,24 @@ export const courses = mysqlTable(
     ],
 )
 
+/**
+ * This table's job is to provide a course-to-department mapping.
+ * Ex: 'CSC' in 'CSC101' is the prefix.
+ * We create a relationship with the prefix to the assigned department
+ * Anytime a new 'CSC' course is added, it will be assigned to the already established department.
+ */
+export const coursePrefixes = mysqlTable('course_prefixes', {
+    code: varchar('code', { length: 10 }).primaryKey(),
+    department_code: varchar('department_code', { length: 10 }).references(
+        () => departments.code,
+        { onDelete: 'set null' },
+    ),
+    college_code: varchar('college_code', { length: 10 }).references(
+        () => colleges.code,
+        { onDelete: 'set null' }
+    )
+})
+
 export const departments = mysqlTable('departments', {
     code: varchar('code', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
