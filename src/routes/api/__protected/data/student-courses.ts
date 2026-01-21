@@ -19,7 +19,7 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                     studentCourses,
                 )
 
-                let results = await context.db
+                const results = await context.db
                     .select()
                     .from(studentCourses)
                     .where(whereConditions)

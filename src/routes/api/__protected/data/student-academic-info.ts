@@ -18,7 +18,7 @@ export const Route = createFileRoute(
                     studentAcademicInfo,
                 )
 
-                let results = await context.db
+                const results = await context.db
                     .select()
                     .from(studentAcademicInfo)
                     .where(whereConditions)

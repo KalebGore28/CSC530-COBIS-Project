@@ -15,7 +15,7 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                     students,
                 )
 
-                let results = await context.db
+                const results = await context.db
                     .select()
                     .from(students)
                     .where(whereConditions)
@@ -29,11 +29,11 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                     context.faculty.department_code || '',
                 )
 
-                results = results.filter((student) =>
+                const finalResults = results.filter((student) =>
                     studentMnumbers.students.has(student.mnumber),
                 )
 
-                const json = JSON.stringify(results)
+                const json = JSON.stringify(finalResults)
                 const compressed = gzipSync(Buffer.from(json))
 
                 return new Response(compressed, {

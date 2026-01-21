@@ -21,6 +21,7 @@ import {
     studentPrograms,
     students,
 } from '@/db/schema'
+import { getStudentAccessLevel } from '@/utils/get-student-access-level'
 
 // Custom Boolean Coercion because of Javascript's truthy coercion of strings
 const booleanCoercion = z
@@ -412,7 +413,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     ? and(...whereClauses)
                     : undefined
 
-                const studentRows = await context.db
+                const results = await context.db
                     .select({
                         mnumber: students.mnumber,
                         first_name: students.first_name,
@@ -437,12 +438,23 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     .offset(parsed.data.offset || 0)
                     .limit(parsed.data.limit || 100)
 
+                // Apply student access restrictions based on roles
+                const studentMnumbers = await getStudentAccessLevel(
+                    context.user.mnumber,
+                    context.roles,
+                    context.faculty.department_code || '',
+                )
+
+                const finalResults = results.filter((student) =>
+                    studentMnumbers.students.has(student.mnumber),
+                )
+
                 // Figure out if we have a next cursor
                 const hasMore =
-                    studentRows.length === (parsed.data.limit || 100)
+                    finalResults.length === (parsed.data.limit || 100)
 
                 const json = JSON.stringify({
-                    students: studentRows,
+                    students: finalResults,
                     errors: errors.length ? errors : undefined,
                     nextCursor: hasMore
                         ? (parsed.data.offset || 0) + (parsed.data.limit || 100)
