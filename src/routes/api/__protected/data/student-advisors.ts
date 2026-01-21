@@ -2,12 +2,12 @@ import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { studentAdvisors } from '@/db/schema'
 import { urlParamsParser } from '@/utils/url-params-parser'
+import { createAccessKey, getStudentAccessLevel } from '@/utils/get-student-access-level'
 
 export const Route = createFileRoute('/api/__protected/data/student-advisors')({
     server: {
         handlers: {
             GET: async ({ request, context }) => {
-                const user_roles = context.roles
 
                 const params = new URL(request.url).searchParams
 
@@ -23,17 +23,31 @@ export const Route = createFileRoute('/api/__protected/data/student-advisors')({
                     .orderBy(...sort)
                     .limit(limit || 1000) // Default limit to 1000 if not specified
 
-                // If not cobis_administrator or department_chair, filter to only the advisors' own students
-                if (
-                    !user_roles.has('cobis_administrator') &&
-                    !user_roles.has('department_chair')
-                ) {
-                    results = results.filter(
-                        (sa) => sa.advisor_mnumber === context.user.mnumber,
+                // Apply student access restrictions based on roles
+                const studentMnumbers = await getStudentAccessLevel(
+                    context.user.mnumber,
+                    context.roles,
+                    context.faculty.department_code || '',
+                )
+
+                const finalResults: typeof results = []
+                for (const student of results) {
+                    const studentCacheKey = createAccessKey(
+                        student.student_mnumber,
+                        student.year,
+                        student.term_code,
                     )
+
+                    const accessData = studentMnumbers.terms.get(studentCacheKey)
+                    if (!accessData) continue
+
+                    // Only users with full access can see student advisors 
+                    if (accessData.accessLevel === 'limited' || accessData.accessLevel === 'course_scoped') continue
+
+                    finalResults.push(student)
                 }
 
-                const json = JSON.stringify(results)
+                const json = JSON.stringify(finalResults)
                 const compressed = gzipSync(Buffer.from(json))
 
                 return new Response(compressed, {

@@ -33,41 +33,31 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                     context.faculty.department_code || '',
                 )
 
-                results = results
-                    .map((student) => {
-                        const studentCacheKey = createAccessKey(
-                            student.mnumber,
-                            student.year,
-                            student.term_code,
-                        )
-
-                        const accessData =
-                            studentMnumbers.terms.get(studentCacheKey)
-
-                        if (accessData === undefined) {
-                            return null
-                        }
-
-                        if (accessData?.accessLevel === 'limited') {
-                            console.log(
-                                'Stripping Data from Student Course:',
-                                student.mnumber,
-                            )
-                            return {
-                                ...student,
-                                midterm_grade: null,
-                                final_grade: null,
-                            }
-                        }
-
-                        return student
-                    })
-                    .filter(
-                        (student): student is NonNullable<typeof student> =>
-                            student !== null,
+                const finalResults: typeof results = []
+                for (const student of results) {
+                    const studentCacheKey = createAccessKey(
+                        student.mnumber,
+                        student.year,
+                        student.term_code,
                     )
 
-                const json = JSON.stringify(results)
+                    const accessData = studentMnumbers.terms.get(studentCacheKey)
+                    if (!accessData) continue
+
+                    // Users with limited level cannot view grades
+                    if (accessData.accessLevel === 'limited') {
+                        finalResults.push({
+                            ...student,
+                            midterm_grade: null,
+                            final_grade: null,
+                            accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason
+                        })
+                    } else {
+                        finalResults.push({ student, accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason })
+                    }
+                }
+
+                const json = JSON.stringify(finalResults)
                 const compressed = gzipSync(Buffer.from(json))
 
                 return new Response(compressed, {
