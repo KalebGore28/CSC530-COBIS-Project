@@ -53,7 +53,7 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                             accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason
                         })
                     } else {
-                        finalResults.push({ student, accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason })
+                        finalResults.push({ ...student, accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason })
                     }
                 }
 
