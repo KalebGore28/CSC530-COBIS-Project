@@ -47,12 +47,12 @@ function ClassRosterPage() {
                 ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_code, term.code),
+                eq(studentCourse.term_id, term.id),
             )
             .leftJoin(
                 { course: coursesCollection },
                 ({ studentCourse, course }) =>
-                    eq(studentCourse.course_id, course.code),
+                    eq(studentCourse.course_id, course.id),
             )
             .leftJoin(
                 { student: studentsCollection },
@@ -69,7 +69,7 @@ function ClassRosterPage() {
                 course_title: course?.title,
                 course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
                 year: studentCourse.year,
-                term_code: studentCourse.term_code,
+                term_id: studentCourse.term_id,
                 term_description: term?.description,
                 midterm_grade: studentCourse.midterm_grade,
                 final_grade: studentCourse.final_grade,
@@ -89,24 +89,24 @@ function ClassRosterPage() {
         )
     }
 
-    // Filter instructorCourses based on selectedCourses
-    const filteredInstructorCourses =
-        selectedTerm && selectedCourse
-            ? instructorCourses?.filter(
-                  (course) =>
-                      course.year === selectedTerm.year &&
-                      course.term_code === selectedTerm.term_code &&
-                      course.course_id === selectedCourse.course_id &&
-                      course.course_section === selectedCourse.course_section,
-              )
-            : instructorCourses
+    // // Filter instructorCourses based on selectedCourses
+    // const filteredInstructorCourses =
+    //     selectedTerm && selectedCourse
+    //         ? instructorCourses?.filter(
+    //               (course) =>
+    //                   course.year === selectedTerm.year &&
+    //                   course.term_id === selectedTerm.term_code &&
+    //                   course.course_id === selectedCourse.course_id &&
+    //                   course.course_section === selectedCourse.course_section,
+    //           )
+    //         : instructorCourses
 
     return (
         <div className="container p-6 mx-auto space-y-6">
             <h1 className="text-2xl font-bold">Class Roster</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
-                <TermCourseSelector
+                {/* <TermCourseSelector
                     className={'col-span-2'}
                     studentCourses={instructorCourses}
                     isLoading={isLoading}
@@ -115,12 +115,12 @@ function ClassRosterPage() {
                     selectedCourse={selectedCourse}
                     setSelectedTerm={setSelectedTerm}
                     setSelectedCourse={setSelectedCourse}
-                />
+                /> */}
 
                 {/* Roster and Info Cards */}
                 {selectedCourse && (
                     <>
-                        <RosterInfoCard
+                        {/* <RosterInfoCard
                             className={'col-span-2'}
                             studentCourses={filteredInstructorCourses}
                         />
@@ -135,7 +135,7 @@ function ClassRosterPage() {
                         <RosterStudents
                             className={'col-span-2'}
                             studentCourses={filteredInstructorCourses}
-                        />
+                        /> */}
                     </>
                 )}
             </div>

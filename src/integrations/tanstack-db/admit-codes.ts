@@ -12,7 +12,7 @@ export const admitCodesCollection = createCollection(
             const response = await fetch(`/api/data/admit-codes`)
             return (await response.json()) as Array<AdmitCode>
         },
-        getKey: (code) => code.code,
+        getKey: (admitCode) => admitCode.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

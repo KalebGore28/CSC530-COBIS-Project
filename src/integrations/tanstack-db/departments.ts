@@ -12,7 +12,7 @@ export const departmentsCollection = createCollection(
             const response = await fetch(`/api/data/departments`)
             return (await response.json()) as Array<Department>
         },
-        getKey: (department) => department.code,
+        getKey: (department) => department.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

@@ -12,7 +12,7 @@ export const partOfTermCollection = createCollection(
             const response = await fetch(`/api/data/part-of-term`)
             return (await response.json()) as Array<PartOfTerm>
         },
-        getKey: (partOfTerm) => partOfTerm.code,
+        getKey: (partOfTerm) => partOfTerm.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

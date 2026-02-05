@@ -12,7 +12,7 @@ export const coursesCollection = createCollection(
             const response = await fetch(`/api/data/courses`)
             return (await response.json()) as Array<Course>
         },
-        getKey: (course) => `${course.subject}${course.number}${course.suffix}`,
+        getKey: (course) => course.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

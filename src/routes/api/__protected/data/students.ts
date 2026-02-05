@@ -26,7 +26,7 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
                     context.roles,
-                    context.faculty.department_code || '',
+                    context.faculty.department_id || '',
                 )
 
                 const finalResults = results.filter((student) =>

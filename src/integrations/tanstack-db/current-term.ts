@@ -4,7 +4,7 @@ import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
 type CurrentTerm = {
     year: number
-    term_code: string
+    term_id: string
 }
 
 export const currentTermCollection = createCollection(
@@ -14,7 +14,7 @@ export const currentTermCollection = createCollection(
             const response = await fetch('/api/current-term')
             return (await response.json()) as Array<CurrentTerm>
         },
-        getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_code}`,
+        getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_id}`,
         queryClient: getQueryClient(),
     }),
 )

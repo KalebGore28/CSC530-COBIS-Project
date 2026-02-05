@@ -48,8 +48,8 @@ export const loadUser = createMiddleware().server(
                     faculty: {
                         firstName: '',
                         lastName: '',
-                        department_code: '',
-                        college_code: '',
+                        department_id: '',
+                        college_id: '',
                     },
                     roles: new Set<string>(),
                 },

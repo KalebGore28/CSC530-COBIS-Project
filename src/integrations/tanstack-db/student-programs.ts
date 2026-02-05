@@ -30,7 +30,7 @@ export const studentProgramsCollection = createCollection(
             return (await response.json()) as Array<StudentProgram>
         },
         getKey: (studentProgram) =>
-            `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_code}`,
+            `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_id}`,
         queryClient: getQueryClient(),
         syncMode: 'on-demand',
         staleTime: 1000 * 60 * 5, // 5 minutes

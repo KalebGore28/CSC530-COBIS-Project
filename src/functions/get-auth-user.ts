@@ -16,8 +16,8 @@ export const getAuthUser = createServerFn({ method: 'GET' }).handler(
                 .select({
                     firstName: faculty.first_name,
                     lastName: faculty.last_name,
-                    department_code: faculty.department_code,
-                    college_code: faculty.college_code,
+                    department_id: faculty.department_id,
+                    college_id: faculty.college_id,
                 })
                 .from(faculty)
                 .where(eq(faculty.mnumber, session.user.mnumber || ''))

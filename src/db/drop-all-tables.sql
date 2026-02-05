@@ -1,12 +1,13 @@
 SET FOREIGN_KEY_CHECKS = 0;
-SET GROUP_CONCAT_MAX_LEN = 32768;
 
-SELECT CONCAT('DROP TABLE IF EXISTS ', GROUP_CONCAT(CONCAT('`', table_name, '`')) , ';')
-INTO @drop_all
-FROM information_schema.tables
-WHERE table_schema = 'cobis';
+SET @tables = (
+  SELECT GROUP_CONCAT(CONCAT('`', table_name, '`'))
+  FROM information_schema.tables
+  WHERE table_schema = DATABASE()
+);
 
-PREPARE stmt FROM @drop_all;
+SET @sql = CONCAT('DROP TABLE IF EXISTS ', @tables);
+PREPARE stmt FROM @sql;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 

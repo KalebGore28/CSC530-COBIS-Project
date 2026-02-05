@@ -10,7 +10,7 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                 const [result] = await context.db
                     .select({
                         year: studentCourses.year,
-                        term_code: studentCourses.term_code,
+                        term_id: studentCourses.term_id,
                     })
                     .from(studentCourses)
                     .where(
@@ -21,7 +21,7 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                                 .from(studentCourses),
                         ),
                     )
-                    .orderBy(desc(studentCourses.term_code))
+                    .orderBy(desc(studentCourses.term_id))
                     .limit(1)
 
                 if (
@@ -30,7 +30,7 @@ export const Route = createFileRoute('/api/__protected/current-term')({
                     result.year === undefined
                 ) {
                     return new Response(
-                        JSON.stringify([{ year: 1970, term_code: '10' }]),
+                        JSON.stringify([{ year: 1970, term_id: '10' }]),
                         {
                             status: 200,
                             headers: {

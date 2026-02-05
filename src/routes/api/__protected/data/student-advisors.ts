@@ -27,15 +27,15 @@ export const Route = createFileRoute('/api/__protected/data/student-advisors')({
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
                     context.roles,
-                    context.faculty.department_code || '',
+                    context.faculty.department_id || '',
                 )
 
                 const finalResults: typeof results = []
                 for (const student of results) {
                     const studentCacheKey = createAccessKey(
-                        student.student_mnumber,
+                        student.mnumber,
                         student.year,
-                        student.term_code,
+                        student.term_id,
                     )
 
                     const accessData = studentMnumbers.terms.get(studentCacheKey)

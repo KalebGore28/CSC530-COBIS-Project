@@ -12,7 +12,7 @@ export const instructionalMethodsCollection = createCollection(
             const response = await fetch(`/api/data/instructional-methods`)
             return (await response.json()) as Array<InstructionalMethod>
         },
-        getKey: (method) => method.code,
+        getKey: (method) => method.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

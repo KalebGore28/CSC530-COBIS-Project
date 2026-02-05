@@ -4,9 +4,8 @@ import {
     datetime,
     int,
     mysqlTable,
-    primaryKey,
     real,
-    uniqueIndex,
+    unique,
     varchar,
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
@@ -68,24 +67,24 @@ export const verification = mysqlTable('verification', {
 // --- END BETTERAUTH TABLES ---
 
 export const academicStanding = mysqlTable('academic_standing', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
 export const admitCodes = mysqlTable('admit_codes', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
 export const colleges = mysqlTable('colleges', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
 export const courses = mysqlTable(
     'courses',
     {
-        code: varchar('code', { length: 100 }).primaryKey(), // e.g. "CSC100A"
+        id: varchar('id', { length: 100 }).primaryKey(), // e.g. "CSC100A"
         subject: varchar('subject', { length: 50 }).notNull(), // e.g. "ACC"
         number: int('number').notNull(),
         suffix: varchar('suffix', { length: 50 }).notNull().default(''), // e.g. "T" for "101T", default to empty string
@@ -94,17 +93,17 @@ export const courses = mysqlTable(
         last_updated: datetime('last_updated')
             .notNull()
             .default(sql`NOW()`),
-        department_code: varchar('department_code', { length: 10 }).references(
-            () => departments.code,
+        department_id: varchar('department_id', { length: 10 }).references(
+            () => departments.id,
             { onDelete: 'set null' },
         ),
-        college_code: varchar('college_code', { length: 10 }).references(
-            () => colleges.code,
+        college_id: varchar('college_id', { length: 10 }).references(
+            () => colleges.id,
             { onDelete: 'set null' },
         ),
     },
     (table) => [
-        uniqueIndex('ux_courses_subject_number_suffix').on(
+        unique('ux_courses_idx').on(
             table.subject,
             table.number,
             table.suffix,
@@ -119,22 +118,22 @@ export const courses = mysqlTable(
  * Anytime a new 'CSC' course is added, it will be assigned to the already established department.
  */
 export const coursePrefixes = mysqlTable('course_prefixes', {
-    code: varchar('code', { length: 10 }).primaryKey(),
-    department_code: varchar('department_code', { length: 10 }).references(
-        () => departments.code,
+    id: varchar('id', { length: 10 }).primaryKey(),
+    department_id: varchar('department_id', { length: 10 }).references(
+        () => departments.id,
         { onDelete: 'set null' },
     ),
-    college_code: varchar('college_code', { length: 10 }).references(
-        () => colleges.code,
+    college_id: varchar('college_id', { length: 10 }).references(
+        () => colleges.id,
         { onDelete: 'set null' }
     )
 })
 
 export const departments = mysqlTable('departments', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
-    college_code: varchar('college_code', { length: 10 }).references(
-        () => colleges.code,
+    college_id: varchar('college_id', { length: 10 }).references(
+        () => colleges.id,
         { onDelete: 'set null' },
     ),
 })
@@ -143,28 +142,28 @@ export const faculty = mysqlTable('faculty', {
     mnumber: varchar('mnumber', { length: 10 }).primaryKey(), // e.g
     first_name: varchar('first_name', { length: 50 }).notNull(),
     last_name: varchar('last_name', { length: 50 }).notNull(),
-    college_code: varchar('college_code', { length: 10 }).references(
-        () => colleges.code,
+    college_id: varchar('college_id', { length: 10 }).references(
+        () => colleges.id,
         { onDelete: 'set null' },
     ),
-    department_code: varchar('department_code', { length: 10 }).references(
-        () => departments.code,
+    department_id: varchar('department_id', { length: 10 }).references(
+        () => departments.id,
         { onDelete: 'set null' },
     ),
 })
 
 export const instructionalMethods = mysqlTable('instructional_methods', {
-    code: varchar('code', { length: 10 }).primaryKey(), // e.g. "LEC"
+    id: varchar('id', { length: 10 }).primaryKey(), // e.g. "LEC"
     description: varchar('description', { length: 255 }).notNull(),
 })
 
 export const partOfTerm = mysqlTable('part_of_term', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
 export const programs = mysqlTable('programs', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
     cip_code: varchar('cip_code', { length: 255 }),
     is_major: boolean('is_major').notNull().default(false),
@@ -172,12 +171,12 @@ export const programs = mysqlTable('programs', {
     has_concentration: boolean('has_concentration').notNull().default(false),
     is_discontinued: boolean('is_discontinued').notNull().default(false),
     is_aacsb: boolean('is_aacsb').notNull().default(false),
-    department_code: varchar('department_code', { length: 10 }).references(
-        () => departments.code,
+    department_id: varchar('department_id', { length: 10 }).references(
+        () => departments.id,
         { onDelete: 'set null' },
     ),
-    college_code: varchar('college_code', { length: 10 }).references(
-        () => colleges.code,
+    college_id: varchar('college_id', { length: 10 }).references(
+        () => colleges.id,
         { onDelete: 'set null' },
     ),
     last_updated: datetime('last_updated')
@@ -190,7 +189,7 @@ export const programs = mysqlTable('programs', {
 })
 
 export const registrationStatus = mysqlTable('registration_status', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
@@ -205,22 +204,22 @@ export const studentAcademicInfo = mysqlTable(
         mnumber: varchar('mnumber', { length: 10 })
             .notNull()
             .references(() => students.mnumber, { onDelete: 'cascade' }),
-        term_code: varchar('term_code', { length: 10 })
+        term_id: varchar('term_id', { length: 10 })
             .notNull()
-            .references(() => terms.code, { onDelete: 'cascade' }),
+            .references(() => terms.id, { onDelete: 'cascade' }),
         year: int('year').notNull(),
-        admit_term_code: varchar('admit_term_code', { length: 10 }).references(
-            () => terms.code,
+        admit_term_id: varchar('admit_term_id', { length: 10 }).references(
+            () => terms.id,
             { onDelete: 'set null' },
         ),
         admit_year: int('admit_year'),
-        admit_code: varchar('admit_code', { length: 10 }).references(
-            () => admitCodes.code,
+        admit_id: varchar('admit_id', { length: 10 }).references(
+            () => admitCodes.id,
             { onDelete: 'set null' },
         ),
-        academic_standing_code: varchar('academic_standing_code', {
+        academic_standing_id: varchar('academic_standing_id', {
             length: 10,
-        }).references(() => academicStanding.code, { onDelete: 'set null' }),
+        }).references(() => academicStanding.id, { onDelete: 'set null' }),
         msu_attempted_hours: real('msu_attempted_hours'),
         msu_earned_hours: real('msu_earned_hours'),
         msu_quality_points: real('msu_quality_points'),
@@ -231,33 +230,34 @@ export const studentAcademicInfo = mysqlTable(
         overall_gpa: real('overall_gpa'),
     },
     (table) => [
-        primaryKey({ columns: [table.mnumber, table.term_code, table.year] }),
+        unique('ux_student_academic_info_idx').on(
+            table.mnumber,
+            table.term_id,
+            table.year,
+        ),
     ],
 )
 
 export const studentAdvisors = mysqlTable(
     'student_advisors',
     {
-        student_mnumber: varchar('student_mnumber', { length: 10 })
+        mnumber: varchar('mnumber', { length: 10 })
             .notNull()
             .references(() => students.mnumber, { onDelete: 'cascade' }),
-        term_code: varchar('term_code', { length: 10 })
+        term_id: varchar('term_id', { length: 10 })
             .notNull()
-            .references(() => terms.code, { onDelete: 'cascade' }),
+            .references(() => terms.id, { onDelete: 'cascade' }),
         year: int('year').notNull(),
         advisor_mnumber: varchar('advisor_mnumber', { length: 10 })
             .notNull()
             .references(() => faculty.mnumber, { onDelete: 'cascade' }),
     },
     (table) => [
-        primaryKey({
-            columns: [
-                table.student_mnumber,
-                table.term_code,
-                table.year,
-                table.advisor_mnumber,
-            ],
-        }),
+        unique('ux_student_advisors_idx').on(
+            table.mnumber,
+            table.term_id,
+            table.year,
+        ),
     ],
 )
 
@@ -267,25 +267,25 @@ export const studentCourses = mysqlTable(
         mnumber: varchar('mnumber', { length: 10 })
             .notNull()
             .references(() => students.mnumber, { onDelete: 'cascade' }),
-        term_code: varchar('term_code', { length: 10 })
+        term_id: varchar('term_id', { length: 10 })
             .notNull()
-            .references(() => terms.code, { onDelete: 'cascade' }),
+            .references(() => terms.id, { onDelete: 'cascade' }),
         year: int('year').notNull(),
-        part_of_term_code: varchar('part_of_term_code', {
+        part_of_term_id: varchar('part_of_term_id', {
             length: 10,
-        }).references(() => partOfTerm.code, { onDelete: 'set null' }),
+        }).references(() => partOfTerm.id, { onDelete: 'set null' }),
         course_id: varchar('course_id', { length: 100 })
             .notNull()
-            .references(() => courses.code, { onDelete: 'cascade' }),
+            .references(() => courses.id, { onDelete: 'cascade' }),
         course_section: varchar('course_section', { length: 50 }).notNull(),
         course_hours: int('course_hours').notNull(),
         course_level: varchar('course_level', { length: 50 }),
-        registration_status_code: varchar('registration_status_code', {
+        registration_status_id: varchar('registration_status_id', {
             length: 10,
-        }).references(() => registrationStatus.code, { onDelete: 'set null' }),
-        instructional_method_code: varchar('instructional_method_code', {
+        }).references(() => registrationStatus.id, { onDelete: 'set null' }),
+        instructional_method_id: varchar('instructional_method_id', {
             length: 10,
-        }).references(() => instructionalMethods.code, {
+        }).references(() => instructionalMethods.id, {
             onDelete: 'set null',
         }),
         instructor_mnumber: varchar('instructor_mnumber', { length: 10 })
@@ -296,15 +296,13 @@ export const studentCourses = mysqlTable(
         final_grade: varchar('final_grade', { length: 50 }),
     },
     (table) => [
-        primaryKey({
-            columns: [
-                table.mnumber,
-                table.term_code,
-                table.year,
-                table.course_id,
-                table.course_section,
-            ],
-        }),
+        unique('ux_student_courses_idx').on(
+            table.mnumber,
+            table.term_id,
+            table.year,
+            table.course_id,
+            table.course_section,
+        ),
     ],
 )
 
@@ -314,20 +312,22 @@ export const studentPrograms = mysqlTable(
         mnumber: varchar('mnumber', { length: 10 })
             .notNull()
             .references(() => students.mnumber, { onDelete: 'cascade' }),
-        term_code: varchar('term_code', { length: 10 })
+        term_id: varchar('term_id', { length: 10 })
             .notNull()
-            .references(() => terms.code, { onDelete: 'cascade' }),
+            .references(() => terms.id, { onDelete: 'cascade' }),
         year: int('year').notNull(),
         type: varchar('type', { length: 50 }).notNull(),
         level: varchar('level', { length: 50 }).notNull(),
-        program_code: varchar('program_code', { length: 10 })
+        program_id: varchar('program_id', { length: 10 })
             .notNull()
-            .references(() => programs.code, { onDelete: 'cascade' }),
+            .references(() => programs.id, { onDelete: 'cascade' }),
     },
     (table) => [
-        primaryKey({
-            columns: [table.mnumber, table.type, table.program_code],
-        }),
+        unique('ux_student_programs_idx').on(
+            table.mnumber,
+            table.term_id,
+            table.year,
+        ),
         check('program_type', sql`${table.type} IN ('MAJOR', 'MINOR')`),
         check('program_level', sql`${table.level} IN ('UG', 'GR', 'PB')`),
     ],
@@ -344,7 +344,7 @@ export const students = mysqlTable('students', {
 })
 
 export const terms = mysqlTable('terms', {
-    code: varchar('code', { length: 10 }).primaryKey(),
+    id: varchar('id', { length: 10 }).primaryKey(),
     description: varchar('description', { length: 255 }).notNull(),
 })
 
@@ -358,5 +358,7 @@ export const userRoles = mysqlTable(
             .notNull()
             .references(() => roles.id, { onDelete: 'cascade' }),
     },
-    (table) => [primaryKey({ columns: [table.user_id, table.role_id] })],
+    (table) => [
+        unique('ux_user_roles_idx').on(table.user_id, table.role_id),
+    ],
 )

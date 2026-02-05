@@ -12,7 +12,7 @@ export const registrationStatusCollection = createCollection(
             const response = await fetch(`/api/data/registration-status`)
             return (await response.json()) as Array<RegistrationStatus>
         },
-        getKey: (status) => status.code,
+        getKey: (status) => status.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

@@ -12,7 +12,7 @@ export const programsCollection = createCollection(
             const response = await fetch(`/api/data/programs`)
             return (await response.json()) as Array<Program>
         },
-        getKey: (program) => program.code,
+        getKey: (program) => program.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
         onUpdate: async ({ transaction }) => {
@@ -21,7 +21,7 @@ export const programsCollection = createCollection(
                 method: 'PUT',
                 body: JSON.stringify({
                     ...modified,
-                    code: original.code,
+                    id: original.id,
                 }),
             })
         },

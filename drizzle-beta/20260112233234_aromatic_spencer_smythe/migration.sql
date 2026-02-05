@@ -1,2 +1,0 @@
-ALTER TABLE `programs` ADD `coordinator` varchar(10);--> statement-breakpoint
-ALTER TABLE `programs` ADD CONSTRAINT `programs_coordinator_faculty_mnumber_fkey` FOREIGN KEY (`coordinator`) REFERENCES `faculty`(`mnumber`) ON DELETE SET NULL;

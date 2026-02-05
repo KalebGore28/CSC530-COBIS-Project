@@ -25,12 +25,12 @@ export const Route = createFileRoute('/api/__protected/data/programs')({
             PUT: async ({ request, context }) => {
                 const updatedProgram: Program = await request.json()
 
-                const { code, ...updateData } = updatedProgram
+                const { id, ...updateData } = updatedProgram
 
                 await context.db
                     .update(programs)
                     .set(updateData)
-                    .where(eq(programs.code, code))
+                    .where(eq(programs.id, id))
                     .execute()
 
                 return new Response(null, { status: 204 })

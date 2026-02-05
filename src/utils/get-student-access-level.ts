@@ -39,52 +39,40 @@ const ACCESS_LEVEL = {
 
 // Cache configuration
 const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
-const accessCache = new Map<
-    string,
-    {
-        students: Set<string> // For base student table - just mnumbers
-        terms: Map<
-            // For term-specific access
-            AccessKey,
-            {
-                student_mnumber: string
-                year: number
-                term_code: string
-                accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
-                role: (typeof ROLES)[keyof typeof ROLES]
-                reason: string
-            }
-        >
-        timestamp: number
-    }
->()
+
+type TermEntry = {
+    student_mnumber: string
+    year: number
+    term_id: string
+    accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
+    role: (typeof ROLES)[keyof typeof ROLES]
+    reason: string
+}
+
+type CacheEntry = {
+    students: Set<string>
+    terms: Map<
+        AccessKey,
+        TermEntry
+    >
+    timestamp: number
+}
+
+const accessCache = new Map<string, CacheEntry>()
 
 export async function getStudentAccessLevel(
     user_mnumber: string,
     user_roles: Set<string>,
-    user_department_code: string,
+    user_department_id: string,
     options?: {
         current_term?: string
         bypassCache?: boolean
     },
-): Promise<{
-    students: Set<string> // For base student table - just mnumbers
-    terms: Map<
-        AccessKey,
-        {
-            student_mnumber: string
-            year: number
-            term_code: string
-            accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
-            role: (typeof ROLES)[keyof typeof ROLES]
-            reason: string
-        }
-    >
-}> {
+): Promise<CacheEntry> {
     const cacheKey = getCacheKey(
         user_mnumber,
         user_roles,
-        user_department_code,
+        user_department_id,
         options?.current_term,
     )
 
@@ -97,6 +85,7 @@ export async function getStudentAccessLevel(
             return {
                 students: cached.students,
                 terms: cached.terms,
+                timestamp: cached.timestamp,
             }
         }
     }
@@ -113,14 +102,7 @@ export async function getStudentAccessLevel(
     // Map of term-specific access (for term-scoped table queries)
     const termAccessMap = new Map<
         AccessKey,
-        {
-            student_mnumber: string
-            year: number
-            term_code: string
-            accessLevel: (typeof ACCESS_LEVEL)[keyof typeof ACCESS_LEVEL]
-            role: (typeof ROLES)[keyof typeof ROLES]
-            reason: string
-        }
+        TermEntry
     >()
 
     // Get Student MNumbers available for Admin Assistants - Lowest Level Access
@@ -130,27 +112,27 @@ export async function getStudentAccessLevel(
         const studentMnumbers = await db
             .select({
                 student_mnumber: studentPrograms.mnumber,
-                term_code: studentPrograms.term_code,
+                term_id: studentPrograms.term_id,
                 year: studentPrograms.year,
             })
             .from(studentPrograms)
             // INNER JOIN: only include students actively enrolled in valid programs for this department
             .innerJoin(
                 programs,
-                eq(studentPrograms.program_code, programs.code),
+                eq(studentPrograms.program_id, programs.id),
             )
-            .where(eq(programs.department_code, user_department_code))
+            .where(eq(programs.department_id, user_department_id))
 
         studentMnumbers.forEach((s) => {
             // Add to overall accessible students
             accessibleStudents.add(s.student_mnumber)
 
             // Add to term-specific access map
-            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
             termAccessMap.set(key, {
                 student_mnumber: s.student_mnumber,
                 year: s.year,
-                term_code: s.term_code,
+                term_id: s.term_id,
                 accessLevel: ACCESS_LEVEL.LIMITED,
                 reason: 'within_department',
                 role: ROLES.ADMIN_ASSISTANT,
@@ -162,7 +144,7 @@ export async function getStudentAccessLevel(
     const instructorStudents = await db
         .select({
             student_mnumber: studentCourses.mnumber,
-            term_code: studentCourses.term_code,
+            term_id: studentCourses.term_id,
             year: studentCourses.year,
         })
         .from(studentCourses)
@@ -173,11 +155,11 @@ export async function getStudentAccessLevel(
         accessibleStudents.add(s.student_mnumber)
 
         // Add to term-specific access map
-        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
         termAccessMap.set(key, {
             student_mnumber: s.student_mnumber,
             year: s.year,
-            term_code: s.term_code,
+            term_id: s.term_id,
             accessLevel: ACCESS_LEVEL.COURSE_SCOPED,
             reason: 'instructor',
             role: ROLES.INSTRUCTOR,
@@ -190,23 +172,23 @@ export async function getStudentAccessLevel(
         const courseStudents = await db
             .select({
                 student_mnumber: studentCourses.mnumber,
-                term_code: studentCourses.term_code,
+                term_id: studentCourses.term_id,
                 year: studentCourses.year,
             })
             .from(studentCourses)
-            .innerJoin(courses, eq(studentCourses.course_id, courses.code))
-            .where(eq(courses.department_code, user_department_code))
+            .innerJoin(courses, eq(studentCourses.course_id, courses.id))
+            .where(eq(courses.department_id, user_department_id))
 
         courseStudents.forEach((s) => {
             // Add to overall accessible students
             accessibleStudents.add(s.student_mnumber)
 
             // Add to term-specific access map
-            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
             termAccessMap.set(key, {
                 student_mnumber: s.student_mnumber,
                 year: s.year,
-                term_code: s.term_code,
+                term_id: s.term_id,
                 accessLevel: ACCESS_LEVEL.COURSE_SCOPED,
                 reason: 'student_course_in_department',
                 role: ROLES.DEPARTMENT_CHAIR,
@@ -217,26 +199,26 @@ export async function getStudentAccessLevel(
         const studentMnumbersFull = await db
             .select({
                 student_mnumber: studentPrograms.mnumber,
-                term_code: studentPrograms.term_code,
+                term_id: studentPrograms.term_id,
                 year: studentPrograms.year,
             })
             .from(studentPrograms)
             .innerJoin(
                 programs,
-                eq(studentPrograms.program_code, programs.code),
+                eq(studentPrograms.program_id, programs.id),
             )
-            .where(eq(programs.department_code, user_department_code))
+            .where(eq(programs.department_id, user_department_id))
 
         studentMnumbersFull.forEach((s) => {
             // Add to overall accessible students
             accessibleStudents.add(s.student_mnumber)
 
             // Add to term-specific access map
-            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
             termAccessMap.set(key, {
                 student_mnumber: s.student_mnumber,
                 year: s.year,
-                term_code: s.term_code,
+                term_id: s.term_id,
                 accessLevel: ACCESS_LEVEL.FULL,
                 reason: 'within_department',
                 role: ROLES.DEPARTMENT_CHAIR,
@@ -249,14 +231,14 @@ export async function getStudentAccessLevel(
         const studentMnumbers = await db
             .select({
                 student_mnumber: studentPrograms.mnumber,
-                term_code: studentPrograms.term_code,
+                term_id: studentPrograms.term_id,
                 year: studentPrograms.year,
             })
             .from(studentPrograms)
             // INNER JOIN: only include students actively enrolled in valid programs for which this user is the coordinator
             .innerJoin(
                 programs,
-                eq(studentPrograms.program_code, programs.code),
+                eq(studentPrograms.program_id, programs.id),
             )
             .where(eq(programs.coordinator, user_mnumber))
 
@@ -265,11 +247,11 @@ export async function getStudentAccessLevel(
             accessibleStudents.add(s.student_mnumber)
 
             // Add to term-specific access map
-            const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+            const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
             termAccessMap.set(key, {
                 student_mnumber: s.student_mnumber,
                 year: s.year,
-                term_code: s.term_code,
+                term_id: s.term_id,
                 accessLevel: ACCESS_LEVEL.FULL,
                 reason: 'within_program',
                 role: ROLES.PROGRAM_COORDINATOR,
@@ -280,8 +262,8 @@ export async function getStudentAccessLevel(
     // Get Student MNumbers available for Advisors - Full Level Access
     const advisedStudents = await db
         .select({
-            student_mnumber: studentAdvisors.student_mnumber,
-            term_code: studentAdvisors.term_code,
+            student_mnumber: studentAdvisors.mnumber,
+            term_id: studentAdvisors.term_id,
             year: studentAdvisors.year,
         })
         .from(studentAdvisors)
@@ -292,11 +274,11 @@ export async function getStudentAccessLevel(
         accessibleStudents.add(s.student_mnumber)
 
         // Add to term-specific access map
-        const key = createAccessKey(s.student_mnumber, s.year, s.term_code)
+        const key = createAccessKey(s.student_mnumber, s.year, s.term_id)
         termAccessMap.set(key, {
             student_mnumber: s.student_mnumber,
             year: s.year,
-            term_code: s.term_code,
+            term_id: s.term_id,
             accessLevel: ACCESS_LEVEL.FULL,
             reason: 'advisor',
             role: ROLES.ADVISOR,
@@ -310,22 +292,22 @@ export async function getStudentAccessLevel(
         timestamp: Date.now(),
     })
 
-    return { students: accessibleStudents, terms: termAccessMap }
+    return { students: accessibleStudents, terms: termAccessMap, timestamp: Date.now() }
 }
 
 /**
  * Create access key for a student-year-term combination
  * @param student_mnumber
  * @param year
- * @param term_code
+ * @param term_id
  * @returns string in format "M12345:2024-10"
  */
 export function createAccessKey(
     student_mnumber: string,
     year: number,
-    term_code: string,
+    term_id: string,
 ): AccessKey {
-    return `${student_mnumber}:${year}-${term_code}`
+    return `${student_mnumber}:${year}-${term_id}`
 }
 
 /**
@@ -341,11 +323,11 @@ function isCacheValid(timestamp: number): boolean {
 function getCacheKey(
     user_mnumber: string,
     user_roles: Set<string>,
-    user_department_code: string,
+    user_department_id: string,
     current_term?: string,
 ): string {
     const rolesArray = Array.from(user_roles).sort()
-    return `${user_mnumber}:${rolesArray.join(',')}:${user_department_code}:${current_term || 'all'}`
+    return `${user_mnumber}:${rolesArray.join(',')}:${user_department_id}:${current_term || 'all'}`
 }
 
 /**

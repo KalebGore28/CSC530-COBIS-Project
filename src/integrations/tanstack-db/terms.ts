@@ -12,7 +12,7 @@ export const termsCollection = createCollection(
             const response = await fetch(`/api/data/terms`)
             return (await response.json()) as Array<Term>
         },
-        getKey: (term) => term.code,
+        getKey: (term) => term.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
     }),

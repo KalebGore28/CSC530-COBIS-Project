@@ -65,7 +65,7 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                     .from(faculty)
                     .where(eq(faculty.mnumber, updatedFaculty.mnumber))
 
-                if (existingFaculty.department_code) {
+                if (existingFaculty.department_id) {
                     return new Response(
                         JSON.stringify({
                             error: 'Faculty member is already assigned to a department. If you are trying to change the department, please contact an administrator.',
@@ -82,8 +82,8 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                 await context.db
                     .update(faculty)
                     .set({
-                        department_code: updatedFaculty.department_code,
-                        // college_code: updatedFaculty.college_code, // Uncomment if college_code is allowed to be updated
+                        department_id: updatedFaculty.department_id,
+                        // college_id: updatedFaculty.college_id, // Uncomment if college_id is allowed to be updated
                     })
                     .where(eq(faculty.mnumber, updatedFaculty.mnumber))
                     .execute()
