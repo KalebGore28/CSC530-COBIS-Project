@@ -103,11 +103,7 @@ export const courses = mysqlTable(
         ),
     },
     (table) => [
-        unique('ux_courses_idx').on(
-            table.subject,
-            table.number,
-            table.suffix,
-        ),
+        unique('ux_courses_idx').on(table.subject, table.number, table.suffix),
     ],
 )
 
@@ -125,8 +121,8 @@ export const coursePrefixes = mysqlTable('course_prefixes', {
     ),
     college_id: varchar('college_id', { length: 10 }).references(
         () => colleges.id,
-        { onDelete: 'set null' }
-    )
+        { onDelete: 'set null' },
+    ),
 })
 
 export const departments = mysqlTable('departments', {
@@ -358,7 +354,5 @@ export const userRoles = mysqlTable(
             .notNull()
             .references(() => roles.id, { onDelete: 'cascade' }),
     },
-    (table) => [
-        unique('ux_user_roles_idx').on(table.user_id, table.role_id),
-    ],
+    (table) => [unique('ux_user_roles_idx').on(table.user_id, table.role_id)],
 )

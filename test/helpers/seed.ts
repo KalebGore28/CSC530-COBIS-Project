@@ -5,7 +5,9 @@ import * as schema from '../../src/db/schema.ts'
 import { closeDb, getDb, resetDb } from './db'
 import { parseCSV } from '@/utils/csv-importer'
 
-async function getCSVData(filePath: string): Promise<Array<Record<string, string>>> {
+async function getCSVData(
+    filePath: string,
+): Promise<Array<Record<string, string>>> {
     const basePath = 'src/db/seed/csvs'
     const fileContent = fs.readFileSync(path.join(basePath, filePath), 'utf8')
     const parsedData = await parseCSV(fileContent)
@@ -21,23 +23,19 @@ async function getCSVData(filePath: string): Promise<Array<Record<string, string
 }
 
 // Static Lookup Tables
-const terms = (await getCSVData('terms.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-        }
+const terms = (await getCSVData('terms.csv')).map((row) => {
+    return {
+        id: row.code,
+        description: row.description,
     }
-) as Array<typeof schema.terms.$inferSelect>
+}) as Array<typeof schema.terms.$inferSelect>
 
-const admitCodes = (await getCSVData('admit_codes.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-        }
+const admitCodes = (await getCSVData('admit_codes.csv')).map((row) => {
+    return {
+        id: row.code,
+        description: row.description,
     }
-) as Array<typeof schema.admitCodes.$inferSelect>
+}) as Array<typeof schema.admitCodes.$inferSelect>
 
 const academicStandings = (await getCSVData('academic_standing.csv')).map(
     (row) => {
@@ -45,22 +43,18 @@ const academicStandings = (await getCSVData('academic_standing.csv')).map(
             id: row.code,
             description: row.description,
         }
-    }
+    },
 ) as Array<typeof schema.academicStanding.$inferSelect>
 
-const colleges = (await getCSVData('colleges.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-        }
+const colleges = (await getCSVData('colleges.csv')).map((row) => {
+    return {
+        id: row.code,
+        description: row.description,
     }
-) as Array<
-    typeof schema.colleges.$inferSelect
->
+}) as Array<typeof schema.colleges.$inferSelect>
 
 const coursePrefixData = await getCSVData('course_prefixes.csv')
-const coursePrefixes = (coursePrefixData as Array<Record<string, string>>).map(
+const coursePrefixes = (coursePrefixData).map(
     (row) => {
         return {
             id: row.prefix,
@@ -82,48 +76,46 @@ for (const row of coursePrefixes) {
     })
 }
 
-const courses = (await getCSVData('reg_cuba_catalog_202510_20250117.csv')).map((row) => {
-    const course = row.course || ''
+const courses = (await getCSVData('reg_cuba_catalog_202510_20250117.csv')).map(
+    (row) => {
+        const course = row.course || ''
 
-    // Match: letters at start, then digits, then optional letters at end
-    const match = course.match(/^([A-Z]+)(\d+)([A-Z]*)$/)
+        // Match: letters at start, then digits, then optional letters at end
+        const match = course.match(/^([A-Z]+)(\d+)([A-Z]*)$/)
 
-    const subject = match ? match[1] : ''
-    const number = match ? Number(match[2]) : 0
-    const suffix = match ? match[3] : ''
+        const subject = match ? match[1] : ''
+        const number = match ? Number(match[2]) : 0
+        const suffix = match ? match[3] : ''
 
+        return {
+            id: row.course,
+            subject,
+            number,
+            suffix,
+            title: row.crsetitle,
+            hours: Number(row.credithrs),
+            last_updated: new Date(Date.now()),
+            department_id: coursePrefixMap.get(subject)?.department_id,
+            college_id: coursePrefixMap.get(subject)?.college_id,
+        }
+    },
+) as Array<typeof schema.courses.$inferSelect>
+
+const departments = (await getCSVData('departments.csv')).map((row) => {
     return {
-        id: row.course,
-        subject,
-        number,
-        suffix,
-        title: row.crsetitle,
-        hours: Number(row.credithrs),
-        last_updated: new Date(Date.now()),
-        department_id: coursePrefixMap.get(subject)?.department_id,
-        college_id: coursePrefixMap.get(subject)?.college_id,
+        id: row.code,
+        description: row.description,
+        college_id: row.college === 'NULL' ? null : row.college,
     }
-}) as Array<typeof schema.courses.$inferSelect>
-
-const departments = (await getCSVData('departments.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-            college_id: row.college === 'NULL' ? null : row.college,
-        }
+}) as Array<typeof schema.departments.$inferSelect>
+const instructionalMethods = (
+    await getCSVData('instructional_methods.csv')
+).map((row) => {
+    return {
+        id: row.code,
+        description: row.description,
     }
-) as Array<
-    typeof schema.departments.$inferSelect
->
-const instructionalMethods = (await getCSVData('instructional_methods.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-        }
-    }
-) as Array<typeof schema.instructionalMethods.$inferSelect>
+}) as Array<typeof schema.instructionalMethods.$inferSelect>
 
 const registrationStatuses = (await getCSVData('registration_status.csv')).map(
     (row) => {
@@ -131,7 +123,7 @@ const registrationStatuses = (await getCSVData('registration_status.csv')).map(
             id: row.code,
             description: row.description,
         }
-    }
+    },
 ) as Array<typeof schema.registrationStatus.$inferSelect>
 
 const roles = (await getCSVData('roles.csv')).map((row) => ({
@@ -139,14 +131,12 @@ const roles = (await getCSVData('roles.csv')).map((row) => ({
     name: row.role,
 })) as Array<typeof schema.roles.$inferSelect>
 
-const partOfTerms = (await getCSVData('part_of_term.csv')).map(
-    (row) => {
-        return {
-            id: row.code,
-            description: row.description,
-        }
+const partOfTerms = (await getCSVData('part_of_term.csv')).map((row) => {
+    return {
+        id: row.code,
+        description: row.description,
     }
-) as Array<typeof schema.partOfTerm.$inferSelect>
+}) as Array<typeof schema.partOfTerm.$inferSelect>
 
 const programs = (await getCSVData('major_minor.csv')).map((row) => ({
     id: row.code,
@@ -241,7 +231,7 @@ async function seedTestDatabase() {
                 mnumber: f.phoneNumber({ template: 'M0000000##' }),
                 term_id: f.valuesFromArray({ values: terms.map((t) => t.id) }),
                 year: f.valuesFromArray({ values: [2025] }),
-            }
+            },
         },
         studentPrograms: {
             columns: {
@@ -317,7 +307,6 @@ async function seedTestDatabase() {
             },
         },
         studentCourses: {
-            // count: 12000,
             columns: {
                 mnumber: f.phoneNumber({ template: 'M0000000##' }),
                 term_id: f.valuesFromArray({ values: terms.map((t) => t.id) }),
@@ -328,7 +317,7 @@ async function seedTestDatabase() {
                     values: partOfTerms.map((p) => p.id),
                 }),
                 course_id: f.valuesFromArray({
-                    values: courses.slice(0, 100).map((c) => c.id),
+                    values: courses.slice(0, 40).map((c) => c.id),
                 }),
                 course_section: f.valuesFromArray({
                     values: ['001'],

@@ -96,16 +96,16 @@ function getForeignKeys(table: MySqlTable<any>): Array<ForeignKeyInfo> {
 type HasDefaultOrNullable<D, N> = D extends true
     ? true
     : N extends false
-    ? true
-    : false
+      ? true
+      : false
 
 type ColumnHasDefault<C> = C extends {
     config: { hasDefault: infer D; notNull: infer N }
 }
     ? HasDefaultOrNullable<D, N>
     : C extends MySqlColumn<infer Col, any, any>
-    ? HasDefaultOrNullable<Col['hasDefault'], Col['notNull']>
-    : false
+      ? HasDefaultOrNullable<Col['hasDefault'], Col['notNull']>
+      : false
 
 // --- Column config props ---
 type ColumnConfig = {
@@ -117,12 +117,12 @@ type ColumnConfig = {
 // --- Map table columns to configuration objects ---
 type TableConfig<T extends Record<string, any>> = {
     [K in keyof T as ColumnHasDefault<T[K]> extends true
-    ? K
-    : never]?: ColumnConfig
+        ? K
+        : never]?: ColumnConfig
 } & {
     [K in keyof T as ColumnHasDefault<T[K]> extends false
-    ? K
-    : never]: ColumnConfig
+        ? K
+        : never]: ColumnConfig
 }
 
 // --- Generic function that infers the config type ---
@@ -139,45 +139,45 @@ type TableRowFromColumns<
 > = {
     // optional if has default or nullable
     [K in keyof TColumns as ColumnHasDefault<TColumns[K]> extends true
-    ? K
-    : never]?: any
+        ? K
+        : never]?: any
 } & {
-        // required if no default and not nullable
-        [K in keyof TColumns as ColumnHasDefault<TColumns[K]> extends false
+    // required if no default and not nullable
+    [K in keyof TColumns as ColumnHasDefault<TColumns[K]> extends false
         ? K
         : never]: any
-    }
+}
 
 // --- Unified CSV config type for a table ---
 type TableCSVConfig<TTable extends MySqlTable<any>> =
     | {
-        patterns: Array<RegExp>
-        config: ReturnType<typeof createTableConfig<TTable>>
-        rowExpander?: never
-        missingRowResolver?: (
-            missingData: Array<any>,
-        ) => TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
-        meta: Readonly<{
-            tableName: string
-            foreignKeys: ReturnType<typeof getForeignKeys>
-        }>
-    }
+          patterns: Array<RegExp>
+          config: ReturnType<typeof createTableConfig<TTable>>
+          rowExpander?: never
+          missingRowResolver?: (
+              missingData: Array<any>,
+          ) => TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
+          meta: Readonly<{
+              tableName: string
+              foreignKeys: ReturnType<typeof getForeignKeys>
+          }>
+      }
     | {
-        patterns: Array<RegExp>
-        rowExpander: (
-            row: Record<string, string>,
-        ) => Array<
-            TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
-        >
-        config?: never
-        missingRowResolver?: (
-            missingData: Array<any>,
-        ) => TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
-        meta: Readonly<{
-            tableName: string
-            foreignKeys: ReturnType<typeof getForeignKeys>
-        }>
-    }
+          patterns: Array<RegExp>
+          rowExpander: (
+              row: Record<string, string>,
+          ) => Array<
+              TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
+          >
+          config?: never
+          missingRowResolver?: (
+              missingData: Array<any>,
+          ) => TableRowFromColumns<ReturnType<typeof getTableColumns<TTable>>>
+          meta: Readonly<{
+              tableName: string
+              foreignKeys: ReturnType<typeof getForeignKeys>
+          }>
+      }
 
 // Overall CSV config type
 type CSVConfig<Tables extends Record<string, MySqlTable>> = {

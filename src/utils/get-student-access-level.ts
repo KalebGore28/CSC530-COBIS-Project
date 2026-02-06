@@ -51,10 +51,7 @@ type TermEntry = {
 
 type CacheEntry = {
     students: Set<string>
-    terms: Map<
-        AccessKey,
-        TermEntry
-    >
+    terms: Map<AccessKey, TermEntry>
     timestamp: number
 }
 
@@ -100,10 +97,7 @@ export async function getStudentAccessLevel(
     const accessibleStudents = new Set<string>()
 
     // Map of term-specific access (for term-scoped table queries)
-    const termAccessMap = new Map<
-        AccessKey,
-        TermEntry
-    >()
+    const termAccessMap = new Map<AccessKey, TermEntry>()
 
     // Get Student MNumbers available for Admin Assistants - Lowest Level Access
     if (user_roles.has(ROLES.ADMIN_ASSISTANT)) {
@@ -117,10 +111,7 @@ export async function getStudentAccessLevel(
             })
             .from(studentPrograms)
             // INNER JOIN: only include students actively enrolled in valid programs for this department
-            .innerJoin(
-                programs,
-                eq(studentPrograms.program_id, programs.id),
-            )
+            .innerJoin(programs, eq(studentPrograms.program_id, programs.id))
             .where(eq(programs.department_id, user_department_id))
 
         studentMnumbers.forEach((s) => {
@@ -146,6 +137,7 @@ export async function getStudentAccessLevel(
             student_mnumber: studentCourses.mnumber,
             term_id: studentCourses.term_id,
             year: studentCourses.year,
+            instructor_mnumber: studentCourses.instructor_mnumber,
         })
         .from(studentCourses)
         .where(eq(studentCourses.instructor_mnumber, user_mnumber))
@@ -203,10 +195,7 @@ export async function getStudentAccessLevel(
                 year: studentPrograms.year,
             })
             .from(studentPrograms)
-            .innerJoin(
-                programs,
-                eq(studentPrograms.program_id, programs.id),
-            )
+            .innerJoin(programs, eq(studentPrograms.program_id, programs.id))
             .where(eq(programs.department_id, user_department_id))
 
         studentMnumbersFull.forEach((s) => {
@@ -236,10 +225,7 @@ export async function getStudentAccessLevel(
             })
             .from(studentPrograms)
             // INNER JOIN: only include students actively enrolled in valid programs for which this user is the coordinator
-            .innerJoin(
-                programs,
-                eq(studentPrograms.program_id, programs.id),
-            )
+            .innerJoin(programs, eq(studentPrograms.program_id, programs.id))
             .where(eq(programs.coordinator, user_mnumber))
 
         studentMnumbers.forEach((s) => {
@@ -292,7 +278,11 @@ export async function getStudentAccessLevel(
         timestamp: Date.now(),
     })
 
-    return { students: accessibleStudents, terms: termAccessMap, timestamp: Date.now() }
+    return {
+        students: accessibleStudents,
+        terms: termAccessMap,
+        timestamp: Date.now(),
+    }
 }
 
 /**

@@ -43,7 +43,7 @@ function ClassRosterPage() {
             .where(({ studentCourse }) =>
                 eq(
                     studentCourse.instructor_mnumber,
-                    userSession?.user.mnumber || '',
+                    userSession?.user.mnumber,
                 ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
@@ -89,24 +89,24 @@ function ClassRosterPage() {
         )
     }
 
-    // // Filter instructorCourses based on selectedCourses
-    // const filteredInstructorCourses =
-    //     selectedTerm && selectedCourse
-    //         ? instructorCourses?.filter(
-    //               (course) =>
-    //                   course.year === selectedTerm.year &&
-    //                   course.term_id === selectedTerm.term_code &&
-    //                   course.course_id === selectedCourse.course_id &&
-    //                   course.course_section === selectedCourse.course_section,
-    //           )
-    //         : instructorCourses
+    // Filter instructorCourses based on selectedCourses
+    const filteredInstructorCourses =
+        selectedTerm && selectedCourse
+            ? instructorCourses?.filter(
+                  (course) =>
+                      course.year === selectedTerm.year &&
+                      course.term_id === selectedTerm.term_id &&
+                      course.course_id === selectedCourse.course_id &&
+                      course.course_section === selectedCourse.course_section,
+              )
+            : instructorCourses
 
     return (
         <div className="container p-6 mx-auto space-y-6">
             <h1 className="text-2xl font-bold">Class Roster</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
-                {/* <TermCourseSelector
+                <TermCourseSelector
                     className={'col-span-2'}
                     studentCourses={instructorCourses}
                     isLoading={isLoading}
@@ -115,12 +115,12 @@ function ClassRosterPage() {
                     selectedCourse={selectedCourse}
                     setSelectedTerm={setSelectedTerm}
                     setSelectedCourse={setSelectedCourse}
-                /> */}
+                />
 
                 {/* Roster and Info Cards */}
                 {selectedCourse && (
                     <>
-                        {/* <RosterInfoCard
+                        <RosterInfoCard
                             className={'col-span-2'}
                             studentCourses={filteredInstructorCourses}
                         />
@@ -135,7 +135,7 @@ function ClassRosterPage() {
                         <RosterStudents
                             className={'col-span-2'}
                             studentCourses={filteredInstructorCourses}
-                        /> */}
+                        />
                     </>
                 )}
             </div>

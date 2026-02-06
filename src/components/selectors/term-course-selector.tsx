@@ -18,7 +18,7 @@ import { Badge } from '@/components/ui/badge'
 
 export type SelectedTerm = {
     year: number
-    term_code: string
+    term_id: string
     term_description?: string
     studentCount: number
     creditHoursDelivered: number
@@ -30,7 +30,7 @@ export type SelectedCourse = {
     course_hours: number
     course_title?: string
     year: number
-    term_code: string
+    term_id: string
     term_description?: string
     student_count: number
     credit_hours_delivered: number
@@ -38,7 +38,7 @@ export type SelectedCourse = {
 
 type RequiredStudentCourseProps = {
     year: number
-    term_code: string
+    term_id: string
     term_description?: string
     course_hours: number
     course_id: string
@@ -99,7 +99,7 @@ export function TermCourseSelector({
                         <Select
                             value={
                                 selectedTerm
-                                    ? `${selectedTerm.year}-${selectedTerm.term_code}`
+                                    ? `${selectedTerm.year}-${selectedTerm.term_id}`
                                     : 'Select Term'
                             }
                             onValueChange={(value) => {
@@ -125,7 +125,7 @@ export function TermCourseSelector({
                                     (term, index) => (
                                         <SelectItem
                                             key={index}
-                                            value={`${term.year}-${term.term_code}`}
+                                            value={`${term.year}-${term.term_id}`}
                                         >
                                             {term.term_description} {term.year}
                                         </SelectItem>
@@ -223,13 +223,13 @@ function extractTerms(studentCourses: Array<RequiredStudentCourseProps>) {
     const terms = new Map<string, SelectedTerm>()
 
     for (const c of studentCourses) {
-        const key = `${c.year}-${c.term_code}`
+        const key = `${c.year}-${c.term_id}`
 
         let term = terms.get(key)
         if (!term) {
             term = {
                 year: c.year,
-                term_code: c.term_code,
+                term_id: c.term_id,
                 term_description: c.term_description,
                 studentCount: 0,
                 creditHoursDelivered: 0,
@@ -256,7 +256,7 @@ function extractTermCourses(
     const filteredCourses = studentCourses.filter(
         (c) =>
             c.year === selectedTerm.year &&
-            c.term_code === selectedTerm.term_code,
+            c.term_id === selectedTerm.term_id,
     )
 
     // Extract courses for the selected term
@@ -273,7 +273,7 @@ function extractTermCourses(
                 course_title: c.course_title,
                 course_hours: c.course_hours,
                 year: c.year,
-                term_code: c.term_code,
+                term_id: c.term_id,
                 term_description: c.term_description,
                 student_count: 0,
                 credit_hours_delivered: 0,

@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import Papa from 'papaparse'
-import { eq, inArray, useLiveQuery } from '@tanstack/react-db'
+import { eq, inArray, useLiveQuery, and } from '@tanstack/react-db'
 import {
     Card,
     CardContent,
@@ -64,6 +64,7 @@ type RequiredStudentCourseProps = {
     course_id: string
     course_section: string
     year: number
+    term_id: string
     term_description: string | undefined
 } & Record<string, unknown>
 
@@ -92,12 +93,16 @@ export function RosterStudents({
             q
                 .from({ studentProgram: studentProgramsCollection })
                 .where(({ studentProgram }) =>
-                    inArray(studentProgram.mnumber, studentMnumbers),
+                    and(
+                        inArray(studentProgram.mnumber, studentMnumbers),
+                        eq(studentProgram.term_id, studentCourses[0].term_id),
+                        eq(studentProgram.year, studentCourses[0].year)
+                    )
                 )
                 .leftJoin(
                     { program: programsCollection },
                     ({ studentProgram, program }) =>
-                        eq(studentProgram.program_code, program.code),
+                        eq(studentProgram.program_id, program.id),
                 )
                 .select(({ studentProgram, program }) => ({
                     mnumber: studentProgram.mnumber,

@@ -1,18 +1,16 @@
-import { coursePrefixes } from "@/db/schema"
-import { getDb } from "@/db"
-import { sql } from "drizzle-orm"
+import { sql } from 'drizzle-orm'
+import { coursePrefixes } from '@/db/schema'
+import { getDb } from '@/db'
 
 type CoursePrefixValue = {
     department_code: string | null
     college_code: string | null
 }
 
-let cache:
-    | {
-        map: Map<string, CoursePrefixValue>
-        expiresAt: number
-    }
-    | null = null
+let cache: {
+    map: Map<string, CoursePrefixValue>
+    expiresAt: number
+} | null = null
 
 const CACHE_TTL_MS = 2 * 60 * 1000 // 2 minutes
 
@@ -39,7 +37,7 @@ async function loadCache(): Promise<Map<string, CoursePrefixValue>> {
 }
 
 export async function getCoursePrefix(
-    prefix: string
+    prefix: string,
 ): Promise<CoursePrefixValue> {
     const db = getDb()
     const now = Date.now()
@@ -63,7 +61,7 @@ export async function getCoursePrefix(
             department_code: null,
             college_code: null,
         })
-        .onDuplicateKeyUpdate({set: {code: sql`code`}})
+        .onDuplicateKeyUpdate({ set: { code: sql`code` } })
 
     const emptyValue: CoursePrefixValue = {
         department_code: null,

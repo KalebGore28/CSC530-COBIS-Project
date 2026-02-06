@@ -16,15 +16,14 @@ export const relations = defineRelations(schema, (r) => ({
         advisees: r.many.students({
             from: r.faculty.mnumber.through(r.studentAdvisors.advisor_mnumber),
             to: r.students.mnumber.through(r.studentAdvisors.mnumber),
-        })
+        }),
     },
     courses: {
         instructors: r.many.faculty({
             from: r.courses.id.through(r.studentCourses.course_id),
             to: r.faculty.mnumber.through(r.studentCourses.instructor_mnumber),
         }),
-        
-    }
+    },
     // studentPrograms: {
     //     student: r.one.students({
     //         from: r.studentPrograms.mnumber,

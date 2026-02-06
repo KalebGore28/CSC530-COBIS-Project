@@ -1,37 +1,29 @@
 import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
 import { studentCourses } from '@/db/schema'
-import { urlParamsParser } from '@/utils/url-params-parser'
 import {
     createAccessKey,
     getStudentAccessLevel,
 } from '@/utils/get-student-access-level'
+import { inArray } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/__protected/data/student-courses')({
     server: {
         handlers: {
-            GET: async ({ request, context }) => {
+            GET: async ({ context }) => {
 
-                const params = new URL(request.url).searchParams
-
-                const { limit, whereConditions, sort } = urlParamsParser(
-                    params,
-                    studentCourses,
-                )
-
-                const results = await context.db
-                    .select()
-                    .from(studentCourses)
-                    .where(whereConditions)
-                    .orderBy(...sort)
-                    .limit(limit || 1000) // Default limit to 1000 if not specified
-
-                // Apply student access restrictions based on roles
+                // Get student access restrictions based on roles
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
                     context.roles,
                     context.faculty.department_id || '',
                 )
+
+                const results = await context.db
+                    .select()
+                    .from(studentCourses)
+                    // Immediately filter out students with no access
+                    .where(inArray(studentCourses.mnumber, Array.from(studentMnumbers.students)))
 
                 const finalResults: typeof results = []
                 for (const student of results) {
@@ -41,19 +33,40 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                         student.term_id,
                     )
 
-                    const accessData = studentMnumbers.terms.get(studentCacheKey)
+                    const accessData =
+                        studentMnumbers.terms.get(studentCacheKey)
                     if (!accessData) continue
 
-                    // Users with limited level cannot view grades
                     if (accessData.accessLevel === 'limited') {
+                        // Users with limited level cannot view grades
                         finalResults.push({
                             ...student,
                             midterm_grade: null,
                             final_grade: null,
-                            accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason
+                            accesslevel: accessData.accessLevel,
+                            role: accessData.role,
+                            reason: accessData.reason,
                         })
+                    } else if (accessData.accessLevel === 'course_scoped') {
+                        // Users with course_scoped level can only view if they are the instructor
+                        if (
+                            student.instructor_mnumber ===
+                            context.user.mnumber
+                        ) {
+                            finalResults.push({
+                                ...student,
+                                accesslevel: accessData.accessLevel,
+                                role: accessData.role,
+                                reason: accessData.reason,
+                            })
+                        }
                     } else {
-                        finalResults.push({ ...student, accesslevel: accessData.accessLevel, role: accessData.role, reason: accessData.reason })
+                        finalResults.push({
+                            ...student,
+                            accesslevel: accessData.accessLevel,
+                            role: accessData.role,
+                            reason: accessData.reason,
+                        })
                     }
                 }
 

@@ -113,62 +113,64 @@ export const importData = async (
 
             const columns = getColumns(table)
 
-            const mappedRows = await Promise.all(results.data.map(async (row) => {
-                const mapped: Record<string, any> = {}
+            const mappedRows = await Promise.all(
+                results.data.map(async (row) => {
+                    const mapped: Record<string, any> = {}
 
-                for (const [columnName, columnConfig] of Object.entries(
-                    config as Record<
-                        string,
-                        {
-                            csvColumnName: string | Array<string>
-                            transform?: (v: any) => any
-                            combineCSVColumns?: boolean
+                    for (const [columnName, columnConfig] of Object.entries(
+                        config as Record<
+                            string,
+                            {
+                                csvColumnName: string | Array<string>
+                                transform?: (v: any) => any
+                                combineCSVColumns?: boolean
+                            }
+                        >,
+                    )) {
+                        const { csvColumnName, transform, combineCSVColumns } =
+                            columnConfig
+                        // Normalize CSV column names to array
+                        const csvNames = Array.isArray(csvColumnName)
+                            ? csvColumnName
+                            : [csvColumnName]
+
+                        // Find first matching value
+                        const value = combineCSVColumns
+                            ? csvNames.map((name) => row[name] || '').join('')
+                            : csvNames
+                                  .map((name) => row[name])
+                                  .find((v) => v !== undefined)
+
+                        const column = columns[columnName]
+                        if (!column)
+                            throw new Error(
+                                `Column ${columnName} not found in table ${tableName}`,
+                            )
+
+                        try {
+                            // If transform is provided, use it; otherwise, use dataConformer
+                            mapped[columnName] = transform
+                                ? await transform(value)
+                                : dataConformer(value, column)
+                            // console.log(columnName, mapped[columnName])
+                        } catch (err) {
+                            emit({
+                                type: 'error',
+                                data: {
+                                    table: tableName,
+                                    rowIndex: results.data.indexOf(row),
+                                },
+                                error:
+                                    'Failed to conform value. Error: ' +
+                                    String(err),
+                            })
+                            throw err
                         }
-                    >,
-                )) {
-                    const { csvColumnName, transform, combineCSVColumns } =
-                        columnConfig
-                    // Normalize CSV column names to array
-                    const csvNames = Array.isArray(csvColumnName)
-                        ? csvColumnName
-                        : [csvColumnName]
-
-                    // Find first matching value
-                    const value = combineCSVColumns
-                        ? csvNames.map((name) => row[name] || '').join('')
-                        : csvNames
-                            .map((name) => row[name])
-                            .find((v) => v !== undefined)
-
-                    const column = columns[columnName]
-                    if (!column)
-                        throw new Error(
-                            `Column ${columnName} not found in table ${tableName}`,
-                        )
-
-                    try {
-                        // If transform is provided, use it; otherwise, use dataConformer
-                        mapped[columnName] = transform
-                            ? await transform(value)
-                            : dataConformer(value, column)
-                        // console.log(columnName, mapped[columnName])
-                    } catch (err) {
-                        emit({
-                            type: 'error',
-                            data: {
-                                table: tableName,
-                                rowIndex: results.data.indexOf(row),
-                            },
-                            error:
-                                'Failed to conform value. Error: ' +
-                                String(err),
-                        })
-                        throw err
                     }
-                }
 
-                return mapped
-            }))
+                    return mapped
+                }),
+            )
 
             tableDataMap.set(tableName, mappedRows)
             continue

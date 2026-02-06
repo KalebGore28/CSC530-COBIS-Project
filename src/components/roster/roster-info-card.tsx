@@ -7,7 +7,7 @@ import { currentTermCollection } from '@/integrations/tanstack-db/current-term'
 
 type RequiredStudentCourseProps = {
     year: number
-    term_code: string
+    term_id: string
     course_hours: number
     term_description: string | undefined
     course_id: string
@@ -73,7 +73,7 @@ export function RosterInfoCard({
 
     const isActive = currentTerm
         ? course.year === currentTerm.year &&
-          course.term_code === currentTerm.term_code
+          course.term_id === currentTerm.term_id
         : false
 
     return (

@@ -1,13 +1,11 @@
 import { createCSVConfig } from '../utils/csv-importer'
 import { parseCourseCode, parseTermCode } from '../utils/code-parsers'
-import { getCoursePrefix } from '@/utils/course-prefix-map'
-
 import {
     academicStanding,
     admitCodes,
     colleges,
-    courses,
     coursePrefixes,
+    courses,
     departments,
     faculty,
     instructionalMethods,
@@ -22,6 +20,8 @@ import {
     students,
     terms,
 } from './schema'
+import { getCoursePrefix } from '@/utils/course-prefix-map'
+
 
 function isCSVColumnNull(value: string | null | undefined): boolean {
     return (
@@ -87,8 +87,8 @@ export const csvConfig = createCSVConfig(
             config: {
                 code: { csvColumnName: 'PREFIX' },
                 department_code: { csvColumnName: 'CRSEDEPT' },
-                college_code: { csvColumnName: 'CRSECOLL' }
-            }
+                college_code: { csvColumnName: 'CRSECOLL' },
+            },
         },
         courses: {
             patterns: [/^reg_cuba_catalog_\d{6}_\d{8}\.csv$/i],
@@ -110,13 +110,16 @@ export const csvConfig = createCSVConfig(
                 hours: { csvColumnName: 'CREDITHRS' },
                 department_code: {
                     csvColumnName: 'COURSE',
-                    transform: async (val) => (await getCoursePrefix(parseCourseCode(val).subject)).department_code,
+                    transform: async (val) =>
+                        (await getCoursePrefix(parseCourseCode(val).subject))
+                            .department_code,
                 },
                 college_code: {
                     csvColumnName: 'COURSE',
-                    transform: async (val) => (await getCoursePrefix(parseCourseCode(val).subject)).college_code,
-
-                }
+                    transform: async (val) =>
+                        (await getCoursePrefix(parseCourseCode(val).subject))
+                            .college_code,
+                },
             },
             missingRowResolver: (missingData) => {
                 const courseId = missingData[0]
