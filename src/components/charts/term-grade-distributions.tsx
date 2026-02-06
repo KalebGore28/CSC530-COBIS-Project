@@ -91,7 +91,7 @@ export function TermGradeDistribution({
                 ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_code, term.code),
+                eq(studentCourse.term_id, term.id),
             )
             .select(({ studentCourse, term }) => ({
                 year: studentCourse.year,
@@ -239,7 +239,7 @@ function GradeDistributionChart({
     return (
         <ChartContainer
             config={defaultChartConfig}
-            className="aspect-auto h-[400px] w-full"
+            className="aspect-auto h-100 w-full"
         >
             <AreaChart
                 data={view === 'final' ? finalPercentages : midtermPercentages}

@@ -98,12 +98,11 @@ function RouteComponent() {
             .leftJoin(
                 { departments: departmentsCollection },
                 ({ faculty, departments }) =>
-                    eq(faculty.department_code, departments.code),
+                    eq(faculty.department_id, departments.id),
             )
             .leftJoin(
                 { colleges: collegesCollection },
-                ({ faculty, colleges }) =>
-                    eq(faculty.college_code, colleges.code),
+                ({ faculty, colleges }) => eq(faculty.college_id, colleges.id),
             )
             .select(({ faculty, users, departments, colleges }) => ({
                 ...faculty,

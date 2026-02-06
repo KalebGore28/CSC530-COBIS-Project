@@ -63,18 +63,18 @@ function RouteComponent() {
                 and(
                     eq(studentCourse.instructor_mnumber, mnumber),
                     eq(studentCourse.year, year),
-                    eq(studentCourse.term_code, termCode),
+                    eq(studentCourse.term_id, termCode),
                     eq(studentCourse.course_id, course.course_id),
                     eq(studentCourse.course_section, course.section),
                 ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_code, term.code),
+                eq(studentCourse.term_id, term.id),
             )
             .leftJoin(
                 { course: coursesCollection },
                 ({ studentCourse, course }) =>
-                    eq(studentCourse.course_id, course.code),
+                    eq(studentCourse.course_id, course.id),
             )
             .leftJoin(
                 { student: studentsCollection },
@@ -103,7 +103,7 @@ function RouteComponent() {
                     course_title: course?.title,
                     course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
                     year: studentCourse.year,
-                    term_code: studentCourse.term_code,
+                    term_id: studentCourse.term_id,
                     term_description: term?.description,
                     midterm_grade: studentCourse.midterm_grade,
                     final_grade: studentCourse.final_grade,
@@ -142,26 +142,26 @@ function RouteComponent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
-                <RosterInfoCard
-                    className={'col-span-2'}
-                    studentCourses={instructorCourses}
-                    isLoading={isLoading}
-                />
-                <RosterGradeDistributions
-                    className={'col-span-2 md:col-span-1'}
-                    studentCourses={instructorCourses}
-                    isLoading={isLoading}
-                />
-                <RosterSummaryCard
-                    className={'col-span-2 md:col-span-1'}
-                    studentCourses={instructorCourses}
-                    isLoading={isLoading}
-                />
-                <RosterStudents
-                    className={'col-span-2'}
-                    studentCourses={instructorCourses}
-                    isLoading={isLoading}
-                />
+                {!isLoading && (
+                    <>
+                        <RosterInfoCard
+                            className={'col-span-2'}
+                            studentCourses={instructorCourses}
+                        />
+                        <RosterGradeDistributions
+                            className={'col-span-2 md:col-span-1'}
+                            studentCourses={instructorCourses}
+                        />
+                        <RosterSummaryCard
+                            className={'col-span-2 md:col-span-1'}
+                            studentCourses={instructorCourses}
+                        />
+                        <RosterStudents
+                            className={'col-span-2'}
+                            studentCourses={instructorCourses}
+                        />
+                    </>
+                )}
             </div>
         </div>
     )

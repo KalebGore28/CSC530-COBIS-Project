@@ -50,14 +50,14 @@ function RouteComponent() {
                 and(
                     eq(student.instructor_mnumber, mnumber),
                     eq(student.year, year),
-                    eq(student.term_code, termCode),
+                    eq(student.term_id, termCode),
                 ),
             )
             .leftJoin({ terms: termsCollection }, ({ student, terms }) =>
-                eq(student.term_code, terms.code),
+                eq(student.term_id, terms.id),
             )
             .leftJoin({ courses: coursesCollection }, ({ student, courses }) =>
-                eq(student.course_id, courses.code),
+                eq(student.course_id, courses.id),
             )
             .select(({ student, terms, courses }) => ({
                 course_id: student.course_id,
@@ -65,13 +65,13 @@ function RouteComponent() {
                 course_hours: student.course_hours,
                 course_title: courses?.title,
                 year: student.year,
-                term_code: student.term_code,
+                term_code: student.term_id,
                 term_description: terms?.description,
                 midterm_grade: student.midterm_grade,
                 final_grade: student.final_grade,
             }))
             .orderBy(({ student }) => student.year, 'desc')
-            .orderBy(({ student }) => student.term_code, 'desc'),
+            .orderBy(({ student }) => student.term_id, 'desc'),
     )
 
     if (isLoading) return <div>Loading...</div>
@@ -227,7 +227,7 @@ function RouteComponent() {
             <AdvisedStudentsCard
                 advisorMnumber={mnumber}
                 term_info={{
-                    term_code: termCode,
+                    term_id: termCode,
                     year: year,
                     description: termHistory[0]?.term_description || '',
                 }}

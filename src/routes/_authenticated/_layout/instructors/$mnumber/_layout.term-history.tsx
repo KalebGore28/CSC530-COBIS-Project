@@ -78,7 +78,7 @@ function RouteComponent() {
             .from({ student: studentCoursesCollection })
             .where(({ student }) => eq(student.instructor_mnumber, mnumber))
             .leftJoin({ terms: termsCollection }, ({ student, terms }) =>
-                eq(student.term_code, terms.code),
+                eq(student.term_id, terms.id),
             )
             .select(({ student, terms }) => ({
                 course_id: student.course_id,
@@ -86,13 +86,13 @@ function RouteComponent() {
                 course_hours: student.course_hours,
                 course_title: terms?.description,
                 year: student.year,
-                term_code: student.term_code,
+                term_code: student.term_id,
                 term_description: terms?.description,
                 midterm_grade: student.midterm_grade,
                 final_grade: student.final_grade,
             }))
             .orderBy(({ student }) => student.year, 'desc')
-            .orderBy(({ student }) => student.term_code, 'desc'),
+            .orderBy(({ student }) => student.term_id, 'desc'),
     )
 
     if (isLoading) return <TermHistoryTableSkeleton />

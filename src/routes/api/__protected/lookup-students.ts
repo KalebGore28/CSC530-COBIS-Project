@@ -203,12 +203,12 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                 const [latestRecord] = await context.db
                     .select({
                         max_year: studentAcademicInfo.year,
-                        max_term: studentAcademicInfo.term_code,
+                        max_term: studentAcademicInfo.term_id,
                     })
                     .from(studentAcademicInfo)
                     .orderBy(
                         desc(studentAcademicInfo.year),
-                        desc(studentAcademicInfo.term_code),
+                        desc(studentAcademicInfo.term_id),
                     )
                     .limit(1)
 
@@ -291,7 +291,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                                     latestRecord.max_year,
                                 ),
                                 eq(
-                                    studentAcademicInfo.term_code,
+                                    studentAcademicInfo.term_id,
                                     latestRecord.max_term,
                                 ),
                             ),
@@ -304,10 +304,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     // We need to create a subquery to filter students in the specified program
                     const progWhere: Array<SQLWrapper> = [
                         eq(studentPrograms.mnumber, students.mnumber),
-                        eq(
-                            studentPrograms.program_code,
-                            parsed.data.program_id,
-                        ),
+                        eq(studentPrograms.program_id, parsed.data.program_id),
                     ]
 
                     if (parsed.data.is_major) {
@@ -442,7 +439,7 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
                     context.roles,
-                    context.faculty.department_code || '',
+                    context.faculty.department_id || '',
                 )
 
                 const finalResults = results.filter((student) =>

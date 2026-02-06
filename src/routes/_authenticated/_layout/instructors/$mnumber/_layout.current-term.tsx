@@ -95,12 +95,12 @@ function RouteComponent() {
                     and(
                         eq(student.instructor_mnumber, mnumber),
                         eq(student.year, currentTerm.year),
-                        eq(student.term_code, currentTerm.term_code),
+                        eq(student.term_id, currentTerm.term_id),
                     ),
                 )
                 .leftJoin(
                     { course: coursesCollection },
-                    ({ student, course }) => eq(student.course_id, course.code),
+                    ({ student, course }) => eq(student.course_id, course.id),
                 )
                 .select(({ student, course }) => ({
                     course_id: student.course_id,
@@ -138,25 +138,30 @@ function RouteComponent() {
             <CardContent className="p-1 m-0 border bg-primary rounded-xl">
                 <div className="border rounded-lg bg-white dark:bg-gray-800">
                     <CoursesTable
-                        data={currentTermData.map((course) => ({
-                            course: `${course.course_id}-${course.course_section}`,
-                            title: course.course_title || 'N/A',
-                            credit_hour: course.course_hours,
-                            total_students: course.total_students || 0,
-                            total_credit_hours: course.total_credit_hours || 0,
-                            action: (
-                                <Button
-                                    size="sm"
-                                    onClick={() =>
-                                        navigate({
-                                            to: `/instructors/${mnumber}/term-history/${currentTerm.year}${currentTerm.term_code}/${course.course_id}-${course.course_section}`,
-                                        })
-                                    }
-                                >
-                                    View Roster
-                                </Button>
-                            ),
-                        }))}
+                        data={currentTermData
+                            .map((course) => ({
+                                course: `${course.course_id}-${course.course_section}`,
+                                title: course.course_title || 'N/A',
+                                credit_hour: course.course_hours,
+                                total_students: course.total_students || 0,
+                                total_credit_hours:
+                                    course.total_credit_hours || 0,
+                                action: (
+                                    <Button
+                                        size="sm"
+                                        onClick={() =>
+                                            navigate({
+                                                to: `/instructors/${mnumber}/term-history/${currentTerm.year}${currentTerm.term_id}/${course.course_id}-${course.course_section}`,
+                                            })
+                                        }
+                                    >
+                                        View Roster
+                                    </Button>
+                                ),
+                            })).sort((a, b) =>
+                                a.course.localeCompare(b.course),
+                            )
+                        }
                     />
                 </div>
             </CardContent>

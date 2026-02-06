@@ -143,12 +143,12 @@ function RouteComponent() {
                 .leftJoin(
                     { departments: departmentsCollection },
                     ({ faculty, departments }) =>
-                        eq(faculty.department_code, departments.code),
+                        eq(faculty.department_id, departments.id),
                 )
                 .leftJoin(
                     { colleges: collegesCollection },
                     ({ faculty, colleges }) =>
-                        eq(faculty.college_code, colleges.code),
+                        eq(faculty.college_id, colleges.id),
                 )
                 .leftJoin({ users: usersCollection }, ({ faculty, users }) =>
                     eq(faculty.mnumber, users.mnumber),
@@ -193,8 +193,8 @@ function RouteComponent() {
             ? faculty
             : faculty.filter(
                   (d) =>
-                      d.faculty.department_code ===
-                      userSession?.faculty.department_code,
+                      d.faculty.department_id ===
+                      userSession?.faculty.department_id,
               )
 
     // Handle search input change with debounce
