@@ -28,11 +28,11 @@ export function DepartmentSelector({
                 .from({ departments: departmentsCollection })
                 .where(({ departments }) =>
                     or(
-                        ilike(departments.code, `%${query}%`),
+                        ilike(departments.id, `%${query}%`),
                         ilike(departments.description, `%${query}%`),
                     ),
                 )
-                .orderBy(({ departments }) => departments.code, 'asc')
+                .orderBy(({ departments }) => departments.id, 'asc')
                 .limit(query !== '' ? 10 : 0),
         [query], // Re-run when query changes
     )
@@ -43,7 +43,7 @@ export function DepartmentSelector({
         return (
             <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2 bg-muted/30">
                 <div>
-                    <strong>{selected.code}</strong> — {selected.description}
+                    <strong>{selected.id}</strong> — {selected.description}
                 </div>
                 <Button
                     variant="outline"
@@ -118,17 +118,17 @@ function DepartmentResults({
             {filteredDepartments.map((dept) =>
                 dept ? (
                     <li
-                        key={dept.code}
+                        key={dept.id}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() =>
                             onSelect({
-                                code: dept.code,
+                                id: dept.id,
                                 description: dept.description,
-                                college_code: null,
+                                college_id: null,
                             })
                         }
                     >
-                        <strong>{dept.code}</strong> — {dept.description}
+                        <strong>{dept.id}</strong> — {dept.description}
                     </li>
                 ) : null,
             )}

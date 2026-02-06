@@ -103,7 +103,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     <DialogTitle>User Provisioning</DialogTitle>
                     <DialogDescription>
                         Detailed information and provisioning options for{' '}
-                        {user.name}
+                        {user.name} ({userId})
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2">
@@ -199,7 +199,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                                         department: provisionParams.department!,
                                         college: provisionParams.college!,
                                         faculty: provisionParams.faculty!,
-                                        user: provisionParams.user!,
+                                        user: user,
                                     },
                                     {
                                         onSuccess: () => {

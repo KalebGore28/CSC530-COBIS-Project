@@ -30,7 +30,7 @@ export function FacultySelector({
         (q) =>
             q
                 .from({ departments: departmentsCollection })
-                .orderBy(({ departments }) => departments.code, 'asc'),
+                .orderBy(({ departments }) => departments.id, 'asc'),
         [], // Run only once
     )
 
@@ -38,7 +38,7 @@ export function FacultySelector({
         (q) =>
             q
                 .from({ colleges: collegesCollection })
-                .orderBy(({ colleges }) => colleges.code, 'asc'),
+                .orderBy(({ colleges }) => colleges.id, 'asc'),
         [], // Run only once
     )
 
@@ -77,15 +77,15 @@ export function FacultySelector({
                     faculty: facultyByUser,
                     department:
                         departments.find(
-                            (d) => d.code === facultyByUser.department_code,
+                            (d) => d.id === facultyByUser.department_id,
                         ) || null,
                     college:
                         colleges.find(
-                            (c) => c.code === facultyByUser.college_code,
+                            (c) => c.id === facultyByUser.college_id,
                         ) || null,
                 })
         }
-    }, []) // Run only once on mount
+    }, [provisionParams?.department, provisionParams?.college]) // Run only once on mount
 
     if (isLoading) return <Skeleton className="h-10 w-full" />
 
@@ -135,11 +135,11 @@ export function FacultySelector({
                             faculty: faculty,
                             department:
                                 departments.find(
-                                    (d) => d.code === faculty.department_code,
+                                    (d) => d.id === faculty.department_id,
                                 ) || null,
                             college:
                                 colleges.find(
-                                    (c) => c.code === faculty.college_code,
+                                    (c) => c.id === faculty.college_id,
                                 ) || null,
                         })
                     setQuery('')

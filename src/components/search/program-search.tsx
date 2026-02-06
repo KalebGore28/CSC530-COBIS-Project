@@ -30,11 +30,11 @@ export function ProgramSearchBox({
                 .from({ programs: programsCollection })
                 .where(({ programs }) =>
                     or(
-                        ilike(programs.code, `%${query}%`),
+                        ilike(programs.id, `%${query}%`),
                         ilike(programs.description, `%${query}%`),
                     ),
                 )
-                .orderBy(({ programs }) => programs.code, 'asc')
+                .orderBy(({ programs }) => programs.id, 'asc')
                 .limit(query !== '' ? 10 : 0),
         [query], // Re-run when query changes
     )
@@ -49,8 +49,7 @@ export function ProgramSearchBox({
             <div className="flex flex-col gap-2 border rounded-md px-3 py-2 bg-muted/30">
                 <div className="flex items-center justify-between gap-2">
                     <div>
-                        <strong>{selected.code}</strong> —{' '}
-                        {selected.description}
+                        <strong>{selected.id}</strong> — {selected.description}
                     </div>
                     <Button
                         variant="outline"
@@ -189,12 +188,12 @@ function ProgramResults({
             {filteredPrograms.map((prog) =>
                 prog ? (
                     <li
-                        key={prog.code}
+                        key={prog.id}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() => onSelect(prog)}
                     >
                         <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
-                            <strong>{prog.code}</strong>
+                            <strong>{prog.id}</strong>
                             {prog.description}
                             <div className="space-x-2">
                                 {prog.is_major && (

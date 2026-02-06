@@ -158,10 +158,8 @@ function RouteComponent() {
                                         View Roster
                                     </Button>
                                 ),
-                            })).sort((a, b) =>
-                                a.course.localeCompare(b.course),
-                            )
-                        }
+                            }))
+                            .sort((a, b) => a.course.localeCompare(b.course))}
                     />
                 </div>
             </CardContent>

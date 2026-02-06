@@ -28,11 +28,11 @@ export function CollegeSelector({
                 .from({ colleges: collegesCollection })
                 .where(({ colleges }) =>
                     or(
-                        ilike(colleges.code, `%${query}%`),
+                        ilike(colleges.id, `%${query}%`),
                         ilike(colleges.description, `%${query}%`),
                     ),
                 )
-                .orderBy(({ colleges }) => colleges.code, 'asc')
+                .orderBy(({ colleges }) => colleges.id, 'asc')
                 .limit(query !== '' ? 10 : 0),
         [query], // Re-run when query changes
     )
@@ -43,7 +43,7 @@ export function CollegeSelector({
         return (
             <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2 bg-muted/30">
                 <div>
-                    <strong>{selected.code}</strong> — {selected.description}
+                    <strong>{selected.id}</strong> — {selected.description}
                 </div>
                 <Button
                     variant="outline"
@@ -103,16 +103,16 @@ function CollegeResults({
             {filteredColleges.map((college) =>
                 college ? (
                     <li
-                        key={college.code}
+                        key={college.id}
                         className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
                         onClick={() =>
                             onSelect({
-                                code: college.code,
+                                id: college.id,
                                 description: college.description,
                             })
                         }
                     >
-                        <strong>{college.code}</strong> — {college.description}
+                        <strong>{college.id}</strong> — {college.description}
                     </li>
                 ) : null,
             )}

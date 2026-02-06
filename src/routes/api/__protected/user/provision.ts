@@ -37,6 +37,15 @@ export const Route = createFileRoute('/api/__protected/user/provision')({
                     )
                 }
 
+                console.log('Provisioning user with params:', {
+                    mnumber,
+                    userIsEnabled,
+                    college,
+                    department,
+                    role_ids,
+                    userId,
+                })
+
                 // Fetch the user to be provisioned
                 const dbUser = await context.db
                     .select()
@@ -98,8 +107,8 @@ export const Route = createFileRoute('/api/__protected/user/provision')({
                 await context.db
                     .update(faculty)
                     .set({
-                        college_code: college,
-                        department_code: department,
+                        college_id: college,
+                        department_id: department,
                     })
                     .where(eq(faculty.mnumber, mnumber))
 

@@ -31,8 +31,8 @@ const columns: Array<ColumnDef<College>> = [
         enableHiding: false,
     },
     {
-        accessorKey: 'code',
-        header: 'Code',
+        accessorKey: 'id',
+        header: 'Id',
     },
     {
         accessorKey: 'description',
@@ -51,7 +51,7 @@ export function CollegeTable({
 }) {
     return (
         <EditableDataTable
-            filterColumns={['code', 'description']}
+            filterColumns={['id', 'description']}
             columns={columns}
             data={data}
         />

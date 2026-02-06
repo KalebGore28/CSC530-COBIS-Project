@@ -40,7 +40,7 @@ export function CourseSearchBox({
                 .from({ courses: coursesCollection })
                 .where(({ courses }) =>
                     or(
-                        ilike(courses.code, `%${query}%`),
+                        ilike(courses.id, `%${query}%`),
                         ilike(courses.title, `%${query}%`),
                     ),
                 )
@@ -60,7 +60,7 @@ export function CourseSearchBox({
             <div className="flex flex-col gap-3 border rounded-md p-3 bg-muted/30">
                 <div className="flex items-center justify-between">
                     <span>
-                        <strong> {selected.code}</strong> — {selected.title}
+                        <strong> {selected.id}</strong> — {selected.title}
                     </span>
                     <Button
                         variant="outline"
@@ -239,13 +239,13 @@ function CourseResults({
                 (course) =>
                     course && (
                         <li
-                            key={course.code}
+                            key={course.id}
                             className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
                             onClick={() => {
                                 onSelect(course)
                             }}
                         >
-                            <strong> {course.code} </strong> — {course.title}
+                            <strong> {course.id} </strong> — {course.title}
                         </li>
                     ),
             )}

@@ -40,8 +40,8 @@ const columns: Array<ColumnDef<Course>> = [
         enableHiding: false,
     },
     {
-        accessorKey: 'code',
-        header: 'Code',
+        accessorKey: 'id',
+        header: 'Id',
     },
     {
         accessorKey: 'subject',
@@ -92,7 +92,7 @@ export function CourseTable({
 }) {
     return (
         <EditableDataTable
-            filterColumns={['code', 'title', 'department_code', 'college_code']}
+            filterColumns={['id', 'title', 'department_code', 'college_code']}
             defaultFilters={defaultFilters}
             columns={columns}
             data={data}

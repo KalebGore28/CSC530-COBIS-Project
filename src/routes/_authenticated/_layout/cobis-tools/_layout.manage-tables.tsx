@@ -66,6 +66,8 @@ function RouteComponent() {
         colleges.filter((c) => c.description.toLowerCase() === 'unknown')
             .length || 0
 
+    console.log()
+
     const coursesWithUnknownTitle =
         courses.filter(
             (c) =>
@@ -73,12 +75,12 @@ function RouteComponent() {
                 c.title.toLowerCase() === 'not known to cobis yet',
         ).length || 0
     const coursesWithMissingDepartment =
-        courses.filter((c) => !c.department_code).length || 0
+        courses.filter((c) => !c.department_id).length || 0
     const coursesWithMissingCollege =
-        courses.filter((c) => !c.college_code).length || 0
+        courses.filter((c) => !c.college_id).length || 0
 
     const departmentsMissingCollege =
-        departments.filter((d) => !d.college_code).length || 0
+        departments.filter((d) => !d.college_id).length || 0
 
     const instructionalMethodsWithUnknownDescription =
         instructionalMethods?.filter(
@@ -90,9 +92,9 @@ function RouteComponent() {
             .length || 0
 
     const programsWithMissingDepartment =
-        programs.filter((p) => !p.department_code).length || 0
+        programs.filter((p) => !p.department_id).length || 0
     const programsWithMissingCollege =
-        programs.filter((p) => !p.college_code).length || 0
+        programs.filter((p) => !p.college_id).length || 0
     const programsWithMissingFlag =
         programs.filter((p) => !p.is_major && !p.is_minor).length || 0
     const registrationStatusWithUnknownDescription =
@@ -151,14 +153,14 @@ function RouteComponent() {
                         label: 'Department',
                         count: coursesWithMissingDepartment,
                         variant: 'secondary',
-                        filterColumn: 'department_code',
+                        filterColumn: 'department_id',
                         filterValue: '"null"',
                     },
                     {
                         label: 'College',
                         count: coursesWithMissingCollege,
                         variant: 'secondary',
-                        filterColumn: 'college_code',
+                        filterColumn: 'college_id',
                         filterValue: '"null"',
                     },
                 ]}
@@ -174,7 +176,7 @@ function RouteComponent() {
                         label: 'College',
                         count: departmentsMissingCollege,
                         variant: 'secondary',
-                        filterColumn: 'college_code',
+                        filterColumn: 'college_id',
                         filterValue: '"null"',
                     },
                 ]}
@@ -222,14 +224,14 @@ function RouteComponent() {
                         label: 'Department',
                         count: programsWithMissingDepartment,
                         variant: 'secondary',
-                        filterColumn: 'department_code',
+                        filterColumn: 'department_id',
                         filterValue: '"null"',
                     },
                     {
                         label: 'College',
                         count: programsWithMissingCollege,
                         variant: 'secondary',
-                        filterColumn: 'college_code',
+                        filterColumn: 'college_id',
                         filterValue: '"null"',
                     },
                     // {
