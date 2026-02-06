@@ -1,17 +1,16 @@
 import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
+import { inArray } from 'drizzle-orm'
 import { studentCourses } from '@/db/schema'
 import {
     createAccessKey,
     getStudentAccessLevel,
 } from '@/utils/get-student-access-level'
-import { inArray } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/__protected/data/student-courses')({
     server: {
         handlers: {
             GET: async ({ context }) => {
-
                 // Get student access restrictions based on roles
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
@@ -23,7 +22,12 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                     .select()
                     .from(studentCourses)
                     // Immediately filter out students with no access
-                    .where(inArray(studentCourses.mnumber, Array.from(studentMnumbers.students)))
+                    .where(
+                        inArray(
+                            studentCourses.mnumber,
+                            Array.from(studentMnumbers.students),
+                        ),
+                    )
 
                 const finalResults: typeof results = []
                 for (const student of results) {
@@ -43,29 +47,31 @@ export const Route = createFileRoute('/api/__protected/data/student-courses')({
                             ...student,
                             midterm_grade: null,
                             final_grade: null,
-                            accesslevel: accessData.accessLevel,
-                            role: accessData.role,
-                            reason: accessData.reason,
+                            // Diagnostic Info:
+                            // accesslevel: accessData.accessLevel,
+                            // role: accessData.role,
+                            // reason: accessData.reason,
                         })
                     } else if (accessData.accessLevel === 'course_scoped') {
                         // Users with course_scoped level can only view if they are the instructor
                         if (
-                            student.instructor_mnumber ===
-                            context.user.mnumber
+                            student.instructor_mnumber === context.user.mnumber
                         ) {
                             finalResults.push({
                                 ...student,
-                                accesslevel: accessData.accessLevel,
-                                role: accessData.role,
-                                reason: accessData.reason,
+                                // Diagnostic Info:
+                                // accesslevel: accessData.accessLevel,
+                                // role: accessData.role,
+                                // reason: accessData.reason,
                             })
                         }
                     } else {
                         finalResults.push({
                             ...student,
-                            accesslevel: accessData.accessLevel,
-                            role: accessData.role,
-                            reason: accessData.reason,
+                            // Diagnostic Info:
+                            // accesslevel: accessData.accessLevel,
+                            // role: accessData.role,
+                            // reason: accessData.reason,
                         })
                     }
                 }

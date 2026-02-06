@@ -54,15 +54,13 @@ const colleges = (await getCSVData('colleges.csv')).map((row) => {
 }) as Array<typeof schema.colleges.$inferSelect>
 
 const coursePrefixData = await getCSVData('course_prefixes.csv')
-const coursePrefixes = (coursePrefixData).map(
-    (row) => {
-        return {
-            id: row.prefix,
-            department_id: row.crsedept,
-            college_id: row.crsecoll,
-        }
-    },
-) as Array<typeof schema.courses.$inferSelect>
+const coursePrefixes = coursePrefixData.map((row) => {
+    return {
+        id: row.prefix,
+        department_id: row.crsedept,
+        college_id: row.crsecoll,
+    }
+}) as Array<typeof schema.courses.$inferSelect>
 
 type CoursePrefixValue = {
     department_id: string | null
@@ -336,37 +334,47 @@ async function seedTestDatabase() {
                 }),
                 midterm_grade: f.weightedRandom([
                     {
-                        weight: 0.7, value: f.valuesFromArray({ values: ['A'] })
+                        weight: 0.7,
+                        value: f.valuesFromArray({ values: ['A'] }),
                     },
                     {
-                        weight: 0.15, value: f.valuesFromArray({ values: ['B'] })
+                        weight: 0.15,
+                        value: f.valuesFromArray({ values: ['B'] }),
                     },
                     {
-                        weight: 0.10, value: f.valuesFromArray({ values: ['C'] })
+                        weight: 0.1,
+                        value: f.valuesFromArray({ values: ['C'] }),
                     },
                     {
-                        weight: 0.04, value: f.valuesFromArray({ values: ['D'] })
+                        weight: 0.04,
+                        value: f.valuesFromArray({ values: ['D'] }),
                     },
                     {
-                        weight: 0.01, value: f.valuesFromArray({ values: ['E'] })
-                    }
+                        weight: 0.01,
+                        value: f.valuesFromArray({ values: ['E'] }),
+                    },
                 ]),
                 final_grade: f.weightedRandom([
                     {
-                        weight: 0.7, value: f.valuesFromArray({ values: ['A'] })
+                        weight: 0.7,
+                        value: f.valuesFromArray({ values: ['A'] }),
                     },
                     {
-                        weight: 0.15, value: f.valuesFromArray({ values: ['B'] })
+                        weight: 0.15,
+                        value: f.valuesFromArray({ values: ['B'] }),
                     },
                     {
-                        weight: 0.10, value: f.valuesFromArray({ values: ['C'] })
+                        weight: 0.1,
+                        value: f.valuesFromArray({ values: ['C'] }),
                     },
                     {
-                        weight: 0.04, value: f.valuesFromArray({ values: ['D'] })
+                        weight: 0.04,
+                        value: f.valuesFromArray({ values: ['D'] }),
                     },
                     {
-                        weight: 0.01, value: f.valuesFromArray({ values: ['E'] })
-                    }
+                        weight: 0.01,
+                        value: f.valuesFromArray({ values: ['E'] }),
+                    },
                 ]),
             },
         },

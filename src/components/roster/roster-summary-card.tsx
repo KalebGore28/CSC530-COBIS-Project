@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 type RequiredStudentCourseProps = {
     midterm_grade: string | null
     final_grade: string | null
-    student_gpa: number | null
+    student_gpa?: number | null
 } & Record<string, unknown>
 
 type RosterSummaryCardProps = {
@@ -154,12 +154,16 @@ export function RosterSummaryCard({
                             </dt>
                             <dd className="font-medium">{totalStudents}</dd>
                         </div>
-                        <div className="flex items-center justify-between">
-                            <dt className="text-muted-foreground">Class GPA</dt>
-                            <dd className="font-medium">
-                                {classGPA.toFixed(2)}
-                            </dd>
-                        </div>
+                        {studentCourses[0].student_gpa && (
+                            <div className="flex items-center justify-between">
+                                <dt className="text-muted-foreground">
+                                    Class GPA
+                                </dt>
+                                <dd className="font-medium">
+                                    {classGPA.toFixed(2)}
+                                </dd>
+                            </div>
+                        )}
                         <div className="flex items-center justify-between">
                             <dt className="text-muted-foreground">
                                 Midterm Average

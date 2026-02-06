@@ -255,8 +255,7 @@ function extractTermCourses(
     // Filter studentCourses for the selected term
     const filteredCourses = studentCourses.filter(
         (c) =>
-            c.year === selectedTerm.year &&
-            c.term_id === selectedTerm.term_id,
+            c.year === selectedTerm.year && c.term_id === selectedTerm.term_id,
     )
 
     // Extract courses for the selected term

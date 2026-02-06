@@ -22,7 +22,6 @@ import {
 } from './schema'
 import { getCoursePrefix } from '@/utils/course-prefix-map'
 
-
 function isCSVColumnNull(value: string | null | undefined): boolean {
     return (
         value === null ||

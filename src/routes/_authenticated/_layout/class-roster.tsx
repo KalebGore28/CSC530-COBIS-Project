@@ -41,10 +41,7 @@ function ClassRosterPage() {
         q
             .from({ studentCourse: studentCoursesCollection })
             .where(({ studentCourse }) =>
-                eq(
-                    studentCourse.instructor_mnumber,
-                    userSession?.user.mnumber,
-                ),
+                eq(studentCourse.instructor_mnumber, userSession?.user.mnumber),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
                 eq(studentCourse.term_id, term.id),
@@ -74,7 +71,6 @@ function ClassRosterPage() {
                 midterm_grade: studentCourse.midterm_grade,
                 final_grade: studentCourse.final_grade,
                 last_attendance: studentCourse.last_attendance,
-                // student_gpa: studentAcademicInfo?.overall_gpa || null,
             })),
     )
 

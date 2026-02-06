@@ -1,14 +1,13 @@
 import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
+import { inArray } from 'drizzle-orm'
 import { students } from '@/db/schema'
 import { getStudentAccessLevel } from '@/utils/get-student-access-level'
-import { inArray } from 'drizzle-orm'
 
 export const Route = createFileRoute('/api/__protected/data/students')({
     server: {
         handlers: {
             GET: async ({ context }) => {
-
                 // Get student access restrictions based on roles
                 const studentMnumbers = await getStudentAccessLevel(
                     context.user.mnumber,
@@ -20,7 +19,12 @@ export const Route = createFileRoute('/api/__protected/data/students')({
                     .select()
                     .from(students)
                     // Immediately filter out students with no access
-                    .where(inArray(students.mnumber, Array.from(studentMnumbers.students)))
+                    .where(
+                        inArray(
+                            students.mnumber,
+                            Array.from(studentMnumbers.students),
+                        ),
+                    )
 
                 const json = JSON.stringify(results)
                 const compressed = gzipSync(Buffer.from(json))
