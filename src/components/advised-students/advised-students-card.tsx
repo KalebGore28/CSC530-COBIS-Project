@@ -20,7 +20,7 @@ import { studentsCollection } from '@/integrations/tanstack-db/students'
 
 type CurrentTerm = {
     year: number
-    term_code: string
+    term_id: string
     description: string | undefined
 }
 
@@ -43,13 +43,13 @@ export function AdvisedStudentsCard({
             .leftJoin(
                 { students: studentsCollection },
                 ({ studentAdvisors, students }) =>
-                    eq(studentAdvisors.student_mnumber, students.mnumber),
+                    eq(studentAdvisors.mnumber, students.mnumber),
             )
             .where(({ studentAdvisors }) =>
                 and(
                     eq(studentAdvisors.advisor_mnumber, advisorMnumber),
                     eq(studentAdvisors.year, term_info.year),
-                    eq(studentAdvisors.term_code, term_info.term_code),
+                    eq(studentAdvisors.term_id, term_info.term_id),
                 ),
             )
             .select(({ students, studentAdvisors }) => ({
@@ -59,7 +59,7 @@ export function AdvisedStudentsCard({
                 last_name: students?.last_name,
                 suffix: students?.suffix ?? undefined,
                 email: students?.email ?? undefined,
-                term: studentAdvisors.term_code,
+                term: studentAdvisors.term_id,
                 year: studentAdvisors.year,
             })),
     )

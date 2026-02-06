@@ -7,7 +7,7 @@ import { termsCollection } from '@/integrations/tanstack-db/terms'
 type CurrentTermContextValue = {
     currentTerm: {
         year: number
-        term_code: string
+        term_id: string
         description: string
     }
     isLoading: boolean
@@ -16,7 +16,7 @@ type CurrentTermContextValue = {
 const CurrentTermContext = createContext<CurrentTermContextValue>({
     currentTerm: {
         year: 0,
-        term_code: '',
+        term_id: '',
         description: '',
     },
     isLoading: true,
@@ -31,11 +31,11 @@ export function CurrentTermProvider({ children }: { children: JSX.Element }) {
         q
             .from({ current_term: currentTermCollection })
             .leftJoin({ terms: termsCollection }, ({ current_term, terms }) =>
-                eq(current_term.term_code, terms.code),
+                eq(current_term.term_id, terms.id),
             )
             .select(({ current_term, terms }) => ({
                 year: current_term.year,
-                term_code: current_term.term_code,
+                term_id: current_term.term_id,
                 description: terms?.description,
             }))
             .findOne(),
@@ -43,7 +43,7 @@ export function CurrentTermProvider({ children }: { children: JSX.Element }) {
 
     const normalizedData = {
         year: data?.year || 0,
-        term_code: data?.term_code || '',
+        term_id: data?.term_id || '',
         description: data?.description || '',
     }
 

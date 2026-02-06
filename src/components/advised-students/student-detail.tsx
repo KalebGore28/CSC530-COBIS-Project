@@ -42,24 +42,23 @@ export function StudentDetailModal({
             .from({ student: studentsCollection })
             .where(({ student }) => eq(student.mnumber, studentMnumber))
             .findOne(),
+        [studentMnumber],
     )
 
     const { data: academicInfo } = useLiveQuery((q) =>
         q
             .from({ academicInfo: studentAcademicInfoCollection })
             .leftJoin({ term: termsCollection }, ({ academicInfo, term }) =>
-                eq(academicInfo.term_code, term.code),
+                eq(academicInfo.term_id, term.id),
             )
             .leftJoin(
                 { standing: academicStandingCollection },
                 ({ academicInfo, standing }) =>
-                    eq(academicInfo.academic_standing_code, standing.code),
+                    eq(academicInfo.academic_standing_id, standing.id),
             )
             .where(({ academicInfo }) =>
                 eq(academicInfo.mnumber, studentMnumber),
             )
-            .orderBy(({ academicInfo }) => academicInfo.year, 'desc')
-            .orderBy(({ academicInfo }) => academicInfo.term_code, 'desc')
             .select(({ academicInfo, term, standing }) => ({
                 msu_gpa: academicInfo.msu_gpa,
                 overall_gpa: academicInfo.overall_gpa,
@@ -69,28 +68,32 @@ export function StudentDetailModal({
                 overall_earned_hours: academicInfo.overall_earned_hours,
                 academic_standing_description: standing?.description,
                 admit_year: academicInfo.admit_year,
-                year: academicInfo.year,
+                term_id: academicInfo.term_id,
                 term_description: term?.description,
+                year: academicInfo.year,
             }))
+            .orderBy(({ academicInfo }) => academicInfo.year, 'desc')
+            .orderBy(({ academicInfo }) => academicInfo.term_id, 'desc')
             .limit(10),
+        [studentMnumber],
     )
 
     const { data: studentPrograms } = useLiveQuery((q) =>
         q
             .from({ studentProgram: studentProgramsCollection })
             .leftJoin({ term: termsCollection }, ({ studentProgram, term }) =>
-                eq(studentProgram.term_code, term.code),
+                eq(studentProgram.term_id, term.id),
             )
             .leftJoin(
                 { program: programsCollection },
                 ({ studentProgram, program }) =>
-                    eq(studentProgram.program_code, program.code),
+                    eq(studentProgram.program_id, program.id),
             )
             .where(({ studentProgram }) =>
                 eq(studentProgram.mnumber, studentMnumber),
             )
             .select(({ studentProgram, program, term }) => ({
-                program_code: studentProgram.program_code,
+                program_code: studentProgram.program_id,
                 program_description: program?.description,
                 program_level: studentProgram.level,
                 program_type: studentProgram.type,
@@ -98,21 +101,22 @@ export function StudentDetailModal({
                 year: studentProgram.year,
             }))
             .orderBy(({ studentProgram }) => studentProgram.year, 'desc')
-            .orderBy(({ studentProgram }) => studentProgram.term_code, 'desc')
+            .orderBy(({ studentProgram }) => studentProgram.term_id, 'desc')
             .limit(4),
+        [studentMnumber],
     )
 
     const { data: studentAdvisors } = useLiveQuery((q) =>
         q
             .from({ studentAdvisor: studentAdvisorsCollection })
             .leftJoin({ term: termsCollection }, ({ studentAdvisor, term }) =>
-                eq(studentAdvisor.term_code, term.code),
+                eq(studentAdvisor.term_id, term.id),
             )
             .leftJoin({ user: usersCollection }, ({ studentAdvisor, user }) =>
                 eq(studentAdvisor.advisor_mnumber, user.mnumber),
             )
             .where(({ studentAdvisor }) =>
-                eq(studentAdvisor.student_mnumber, studentMnumber),
+                eq(studentAdvisor.mnumber, studentMnumber),
             )
             .select(({ studentAdvisor, term, user }) => ({
                 advisor_mnumber: studentAdvisor.advisor_mnumber,
@@ -122,8 +126,9 @@ export function StudentDetailModal({
                 year: studentAdvisor.year,
             }))
             .orderBy(({ studentAdvisor }) => studentAdvisor.year, 'desc')
-            .orderBy(({ studentAdvisor }) => studentAdvisor.term_code, 'desc')
+            .orderBy(({ studentAdvisor }) => studentAdvisor.term_id, 'desc')
             .limit(4),
+        [studentMnumber],
     )
 
     return (
@@ -196,14 +201,19 @@ export function StudentDetailModal({
                         gpaTrend={academicInfo
                             .map((info) => {
                                 return {
+                                    term_id: info.term_id,
+                                    year: info.year,
                                     year_term: `${info.term_description} ${info.year}`,
                                     msu_gpa: info.msu_gpa || 0,
                                     overall_gpa: info.overall_gpa || 0,
                                 }
                             })
                             .sort((a, b) =>
-                                a.year_term.localeCompare(b.year_term),
-                            )}
+                                `${a.year}-${a.term_id}`.localeCompare(
+                                    `${b.year}-${b.term_id}`,
+                                ),
+                            )
+                        }
                     />
 
                     {/* Programs Card */}

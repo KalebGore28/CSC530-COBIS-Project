@@ -26,8 +26,8 @@ export function useProvisionUser() {
             const url = new URL('/api/user/provision', window.location.origin)
             url.searchParams.set('mnumber', faculty.mnumber)
             url.searchParams.set('isEnabled', String(isEnabled))
-            url.searchParams.set('college', college.code)
-            url.searchParams.set('department', department.code)
+            url.searchParams.set('college', college.id)
+            url.searchParams.set('department', department.id)
             url.searchParams.set('userId', user.id)
             for (const role of roles) {
                 url.searchParams.append('role_id', String(role.id))
