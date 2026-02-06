@@ -37,97 +37,108 @@ export function StudentDetailModal({
     modalOpen,
     setModalOpen,
 }: StudentDetailProps) {
-    const { data: studentDetails } = useLiveQuery((q) =>
-        q
-            .from({ student: studentsCollection })
-            .where(({ student }) => eq(student.mnumber, studentMnumber))
-            .findOne(),
+    const { data: studentDetails } = useLiveQuery(
+        (q) =>
+            q
+                .from({ student: studentsCollection })
+                .where(({ student }) => eq(student.mnumber, studentMnumber))
+                .findOne(),
         [studentMnumber],
     )
 
-    const { data: academicInfo } = useLiveQuery((q) =>
-        q
-            .from({ academicInfo: studentAcademicInfoCollection })
-            .leftJoin({ term: termsCollection }, ({ academicInfo, term }) =>
-                eq(academicInfo.term_id, term.id),
-            )
-            .leftJoin(
-                { standing: academicStandingCollection },
-                ({ academicInfo, standing }) =>
-                    eq(academicInfo.academic_standing_id, standing.id),
-            )
-            .where(({ academicInfo }) =>
-                eq(academicInfo.mnumber, studentMnumber),
-            )
-            .select(({ academicInfo, term, standing }) => ({
-                msu_gpa: academicInfo.msu_gpa,
-                overall_gpa: academicInfo.overall_gpa,
-                msu_attempted_hours: academicInfo.msu_attempted_hours,
-                msu_earned_hours: academicInfo.msu_earned_hours,
-                overall_attempted_hours: academicInfo.overall_attempted_hours,
-                overall_earned_hours: academicInfo.overall_earned_hours,
-                academic_standing_description: standing?.description,
-                admit_year: academicInfo.admit_year,
-                term_id: academicInfo.term_id,
-                term_description: term?.description,
-                year: academicInfo.year,
-            }))
-            .orderBy(({ academicInfo }) => academicInfo.year, 'desc')
-            .orderBy(({ academicInfo }) => academicInfo.term_id, 'desc')
-            .limit(10),
+    const { data: academicInfo } = useLiveQuery(
+        (q) =>
+            q
+                .from({ academicInfo: studentAcademicInfoCollection })
+                .leftJoin({ term: termsCollection }, ({ academicInfo, term }) =>
+                    eq(academicInfo.term_id, term.id),
+                )
+                .leftJoin(
+                    { standing: academicStandingCollection },
+                    ({ academicInfo, standing }) =>
+                        eq(academicInfo.academic_standing_id, standing.id),
+                )
+                .where(({ academicInfo }) =>
+                    eq(academicInfo.mnumber, studentMnumber),
+                )
+                .select(({ academicInfo, term, standing }) => ({
+                    msu_gpa: academicInfo.msu_gpa,
+                    overall_gpa: academicInfo.overall_gpa,
+                    msu_attempted_hours: academicInfo.msu_attempted_hours,
+                    msu_earned_hours: academicInfo.msu_earned_hours,
+                    overall_attempted_hours:
+                        academicInfo.overall_attempted_hours,
+                    overall_earned_hours: academicInfo.overall_earned_hours,
+                    academic_standing_description: standing?.description,
+                    admit_year: academicInfo.admit_year,
+                    term_id: academicInfo.term_id,
+                    term_description: term?.description,
+                    year: academicInfo.year,
+                }))
+                .orderBy(({ academicInfo }) => academicInfo.year, 'desc')
+                .orderBy(({ academicInfo }) => academicInfo.term_id, 'desc')
+                .limit(10),
         [studentMnumber],
     )
 
-    const { data: studentPrograms } = useLiveQuery((q) =>
-        q
-            .from({ studentProgram: studentProgramsCollection })
-            .leftJoin({ term: termsCollection }, ({ studentProgram, term }) =>
-                eq(studentProgram.term_id, term.id),
-            )
-            .leftJoin(
-                { program: programsCollection },
-                ({ studentProgram, program }) =>
-                    eq(studentProgram.program_id, program.id),
-            )
-            .where(({ studentProgram }) =>
-                eq(studentProgram.mnumber, studentMnumber),
-            )
-            .select(({ studentProgram, program, term }) => ({
-                program_code: studentProgram.program_id,
-                program_description: program?.description,
-                program_level: studentProgram.level,
-                program_type: studentProgram.type,
-                term_description: term?.description,
-                year: studentProgram.year,
-            }))
-            .orderBy(({ studentProgram }) => studentProgram.year, 'desc')
-            .orderBy(({ studentProgram }) => studentProgram.term_id, 'desc')
-            .limit(4),
+    const { data: studentPrograms } = useLiveQuery(
+        (q) =>
+            q
+                .from({ studentProgram: studentProgramsCollection })
+                .leftJoin(
+                    { term: termsCollection },
+                    ({ studentProgram, term }) =>
+                        eq(studentProgram.term_id, term.id),
+                )
+                .leftJoin(
+                    { program: programsCollection },
+                    ({ studentProgram, program }) =>
+                        eq(studentProgram.program_id, program.id),
+                )
+                .where(({ studentProgram }) =>
+                    eq(studentProgram.mnumber, studentMnumber),
+                )
+                .select(({ studentProgram, program, term }) => ({
+                    program_code: studentProgram.program_id,
+                    program_description: program?.description,
+                    program_level: studentProgram.level,
+                    program_type: studentProgram.type,
+                    term_description: term?.description,
+                    year: studentProgram.year,
+                }))
+                .orderBy(({ studentProgram }) => studentProgram.year, 'desc')
+                .orderBy(({ studentProgram }) => studentProgram.term_id, 'desc')
+                .limit(4),
         [studentMnumber],
     )
 
-    const { data: studentAdvisors } = useLiveQuery((q) =>
-        q
-            .from({ studentAdvisor: studentAdvisorsCollection })
-            .leftJoin({ term: termsCollection }, ({ studentAdvisor, term }) =>
-                eq(studentAdvisor.term_id, term.id),
-            )
-            .leftJoin({ user: usersCollection }, ({ studentAdvisor, user }) =>
-                eq(studentAdvisor.advisor_mnumber, user.mnumber),
-            )
-            .where(({ studentAdvisor }) =>
-                eq(studentAdvisor.mnumber, studentMnumber),
-            )
-            .select(({ studentAdvisor, term, user }) => ({
-                advisor_mnumber: studentAdvisor.advisor_mnumber,
-                advisor_name: user?.name,
-                advisor_email: user?.email,
-                term_description: term?.description,
-                year: studentAdvisor.year,
-            }))
-            .orderBy(({ studentAdvisor }) => studentAdvisor.year, 'desc')
-            .orderBy(({ studentAdvisor }) => studentAdvisor.term_id, 'desc')
-            .limit(4),
+    const { data: studentAdvisors } = useLiveQuery(
+        (q) =>
+            q
+                .from({ studentAdvisor: studentAdvisorsCollection })
+                .leftJoin(
+                    { term: termsCollection },
+                    ({ studentAdvisor, term }) =>
+                        eq(studentAdvisor.term_id, term.id),
+                )
+                .leftJoin(
+                    { user: usersCollection },
+                    ({ studentAdvisor, user }) =>
+                        eq(studentAdvisor.advisor_mnumber, user.mnumber),
+                )
+                .where(({ studentAdvisor }) =>
+                    eq(studentAdvisor.mnumber, studentMnumber),
+                )
+                .select(({ studentAdvisor, term, user }) => ({
+                    advisor_mnumber: studentAdvisor.advisor_mnumber,
+                    advisor_name: user?.name,
+                    advisor_email: user?.email,
+                    term_description: term?.description,
+                    year: studentAdvisor.year,
+                }))
+                .orderBy(({ studentAdvisor }) => studentAdvisor.year, 'desc')
+                .orderBy(({ studentAdvisor }) => studentAdvisor.term_id, 'desc')
+                .limit(4),
         [studentMnumber],
     )
 
@@ -212,8 +223,7 @@ export function StudentDetailModal({
                                 `${a.year}-${a.term_id}`.localeCompare(
                                     `${b.year}-${b.term_id}`,
                                 ),
-                            )
-                        }
+                            )}
                     />
 
                     {/* Programs Card */}

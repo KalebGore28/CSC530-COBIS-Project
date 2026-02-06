@@ -1,10 +1,16 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { coalesce, concat, ilike, or, useLiveQuery } from '@tanstack/react-db'
+import {
+    ilike,
+    or,
+    useLiveQuery,
+    eq,
+} from '@tanstack/react-db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { useAuthentication } from '@/lib/auth-client'
 
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
 
@@ -18,6 +24,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+    const { userSession } = useAuthentication()
     const navigate = useNavigate()
     const [search, setSearch] = useState('')
 
@@ -27,15 +34,14 @@ function RouteComponent() {
                 .from({ courses: coursesCollection })
                 .where(({ courses }) =>
                     or(
-                        ilike(
-                            concat(
-                                courses.subject,
-                                coalesce(courses.number, ''),
-                                courses.suffix,
-                            ),
-                            `%${search}%`,
-                        ),
+                        ilike(courses.id, `%${search}%`),
                         ilike(courses.title, `%${search}%`),
+                    ),
+                )
+                .where(({ courses }) =>
+                    eq(
+                        courses.department_id,
+                        userSession?.faculty.department_id,
                     ),
                 )
                 .limit(100)
@@ -72,19 +78,20 @@ function RouteComponent() {
                 ) : (
                     <>
                         <p className="text-xs text-muted-foreground mb-2">
-                            Limited to 100 results. Refine your search for more
-                            specific results.
+                            Limited to courses within your department. Results
+                            limited to 100 entries. Refine your search to narrow
+                            results.
                         </p>
 
                         <div className="space-y-3">
                             {courses.map((course) => (
                                 <div
-                                    key={`${course.subject}-${course.number}-${course.suffix || ''}`}
+                                    key={course.id}
                                     onClick={() =>
                                         navigate({
                                             to: '/enrollment/courses/$courseId',
                                             params: {
-                                                courseId: `${course.subject}${course.number}${course.suffix || ''}`,
+                                                courseId: course.id,
                                             },
                                         })
                                     }
@@ -93,12 +100,7 @@ function RouteComponent() {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium">
-                                                {course.subject} {course.number}
-                                                {course.suffix && (
-                                                    <span className="ml-1">
-                                                        {course.suffix}
-                                                    </span>
-                                                )}
+                                                {course.id}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {course.title}

@@ -27,8 +27,6 @@ function RouteComponent() {
         from: '/_authenticated/_layout/enrollment/courses/$courseId',
     })
     const navigate = useNavigate()
-    // Split courseId into subject, number, suffix. Example: CSC100A => ['CSC', '100', 'A']
-    const [subject, number, suffix] = params.courseId.split(/(\d+)([A-Z]*)/)
 
     const [startYear, setStartYear] = useState<number>(new Date().getFullYear())
     const [startTerm, setStartTerm] = useState<string>('10')
@@ -42,30 +40,30 @@ function RouteComponent() {
                 .leftJoin(
                     { departments: departmentsCollection },
                     ({ courses, departments }) =>
-                        eq(courses.department_code, departments.code),
+                        eq(courses.department_id, departments.id),
                 )
                 .leftJoin(
                     { colleges: collegesCollection },
                     ({ courses, colleges }) =>
-                        eq(courses.college_code, colleges.code),
+                        eq(courses.college_id, colleges.id),
                 )
                 .leftJoin(
                     { studentCourses: studentCoursesCollection },
                     ({ courses, studentCourses }) =>
-                        eq(courses.code, studentCourses.course_id),
+                        eq(courses.id, studentCourses.course_id),
                 )
-                .where(({ courses }) => eq(courses.code, params.courseId))
+                .where(({ courses }) => eq(courses.id, params.courseId))
                 .where(({ studentCourses }) =>
                     and(
                         gte(studentCourses?.year, startYear),
                         lte(studentCourses?.year, endYear),
-                        gte(studentCourses?.term_code, startTerm),
-                        lte(studentCourses?.term_code, endTerm),
+                        gte(studentCourses?.term_id, startTerm),
+                        lte(studentCourses?.term_id, endTerm),
                     ),
                 )
                 .select(
                     ({ courses, departments, colleges, studentCourses }) => ({
-                        code: courses.code,
+                        id: courses.id,
                         subject: courses.subject,
                         number: courses.number,
                         suffix: courses.suffix,
@@ -74,11 +72,11 @@ function RouteComponent() {
                         last_updated: courses.last_updated,
                         department_description: departments?.description,
                         college_description: colleges?.description,
-                        term: studentCourses?.term_code,
+                        term_id: studentCourses?.term_id,
                         year: studentCourses?.year,
                     }),
                 ),
-        [subject, number, suffix, startYear, startTerm, endYear, endTerm],
+        [params.courseId, startYear, startTerm, endYear, endTerm],
     )
 
     const exportToCSV = () => {
@@ -91,11 +89,11 @@ function RouteComponent() {
 
         // Prepare the data for CSV export
         const csvData = courseEnrollment
-            .filter((e) => e.term && e.year)
+            .filter((e) => e.term_id && e.year)
             .map((e) => ({
-                'Course Code': e.code,
+                'Course Code': e.id,
                 Year: e.year,
-                Term: e.term,
+                Term: e.term_id,
                 Title: e.title || '',
                 Department: e.department_description || '',
                 College: e.college_description || '',
@@ -168,12 +166,12 @@ function RouteComponent() {
                                 enrollments={
                                     courseEnrollment
                                         .map((e) => {
-                                            if (!e.term || !e.year) {
+                                            if (!e.term_id || !e.year) {
                                                 return false
                                             }
 
                                             return {
-                                                term_code: e.term,
+                                                term_id: e.term_id,
                                                 year: e.year,
                                             } as Enrollment
                                         })

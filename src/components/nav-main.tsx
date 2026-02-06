@@ -142,7 +142,8 @@ export function NavMain() {
                     )}
 
                     {/* Enrollment Metrics */}
-                    {roles.has('department_chair') && (
+                    {(roles.has('department_chair') ||
+                        roles.has('admin_assistant')) && (
                         <SidebarMenuItem
                             key="enrollment-metrics"
                             className="text-nowrap"

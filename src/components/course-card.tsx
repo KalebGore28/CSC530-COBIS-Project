@@ -47,16 +47,16 @@ export function CourseCard({
                 .leftJoin(
                     { departments: departmentsCollection },
                     ({ courses, departments }) =>
-                        eq(courses.department_code, departments.code),
+                        eq(courses.department_id, departments.id),
                 )
                 .leftJoin(
                     { colleges: collegesCollection },
                     ({ courses, colleges }) =>
-                        eq(courses.college_code, colleges.code),
+                        eq(courses.college_id, colleges.id),
                 )
-                .where(({ courses }) => eq(courses.code, courseCode))
+                .where(({ courses }) => eq(courses.id, courseCode))
                 .select(({ courses, departments, colleges }) => ({
-                    code: courses.code,
+                    code: courses.id,
                     subject: courses.subject,
                     number: courses.number,
                     suffix: courses.suffix,
@@ -181,8 +181,8 @@ export function CourseCard({
                                                 <SelectContent>
                                                     {terms.map((term) => (
                                                         <SelectItem
-                                                            key={term.code}
-                                                            value={term.code}
+                                                            key={term.id}
+                                                            value={term.id}
                                                         >
                                                             {term.description}
                                                         </SelectItem>
@@ -254,8 +254,8 @@ export function CourseCard({
                                                 <SelectContent>
                                                     {terms.map((term) => (
                                                         <SelectItem
-                                                            key={term.code}
-                                                            value={term.code}
+                                                            key={term.id}
+                                                            value={term.id}
                                                         >
                                                             {term.description}
                                                         </SelectItem>

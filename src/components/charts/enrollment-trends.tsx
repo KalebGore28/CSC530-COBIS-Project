@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/chart'
 
 export interface Enrollment {
-    term_code: '10' | '50' | '80' | '90'
+    term_id: '10' | '50' | '80' | '90'
     year: number
 }
 
@@ -60,7 +60,7 @@ export const EnrollmentTrends: React.FC<EnrollmentTrendsProps> = ({
 
         for (const e of enrollments) {
             const y = e.year
-            const code = e.term_code
+            const code = e.term_id
             if (!bucket[y]) {
                 bucket[y] = {}
             }

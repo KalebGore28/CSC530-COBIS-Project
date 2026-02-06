@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
-import { ilike, or, useLiveQuery } from '@tanstack/react-db'
+import { eq, ilike, or, useLiveQuery } from '@tanstack/react-db'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { useAuthentication } from '@/lib/auth-client'
 
 import { programsCollection } from '@/integrations/tanstack-db/programs'
 
@@ -18,6 +19,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+    const { userSession } = useAuthentication()
     const navigate = useNavigate()
     const [search, setSearch] = useState('')
 
@@ -27,12 +29,18 @@ function RouteComponent() {
                 .from({ programs: programsCollection })
                 .where(({ programs }) =>
                     or(
-                        ilike(programs.code, `%${search}%`),
+                        ilike(programs.id, `%${search}%`),
                         ilike(programs.description, `%${search}%`),
                     ),
                 )
+                .where(({ programs }) =>
+                    eq(
+                        programs.department_id,
+                        userSession?.faculty.department_id,
+                    ),
+                )
                 .limit(100)
-                .orderBy(({ programs }) => programs.code, 'asc'),
+                .orderBy(({ programs }) => programs.id, 'asc'),
         [search], // Re-run when search changes
     )
 
@@ -65,17 +73,18 @@ function RouteComponent() {
                 ) : (
                     <>
                         <p className="text-xs text-muted-foreground mb-2">
-                            Limited to 100 results. Refine your search for more
-                            specific results.
+                            Limited to programs within your department. Results
+                            limited to 100 entries. Refine your search to narrow
+                            results.
                         </p>
                         <div className="space-y-3">
                             {programs.map((program) => (
                                 <div
-                                    key={program.code}
+                                    key={program.id}
                                     onClick={() =>
                                         navigate({
                                             to: '/enrollment/programs/$code',
-                                            params: { code: program.code },
+                                            params: { code: program.id },
                                         })
                                     }
                                     className="border rounded-md p-3 hover:bg-accent cursor-pointer transition-colors"
@@ -83,7 +92,7 @@ function RouteComponent() {
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium">
-                                                {program.code}
+                                                {program.id}
                                             </p>
                                             <p className="text-sm text-muted-foreground">
                                                 {program.description}

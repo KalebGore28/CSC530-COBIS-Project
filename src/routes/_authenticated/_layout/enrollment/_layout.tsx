@@ -21,8 +21,7 @@ export const Route = createFileRoute(
         const roles = context.userSession?.roles
         if (
             !roles ||
-            (!roles.has('department_chair') &&
-                !roles.has('cobis_administrator'))
+            (!roles.has('department_chair') && !roles.has('admin_assistant'))
         ) {
             throw redirect({ to: '/login' })
         }

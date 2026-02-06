@@ -48,15 +48,15 @@ export function ProgramCard({
                 .leftJoin(
                     { departments: departmentsCollection },
                     ({ programs, departments }) =>
-                        eq(programs.department_code, departments.code),
+                        eq(programs.department_id, departments.id),
                 )
                 .leftJoin(
                     { colleges: collegesCollection },
                     ({ programs, colleges }) =>
-                        eq(programs.college_code, colleges.code),
+                        eq(programs.college_id, colleges.id),
                 )
                 .select(({ programs, departments, colleges }) => ({
-                    code: programs.code,
+                    code: programs.id,
                     description: programs.description,
                     cip_code: programs.cip_code,
                     is_major: programs.is_major,
@@ -68,7 +68,7 @@ export function ProgramCard({
                     department_description: departments?.description,
                     college_description: colleges?.description,
                 }))
-                .where(({ programs }) => eq(programs.code, programCode))
+                .where(({ programs }) => eq(programs.id, programCode))
                 .findOne(),
         [programCode],
     )
@@ -217,8 +217,8 @@ export function ProgramCard({
                                                 <SelectContent>
                                                     {terms.map((term) => (
                                                         <SelectItem
-                                                            key={term.code}
-                                                            value={term.code}
+                                                            key={term.id}
+                                                            value={term.id}
                                                         >
                                                             {term.description}
                                                         </SelectItem>
@@ -290,8 +290,8 @@ export function ProgramCard({
                                                 <SelectContent>
                                                     {terms.map((term) => (
                                                         <SelectItem
-                                                            key={term.code}
-                                                            value={term.code}
+                                                            key={term.id}
+                                                            value={term.id}
                                                         >
                                                             {term.description}
                                                         </SelectItem>

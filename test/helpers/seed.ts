@@ -217,8 +217,16 @@ async function seedTestDatabase() {
                 mnumber: f.phoneNumber({ template: 'M0000000##' }), // student mnumber format
                 gender: f.valuesFromArray({ values: ['M', 'F'] }),
                 suffix: f.weightedRandom([
-                    { weight: 0.9, value: f.valuesFromArray({ values: [null] }) },
-                    { weight: 0.1, value: f.valuesFromArray({ values: ['Jr.', 'Sr.', 'III', 'IV'] }) },
+                    {
+                        weight: 0.9,
+                        value: f.valuesFromArray({ values: [null] }),
+                    },
+                    {
+                        weight: 0.1,
+                        value: f.valuesFromArray({
+                            values: ['Jr.', 'Sr.', 'III', 'IV'],
+                        }),
+                    },
                 ]),
             },
             with: {
@@ -242,7 +250,7 @@ async function seedTestDatabase() {
                     values: terms.map((t) => t.id),
                 }),
                 program_id: f.valuesFromArray({
-                    values: programs.map((p) => p.id),
+                    values: programs.slice(0, 20).map((p) => p.id),
                 }),
                 year: f.valuesFromArray({
                     values: [2025],

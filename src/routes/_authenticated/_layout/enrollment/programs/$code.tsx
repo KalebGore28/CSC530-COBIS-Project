@@ -41,30 +41,30 @@ function RouteComponent() {
                 .leftJoin(
                     { departments: departmentsCollection },
                     ({ programs, departments }) =>
-                        eq(programs.department_code, departments.code),
+                        eq(programs.department_id, departments.id),
                 )
                 .leftJoin(
                     { colleges: collegesCollection },
                     ({ programs, colleges }) =>
-                        eq(programs.college_code, colleges.code),
+                        eq(programs.college_id, colleges.id),
                 )
                 .leftJoin(
                     { studentPrograms: studentProgramsCollection },
                     ({ programs, studentPrograms }) =>
-                        eq(programs.code, studentPrograms.program_code),
+                        eq(programs.id, studentPrograms.program_id),
                 )
-                .where(({ programs }) => eq(programs.code, programCode))
+                .where(({ programs }) => eq(programs.id, programCode))
                 .where(({ studentPrograms }) =>
                     and(
                         gte(studentPrograms?.year, startYear),
                         lte(studentPrograms?.year, endYear),
-                        gte(studentPrograms?.term_code, startTerm),
-                        lte(studentPrograms?.term_code, endTerm),
+                        gte(studentPrograms?.term_id, startTerm),
+                        lte(studentPrograms?.term_id, endTerm),
                     ),
                 )
                 .select(
                     ({ programs, departments, colleges, studentPrograms }) => ({
-                        code: programs.code,
+                        id: programs.id,
                         has_concentration: programs.has_concentration,
                         is_aacsb: programs.is_aacsb,
                         is_discontinued: programs.is_discontinued,
@@ -75,7 +75,7 @@ function RouteComponent() {
                         description: programs.description,
                         department_description: departments?.description,
                         college_description: colleges?.description,
-                        term: studentPrograms?.term_code,
+                        term: studentPrograms?.term_id,
                         year: studentPrograms?.year,
                     }),
                 ),
@@ -94,7 +94,7 @@ function RouteComponent() {
         const csvData = programEnrollment
             .filter((e) => e.term && e.year)
             .map((e) => ({
-                'Program Code': e.code,
+                'Program Code': e.id,
                 Year: e.year,
                 Term: e.term,
                 Description: e.description || '',
