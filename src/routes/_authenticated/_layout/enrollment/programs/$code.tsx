@@ -75,7 +75,7 @@ function RouteComponent() {
                         description: programs.description,
                         department_description: departments?.description,
                         college_description: colleges?.description,
-                        term: studentPrograms?.term_id,
+                        term_id: studentPrograms?.term_id,
                         year: studentPrograms?.year,
                     }),
                 ),
@@ -92,11 +92,11 @@ function RouteComponent() {
 
         // Prepare the data for CSV export
         const csvData = programEnrollment
-            .filter((e) => e.term && e.year)
+            .filter((e) => e.term_id && e.year)
             .map((e) => ({
                 'Program Code': e.id,
                 Year: e.year,
-                Term: e.term,
+                Term: e.term_id,
                 Description: e.description || '',
                 Department: e.department_description || '',
                 College: e.college_description || '',
@@ -171,12 +171,12 @@ function RouteComponent() {
                                 enrollments={
                                     programEnrollment
                                         .map((e) => {
-                                            if (!e.term || !e.year) {
+                                            if (!e.term_id || !e.year) {
                                                 return false
                                             }
 
                                             return {
-                                                term_code: e.term,
+                                                term_id: e.term_id,
                                                 year: e.year,
                                             } as Enrollment
                                         })
