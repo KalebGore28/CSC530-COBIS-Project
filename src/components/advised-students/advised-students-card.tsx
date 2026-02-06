@@ -55,7 +55,6 @@ export function AdvisedStudentsCard({
             .select(({ students, studentAdvisors }) => ({
                 mnumber: students?.mnumber,
                 first_name: students?.first_name,
-                middle_name: students?.middle_name ?? undefined,
                 last_name: students?.last_name,
                 suffix: students?.suffix ?? undefined,
                 email: students?.email ?? undefined,
@@ -96,7 +95,7 @@ export function AdvisedStudentsCard({
                                     >
                                         <TableCell>{s.mnumber}</TableCell>
                                         <TableCell className="truncate max-w-30">
-                                            {`${s.last_name}, ${s.first_name}${s.middle_name ? ' ' + s.middle_name : ''}${s.suffix ? ' ' + s.suffix : ''}`}
+                                            {`${s.last_name}, ${s.first_name}${s.suffix ? ' ' + s.suffix : ''}`}
                                         </TableCell>
                                         <TableCell className="truncate max-w-30">
                                             {s.email ?? (

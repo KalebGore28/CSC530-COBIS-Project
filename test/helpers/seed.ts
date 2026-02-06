@@ -216,6 +216,10 @@ async function seedTestDatabase() {
             columns: {
                 mnumber: f.phoneNumber({ template: 'M0000000##' }), // student mnumber format
                 gender: f.valuesFromArray({ values: ['M', 'F'] }),
+                suffix: f.weightedRandom([
+                    { weight: 0.9, value: f.valuesFromArray({ values: [null] }) },
+                    { weight: 0.1, value: f.valuesFromArray({ values: ['Jr.', 'Sr.', 'III', 'IV'] }) },
+                ]),
             },
             with: {
                 studentAdvisors: 2,
