@@ -334,12 +334,40 @@ async function seedTestDatabase() {
                 instructional_method_id: f.valuesFromArray({
                     values: instructionalMethods.map((i) => i.id),
                 }),
-                midterm_grade: f.valuesFromArray({
-                    values: ['A', 'B', 'C', 'D', 'E'],
-                }),
-                final_grade: f.valuesFromArray({
-                    values: ['A', 'B', 'C', 'D', 'E'],
-                }),
+                midterm_grade: f.weightedRandom([
+                    {
+                        weight: 0.7, value: f.valuesFromArray({ values: ['A'] })
+                    },
+                    {
+                        weight: 0.15, value: f.valuesFromArray({ values: ['B'] })
+                    },
+                    {
+                        weight: 0.10, value: f.valuesFromArray({ values: ['C'] })
+                    },
+                    {
+                        weight: 0.04, value: f.valuesFromArray({ values: ['D'] })
+                    },
+                    {
+                        weight: 0.01, value: f.valuesFromArray({ values: ['E'] })
+                    }
+                ]),
+                final_grade: f.weightedRandom([
+                    {
+                        weight: 0.7, value: f.valuesFromArray({ values: ['A'] })
+                    },
+                    {
+                        weight: 0.15, value: f.valuesFromArray({ values: ['B'] })
+                    },
+                    {
+                        weight: 0.10, value: f.valuesFromArray({ values: ['C'] })
+                    },
+                    {
+                        weight: 0.04, value: f.valuesFromArray({ values: ['D'] })
+                    },
+                    {
+                        weight: 0.01, value: f.valuesFromArray({ values: ['E'] })
+                    }
+                ]),
             },
         },
     }))
