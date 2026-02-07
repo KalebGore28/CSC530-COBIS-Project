@@ -93,7 +93,7 @@ export function CourseCard({
                 {course ? (
                     <div className="space-y-6">
                         {/* Info Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
                                 <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
                                     Department
@@ -108,6 +108,16 @@ export function CourseCard({
                                 </div>
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {course.college_description || 'N/A'}
+                                </div>
+                            </div>
+                            <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">
+                                    Hours
+                                </div>
+                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {course.hours > 1
+                                        ? `${course.hours} hrs`
+                                        : `${course.hours} hr` || 'N/A'}
                                 </div>
                             </div>
                         </div>

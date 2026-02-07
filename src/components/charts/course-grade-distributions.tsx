@@ -10,12 +10,12 @@ import {
 import { Button } from '@/components/ui/button'
 
 const chartConfig = {
-    A: { label: 'A', color: 'var(--chart-1)' },
-    B: { label: 'B', color: 'var(--chart-2)' },
-    C: { label: 'C', color: 'var(--chart-3)' },
-    D: { label: 'D', color: 'var(--chart-4)' },
-    E: { label: 'E', color: 'var(--chart-5)' },
-    'N/A': { label: 'N/A', color: 'var(--chart-6)' },
+    A: { label: 'A', color: 'var(--grade-a)' },
+    B: { label: 'B', color: 'var(--grade-b)' },
+    C: { label: 'C', color: 'var(--grade-c)' },
+    D: { label: 'D', color: 'var(--grade-d)' },
+    E: { label: 'E', color: 'var(--grade-e)' },
+    'N/A': { label: 'N/A', color: 'var(--grade-na)' },
 } satisfies ChartConfig
 
 type AllowedGrade = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'

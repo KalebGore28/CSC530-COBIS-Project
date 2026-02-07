@@ -105,7 +105,6 @@ function RouteComponent() {
                 .select(({ student, course }) => ({
                     course_id: student.course_id,
                     course_section: student.course_section,
-                    course_hours: student.course_hours,
                     course_title: course?.title,
                     total_students: count(student.mnumber),
                     total_credit_hours: sum(student.course_hours),
@@ -114,7 +113,6 @@ function RouteComponent() {
                     student.course_id,
                     student.course_section,
                     course?.title,
-                    student.course_hours,
                 ])
                 .distinct(),
         )
@@ -133,6 +131,8 @@ function RouteComponent() {
         )
     }
 
+    console.log(currentTermData)
+
     return (
         <Card className="p-0">
             <CardContent className="p-1 m-0 border bg-primary rounded-xl">
@@ -142,7 +142,6 @@ function RouteComponent() {
                             .map((course) => ({
                                 course: `${course.course_id}-${course.course_section}`,
                                 title: course.course_title || 'N/A',
-                                credit_hour: course.course_hours,
                                 total_students: course.total_students || 0,
                                 total_credit_hours:
                                     course.total_credit_hours || 0,

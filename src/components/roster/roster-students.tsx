@@ -10,6 +10,7 @@ import {
 import { toast } from 'sonner'
 import Papa from 'papaparse'
 import { and, eq, inArray, useLiveQuery } from '@tanstack/react-db'
+import type { GradeKey } from '@/types/grades'
 import {
     Card,
     CardContent,
@@ -39,19 +40,22 @@ import { Badge } from '@/components/ui/badge'
 
 import { programsCollection } from '@/integrations/tanstack-db/programs'
 import { studentProgramsCollection } from '@/integrations/tanstack-db/student-programs'
+import { GRADE_DEFINITION } from '@/types/grades'
 
-const getGradeColorClass = (grade: string) => {
+const getGradeColorClass = (grade: string | null | undefined) => {
     if (grade === 'N/A' || !grade)
-        return 'bg-gray-100 text-gray-800 border-gray-300'
+        return 'bg-[var(--bg-grade-na)] text-[var(--text-grade-na)] border-[var(--border-grade-na)]'
     if (grade.startsWith('A'))
-        return 'bg-green-100 text-green-800 border-green-300'
+        return 'bg-[var(--bg-grade-a)] text-[var(--text-grade-a)] border-[var(--border-grade-a)]'
     if (grade.startsWith('B'))
-        return 'bg-blue-100 text-blue-800 border-blue-300'
+        return 'bg-[var(--bg-grade-b)] text-[var(--text-grade-b)] border-[var(--border-grade-b)]'
     if (grade.startsWith('C'))
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300'
+        return 'bg-[var(--bg-grade-c)] text-[var(--text-grade-c)] border-[var(--border-grade-c)]'
     if (grade.startsWith('D'))
-        return 'bg-orange-100 text-orange-800 border-orange-300'
-    return 'bg-red-100 text-red-800 border-red-300'
+        return 'bg-[var(--bg-grade-d)] text-[var(--text-grade-d)] border-[var(--border-grade-d)]'
+    if (grade.startsWith('E'))
+        return 'bg-[var(--bg-grade-e)] text-[var(--text-grade-e)] border-[var(--border-grade-e)]'
+    return 'bg-[var(--bg-grade-e)] text-[var(--text-grade-e)] border-[var(--border-grade-e)]'
 }
 
 type RequiredStudentCourseProps = {
@@ -345,10 +349,11 @@ export function RosterStudents({
                                             <TableCell>
                                                 <Badge
                                                     variant="outline"
-                                                    className={getGradeColorClass(
-                                                        student.midterm_grade ||
-                                                            'N/A',
-                                                    )}
+                                                    className={
+                                                        GRADE_DEFINITION[
+                                                            student.midterm_grade as GradeKey
+                                                        ]?.className
+                                                    }
                                                 >
                                                     {student.midterm_grade ||
                                                         'N/A'}
@@ -357,10 +362,11 @@ export function RosterStudents({
                                             <TableCell>
                                                 <Badge
                                                     variant="outline"
-                                                    className={getGradeColorClass(
-                                                        student.final_grade ||
-                                                            'N/A',
-                                                    )}
+                                                    className={
+                                                        GRADE_DEFINITION[
+                                                            student.final_grade as GradeKey
+                                                        ]?.className
+                                                    }
                                                 >
                                                     {student.final_grade ||
                                                         'N/A'}

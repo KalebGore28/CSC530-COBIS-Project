@@ -103,14 +103,10 @@ function RouteComponent() {
                                         </div>
 
                                         <div className="flex gap-2 flex-wrap justify-end text-right">
-                                            {course.hours && (
-                                                <Badge variant="outline">
-                                                    {course.hours} hr
-                                                    {course.hours > 1
-                                                        ? 's'
-                                                        : ''}
-                                                </Badge>
-                                            )}
+                                            <Badge variant="outline">
+                                                {course.hours} hr
+                                                {course.hours > 1 ? 's' : ''}
+                                            </Badge>
                                         </div>
                                     </div>
 

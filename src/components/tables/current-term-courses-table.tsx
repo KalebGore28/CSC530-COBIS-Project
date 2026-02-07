@@ -5,7 +5,6 @@ import { DataTable } from '@/components/tables/data-table'
 type CurrentTermCourse = {
     course: string
     title: string
-    credit_hour: number
     total_students: number
     total_credit_hours: number
     action: JSX.Element
@@ -19,10 +18,6 @@ const columns: Array<ColumnDef<CurrentTermCourse>> = [
     {
         accessorKey: 'title',
         header: 'Title',
-    },
-    {
-        accessorKey: 'credit_hour',
-        header: 'Credit Hour',
     },
     {
         accessorKey: 'total_credit_hours',

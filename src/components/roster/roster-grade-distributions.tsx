@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { GradeKey } from '@/types/grades'
 import {
     Card,
     CardContent,
@@ -9,9 +10,8 @@ import {
 import { Button } from '@/components/ui/button'
 import { PieChartDonut } from '@/components/charts/pie-chart-donut'
 
-type AllowedGrade = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
 type GradeEntry = {
-    grade: AllowedGrade
+    grade: GradeKey
     count: number
 }
 
@@ -55,8 +55,8 @@ export function RosterGradeDistributions({
     const finalGrades: Array<GradeEntry> = []
 
     studentCourses.forEach((sc) => {
-        const midtermGrade = sc.midterm_grade ? sc.midterm_grade : 'N/A'
-        const finalGrade = sc.final_grade ? sc.final_grade : 'N/A'
+        const midtermGrade = sc.midterm_grade ? sc.midterm_grade : 'NA'
+        const finalGrade = sc.final_grade ? sc.final_grade : 'NA'
 
         const midtermEntry = midtermGrades.find(
             (entry) => entry.grade === midtermGrade,
@@ -65,7 +65,7 @@ export function RosterGradeDistributions({
             midtermEntry.count += 1
         } else {
             midtermGrades.push({
-                grade: midtermGrade as AllowedGrade,
+                grade: midtermGrade as GradeKey,
                 count: 1,
             })
         }
@@ -76,7 +76,7 @@ export function RosterGradeDistributions({
         if (finalEntry) {
             finalEntry.count += 1
         } else {
-            finalGrades.push({ grade: finalGrade as AllowedGrade, count: 1 })
+            finalGrades.push({ grade: finalGrade as GradeKey, count: 1 })
         }
     })
 

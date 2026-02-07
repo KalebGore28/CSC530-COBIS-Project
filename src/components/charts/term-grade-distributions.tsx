@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
-import { and, eq, gte, useLiveQuery } from '@tanstack/react-db'
-import type { ChartConfig } from '@/components/ui/chart'
 import {
-    ChartContainer,
-    ChartLegend,
-    ChartTooltip,
-    ChartTooltipContent,
-} from '@/components/ui/chart'
+    Area,
+    AreaChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
+import { and, eq, gte, useLiveQuery } from '@tanstack/react-db'
+import type {GradeKey} from '@/types/grades';
 import {
     Card,
     CardContent,
@@ -23,92 +25,132 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { GRADE_DEFINITION  } from '@/types/grades'
 
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
 
-const defaultChartConfig: ChartConfig = {
-    A: { label: 'A', color: 'var(--chart-1)' },
-    B: { label: 'B', color: 'var(--chart-2)' },
-    C: { label: 'C', color: 'var(--chart-3)' },
-    D: { label: 'D', color: 'var(--chart-4)' },
-    E: { label: 'E', color: 'var(--chart-5)' },
-    'N/A': { label: 'N/A', color: 'var(--chart-6)' },
-}
+type TermGradeRow = {
+    name: string
+} & Record<GradeKey, number>
 
-type AllowedGrade = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
-type GradeEntry = {
-    year_term: string
-} & Record<AllowedGrade, number>
-
-type RequiredStudentCourseProps = {
-    year: number
-    term: string | undefined
-    midterm_grade: string | null
-    final_grade: string | null
-} & Record<string, unknown>
-
-function convertToPercentages(data: Array<GradeEntry>) {
-    return data.map((entry) => {
-        const total =
-            entry.A + entry.B + entry.C + entry.D + entry.E + entry['N/A']
-
-        const pctEntry: GradeEntry = { ...entry }
-
-        if (total > 0) {
-            ;(['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
-                (g) => {
-                    pctEntry[g] = Number(((entry[g] / total) * 100).toFixed(2))
-                },
-            )
-        }
-
-        return pctEntry
-    })
+type TermGradeDistributionProps = {
+    mnumber: string
+    title: string
+    description: string
 }
 
 export function TermGradeDistribution({
     mnumber,
     title,
     description,
-}: {
-    mnumber: string
-    title: string
-    description: string
-}) {
+}: TermGradeDistributionProps) {
     const { currentTerm } = useCurrentTerm()
-    const [offset, setOffset] = useState('1') // in years
+    const [offset, setOffset] = useState(1) // in years
     const [view, setView] = useState<'midterm' | 'final'>('final')
 
-    const { data: grade_distribution_data, isLoading } = useLiveQuery((q) =>
-        q
-            .from({ studentCourse: studentCoursesCollection })
-            .where(({ studentCourse }) =>
-                and(
-                    eq(studentCourse.instructor_mnumber, mnumber),
-                    gte(studentCourse.year, currentTerm.year - 10), // Fetch last 10 years for max offset
-                ),
-            )
-            .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
-                eq(studentCourse.term_id, term.id),
-            )
-            .select(({ studentCourse, term }) => ({
-                year: studentCourse.year,
-                term: term?.description,
-                midterm_grade: studentCourse.midterm_grade,
-                final_grade: studentCourse.final_grade,
-            })),
+    const { data: grade_distribution_data, isLoading } = useLiveQuery(
+        (q) =>
+            q
+                .from({ studentCourse: studentCoursesCollection })
+                .where(({ studentCourse }) =>
+                    and(
+                        eq(studentCourse.instructor_mnumber, mnumber),
+                        gte(studentCourse.year, currentTerm.year - offset), // Fetch last 10 years for max offset
+                    ),
+                )
+                .leftJoin(
+                    { term: termsCollection },
+                    ({ studentCourse, term }) =>
+                        eq(studentCourse.term_id, term.id),
+                )
+                .select(({ studentCourse, term }) => ({
+                    year: studentCourse.year,
+                    term: term?.description,
+                    midterm_grade:
+                        studentCourse.midterm_grade as GradeKey | null,
+                    final_grade: studentCourse.final_grade as GradeKey | null,
+                })),
+        [offset, mnumber, currentTerm],
     )
 
     if (isLoading) {
         return null
     }
 
-    // Filter data based on offset
-    const filteredData = grade_distribution_data.filter(
-        (sc) => sc.year >= currentTerm.year - Number(offset),
+    const gradeKeys = Object.keys(GRADE_DEFINITION) as Array<GradeKey>
+    const midtermTermData = Object.values(
+        grade_distribution_data.reduce(
+            (acc, row) => {
+                if (!row.midterm_grade || !row.term) return acc
+
+                const termKey = `${row.term} ${row.year}`
+                const grade = row.midterm_grade
+
+                if (!acc[termKey]) {
+                    acc[termKey] = {
+                        name: termKey,
+                        ...Object.fromEntries(gradeKeys.map((g) => [g, 0])),
+                    } as TermGradeRow
+                }
+
+                acc[termKey][grade]++
+                return acc
+            },
+            {} as Record<string, TermGradeRow>,
+        ),
     )
+
+    const finalTermData = Object.values(
+        grade_distribution_data.reduce(
+            (acc, row) => {
+                if (!row.final_grade || !row.term) return acc
+
+                const termKey = `${row.term} ${row.year}`
+                const grade = row.final_grade
+
+                if (!acc[termKey]) {
+                    acc[termKey] = {
+                        name: termKey,
+                        ...Object.fromEntries(gradeKeys.map((g) => [g, 0])),
+                    } as TermGradeRow
+                }
+
+                acc[termKey][grade]++
+                return acc
+            },
+            {} as Record<string, TermGradeRow>,
+        ),
+    )
+
+    const midtermTermPercentages = Object.values(
+        midtermTermData.map((term) => {
+            const total = gradeKeys.reduce((sum, g) => sum + term[g], 0)
+            if (total === 0) return term
+            return {
+                ...term,
+                ...Object.fromEntries(
+                    gradeKeys.map((g) => [g, (term[g] / total) * 100]),
+                ),
+            }
+        }),
+    )
+
+    const finalTermPercentages = Object.values(
+        finalTermData.map((term) => {
+            const total = gradeKeys.reduce((sum, g) => sum + term[g], 0)
+            if (total === 0) return term
+            return {
+                ...term,
+                ...Object.fromEntries(
+                    gradeKeys.map((g) => [g, (term[g] / total) * 100]),
+                ),
+            }
+        }),
+    )
+
+    // console.log(Object.values(midtermTermPercentages))
 
     return (
         <Card className="gap-0 flex flex-col">
@@ -140,8 +182,8 @@ export function TermGradeDistribution({
 
                     {/* Select offset */}
                     <Select
-                        onValueChange={(val) => setOffset(val)}
-                        defaultValue="1"
+                        onValueChange={(val) => setOffset(Number(val))}
+                        defaultValue={'1'}
                     >
                         <SelectTrigger
                             className="w-40 rounded-lg"
@@ -169,156 +211,79 @@ export function TermGradeDistribution({
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="p-2">
-                <GradeDistributionChart
-                    studentCourses={filteredData}
-                    view={view}
-                />
+            <CardContent className="p-2 w-full h-96">
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart
+                        data={
+                            view === 'final'
+                                ? midtermTermPercentages
+                                : finalTermPercentages
+                        }
+                        margin={{ top: 40, right: 30, left: 30, bottom: 20 }}
+                    >
+                        <defs>
+                            {Object.entries(GRADE_DEFINITION).map(
+                                ([grade, config]) => (
+                                    <linearGradient
+                                        key={grade}
+                                        id={`fill-${grade}`}
+                                        x1="0"
+                                        y1="0"
+                                        x2="0"
+                                        y2="1"
+                                    >
+                                        <stop
+                                            offset="5%"
+                                            stopColor={config.bgVar}
+                                            stopOpacity={0.8}
+                                        />
+                                        <stop
+                                            offset="95%"
+                                            stopColor={config.textVar}
+                                            stopOpacity={0.1}
+                                        />
+                                    </linearGradient>
+                                ),
+                            )}
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="name" tickMargin={8} minTickGap={32} />
+                        <YAxis
+                            width={'auto'}
+                            tickCount={5}
+                            tickMargin={8}
+                            minTickGap={32}
+                            tickFormatter={(value) => `${value.toFixed(0)}%`}
+                            domain={[0, 100]}
+                            label={{
+                                value: 'Percentage of Grades',
+                                angle: -90,
+                                position: 'insideLeft',
+                                style: {
+                                    textAnchor: 'middle',
+                                },
+                            }}
+                        />
+                        <Tooltip
+                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition"
+                            labelClassName="text-red-500"
+                            formatter={(item) => `${Number(item).toFixed(2)}%`}
+                        />
+                        {Object.entries(GRADE_DEFINITION).map(
+                            ([grade, config]) => (
+                                <Area
+                                    type="monotone"
+                                    dataKey={grade}
+                                    stackId="grades"
+                                    key={grade}
+                                    stroke={config.borderVar}
+                                    fill={`url(#fill-${grade})`}
+                                />
+                            ),
+                        )}
+                    </AreaChart>
+                </ResponsiveContainer>
             </CardContent>
         </Card>
-    )
-}
-
-type GradeDistributionChartProps = {
-    studentCourses: Array<RequiredStudentCourseProps>
-    view: 'midterm' | 'final'
-}
-
-function GradeDistributionChart({
-    studentCourses,
-    view,
-}: GradeDistributionChartProps) {
-    const yearTermMidtermData: Array<GradeEntry> = []
-    const yearTermFinalData: Array<GradeEntry> = []
-
-    studentCourses.forEach((sc) => {
-        const yearTermKey = `${sc.term} ${sc.year}`
-
-        let yearTermMidtermEntry = yearTermMidtermData.find(
-            (entry) => entry.year_term === yearTermKey,
-        )
-        if (!yearTermMidtermEntry) {
-            yearTermMidtermEntry = {
-                year_term: yearTermKey,
-                A: 0,
-                B: 0,
-                C: 0,
-                D: 0,
-                E: 0,
-                'N/A': 0,
-            }
-            yearTermMidtermData.push(yearTermMidtermEntry)
-        }
-        const midtermGrade = sc.midterm_grade ? sc.midterm_grade : 'N/A'
-        yearTermMidtermEntry[midtermGrade as AllowedGrade] =
-            yearTermMidtermEntry[midtermGrade as AllowedGrade] + 1
-
-        let yearTermFinalEntry = yearTermFinalData.find(
-            (entry) => entry.year_term === yearTermKey,
-        )
-        if (!yearTermFinalEntry) {
-            yearTermFinalEntry = {
-                year_term: yearTermKey,
-                A: 0,
-                B: 0,
-                C: 0,
-                D: 0,
-                E: 0,
-                'N/A': 0,
-            }
-            yearTermFinalData.push(yearTermFinalEntry)
-        }
-        const finalGrade = sc.final_grade ? sc.final_grade : 'N/A'
-        yearTermFinalEntry[finalGrade as AllowedGrade] =
-            yearTermFinalEntry[finalGrade as AllowedGrade] + 1
-    })
-
-    const midtermPercentages = convertToPercentages(yearTermMidtermData)
-    const finalPercentages = convertToPercentages(yearTermFinalData)
-
-    return (
-        <ChartContainer
-            config={defaultChartConfig}
-            className="aspect-auto h-100 w-full"
-        >
-            <AreaChart
-                data={view === 'final' ? finalPercentages : midtermPercentages}
-                margin={{
-                    top: 40,
-                    right: 30,
-                    left: 30,
-                }}
-            >
-                <defs>
-                    {Object.entries(defaultChartConfig).map(
-                        ([grade, config]) => (
-                            <linearGradient
-                                key={grade}
-                                id={`fill${grade}`}
-                                x1="0"
-                                y1="0"
-                                x2="0"
-                                y2="1"
-                            >
-                                <stop
-                                    offset="5%"
-                                    stopColor={config.color}
-                                    stopOpacity={0.8}
-                                />
-                                <stop
-                                    offset="95%"
-                                    stopColor={config.color}
-                                    stopOpacity={0.1}
-                                />
-                            </linearGradient>
-                        ),
-                    )}
-                </defs>
-                <CartesianGrid vertical={false} />
-
-                <XAxis
-                    dataKey="year_term"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={8}
-                    minTickGap={32}
-                />
-                <YAxis
-                    width={40}
-                    tickLine={false}
-                    axisLine={false}
-                    tickCount={6}
-                    tickFormatter={(value) => `${value.toFixed(0)}%`}
-                    domain={[0, 100]}
-                    label={{
-                        value: 'Percentage of Grades',
-                        angle: -90,
-                        position: 'insideLeft',
-                        offset: -20,
-                        style: {
-                            textAnchor: 'middle',
-                            fill: 'var(--text-secondary)',
-                            fontSize: 12,
-                        },
-                    }}
-                    tickMargin={15}
-                />
-                <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dot" />}
-                />
-                {Object.entries(defaultChartConfig).map(([grade, config]) => (
-                    <Area
-                        key={grade}
-                        dataKey={grade}
-                        type="natural"
-                        fill={`url(#fill${grade})`}
-                        stroke={config.color}
-                        stackId="a"
-                    />
-                ))}
-                <ChartLegend verticalAlign="bottom" />
-            </AreaChart>
-        </ChartContainer>
     )
 }

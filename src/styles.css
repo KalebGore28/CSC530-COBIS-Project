@@ -54,6 +54,26 @@ code {
     --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
     --sidebar-border: oklch(0.92 0.004 286.32);
     --sidebar-ring: oklch(0.871 0.006 286.286);
+
+    /* Grade Colors */
+    --bg-grade-na: #f3f4f6;
+    --text-grade-na: #d1d5db;
+    --border-grade-na: #d1d5db;
+    --bg-grade-a: #d1fae5;
+    --text-grade-a: #065f46;
+    --border-grade-a: #86efac;
+    --bg-grade-b: #dbeafe;
+    --text-grade-b: #1e3a8a;
+    --border-grade-b: #93c5fd;
+    --bg-grade-c: #fef3c7;
+    --text-grade-c: #78350f;
+    --border-grade-c: #fde047;
+    --bg-grade-d: #fff7ed;
+    --text-grade-d: #7c2d12;
+    --border-grade-d: #fdba74;
+    --bg-grade-e: #fef2f2;
+    --text-grade-e: #991b1b;
+    --border-grade-e: #fca5a5;
 }
 
 .dark {
@@ -90,6 +110,31 @@ code {
     --sidebar-accent-foreground: oklch(0.985 0 0);
     --sidebar-border: oklch(0.274 0.006 286.033);
     --sidebar-ring: oklch(0.442 0.017 285.786);
+
+    /* Grade Colors */
+    --bg-grade-na: #1f2937;
+    --text-grade-na: #9ca3af;
+    --border-grade-na: #374151;
+
+    --bg-grade-a: #064e3b;
+    --text-grade-a: #d1fae5;
+    --border-grade-a: #10b981;
+
+    --bg-grade-b: #1e40af;
+    --text-grade-b: #bfdbfe;
+    --border-grade-b: #3b82f6;
+
+    --bg-grade-c: #78350f;
+    --text-grade-c: #fef3c7;
+    --border-grade-c: #facc15;
+
+    --bg-grade-d: #7c2d12;
+    --text-grade-d: #fff7ed;
+    --border-grade-d: #fb923c;
+
+    --bg-grade-e: #7f1d1d;
+    --text-grade-e: #fee2e2;
+    --border-grade-e: #fca5a5;
 }
 
 @theme inline {
