@@ -92,7 +92,7 @@ export function TermCourseSelector({
                     Select a term and course to view the class roster.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
                 {/* Term Selector Component */}
                 <Card>
                     <CardContent>

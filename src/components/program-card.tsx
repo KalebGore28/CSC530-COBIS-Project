@@ -1,5 +1,11 @@
 import { eq, useLiveQuery } from '@tanstack/react-db'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 import {
     Select,
     SelectContent,
@@ -78,7 +84,7 @@ export function ProgramCard({
     )
 
     return (
-        <Card className="max-w-4xl mx-auto border-2 rounded-2xl shadow-lg overflow-hidden">
+        <Card className="max-w-4xl mx-auto border-2 rounded-2xl shadow-lg overflow-hidden pt-0">
             <CardHeader className="bg-blue-950 text-white pb-6">
                 <div className="flex items-start justify-between gap-4">
                     <div>
@@ -303,27 +309,6 @@ export function ProgramCard({
                                 </div>
                             </div>
                         </div>
-
-                        {/* Footer Info */}
-                        {program.last_updated && (
-                            <div className="text-xs text-gray-500 text-center pt-2 border-t border-gray-200">
-                                Last updated:{' '}
-                                {new Date(
-                                    program.last_updated,
-                                ).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                })}
-                            </div>
-                        )}
-                        {exportData && (
-                            <div className="text-center">
-                                <Button onClick={exportData}>
-                                    Export Data
-                                </Button>
-                            </div>
-                        )}
                     </div>
                 ) : (
                     <div className="text-center py-8">
@@ -333,6 +318,26 @@ export function ProgramCard({
                     </div>
                 )}
             </CardContent>
+            <CardFooter className="flex flex-col gap-2">
+                {program?.last_updated && (
+                    <div className="text-xs text-gray-500 text-center pt-2">
+                        Last updated:{' '}
+                        {new Date(program.last_updated).toLocaleDateString(
+                            'en-US',
+                            {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric',
+                            },
+                        )}
+                    </div>
+                )}
+                {exportData && (
+                    <div className="text-center">
+                        <Button onClick={exportData}>Export Data</Button>
+                    </div>
+                )}
+            </CardFooter>
         </Card>
     )
 }
