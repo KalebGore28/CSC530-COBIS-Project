@@ -3,8 +3,6 @@ import {
     Area,
     AreaChart,
     CartesianGrid,
-    ResponsiveContainer,
-    Tooltip,
     XAxis,
     YAxis,
 } from 'recharts'
@@ -24,6 +22,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select'
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from "@/components/ui/chart"
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GRADE_DEFINITION } from '@/types/grades'
 
@@ -40,6 +43,15 @@ type TermGradeDistributionProps = {
     title: string
     description: string
 }
+
+const selectItems = [
+    { label: "Last Year", value: '1' },
+    { label: "Last 2 Years", value: "2" },
+    { label: "Last 3 Years", value: "3" },
+    { label: "Last 4 Years", value: "4" },
+    { label: "Last 5 Years", value: "5" },
+    { label: "Last 10 Years", value: "10" },
+]
 
 export function TermGradeDistribution({
     mnumber,
@@ -150,8 +162,6 @@ export function TermGradeDistribution({
         }),
     )
 
-    // console.log(Object.values(midtermTermPercentages))
-
     return (
         <Card className="gap-0 flex flex-col">
             <CardHeader className="items-center border-b-0 pb-0">
@@ -182,8 +192,9 @@ export function TermGradeDistribution({
 
                     {/* Select offset */}
                     <Select
-                        onValueChange={(val) => setOffset(Number(val))}
+                        items={selectItems}
                         defaultValue={'1'}
+                        onValueChange={(val) => setOffset(Number(val))}
                     >
                         <SelectTrigger
                             className="w-40 rounded-lg"
@@ -212,7 +223,10 @@ export function TermGradeDistribution({
                 </div>
             </CardHeader>
             <CardContent className="p-2 w-full h-96">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer
+                    config={{}}
+                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto h-full pb-0 aspect-auto"
+                >
                     <AreaChart
                         data={
                             view === 'final'
@@ -237,10 +251,7 @@ export function TermGradeDistribution({
                                 },
                             }}
                         />
-                        <Tooltip
-                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition text-black"
-                            formatter={(item) => `${Number(item).toFixed(2)}%`}
-                        />
+                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
                         {Object.entries(GRADE_DEFINITION).map(
                             ([grade, config]) => (
                                 <Area
@@ -254,7 +265,7 @@ export function TermGradeDistribution({
                             ),
                         )}
                     </AreaChart>
-                </ResponsiveContainer>
+                </ChartContainer>
             </CardContent>
         </Card>
     )

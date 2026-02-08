@@ -35,6 +35,13 @@ type ProgramCardProps = {
     exportData?: () => void
 }
 
+const termOptions = [
+    { label: "Spring", value: "10" },
+    { label: "Summer", value: "50" },
+    { label: "Fall", value: "80" },
+    { label: "Winter", value: "90" },
+]
+
 export function ProgramCard({
     programCode,
     startYear,
@@ -212,6 +219,7 @@ export function ProgramCard({
                                                 Term
                                             </Label>
                                             <Select
+                                                items={termOptions}
                                                 onValueChange={(value) =>
                                                     setStartTerm(value ?? '')
                                                 }
@@ -287,6 +295,7 @@ export function ProgramCard({
                                                 Term
                                             </Label>
                                             <Select
+                                                items={termOptions}
                                                 onValueChange={(value) =>
                                                     setEndTerm(value ?? '')
                                                 }

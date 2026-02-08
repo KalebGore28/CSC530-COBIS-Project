@@ -34,6 +34,13 @@ type CourseCardProps = {
     exportData?: () => void
 }
 
+const termOptions = [
+    { label: "Spring", value: "10" },
+    { label: "Summer", value: "50" },
+    { label: "Fall", value: "80" },
+    { label: "Winter", value: "90" },
+]
+
 export function CourseCard({
     courseCode,
     startYear,
@@ -186,6 +193,7 @@ export function CourseCard({
                                                 Term
                                             </Label>
                                             <Select
+                                                items={termOptions}
                                                 onValueChange={(value) =>
                                                     setStartTerm(value ?? '')
                                                 }
@@ -261,6 +269,7 @@ export function CourseCard({
                                                 Term
                                             </Label>
                                             <Select
+                                                items={termOptions}
                                                 onValueChange={(value) =>
                                                     setEndTerm(value ?? '')
                                                 }

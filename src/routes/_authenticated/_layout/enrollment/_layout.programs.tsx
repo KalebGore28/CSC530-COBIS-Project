@@ -97,6 +97,14 @@ function RouteComponent() {
                                             <p className="text-sm text-muted-foreground">
                                                 {program.description}
                                             </p>
+                                            {program.last_updated && (
+                                                <p className="text-[10px] text-muted-foreground mt-1">
+                                                    Last updated:{' '}
+                                                    {new Date(
+                                                        program.last_updated,
+                                                    ).toLocaleDateString()}
+                                                </p>
+                                            )}
                                         </div>
                                         <div className="flex gap-2 flex-wrap justify-end">
                                             {program.is_major && (

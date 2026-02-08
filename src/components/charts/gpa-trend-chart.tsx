@@ -56,14 +56,23 @@ export const GPATrendChart = ({ gpaTrend }: GPATrendChartProps) => {
                     <LineChart
                         accessibilityLayer
                         data={gpaTrend}
-                        margin={{
-                            left: 0,
-                            right: 12,
-                        }}
                     >
-                        <CartesianGrid vertical={false} />
-                        <YAxis tickMargin={0} domain={[0, 4]} tickCount={5} />
+                        <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year_term" tickMargin={8} />
+                        <YAxis
+                            tickCount={5}
+                            ticks={[0, 1, 2, 3, 4]}
+                            label={{
+                                value: 'GPA',
+                                angle: -90,
+                                position: 'insideLeft',
+
+                                style: {
+
+                                    textAnchor: 'middle',
+                                },
+                            }}
+                        />
                         <ChartTooltip content={<ChartTooltipContent />} />
                         <Line
                             dataKey="overall_gpa"

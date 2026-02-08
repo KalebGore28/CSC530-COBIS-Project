@@ -149,7 +149,7 @@ export function StudentDetailModal({
                 if (!open) setModalOpen(false)
             }}
         >
-            <DialogContent className="max-h-[80vh] overflow-y-auto">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Student Detail</DialogTitle>
                     <DialogDescription>
@@ -158,7 +158,7 @@ export function StudentDetailModal({
                         ({studentMnumber})
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col gap-2">
+                <div className="no-scrollbar -mx-4 max-h-[60vh] overflow-y-auto px-4 space-y-4">
                     {/* Student Detail Card */}
                     <Card>
                         <CardHeader>
