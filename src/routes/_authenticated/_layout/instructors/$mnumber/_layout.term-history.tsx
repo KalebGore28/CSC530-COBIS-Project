@@ -134,9 +134,9 @@ function RouteComponent() {
         // Use a Set to track unique courses
         const courseKey = `${record.course_id}-${record.course_section}`
         if (!('uniqueCourses' in entry)) {
-            ;(entry as any).uniqueCourses = new Set<string>()
+            ; (entry as any).uniqueCourses = new Set<string>()
         }
-        ;(entry as any).uniqueCourses.add(courseKey)
+        ; (entry as any).uniqueCourses.add(courseKey)
         entry.total_courses = (entry as any).uniqueCourses.size
     })
 
@@ -153,7 +153,7 @@ function RouteComponent() {
     return (
         <Card className="p-0">
             <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                <div className="border rounded-lg bg-white dark:bg-gray-800">
+                <div className="border rounded-lg bg-white dark:bg-gray-700">
                     <TeachingHistoryTable
                         data={Array.from(termHistoryMap.values()).map(
                             (term) => ({
@@ -164,6 +164,7 @@ function RouteComponent() {
                                     term.total_credit_hours || 0,
                                 action: (
                                     <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() =>
                                             navigate({

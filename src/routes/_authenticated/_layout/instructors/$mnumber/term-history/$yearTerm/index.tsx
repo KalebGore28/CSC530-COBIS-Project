@@ -117,7 +117,7 @@ function RouteComponent() {
     return (
         <div className="w-full mx-auto p-6 space-y-6">
             {/* Statistics summary cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="w-full col-span-3">
                     {/* Back button */}
                     <Button
@@ -141,10 +141,12 @@ function RouteComponent() {
                     </h2>
                 </div>
 
-                <Card>
+                <Card
+                    size="sm"
+                >
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <BookOpen className="h-8 w-8 text-primary" />
+                            <BookOpen className="h-8 w-8 text-secondary" />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">
                                     Courses
@@ -160,7 +162,7 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Users className="h-8 w-8 text-primary" />
+                            <Users className="h-8 w-8 text-secondary" />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">
                                     Students
@@ -176,7 +178,7 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Calculator className="h-8 w-8 text-primary" />
+                            <Calculator className="h-8 w-8 text-secondary" />
                             <div>
                                 <p className="text-sm font-medium text-muted-foreground">
                                     Credit Hours
@@ -193,7 +195,7 @@ function RouteComponent() {
             {/* Course details table */}
             <Card className="p-0">
                 <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                    <div className="border rounded-lg bg-white dark:bg-gray-800">
+                    <div className="border rounded-lg bg-white dark:bg-gray-700">
                         <CoursesTable
                             data={Array.from(coursesMap.values()).map(
                                 (course) => ({
@@ -205,6 +207,7 @@ function RouteComponent() {
                                         course.total_credit_hours,
                                     action: (
                                         <Button
+                                            variant="outline"
                                             size="sm"
                                             onClick={() =>
                                                 navigate({

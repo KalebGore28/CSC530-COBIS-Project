@@ -136,7 +136,7 @@ function RouteComponent() {
     return (
         <Card className="p-0">
             <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                <div className="border rounded-lg bg-white dark:bg-gray-800">
+                <div className="border rounded-lg bg-white dark:bg-gray-700">
                     <CoursesTable
                         data={currentTermData
                             .map((course) => ({
@@ -147,6 +147,7 @@ function RouteComponent() {
                                     course.total_credit_hours || 0,
                                 action: (
                                     <Button
+                                        variant="outline"
                                         size="sm"
                                         onClick={() =>
                                             navigate({
