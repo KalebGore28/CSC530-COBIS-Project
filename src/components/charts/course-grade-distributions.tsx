@@ -1,27 +1,22 @@
 import { useState } from 'react'
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
-import type { ChartConfig } from '@/components/ui/chart'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from '@/components/ui/chart'
-import { Button } from '@/components/ui/button'
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts'
+import type { GradeKey } from '@/types/grades'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
-const chartConfig = {
-    A: { label: 'A', color: 'var(--grade-a)' },
-    B: { label: 'B', color: 'var(--grade-b)' },
-    C: { label: 'C', color: 'var(--grade-c)' },
-    D: { label: 'D', color: 'var(--grade-d)' },
-    E: { label: 'E', color: 'var(--grade-e)' },
-    'N/A': { label: 'N/A', color: 'var(--grade-na)' },
-} satisfies ChartConfig
+import { GRADE_DEFINITION } from '@/types/grades'
 
-type AllowedGrade = 'A' | 'B' | 'C' | 'D' | 'E' | 'N/A'
 type GradeEntry = {
     course_id: string
-} & Record<AllowedGrade, number>
+} & Record<GradeKey, number>
 
 type RequiredStudentCourseProps = {
     course_id: string
@@ -30,25 +25,6 @@ type RequiredStudentCourseProps = {
     final_grade: string | null
 } & Record<string, unknown>
 
-function convertToPercentages(data: Array<GradeEntry>) {
-    return data.map((entry) => {
-        const total =
-            entry.A + entry.B + entry.C + entry.D + entry.E + entry['N/A']
-
-        const pctEntry: GradeEntry = { ...entry }
-
-        if (total > 0) {
-            ;(['A', 'B', 'C', 'D', 'E', 'N/A'] as Array<AllowedGrade>).forEach(
-                (g) => {
-                    pctEntry[g] = Number(((entry[g] / total) * 100).toFixed(2))
-                },
-            )
-        }
-
-        return pctEntry
-    })
-}
-
 type CourseGradeChartProps = {
     studentCourses: Array<RequiredStudentCourseProps>
 }
@@ -56,123 +32,146 @@ type CourseGradeChartProps = {
 export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
     const [view, setView] = useState<'midterm' | 'final'>('final')
 
-    const courseMidtermData: Array<GradeEntry> = []
-    const courseFinalData: Array<GradeEntry> = []
+    const gradeKeys = Object.keys(GRADE_DEFINITION) as Array<GradeKey>
 
-    studentCourses.forEach((sc) => {
-        const courseKey = `${sc.course_id}-${sc.course_section}`
+    const courseMidtermData = Object.values(
+        studentCourses.reduce(
+            (acc, course) => {
+                if (!course.midterm_grade) return acc
 
-        let courseMidtermEntry = courseMidtermData.find(
-            (entry) => entry.course_id === courseKey,
-        )
-        if (!courseMidtermEntry) {
-            courseMidtermEntry = {
-                course_id: courseKey,
-                A: 0,
-                B: 0,
-                C: 0,
-                D: 0,
-                E: 0,
-                'N/A': 0,
+                const grade = course.midterm_grade as GradeKey
+
+                if (!acc[course.course_id]) {
+                    acc[course.course_id] = {
+                        course_id: course.course_id,
+                        ...Object.fromEntries(gradeKeys.map((g) => [g, 0])),
+                    } as GradeEntry
+                }
+
+                acc[course.course_id][grade]++
+                return acc
+            },
+            {} as Record<string, GradeEntry>,
+        ),
+    )
+
+    const courseFinalData = Object.values(
+        studentCourses.reduce(
+            (acc, course) => {
+                if (!course.final_grade) return acc
+
+                const grade = course.final_grade as GradeKey
+
+                if (!acc[course.course_id]) {
+                    acc[course.course_id] = {
+                        course_id: course.course_id,
+                        ...Object.fromEntries(gradeKeys.map((g) => [g, 0])),
+                    } as GradeEntry
+                }
+
+                acc[course.course_id][grade]++
+                return acc
+            },
+            {} as Record<string, GradeEntry>,
+        ),
+    )
+
+    const courseMidtermPercentages = Object.values(
+        courseMidtermData.map((course) => {
+            const total = gradeKeys.reduce((sum, g) => sum + course[g], 0)
+            if (total === 0) return course
+            return {
+                ...course,
+                ...Object.fromEntries(
+                    gradeKeys.map((g) => [g, (course[g] / total) * 100]),
+                ),
             }
-            courseMidtermData.push(courseMidtermEntry)
-        }
-        const midtermGrade = sc.midterm_grade ? sc.midterm_grade : 'N/A'
-        courseMidtermEntry[midtermGrade as AllowedGrade] =
-            courseMidtermEntry[midtermGrade as AllowedGrade] + 1
+        }),
+    )
 
-        let courseFinalEntry = courseFinalData.find(
-            (entry) => entry.course_id === courseKey,
-        )
-        if (!courseFinalEntry) {
-            courseFinalEntry = {
-                course_id: courseKey,
-                A: 0,
-                B: 0,
-                C: 0,
-                D: 0,
-                E: 0,
-                'N/A': 0,
+    const courseFinalPercentages = Object.values(
+        courseFinalData.map((course) => {
+            const total = gradeKeys.reduce((sum, g) => sum + course[g], 0)
+            if (total === 0) return course
+            return {
+                ...course,
+                ...Object.fromEntries(
+                    gradeKeys.map((g) => [g, (course[g] / total) * 100]),
+                ),
             }
-            courseFinalData.push(courseFinalEntry)
-        }
-        const finalGrade = sc.final_grade ? sc.final_grade : 'N/A'
-        courseFinalEntry[finalGrade as AllowedGrade] =
-            courseFinalEntry[finalGrade as AllowedGrade] + 1
-    })
-
-    const midtermPercentages = convertToPercentages(courseMidtermData)
-    const finalPercentages = convertToPercentages(courseFinalData)
+        }),
+    )
 
     return (
         <Card>
             <CardHeader>
                 <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>
-                            {view === 'final' ? 'Final' : 'Midterm'} Grade
-                            Distribution
-                        </CardTitle>
-                    </div>
-                    <div className="flex gap-2">
-                        <Button
-                            variant={view === 'midterm' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setView('midterm')}
-                        >
-                            Midterm
-                        </Button>
-                        <Button
-                            variant={view === 'final' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setView('final')}
-                        >
-                            Final
-                        </Button>
-                    </div>
+                    <CardTitle>
+                        {view === 'final' ? 'Final' : 'Midterm'} Grade
+                        Distribution
+                    </CardTitle>
+                    <Tabs
+                        defaultValue="final"
+                        onValueChange={(val) =>
+                            setView(val as 'midterm' | 'final')
+                        }
+                    >
+                        <TabsList className="rounded-lg">
+                            <TabsTrigger value="midterm" className="rounded-lg">
+                                Midterm
+                            </TabsTrigger>
+                            <TabsTrigger value="final" className="rounded-lg">
+                                Final
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
             </CardHeader>
-            <CardContent>
-                <ChartContainer config={chartConfig} className="w-full h-60">
+            <CardContent className="p-2 w-full h-64">
+                <ResponsiveContainer width="100%" height="100%">
                     <BarChart
                         data={
                             view === 'final'
-                                ? finalPercentages
-                                : midtermPercentages
+                                ? courseFinalPercentages
+                                : courseMidtermPercentages
                         }
-                        accessibilityLayer
-                        barCategoryGap="30%"
+                        margin={{ right: 30, left: 30 }}
                     >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="course_id"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            angle={0}
-                            textAnchor="middle"
-                            interval={0}
-                        />
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="course_id" tickMargin={8} />
                         <YAxis
-                            domain={[0, 100]}
-                            ticks={[0, 25, 50, 75, 100]}
+                            width={'auto'}
+                            tickCount={5}
+                            tickMargin={8}
                             tickFormatter={(v) => `${v}%`}
-                            axisLine={false}
-                            tickLine={false}
+                            ticks={[0, 25, 50, 75, 100]}
+                            label={{
+                                value: 'Percentage of Course Grades',
+                                angle: -90,
+                                position: 'insideLeft',
+                                style: {
+                                    textAnchor: 'middle',
+                                },
+                            }}
                         />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        {Object.entries(chartConfig).map(([grade, cfg]) => (
-                            <Bar
-                                key={grade}
-                                dataKey={grade}
-                                stackId="a"
-                                fill={cfg.color}
-                                fillOpacity={0.6}
-                                radius={2}
-                            />
-                        ))}
+                        <Tooltip
+                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition text-black"
+                            formatter={(item) => `${Number(item).toFixed(2)}%`}
+                        />
+                        {Object.entries(GRADE_DEFINITION).map(
+                            ([grade, config]) => (
+                                <Bar
+                                    type="basis"
+                                    dataKey={grade}
+                                    stackId="grades"
+                                    key={grade}
+                                    stroke={config.borderVar}
+                                    fill={config.borderVar}
+                                />
+                            ),
+                        )}
                     </BarChart>
-                </ChartContainer>
+                </ResponsiveContainer>
             </CardContent>
         </Card>
     )

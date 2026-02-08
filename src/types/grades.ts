@@ -7,14 +7,6 @@ type GradeDefinition = {
 }
 
 export const GRADE_DEFINITION = {
-    NA: {
-        gpa: null,
-        className:
-            'bg-[var(--bg-grade-na)] text-[var(--text-grade-na)] border-[var(--border-grade-na)] dark:bg-[var(--bg-grade-na)] dark:text-[var(--text-grade-na)] dark:border-[var(--border-grade-na)]',
-        bgVar: 'var(--bg-grade-na)',
-        textVar: 'var(--text-grade-na)',
-        borderVar: 'var(--border-grade-na)',
-    },
     A: {
         gpa: 4.0,
         className:
@@ -54,6 +46,14 @@ export const GRADE_DEFINITION = {
         bgVar: 'var(--bg-grade-e)',
         textVar: 'var(--text-grade-e)',
         borderVar: 'var(--border-grade-e)',
+    },
+    NA: {
+        gpa: null,
+        className:
+            'bg-[var(--bg-grade-na)] text-[var(--text-grade-na)] border-[var(--border-grade-na)] dark:bg-[var(--bg-grade-na)] dark:text-[var(--text-grade-na)] dark:border-[var(--border-grade-na)]',
+        bgVar: 'var(--bg-grade-na)',
+        textVar: 'var(--text-grade-na)',
+        borderVar: 'var(--border-grade-na)',
     },
 } satisfies Record<string, GradeDefinition>
 

@@ -9,7 +9,7 @@ import {
     YAxis,
 } from 'recharts'
 import { and, eq, gte, useLiveQuery } from '@tanstack/react-db'
-import type {GradeKey} from '@/types/grades';
+import type { GradeKey } from '@/types/grades'
 import {
     Card,
     CardContent,
@@ -25,7 +25,7 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { GRADE_DEFINITION  } from '@/types/grades'
+import { GRADE_DEFINITION } from '@/types/grades'
 
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
@@ -221,40 +221,14 @@ export function TermGradeDistribution({
                         }
                         margin={{ top: 40, right: 30, left: 30, bottom: 20 }}
                     >
-                        <defs>
-                            {Object.entries(GRADE_DEFINITION).map(
-                                ([grade, config]) => (
-                                    <linearGradient
-                                        key={grade}
-                                        id={`fill-${grade}`}
-                                        x1="0"
-                                        y1="0"
-                                        x2="0"
-                                        y2="1"
-                                    >
-                                        <stop
-                                            offset="5%"
-                                            stopColor={config.bgVar}
-                                            stopOpacity={0.8}
-                                        />
-                                        <stop
-                                            offset="95%"
-                                            stopColor={config.textVar}
-                                            stopOpacity={0.1}
-                                        />
-                                    </linearGradient>
-                                ),
-                            )}
-                        </defs>
                         <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="name" tickMargin={8} minTickGap={32} />
+                        <XAxis dataKey="name" tickMargin={8} />
                         <YAxis
                             width={'auto'}
                             tickCount={5}
                             tickMargin={8}
-                            minTickGap={32}
-                            tickFormatter={(value) => `${value.toFixed(0)}%`}
-                            domain={[0, 100]}
+                            tickFormatter={(v) => `${v}%`}
+                            ticks={[0, 25, 50, 75, 100]}
                             label={{
                                 value: 'Percentage of Grades',
                                 angle: -90,
@@ -265,19 +239,18 @@ export function TermGradeDistribution({
                             }}
                         />
                         <Tooltip
-                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition"
-                            labelClassName="text-red-500"
+                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition text-black"
                             formatter={(item) => `${Number(item).toFixed(2)}%`}
                         />
                         {Object.entries(GRADE_DEFINITION).map(
                             ([grade, config]) => (
                                 <Area
-                                    type="monotone"
+                                    type="basis"
                                     dataKey={grade}
                                     stackId="grades"
                                     key={grade}
                                     stroke={config.borderVar}
-                                    fill={`url(#fill-${grade})`}
+                                    fill={config.bgVar}
                                 />
                             ),
                         )}
