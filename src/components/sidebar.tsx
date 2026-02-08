@@ -6,12 +6,13 @@ import {
     SidebarHeader,
     SidebarMenu,
     SidebarMenuItem,
+    SidebarRail,
     useSidebar,
 } from '@/components/ui/sidebar'
 import { NavMain } from '@/components/nav-main'
 import { NavUser } from '@/components/nav-user'
 import { Separator } from '@/components/ui/separator'
-import logo from '/primary_white.png'
+import logo from '/logos/primary_white.png'
 import logoIcon from '/primary-icon.png'
 
 export function AppSidebar() {
@@ -49,15 +50,16 @@ export function AppSidebar() {
                             COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
                         </span>
                     </SidebarMenuItem>
-                    <Separator className="my-2" />
                 </SidebarMenu>
             </SidebarHeader>
+            <Separator className="my-2" />
             <SidebarContent>
                 <NavMain />
             </SidebarContent>
             <SidebarFooter>
                 <NavUser />
             </SidebarFooter>
+            <SidebarRail />
         </Sidebar>
     )
 }

@@ -44,17 +44,6 @@ function RouteComponent() {
                         <TabsList className="grid grid-cols-3">
                             <TabsTrigger
                                 className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="import"
-                            >
-                                <Link
-                                    to="/cobis-tools/import"
-                                    className="w-full"
-                                >
-                                    Import
-                                </Link>
-                            </TabsTrigger>
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                                 value="users"
                             >
                                 <Link
@@ -73,6 +62,17 @@ function RouteComponent() {
                                     className="w-full"
                                 >
                                     Manage Tables
+                                </Link>
+                            </TabsTrigger>
+                            <TabsTrigger
+                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                                value="import"
+                            >
+                                <Link
+                                    to="/cobis-tools/import"
+                                    className="w-full"
+                                >
+                                    Import
                                 </Link>
                             </TabsTrigger>
                         </TabsList>

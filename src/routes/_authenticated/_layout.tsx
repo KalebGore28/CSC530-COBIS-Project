@@ -3,6 +3,7 @@ import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import { AppSidebar } from '@/components/sidebar'
 import { SiteHeader } from '@/components/header'
 import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 import { CurrentTermProvider } from '@/providers/current-term-provider'
 
@@ -42,12 +43,14 @@ function App() {
     return (
         <CurrentTermProvider>
             <SidebarProvider>
-                <Toaster richColors />
-                <AppSidebar />
-                <SidebarInset>
-                    <SiteHeader />
-                    <Outlet />
-                </SidebarInset>
+                <TooltipProvider>
+                    <Toaster richColors />
+                    <AppSidebar />
+                    <SidebarInset>
+                        <SiteHeader />
+                        <Outlet />
+                    </SidebarInset>
+                </TooltipProvider>
             </SidebarProvider>
         </CurrentTermProvider>
     )

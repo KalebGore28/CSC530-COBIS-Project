@@ -47,13 +47,11 @@ export function SiteHeader() {
                             <React.Fragment key={crumb.path}>
                                 <BreadcrumbItem key={crumb.path}>
                                     {index < breadcrumbs.length - 1 ? (
-                                        <BreadcrumbLink
-                                            render={
-                                                <Link to={crumb.path}>
-                                                    {crumb.title}
-                                                </Link>
-                                            }
-                                        />
+                                        <BreadcrumbLink asChild>
+                                            <Link to={crumb.path}>
+                                                {crumb.title}
+                                            </Link>
+                                        </BreadcrumbLink>
                                     ) : (
                                         <BreadcrumbPage>
                                             {crumb.title}
