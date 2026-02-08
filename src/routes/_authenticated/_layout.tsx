@@ -17,6 +17,8 @@ import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
 import { registrationStatusCollection } from '@/integrations/tanstack-db/registration-status'
 import { rolesCollection } from '@/integrations/tanstack-db/roles'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
 
 export const Route = createFileRoute('/_authenticated/_layout')({
     component: App,
@@ -34,6 +36,8 @@ function App() {
     registrationStatusCollection.preload()
     rolesCollection.preload()
     termsCollection.preload()
+    programsCollection.preload()
+    coursesCollection.preload()
 
     return (
         <CurrentTermProvider>
@@ -41,7 +45,7 @@ function App() {
                 <Toaster richColors />
                 <AppSidebar />
                 <SidebarInset>
-                    <SiteHeader />
+                    {/* <SiteHeader /> */}
                     <Outlet />
                 </SidebarInset>
             </SidebarProvider>

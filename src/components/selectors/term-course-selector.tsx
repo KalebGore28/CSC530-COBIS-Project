@@ -99,11 +99,12 @@ export function TermCourseSelector({
                         <Select
                             value={
                                 selectedTerm
-                                    ? `${selectedTerm.year}-${selectedTerm.term_id}`
+                                    ? `${selectedTerm.term_description} ${selectedTerm.year}`
                                     : 'Select Term'
                             }
                             onValueChange={(value) => {
-                                const term = terms.get(value)
+                                const term = terms.get(value ?? '')
+                                console.log('Selected term:', term)
 
                                 const newTermCourses = extractTermCourses(
                                     studentCourses,
@@ -125,7 +126,7 @@ export function TermCourseSelector({
                                     (term, index) => (
                                         <SelectItem
                                             key={index}
-                                            value={`${term.year}-${term.term_id}`}
+                                            value={`${term.term_description}-${term.year}`}
                                         >
                                             {term.term_description} {term.year}
                                         </SelectItem>
@@ -166,7 +167,7 @@ export function TermCourseSelector({
                                         : 'Select Course'
                                 }
                                 onValueChange={(value) => {
-                                    const course = termCourses.get(value)
+                                    const course = termCourses.get(value ?? '')
                                     setSelectedCourse &&
                                         course &&
                                         setSelectedCourse(course)
@@ -182,9 +183,7 @@ export function TermCourseSelector({
                                                 key={index}
                                                 value={`${course.course_id}-${course.course_section}`}
                                             >
-                                                {course.course_title} (
-                                                {course.course_id}-
-                                                {course.course_section})
+                                                ({course.course_id}-{course.course_section}): {course.course_title}
                                             </SelectItem>
                                         ),
                                     )}
@@ -223,7 +222,7 @@ function extractTerms(studentCourses: Array<RequiredStudentCourseProps>) {
     const terms = new Map<string, SelectedTerm>()
 
     for (const c of studentCourses) {
-        const key = `${c.year}-${c.term_id}`
+        const key = `${c.term_description} ${c.year}`
 
         let term = terms.get(key)
         if (!term) {

@@ -40,14 +40,14 @@ export function SiteHeader() {
     return (
         <header className="group-has-data-[collapsible=icon]/sidebar-wrapper:h-12 flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear">
             <div className="flex w-full items-center gap-1 px-4">
-                <SidebarTrigger className="-ml-1" />
+                {/* <SidebarTrigger className="-ml-1" /> */}
                 <Breadcrumb className="border-l-1 border-gray-200 pl-4">
                     <BreadcrumbList>
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.path}>
                                 <BreadcrumbItem key={crumb.path}>
                                     {index < breadcrumbs.length - 1 ? (
-                                        <BreadcrumbLink asChild>
+                                        <BreadcrumbLink>
                                             <Link to={crumb.path}>
                                                 {crumb.title}
                                             </Link>

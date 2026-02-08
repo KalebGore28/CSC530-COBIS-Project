@@ -68,12 +68,14 @@ export const StudentFilters = ({
         }))
 
     // GPA Range
-    const setGpa = (vals: Array<number>) =>
+    const setGpa = (value: number | ReadonlyArray<number>) => {
+        const vals = Array.isArray(value) ? value : [value]
         setFilters((f) => ({
             ...f,
             gpaMin: vals[0],
             gpaMax: vals[1],
         }))
+    }
 
     return (
         <Card className="w-full">

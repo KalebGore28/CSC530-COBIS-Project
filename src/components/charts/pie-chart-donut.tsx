@@ -1,6 +1,20 @@
-import { Label, LabelList, Pie, PieChart, ResponsiveContainer } from 'recharts'
+import { Pie, PieChart } from 'recharts'
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+    type ChartConfig,
+} from "@/components/ui/chart"
+
 import type { GradeKey } from '@/types/grades'
 import { GRADE_DEFINITION } from '@/types/grades'
+
+const chartConfig: ChartConfig = {
+    A: {
+        label: 'A',
+        color: GRADE_DEFINITION.A.bgVar
+    }
+}
 
 export type PieChartDonutProps = {
     data: Array<{
@@ -34,22 +48,15 @@ export function PieChartDonut({ data }: PieChartDonutProps) {
 
     return (
         <div className="mx-auto aspect-square max-h-62.5">
-            <ResponsiveContainer width="100%" height="100%">
+            <ChartContainer
+                config={chartConfig}
+                className="[&_.recharts-pie-label-text]:fill-foreground mx-auto aspect-square max-h-62.5 pb-0"
+            >
                 <PieChart>
-                    <Pie data={dataWithColors} dataKey="value">
-                        <LabelList
-                            content={(props) => (
-                                <Label
-                                    {...props}
-                                    className="fill-foreground text-xs font-medium"
-                                    position="outside"
-                                    offset={10}
-                                />
-                            )}
-                        />
-                    </Pie>
+                    <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                    <Pie data={dataWithColors} dataKey="value" label nameKey="name" />
                 </PieChart>
-            </ResponsiveContainer>
+            </ChartContainer>
         </div>
     )
 }

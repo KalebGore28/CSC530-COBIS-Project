@@ -176,7 +176,7 @@ export function ProgramCard({
                                             <Select
                                                 onValueChange={(value) =>
                                                     setStartYear(
-                                                        parseInt(value),
+                                                        parseInt(value ?? ''),
                                                     )
                                                 }
                                                 value={startYear.toString()}
@@ -213,7 +213,7 @@ export function ProgramCard({
                                             </Label>
                                             <Select
                                                 onValueChange={(value) =>
-                                                    setStartTerm(value)
+                                                    setStartTerm(value ?? '')
                                                 }
                                                 defaultValue={startTerm}
                                             >
@@ -250,7 +250,9 @@ export function ProgramCard({
                                             </Label>
                                             <Select
                                                 onValueChange={(value) =>
-                                                    setEndYear(parseInt(value))
+                                                    setEndYear(
+                                                        parseInt(value ?? ''),
+                                                    )
                                                 }
                                                 value={endYear.toString()}
                                             >
@@ -286,7 +288,7 @@ export function ProgramCard({
                                             </Label>
                                             <Select
                                                 onValueChange={(value) =>
-                                                    setEndTerm(value)
+                                                    setEndTerm(value ?? '')
                                                 }
                                                 value={endTerm}
                                             >

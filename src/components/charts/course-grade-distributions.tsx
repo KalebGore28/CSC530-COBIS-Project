@@ -140,7 +140,6 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="course_id" tickMargin={8} />
                         <YAxis
-                            width={'auto'}
                             tickCount={5}
                             tickMargin={8}
                             tickFormatter={(v) => `${v}%`}

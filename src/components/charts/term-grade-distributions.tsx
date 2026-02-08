@@ -171,10 +171,10 @@ export function TermGradeDistribution({
                         }
                     >
                         <TabsList className="rounded-lg">
-                            <TabsTrigger value="midterm" className="rounded-lg">
+                            <TabsTrigger value="midterm">
                                 Midterm
                             </TabsTrigger>
-                            <TabsTrigger value="final" className="rounded-lg">
+                            <TabsTrigger value="final">
                                 Final
                             </TabsTrigger>
                         </TabsList>
@@ -224,7 +224,6 @@ export function TermGradeDistribution({
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" tickMargin={8} />
                         <YAxis
-                            width={'auto'}
                             tickCount={5}
                             tickMargin={8}
                             tickFormatter={(v) => `${v}%`}

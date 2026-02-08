@@ -117,7 +117,7 @@ export function EditableDataTable<TData, TValue>({
                     </TabsList>
                 </Tabs>
                 <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
+                    <DropdownMenuTrigger>
                         <Button variant="outline">
                             Columns <ChevronDown />
                         </Button>

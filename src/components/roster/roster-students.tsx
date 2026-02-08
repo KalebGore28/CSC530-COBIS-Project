@@ -240,7 +240,12 @@ export function RosterStudents({
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Select value={gradeFilter} onValueChange={setGradeFilter}>
+                    <Select
+                        value={gradeFilter}
+                        onValueChange={(value) =>
+                            setGradeFilter(value ?? 'all')
+                        }
+                    >
                         <SelectTrigger className="w-full sm:w-40">
                             <Filter className="mr-2 h-4 w-4" />
                             <SelectValue placeholder="Filter" />

@@ -46,14 +46,14 @@ const makePreHeader = (filters: FilterState): Array<string> => {
     }
 
     if (filters.program) {
-        const programLine = `${filters.program.code} - ${
+        const programLine = `${filters.program.id} - ${
             filters.program.is_major ? ' (major)' : ''
         }${filters.program.is_minor ? ' (minor)' : ''}`
         lines.push(`# Programs,${programLine}`)
     }
 
     if (filters.course) {
-        const courseLine = `${filters.course.code} - ${
+        const courseLine = `${filters.course.id} - ${
             filters.taken ? 'Taken' : 'Not Taken'
         } ${
             filters.operator ? filters.operator : ''
@@ -92,7 +92,7 @@ function StudentLookup() {
                 params.append('gpaMax', filters.gpaMax.toString())
             }
             if (filters.program) {
-                params.append('program_id', filters.program.code)
+                params.append('program_id', filters.program.id)
 
                 if (filters.majorOnly) {
                     params.append('is_major', 'true')
@@ -102,7 +102,7 @@ function StudentLookup() {
                 }
             }
             if (filters.course) {
-                params.append('course_id', filters.course.code)
+                params.append('course_id', filters.course.id)
                 params.append('taken', String(!!filters.taken))
                 if (filters.operator) {
                     params.append('operator', filters.operator)

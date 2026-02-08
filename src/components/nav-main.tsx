@@ -1,24 +1,19 @@
 import {
     BookOpen,
     ChartColumnIncreasing,
-    ChevronsUpDown,
     Compass,
     PersonStanding,
     ScanSearch,
     Telescope,
-    TerminalSquareIcon,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useAuthentication } from '@/lib/auth-client'
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible'
-import {
     SidebarGroup,
     SidebarGroupContent,
+    SidebarGroupLabel,
     SidebarMenu,
+    SidebarMenuBadge,
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarMenuSub,
@@ -26,163 +21,152 @@ import {
     SidebarMenuSubItem,
 } from '@/components/ui/sidebar'
 
+import { programsCollection } from '@/integrations/tanstack-db/programs'
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+
 export function NavMain() {
     const { userSession } = useAuthentication()
     if (!userSession) return null
-
     const roles = userSession.roles
 
     return (
-        <SidebarGroup>
-            <SidebarGroupContent className="flex flex-col gap-2">
-                <SidebarMenu>
-                    {/* Dashboard */}
-                    <SidebarMenuItem key="dashboard" className="text-nowrap">
-                        <Link to="/dashboard">
+        <>
+            <SidebarGroup>
+                <SidebarGroupLabel>Application</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        <SidebarMenuItem
+                            key="dashboard"
+                            className="text-nowrap"
+                        >
                             <SidebarMenuButton tooltip="Dashboard">
-                                <Compass />
-                                Dashboard
+                                <Link
+                                    to="/dashboard"
+                                    className="w-full h-full flex items-center gap-2"
+                                >
+                                    <Compass />
+                                    Dashboard
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-
-                    {/* Class Roster */}
-                    <SidebarMenuItem key="class-roster" className="text-nowrap">
-                        <Link to="/class-roster">
+                        </SidebarMenuItem>
+                        <SidebarMenuItem
+                            key="class-roster"
+                            className="text-nowrap"
+                        >
                             <SidebarMenuButton tooltip="Class Roster">
-                                <BookOpen />
-                                Class Roster
+                                <Link
+                                    to="/class-roster"
+                                    className="w-full h-full flex items-center gap-2"
+                                >
+                                    <BookOpen />
+                                    Class Roster
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-
-                    {/* Advisor Page */}
-                    <SidebarMenuItem key="advisor-page" className="text-nowrap">
-                        <Link to="/advisor-page">
+                        </SidebarMenuItem>
+                        <SidebarMenuItem
+                            key="advisor-page"
+                            className="text-nowrap"
+                        >
                             <SidebarMenuButton tooltip={'Advisor Page'}>
-                                <Telescope />
-                                Advisor Page
+                                <Link
+                                    to="/advisor-page"
+                                    className="w-full h-full flex items-center gap-2"
+                                >
+                                    <Telescope />
+                                    Advisor Page
+                                </Link>
                             </SidebarMenuButton>
-                        </Link>
-                    </SidebarMenuItem>
-
-                    {/* Student Lookup */}
-                    {roles.has('department_chair') && (
-                        <SidebarMenuItem
-                            key="student-lookup"
-                            className="text-nowrap"
-                        >
-                            <Link to="/student-lookup">
+                        </SidebarMenuItem>
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+                <SidebarGroupLabel>Administration</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {roles.has('department_chair') && (
+                            <SidebarMenuItem
+                                key="student-lookup"
+                                className="text-nowrap"
+                            >
                                 <SidebarMenuButton tooltip="Student Lookup">
-                                    <ScanSearch />
-                                    Student Lookup
-                                </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
-                    )}
-
-                    {/* Instructors */}
-                    {roles.has('department_chair') && (
-                        <SidebarMenuItem
-                            key="instructors"
-                            className="text-nowrap"
-                        >
-                            <Link to="/instructors">
-                                <SidebarMenuButton tooltip="Instructors">
-                                    <PersonStanding />
-                                    Instructors
-                                </SidebarMenuButton>
-                            </Link>
-                        </SidebarMenuItem>
-                    )}
-
-                    {/* COBIS Tools */}
-                    {roles.has('cobis_administrator') && (
-                        <SidebarMenuItem
-                            key="cobis-tools"
-                            className="text-nowrap"
-                        >
-                            <Collapsible>
-                                <CollapsibleTrigger asChild>
-                                    <Link to="/cobis-tools">
-                                        <SidebarMenuButton tooltip="COBIS Tools">
-                                            <TerminalSquareIcon />
-                                            COBIS Tools
-                                            <ChevronsUpDown className="ml-auto" />
-                                        </SidebarMenuButton>
+                                    <Link
+                                        to="/student-lookup"
+                                        className="w-full h-full flex items-center gap-2"
+                                    >
+                                        <ScanSearch />
+                                        Student Lookup
                                     </Link>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent>
-                                    <SidebarMenuSub>
-                                        <SidebarMenuSubItem key="import">
-                                            <Link to="/cobis-tools/import">
-                                                <SidebarMenuSubButton className="text-white">
-                                                    Import
-                                                </SidebarMenuSubButton>
-                                            </Link>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem key="users">
-                                            <Link to="/cobis-tools/users">
-                                                <SidebarMenuSubButton className="text-white">
-                                                    Users
-                                                </SidebarMenuSubButton>
-                                            </Link>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem key="manage-tables">
-                                            <Link to="/cobis-tools/manage-tables">
-                                                <SidebarMenuSubButton className="text-white">
-                                                    Manage Tables
-                                                </SidebarMenuSubButton>
-                                            </Link>
-                                        </SidebarMenuSubItem>
-                                    </SidebarMenuSub>
-                                </CollapsibleContent>
-                            </Collapsible>
-                        </SidebarMenuItem>
-                    )}
-
-                    {/* Enrollment Metrics */}
-                    {(roles.has('department_chair') ||
-                        roles.has('admin_assistant')) && (
-                        <SidebarMenuItem
-                            key="enrollment-metrics"
-                            className="text-nowrap"
-                        >
-                            <Collapsible>
-                                <CollapsibleTrigger asChild>
-                                    <Link to="/enrollment">
-                                        <SidebarMenuButton
-                                            tooltip={'Enrollment Metrics'}
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        )}
+                        {roles.has('department_chair') && (
+                            <SidebarMenuItem
+                                key="instructors"
+                                className="text-nowrap"
+                            >
+                                <SidebarMenuButton tooltip="Instructors">
+                                    <Link
+                                        to="/instructors"
+                                        className="w-full h-full flex items-center gap-2"
+                                    >
+                                        <PersonStanding />
+                                        Instructors
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        )}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+            <SidebarGroup>
+                <SidebarGroupLabel>Reporting</SidebarGroupLabel>
+                <SidebarGroupContent>
+                    <SidebarMenu>
+                        {(roles.has('department_chair') ||
+                            roles.has('admin_assistant')) && (
+                                <SidebarMenuItem
+                                    key="enrollment-metrics"
+                                    className="text-nowrap"
+                                >
+                                    <SidebarMenuButton
+                                        tooltip={'Enrollment Metrics'}
+                                    >
+                                        <Link
+                                            to="/enrollment"
+                                            className="w-full h-full flex items-center gap-2"
                                         >
                                             <ChartColumnIncreasing />
                                             Enrollment Metrics
-                                            <ChevronsUpDown className="ml-auto" />
-                                        </SidebarMenuButton>
-                                    </Link>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent>
+                                        </Link>
+                                    </SidebarMenuButton>
                                     <SidebarMenuSub>
-                                        <SidebarMenuSubItem key="programs">
-                                            <Link to="/enrollment/programs">
-                                                <SidebarMenuSubButton className="text-white">
+                                        <SidebarMenuSubItem>
+                                            <SidebarMenuSubButton className="text-white">
+                                                <Link
+                                                    to="/enrollment/programs"
+                                                    className="w-full h-full flex items-center gap-2"
+                                                >
                                                     Programs
-                                                </SidebarMenuSubButton>
-                                            </Link>
-                                        </SidebarMenuSubItem>
-                                        <SidebarMenuSubItem key="courses">
-                                            <Link to="/enrollment/courses">
-                                                <SidebarMenuSubButton className="text-white">
+                                                </Link>
+                                                <SidebarMenuBadge>{programsCollection.size}</SidebarMenuBadge>
+                                            </SidebarMenuSubButton>
+                                            <SidebarMenuSubButton className="text-white">
+                                                <Link
+                                                    to="/enrollment/courses"
+                                                    className="w-full h-full flex items-center gap-2"
+                                                >
                                                     Courses
-                                                </SidebarMenuSubButton>
-                                            </Link>
+                                                </Link>
+                                                <SidebarMenuBadge>{coursesCollection.size}</SidebarMenuBadge>
+                                            </SidebarMenuSubButton>
                                         </SidebarMenuSubItem>
                                     </SidebarMenuSub>
-                                </CollapsibleContent>
-                            </Collapsible>
-                        </SidebarMenuItem>
-                    )}
-                </SidebarMenu>
-            </SidebarGroupContent>
-        </SidebarGroup>
+                                </SidebarMenuItem>
+                            )}
+                    </SidebarMenu>
+                </SidebarGroupContent>
+            </SidebarGroup>
+        </>
     )
 }

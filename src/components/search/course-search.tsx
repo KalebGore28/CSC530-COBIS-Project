@@ -17,9 +17,9 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { GRADE_DEFINITION } from '@/types/grades'
 
 import { OPERATORS } from '@/types/operators'
-import { GRADES } from '@/types/grades'
 
 type Course = typeof courses.$inferSelect
 
@@ -180,14 +180,16 @@ export function CourseSearchBox({
                                         <SelectValue placeholder="Select grade" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {Object.keys(GRADES).map((grade) => (
-                                            <SelectItem
-                                                key={grade}
-                                                value={grade}
-                                            >
-                                                {grade}
-                                            </SelectItem>
-                                        ))}
+                                        {Object.keys(GRADE_DEFINITION).map(
+                                            (grade) => (
+                                                <SelectItem
+                                                    key={grade}
+                                                    value={grade}
+                                                >
+                                                    {grade}
+                                                </SelectItem>
+                                            ),
+                                        )}
                                     </SelectContent>
                                 </Select>
                             </div>

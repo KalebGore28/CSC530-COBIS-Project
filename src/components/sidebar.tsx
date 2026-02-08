@@ -18,48 +18,46 @@ export function AppSidebar() {
     const { open, isMobile } = useSidebar()
 
     return (
-        <Sidebar collapsible="icon">
-            <div className="h-full bg-primary text-white justify-between flex flex-col">
-                <SidebarHeader>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <Link to="/dashboard" className="cursor-pointer">
-                                <img
-                                    src={
-                                        (open || isMobile) === true
-                                            ? logo
-                                            : logoIcon
-                                    }
-                                    className={
-                                        (open || isMobile) === true
-                                            ? 'w-auto h-auto mt-4'
-                                            : 'w-8 h-10 my-2'
-                                    }
-                                    alt="Murray Logo"
-                                />
-                            </Link>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem className="text-center">
-                            <span
-                                className={
-                                    open === true
-                                        ? 'text-white text-sm font-semibold text-center text-nowrap'
-                                        : 'hidden text-nowrap ml-5'
+        <Sidebar collapsible="icon" variant="inset">
+            <SidebarHeader>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <Link to="/dashboard" className="cursor-pointer">
+                            <img
+                                src={
+                                    (open || isMobile) === true
+                                        ? logo
+                                        : logoIcon
                                 }
-                            >
-                                COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
-                            </span>
-                        </SidebarMenuItem>
-                        <Separator className="my-2" />
-                    </SidebarMenu>
-                </SidebarHeader>
-                <SidebarContent>
-                    <NavMain />
-                </SidebarContent>
-                <SidebarFooter>
-                    <NavUser />
-                </SidebarFooter>
-            </div>
+                                className={
+                                    (open || isMobile) === true
+                                        ? 'w-auto h-auto mt-4'
+                                        : 'w-8 h-10 my-2'
+                                }
+                                alt="Murray Logo"
+                            />
+                        </Link>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem className="text-center">
+                        <span
+                            className={
+                                open === true
+                                    ? 'text-white text-sm font-semibold text-center text-nowrap'
+                                    : 'hidden text-nowrap ml-5'
+                            }
+                        >
+                            COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
+                        </span>
+                    </SidebarMenuItem>
+                    <Separator className="my-2" />
+                </SidebarMenu>
+            </SidebarHeader>
+            <SidebarContent>
+                <NavMain />
+            </SidebarContent>
+            <SidebarFooter>
+                <NavUser />
+            </SidebarFooter>
         </Sidebar>
     )
 }

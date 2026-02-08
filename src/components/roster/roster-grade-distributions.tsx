@@ -7,7 +7,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PieChartDonut } from '@/components/charts/pie-chart-donut'
 
 type GradeEntry = {
@@ -92,22 +92,21 @@ export function RosterGradeDistributions({
                     </CardDescription>
                 </div>
                 <div className="space-x-2 flex-none">
-                    <Button
-                        size="sm"
-                        variant={
-                            gradeType === 'midterm' ? 'default' : 'outline'
+                    <Tabs
+                        defaultValue="final"
+                        onValueChange={(val) =>
+                            setGradeType(val as 'midterm' | 'final')
                         }
-                        onClick={() => setGradeType('midterm')}
                     >
-                        Midterm
-                    </Button>
-                    <Button
-                        size="sm"
-                        variant={gradeType === 'final' ? 'default' : 'outline'}
-                        onClick={() => setGradeType('final')}
-                    >
-                        Final
-                    </Button>
+                        <TabsList className="rounded-lg">
+                            <TabsTrigger value="midterm">
+                                Midterm
+                            </TabsTrigger>
+                            <TabsTrigger value="final">
+                                Final
+                            </TabsTrigger>
+                        </TabsList>
+                    </Tabs>
                 </div>
             </CardHeader>
             <CardContent>
