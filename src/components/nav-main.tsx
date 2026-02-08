@@ -1,10 +1,10 @@
 import {
-    BookOpen,
+    Binoculars,
     ChartColumnIncreasing,
+    Clipboard,
     Compass,
     PersonStanding,
     ScanSearch,
-    Telescope,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { useAuthentication } from '@/lib/auth-client'
@@ -58,7 +58,7 @@ export function NavMain() {
                                     to="/class-roster"
                                     className="w-full h-full flex items-center gap-2"
                                 >
-                                    <BookOpen />
+                                    <Clipboard />
                                     Class Roster
                                 </Link>
                             </SidebarMenuButton>
@@ -72,7 +72,7 @@ export function NavMain() {
                                     to="/advisor-page"
                                     className="w-full h-full flex items-center gap-2"
                                 >
-                                    <Telescope />
+                                    <Binoculars />
                                     Advisor Page
                                 </Link>
                             </SidebarMenuButton>
@@ -125,45 +125,49 @@ export function NavMain() {
                     <SidebarMenu>
                         {(roles.has('department_chair') ||
                             roles.has('admin_assistant')) && (
-                                <SidebarMenuItem
-                                    key="enrollment-metrics"
-                                    className="text-nowrap"
+                            <SidebarMenuItem
+                                key="enrollment-metrics"
+                                className="text-nowrap"
+                            >
+                                <SidebarMenuButton
+                                    tooltip={'Enrollment Metrics'}
                                 >
-                                    <SidebarMenuButton
-                                        tooltip={'Enrollment Metrics'}
+                                    <Link
+                                        to="/enrollment"
+                                        className="w-full h-full flex items-center gap-2"
                                     >
-                                        <Link
-                                            to="/enrollment"
-                                            className="w-full h-full flex items-center gap-2"
-                                        >
-                                            <ChartColumnIncreasing />
-                                            Enrollment Metrics
-                                        </Link>
-                                    </SidebarMenuButton>
-                                    <SidebarMenuSub>
-                                        <SidebarMenuSubItem>
-                                            <SidebarMenuSubButton className="text-white">
-                                                <Link
-                                                    to="/enrollment/programs"
-                                                    className="w-full h-full flex items-center gap-2"
-                                                >
-                                                    Programs
-                                                </Link>
-                                                <SidebarMenuBadge>{programsCollection.size}</SidebarMenuBadge>
-                                            </SidebarMenuSubButton>
-                                            <SidebarMenuSubButton className="text-white">
-                                                <Link
-                                                    to="/enrollment/courses"
-                                                    className="w-full h-full flex items-center gap-2"
-                                                >
-                                                    Courses
-                                                </Link>
-                                                <SidebarMenuBadge>{coursesCollection.size}</SidebarMenuBadge>
-                                            </SidebarMenuSubButton>
-                                        </SidebarMenuSubItem>
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
-                            )}
+                                        <ChartColumnIncreasing />
+                                        Enrollment Metrics
+                                    </Link>
+                                </SidebarMenuButton>
+                                <SidebarMenuSub>
+                                    <SidebarMenuSubItem>
+                                        <SidebarMenuSubButton className="text-white">
+                                            <Link
+                                                to="/enrollment/programs"
+                                                className="w-full h-full flex items-center gap-2"
+                                            >
+                                                Programs
+                                            </Link>
+                                            <SidebarMenuBadge>
+                                                {programsCollection.size}
+                                            </SidebarMenuBadge>
+                                        </SidebarMenuSubButton>
+                                        <SidebarMenuSubButton className="text-white">
+                                            <Link
+                                                to="/enrollment/courses"
+                                                className="w-full h-full flex items-center gap-2"
+                                            >
+                                                Courses
+                                            </Link>
+                                            <SidebarMenuBadge>
+                                                {coursesCollection.size}
+                                            </SidebarMenuBadge>
+                                        </SidebarMenuSubButton>
+                                    </SidebarMenuSubItem>
+                                </SidebarMenuSub>
+                            </SidebarMenuItem>
+                        )}
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>

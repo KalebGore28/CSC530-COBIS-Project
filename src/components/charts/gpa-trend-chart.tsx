@@ -53,10 +53,7 @@ export const GPATrendChart = ({ gpaTrend }: GPATrendChartProps) => {
 
             <CardContent className="px-2">
                 <ChartContainer config={chartConfig}>
-                    <LineChart
-                        accessibilityLayer
-                        data={gpaTrend}
-                    >
+                    <LineChart accessibilityLayer data={gpaTrend}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="year_term" tickMargin={8} />
                         <YAxis
@@ -68,7 +65,6 @@ export const GPATrendChart = ({ gpaTrend }: GPATrendChartProps) => {
                                 position: 'insideLeft',
 
                                 style: {
-
                                     textAnchor: 'middle',
                                 },
                             }}

@@ -183,7 +183,9 @@ export function TermCourseSelector({
                                                 key={index}
                                                 value={`${course.course_id}-${course.course_section}`}
                                             >
-                                                ({course.course_id}-{course.course_section}): {course.course_title}
+                                                ({course.course_id}-
+                                                {course.course_section}):{' '}
+                                                {course.course_title}
                                             </SelectItem>
                                         ),
                                     )}

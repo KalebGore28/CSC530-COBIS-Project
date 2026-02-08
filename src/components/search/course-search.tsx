@@ -44,9 +44,8 @@ export function CourseSearchBox({
                         ilike(courses.title, `%${query}%`),
                     ),
                 )
-                .orderBy(({ courses }) => courses.subject, 'asc')
-                .orderBy(({ courses }) => courses.number, 'asc')
-                .limit(query !== '' ? 10 : 0),
+                .orderBy(({ courses }) => courses.id, 'asc')
+                .limit(query.length > 0 ? 10 : 0),
         [query], // Re-run when query changes
     )
 

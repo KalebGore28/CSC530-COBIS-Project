@@ -1,11 +1,5 @@
 import { useState } from 'react'
-import {
-    Area,
-    AreaChart,
-    CartesianGrid,
-    XAxis,
-    YAxis,
-} from 'recharts'
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import { and, eq, gte, useLiveQuery } from '@tanstack/react-db'
 import type { GradeKey } from '@/types/grades'
 import {
@@ -26,7 +20,7 @@ import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@/components/ui/chart'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { GRADE_DEFINITION } from '@/types/grades'
 
@@ -45,12 +39,12 @@ type TermGradeDistributionProps = {
 }
 
 const selectItems = [
-    { label: "Last Year", value: '1' },
-    { label: "Last 2 Years", value: "2" },
-    { label: "Last 3 Years", value: "3" },
-    { label: "Last 4 Years", value: "4" },
-    { label: "Last 5 Years", value: "5" },
-    { label: "Last 10 Years", value: "10" },
+    { label: 'Last Year', value: '1' },
+    { label: 'Last 2 Years', value: '2' },
+    { label: 'Last 3 Years', value: '3' },
+    { label: 'Last 4 Years', value: '4' },
+    { label: 'Last 5 Years', value: '5' },
+    { label: 'Last 10 Years', value: '10' },
 ]
 
 export function TermGradeDistribution({
@@ -136,31 +130,15 @@ export function TermGradeDistribution({
         ),
     )
 
-    const midtermTermPercentages = Object.values(
-        midtermTermData.map((term) => {
-            const total = gradeKeys.reduce((sum, g) => sum + term[g], 0)
-            if (total === 0) return term
-            return {
-                ...term,
-                ...Object.fromEntries(
-                    gradeKeys.map((g) => [g, (term[g] / total) * 100]),
-                ),
-            }
-        }),
-    )
+    const midtermTermPercentages = midtermTermData.map((term) => ({
+        ...term,
+        ...toRoundedPercentages(term, gradeKeys),
+    }))
 
-    const finalTermPercentages = Object.values(
-        finalTermData.map((term) => {
-            const total = gradeKeys.reduce((sum, g) => sum + term[g], 0)
-            if (total === 0) return term
-            return {
-                ...term,
-                ...Object.fromEntries(
-                    gradeKeys.map((g) => [g, (term[g] / total) * 100]),
-                ),
-            }
-        }),
-    )
+    const finalTermPercentages = finalTermData.map((term) => ({
+        ...term,
+        ...toRoundedPercentages(term, gradeKeys),
+    }))
 
     return (
         <Card className="gap-0 flex flex-col">
@@ -181,12 +159,8 @@ export function TermGradeDistribution({
                         }
                     >
                         <TabsList className="rounded-lg">
-                            <TabsTrigger value="midterm">
-                                Midterm
-                            </TabsTrigger>
-                            <TabsTrigger value="final">
-                                Final
-                            </TabsTrigger>
+                            <TabsTrigger value="midterm">Midterm</TabsTrigger>
+                            <TabsTrigger value="final">Final</TabsTrigger>
                         </TabsList>
                     </Tabs>
 
@@ -233,7 +207,7 @@ export function TermGradeDistribution({
                                 ? midtermTermPercentages
                                 : finalTermPercentages
                         }
-                        margin={{ top: 40, right: 30, left: 30, bottom: 20 }}
+                        margin={{ top: 20, right: 30, left: 30, bottom: 20 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" tickMargin={8} />
@@ -251,7 +225,9 @@ export function TermGradeDistribution({
                                 },
                             }}
                         />
-                        <ChartTooltip content={<ChartTooltipContent hideLabel />} />
+                        <ChartTooltip
+                            content={<ChartTooltipContent hideLabel />}
+                        />
                         {Object.entries(GRADE_DEFINITION).map(
                             ([grade, config]) => (
                                 <Area
@@ -269,4 +245,39 @@ export function TermGradeDistribution({
             </CardContent>
         </Card>
     )
+}
+
+function toRoundedPercentages(
+    term: TermGradeRow,
+    gradeKeys: Array<GradeKey>,
+): Record<GradeKey, number> {
+    const total = gradeKeys.reduce((s, g) => s + term[g], 0)
+    if (total === 0) return term as Record<GradeKey, number>
+
+    // raw %
+    const raw = gradeKeys.map((g) => ({
+        grade: g,
+        value: (term[g] / total) * 100,
+    }))
+
+    // round to 2 decimals
+    const rounded = raw.map((r) => ({
+        ...r,
+        value: Math.round(r.value * 100) / 100,
+    }))
+
+    // fix remainder
+    const sum = rounded.reduce((s, r) => s + r.value, 0)
+    const diff = Math.round((100 - sum) * 100) / 100
+
+    if (diff !== 0) {
+        // add/subtract remainder to the largest slice
+        const target = [...rounded].sort((a, b) => b.value - a.value)[0]
+        target.value = Math.round((target.value + diff) * 100) / 100
+    }
+
+    return Object.fromEntries(rounded.map((r) => [r.grade, r.value])) as Record<
+        GradeKey,
+        number
+    >
 }

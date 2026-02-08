@@ -99,12 +99,8 @@ export function RosterGradeDistributions({
                         }
                     >
                         <TabsList className="rounded-lg">
-                            <TabsTrigger value="midterm">
-                                Midterm
-                            </TabsTrigger>
-                            <TabsTrigger value="final">
-                                Final
-                            </TabsTrigger>
+                            <TabsTrigger value="midterm">Midterm</TabsTrigger>
+                            <TabsTrigger value="final">Final</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </div>

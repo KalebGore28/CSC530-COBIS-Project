@@ -36,10 +36,10 @@ type ProgramCardProps = {
 }
 
 const termOptions = [
-    { label: "Spring", value: "10" },
-    { label: "Summer", value: "50" },
-    { label: "Fall", value: "80" },
-    { label: "Winter", value: "90" },
+    { label: 'Spring', value: '10' },
+    { label: 'Summer', value: '50' },
+    { label: 'Fall', value: '80' },
+    { label: 'Winter', value: '90' },
 ]
 
 export function ProgramCard({

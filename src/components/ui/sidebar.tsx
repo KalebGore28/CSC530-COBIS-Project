@@ -692,14 +692,14 @@ function SidebarMenuSubButton({
     isActive = false,
     className,
     ...props
-}: useRender.ComponentProps<'a'> &
-    React.ComponentProps<'a'> & {
+}: useRender.ComponentProps<'div'> &
+    React.ComponentProps<'div'> & {
         size?: 'sm' | 'md'
         isActive?: boolean
     }) {
     return useRender({
-        defaultTagName: 'a',
-        props: mergeProps<'a'>(
+        defaultTagName: 'div',
+        props: mergeProps<'div'>(
             {
                 className: cn(
                     'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground data-active:bg-sidebar-accent data-active:text-sidebar-accent-foreground h-7 gap-2 rounded-md px-2 focus-visible:ring-2 data-[size=md]:text-sm data-[size=sm]:text-xs [&>svg]:size-4 flex min-w-0 -translate-x-px items-center overflow-hidden outline-hidden group-data-[collapsible=icon]:hidden disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:shrink-0',

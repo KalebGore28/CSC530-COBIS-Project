@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react'
 import type { courses, programs } from '@/db/schema'
 import type { OperatorVal } from '@/types/operators'
 import type { GradeKey } from '@/types/grades'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardFooter } from '@/components/ui/card'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
 
@@ -151,43 +151,41 @@ export const StudentFilters = ({
                         onSetFilterState={setFilters}
                     />
                 </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 justify-end">
-                    {onResetFilters && (
-                        <button
-                            className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition"
-                            onClick={() => {
-                                setFilters({
-                                    academicLevels: [],
-                                    gpaMax: 4.0,
-                                    gpaMin: 0,
-                                    program: undefined,
-                                    course: undefined,
-                                })
-                                onResetFilters()
-                            }}
-                        >
-                            Reset
-                        </button>
-                    )}
-                    {/* Search button with loader when selected */}
-                    <button
-                        className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-                        onClick={() => onApplyFilters(filters)}
-                        disabled={isLoading}
-                    >
-                        {isLoading ? (
-                            <>
-                                Running...
-                                <Loader2 className="animate-spin h-4 w-4" />
-                            </>
-                        ) : (
-                            'Run Search'
-                        )}
-                    </button>
-                </div>
             </CardContent>
+            <CardFooter className="flex gap-2 justify-end p-2">
+                {onResetFilters && (
+                    <button
+                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition"
+                        onClick={() => {
+                            setFilters({
+                                academicLevels: [],
+                                gpaMax: 4.0,
+                                gpaMin: 0,
+                                program: undefined,
+                                course: undefined,
+                            })
+                            onResetFilters()
+                        }}
+                    >
+                        Reset
+                    </button>
+                )}
+                {/* Search button with loader when selected */}
+                <button
+                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    onClick={() => onApplyFilters(filters)}
+                    disabled={isLoading}
+                >
+                    {isLoading ? (
+                        <>
+                            Running...
+                            <Loader2 className="animate-spin h-4 w-4" />
+                        </>
+                    ) : (
+                        'Run Search'
+                    )}
+                </button>
+            </CardFooter>
         </Card>
     )
 }

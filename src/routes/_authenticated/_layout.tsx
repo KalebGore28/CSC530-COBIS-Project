@@ -45,7 +45,7 @@ function App() {
                 <Toaster richColors />
                 <AppSidebar />
                 <SidebarInset>
-                    {/* <SiteHeader /> */}
+                    <SiteHeader />
                     <Outlet />
                 </SidebarInset>
             </SidebarProvider>

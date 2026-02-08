@@ -1,16 +1,13 @@
 import { useState } from 'react'
-import {
-    Bar,
-    BarChart,
-    CartesianGrid,
-    ResponsiveContainer,
-    Tooltip,
-    XAxis,
-    YAxis,
-} from 'recharts'
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts'
 import type { GradeKey } from '@/types/grades'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+    ChartContainer,
+    ChartTooltip,
+    ChartTooltipContent,
+} from '@/components/ui/chart'
 
 import { GRADE_DEFINITION } from '@/types/grades'
 
@@ -128,7 +125,10 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
                 </div>
             </CardHeader>
             <CardContent className="p-2 w-full h-64">
-                <ResponsiveContainer width="100%" height="100%">
+                <ChartContainer
+                    config={{}}
+                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto h-full pb-0 aspect-auto"
+                >
                     <BarChart
                         data={
                             view === 'final'
@@ -153,9 +153,8 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
                                 },
                             }}
                         />
-                        <Tooltip
-                            wrapperClassName="rounded-lg shadow-lg bg-white/20 backdrop-blur-md border border-white/30 opacity-85 hover:bg-white/30 transition text-black"
-                            formatter={(item) => `${Number(item).toFixed(2)}%`}
+                        <ChartTooltip
+                            content={<ChartTooltipContent hideLabel />}
                         />
                         {Object.entries(GRADE_DEFINITION).map(
                             ([grade, config]) => (
@@ -170,7 +169,7 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
                             ),
                         )}
                     </BarChart>
-                </ResponsiveContainer>
+                </ChartContainer>
             </CardContent>
         </Card>
     )

@@ -1,11 +1,11 @@
 import { Pie, PieChart } from 'recharts'
+import type { GradeKey } from '@/types/grades'
 import {
     ChartContainer,
     ChartTooltip,
     ChartTooltipContent,
-} from "@/components/ui/chart"
+} from '@/components/ui/chart'
 
-import type { GradeKey } from '@/types/grades'
 import { GRADE_DEFINITION } from '@/types/grades'
 
 export type PieChartDonutProps = {
@@ -46,7 +46,12 @@ export function PieChartDonut({ data }: PieChartDonutProps) {
             >
                 <PieChart>
                     <ChartTooltip content={<ChartTooltipContent hideLabel />} />
-                    <Pie data={dataWithColors} dataKey="value" label nameKey="name" />
+                    <Pie
+                        data={dataWithColors}
+                        dataKey="value"
+                        label
+                        nameKey="name"
+                    />
                 </PieChart>
             </ChartContainer>
         </div>
