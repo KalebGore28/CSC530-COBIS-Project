@@ -21,8 +21,8 @@ export const user = mysqlTable('user', {
     image: varchar('image', { length: 255 }).notNull().default(''), // Default to empty string if no image
     createdAt: datetime('created_at').notNull(),
     updatedAt: datetime('updated_at').notNull(),
-    isEnabled: boolean('is_enabled').notNull().default(false), // For security reasons, we'll default to false
     lastLogin: datetime('last_login'), // Default to current time
+    isEnabled: boolean('is_enabled').notNull().default(false), // For security reasons, we'll default to false
 })
 
 export const session = mysqlTable('session', {

@@ -34,7 +34,7 @@ type User = typeof user.$inferSelect
 
 export type ProvisionState = {
     roles: Array<Role> | null
-    isEnabled: boolean
+    isEnabled: boolean | null
     college: College | null
     department: Department | null
     faculty: Faculty | null
@@ -101,31 +101,41 @@ export function UserModal({ userId }: UserCardProps) {
                         setProvisionParams={setProvisionParams}
                     />
 
-                    <span className="font-medium">Department:</span>
-                    <DepartmentSelector
-                        provisionParams={provisionParams}
-                        setProvisionParams={setProvisionParams}
-                    />
+                    <fieldset
+                        disabled={!provisionParams?.faculty}
+                        className={!provisionParams?.faculty ? 'opacity-50' : ''}
+                    >
+                        <span className="font-medium">Department:</span>
+                        <DepartmentSelector
+                            provisionParams={provisionParams}
+                            setProvisionParams={setProvisionParams}
+                        />
+                    </fieldset>
 
-                    <span className="font-medium">College:</span>
-                    <CollegeSelector
-                        provisionParams={provisionParams}
-                        setProvisionParams={setProvisionParams}
-                    />
-
-                    <span className="font-medium">
-                        Enabled:
-                        {user.mnumber === userSession?.user.mnumber && (
-                            <span className="text-sm text-red-500 ml-2">
-                                (Cannot change your own account status)
-                            </span>
-                        )}
-                    </span>
+                    <fieldset
+                        disabled={!provisionParams?.faculty}
+                        className={!provisionParams?.faculty ? 'opacity-50' : ''}
+                    >
+                        <span className="font-medium">College:</span>
+                        <CollegeSelector
+                            provisionParams={provisionParams}
+                            setProvisionParams={setProvisionParams}
+                        />
+                    </fieldset>
 
                     {/* Account Enabled Toggle Conditionally Enabled Based on User */}
                     <fieldset
-                        disabled={user.mnumber === userSession?.user.mnumber}
+                        disabled={!provisionParams?.faculty || user.mnumber === userSession?.user.mnumber}
+                        className={!provisionParams?.faculty ? 'opacity-50' : ''}
                     >
+                        <span className="font-medium">
+                            Enabled:
+                            {user.mnumber === userSession?.user.mnumber && (
+                                <span className="text-sm text-red-500 ml-2">
+                                    (Cannot change your own account status)
+                                </span>
+                            )}
+                        </span>
                         <Tabs
                             defaultValue={user.isEnabled ? 'yes' : 'no'}
                             onValueChange={(value) => {
@@ -152,64 +162,105 @@ export function UserModal({ userId }: UserCardProps) {
                         </Tabs>
                     </fieldset>
 
-                    <span className="font-medium">Roles:</span>
-                    <MultiRoleSelector
-                        userMnumber={user.mnumber || ''}
-                        userRoles={userRoleData.map((r) => r.role.name || '')}
-                        onRolesChange={(value) => {
-                            setProvisionParams((prev) => ({
-                                ...prev!,
-                                roles: value,
-                            }))
-                        }}
-                    />
+                    <fieldset
+                        disabled={!provisionParams?.faculty}
+                        className={!provisionParams?.faculty ? 'opacity-50' : ''}
+                    >
+                        <span className="font-medium">Roles:</span>
+                        <MultiRoleSelector
+                            userMnumber={user.mnumber || ''}
+                            userRoles={userRoleData.map((r) => r.role.name || '')}
+                            onRolesChange={(value) => {
+                                setProvisionParams((prev) => ({
+                                    ...prev!,
+                                    roles: value,
+                                }))
+                            }}
+                        />
+                    </fieldset>
+
                 </div>
                 <DialogFooter className="p-2">
-                    <Button
-                        onClick={() => {
-                            // if (!provisionParamsCompleted) {
-                            //     toast.error(
-                            //         'Please complete all provisioning parameters',
-                            //     )
-                            //     return
-                            // }
+                    {provisionParams && (
+                        <Button
+                            onClick={() => {
+                                const {
+                                    faculty,
+                                    department,
+                                    college,
+                                    roles,
+                                    isEnabled,
+                                } = provisionParams
 
-                            const selfProvisioning =
-                                user.mnumber === userSession?.user.mnumber
+                                if (
+                                    !faculty ||
+                                    !department ||
+                                    !college ||
+                                    !roles ||
+                                    !isEnabled
+                                ) {
+                                    toast.error(
+                                        'Please select faculty, department, college, roles, and enabled status before provisioning.',
+                                    )
+                                    return
+                                }
 
-                            // provision.mutate(
-                            //     {
-                            //         ...provisionParams,
-                            //         // Ensure the user cannot disable their own account. Also handled server-side.
-                            //         isEnabled: selfProvisioning
-                            //             ? true
-                            //             : provisionParams.isEnabled,
-                            //         department: provisionParams.department!,
-                            //         college: provisionParams.college!,
-                            //         faculty: provisionParams.faculty!,
-                            //         user: user,
-                            //     },
-                            //     {
-                            //         onSuccess: () => {
-                            //             toast.success(
-                            //                 'User provisioned successfully',
-                            //             )
-                            //             // Invalidate users query to refresh user data
-                            //             getQueryClient().invalidateQueries({
-                            //                 queryKey: ['users'],
-                            //             })
-                            //         },
-                            //         onError: (err) => {
-                            //             toast.error(err.message)
-                            //         },
-                            //     },
-                            // )
-                            setProvisionParams(undefined)
-                        }}
-                        disabled={provision.isPending}
-                    >
-                        {provision.isPending ? 'Provisioning...' : 'Provision'}
-                    </Button>
+                                console.log('Provisioning with params:', provisionParams)
+
+                                const selfProvisioning =
+                                    user.mnumber === userSession?.user.mnumber
+
+                                usersCollection.update(user.id, (draft) => {
+                                    draft.mnumber =
+                                        faculty.mnumber || user.mnumber
+                                    draft.isEnabled = selfProvisioning
+                                        ? true
+                                        : (isEnabled ?? user.isEnabled)
+                                })
+
+                                facultyCollection.update(faculty.mnumber, (draft) => {
+                                    draft.department_id =
+                                        department.id || draft.department_id
+                                    draft.college_id =
+                                        college.id || draft.college_id
+                                })
+
+                                // provision.mutate(
+                                //     {
+                                //         ...provisionParams,
+                                //         // Ensure the user cannot disable their own account. Also handled server-side.
+                                //         isEnabled: selfProvisioning
+                                //             ? true
+                                //             : provisionParams.isEnabled,
+                                //         department: provisionParams.department!,
+                                //         college: provisionParams.college!,
+                                //         faculty: provisionParams.faculty!,
+                                //         user: user,
+                                //     },
+                                //     {
+                                //         onSuccess: () => {
+                                //             toast.success(
+                                //                 'User provisioned successfully',
+                                //             )
+                                //             // Invalidate users query to refresh user data
+                                //             getQueryClient().invalidateQueries({
+                                //                 queryKey: ['users'],
+                                //             })
+                                //         },
+                                //         onError: (err) => {
+                                //             toast.error(err.message)
+                                //         },
+                                //     },
+                                // )
+                                setProvisionParams(undefined)
+                            }}
+                            disabled={provision.isPending}
+                        >
+                            {provision.isPending
+                                ? 'Provisioning...'
+                                : 'Provision'}
+                        </Button>
+                    )}
                 </DialogFooter>
             </DialogContent>
         </Dialog>

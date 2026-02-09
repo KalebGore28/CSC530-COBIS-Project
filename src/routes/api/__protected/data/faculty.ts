@@ -40,50 +40,25 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                 })
             },
             PUT: async ({ context, request }) => {
-                // Check if user is either cobis_administrator or department_chair
                 const user_roles = context.roles
-                if (
-                    !user_roles.has('cobis_administrator') &&
-                    !user_roles.has('department_chair')
-                ) {
-                    return new Response(
-                        JSON.stringify({ error: 'Unauthorized' }),
-                        {
-                            status: 403,
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        },
-                    )
+
+                // Only allow if user is cobis_administrator
+                if (!user_roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
                 }
 
                 const updatedFaculty: Faculty = await request.json()
 
-                // First check if the faculty member is already assigned to a department
-                const [existingFaculty] = await context.db
-                    .select()
-                    .from(faculty)
-                    .where(eq(faculty.mnumber, updatedFaculty.mnumber))
+                console.log('Received update for faculty:', updatedFaculty)
 
-                if (existingFaculty.department_id) {
-                    return new Response(
-                        JSON.stringify({
-                            error: 'Faculty member is already assigned to a department. If you are trying to change the department, please contact an administrator.',
-                        }),
-                        {
-                            status: 400,
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        },
-                    )
-                }
+                const { mnumber, ...updateData } = updatedFaculty
 
                 await context.db
                     .update(faculty)
                     .set({
-                        department_id: updatedFaculty.department_id,
-                        // college_id: updatedFaculty.college_id, // Uncomment if college_id is allowed to be updated
+                        ...updateData,
+                        first_name: undefined, // prevent updating first_name
+                        last_name: undefined, // prevent updating last_name
                     })
                     .where(eq(faculty.mnumber, updatedFaculty.mnumber))
                     .execute()
