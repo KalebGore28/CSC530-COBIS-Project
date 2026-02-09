@@ -4,6 +4,7 @@ import { seed } from 'drizzle-seed'
 import * as schema from '../../src/db/schema.ts'
 import { closeDb, getDb, resetDb } from './db'
 import { parseCSV } from '@/utils/csv-importer'
+import { invalidateEntireCache } from '@/utils/get-student-access-level.ts'
 
 async function getCSVData(
     filePath: string,
@@ -219,7 +220,7 @@ async function seedTestDatabase() {
                 suffix: f.weightedRandom([
                     {
                         weight: 0.9,
-                        value: f.valuesFromArray({ values: [null] }),
+                        value: f.valuesFromArray({ values: [undefined] }),
                     },
                     {
                         weight: 0.1,
@@ -401,5 +402,7 @@ seedTestDatabase()
         console.error('❌ Error seeding test database:', error)
     })
     .finally(async () => {
+        console.log('Invalidating access cache...')
+        invalidateEntireCache()
         await closeDb()
     })

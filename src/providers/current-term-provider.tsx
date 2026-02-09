@@ -27,7 +27,7 @@ export function useCurrentTerm() {
 }
 
 export function CurrentTermProvider({ children }: { children: JSX.Element }) {
-    const { data, isLoading } = useLiveQuery((q) =>
+    const { data: currentTerm, isLoading } = useLiveQuery((q) =>
         q
             .from({ current_term: currentTermCollection })
             .leftJoin({ terms: termsCollection }, ({ current_term, terms }) =>
@@ -42,9 +42,9 @@ export function CurrentTermProvider({ children }: { children: JSX.Element }) {
     )
 
     const normalizedData = {
-        year: data?.year || 0,
-        term_id: data?.term_id || '',
-        description: data?.description || '',
+        year: currentTerm?.year || 1970,
+        term_id: currentTerm?.term_id || '10',
+        description: currentTerm?.description || 'Spring',
     }
 
     return (

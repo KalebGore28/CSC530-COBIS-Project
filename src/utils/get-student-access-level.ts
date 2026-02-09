@@ -337,3 +337,10 @@ export function invalidateAccessCache(user_mnumber?: string) {
         accessCache.clear()
     }
 }
+
+/**
+ * Manually invalidate entire cache
+ */
+export function invalidateEntireCache() {
+    accessCache.clear()
+}

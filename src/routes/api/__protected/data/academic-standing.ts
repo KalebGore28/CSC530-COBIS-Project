@@ -26,6 +26,7 @@ export const Route = createFileRoute('/api/__protected/data/academic-standing')(
                     })
                 },
                 PUT: async ({ request, context }) => {
+                    
                     // Only allow if user is cobis_administrator
                     if (!context.roles.has('cobis_administrator')) {
                         return new Response('Forbidden', { status: 403 })
