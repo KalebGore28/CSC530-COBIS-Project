@@ -46,7 +46,7 @@ export function StudentDetailModal({
         [studentMnumber],
     )
 
-    const { data: academicInfo } = useLiveQuery(
+    const { data: academicInfoData } = useLiveQuery(
         (q) =>
             q
                 .from({ academicInfo: studentAcademicInfoCollection })
@@ -170,46 +170,46 @@ export function StudentDetailModal({
                         <CardContent className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2">
                             <div>
                                 <strong>MSU GPA:</strong>{' '}
-                                {academicInfo?.[0]?.msu_gpa || 'N/A'}
+                                {academicInfoData[0]?.msu_gpa || 'N/A'}
                             </div>
                             <div>
                                 <strong>Overall GPA:</strong>{' '}
-                                {academicInfo?.[0]?.overall_gpa || 'N/A'}
+                                {academicInfoData[0]?.overall_gpa || 'N/A'}
                             </div>
                             <div>
                                 <strong>MSU Attempted Hours:</strong>{' '}
-                                {academicInfo?.[0]?.msu_attempted_hours ||
+                                {academicInfoData[0]?.msu_attempted_hours ||
                                     'N/A'}
                             </div>
                             <div>
                                 <strong>MSU Earned Hours:</strong>{' '}
-                                {academicInfo?.[0]?.msu_earned_hours || 'N/A'}
+                                {academicInfoData[0]?.msu_earned_hours || 'N/A'}
                             </div>
                             <div>
                                 <strong>Overall Attempted Hours:</strong>{' '}
-                                {academicInfo?.[0]?.overall_attempted_hours ||
+                                {academicInfoData[0]?.overall_attempted_hours ||
                                     'N/A'}
                             </div>
                             <div>
                                 <strong>Overall Earned Hours:</strong>{' '}
-                                {academicInfo?.[0]?.overall_earned_hours ||
+                                {academicInfoData[0]?.overall_earned_hours ||
                                     'N/A'}
                             </div>
                             <div>
                                 <strong>Academic Standing:</strong>{' '}
-                                {academicInfo?.[0]
+                                {academicInfoData[0]
                                     ?.academic_standing_description || ''}
                             </div>
                             <div>
                                 <strong>Admit Year:</strong>{' '}
-                                {academicInfo?.[0]?.admit_year || 'N/A'}
+                                {academicInfoData[0]?.admit_year || 'N/A'}
                             </div>
                         </CardContent>
                     </Card>
 
                     {/* GPA Trend Card */}
                     <GPATrendChart
-                        gpaTrend={academicInfo
+                        gpaTrend={academicInfoData
                             .map((info) => {
                                 return {
                                     term_id: info.term_id,

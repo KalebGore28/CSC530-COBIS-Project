@@ -23,7 +23,7 @@ function RouteComponent() {
     const navigate = useNavigate()
     const [search, setSearch] = useState('')
 
-    const { data: programs, isLoading } = useLiveQuery(
+    const { data: programData, isLoading } = useLiveQuery(
         (q) =>
             q
                 .from({ programs: programsCollection })
@@ -66,7 +66,7 @@ function RouteComponent() {
                             <Skeleton key={i} className="h-12 w-full" />
                         ))}
                     </div>
-                ) : programs.length === 0 ? (
+                ) : programData.length === 0 ? (
                     <p className="text-sm text-muted-foreground italic">
                         No programs found.
                     </p>
@@ -78,7 +78,7 @@ function RouteComponent() {
                             results.
                         </p>
                         <div className="space-y-3">
-                            {programs.map((program) => (
+                            {programData.map((program) => (
                                 <div
                                     key={program.id}
                                     onClick={() =>
@@ -97,14 +97,12 @@ function RouteComponent() {
                                             <p className="text-sm text-muted-foreground">
                                                 {program.description}
                                             </p>
-                                            {program.last_updated && (
-                                                <p className="text-[10px] text-muted-foreground mt-1">
-                                                    Last updated:{' '}
-                                                    {new Date(
-                                                        program.last_updated,
-                                                    ).toLocaleDateString()}
-                                                </p>
-                                            )}
+                                            <p className="text-[10px] text-muted-foreground mt-1">
+                                                Last updated:{' '}
+                                                {new Date(
+                                                    program.last_updated,
+                                                ).toLocaleDateString()}
+                                            </p>
                                         </div>
                                         <div className="flex gap-2 flex-wrap justify-end">
                                             {program.is_major && (

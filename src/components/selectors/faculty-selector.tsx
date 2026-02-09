@@ -26,7 +26,7 @@ export function FacultySelector({
 }: FacultySelectorProps) {
     const [query, setQuery] = useState('')
 
-    const { data: departments } = useLiveQuery(
+    const { data: departmentData } = useLiveQuery(
         (q) =>
             q
                 .from({ departments: departmentsCollection })
@@ -34,7 +34,7 @@ export function FacultySelector({
         [], // Run only once
     )
 
-    const { data: colleges } = useLiveQuery(
+    const { data: collegeData } = useLiveQuery(
         (q) =>
             q
                 .from({ colleges: collegesCollection })
@@ -76,11 +76,11 @@ export function FacultySelector({
                     isEnabled: user?.isEnabled || false,
                     faculty: facultyByUser,
                     department:
-                        departments.find(
+                        departmentData.find(
                             (d) => d.id === facultyByUser.department_id,
                         ) || null,
                     college:
-                        colleges.find(
+                        collegeData.find(
                             (c) => c.id === facultyByUser.college_id,
                         ) || null,
                 })
@@ -134,11 +134,11 @@ export function FacultySelector({
                             isEnabled: user?.isEnabled || false,
                             faculty: faculty,
                             department:
-                                departments.find(
+                                departmentData.find(
                                     (d) => d.id === faculty.department_id,
                                 ) || null,
                             college:
-                                colleges.find(
+                                collegeData.find(
                                     (c) => c.id === faculty.college_id,
                                 ) || null,
                         })
@@ -160,18 +160,16 @@ function FacultyResults({
 
     return (
         <ul className="border rounded-md divide-y">
-            {filteredFaculty.map((faculty) =>
-                faculty ? (
-                    <li
-                        key={faculty.mnumber}
-                        className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() => onSelect(faculty)}
-                    >
-                        <strong>{faculty.mnumber}</strong> —{' '}
-                        {faculty.first_name} {faculty.last_name}
-                    </li>
-                ) : null,
-            )}
+            {filteredFaculty.map((faculty) => (
+                <li
+                    key={faculty.mnumber}
+                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    onClick={() => onSelect(faculty)}
+                >
+                    <strong>{faculty.mnumber}</strong> — {faculty.first_name}{' '}
+                    {faculty.last_name}
+                </li>
+            ))}
         </ul>
     )
 }

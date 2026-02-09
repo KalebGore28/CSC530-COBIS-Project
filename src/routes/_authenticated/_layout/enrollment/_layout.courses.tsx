@@ -23,7 +23,7 @@ function RouteComponent() {
     const navigate = useNavigate()
     const [search, setSearch] = useState('')
 
-    const { data: courses, isLoading } = useLiveQuery(
+    const { data: courseData, isLoading } = useLiveQuery(
         (q) =>
             q
                 .from({ courses: coursesCollection })
@@ -66,7 +66,7 @@ function RouteComponent() {
                             <Skeleton key={i} className="h-12 w-full" />
                         ))}
                     </div>
-                ) : courses.length === 0 ? (
+                ) : courseData.length === 0 ? (
                     <p className="text-sm text-muted-foreground italic">
                         No courses found.
                     </p>
@@ -79,7 +79,7 @@ function RouteComponent() {
                         </p>
 
                         <div className="space-y-3">
-                            {courses.map((course) => (
+                            {courseData.map((course) => (
                                 <div
                                     key={course.id}
                                     onClick={() =>
@@ -110,14 +110,12 @@ function RouteComponent() {
                                         </div>
                                     </div>
 
-                                    {course.last_updated && (
-                                        <p className="text-[10px] text-muted-foreground mt-1">
-                                            Last updated:{' '}
-                                            {new Date(
-                                                course.last_updated,
-                                            ).toLocaleDateString()}
-                                        </p>
-                                    )}
+                                    <p className="text-[10px] text-muted-foreground mt-1">
+                                        Last updated:{' '}
+                                        {new Date(
+                                            course.last_updated,
+                                        ).toLocaleDateString()}
+                                    </p>
                                 </div>
                             ))}
                         </div>

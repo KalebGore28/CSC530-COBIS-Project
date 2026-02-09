@@ -143,11 +143,11 @@ const programs = (await getCSVData('major_minor.csv')).map((row) => ({
     last_updated: new Date(Date.now()),
     department_id: row.department === 'NULL' ? null : row.department,
     college_id: row.college === 'NULL' ? null : row.college,
-    is_major: row.is_major === 'true',
-    is_minor: row.is_minor === 'true',
-    has_concentration: row.has_concentration === 'true',
-    is_discontinued: row.is_discontinued === 'true',
-    is_aacsb: row.is_aacsb === 'true',
+    is_major: row.is_major === '1',
+    is_minor: row.is_minor === '1',
+    has_concentration: row.has_concentration === '1',
+    is_discontinued: row.is_discontinued === '1',
+    is_aacsb: row.is_aacsb === '1',
 })) as Array<typeof schema.programs.$inferSelect>
 
 async function seedStaticLookups(db: ReturnType<typeof getDb>) {

@@ -83,7 +83,7 @@ function RouteComponent() {
         departments.filter((d) => !d.college_id).length || 0
 
     const instructionalMethodsWithUnknownDescription =
-        instructionalMethods?.filter(
+        instructionalMethods.filter(
             (im) => im.description.toLowerCase() === 'unknown',
         ).length || 0
 
@@ -107,7 +107,7 @@ function RouteComponent() {
             <StatusCard
                 title="Admit Codes"
                 isLoading={isAdmitCodesLoading}
-                totalItems={admitCodes?.length}
+                totalItems={admitCodes.length}
                 navigateTo="/cobis-tools/manage-tables/admit-codes"
                 stats={[
                     {
@@ -123,7 +123,7 @@ function RouteComponent() {
             <StatusCard
                 title="Colleges"
                 isLoading={isCollegesLoading}
-                totalItems={colleges?.length}
+                totalItems={colleges.length}
                 navigateTo="/cobis-tools/manage-tables/colleges"
                 stats={[
                     {
@@ -139,7 +139,7 @@ function RouteComponent() {
             <StatusCard
                 title="Courses"
                 isLoading={isCoursesLoading}
-                totalItems={courses?.length}
+                totalItems={courses.length}
                 navigateTo="/cobis-tools/manage-tables/courses"
                 stats={[
                     {
@@ -169,7 +169,7 @@ function RouteComponent() {
             <StatusCard
                 title="Departments"
                 isLoading={isDepartmentsLoading}
-                totalItems={departments?.length}
+                totalItems={departments.length}
                 navigateTo="/cobis-tools/manage-tables/departments"
                 stats={[
                     {
@@ -185,7 +185,7 @@ function RouteComponent() {
             <StatusCard
                 title="Instructional Methods"
                 isLoading={isInstructionalMethodsLoading}
-                totalItems={instructionalMethods?.length}
+                totalItems={instructionalMethods.length}
                 navigateTo="/cobis-tools/manage-tables/instructional-methods"
                 stats={[
                     {
@@ -201,7 +201,7 @@ function RouteComponent() {
             <StatusCard
                 title="Part of Terms"
                 isLoading={isPartOfTermLoading}
-                totalItems={partOfTerm?.length}
+                totalItems={partOfTerm.length}
                 navigateTo="/cobis-tools/manage-tables/part-of-term"
                 stats={[
                     {
@@ -217,7 +217,7 @@ function RouteComponent() {
             <StatusCard
                 title="Programs"
                 isLoading={isProgramsLoading}
-                totalItems={programs?.length}
+                totalItems={programs.length}
                 navigateTo="/cobis-tools/manage-tables/programs"
                 stats={[
                     {
@@ -246,7 +246,7 @@ function RouteComponent() {
             <StatusCard
                 title="Registration Status"
                 isLoading={isRegistrationStatusLoading}
-                totalItems={registrationStatus?.length}
+                totalItems={registrationStatus.length}
                 navigateTo="/cobis-tools/manage-tables/registration-status"
                 stats={[
                     {

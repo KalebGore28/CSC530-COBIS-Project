@@ -72,10 +72,7 @@ export function ProgramSearchBox({
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="major"
-                                checked={
-                                    selected.is_major &&
-                                    (filterState.majorOnly ?? false)
-                                }
+                                checked={filterState.majorOnly ?? false}
                                 disabled={!selected.is_minor} // disable if only major available
                                 onCheckedChange={(checked) => {
                                     const nextMajor = !!checked
@@ -109,10 +106,7 @@ export function ProgramSearchBox({
                         <div className="flex items-center space-x-2">
                             <Checkbox
                                 id="minor"
-                                checked={
-                                    selected.is_minor &&
-                                    (filterState.minorOnly ?? false)
-                                }
+                                checked={filterState.minorOnly ?? false}
                                 disabled={!selected.is_major} // disable if only minor available
                                 onCheckedChange={(checked) => {
                                     const nextMinor = !!checked
@@ -185,62 +179,60 @@ function ProgramResults({
 
     return (
         <ul className="border rounded-md divide-y">
-            {filteredPrograms.map((prog) =>
-                prog ? (
-                    <li
-                        key={prog.id}
-                        className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() => onSelect(prog)}
-                    >
-                        <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
-                            <strong>{prog.id}</strong>
-                            {prog.description}
-                            <div className="space-x-2">
-                                {prog.is_major && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
-                                    >
-                                        Major
-                                    </Badge>
-                                )}
-                                {prog.is_minor && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
-                                    >
-                                        Minor
-                                    </Badge>
-                                )}
-                                {prog.has_concentration && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
-                                    >
-                                        Concentration
-                                    </Badge>
-                                )}
-                                {prog.is_discontinued && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
-                                    >
-                                        Discontinued
-                                    </Badge>
-                                )}
-                                {prog.is_aacsb && (
-                                    <Badge
-                                        variant="outline"
-                                        className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
-                                    >
-                                        AACSB
-                                    </Badge>
-                                )}
-                            </div>
+            {filteredPrograms.map((prog) => (
+                <li
+                    key={prog.id}
+                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    onClick={() => onSelect(prog)}
+                >
+                    <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
+                        <strong>{prog.id}</strong>
+                        {prog.description}
+                        <div className="space-x-2">
+                            {prog.is_major && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
+                                >
+                                    Major
+                                </Badge>
+                            )}
+                            {prog.is_minor && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
+                                >
+                                    Minor
+                                </Badge>
+                            )}
+                            {prog.has_concentration && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
+                                >
+                                    Concentration
+                                </Badge>
+                            )}
+                            {prog.is_discontinued && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
+                                >
+                                    Discontinued
+                                </Badge>
+                            )}
+                            {prog.is_aacsb && (
+                                <Badge
+                                    variant="outline"
+                                    className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
+                                >
+                                    AACSB
+                                </Badge>
+                            )}
                         </div>
-                    </li>
-                ) : null,
-            )}
+                    </div>
+                </li>
+            ))}
         </ul>
     )
 }

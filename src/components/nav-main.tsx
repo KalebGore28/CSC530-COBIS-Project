@@ -27,7 +27,7 @@ export function NavMain() {
     if (!userSession) return null
     const roles = userSession.roles
     const location = useLocation()
-    const { open } = useSidebar()
+    const { open, isMobile } = useSidebar()
 
     function isActive(path: string) {
         const current = location.pathname.replace(/\/$/, '')
@@ -164,7 +164,8 @@ export function NavMain() {
                                 <SidebarMenuButton
                                     tooltip={'Enrollment Metrics'}
                                     isActive={
-                                        open === false &&
+                                        (open === false ||
+                                            isMobile === false) &&
                                         isActive('/enrollment')
                                     }
                                     className="p-1"
@@ -225,7 +226,8 @@ export function NavMain() {
                                 <SidebarMenuButton
                                     tooltip={'COBIS Tools'}
                                     isActive={
-                                        open === false &&
+                                        (open === false ||
+                                            isMobile === false) &&
                                         isActive('/cobis-tools')
                                     }
                                     className="p-1"

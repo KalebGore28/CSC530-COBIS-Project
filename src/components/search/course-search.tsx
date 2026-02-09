@@ -236,20 +236,17 @@ function CourseResults({
 
     return (
         <ul className="border rounded-md divide-y">
-            {filteredCourses.map(
-                (course) =>
-                    course && (
-                        <li
-                            key={course.id}
-                            className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                            onClick={() => {
-                                onSelect(course)
-                            }}
-                        >
-                            <strong> {course.id} </strong> — {course.title}
-                        </li>
-                    ),
-            )}
+            {filteredCourses.map((course) => (
+                <li
+                    key={course.id}
+                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    onClick={() => {
+                        onSelect(course)
+                    }}
+                >
+                    <strong> {course.id} </strong> — {course.title}
+                </li>
+            ))}
         </ul>
     )
 }

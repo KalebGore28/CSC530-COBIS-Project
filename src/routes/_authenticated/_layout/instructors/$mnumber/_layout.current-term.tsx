@@ -131,8 +131,6 @@ function RouteComponent() {
         )
     }
 
-    console.log(currentTermData)
-
     return (
         <Card className="p-0">
             <CardContent className="p-1 m-0 border bg-primary rounded-xl">

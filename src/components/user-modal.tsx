@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { eq, useLiveQuery } from '@tanstack/react-db'
+import { DialogTrigger } from '@radix-ui/react-dialog'
 import type { colleges, departments, faculty, roles, user } from '@/db/schema'
 import { CollegeSelector } from '@/components/selectors/college-selector'
 import { DepartmentSelector } from '@/components/selectors/department-selector'
@@ -12,6 +13,7 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
+    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog'
@@ -19,6 +21,7 @@ import { useProvisionUser } from '@/hooks/use-provision-user'
 import { useAuthentication } from '@/lib/auth-client'
 
 import { usersCollection } from '@/integrations/tanstack-db/users'
+import { facultyCollection } from '@/integrations/tanstack-db/faculty'
 import { userRolesCollection } from '@/integrations/tanstack-db/user-roles'
 import { rolesCollection } from '@/integrations/tanstack-db/roles'
 import { getQueryClient } from '@/integrations/tanstack-query/provider'
@@ -30,7 +33,7 @@ type Faculty = typeof faculty.$inferSelect
 type User = typeof user.$inferSelect
 
 export type ProvisionState = {
-    roles: Array<Role>
+    roles: Array<Role> | null
     isEnabled: boolean
     college: College | null
     department: Department | null
@@ -39,12 +42,10 @@ export type ProvisionState = {
 }
 
 type UserCardProps = {
-    userId: string
-    modalOpen: boolean
-    setModalOpen: (open: boolean) => void
+    userId: string | null
 }
 
-export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
+export function UserModal({ userId }: UserCardProps) {
     const provision = useProvisionUser()
     const { userSession } = useAuthentication()
     const [provisionParams, setProvisionParams] = useState<
@@ -60,7 +61,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
         [userId],
     )
 
-    const { data: userRoles } = useLiveQuery(
+    const { data: userRoleData } = useLiveQuery(
         (q) =>
             q
                 .from({ userRoles: userRolesCollection })
@@ -79,25 +80,11 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
 
     if (isLoading || !user) return null
 
-    // Check if all required provision parameters are set
-    const provisionParamsCompleted =
-        provisionParams &&
-        provisionParams.college &&
-        provisionParams.department &&
-        provisionParams.faculty &&
-        provisionParams.roles?.length > 0 &&
-        provisionParams.isEnabled !== undefined
-
     return (
-        <Dialog
-            open={modalOpen}
-            onOpenChange={(open) => {
-                if (!open) {
-                    setModalOpen(false)
-                    setProvisionParams(undefined)
-                }
-            }}
-        >
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline">View Details</Button>
+            </DialogTrigger>
             <DialogContent className="max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>User Provisioning</DialogTitle>
@@ -127,10 +114,10 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     />
 
                     <span className="font-medium">
-                        Account Enabled:
+                        Enabled:
                         {user.mnumber === userSession?.user.mnumber && (
                             <span className="text-sm text-red-500 ml-2">
-                                (You cannot change your own account status)
+                                (Cannot change your own account status)
                             </span>
                         )}
                     </span>
@@ -168,7 +155,7 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                     <span className="font-medium">Roles:</span>
                     <MultiRoleSelector
                         userMnumber={user.mnumber || ''}
-                        roles={userRoles.map((r) => r.role.name || '')}
+                        userRoles={userRoleData.map((r) => r.role.name || '')}
                         onRolesChange={(value) => {
                             setProvisionParams((prev) => ({
                                 ...prev!,
@@ -176,59 +163,54 @@ export function UserModal({ userId, modalOpen, setModalOpen }: UserCardProps) {
                             }))
                         }}
                     />
-                    <div className="mt-auto flex justify-end space-x-2">
-                        <Button
-                            onClick={() => {
-                                if (!provisionParamsCompleted) {
-                                    toast.error(
-                                        'Please complete all provisioning parameters',
-                                    )
-                                    return
-                                }
-
-                                const selfProvisioning =
-                                    user.mnumber === userSession?.user.mnumber
-
-                                provision.mutate(
-                                    {
-                                        ...provisionParams,
-                                        // Ensure the user cannot disable their own account. Also handled server-side.
-                                        isEnabled: selfProvisioning
-                                            ? true
-                                            : provisionParams.isEnabled,
-                                        department: provisionParams.department!,
-                                        college: provisionParams.college!,
-                                        faculty: provisionParams.faculty!,
-                                        user: user,
-                                    },
-                                    {
-                                        onSuccess: () => {
-                                            toast.success(
-                                                'User provisioned successfully',
-                                            )
-                                            // Invalidate users query to refresh user data
-                                            getQueryClient().invalidateQueries({
-                                                queryKey: ['users'],
-                                            })
-                                        },
-                                        onError: (err) => {
-                                            toast.error(err.message)
-                                        },
-                                    },
-                                )
-                                setModalOpen(false)
-                                setProvisionParams(undefined)
-                            }}
-                            disabled={
-                                provision.isPending || !provisionParamsCompleted
-                            }
-                        >
-                            {provision.isPending
-                                ? 'Provisioning...'
-                                : 'Provision'}
-                        </Button>
-                    </div>
                 </div>
+                <DialogFooter className="p-2">
+                    <Button
+                        onClick={() => {
+                            // if (!provisionParamsCompleted) {
+                            //     toast.error(
+                            //         'Please complete all provisioning parameters',
+                            //     )
+                            //     return
+                            // }
+
+                            const selfProvisioning =
+                                user.mnumber === userSession?.user.mnumber
+
+                            // provision.mutate(
+                            //     {
+                            //         ...provisionParams,
+                            //         // Ensure the user cannot disable their own account. Also handled server-side.
+                            //         isEnabled: selfProvisioning
+                            //             ? true
+                            //             : provisionParams.isEnabled,
+                            //         department: provisionParams.department!,
+                            //         college: provisionParams.college!,
+                            //         faculty: provisionParams.faculty!,
+                            //         user: user,
+                            //     },
+                            //     {
+                            //         onSuccess: () => {
+                            //             toast.success(
+                            //                 'User provisioned successfully',
+                            //             )
+                            //             // Invalidate users query to refresh user data
+                            //             getQueryClient().invalidateQueries({
+                            //                 queryKey: ['users'],
+                            //             })
+                            //         },
+                            //         onError: (err) => {
+                            //             toast.error(err.message)
+                            //         },
+                            //     },
+                            // )
+                            setProvisionParams(undefined)
+                        }}
+                        disabled={provision.isPending}
+                    >
+                        {provision.isPending ? 'Provisioning...' : 'Provision'}
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     )

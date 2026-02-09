@@ -40,8 +40,8 @@ function RouteComponent() {
     const yearTerm = params.yearTerm
     const navigate = useNavigate()
 
-    const termCode = yearTerm?.slice(-2)
-    const year = parseInt(yearTerm?.slice(0, 4) || '0', 10)
+    const termCode = yearTerm.slice(-2)
+    const year = parseInt(yearTerm.slice(0, 4) || '0', 10)
 
     const { data: termHistory, isLoading } = useLiveQuery((q) =>
         q

@@ -83,7 +83,7 @@ function RouteComponent() {
     )
 
     const exportToCSV = () => {
-        if (!programEnrollment || programEnrollment.length === 0) {
+        if (programEnrollment.length === 0) {
             toast.warning(
                 'No enrollment data available to export. Try adjusting the date range.',
             )
@@ -162,35 +162,29 @@ function RouteComponent() {
             {isLoading ? (
                 <Skeleton className="h-64 w-full" />
             ) : (
-                <>
-                    {/* Data Available */}
-                    {programEnrollment && (
-                        <div className="max-w-4xl mx-auto">
-                            <EnrollmentTrends
-                                className="max-w-4xl"
-                                enrollments={
-                                    programEnrollment
-                                        .map((e) => {
-                                            if (!e.term_id || !e.year) {
-                                                return false
-                                            }
+                <div className="max-w-4xl mx-auto">
+                    <EnrollmentTrends
+                        className="max-w-4xl"
+                        enrollments={
+                            programEnrollment
+                                .map((e) => {
+                                    if (!e.term_id || !e.year) {
+                                        return false
+                                    }
 
-                                            return {
-                                                term_id: e.term_id,
-                                                year: e.year,
-                                            } as Enrollment
-                                        })
-                                        .filter(Boolean) as Array<Enrollment>
-                                }
-                                title={`Enrollments for Program ${programCode}`}
-                                description={
-                                    programEnrollment[0]?.description ||
-                                    undefined
-                                }
-                            />
-                        </div>
-                    )}
-                </>
+                                    return {
+                                        term_id: e.term_id,
+                                        year: e.year,
+                                    } as Enrollment
+                                })
+                                .filter(Boolean) as Array<Enrollment>
+                        }
+                        title={`Enrollments for Program ${programCode}`}
+                        description={
+                            programEnrollment[0]?.description || undefined
+                        }
+                    />
+                </div>
             )}
         </div>
     )

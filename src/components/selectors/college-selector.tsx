@@ -100,22 +100,20 @@ function CollegeResults({
 
     return (
         <ul className="border rounded-md divide-y">
-            {filteredColleges.map((college) =>
-                college ? (
-                    <li
-                        key={college.id}
-                        className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() =>
-                            onSelect({
-                                id: college.id,
-                                description: college.description,
-                            })
-                        }
-                    >
-                        <strong>{college.id}</strong> — {college.description}
-                    </li>
-                ) : null,
-            )}
+            {filteredColleges.map((college) => (
+                <li
+                    key={college.id}
+                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    onClick={() =>
+                        onSelect({
+                            id: college.id,
+                            description: college.description,
+                        })
+                    }
+                >
+                    <strong>{college.id}</strong> — {college.description}
+                </li>
+            ))}
         </ul>
     )
 }

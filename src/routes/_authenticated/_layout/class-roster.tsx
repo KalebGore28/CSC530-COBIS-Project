@@ -8,7 +8,6 @@ import type {
 import { useAuthentication } from '@/lib/auth-client'
 
 import { studentsCollection } from '@/integrations/tanstack-db/students'
-// import { studentAcademicInfoCollection } from '@/integrations/tanstack-db/student-academic-info'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
 import { studentCoursesCollection } from '@/integrations/tanstack-db/student-courses'
@@ -76,7 +75,7 @@ function ClassRosterPage() {
 
     if (!userSession || !userSession.user.mnumber) return null
 
-    if (!isLoading && (!instructorCourses || instructorCourses.length === 0)) {
+    if (!isLoading && instructorCourses.length === 0) {
         return (
             <div className="container p-6 mx-auto">
                 <h1 className="text-2xl font-bold mb-4">Class Roster</h1>
@@ -88,7 +87,7 @@ function ClassRosterPage() {
     // Filter instructorCourses based on selectedCourses
     const filteredInstructorCourses =
         selectedTerm && selectedCourse
-            ? instructorCourses?.filter(
+            ? instructorCourses.filter(
                   (course) =>
                       course.year === selectedTerm.year &&
                       course.term_id === selectedTerm.term_id &&

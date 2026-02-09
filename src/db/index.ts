@@ -18,12 +18,6 @@ export function getDb() {
         })
         dbConnection = drizzle({ client: poolConnection, relations })
 
-        if (!poolConnection) {
-            throw new Error(
-                '❌ Failed to create database connection. Please check your environment variables.',
-            )
-        }
-
         console.log(
             `✅ Database connected at ${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`,
         )

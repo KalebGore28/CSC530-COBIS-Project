@@ -84,9 +84,10 @@ export function EditableDataTable<TData, TValue>({
                 <Input
                     placeholder={`Filter by ${activeFilterColumn}...`}
                     value={
-                        (table
+                        table
                             .getColumn(activeFilterColumn)
-                            ?.getFilterValue() as string) ?? ''
+                            ?.getFilterValue()
+                            ?.toString() ?? ''
                     }
                     onChange={(event) =>
                         table
@@ -165,7 +166,7 @@ export function EditableDataTable<TData, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows?.length ? (
+                        {table.getRowModel().rows.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}

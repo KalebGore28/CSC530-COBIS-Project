@@ -21,13 +21,13 @@ interface MultiRoleSelectorProps {
      * Used to prevent removing the "cobis_admin" role from oneself
      */
     userMnumber: string
-    roles?: Array<string>
+    userRoles?: Array<string>
     /** Called whenever the selected roles change */
     onRolesChange?: (selectedRoles: Array<Role>) => void
 }
 export function MultiRoleSelector({
     userMnumber,
-    roles,
+    userRoles,
     onRolesChange,
 }: MultiRoleSelectorProps) {
     const [selectedRoles, setSelectedRoles] = useState<Array<Role>>([])
@@ -44,8 +44,8 @@ export function MultiRoleSelector({
     if (isLoading) return <Skeleton className="h-40 w-full" />
 
     // Initialize from props after data loads, but only if empty
-    if (selectedRoles.length === 0 && roles && rolesList.length > 0) {
-        const mappedRoles = rolesList.filter((r) => roles.includes(r.name))
+    if (selectedRoles.length === 0 && userRoles && rolesList.length > 0) {
+        const mappedRoles = rolesList.filter((r) => userRoles.includes(r.name))
         if (mappedRoles.length > 0) {
             setSelectedRoles(mappedRoles)
             queueMicrotask(() => onRolesChange?.(mappedRoles))

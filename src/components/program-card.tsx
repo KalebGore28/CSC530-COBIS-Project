@@ -35,13 +35,6 @@ type ProgramCardProps = {
     exportData?: () => void
 }
 
-const termOptions = [
-    { label: 'Spring', value: '10' },
-    { label: 'Summer', value: '50' },
-    { label: 'Fall', value: '80' },
-    { label: 'Winter', value: '90' },
-]
-
 export function ProgramCard({
     programCode,
     startYear,
@@ -183,7 +176,7 @@ export function ProgramCard({
                                             <Select
                                                 onValueChange={(value) =>
                                                     setStartYear(
-                                                        parseInt(value ?? ''),
+                                                        parseInt(value),
                                                     )
                                                 }
                                                 value={startYear.toString()}
@@ -219,9 +212,8 @@ export function ProgramCard({
                                                 Term
                                             </Label>
                                             <Select
-                                                items={termOptions}
                                                 onValueChange={(value) =>
-                                                    setStartTerm(value ?? '')
+                                                    setStartTerm(value)
                                                 }
                                                 defaultValue={startTerm}
                                             >
@@ -258,9 +250,7 @@ export function ProgramCard({
                                             </Label>
                                             <Select
                                                 onValueChange={(value) =>
-                                                    setEndYear(
-                                                        parseInt(value ?? ''),
-                                                    )
+                                                    setEndYear(parseInt(value))
                                                 }
                                                 value={endYear.toString()}
                                             >
@@ -295,9 +285,8 @@ export function ProgramCard({
                                                 Term
                                             </Label>
                                             <Select
-                                                items={termOptions}
                                                 onValueChange={(value) =>
-                                                    setEndTerm(value ?? '')
+                                                    setEndTerm(value)
                                                 }
                                                 value={endTerm}
                                             >

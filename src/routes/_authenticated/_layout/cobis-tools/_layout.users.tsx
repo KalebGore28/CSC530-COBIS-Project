@@ -8,7 +8,6 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -45,8 +44,6 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
     const [query, setQuery] = useState('')
-    const [modalOpen, setModalOpen] = useState(false)
-    const [selectedUser, setSelectedUser] = useState<string | null>(null)
 
     const { data: filteredUsers, isLoading } = useLiveQuery(
         (q) =>
@@ -146,28 +143,11 @@ function RouteComponent() {
                                     </div>
                                 </div>
                             </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                    setSelectedUser(user.id)
-                                    setModalOpen(true)
-                                }}
-                            >
-                                View Details
-                            </Button>
+                            <UserModal userId={user.id} />
                         </CardContent>
                     </Card>
                 ))}
             </div>
-
-            {selectedUser && (
-                <UserModal
-                    userId={selectedUser}
-                    modalOpen={modalOpen}
-                    setModalOpen={setModalOpen}
-                />
-            )}
         </div>
     )
 }

@@ -17,8 +17,7 @@ function RouteComponent() {
 
     const { currentTerm, isLoading } = useCurrentTerm()
 
-    if (!userSession || !userSession.user.mnumber || isLoading || !currentTerm)
-        return null
+    if (!userSession || !userSession.user.mnumber || isLoading) return null
 
     return (
         <div>

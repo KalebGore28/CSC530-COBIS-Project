@@ -129,7 +129,7 @@ function RouteComponent() {
 
     const [searchQuery, setSearchQuery] = useState('')
 
-    const { data: faculty, isLoading } = useLiveQuery(
+    const { data: facultyData, isLoading } = useLiveQuery(
         (q) =>
             q
                 .from({ faculty: facultyCollection })
@@ -172,7 +172,7 @@ function RouteComponent() {
             </div>
         )
 
-    if (!faculty || faculty.length === 0) {
+    if (facultyData.length === 0) {
         ;<div className="w-full p-6 mx-auto space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
                 <h2 className="col-span-full text-center font-bold text-2xl">
@@ -190,8 +190,8 @@ function RouteComponent() {
 
     const filteredFaculty =
         searchQuery !== ''
-            ? faculty
-            : faculty.filter(
+            ? facultyData
+            : facultyData.filter(
                   (d) =>
                       d.faculty.department_id ===
                       userSession?.faculty.department_id,

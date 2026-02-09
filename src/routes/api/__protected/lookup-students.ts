@@ -214,6 +214,10 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
 
                 // If no records exist, we can't filter by academic level
                 if (!latestRecord) {
+                    console.warn(
+                        'No academic records found to filter by academic level. Aborting academic level filters.',
+                        latestRecord,
+                    )
                     errors.push(
                         'No academic records found to filter by academic level. Aborting academic level filters.',
                     )

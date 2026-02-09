@@ -38,15 +38,6 @@ type TermGradeDistributionProps = {
     description: string
 }
 
-const selectItems = [
-    { label: 'Last Year', value: '1' },
-    { label: 'Last 2 Years', value: '2' },
-    { label: 'Last 3 Years', value: '3' },
-    { label: 'Last 4 Years', value: '4' },
-    { label: 'Last 5 Years', value: '5' },
-    { label: 'Last 10 Years', value: '10' },
-]
-
 export function TermGradeDistribution({
     mnumber,
     title,
@@ -81,7 +72,7 @@ export function TermGradeDistribution({
         [offset, mnumber, currentTerm],
     )
 
-    if (isLoading) {
+    if (isLoading === true) {
         return null
     }
 
@@ -166,7 +157,6 @@ export function TermGradeDistribution({
 
                     {/* Select offset */}
                     <Select
-                        items={selectItems}
                         defaultValue={'1'}
                         onValueChange={(val) => setOffset(Number(val))}
                     >

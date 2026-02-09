@@ -115,23 +115,21 @@ function DepartmentResults({
 
     return (
         <ul className="border rounded-md divide-y">
-            {filteredDepartments.map((dept) =>
-                dept ? (
-                    <li
-                        key={dept.id}
-                        className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
-                        onClick={() =>
-                            onSelect({
-                                id: dept.id,
-                                description: dept.description,
-                                college_id: null,
-                            })
-                        }
-                    >
-                        <strong>{dept.id}</strong> — {dept.description}
-                    </li>
-                ) : null,
-            )}
+            {filteredDepartments.map((dept) => (
+                <li
+                    key={dept.id}
+                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    onClick={() =>
+                        onSelect({
+                            id: dept.id,
+                            description: dept.description,
+                            college_id: null,
+                        })
+                    }
+                >
+                    <strong>{dept.id}</strong> — {dept.description}
+                </li>
+            ))}
         </ul>
     )
 }

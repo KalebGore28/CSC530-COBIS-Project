@@ -42,22 +42,6 @@ import { programsCollection } from '@/integrations/tanstack-db/programs'
 import { studentProgramsCollection } from '@/integrations/tanstack-db/student-programs'
 import { GRADE_DEFINITION } from '@/types/grades'
 
-const getGradeColorClass = (grade: string | null | undefined) => {
-    if (grade === 'N/A' || !grade)
-        return 'bg-[var(--bg-grade-na)] text-[var(--text-grade-na)] border-[var(--border-grade-na)]'
-    if (grade.startsWith('A'))
-        return 'bg-[var(--bg-grade-a)] text-[var(--text-grade-a)] border-[var(--border-grade-a)]'
-    if (grade.startsWith('B'))
-        return 'bg-[var(--bg-grade-b)] text-[var(--text-grade-b)] border-[var(--border-grade-b)]'
-    if (grade.startsWith('C'))
-        return 'bg-[var(--bg-grade-c)] text-[var(--text-grade-c)] border-[var(--border-grade-c)]'
-    if (grade.startsWith('D'))
-        return 'bg-[var(--bg-grade-d)] text-[var(--text-grade-d)] border-[var(--border-grade-d)]'
-    if (grade.startsWith('E'))
-        return 'bg-[var(--bg-grade-e)] text-[var(--text-grade-e)] border-[var(--border-grade-e)]'
-    return 'bg-[var(--bg-grade-e)] text-[var(--text-grade-e)] border-[var(--border-grade-e)]'
-}
-
 type RequiredStudentCourseProps = {
     mnumber: string
     first_name: string | undefined
@@ -240,23 +224,18 @@ export function RosterStudents({
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
-                    <Select
-                        value={gradeFilter}
-                        onValueChange={(value) =>
-                            setGradeFilter(value ?? 'all')
-                        }
-                    >
+                    <Select value={gradeFilter} onValueChange={setGradeFilter}>
                         <SelectTrigger className="w-full sm:w-40">
                             <Filter className="mr-2 h-4 w-4" />
                             <SelectValue placeholder="Filter" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Grades</SelectItem>
-                            <SelectItem value="A">A</SelectItem>
-                            <SelectItem value="B">B</SelectItem>
-                            <SelectItem value="C">C</SelectItem>
-                            <SelectItem value="D">D</SelectItem>
-                            <SelectItem value="E">E</SelectItem>
+                            {Object.keys(GRADE_DEFINITION).map((grade) => (
+                                <SelectItem key={grade} value={grade}>
+                                    {grade}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                     <Button variant="outline" onClick={exportToCSV}>
@@ -357,7 +336,7 @@ export function RosterStudents({
                                                     className={
                                                         GRADE_DEFINITION[
                                                             student.midterm_grade as GradeKey
-                                                        ]?.className
+                                                        ].className
                                                     }
                                                 >
                                                     {student.midterm_grade ||
@@ -370,7 +349,7 @@ export function RosterStudents({
                                                     className={
                                                         GRADE_DEFINITION[
                                                             student.final_grade as GradeKey
-                                                        ]?.className
+                                                        ].className
                                                     }
                                                 >
                                                     {student.final_grade ||
@@ -431,10 +410,13 @@ export function RosterStudents({
                                             <div className="flex gap-2">
                                                 <Badge
                                                     variant="outline"
-                                                    className={getGradeColorClass(
-                                                        student.midterm_grade ||
-                                                            'N/A',
-                                                    )}
+                                                    className={
+                                                        GRADE_DEFINITION[
+                                                            student.midterm_grade
+                                                                ? (student.midterm_grade as GradeKey)
+                                                                : 'NA'
+                                                        ].className
+                                                    }
                                                 >
                                                     Mid:{' '}
                                                     {student.midterm_grade ||
@@ -442,10 +424,13 @@ export function RosterStudents({
                                                 </Badge>
                                                 <Badge
                                                     variant="outline"
-                                                    className={getGradeColorClass(
-                                                        student.final_grade ||
-                                                            'N/A',
-                                                    )}
+                                                    className={
+                                                        GRADE_DEFINITION[
+                                                            student.final_grade
+                                                                ? (student.final_grade as GradeKey)
+                                                                : 'NA'
+                                                        ].className
+                                                    }
                                                 >
                                                     Final:{' '}
                                                     {student.final_grade ||

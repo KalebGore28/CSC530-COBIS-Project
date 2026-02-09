@@ -34,13 +34,6 @@ type CourseCardProps = {
     exportData?: () => void
 }
 
-const termOptions = [
-    { label: 'Spring', value: '10' },
-    { label: 'Summer', value: '50' },
-    { label: 'Fall', value: '80' },
-    { label: 'Winter', value: '90' },
-]
-
 export function CourseCard({
     courseCode,
     startYear,
@@ -130,7 +123,7 @@ export function CourseCard({
                                 <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {course.hours > 1
                                         ? `${course.hours} hrs`
-                                        : `${course.hours} hr` || 'N/A'}
+                                        : `${course.hours} hr`}
                                 </div>
                             </div>
                         </div>
@@ -157,7 +150,7 @@ export function CourseCard({
                                             <Select
                                                 onValueChange={(value) =>
                                                     setStartYear(
-                                                        parseInt(value ?? ''),
+                                                        parseInt(value),
                                                     )
                                                 }
                                                 value={startYear.toString()}
@@ -193,9 +186,8 @@ export function CourseCard({
                                                 Term
                                             </Label>
                                             <Select
-                                                items={termOptions}
                                                 onValueChange={(value) =>
-                                                    setStartTerm(value ?? '')
+                                                    setStartTerm(value)
                                                 }
                                                 defaultValue={startTerm}
                                             >
@@ -232,9 +224,7 @@ export function CourseCard({
                                             </Label>
                                             <Select
                                                 onValueChange={(value) =>
-                                                    setEndYear(
-                                                        parseInt(value ?? ''),
-                                                    )
+                                                    setEndYear(parseInt(value))
                                                 }
                                                 value={endYear.toString()}
                                             >
@@ -269,9 +259,8 @@ export function CourseCard({
                                                 Term
                                             </Label>
                                             <Select
-                                                items={termOptions}
                                                 onValueChange={(value) =>
-                                                    setEndTerm(value ?? '')
+                                                    setEndTerm(value)
                                                 }
                                                 value={endTerm}
                                             >

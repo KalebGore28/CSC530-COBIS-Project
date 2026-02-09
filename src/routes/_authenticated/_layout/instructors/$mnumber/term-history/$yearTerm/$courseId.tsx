@@ -40,21 +40,13 @@ function RouteComponent() {
         from: '/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/$courseId',
     })
     const mnumber = params.mnumber
-    const yearTerm = params.yearTerm
-    const courseParam = params.courseId
     const navigate = useNavigate()
 
-    const termCode = yearTerm?.slice(-2)
-    const year = parseInt(yearTerm?.slice(0, 4) || '0', 10)
-    const courseProps = courseParam.match(
-        /^([A-Z]+)(\d+)([A-Za-z]*)(?:-|_)(.+)$/,
-    )
-    const course = {
-        course_id: courseProps
-            ? courseProps[1] + courseProps[2] + courseProps[3]
-            : '',
-        section: courseProps ? courseProps[4] : '',
-    }
+    const termCode = params.yearTerm.slice(-2)
+    const year = parseInt(params.yearTerm.slice(0, 4) || '0', 10)
+    const courseProps = params.courseId.match(/^(.+)-(.+)$/)
+    const course_id = courseProps ? courseProps[1] : ''
+    const course_section = courseProps ? courseProps[2] : ''
 
     const { data: instructorCourses, isLoading } = useLiveQuery((q) =>
         q
@@ -64,8 +56,8 @@ function RouteComponent() {
                     eq(studentCourse.instructor_mnumber, mnumber),
                     eq(studentCourse.year, year),
                     eq(studentCourse.term_id, termCode),
-                    eq(studentCourse.course_id, course.course_id),
-                    eq(studentCourse.course_section, course.section),
+                    eq(studentCourse.course_id, course_id),
+                    eq(studentCourse.course_section, course_section),
                 ),
             )
             .leftJoin({ term: termsCollection }, ({ studentCourse, term }) =>
@@ -113,7 +105,7 @@ function RouteComponent() {
             ),
     )
 
-    if (!isLoading && (!instructorCourses || instructorCourses.length === 0)) {
+    if (!isLoading && instructorCourses.length === 0) {
         return (
             <div className="container p-6 mx-auto">
                 <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
@@ -132,7 +124,7 @@ function RouteComponent() {
                     className="w-fit"
                     onClick={() =>
                         navigate({
-                            to: `/instructors/${mnumber}/term-history/${yearTerm}`,
+                            to: `/instructors/${mnumber}/term-history/${params.yearTerm}`,
                         })
                     }
                 >
