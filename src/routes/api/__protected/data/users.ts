@@ -51,6 +51,10 @@ export const Route = createFileRoute('/api/__protected/data/users')({
                     .update(user)
                     .set({
                         ...updateData,
+                        isEnabled:
+                            context.user.mnumber === updatedUser.mnumber
+                                ? true
+                                : updateData.isEnabled, // prevent disabling self
                         createdAt: undefined, // prevent updating createdAt
                         lastLogin: undefined, // prevent updating lastLogin here
                         updatedAt: new Date(updateData.updatedAt), // ensure updatedAt is set to the provided value

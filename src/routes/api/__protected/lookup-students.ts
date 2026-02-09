@@ -200,10 +200,10 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                 }
 
                 // First get the latest year and term_code found in the student_academic_info table
-                const [latestRecord] = await context.db
+                const [currentTerm] = await context.db
                     .select({
-                        max_year: studentAcademicInfo.year,
-                        max_term: studentAcademicInfo.term_id,
+                        year: studentAcademicInfo.year,
+                        term: studentAcademicInfo.term_id,
                     })
                     .from(studentAcademicInfo)
                     .orderBy(
@@ -212,19 +212,8 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                     )
                     .limit(1)
 
-                // If no records exist, we can't filter by academic level
-                if (!latestRecord) {
-                    console.warn(
-                        'No academic records found to filter by academic level. Aborting academic level filters.',
-                        latestRecord,
-                    )
-                    errors.push(
-                        'No academic records found to filter by academic level. Aborting academic level filters.',
-                    )
-                }
-
                 // Academic level filters
-                if (parsed.data.academicLevel && latestRecord) {
+                if (parsed.data.academicLevel) {
                     const levels = Array.isArray(parsed.data.academicLevel)
                         ? parsed.data.academicLevel
                         : [parsed.data.academicLevel]
@@ -290,13 +279,10 @@ export const Route = createFileRoute('/api/__protected/lookup-students')({
                             // @ts-ignore ignore for now
                             and(
                                 or(...validLevelClauses),
-                                eq(
-                                    studentAcademicInfo.year,
-                                    latestRecord.max_year,
-                                ),
+                                eq(studentAcademicInfo.year, currentTerm.year),
                                 eq(
                                     studentAcademicInfo.term_id,
-                                    latestRecord.max_term,
+                                    currentTerm.term,
                                 ),
                             ),
                         )

@@ -49,8 +49,6 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
 
                 const updatedFaculty: Faculty = await request.json()
 
-                console.log('Received update for faculty:', updatedFaculty)
-
                 const { mnumber, ...updateData } = updatedFaculty
 
                 await context.db
