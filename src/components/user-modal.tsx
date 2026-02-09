@@ -90,7 +90,7 @@ export function UserModal({ userId }: UserCardProps) {
                     <DialogTitle>User Provisioning</DialogTitle>
                     <DialogDescription>
                         Detailed information and provisioning options for{' '}
-                        {user.name} ({userId})
+                        {user.name}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-2">
