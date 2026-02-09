@@ -267,7 +267,7 @@ function RouteComponent() {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex flex-col">
-                                            <span className="font-medium">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
+                                            <span className="font-semibold">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
                                             <span className="text-sm text-muted-foreground">
                                                 {d.faculty.mnumber}
                                             </span>

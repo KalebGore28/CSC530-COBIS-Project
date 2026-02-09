@@ -21,7 +21,13 @@ export function AppSidebar() {
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
-                <SidebarMenu>
+                <SidebarMenu
+                    className={
+                        (open || isMobile) === true
+                            ? 'text-white'
+                            : 'text-gray-500'
+                    }
+                >
                     <SidebarMenuItem>
                         <Link to="/dashboard" className="cursor-pointer">
                             <img
@@ -40,7 +46,7 @@ export function AppSidebar() {
                         </Link>
                     </SidebarMenuItem>
                     <SidebarMenuItem className="text-center">
-                        <span
+                        <h1
                             className={
                                 open === true
                                     ? 'text-white text-sm font-semibold text-center text-nowrap'
@@ -48,7 +54,7 @@ export function AppSidebar() {
                             }
                         >
                             COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
-                        </span>
+                        </h1>
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarHeader>

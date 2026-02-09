@@ -164,8 +164,7 @@ export function NavMain() {
                                 <SidebarMenuButton
                                     tooltip={'Enrollment Metrics'}
                                     isActive={
-                                        (open === false ||
-                                            isMobile === false) &&
+                                        (open || isMobile) === false &&
                                         isActive('/enrollment')
                                     }
                                     className="p-1"
@@ -226,8 +225,7 @@ export function NavMain() {
                                 <SidebarMenuButton
                                     tooltip={'COBIS Tools'}
                                     isActive={
-                                        (open === false ||
-                                            isMobile === false) &&
+                                        (open || isMobile) === false &&
                                         isActive('/cobis-tools')
                                     }
                                     className="p-1"

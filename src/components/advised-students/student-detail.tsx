@@ -153,12 +153,11 @@ export function StudentDetailModal({
                 <DialogHeader>
                     <DialogTitle>Student Detail</DialogTitle>
                     <DialogDescription>
-                        Detailed academic information for{' '}
-                        {studentDetails?.first_name} {studentDetails?.last_name}{' '}
-                        ({studentMnumber})
+                        Information for {studentDetails?.first_name}{' '}
+                        {studentDetails?.last_name} ({studentMnumber})
                     </DialogDescription>
                 </DialogHeader>
-                <div className="no-scrollbar -mx-4 max-h-[60vh] overflow-y-auto px-4 space-y-4">
+                <div className="no-scrollbar -mx-4 max-h-[60vh] overflow-y-auto p-4 space-y-4">
                     {/* Student Detail Card */}
                     <Card>
                         <CardHeader>
