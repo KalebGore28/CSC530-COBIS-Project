@@ -1,6 +1,9 @@
 import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
+import { eq } from 'drizzle-orm'
 import { instructionalMethods } from '@/db/schema'
+
+type InstructionalMethod = typeof instructionalMethods.$inferSelect
 
 export const Route = createFileRoute(
     '/api/__protected/data/instructional-methods',
@@ -22,6 +25,25 @@ export const Route = createFileRoute(
                         'Content-Encoding': 'gzip',
                     },
                 })
+            },
+            PUT: async ({ request, context }) => {
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
+                const updatedInstructionalMethod: InstructionalMethod =
+                    await request.json()
+
+                const { id, ...updateData } = updatedInstructionalMethod
+
+                await context.db
+                    .update(instructionalMethods)
+                    .set(updateData)
+                    .where(eq(instructionalMethods.id, id))
+                    .execute()
+
+                return new Response(null, { status: 204 })
             },
         },
     },

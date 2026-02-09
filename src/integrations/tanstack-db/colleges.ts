@@ -15,5 +15,15 @@ export const collegesCollection = createCollection(
         getKey: (college) => college.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
+        onUpdate: async ({ transaction }) => {
+            const { original, modified } = transaction.mutations[0]
+            await fetch(`/api/data/colleges`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...modified,
+                    id: original.id,
+                }),
+            })
+        },
     }),
 )

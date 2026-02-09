@@ -15,5 +15,15 @@ export const registrationStatusCollection = createCollection(
         getKey: (status) => status.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
+        onUpdate: async ({ transaction }) => {
+            const { original, modified } = transaction.mutations[0]
+            await fetch(`/api/data/registration-status`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...modified,
+                    id: original.id,
+                }),
+            })
+        },
     }),
 )

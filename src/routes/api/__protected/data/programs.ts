@@ -23,6 +23,11 @@ export const Route = createFileRoute('/api/__protected/data/programs')({
                 })
             },
             PUT: async ({ request, context }) => {
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
                 const updatedProgram: Program = await request.json()
 
                 const { id, ...updateData } = updatedProgram

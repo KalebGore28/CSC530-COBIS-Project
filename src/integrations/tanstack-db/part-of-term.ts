@@ -15,5 +15,15 @@ export const partOfTermCollection = createCollection(
         getKey: (partOfTerm) => partOfTerm.id,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
+        onUpdate: async ({ transaction }) => {
+            const { original, modified } = transaction.mutations[0]
+            await fetch(`/api/data/part-of-term`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    ...modified,
+                    id: original.id,
+                }),
+            })
+        },
     }),
 )

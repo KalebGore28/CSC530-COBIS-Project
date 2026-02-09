@@ -40,10 +40,8 @@ export const Route = createFileRoute('/api/__protected/data/faculty')({
                 })
             },
             PUT: async ({ context, request }) => {
-                const user_roles = context.roles
-
                 // Only allow if user is cobis_administrator
-                if (!user_roles.has('cobis_administrator')) {
+                if (!context.roles.has('cobis_administrator')) {
                     return new Response('Forbidden', { status: 403 })
                 }
 
