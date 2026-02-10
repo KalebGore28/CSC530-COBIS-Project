@@ -102,11 +102,11 @@ export function NavMain() {
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
-            <SidebarGroup>
-                <SidebarGroupLabel>Administration</SidebarGroupLabel>
-                <SidebarGroupContent>
-                    <SidebarMenu className="space-y-1">
-                        {roles.has('department_chair') && (
+            {roles.has('department_chair') && (
+                <SidebarGroup>
+                    <SidebarGroupLabel>Administration</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu className="space-y-1">
                             <SidebarMenuItem
                                 key="student-lookup"
                                 className="text-nowrap"
@@ -126,8 +126,6 @@ export function NavMain() {
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                        )}
-                        {roles.has('department_chair') && (
                             <SidebarMenuItem
                                 key="instructors"
                                 className="text-nowrap"
@@ -147,10 +145,10 @@ export function NavMain() {
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                        )}
-                    </SidebarMenu>
-                </SidebarGroupContent>
-            </SidebarGroup>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            )}
             {(roles.has('department_chair') ||
                 roles.has('admin_assistant')) && (
                 <SidebarGroup>

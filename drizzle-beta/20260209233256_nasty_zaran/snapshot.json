@@ -1,7 +1,7 @@
 {
     "version": "6",
     "dialect": "mysql",
-    "id": "b29c74a3-77c9-41b3-8084-292561c7bd12",
+    "id": "e983dff8-cbfb-41d4-bfe6-01873db5b517",
     "prevIds": ["00000000-0000-0000-0000-000000000000"],
     "ddl": [
         {
@@ -1805,20 +1805,6 @@
             "table": "user"
         },
         {
-            "type": "boolean",
-            "notNull": true,
-            "autoIncrement": false,
-            "default": "false",
-            "onUpdateNow": false,
-            "onUpdateNowFsp": null,
-            "charSet": null,
-            "collation": null,
-            "generated": null,
-            "name": "is_enabled",
-            "entityType": "columns",
-            "table": "user"
-        },
-        {
             "type": "datetime",
             "notNull": false,
             "autoIncrement": false,
@@ -1829,6 +1815,20 @@
             "collation": null,
             "generated": null,
             "name": "last_login",
+            "entityType": "columns",
+            "table": "user"
+        },
+        {
+            "type": "boolean",
+            "notNull": true,
+            "autoIncrement": false,
+            "default": "false",
+            "onUpdateNow": false,
+            "onUpdateNowFsp": null,
+            "charSet": null,
+            "collation": null,
+            "generated": null,
+            "name": "is_enabled",
             "entityType": "columns",
             "table": "user"
         },
@@ -2216,6 +2216,10 @@
                 },
                 {
                     "value": "year",
+                    "isExpression": false
+                },
+                {
+                    "value": "program_id",
                     "isExpression": false
                 }
             ],

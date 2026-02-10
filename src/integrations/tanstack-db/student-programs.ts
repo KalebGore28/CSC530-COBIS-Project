@@ -13,7 +13,7 @@ export const studentProgramsCollection = createCollection(
             return (await response.json()) as Array<StudentProgram>
         },
         getKey: (studentProgram) =>
-            `${studentProgram.mnumber}-${studentProgram.type}-${studentProgram.program_id}`,
+            `${studentProgram.mnumber}-${studentProgram.term_id}-${studentProgram.year}-${studentProgram.program_id}`,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour
     }),

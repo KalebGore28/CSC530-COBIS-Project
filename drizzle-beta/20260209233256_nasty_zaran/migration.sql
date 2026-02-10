@@ -160,7 +160,7 @@ CREATE TABLE `student_programs` (
 	`type` varchar(50) NOT NULL,
 	`level` varchar(50) NOT NULL,
 	`program_id` varchar(10) NOT NULL,
-	CONSTRAINT `ux_student_programs_idx` UNIQUE INDEX(`mnumber`,`term_id`,`year`),
+	CONSTRAINT `ux_student_programs_idx` UNIQUE INDEX(`mnumber`,`term_id`,`year`,`program_id`),
 	CONSTRAINT `program_type` CHECK(`student_programs`.`type` IN ('MAJOR', 'MINOR')),
 	CONSTRAINT `program_level` CHECK(`student_programs`.`level` IN ('UG', 'GR', 'PB'))
 );
@@ -189,8 +189,8 @@ CREATE TABLE `user` (
 	`image` varchar(255) NOT NULL DEFAULT '',
 	`created_at` datetime NOT NULL,
 	`updated_at` datetime NOT NULL,
-	`is_enabled` boolean NOT NULL DEFAULT false,
 	`last_login` datetime,
+	`is_enabled` boolean NOT NULL DEFAULT false,
 	CONSTRAINT `mnumber_unique` UNIQUE INDEX(`mnumber`),
 	CONSTRAINT `email_unique` UNIQUE INDEX(`email`)
 );

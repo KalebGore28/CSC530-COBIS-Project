@@ -173,7 +173,7 @@ table student_programs {
   program_id varchar(10) [not null]
 
   indexes {
-    (mnumber, term_id, year) [name: 'ux_student_programs_idx', unique]
+    (mnumber, term_id, year, program_id) [name: 'ux_student_programs_idx', unique]
     
     
   }
@@ -203,8 +203,8 @@ table user {
   image varchar(255) [not null, default: '']
   created_at datetime [not null]
   updated_at datetime [not null]
-  is_enabled boolean [not null, default: false]
   last_login datetime
+  is_enabled boolean [not null, default: false]
 }
 
 table user_roles {

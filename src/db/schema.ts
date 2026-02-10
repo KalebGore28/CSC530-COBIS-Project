@@ -323,6 +323,7 @@ export const studentPrograms = mysqlTable(
             table.mnumber,
             table.term_id,
             table.year,
+            table.program_id,
         ),
         check('program_type', sql`${table.type} IN ('MAJOR', 'MINOR')`),
         check('program_level', sql`${table.level} IN ('UG', 'GR', 'PB')`),

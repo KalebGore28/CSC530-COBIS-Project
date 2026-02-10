@@ -7,14 +7,13 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-
 import { authClient } from '@/lib/auth-client'
 
 export const Route = createFileRoute('/waiting')({
     beforeLoad: ({ context }) => {
         if (
             context.userSession?.user.mnumber &&
-            context.userSession.roles.length > 0
+            context.userSession.user.isEnabled
         ) {
             throw redirect({ to: '/' })
         }
@@ -37,7 +36,7 @@ function RouteComponent() {
                         approval.
                     </p>
                 </CardContent>
-                <CardFooter>
+                <CardFooter className="gap-2">
                     <Button
                         onClick={async () => {
                             await authClient.signOut()

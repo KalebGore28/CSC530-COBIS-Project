@@ -13,7 +13,7 @@ export const studentAdvisorsCollection = createCollection(
             return (await response.json()) as Array<StudentAdvisor>
         },
         getKey: (studentAdvisor) =>
-            `${studentAdvisor.advisor_mnumber}-${studentAdvisor.mnumber}-${studentAdvisor.term_id}-${studentAdvisor.year}`,
+            `${studentAdvisor.mnumber}-${studentAdvisor.term_id}-${studentAdvisor.year}`,
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour
     }),

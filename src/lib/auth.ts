@@ -5,11 +5,6 @@ import { getDb } from '@/db'
 
 export const auth = betterAuth({
     session: {
-        // For more info: https://www.better-auth.com/docs/guides/optimizing-for-performance
-        cookieCache: {
-            enabled: true,
-            maxAge: 5 * 60, // Cache duration in seconds
-        },
         // For more info: https://www.better-auth.com/docs/concepts/session-management
         expiresIn: 60 * 60 * 24 * 7, // 7 days
         updateAge: 60 * 60 * 24, // 1 day (every 1 day the session expiration is updated)
