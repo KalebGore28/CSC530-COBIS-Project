@@ -16,7 +16,6 @@ import { departmentsCollection } from '@/integrations/tanstack-db/departments'
 import { instructionalMethodsCollection } from '@/integrations/tanstack-db/instructional-methods'
 import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
 import { registrationStatusCollection } from '@/integrations/tanstack-db/registration-status'
-import { rolesCollection } from '@/integrations/tanstack-db/roles'
 import { termsCollection } from '@/integrations/tanstack-db/terms'
 import { programsCollection } from '@/integrations/tanstack-db/programs'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
@@ -35,7 +34,6 @@ function App() {
     instructionalMethodsCollection.preload()
     partOfTermCollection.preload()
     registrationStatusCollection.preload()
-    rolesCollection.preload()
     termsCollection.preload()
     programsCollection.preload()
     coursesCollection.preload()

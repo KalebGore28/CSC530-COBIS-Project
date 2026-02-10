@@ -2,14 +2,7 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import { eq, useLiveQuery } from '@tanstack/react-db'
 import { DialogTrigger } from '@radix-ui/react-dialog'
-import type {
-    colleges,
-    departments,
-    faculty,
-    roles,
-    user,
-    userRoles,
-} from '@/db/schema'
+import type { colleges, departments, faculty, roles, user } from '@/db/schema'
 import { CollegeSelector } from '@/components/selectors/college-selector'
 import { DepartmentSelector } from '@/components/selectors/department-selector'
 import { FacultySelector } from '@/components/selectors/faculty-selector'
@@ -37,7 +30,6 @@ type Department = typeof departments.$inferSelect
 type College = typeof colleges.$inferSelect
 type Faculty = typeof faculty.$inferSelect
 type User = typeof user.$inferSelect
-type UserRole = typeof userRoles.$inferSelect
 
 export type ProvisionState = {
     roles: Array<Role> | null
@@ -252,9 +244,47 @@ export function UserModal({ userId }: UserCardProps) {
                                         },
                                     )
 
-                                    // Next update roles - this is a bit more complex since it's a many-to-many relationship
+                                    // Get current roles for the user to determine which to add and which to remove
+                                    const currentRoles = userRoleData.map(
+                                        (ur) => ur.role,
+                                    )
+                                    const rolesToAdd = roles.filter(
+                                        (role) =>
+                                            !currentRoles.some(
+                                                (r) => r.id === role.id,
+                                            ),
+                                    )
+                                    const rolesToRemove = currentRoles.filter(
+                                        (role) =>
+                                            !roles.some(
+                                                (r) => r.id === role.id,
+                                            ),
+                                    )
 
-                                    // if it is a self provision, we need to refresh the app to update the session with new roles and permissions
+                                    // Remove all roles associated with the user and then re-add based on selection
+                                    if (rolesToRemove.length > 0) {
+                                        userRolesCollection.delete(
+                                            rolesToRemove.map(
+                                                (role) =>
+                                                    `${user.id}-${role.id}`,
+                                            ) as Array<`${string}-${number}`>,
+                                        )
+                                    }
+
+                                    // Next add the selected roles
+                                    if (rolesToAdd.length > 0) {
+                                        userRolesCollection.insert(
+                                            rolesToAdd.map((role) => ({
+                                                user_id: user.id,
+                                                role_id: role.id,
+                                            })) as Array<{
+                                                user_id: string
+                                                role_id: number
+                                            }>,
+                                        )
+                                    }
+
+                                    // If it is a self provision, we need to refresh the app to update the session with new roles and permissions
                                     if (selfProvisioning) {
                                         toast.success(
                                             'Your account has been updated. The app will refresh to apply new permissions.',

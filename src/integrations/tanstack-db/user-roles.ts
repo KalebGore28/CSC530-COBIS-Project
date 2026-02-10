@@ -14,5 +14,19 @@ export const userRolesCollection = createCollection(
         },
         getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
         queryClient: getQueryClient(),
+        onInsert: async ({ transaction }) => {
+            const newUserRole: UserRole = transaction.mutations[0].modified
+            await fetch(`/api/data/user-roles`, {
+                method: 'POST',
+                body: JSON.stringify(newUserRole),
+            })
+        },
+        onDelete: async ({ transaction }) => {
+            const deletedUserRole: UserRole = transaction.mutations[0].original
+            await fetch(`/api/data/user-roles`, {
+                method: 'DELETE',
+                body: JSON.stringify(deletedUserRole),
+            })
+        },
     }),
 )

@@ -1,26 +1,17 @@
 import { gzipSync } from 'node:zlib'
 import { createFileRoute } from '@tanstack/react-router'
+import { and, eq } from 'drizzle-orm'
 import { userRoles } from '@/db/schema'
+
+type UserRole = typeof userRoles.$inferSelect
 
 export const Route = createFileRoute('/api/__protected/data/user-roles')({
     server: {
         handlers: {
             GET: async ({ context }) => {
-                // Check if user is either cobis_administrator or department_chair
-                const user_roles = context.roles
-                if (
-                    !user_roles.has('cobis_administrator') &&
-                    !user_roles.has('department_chair')
-                ) {
-                    return new Response(
-                        JSON.stringify({ error: 'Unauthorized' }),
-                        {
-                            status: 403,
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                        },
-                    )
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
                 }
 
                 const userRolesResults = await context.db
@@ -37,6 +28,47 @@ export const Route = createFileRoute('/api/__protected/data/user-roles')({
                         'Content-Encoding': 'gzip',
                     },
                 })
+            },
+            POST: async ({ request, context }) => {
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
+                const newUserRole: UserRole = await request.json()
+
+                await context.db.insert(userRoles).values(newUserRole).execute()
+
+                return new Response(null, { status: 201 })
+            },
+            DELETE: async ({ request, context }) => {
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
+                const deletedUserRole: UserRole = await request.json()
+
+                // Make sure the admin doesn't delete their own admin role and lock themselves out
+                if (
+                    deletedUserRole.user_id === context.user.id &&
+                    context.roles.has('cobis_administrator') &&
+                    deletedUserRole.role_id === 4 // Cobis Administrator role ID
+                ) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
+                await context.db
+                    .delete(userRoles)
+                    .where(
+                        and(
+                            eq(userRoles.user_id, deletedUserRole.user_id),
+                            eq(userRoles.role_id, deletedUserRole.role_id),
+                        ),
+                    )
+                    .execute()
+
+                return new Response(null, { status: 204 })
             },
         },
     },

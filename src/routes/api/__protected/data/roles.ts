@@ -6,6 +6,11 @@ export const Route = createFileRoute('/api/__protected/data/roles')({
     server: {
         handlers: {
             GET: async ({ context }) => {
+                // Only allow if user is cobis_administrator
+                if (!context.roles.has('cobis_administrator')) {
+                    return new Response('Forbidden', { status: 403 })
+                }
+
                 const roleResults = await context.db.select().from(roles)
 
                 const json = JSON.stringify(roleResults)
