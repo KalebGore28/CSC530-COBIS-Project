@@ -54,15 +54,6 @@ function InstructorPageSkeleton() {
     )
 }
 
-// Helper function to get initials from name
-const getInitials = (name: string): string => {
-    return name
-        .split(' ')
-        .map((part) => part.charAt(0))
-        .join('')
-        .toUpperCase()
-}
-
 export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/_layout',
 )({
@@ -143,9 +134,7 @@ function RouteComponent() {
                                 alt={instructor.first_name}
                             />
                             <AvatarFallback className="text-2xl">
-                                {getInitials(
-                                    `${instructor.first_name} ${instructor.last_name}`,
-                                )}
+                                {instructor.first_name.charAt(0)}{instructor.last_name.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
                         <div>
