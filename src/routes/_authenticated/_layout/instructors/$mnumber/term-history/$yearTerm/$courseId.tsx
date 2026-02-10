@@ -78,31 +78,22 @@ function RouteComponent() {
             //     ({ studentCourse, studentAcademicInfo }) =>
             //         eq(studentCourse.mnumber, studentAcademicInfo.mnumber),
             // )
-            .select(
-                ({
-                    studentCourse,
-                    term,
-                    course,
-                    // studentAcademicInfo,
-                    student,
-                }) => ({
-                    mnumber: studentCourse.mnumber,
-                    first_name: student?.first_name,
-                    last_name: student?.last_name,
-                    email: student?.email || undefined,
-                    course_id: studentCourse.course_id,
-                    course_section: studentCourse.course_section,
-                    course_title: course?.title,
-                    course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
-                    year: studentCourse.year,
-                    term_id: studentCourse.term_id,
-                    term_description: term?.description,
-                    midterm_grade: studentCourse.midterm_grade,
-                    final_grade: studentCourse.final_grade,
-                    last_attendance: studentCourse.last_attendance,
-                    // student_gpa: studentAcademicInfo?.overall_gpa || null,
-                }),
-            ),
+            .select(({ studentCourse, term, course, student }) => ({
+                mnumber: studentCourse.mnumber,
+                first_name: student?.first_name,
+                last_name: student?.last_name,
+                email: student?.email || undefined,
+                course_id: studentCourse.course_id,
+                course_section: studentCourse.course_section,
+                course_title: course?.title,
+                course_hours: studentCourse.course_hours, // We get the hours from studentCourse to account for variable credit courses
+                year: studentCourse.year,
+                term_id: studentCourse.term_id,
+                term_description: term?.description,
+                midterm_grade: studentCourse.midterm_grade,
+                final_grade: studentCourse.final_grade,
+                last_attendance: studentCourse.last_attendance,
+            })),
     )
 
     if (!isLoading && instructorCourses.length === 0) {

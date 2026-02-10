@@ -38,7 +38,7 @@ const ACCESS_LEVEL = {
 } as const
 
 // Cache configuration
-const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
+const CACHE_TTL = 0 // temp set to 0 for testing, set to 5 * 60 * 1000 (5 minutes) in production to balance performance and data freshness
 
 type TermEntry = {
     student_mnumber: string

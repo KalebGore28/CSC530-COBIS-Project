@@ -134,7 +134,8 @@ function RouteComponent() {
                                 alt={instructor.first_name}
                             />
                             <AvatarFallback className="text-2xl">
-                                {instructor.first_name.charAt(0)}{instructor.last_name.charAt(0)}
+                                {instructor.first_name.charAt(0)}
+                                {instructor.last_name.charAt(0)}
                             </AvatarFallback>
                         </Avatar>
                         <div>

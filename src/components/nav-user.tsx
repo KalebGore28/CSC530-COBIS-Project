@@ -41,7 +41,8 @@ export function NavUser() {
                                     className="rounded-lg"
                                 />
                                 <AvatarFallback className="rounded-lg">
-                                    {userSession.faculty.firstName.charAt(0)}{userSession.faculty.lastName.charAt(0)}
+                                    {userSession.faculty.firstName.charAt(0)}
+                                    {userSession.faculty.lastName.charAt(0)}
                                 </AvatarFallback>
                             </Avatar>
                             <div className="grid flex-1 text-left text-sm leading-tight">
