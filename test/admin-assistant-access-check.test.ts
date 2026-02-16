@@ -1,17 +1,7 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { eq } from 'drizzle-orm'
+import { describe, expect, it } from 'vitest'
 import { getDb as getTestDb } from './helpers/db'
-import {
-    createAccessKey,
-    getStudentAccessLevel,
-    invalidateAccessCache,
-} from '@/utils/get-student-access-level'
-import { faculty, programs } from '@/db/schema'
+import { createAccessKey } from '@/utils/get-student-access-level'
 import { adminAssistantAccessCheck } from '@/utils/access/admin-assistant-check'
-
-vi.mock('@/db', () => ({
-    getDb: () => getTestDb(),
-}))
 
 describe('adminAssistantAccessCheck', () => {
     const db = getTestDb()

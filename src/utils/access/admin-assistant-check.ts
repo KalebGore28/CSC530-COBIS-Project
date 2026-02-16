@@ -39,6 +39,6 @@ export async function adminAssistantAccessCheck(
 
     return {
         accessibleStudents,
-        termAccessMap
+        termAccessMap,
     }
 }
