@@ -3,15 +3,21 @@ import { advisorAccessCheck } from './access-checks/advisor'
 import { departmentChairAccessCheck } from './access-checks/department-chair'
 import { instructorAccessCheck } from './access-checks/instructor-access'
 import { programCoordinatorAccessCheck } from './access-checks/program-coordinator'
-
+import { createTermAccessKey } from './access-checks/utils'
 import type {
     CacheEntry,
     FacultyMNumber,
     TermAccessKey,
     TermEntry,
 } from '@/types/access-checks'
+import type { studentCourses } from '@/db/schema'
 import type { getDb } from '@/db'
 import { ROLES } from '@/types/access-checks'
+
+type StudentCourse = typeof studentCourses.$inferSelect
+type ExtendedCourse = StudentCourse & {
+    department_id: string | null
+}
 
 // Cache configuration
 const CACHE_TTL = 0 // temp set to 0 for testing, set to 5 * 60 * 1000 (5 minutes) in production to balance performance and data freshness
@@ -134,4 +140,63 @@ export async function getStudentTermAccess(
         terms: finalTermAccessMap,
         timestamp: Date.now(),
     }
+}
+
+export function filterStudentCoursesByAccess(
+    userMnumber: string,
+    userDepartmentId: string,
+    studentCourses: Array<ExtendedCourse>,
+    accessibleStudents: Set<string>,
+    termAccessMap: Map<TermAccessKey, TermEntry>,
+) {
+    const filteredCourses: Array<StudentCourse> = []
+
+    for (const course of studentCourses) {
+        // If the student's mnumber is not in the accessible students set, filter out this course
+        if (!accessibleStudents.has(course.mnumber)) continue
+
+        const key = createTermAccessKey(
+            course.mnumber,
+            course.year,
+            course.term_id,
+        )
+        const accessEntry = termAccessMap.get(key)
+
+        // Deny access if there is not an access entry for this student-year-term combination
+        if (!accessEntry) continue
+
+        // If department_id is null for some reason with a course, we deny as we can't verify access
+        if (course.department_id === null) continue
+
+        if (accessEntry.role === ROLES.ADVISOR) {
+            // Advisors have access to all courses for their advisees, so we can include the course without further checks
+            filteredCourses.push(course)
+        } else if (accessEntry.role === ROLES.PROGRAM_COORDINATOR) {
+            // Program Coordinators have access to all courses for students in their programs, so we can include the course without further checks
+            filteredCourses.push(course)
+        } else if (accessEntry.role === ROLES.INSTRUCTOR) {
+            // Instructors only have access to courses they teach, so we need to check if the course's instructor matches the user's mnumber
+            if (course.instructor_mnumber !== userMnumber) continue
+            filteredCourses.push(course)
+        } else if (accessEntry.role === ROLES.DEPARTMENT_CHAIR) {
+            // Department Chairs have access to courses in their department, so we need to check if the course's department matches the user's department
+            if (course.department_id !== userDepartmentId) continue
+            filteredCourses.push(course)
+        } else if (accessEntry.role === ROLES.ADMIN_ASSISTANT) {
+            // Admin Assistants have access to courses in their department but with limited access, so we need to check if the course's department matches the user's department
+            if (course.department_id !== userDepartmentId) continue
+
+            // We need to remove the grade data for courses as Admin Assistants don't have access to grades.
+            filteredCourses.push({
+                ...course,
+                midterm_grade: null,
+                final_grade: null,
+            })
+        } else {
+            // No other role needs to have access
+            continue
+        }
+    }
+
+    return filteredCourses
 }

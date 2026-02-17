@@ -13,11 +13,11 @@ describe('instructorAccessCheck', () => {
 
         // Check that we have the expected students in the accessible set
         expect(accessibleStudents).toBeInstanceOf(Set)
-        expect(accessibleStudents.size).toEqual(36)
+        expect(accessibleStudents.size).toEqual(37)
 
         // Check that termAccessMap has entries and they have the correct structure
         expect(termAccessMap).toBeInstanceOf(Map)
-        expect(termAccessMap.size).toEqual(142)
+        expect(termAccessMap.size).toEqual(143)
 
         // Test the entries
         for (const [_, entry] of termAccessMap.entries()) {
