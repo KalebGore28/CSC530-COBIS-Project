@@ -1,3 +1,12 @@
+/**
+ * - Faculty: Access to students enrolled in their courses
+ * - Advisor: Access to students they advise
+ * - Program Coordinator: Access to students in their programs
+ * - Admin Assistant: Access to students in their department.
+ * - Department Chair: Access to students in their department's programs
+ * - COBIS Administrator: Technically has access to all student data on backend database if they maintain it, but front-end will restrict access unless one of the other roles are present.
+ */
+
 export const ROLES = {
     INSTRUCTOR: 'instructor', // This role is not required to be passed in user_roles, as it's determined by course assignments
     ADVISOR: 'advisor', // This role is not required to be passed in user_roles, as it's determined by advisor assignments
