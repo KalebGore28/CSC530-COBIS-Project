@@ -10,8 +10,8 @@ let db: MySql2Database<typeof schema | typeof relations> | null = null
 let poolConnection: mysql.Pool | null = null
 
 export function getDb() {
-    console.log('Getting Test DB Connection...')
     if (!db) {
+        console.log('Creating new database connection...')
         poolConnection = mysql.createPool({
             host: process.env.DB_HOST,
             port: Number(process.env.DB_PORT),
