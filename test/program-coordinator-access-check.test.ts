@@ -1,7 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
 import { getDb as getTestDb } from './helpers/db'
-import { programCoordinatorAccessCheck } from '@/utils/access/program-coordinator-check'
+import { programCoordinatorAccessCheck } from '@/utils/access-checks/program-coordinator'
 import { programs } from '@/db/schema'
 
 describe('programCoordinatorAccessCheck', () => {
@@ -11,12 +11,12 @@ describe('programCoordinatorAccessCheck', () => {
         // Assign the program coordinator role to the program '1070' for testing purposes
         await db
             .update(programs)
-            .set({ coordinator: 'M100000003' })
+            .set({ coordinator: 'M100000001' })
             .where(eq(programs.id, '1070'))
     })
 
     it('should return correct accessible students and term access for program coordinator', async () => {
-        const userMnumber = 'M100000003'
+        const userMnumber = 'M100000001'
 
         const { accessibleStudents, termAccessMap } =
             await programCoordinatorAccessCheck(db, userMnumber)

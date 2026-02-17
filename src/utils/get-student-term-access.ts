@@ -1,15 +1,16 @@
-import { adminAssistantAccessCheck } from './access/admin-assistant-check'
-import { advisorAccessCheck } from './access/advisor-check'
-import { departmentChairAccessCheck } from './access/department-chair-check'
-import { instructorAccessCheck } from './access/instructor-access-check'
-import { programCoordinatorAccessCheck } from './access/program-coordinator-check'
+import { adminAssistantAccessCheck } from './access-checks/admin-assistant'
+import { advisorAccessCheck } from './access-checks/advisor'
+import { departmentChairAccessCheck } from './access-checks/department-chair'
+import { instructorAccessCheck } from './access-checks/instructor-access'
+import { programCoordinatorAccessCheck } from './access-checks/program-coordinator'
+
 import type {
     CacheEntry,
     FacultyMNumber,
     TermAccessKey,
     TermEntry,
 } from '@/types/access-checks'
-import { getDb } from '@/db'
+import type { getDb } from '@/db'
 import { ROLES } from '@/types/access-checks'
 
 // Cache configuration
@@ -21,15 +22,8 @@ function isCacheValid(timestamp: number): boolean {
     return Date.now() - timestamp < CACHE_TTL
 }
 
-export function createTermAccessKey(
-    mnumber: string,
-    year: number,
-    term_id: string,
-): TermAccessKey {
-    return `${mnumber}:${year}-${term_id}`
-}
-
 export async function getStudentTermAccess(
+    db: ReturnType<typeof getDb>,
     userMnumber: string,
     userRoles: Set<string>,
     userDepartmentId: string,
@@ -53,8 +47,6 @@ export async function getStudentTermAccess(
     console.log(
         `Cache miss for faculty user: ${userMnumber}, fetching from DB...`,
     )
-
-    const db = getDb()
 
     // Set of all accessible student mnumbers (for base table queries)
     const finalAccessibleStudents = new Set<string>()

@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm'
+import { createTermAccessKey } from './utils'
 import type { TermAccessKey, TermEntry } from '@/types/access-checks'
 import type { getDb } from '@/db'
 import { studentCourses } from '@/db/schema'
 
 import { ACCESS_LEVELS, ROLES } from '@/types/access-checks'
-import { createTermAccessKey } from '@/utils/access/utils'
 
 export async function instructorAccessCheck(
     db: ReturnType<typeof getDb>,

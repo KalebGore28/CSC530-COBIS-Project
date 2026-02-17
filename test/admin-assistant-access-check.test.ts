@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { getDb as getTestDb } from './helpers/db'
-import { adminAssistantAccessCheck } from '@/utils/access/admin-assistant-check'
+import { adminAssistantAccessCheck } from '@/utils/access-checks/admin-assistant'
 
 describe('adminAssistantAccessCheck', () => {
     const db = getTestDb()

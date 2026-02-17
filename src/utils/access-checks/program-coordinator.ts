@@ -1,28 +1,30 @@
 import { eq } from 'drizzle-orm'
+import { createTermAccessKey } from './utils'
 import type { TermAccessKey, TermEntry } from '@/types/access-checks'
 import type { getDb } from '@/db'
-import { studentAdvisors } from '@/db/schema'
+import { programs, studentPrograms } from '@/db/schema'
 
 import { ACCESS_LEVELS, ROLES } from '@/types/access-checks'
-import { createTermAccessKey } from '@/utils/access/utils'
 
-export async function advisorAccessCheck(
+export async function programCoordinatorAccessCheck(
     db: ReturnType<typeof getDb>,
     userMnumber: string,
 ) {
     const accessibleStudents = new Set<string>()
     const termAccessMap = new Map<TermAccessKey, TermEntry>()
 
-    const advisedStudents = await db
+    const studentMnumbers = await db
         .select({
-            student_mnumber: studentAdvisors.mnumber,
-            term_id: studentAdvisors.term_id,
-            year: studentAdvisors.year,
+            student_mnumber: studentPrograms.mnumber,
+            term_id: studentPrograms.term_id,
+            year: studentPrograms.year,
         })
-        .from(studentAdvisors)
-        .where(eq(studentAdvisors.advisor_mnumber, userMnumber))
+        .from(studentPrograms)
+        // INNER JOIN: only include students actively enrolled in valid programs for which this user is the coordinator
+        .innerJoin(programs, eq(studentPrograms.program_id, programs.id))
+        .where(eq(programs.coordinator, userMnumber))
 
-    advisedStudents.forEach((s) => {
+    studentMnumbers.forEach((s) => {
         // Add to overall accessible students
         accessibleStudents.add(s.student_mnumber)
 
@@ -30,8 +32,8 @@ export async function advisorAccessCheck(
         const key = createTermAccessKey(s.student_mnumber, s.year, s.term_id)
         termAccessMap.set(key, {
             accessLevel: ACCESS_LEVELS.FULL,
-            reason: 'advisor',
-            role: ROLES.ADVISOR,
+            reason: 'within_program',
+            role: ROLES.PROGRAM_COORDINATOR,
         })
     })
 
