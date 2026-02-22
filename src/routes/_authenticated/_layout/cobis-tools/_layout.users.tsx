@@ -6,6 +6,7 @@ import {
     CardContent,
     CardDescription,
     CardHeader,
+    CardAction,
     CardTitle,
 } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +19,12 @@ import { departmentsCollection } from '@/integrations/tanstack-db/departments'
 import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 import { UserModal } from '@/components/user-modal'
+import {
+    Avatar,
+    AvatarImage,
+    AvatarFallback,
+    AvatarBadge,
+} from '@/components/ui/avatar'
 
 const getInitials = (name: string | null | undefined): string => {
     if (!name) {
@@ -107,26 +114,45 @@ function RouteComponent() {
             <div className="w-full max-w-3xl mx-auto space-y-2">
                 {filteredUsers.map((user) => (
                     <Card key={user.id} className="hover:shadow-md">
+                        <CardHeader>
+                            <Avatar className="h-8 w-8">
+                                <AvatarImage
+                                    src={user.image ?? ''}
+                                    alt={user.name}
+                                />
+                                <AvatarFallback className="h-8 w-8">
+                                    {user.name.charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
+                            <CardTitle className="space-x-2">
+                                <span>{user.name}</span>
+                                <Badge
+                                    variant={
+                                        user.isEnabled
+                                            ? 'default'
+                                            : 'destructive'
+                                    }
+                                >
+                                    {user.isEnabled ? 'Enabled' : 'Disabled'}
+                                </Badge>
+                            </CardTitle>
+                            {user.mnumber === null && (
+                                <CardAction>
+                                    <Badge
+                                        variant="secondary"
+                                        className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
+                                    >
+                                        Action Required
+                                    </Badge>
+                                </CardAction>
+                            )}
+                        </CardHeader>
                         <CardContent className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                                 <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center text-lg font-semibold text-white">
                                     {getInitials(user.name)}
                                 </div>
                                 <div>
-                                    <div className="font-medium flex items-center space-x-2">
-                                        <span>{user.name}</span>
-                                        <Badge
-                                            variant={
-                                                user.isEnabled
-                                                    ? 'default'
-                                                    : 'destructive'
-                                            }
-                                        >
-                                            {user.isEnabled
-                                                ? 'Enabled'
-                                                : 'Disabled'}
-                                        </Badge>
-                                    </div>
                                     <div className="text-sm text-gray-500">
                                         {user.email}
                                     </div>

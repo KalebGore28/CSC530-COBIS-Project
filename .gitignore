@@ -1,14 +1,7 @@
 node_modules
 .DS_Store
 dist
-dist-ssr
 *.local
-count.txt
 .env
-.env.docker
-.env.development
 .tanstack
-.output
-.vinxi
 routeTree.gen.ts
-tmp

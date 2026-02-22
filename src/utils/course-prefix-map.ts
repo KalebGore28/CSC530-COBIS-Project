@@ -3,8 +3,8 @@ import { coursePrefixes } from '@/db/schema'
 import { getDb } from '@/db'
 
 type CoursePrefixValue = {
-    department_code: string | null
-    college_code: string | null
+    department_id: string | null
+    college_id: string | null
 }
 
 let cache: {
@@ -18,18 +18,18 @@ async function loadCache(): Promise<Map<string, CoursePrefixValue>> {
     const db = getDb()
     const rows = await db
         .select({
-            code: coursePrefixes.code,
-            department_code: coursePrefixes.department_code,
-            college_code: coursePrefixes.college_code,
+            id: coursePrefixes.id,
+            department_id: coursePrefixes.department_id,
+            college_id: coursePrefixes.college_id,
         })
         .from(coursePrefixes)
 
     const map = new Map<string, CoursePrefixValue>()
 
     for (const row of rows) {
-        map.set(row.code, {
-            department_code: row.department_code,
-            college_code: row.college_code,
+        map.set(row.id, {
+            department_id: row.department_id,
+            college_id: row.college_id,
         })
     }
 
@@ -57,15 +57,15 @@ export async function getCoursePrefix(
     await db
         .insert(coursePrefixes)
         .values({
-            code: prefix,
-            department_code: null,
-            college_code: null,
+            id: prefix,
+            department_id: null,
+            college_id: null,
         })
-        .onDuplicateKeyUpdate({ set: { code: sql`code` } })
+        .onDuplicateKeyUpdate({ set: { id: sql`id` } })
 
     const emptyValue: CoursePrefixValue = {
-        department_code: null,
-        college_code: null,
+        department_id: null,
+        college_id: null,
     }
 
     cache.map.set(prefix, emptyValue)

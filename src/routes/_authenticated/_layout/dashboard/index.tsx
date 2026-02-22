@@ -3,7 +3,13 @@ import { TermGradeDistribution } from '@/components/charts/term-grade-distributi
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { useAuthentication } from '@/lib/auth-client'
 
+import { usersCollection } from '@/integrations/tanstack-db/users'
+import { UserManangementCard } from '@/components/dashboard/user-management-card'
+
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
+    beforeLoad: () => {
+        usersCollection.preload()
+    },
     component: DashboardPage,
 })
 
@@ -17,6 +23,11 @@ function DashboardPage() {
 
     return (
         <div className="container p-6 mx-auto space-y-6">
+            {userSession.roles.has('cobis_administrator') && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <UserManangementCard />
+                </div>
+            )}
             {gradeDistributionRoles.some((role) =>
                 userSession.roles.has(role),
             ) &&
