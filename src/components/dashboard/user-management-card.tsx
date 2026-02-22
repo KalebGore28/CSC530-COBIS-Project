@@ -46,13 +46,13 @@ export function UserManangementCard() {
         >
             <CardHeader>
                 <CardTitle>User Management</CardTitle>
-                <CardDescription className="text-2xl tabular-nums @[250px]/card:text-3xl">
+                <CardDescription className="text-lg">
                     {hasNewUsers ? (
                         <div className="flex items-baseline gap-2">
                             <span className="text-orange-600 dark:text-orange-500">
                                 {newUsers.length}
                             </span>
-                            <span className="text-xl">
+                            <span>
                                 {newUsers.length === 1
                                     ? 'user waiting to be assigned'
                                     : 'users waiting to be assigned'}
@@ -65,7 +65,7 @@ export function UserManangementCard() {
                     )}
                     <div className="flex items-baseline gap-2">
                         <span>{totalLatestLogins}</span>
-                        <span className="text-xl">
+                        <span>
                             {totalLatestLogins === 1
                                 ? 'user logged in the past week'
                                 : 'users logged in the past week'}
