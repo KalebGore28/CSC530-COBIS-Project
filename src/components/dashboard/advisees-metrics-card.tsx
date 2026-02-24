@@ -1,3 +1,4 @@
+import { and, eq, useLiveQuery } from '@tanstack/react-db'
 import {
     Card,
     CardDescription,
@@ -10,10 +11,27 @@ import { useNavigate } from '@tanstack/react-router'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { BookUser } from 'lucide-react'
 
+import { studentAdvisorsCollection } from '@/integrations/tanstack-db/student-advisors'
+
 export function AdviseesMetricCard({ mnumber }: { mnumber: string }) {
     const navigate = useNavigate()
 
     const { currentTerm, isLoading: isCurrentTermLoading } = useCurrentTerm()
+
+    const { data: advisedStudents, isLoading: isAdvisedStudentsLoading } =
+        useLiveQuery((q) =>
+            q
+                .from({ studentAdvisors: studentAdvisorsCollection })
+                .where(({ studentAdvisors }) =>
+                    and(
+                        eq(studentAdvisors.advisor_mnumber, mnumber),
+                        eq(studentAdvisors.year, currentTerm.year),
+                        eq(studentAdvisors.term_id, currentTerm.term_id),
+                    ),
+                ),
+        )
+
+    if (isCurrentTermLoading || isAdvisedStudentsLoading) return null
 
     return (
         <Card
@@ -29,9 +47,15 @@ export function AdviseesMetricCard({ mnumber }: { mnumber: string }) {
                 </div>
                 <CardDescription className="flex flex-wrap gap-2">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-lg font-bold">{1}</span>
+                        <span className="text-lg font-bold">
+                            {advisedStudents.length}
+                        </span>
 
-                        <span>advised students</span>
+                        <span>
+                            {advisedStudents.length === 1
+                                ? 'advised student'
+                                : 'advised students'}
+                        </span>
                     </div>
                 </CardDescription>
             </CardHeader>

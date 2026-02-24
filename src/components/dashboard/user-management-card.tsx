@@ -55,7 +55,7 @@ export function UserManangementCard() {
                 <CardDescription className="text-lg">
                     {hasNewUsers ? (
                         <div className="flex items-baseline gap-2">
-                            <span className="text-orange-600 dark:text-orange-500">
+                            <span className="text-lg font-bold">
                                 {newUsers.length}
                             </span>
                             <span>
@@ -70,7 +70,9 @@ export function UserManangementCard() {
                         </span>
                     )}
                     <div className="flex items-baseline gap-2">
-                        <span>{totalLatestLogins}</span>
+                        <span className="text-lg font-bold">
+                            {totalLatestLogins}
+                        </span>
                         <span>
                             {totalLatestLogins === 1
                                 ? 'user logged in the past week'
