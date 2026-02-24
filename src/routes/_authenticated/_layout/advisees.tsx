@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { useAuthentication } from '@/lib/auth-client'
 
+import { Separator } from '@/components/ui/separator'
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card'
 import { StudentDetailModal } from '@/components/advised-students/student-detail'
 
@@ -20,8 +21,10 @@ function RouteComponent() {
     if (!userSession || !userSession.user.mnumber || isLoading) return null
 
     return (
-        <div>
-            <div className="mx-auto p-6 w-full">
+        <div className="container p-6 mx-auto space-y-6">
+            <>
+                <h2 className="text-2xl">Current Advisees</h2>
+
                 <AdvisedStudentsCard
                     advisorMnumber={userSession.user.mnumber}
                     term_info={currentTerm}
@@ -36,7 +39,12 @@ function RouteComponent() {
                         studentMnumber={selectedStudent}
                     />
                 )}
-            </div>
+                <Separator />
+            </>
+            <>
+                <h2 className="text-2xl">Past Advisees</h2>
+                <span>WIP</span>
+            </>
         </div>
     )
 }
