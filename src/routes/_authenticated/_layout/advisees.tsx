@@ -6,7 +6,7 @@ import { useAuthentication } from '@/lib/auth-client'
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card'
 import { StudentDetailModal } from '@/components/advised-students/student-detail'
 
-export const Route = createFileRoute('/_authenticated/_layout/advisor-page')({
+export const Route = createFileRoute('/_authenticated/_layout/advisees')({
     component: RouteComponent,
 })
 

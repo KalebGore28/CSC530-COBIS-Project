@@ -10,6 +10,7 @@ import { UserManangementCard } from '@/components/dashboard/user-management-card
 import { TableManangementCard } from '@/components/dashboard/table-management-card'
 import { ImportCard } from '@/components/dashboard/import-card'
 import { CurrentTermMetricCard } from '@/components/dashboard/current-courses-metric-card'
+import { AdviseesMetricCard } from '@/components/dashboard/advisees-metrics-card'
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     beforeLoad: () => {
@@ -47,14 +48,17 @@ function DashboardPage() {
                         <h2 className="text-2xl">
                             Performance/Metrics Overview
                         </h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <TermGradeDistribution
                                 mnumber={userSession.user.mnumber}
-                                className="col-span-3"
+                                className="col-span-2"
                                 title="Term Grade Distributions"
                                 description="View the distribution of class grades over your recent terms. (Each term represents all respective class grades combined)"
                             />
                             <CurrentTermMetricCard
+                                mnumber={userSession.user.mnumber}
+                            />
+                            <AdviseesMetricCard
                                 mnumber={userSession.user.mnumber}
                             />
                         </div>

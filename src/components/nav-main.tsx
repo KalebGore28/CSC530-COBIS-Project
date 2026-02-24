@@ -1,5 +1,5 @@
 import {
-    Binoculars,
+    BookUser,
     ChartColumnIncreasing,
     Clipboard,
     Compass,
@@ -91,11 +91,11 @@ export function NavMain() {
                                 asChild
                             >
                                 <Link
-                                    to="/advisor-page"
+                                    to="/advisees"
                                     className="w-full h-full flex items-center gap-2"
                                 >
-                                    <Binoculars />
-                                    Advisor Page
+                                    <BookUser />
+                                    Advisees
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
