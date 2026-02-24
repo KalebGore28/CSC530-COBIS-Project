@@ -75,7 +75,15 @@ export function TermCourseSelector({
     // Run once to select the first term and its first course by default
     useEffect(() => {
         if (!selectedTerm && terms.size > 0) {
-            const firstTerm = terms.values().next().value
+            const firstTerm = Array.from(terms.values()).sort((a, b) => {
+                // Sort by year DESC
+                if (a.year !== b.year) {
+                    return b.year - a.year
+                }
+
+                // Sort by term_id DESC (90, 80, 50, 10)
+                return Number(b.term_id) - Number(a.term_id)
+            })[0]
             setSelectedTerm(firstTerm)
             const newTermCourses = extractTermCourses(studentCourses, firstTerm)
             newTermCourses &&
@@ -132,16 +140,28 @@ export function TermCourseSelector({
                                 <SelectValue placeholder="Select Term" />
                             </SelectTrigger>
                             <SelectContent>
-                                {Array.from(terms.values()).map(
-                                    (term, index) => (
+                                {Array.from(terms.values())
+                                    .sort((a, b) => {
+                                        // Sort by year DESC
+                                        if (a.year !== b.year) {
+                                            return b.year - a.year
+                                        }
+
+                                        // Sort by term_id DESC (90, 80, 50, 10)
+                                        return (
+                                            Number(b.term_id) -
+                                            Number(a.term_id)
+                                        )
+                                    })
+
+                                    .map((term, index) => (
                                         <SelectItem
                                             key={index}
                                             value={`${term.term_id}-${term.year}`}
                                         >
                                             {term.term_description} {term.year}
                                         </SelectItem>
-                                    ),
-                                )}
+                                    ))}
                             </SelectContent>
                         </Select>
                     </CardContent>
