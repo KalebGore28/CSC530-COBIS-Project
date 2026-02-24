@@ -26,11 +26,14 @@ function DashboardPage() {
     return (
         <div className="container p-6 mx-auto space-y-6">
             {userSession.roles.has('cobis_administrator') && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <UserManangementCard />
-                    <TableManangementCard />
-                    <ImportCard />
-                </div>
+                <>
+                    <h2 className="text-2xl">Admin Tools</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <UserManangementCard />
+                        <TableManangementCard />
+                        <ImportCard />
+                    </div>
+                </>
             )}
             {gradeDistributionRoles.some((role) =>
                 userSession.roles.has(role),
@@ -42,8 +45,6 @@ function DashboardPage() {
                         description="View the distribution of class grades over your recent terms."
                     />
                 )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
         </div>
     )
 }

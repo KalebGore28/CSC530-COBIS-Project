@@ -1,5 +1,6 @@
-import { ilike, isNull, useLiveQuery, or } from '@tanstack/react-db'
+import { ilike, isNull, or, useLiveQuery } from '@tanstack/react-db'
 import { useNavigate } from '@tanstack/react-router'
+import { Table } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
 import { academicStandingCollection } from '@/integrations/tanstack-db/academic-standing'
@@ -174,11 +175,16 @@ export function TableManangementCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full"
+            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
             onClick={() => navigate({ to: '/cobis-tools/manage-tables' })}
         >
             <CardHeader className="h-full">
-                <CardTitle>Table Management</CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950">
+                        <Table className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <CardTitle>Table Management</CardTitle>
+                </div>
                 <CardDescription className="text-lg">
                     {issuesSummary.slice(0, 2).map((issue) => (
                         <div

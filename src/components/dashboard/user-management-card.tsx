@@ -1,5 +1,6 @@
 import { isNull, useLiveQuery } from '@tanstack/react-db'
 import { useNavigate } from '@tanstack/react-router'
+import { Users } from 'lucide-react'
 import { usersCollection } from '@/integrations/tanstack-db/users'
 import { Badge } from '@/components/ui/badge'
 
@@ -41,11 +42,16 @@ export function UserManangementCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full"
+            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
             onClick={() => navigate({ to: '/cobis-tools/users' })}
         >
             <CardHeader className="h-full">
-                <CardTitle>User Management</CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950">
+                        <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <CardTitle>User Management</CardTitle>
+                </div>
                 <CardDescription className="text-lg">
                     {hasNewUsers ? (
                         <div className="flex items-baseline gap-2">
