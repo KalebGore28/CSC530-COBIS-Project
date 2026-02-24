@@ -83,6 +83,19 @@ export function TermCourseSelector({
         }
     }, [terms])
 
+    const uniqueStudents = new Set(
+        studentCourses
+            .filter((s) => {
+                if (
+                    s.year === selectedCourse?.year &&
+                    s.term_id === selectedCourse.term_id
+                )
+                    return true
+                return false
+            })
+            .map((s) => s.mnumber),
+    ).size
+
     return (
         <Card className={className}>
             <CardHeader>
@@ -136,12 +149,16 @@ export function TermCourseSelector({
                         <CardFooter className="flex flex-wrap gap-2">
                             <Badge
                                 variant="outline"
-                                className="bg-green-50 dark:bg-green-900"
+                                className="bg-green-50 dark:bg-green-900 gap-1"
                             >
-                                {selectedTerm.studentCount}{' '}
-                                {selectedTerm.studentCount === 1
-                                    ? 'Student'
-                                    : 'Students'}
+                                <span>
+                                    {selectedTerm.studentCount}{' '}
+                                    {selectedTerm.studentCount === 1
+                                        ? 'Student'
+                                        : 'Students'}
+                                </span>
+                                <span>|</span>
+                                <span>{uniqueStudents} Unique</span>
                             </Badge>
                             <Badge
                                 variant="outline"

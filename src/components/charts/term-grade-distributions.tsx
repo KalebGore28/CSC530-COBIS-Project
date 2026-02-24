@@ -36,12 +36,14 @@ type TermGradeDistributionProps = {
     mnumber: string
     title: string
     description: string
+    className?: string
 }
 
 export function TermGradeDistribution({
     mnumber,
     title,
     description,
+    className,
 }: TermGradeDistributionProps) {
     const { currentTerm } = useCurrentTerm()
     const [offset, setOffset] = useState(1) // in years
@@ -132,7 +134,7 @@ export function TermGradeDistribution({
     }))
 
     return (
-        <Card className="gap-0 flex flex-col">
+        <Card className={`gap-0 flex flex-col ${className}`}>
             <CardHeader className="items-center border-b-0 pb-0">
                 {/* Left column: title + description */}
                 <div className="text-center sm:text-left">
