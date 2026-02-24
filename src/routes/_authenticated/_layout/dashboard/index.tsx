@@ -5,6 +5,8 @@ import { useAuthentication } from '@/lib/auth-client'
 
 import { usersCollection } from '@/integrations/tanstack-db/users'
 import { UserManangementCard } from '@/components/dashboard/user-management-card'
+import { TableManangementCard } from '@/components/dashboard/table-management-card'
+import { ImportCard } from '@/components/dashboard/import-card'
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     beforeLoad: () => {
@@ -26,6 +28,8 @@ function DashboardPage() {
             {userSession.roles.has('cobis_administrator') && (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <UserManangementCard />
+                    <TableManangementCard />
+                    <ImportCard />
                 </div>
             )}
             {gradeDistributionRoles.some((role) =>

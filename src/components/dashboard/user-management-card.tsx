@@ -41,10 +41,10 @@ export function UserManangementCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer"
+            className="hover:shadow-lg cursor-pointer h-full"
             onClick={() => navigate({ to: '/cobis-tools/users' })}
         >
-            <CardHeader>
+            <CardHeader className="h-full">
                 <CardTitle>User Management</CardTitle>
                 <CardDescription className="text-lg">
                     {hasNewUsers ? (
