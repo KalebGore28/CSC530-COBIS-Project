@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useCurrentTerm } from '@/providers/current-term-provider'
 import { useAuthentication } from '@/lib/auth-client'
 
-import { Separator } from '@/components/ui/separator'
+// import { Separator } from '@/components/ui/separator'
 import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card'
 import { StudentDetailModal } from '@/components/advised-students/student-detail'
 
@@ -39,11 +39,6 @@ function RouteComponent() {
                         studentMnumber={selectedStudent}
                     />
                 )}
-                <Separator />
-            </>
-            <>
-                <h2 className="text-2xl">Past Advisees</h2>
-                <span>WIP</span>
             </>
         </div>
     )

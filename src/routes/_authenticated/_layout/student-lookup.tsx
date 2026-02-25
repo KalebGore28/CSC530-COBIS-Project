@@ -14,7 +14,14 @@ import { coursesCollection } from '@/integrations/tanstack-db/courses'
 import { programsCollection } from '@/integrations/tanstack-db/programs'
 import { StudentFilters } from '@/components/student-filter'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card'
 
 import { StudentLookupTable } from '@/components/tables/student-lookup-table'
 import { Button } from '@/components/ui/button'
@@ -216,9 +223,10 @@ function StudentLookup() {
             {data && currentFilters && (
                 <Card className="w-full">
                     <CardHeader className="flex items-center justify-between">
-                        <h2 className="text-lg font-semibold">
-                            Student Lookup
-                        </h2>
+                        <CardTitle>Student Lookup</CardTitle>
+                        <CardDescription>
+                            Results are limited to students in your department.
+                        </CardDescription>
                         <Button variant="outline" onClick={exportToCSV}>
                             <Download className="mr-2 h-4 w-4" />
                             Export as CSV

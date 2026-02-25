@@ -1,15 +1,15 @@
 import { and, eq, useLiveQuery } from '@tanstack/react-db'
+import { useNavigate } from '@tanstack/react-router'
+import { BookUser } from 'lucide-react'
 import {
     Card,
     CardDescription,
+    CardFooter,
     CardHeader,
     CardTitle,
-    CardFooter,
 } from '@/components/ui/card'
-import { useNavigate } from '@tanstack/react-router'
 
 import { useCurrentTerm } from '@/providers/current-term-provider'
-import { BookUser } from 'lucide-react'
 
 import { studentAdvisorsCollection } from '@/integrations/tanstack-db/student-advisors'
 

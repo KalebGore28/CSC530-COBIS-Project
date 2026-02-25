@@ -107,7 +107,7 @@ function RouteComponent() {
                 </CardContent>
             </Card>
 
-            <div className="w-full max-w-4xl mx-auto space-y-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2">
                 {filteredUsers.map((user) => (
                     <Card
                         key={user.id}
