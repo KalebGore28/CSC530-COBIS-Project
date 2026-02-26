@@ -28,7 +28,7 @@ function DashboardPage() {
     const { isLoading } = useCurrentTerm()
 
     return (
-        <div className="container p-6 mx-auto space-y-6">
+        <div className="container p-4 mx-auto space-y-6">
             {userSession.roles.has('cobis_administrator') && (
                 <>
                     <h2 className="text-2xl">Maintainence Tools</h2>

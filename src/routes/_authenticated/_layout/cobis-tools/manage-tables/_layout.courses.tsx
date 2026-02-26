@@ -10,7 +10,7 @@ type RouteParams = {
 }
 
 export const Route = createFileRoute(
-    '/_authenticated/_layout/cobis-tools/manage-tables/courses',
+    '/_authenticated/_layout/cobis-tools/manage-tables/_layout/courses',
 )({
     component: RouteComponent,
     validateSearch: (search): RouteParams => {

@@ -77,7 +77,7 @@ function ClassRosterPage() {
 
     if (!isLoading && instructorCourses.length === 0) {
         return (
-            <div className="container p-6 mx-auto">
+            <div className="container p-4 mx-auto">
                 <h1 className="text-2xl font-bold mb-4">Class Roster</h1>
                 <p>You are not listed as the instructor for any courses.</p>
             </div>
@@ -97,7 +97,7 @@ function ClassRosterPage() {
             : instructorCourses
 
     return (
-        <div className="container p-6 mx-auto space-y-6">
+        <div className="container p-4 mx-auto space-y-6">
             <h1 className="text-2xl font-bold">Class Roster</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">

@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate  } from '@tanstack/react-router'
+import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
 import { ilike, isNull, or, useLiveQuery } from '@tanstack/react-db'
+import { ExternalLink } from 'lucide-react'
 
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -203,16 +204,21 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {academicStandings.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {academicStandings.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link
+                            to={'/cobis-tools/manage-tables/academic-standings'}
+                        >
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {academicStandings.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -244,16 +250,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {admitCodes.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {admitCodes.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/admit-codes'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {admitCodes.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -285,16 +294,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {colleges.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {colleges.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/colleges'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {colleges.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -354,16 +366,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {courses.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {courses.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/courses'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {courses.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -407,16 +422,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {departments.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {departments.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/departments'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {departments.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -448,16 +466,23 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {instructionalMethods.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {instructionalMethods.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link
+                            to={
+                                '/cobis-tools/manage-tables/instructional-methods'
+                            }
+                        >
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {instructionalMethods.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -489,16 +514,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {partOfTerms.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {partOfTerms.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/part-of-terms'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {partOfTerms.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -558,16 +586,19 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {programs.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {programs.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/programs'}>
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>
                 </CardHeader>
                 {programs.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
@@ -611,16 +642,23 @@ function RouteComponent() {
                             </span>
                         )}
                     </CardDescription>
-                    {registrationStatuses.length > 0 && (
-                        <CardAction>
+                    <CardAction className="flex gap-2">
+                        {registrationStatuses.length > 0 && (
                             <Badge
                                 variant="secondary"
                                 className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
                             >
                                 Action Required
                             </Badge>
-                        </CardAction>
-                    )}
+                        )}
+                        <Link
+                            to={
+                                '/cobis-tools/manage-tables/registration-statuses'
+                            }
+                        >
+                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                        </Link>
+                    </CardAction>{' '}
                 </CardHeader>
                 {registrationStatuses.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">

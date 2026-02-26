@@ -20,7 +20,7 @@ import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 function InstructorPageSkeleton() {
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-6">
             {/* Profile section */}
             <Card>
                 <CardContent>
@@ -123,7 +123,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="p-6 space-y-6">
+        <div className="p-4 space-y-6">
             {/* Profile picture and info */}
             <Card>
                 <CardContent>

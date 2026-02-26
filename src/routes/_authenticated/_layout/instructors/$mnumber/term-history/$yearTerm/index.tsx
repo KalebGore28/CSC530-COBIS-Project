@@ -115,7 +115,7 @@ function RouteComponent() {
     })
 
     return (
-        <div className="w-full mx-auto p-6 space-y-6">
+        <div className="w-full mx-auto p-4 space-y-6">
             {/* Statistics summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="w-full col-span-3">

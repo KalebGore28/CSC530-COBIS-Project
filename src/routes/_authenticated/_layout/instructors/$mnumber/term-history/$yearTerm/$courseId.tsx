@@ -98,7 +98,7 @@ function RouteComponent() {
 
     if (!isLoading && instructorCourses.length === 0) {
         return (
-            <div className="container p-6 mx-auto">
+            <div className="container p-4 mx-auto">
                 <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
                 <p>No roster found for this course.</p>
             </div>
@@ -106,7 +106,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="w-full mx-auto p-6 space-y-6">
+        <div className="w-full mx-auto p-4 space-y-6">
             <div className="flex flex-col">
                 {/* Back button */}
                 <Button
