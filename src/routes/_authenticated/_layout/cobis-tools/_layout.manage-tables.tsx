@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { ilike, isNull, or, useLiveQuery } from '@tanstack/react-db'
 import { ExternalLink } from 'lucide-react'
 
@@ -42,8 +42,6 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const navigate = useNavigate()
-
     const { data: academicStandings, isLoading: isAcademicStandingsLoading } =
         useLiveQuery((q) =>
             q
@@ -223,9 +221,14 @@ function RouteComponent() {
                 {academicStandings.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={'/cobis-tools/manage-tables/academic-standings'}
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -267,9 +270,14 @@ function RouteComponent() {
                 {admitCodes.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={'/cobis-tools/manage-tables/admit-codes'}
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -311,9 +319,14 @@ function RouteComponent() {
                 {colleges.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={'/cobis-tools/manage-tables/colleges'}
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -384,19 +397,34 @@ function RouteComponent() {
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
                         {coursesWithoutTitle > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                Title
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/courses'}
+                                search={{ filterColumn: 'title' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    Title
+                                </Badge>
+                            </Link>
                         )}
                         {coursesWithoutDepartment > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                Department
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/courses'}
+                                search={{ filterColumn: 'description' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    Description
+                                </Badge>
+                            </Link>
                         )}
                         {coursesWithoutCollege > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                College
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/courses'}
+                                search={{ filterColumn: 'college' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    College
+                                </Badge>
+                            </Link>
                         )}
                     </CardFooter>
                 )}
@@ -439,9 +467,14 @@ function RouteComponent() {
                 {departments.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={'/cobis-tools/manage-tables/departments'}
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -487,9 +520,16 @@ function RouteComponent() {
                 {instructionalMethods.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={
+                                '/cobis-tools/manage-tables/instructional-methods'
+                            }
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -531,9 +571,14 @@ function RouteComponent() {
                 {partOfTerms.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={'/cobis-tools/manage-tables/part-of-terms'}
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
@@ -604,19 +649,34 @@ function RouteComponent() {
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
                         {programsWithoutDescription > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                Description
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/programs'}
+                                search={{ filterColumn: 'description' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    Description
+                                </Badge>
+                            </Link>
                         )}
                         {programsWithoutDepartment > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                Department
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/programs'}
+                                search={{ filterColumn: 'department' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    Department
+                                </Badge>
+                            </Link>
                         )}
                         {programsWithoutCollege > 0 && (
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                                College
-                            </Badge>
+                            <Link
+                                to={'/cobis-tools/manage-tables/programs'}
+                                search={{ filterColumn: 'college' }}
+                            >
+                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                    College
+                                </Badge>
+                            </Link>
                         )}
                     </CardFooter>
                 )}
@@ -663,9 +723,16 @@ function RouteComponent() {
                 {registrationStatuses.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5 text-sm">
                         <span>Problems to resolve:</span>
-                        <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
-                            Description
-                        </Badge>
+                        <Link
+                            to={
+                                '/cobis-tools/manage-tables/registration-statuses'
+                            }
+                            search={{ filterColumn: 'description' }}
+                        >
+                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                Description
+                            </Badge>
+                        </Link>
                     </CardFooter>
                 )}
             </Card>
