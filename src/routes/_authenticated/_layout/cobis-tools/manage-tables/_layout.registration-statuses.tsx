@@ -1,16 +1,16 @@
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute(
-  '/_authenticated/_layout/cobis-tools/manage-tables/_layout/registration-statuses',
+    '/_authenticated/_layout/cobis-tools/manage-tables/_layout/registration-statuses',
 )({
-  component: RouteComponent,
+    component: RouteComponent,
 })
 
 function RouteComponent() {
-  return (
-    <div>
-      Hello
-      "/_authenticated/_layout/cobis-tools/manage-tables/_layout/registration-statuses"!
-    </div>
-  )
+    return (
+        <div>
+            Hello
+            "/_authenticated/_layout/cobis-tools/manage-tables/_layout/registration-statuses"!
+        </div>
+    )
 }

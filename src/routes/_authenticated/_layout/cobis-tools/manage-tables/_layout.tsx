@@ -1,11 +1,12 @@
 import {
-    createFileRoute,
     Outlet,
+    createFileRoute,
     useLocation,
     useNavigate,
 } from '@tanstack/react-router'
-import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/manage-tables/_layout',
 )({
