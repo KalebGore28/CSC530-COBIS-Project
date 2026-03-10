@@ -89,7 +89,13 @@ export function TermCourseSelector({
             newTermCourses &&
                 setSelectedCourse(newTermCourses.values().next().value)
         }
-    }, [terms])
+    }, [
+        terms,
+        setSelectedCourse,
+        setSelectedTerm,
+        selectedTerm,
+        studentCourses,
+    ])
 
     const uniqueStudents = new Set(
         studentCourses

@@ -101,7 +101,7 @@ export function useSetBreadcrumb(
         if (title === null) {
             setSegmentTitle(segment, undefined)
         }
-    }, [segment, title])
+    }, [segment, title, setSegmentTitle])
 }
 
 // Add this hook to be used in the SiteHeader component
