@@ -13,7 +13,7 @@ export const Route = createFileRoute(
     '/_authenticated/_layout/enrollment/_layout/programs',
 )({
     beforeLoad: () => {
-        programsCollection.preload()
+        void programsCollection.preload()
     },
     component: RouteComponent,
 })

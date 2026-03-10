@@ -36,8 +36,8 @@ export const Route = createFileRoute('/_authenticated/_layout/student-lookup')({
         ) {
             throw redirect({ to: '/login' })
         }
-        programsCollection.preload()
-        coursesCollection.preload()
+        void programsCollection.preload()
+        void coursesCollection.preload()
     },
     component: StudentLookup,
 })
@@ -155,7 +155,7 @@ function StudentLookup() {
 
     // trigger fetch automatically
     if (inView && hasNextPage && !isFetching) {
-        fetchNextPage()
+        void fetchNextPage()
     }
 
     const exportToCSV = () => {

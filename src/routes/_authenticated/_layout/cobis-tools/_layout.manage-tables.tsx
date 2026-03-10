@@ -28,15 +28,15 @@ export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/manage-tables',
 )({
     beforeLoad: () => {
-        academicStandingCollection.preload()
-        admitCodesCollection.preload()
-        collegesCollection.preload()
-        coursesCollection.preload()
-        departmentsCollection.preload()
-        instructionalMethodsCollection.preload()
-        partOfTermCollection.preload()
-        programsCollection.preload()
-        registrationStatusCollection.preload()
+        void academicStandingCollection.preload()
+        void admitCodesCollection.preload()
+        void collegesCollection.preload()
+        void coursesCollection.preload()
+        void departmentsCollection.preload()
+        void instructionalMethodsCollection.preload()
+        void partOfTermCollection.preload()
+        void programsCollection.preload()
+        void registrationStatusCollection.preload()
     },
     component: RouteComponent,
 })

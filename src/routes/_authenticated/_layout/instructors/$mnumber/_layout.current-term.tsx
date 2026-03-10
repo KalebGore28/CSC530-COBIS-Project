@@ -73,7 +73,7 @@ export const Route = createFileRoute(
     '/_authenticated/_layout/instructors/$mnumber/_layout/current-term',
 )({
     beforeLoad: () => {
-        coursesCollection.preload()
+        void coursesCollection.preload()
     },
     component: RouteComponent,
 })

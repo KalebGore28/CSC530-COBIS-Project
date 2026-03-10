@@ -37,10 +37,10 @@ export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/users',
 )({
     beforeLoad: () => {
-        usersCollection.preload()
-        facultyCollection.preload()
-        departmentsCollection.preload()
-        collegesCollection.preload()
+        void usersCollection.preload()
+        void facultyCollection.preload()
+        void departmentsCollection.preload()
+        void collegesCollection.preload()
     },
     component: RouteComponent,
 })

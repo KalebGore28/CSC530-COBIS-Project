@@ -14,7 +14,7 @@ import { AdviseesMetricCard } from '@/components/dashboard/advisees-metrics-card
 
 export const Route = createFileRoute('/_authenticated/_layout/dashboard/')({
     beforeLoad: () => {
-        usersCollection.preload()
+        void usersCollection.preload()
     },
     component: DashboardPage,
 })

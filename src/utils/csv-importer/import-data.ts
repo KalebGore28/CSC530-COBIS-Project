@@ -154,7 +154,7 @@ export const importData = async (
                                 : dataConformer(value, column)
                             // console.log(columnName, mapped[columnName])
                         } catch (err) {
-                            emit({
+                            void emit({
                                 type: 'error',
                                 data: {
                                     table: tableName,

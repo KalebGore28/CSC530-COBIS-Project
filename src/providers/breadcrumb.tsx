@@ -35,7 +35,7 @@ export function BreadcrumbProvider({ children }: BreadcrumbProviderProps) {
         try {
             const saved = localStorage.getItem('breadcrumb-overrides')
             return saved ? JSON.parse(saved) : {}
-        } catch (e) {
+        } catch  {
             return {}
         }
     })

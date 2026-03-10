@@ -26,17 +26,17 @@ export const Route = createFileRoute('/_authenticated/_layout')({
 
 function App() {
     // Preload all small to midsized collections for faster access throughout the app
-    currentTermCollection.preload()
-    academicStandingCollection.preload()
-    admitCodesCollection.preload()
-    collegesCollection.preload()
-    departmentsCollection.preload()
-    instructionalMethodsCollection.preload()
-    partOfTermCollection.preload()
-    registrationStatusCollection.preload()
-    termsCollection.preload()
-    programsCollection.preload()
-    coursesCollection.preload()
+    void currentTermCollection.preload()
+    void academicStandingCollection.preload()
+    void admitCodesCollection.preload()
+    void collegesCollection.preload()
+    void departmentsCollection.preload()
+    void instructionalMethodsCollection.preload()
+    void partOfTermCollection.preload()
+    void registrationStatusCollection.preload()
+    void termsCollection.preload()
+    void programsCollection.preload()
+    void coursesCollection.preload()
 
     return (
         <CurrentTermProvider>

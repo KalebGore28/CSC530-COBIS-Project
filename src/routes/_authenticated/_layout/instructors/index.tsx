@@ -114,10 +114,10 @@ export const Route = createFileRoute('/_authenticated/_layout/instructors/')({
             throw redirect({ to: '/login' })
         }
 
-        facultyCollection.preload()
-        departmentsCollection.preload()
-        collegesCollection.preload()
-        usersCollection.preload()
+        void facultyCollection.preload()
+        void departmentsCollection.preload()
+        void collegesCollection.preload()
+        void usersCollection.preload()
     },
     component: RouteComponent,
 })
@@ -282,7 +282,7 @@ function RouteComponent() {
                                 email: d.users?.email ?? 'N/A',
                             }))}
                             onRowSelect={(row) => {
-                                navigate({
+                                void navigate({
                                     to: `/instructors/${row.mnumber}`,
                                 })
                             }}

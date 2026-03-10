@@ -25,7 +25,7 @@ export const signOut = async () => {
 
     await authClient.signOut()
     await queryClient.invalidateQueries()
-    router.invalidate()
+    void router.invalidate()
 }
 
 export const useAuthentication = () => {

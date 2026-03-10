@@ -80,7 +80,7 @@ function RouteComponent() {
     const handleImport = () => {
         if (!selectedFile || !csvData) return
         setDrawerOpen(true)
-        sendImport()
+        void sendImport()
     }
 
     return (

@@ -14,10 +14,10 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const location = useLocation()
+    
     const navigate = useNavigate()
 
-    const table = location.pathname.split('/').pop()
+    
 
     return (
         <div className="w-full mx-auto p-4">

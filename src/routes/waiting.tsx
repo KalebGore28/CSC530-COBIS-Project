@@ -40,7 +40,7 @@ function RouteComponent() {
                     <Button
                         onClick={async () => {
                             await authClient.signOut()
-                            navigate({ to: '/login' })
+                            void navigate({ to: '/login' })
                         }}
                     >
                         Log Out
