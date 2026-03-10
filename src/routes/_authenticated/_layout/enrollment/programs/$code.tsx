@@ -29,9 +29,13 @@ function RouteComponent() {
     const navigate = useNavigate()
     const programCode = params.code
 
-    const [startYear, setStartYear] = useState<number>(new Date().getFullYear())
+    const [startYear, setStartYear] = useState<number>(() =>
+        new Date().getFullYear(),
+    )
     const [startTerm, setStartTerm] = useState<string>('10')
-    const [endYear, setEndYear] = useState<number>(new Date().getFullYear())
+    const [endYear, setEndYear] = useState<number>(() =>
+        new Date().getFullYear(),
+    )
     const [endTerm, setEndTerm] = useState<string>('90')
 
     const { data: programEnrollment, isLoading } = useLiveQuery(

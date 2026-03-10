@@ -23,9 +23,8 @@ const gradeDistributionRoles = ['faculty', 'department_chair']
 
 function DashboardPage() {
     const { userSession } = useAuthentication()
-    if (!userSession) return null
-
     const { isLoading } = useCurrentTerm()
+    if (!userSession) return null
 
     return (
         <div className="container p-4 mx-auto space-y-6">

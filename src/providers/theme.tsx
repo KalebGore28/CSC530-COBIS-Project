@@ -34,21 +34,31 @@ export function ThemeProvider({
     defaultTheme = 'system',
     storageKey = 'vite-ui-theme',
 }: ThemeProviderProps) {
-    const [theme, setTheme] = useState<Theme>(defaultTheme)
+    const [theme, setTheme] = useState<Theme>(() => {
+        // SSR-safe: only access localStorage on client
+        if (typeof window === 'undefined') return defaultTheme
+
+        const stored = localStorage.getItem(storageKey) as Theme | null
+        if (stored) return stored
+
+        const systemPrefersDark = window.matchMedia(
+            '(prefers-color-scheme: dark)',
+        ).matches
+        const systemTheme: Theme = systemPrefersDark ? 'dark' : 'light'
+        localStorage.setItem(storageKey, systemTheme)
+        return systemTheme
+    })
 
     useEffect(() => {
-        const stored = localStorage.getItem(storageKey) as Theme | null
-
-        if (stored) {
-            setTheme(stored)
-        } else {
-            const systemPrefersDark = window.matchMedia(
-                '(prefers-color-scheme: dark)',
-            ).matches
-            const systemTheme: Theme = systemPrefersDark ? 'dark' : 'light'
-            localStorage.setItem(storageKey, systemTheme)
-            setTheme(systemTheme)
+        // Sync with localStorage changes from other tabs/windows
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === storageKey && e.newValue) {
+                setTheme(e.newValue as Theme)
+            }
         }
+
+        window.addEventListener('storage', handleStorageChange)
+        return () => window.removeEventListener('storage', handleStorageChange)
     }, [storageKey])
 
     useEffect(() => {

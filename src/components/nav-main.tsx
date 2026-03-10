@@ -24,10 +24,10 @@ import {
 
 export function NavMain() {
     const { userSession } = useAuthentication()
-    if (!userSession) return null
-    const roles = userSession.roles
     const location = useLocation()
     const { open, isMobile } = useSidebar()
+    if (!userSession) return null
+    const roles = userSession.roles
 
     function isActive(path: string) {
         const current = location.pathname.replace(/\/$/, '')
