@@ -1,7 +1,6 @@
 import {
     Outlet,
     createFileRoute,
-    useLocation,
     useNavigate,
 } from '@tanstack/react-router'
 import { ArrowLeft } from 'lucide-react'
@@ -14,10 +13,7 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    
     const navigate = useNavigate()
-
-    
 
     return (
         <div className="w-full mx-auto p-4">
