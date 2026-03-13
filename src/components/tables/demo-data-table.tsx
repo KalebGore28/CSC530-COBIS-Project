@@ -56,6 +56,8 @@ import {
     SelectValue,
 } from '@/components/ui/select'
 import { Separator } from '../ui/separator'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Switch } from '@/components/ui/switch'
 
 // Sample data type
 export type Product = {
@@ -298,14 +300,14 @@ export function DemoDataTable() {
 
     const selectedRowCount = Object.keys(rowSelection).length
 
-    // Apply sorting when sort settings change
-    const handleApplySort = () => {
+    // Auto-apply sorting when sort settings change
+    React.useEffect(() => {
         if (sortColumn) {
             setSorting([{ id: sortColumn, desc: sortDirection === 'desc' }])
         } else {
             setSorting([])
         }
-    }
+    }, [sortColumn, sortDirection])
 
     // Apply filter
     const handleApplyFilter = () => {
@@ -390,8 +392,8 @@ export function DemoDataTable() {
                     </DropdownMenu>
 
                     {/* Sort Button */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
+                    <Popover>
+                        <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
                                 size="sm"
@@ -403,87 +405,86 @@ export function DemoDataTable() {
                                     <ArrowDownAZ className="h-4 w-4" />
                                 )}
                                 Sort
-                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                {sortColumn && (
+                                    <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+                                        1
+                                    </span>
+                                )}
                             </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-64">
-                            <DropdownMenuLabel>Sort By</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <div className="p-2 space-y-3">
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-medium">
-                                        Column
-                                    </Label>
-                                    <Select
-                                        value={sortColumn}
-                                        onValueChange={setSortColumn}
-                                    >
-                                        <SelectTrigger className="h-8">
-                                            <SelectValue placeholder="Select column" />
-                                        </SelectTrigger>
-                                        <SelectContent>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-48 p-2">
+                            <div className="space-y-2">
+                                <div className="flex items-center text-center text-sm justify-between">
+                                    <span>Sort By</span>
+                                    <div className="flex items-center gap-2">
+                                        <Label htmlFor="sort-direction">
+                                            {sortDirection === 'asc'
+                                                ? 'Ascending'
+                                                : 'Descending'}
+                                        </Label>
+                                        <Switch
+                                            id="sort-direction"
+                                            size="sm"
+                                            checked={sortDirection === 'desc'}
+                                            onCheckedChange={(checked) =>
+                                                setSortDirection(
+                                                    checked ? 'desc' : 'asc',
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <Separator />
+                                <div className="space-y-3">
+                                    <div className="space-y-3">
+                                        <RadioGroup
+                                            value={sortColumn}
+                                            onValueChange={setSortColumn}
+                                        >
                                             {table
                                                 .getAllColumns()
                                                 .filter((column) =>
                                                     column.getCanSort(),
                                                 )
                                                 .map((column) => (
-                                                    <SelectItem
+                                                    <div
                                                         key={column.id}
-                                                        value={column.id}
+                                                        className="flex items-center space-x-2"
                                                     >
-                                                        {column.id}
-                                                    </SelectItem>
+                                                        <RadioGroupItem
+                                                            value={column.id}
+                                                            id={`sort-${column.id}`}
+                                                        />
+                                                        <Label
+                                                            htmlFor={`sort-${column.id}`}
+                                                            className="font-normal capitalize cursor-pointer"
+                                                        >
+                                                            {column.id}
+                                                        </Label>
+                                                    </div>
                                                 ))}
-                                        </SelectContent>
-                                    </Select>
+                                        </RadioGroup>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-medium">
-                                        Direction
-                                    </Label>
-                                    <DropdownMenuRadioGroup
-                                        value={sortDirection}
-                                        onValueChange={(value) =>
-                                            setSortDirection(
-                                                value as 'asc' | 'desc',
-                                            )
-                                        }
-                                    >
-                                        <DropdownMenuRadioItem value="asc">
-                                            <ArrowUpAZ className="mr-2 h-4 w-4" />
-                                            Ascending
-                                        </DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="desc">
-                                            <ArrowDownAZ className="mr-2 h-4 w-4" />
-                                            Descending
-                                        </DropdownMenuRadioItem>
-                                    </DropdownMenuRadioGroup>
-                                </div>
-                                <DropdownMenuSeparator />
-                                <div className="flex gap-2">
-                                    <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="flex-1"
-                                        onClick={() => {
-                                            setSortColumn('')
-                                            setSorting([])
-                                        }}
-                                    >
-                                        Clear
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        className="flex-1"
-                                        onClick={handleApplySort}
-                                    >
-                                        Apply
-                                    </Button>
-                                </div>
+                                {sortColumn && (
+                                    <>
+                                        <Separator />
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={() => {
+                                                setSortColumn('')
+                                                setSorting([])
+                                            }}
+                                        >
+                                            Clear Sorting
+                                        </Button>
+                                    </>
+                                )}
                             </div>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        </PopoverContent>
+                    </Popover>
 
                     {/* Filter Button */}
                     <Popover>
