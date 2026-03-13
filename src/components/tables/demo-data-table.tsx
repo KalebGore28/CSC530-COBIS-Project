@@ -366,7 +366,7 @@ export function DemoDataTable() {
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56">
+                        <DropdownMenuContent align="start" className="w-48">
                             <DropdownMenuLabel>
                                 Toggle Columns
                             </DropdownMenuLabel>
