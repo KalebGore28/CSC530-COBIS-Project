@@ -414,13 +414,15 @@ export function DemoDataTable() {
                         </PopoverTrigger>
                         <PopoverContent align="start" className="w-48 p-2">
                             <div className="space-y-2">
-                                <div className="flex items-center text-center text-sm justify-between">
+                                <div className="flex items-center text-center text-xs text-muted-foreground font-medium justify-between">
                                     <span>Sort By</span>
                                     <div className="flex items-center gap-2">
                                         <Label htmlFor="sort-direction">
-                                            {sortDirection === 'asc'
-                                                ? 'Ascending'
-                                                : 'Descending'}
+                                            <span>
+                                                {sortDirection === 'asc'
+                                                    ? 'Ascending'
+                                                    : 'Descending'}
+                                            </span>
                                         </Label>
                                         <Switch
                                             id="sort-direction"
