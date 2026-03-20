@@ -40,16 +40,16 @@ function App() {
 
     return (
         <CurrentTermProvider>
-            <SidebarProvider>
-                <TooltipProvider>
-                    <Toaster richColors />
+            <TooltipProvider>
+                <Toaster richColors />
+                <SidebarProvider>
                     <AppSidebar />
                     <SidebarInset>
                         <SiteHeader />
                         <Outlet />
                     </SidebarInset>
-                </TooltipProvider>
-            </SidebarProvider>
+                </SidebarProvider>
+            </TooltipProvider>
         </CurrentTermProvider>
     )
 }

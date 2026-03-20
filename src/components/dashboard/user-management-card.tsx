@@ -52,7 +52,7 @@ export function UserManangementCard() {
                     </div>
                     <CardTitle>User Management</CardTitle>
                 </div>
-                <CardDescription className="text-lg">
+                <CardDescription>
                     {hasNewUsers ? (
                         <div className="flex items-baseline gap-2">
                             <span className="text-lg font-bold">
