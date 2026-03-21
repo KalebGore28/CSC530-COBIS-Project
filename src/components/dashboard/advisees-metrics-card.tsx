@@ -39,15 +39,14 @@ export function AdviseesMetricCard({ mnumber }: { mnumber: string }) {
             onClick={() => navigate({ to: '/advisees' })}
         >
             <CardHeader className="h-full">
-                <div className="mb-2 flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-950">
-                        <BookUser className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                    </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <BookUser className="h-6 w-6" />
+
                     <CardTitle>Advisee Metrics</CardTitle>
                 </div>
                 <CardDescription className="flex flex-wrap gap-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-lg font-bold">
+                        <span className="font-bold">
                             {advisedStudents.length}
                         </span>
 

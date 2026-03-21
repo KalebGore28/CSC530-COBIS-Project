@@ -43,29 +43,13 @@ function RouteComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs value={activeTab} className="w-full">
-                        <TabsList className="grid grid-cols-2">
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="programs"
-                            >
-                                <Link
-                                    to="/enrollment/programs"
-                                    className="w-full"
-                                >
-                                    Programs
-                                </Link>
+                    <Tabs value={activeTab}>
+                        <TabsList>
+                            <TabsTrigger value="programs">
+                                <Link to="/enrollment/programs">Programs</Link>
                             </TabsTrigger>
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="courses"
-                            >
-                                <Link
-                                    to="/enrollment/courses"
-                                    className="w-full"
-                                >
-                                    Courses
-                                </Link>
+                            <TabsTrigger value="courses">
+                                <Link to="/enrollment/courses">Courses</Link>
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>

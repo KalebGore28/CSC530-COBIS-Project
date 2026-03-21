@@ -40,31 +40,18 @@ function RouteComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Tabs value={activeTab} className="w-full">
+                    <Tabs value={activeTab}>
                         <TabsList>
                             <TabsTrigger value="users">
-                                <Link
-                                    to="/cobis-tools/users"
-                                    className="w-full"
-                                >
-                                    Users
-                                </Link>
+                                <Link to="/cobis-tools/users">Users</Link>
                             </TabsTrigger>
                             <TabsTrigger value="manage-tables">
-                                <Link
-                                    to="/cobis-tools/manage-tables"
-                                    className="w-full"
-                                >
+                                <Link to="/cobis-tools/manage-tables">
                                     Manage Tables
                                 </Link>
                             </TabsTrigger>
                             <TabsTrigger value="import">
-                                <Link
-                                    to="/cobis-tools/import"
-                                    className="w-full"
-                                >
-                                    Import
-                                </Link>
+                                <Link to="/cobis-tools/import">Import</Link>
                             </TabsTrigger>
                         </TabsList>
                     </Tabs>

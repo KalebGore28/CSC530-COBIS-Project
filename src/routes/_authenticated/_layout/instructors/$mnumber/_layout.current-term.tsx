@@ -133,33 +133,30 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="bg-primary m-0 rounded-xl border p-1">
-                <div className="rounded-lg border bg-white dark:bg-gray-700">
-                    <CoursesTable
-                        data={currentTermData
-                            .map((course) => ({
-                                course: `${course.course_id}-${course.course_section}`,
-                                title: course.course_title || 'N/A',
-                                total_students: course.total_students || 0,
-                                total_credit_hours:
-                                    course.total_credit_hours || 0,
-                                action: (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            navigate({
-                                                to: `/instructors/${mnumber}/term-history/${currentTerm.year}${currentTerm.term_id}/${course.course_id}-${course.course_section}`,
-                                            })
-                                        }
-                                    >
-                                        View Roster
-                                    </Button>
-                                ),
-                            }))
-                            .sort((a, b) => a.course.localeCompare(b.course))}
-                    />
-                </div>
+            <CardContent className="m-0 p-1">
+                <CoursesTable
+                    data={currentTermData
+                        .map((course) => ({
+                            course: `${course.course_id}-${course.course_section}`,
+                            title: course.course_title || 'N/A',
+                            total_students: course.total_students || 0,
+                            total_credit_hours: course.total_credit_hours || 0,
+                            action: (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        navigate({
+                                            to: `/instructors/${mnumber}/term-history/${currentTerm.year}${currentTerm.term_id}/${course.course_id}-${course.course_section}`,
+                                        })
+                                    }
+                                >
+                                    View Roster
+                                </Button>
+                            ),
+                        }))
+                        .sort((a, b) => a.course.localeCompare(b.course))}
+                />
             </CardContent>
         </Card>
     )

@@ -9,6 +9,7 @@ import { Slider } from '@/components/ui/slider'
 
 import { ProgramSearchBox } from '@/components/search/program-search'
 import { CourseSearchBox } from '@/components/search/course-search'
+import { Button } from './ui/button'
 
 type Course = typeof courses.$inferSelect
 type Program = typeof programs.$inferSelect
@@ -95,6 +96,7 @@ export const StudentFilters = ({
                                     className="flex cursor-pointer items-center gap-2 select-none"
                                 >
                                     <Checkbox
+                                        className="shadow-xs"
                                         checked={(
                                             filters.academicLevels ?? []
                                         ).includes(level)}
@@ -154,8 +156,8 @@ export const StudentFilters = ({
             </CardContent>
             <CardFooter className="flex justify-end gap-2 p-2">
                 {onResetFilters && (
-                    <button
-                        className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-4 py-2 transition"
+                    <Button
+                        variant="outline"
                         onClick={() => {
                             setFilters({
                                 academicLevels: [],
@@ -168,11 +170,10 @@ export const StudentFilters = ({
                         }}
                     >
                         Reset
-                    </button>
+                    </Button>
                 )}
                 {/* Search button with loader when selected */}
-                <button
-                    className="bg-primary hover:bg-primary/80 flex items-center gap-2 rounded-md px-4 py-2 text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+                <Button
                     onClick={() => onApplyFilters(filters)}
                     disabled={isLoading}
                 >
@@ -184,7 +185,7 @@ export const StudentFilters = ({
                     ) : (
                         'Run Search'
                     )}
-                </button>
+                </Button>
             </CardFooter>
         </Card>
     )

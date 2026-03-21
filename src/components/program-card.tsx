@@ -84,13 +84,13 @@ export function ProgramCard({
     )
 
     return (
-        <Card className="mx-auto max-w-4xl overflow-hidden rounded-2xl border-2 pt-0 shadow-lg">
-            <CardHeader className="bg-blue-950 pb-6 text-white">
+        <Card className="mx-auto max-w-4xl overflow-hidden pt-0">
+            <CardHeader className="bg-primary pb-6 text-white">
                 <div className="flex items-start justify-between gap-4">
                     <div>
-                        <div className="mb-1 text-sm font-semibold opacity-90">
+                        <span className="mb-1 text-sm font-semibold opacity-90">
                             {program?.code || 'N/A'}
-                        </div>
+                        </span>
                         <CardTitle className="text-2xl leading-tight font-bold">
                             {program?.description || 'Program Not Found'}
                         </CardTitle>
@@ -129,47 +129,47 @@ export function ProgramCard({
                         {/* Info Grid */}
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:bg-gray-800">
-                                <div className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <span className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     Department
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                </span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {program.department_description || 'N/A'}
-                                </div>
+                                </span>
                             </div>
                             <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:bg-gray-800">
-                                <div className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <span className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     College
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                </span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {program.college_description || 'N/A'}
-                                </div>
+                                </span>
                             </div>
                             <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:bg-gray-800">
-                                <div className="mb-1 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
+                                <span className="mb-1 block text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">
                                     CIP Code
-                                </div>
-                                <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                </span>
+                                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                                     {program.cip_code || 'N/A'}
-                                </div>
+                                </span>
                             </div>
                         </div>
 
                         {/* Date Range Selectors */}
-                        <div className="rounded-xl border border-blue-100 bg-blue-50 p-5 dark:border-blue-800 dark:bg-blue-950">
+                        <div className="border-primary/50 bg-primary/20 rounded-xl border p-5">
                             <h3 className="mb-4 text-sm font-semibold text-gray-700 dark:text-gray-300">
                                 Select Date Range
                             </h3>
                             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                                 {/* Start Date */}
                                 <div className="space-y-3">
-                                    <div className="text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-400">
+                                    <span className="text-xs font-semibold tracking-wide uppercase">
                                         Start Period
-                                    </div>
+                                    </span>
                                     <div className="flex gap-3">
                                         <div className="flex-1">
                                             <Label
                                                 htmlFor="start-year"
-                                                className="mb-1 text-xs text-gray-600 dark:text-gray-400"
+                                                className="mb-1 text-xs"
                                             >
                                                 Year
                                             </Label>
@@ -181,7 +181,7 @@ export function ProgramCard({
                                                 }
                                                 value={startYear.toString()}
                                             >
-                                                <SelectTrigger className="border border-gray-200 bg-white">
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -207,7 +207,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label
                                                 htmlFor="start-term"
-                                                className="mb-1 text-xs text-gray-600 dark:text-gray-400"
+                                                className="mb-1 text-xs"
                                             >
                                                 Term
                                             </Label>
@@ -217,7 +217,7 @@ export function ProgramCard({
                                                 }
                                                 defaultValue={startTerm}
                                             >
-                                                <SelectTrigger className="border border-gray-200 bg-white">
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -237,14 +237,14 @@ export function ProgramCard({
 
                                 {/* End Date */}
                                 <div className="space-y-3">
-                                    <div className="text-xs font-semibold tracking-wide text-gray-600 uppercase dark:text-gray-400">
+                                    <span className="text-xs font-semibold tracking-wide uppercase">
                                         End Period
-                                    </div>
+                                    </span>
                                     <div className="flex gap-3">
                                         <div className="flex-1">
                                             <Label
                                                 htmlFor="end-year"
-                                                className="mb-1 text-xs text-gray-600 dark:text-gray-400"
+                                                className="mb-1 text-xs"
                                             >
                                                 Year
                                             </Label>
@@ -254,7 +254,7 @@ export function ProgramCard({
                                                 }
                                                 value={endYear.toString()}
                                             >
-                                                <SelectTrigger className="border border-gray-200 bg-white">
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Year" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -280,7 +280,7 @@ export function ProgramCard({
                                         <div className="flex-1">
                                             <Label
                                                 htmlFor="end-term"
-                                                className="mb-1 text-xs text-gray-600 dark:text-gray-400"
+                                                className="mb-1 text-xs"
                                             >
                                                 Term
                                             </Label>
@@ -290,7 +290,7 @@ export function ProgramCard({
                                                 }
                                                 value={endTerm}
                                             >
-                                                <SelectTrigger className="border border-gray-200 bg-white">
+                                                <SelectTrigger>
                                                     <SelectValue placeholder="Term" />
                                                 </SelectTrigger>
                                                 <SelectContent>
@@ -320,7 +320,7 @@ export function ProgramCard({
             </CardContent>
             <CardFooter className="flex flex-col gap-2">
                 {program?.last_updated && (
-                    <div className="pt-2 text-center text-xs text-gray-500">
+                    <span className="pt-2 text-center text-xs">
                         Last updated:{' '}
                         {new Date(program.last_updated).toLocaleDateString(
                             'en-US',
@@ -330,7 +330,7 @@ export function ProgramCard({
                                 day: 'numeric',
                             },
                         )}
-                    </div>
+                    </span>
                 )}
                 {exportData && (
                     <div className="text-center">

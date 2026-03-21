@@ -219,13 +219,13 @@ export function RosterStudents({
                         <Input
                             type="search"
                             placeholder="Search students..."
-                            className="w-full pl-8"
+                            className="w-full pl-8 shadow-xs"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
                     </div>
                     <Select value={gradeFilter} onValueChange={setGradeFilter}>
-                        <SelectTrigger className="w-full sm:w-40">
+                        <SelectTrigger>
                             <Filter className="mr-2 h-4 w-4" />
                             <SelectValue placeholder="Filter" />
                         </SelectTrigger>
@@ -238,7 +238,7 @@ export function RosterStudents({
                             ))}
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" onClick={exportToCSV}>
+                    <Button className="shadow-xs" onClick={exportToCSV}>
                         <Download className="mr-2 h-4 w-4" />
                         Export as CSV
                     </Button>
@@ -246,121 +246,115 @@ export function RosterStudents({
             </CardHeader>
             <CardContent className="overflow-x-auto">
                 <Tabs defaultValue="list" className="w-full">
-                    <TabsList className="mb-4 grid w-full grid-cols-2 md:w-auto">
+                    <TabsList className="mb-4 w-full">
                         <TabsTrigger value="list">List View</TabsTrigger>
                         <TabsTrigger value="grid">Grid View</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="list">
-                        <div className="rounded-md border">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead
-                                            className="w-50 cursor-pointer"
-                                            onClick={() =>
-                                                handleHeaderClick('name')
-                                            }
-                                        >
-                                            Student Name
-                                            {sortField === 'name' &&
-                                                (sortDirection === 'asc' ? (
-                                                    <SortAsc className="ml-2 inline h-4 w-4" />
-                                                ) : (
-                                                    <SortDesc className="ml-2 inline h-4 w-4" />
-                                                ))}
-                                        </TableHead>
-                                        <TableHead>M-Number</TableHead>
-                                        <TableHead>Email</TableHead>
-                                        <TableHead>Major/Minor(s)</TableHead>
-                                        <TableHead
-                                            className="cursor-pointer"
-                                            onClick={() =>
-                                                handleHeaderClick('midterm')
-                                            }
-                                        >
-                                            Midterm Grade
-                                            {sortField === 'midterm' &&
-                                                (sortDirection === 'asc' ? (
-                                                    <SortAsc className="ml-2 inline h-4 w-4" />
-                                                ) : (
-                                                    <SortDesc className="ml-2 inline h-4 w-4" />
-                                                ))}
-                                        </TableHead>
-                                        <TableHead
-                                            className="cursor-table"
-                                            onClick={() =>
-                                                handleHeaderClick('final')
-                                            }
-                                        >
-                                            Final Grade
-                                            {sortField === 'final' &&
-                                                (sortDirection === 'asc' ? (
-                                                    <SortAsc className="ml-2 inline h-4 w-4" />
-                                                ) : (
-                                                    <SortDesc className="ml-2 inline h-4 w-4" />
-                                                ))}
-                                        </TableHead>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead
+                                        className="w-50 cursor-pointer"
+                                        onClick={() =>
+                                            handleHeaderClick('name')
+                                        }
+                                    >
+                                        Student Name
+                                        {sortField === 'name' &&
+                                            (sortDirection === 'asc' ? (
+                                                <SortAsc className="ml-2 inline h-4 w-4" />
+                                            ) : (
+                                                <SortDesc className="ml-2 inline h-4 w-4" />
+                                            ))}
+                                    </TableHead>
+                                    <TableHead>M-Number</TableHead>
+                                    <TableHead>Email</TableHead>
+                                    <TableHead>Major/Minor(s)</TableHead>
+                                    <TableHead
+                                        className="cursor-pointer"
+                                        onClick={() =>
+                                            handleHeaderClick('midterm')
+                                        }
+                                    >
+                                        Midterm Grade
+                                        {sortField === 'midterm' &&
+                                            (sortDirection === 'asc' ? (
+                                                <SortAsc className="ml-2 inline h-4 w-4" />
+                                            ) : (
+                                                <SortDesc className="ml-2 inline h-4 w-4" />
+                                            ))}
+                                    </TableHead>
+                                    <TableHead
+                                        className="cursor-table"
+                                        onClick={() =>
+                                            handleHeaderClick('final')
+                                        }
+                                    >
+                                        Final Grade
+                                        {sortField === 'final' &&
+                                            (sortDirection === 'asc' ? (
+                                                <SortAsc className="ml-2 inline h-4 w-4" />
+                                            ) : (
+                                                <SortDesc className="ml-2 inline h-4 w-4" />
+                                            ))}
+                                    </TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredStudents.map((student) => (
+                                    <TableRow key={student.mnumber}>
+                                        <TableCell className="font-medium">
+                                            {student.last_name},{' '}
+                                            {student.first_name}
+                                        </TableCell>
+                                        <TableCell>{student.mnumber}</TableCell>
+                                        <TableCell>
+                                            <a
+                                                href={`mailto:${student.email?.toLowerCase()}`}
+                                                className="hover:underline"
+                                            >
+                                                {student.email?.toLowerCase()}
+                                            </a>
+                                        </TableCell>
+                                        <TableCell>
+                                            {(
+                                                studentProgramsMap.get(
+                                                    student.mnumber,
+                                                ) || []
+                                            )
+                                                .map((p) => p.description)
+                                                .join(', ') || 'Undeclared'}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant="outline"
+                                                className={
+                                                    GRADE_DEFINITION[
+                                                        student.midterm_grade as GradeKey
+                                                    ].className
+                                                }
+                                            >
+                                                {student.midterm_grade || 'N/A'}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant="outline"
+                                                className={
+                                                    GRADE_DEFINITION[
+                                                        student.final_grade as GradeKey
+                                                    ].className
+                                                }
+                                            >
+                                                {student.final_grade || 'N/A'}
+                                            </Badge>
+                                        </TableCell>
                                     </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredStudents.map((student) => (
-                                        <TableRow key={student.mnumber}>
-                                            <TableCell className="font-medium">
-                                                {student.last_name},{' '}
-                                                {student.first_name}
-                                            </TableCell>
-                                            <TableCell>
-                                                {student.mnumber}
-                                            </TableCell>
-                                            <TableCell>
-                                                <a
-                                                    href={`mailto:${student.email?.toLowerCase()}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {student.email?.toLowerCase()}
-                                                </a>
-                                            </TableCell>
-                                            <TableCell>
-                                                {(
-                                                    studentProgramsMap.get(
-                                                        student.mnumber,
-                                                    ) || []
-                                                )
-                                                    .map((p) => p.description)
-                                                    .join(', ') || 'Undeclared'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        GRADE_DEFINITION[
-                                                            student.midterm_grade as GradeKey
-                                                        ].className
-                                                    }
-                                                >
-                                                    {student.midterm_grade ||
-                                                        'N/A'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        GRADE_DEFINITION[
-                                                            student.final_grade as GradeKey
-                                                        ].className
-                                                    }
-                                                >
-                                                    {student.final_grade ||
-                                                        'N/A'}
-                                                </Badge>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </div>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </TabsContent>
 
                     <TabsContent

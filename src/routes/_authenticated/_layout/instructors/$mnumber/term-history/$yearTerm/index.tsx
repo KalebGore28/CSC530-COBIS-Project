@@ -144,7 +144,7 @@ function RouteComponent() {
                 <Card size="sm">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <BookOpen className="text-secondary h-8 w-8" />
+                            <BookOpen className="h-8 w-8" />
                             <div>
                                 <p className="text-muted-foreground text-sm font-medium">
                                     Courses
@@ -160,7 +160,7 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Users className="text-secondary h-8 w-8" />
+                            <Users className="h-8 w-8" />
                             <div>
                                 <p className="text-muted-foreground text-sm font-medium">
                                     Students
@@ -176,7 +176,7 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Calculator className="text-secondary h-8 w-8" />
+                            <Calculator className="h-8 w-8" />
                             <div>
                                 <p className="text-muted-foreground text-sm font-medium">
                                     Credit Hours
@@ -192,34 +192,29 @@ function RouteComponent() {
 
             {/* Course details table */}
             <Card className="p-0">
-                <CardContent className="bg-primary m-0 rounded-xl border p-1">
-                    <div className="rounded-lg border bg-white dark:bg-gray-700">
-                        <CoursesTable
-                            data={Array.from(coursesMap.values()).map(
-                                (course) => ({
-                                    course: `${course.course_id}-${course.course_section}`,
-                                    title: course.course_title,
-                                    credit_hour: course.credit_hour,
-                                    total_students: course.total_students,
-                                    total_credit_hours:
-                                        course.total_credit_hours,
-                                    action: (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() =>
-                                                navigate({
-                                                    to: `/instructors/${mnumber}/term-history/${year}${termCode}/${course.course_id}-${course.course_section}`,
-                                                })
-                                            }
-                                        >
-                                            View Roster
-                                        </Button>
-                                    ),
-                                }),
-                            )}
-                        />
-                    </div>
+                <CardContent className="m-0 p-1">
+                    <CoursesTable
+                        data={Array.from(coursesMap.values()).map((course) => ({
+                            course: `${course.course_id}-${course.course_section}`,
+                            title: course.course_title,
+                            credit_hour: course.credit_hour,
+                            total_students: course.total_students,
+                            total_credit_hours: course.total_credit_hours,
+                            action: (
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() =>
+                                        navigate({
+                                            to: `/instructors/${mnumber}/term-history/${year}${termCode}/${course.course_id}-${course.course_section}`,
+                                        })
+                                    }
+                                >
+                                    View Roster
+                                </Button>
+                            ),
+                        }))}
+                    />
                 </CardContent>
             </Card>
 

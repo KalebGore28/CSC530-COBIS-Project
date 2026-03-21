@@ -152,33 +152,28 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="bg-primary m-0 rounded-xl border p-1">
-                <div className="rounded-lg border bg-white dark:bg-gray-700">
-                    <TeachingHistoryTable
-                        data={Array.from(termHistoryMap.values()).map(
-                            (term) => ({
-                                term: `${term.term_description} ${term.year}`,
-                                total_courses: term.total_courses,
-                                total_students: term.total_students || 0,
-                                total_credit_hours:
-                                    term.total_credit_hours || 0,
-                                action: (
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() =>
-                                            navigate({
-                                                to: `/instructors/${mnumber}/term-history/${term.year}${term.term_code}`,
-                                            })
-                                        }
-                                    >
-                                        View Details
-                                    </Button>
-                                ),
-                            }),
-                        )}
-                    />
-                </div>
+            <CardContent className="m-0 p-1">
+                <TeachingHistoryTable
+                    data={Array.from(termHistoryMap.values()).map((term) => ({
+                        term: `${term.term_description} ${term.year}`,
+                        total_courses: term.total_courses,
+                        total_students: term.total_students || 0,
+                        total_credit_hours: term.total_credit_hours || 0,
+                        action: (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                    navigate({
+                                        to: `/instructors/${mnumber}/term-history/${term.year}${term.term_code}`,
+                                    })
+                                }
+                            >
+                                View Details
+                            </Button>
+                        ),
+                    }))}
+                />
             </CardContent>
         </Card>
     )

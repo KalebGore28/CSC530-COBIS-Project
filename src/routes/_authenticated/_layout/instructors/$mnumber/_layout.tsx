@@ -128,7 +128,7 @@ function RouteComponent() {
             <Card>
                 <CardContent>
                     <div className="flex items-center gap-4">
-                        <Avatar className="border-primary h-24 w-24 border-2">
+                        <Avatar className="h-24 w-24">
                             <AvatarImage
                                 src={instructor.image || undefined}
                                 alt={instructor.first_name}
@@ -163,43 +163,28 @@ function RouteComponent() {
 
             <div className="flex w-full justify-center">
                 {/* Tabs */}
-                <Tabs
-                    value={activeTab}
-                    className="bg-background rounded-lg border"
-                >
-                    <TabsList className="grid grid-cols-3">
-                        <TabsTrigger
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                            value="current-term"
-                        >
+                <Tabs value={activeTab}>
+                    <TabsList>
+                        <TabsTrigger value="current-term">
                             <Link
                                 to="/instructors/$mnumber/current-term"
                                 params={{ mnumber }}
-                                className="w-full"
                             >
                                 Current Term
                             </Link>
                         </TabsTrigger>
-                        <TabsTrigger
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                            value="term-history"
-                        >
+                        <TabsTrigger value="term-history">
                             <Link
                                 to="/instructors/$mnumber/term-history"
                                 params={{ mnumber }}
-                                className="w-full"
                             >
                                 Teaching History
                             </Link>
                         </TabsTrigger>
-                        <TabsTrigger
-                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                            value="grade-distribution"
-                        >
+                        <TabsTrigger value="grade-distribution">
                             <Link
                                 to="/instructors/$mnumber/grade-distribution"
                                 params={{ mnumber }}
-                                className="w-full"
                             >
                                 Grade Distributions
                             </Link>
