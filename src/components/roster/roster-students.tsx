@@ -361,7 +361,7 @@ export function RosterStudents({
                         value="grid"
                         className="max-w-full overflow-x-auto"
                     >
-                        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid w-full grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:grid-cols-3">
                             {filteredStudents.map((student) => (
                                 <Card key={student.mnumber} className="p-4">
                                     <CardHeader className="p-0">

@@ -128,7 +128,7 @@ export function AppBreadcrumbs({
 
                 <BreadcrumbSeparator className="hidden md:block" />
 
-                <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbItem>
                     <BreadcrumbPage>{last.title}</BreadcrumbPage>
                 </BreadcrumbItem>
             </BreadcrumbList>

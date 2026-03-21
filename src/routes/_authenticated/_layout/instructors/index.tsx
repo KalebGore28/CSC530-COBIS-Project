@@ -18,7 +18,13 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
-import { Input } from '@/components/ui/input'
+
+import {
+    InputGroup,
+    InputGroupAddon,
+    InputGroupInput,
+} from '@/components/ui/input-group'
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAuthentication } from '@/lib/auth-client'
@@ -213,38 +219,33 @@ function RouteComponent() {
                 </p>
             </div>
             <Card>
-                <CardHeader className="pb-3">
-                    <div className="flex flex-wrap items-center justify-between">
-                        <div className="pb-4">
+                <CardHeader>
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div>
                             <CardTitle className="flex items-center gap-2 text-xl">
                                 <Users className="h-5 w-5" />
                                 Instructor Directory
                             </CardTitle>
-                            <CardDescription className="flex flex-col">
-                                <span>
-                                    Currently only showing instructors from your
-                                    department. Use the search to find other
-                                    instructors.
-                                </span>
-                                <span>
-                                    Showing {filteredFaculty.length} instructor
-                                    {filteredFaculty.length !== 1 ? 's' : ''}.
-                                </span>
+                            <CardDescription className="max-w-100">
+                                Currently only showing instructors from your
+                                department. Use the search to find other
+                                instructors. Showing {filteredFaculty.length}{' '}
+                                instructor
+                                {filteredFaculty.length !== 1 ? 's' : ''}.
                             </CardDescription>
                         </div>
                         {/* Search and Filter Controls*/}
-                        <div className="flex flex-wrap gap-2 sm:gap-4">
-                            <div className="relative">
-                                <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-                                <Input
-                                    type="search"
-                                    placeholder="Search instructors..."
-                                    className="w-full pl-8"
-                                    value={searchQuery}
-                                    onChange={handleSearchChange}
-                                />
-                            </div>
-                        </div>
+                        <InputGroup className="w-full sm:max-w-80">
+                            <InputGroupInput
+                                id="input-group-url"
+                                placeholder="Search instructors..."
+                                onChange={handleSearchChange}
+                            />
+
+                            <InputGroupAddon align="inline-end">
+                                <Search className="text-muted-foreground h-4 w-4" />
+                            </InputGroupAddon>
+                        </InputGroup>
                     </div>
                 </CardHeader>
                 <CardContent>

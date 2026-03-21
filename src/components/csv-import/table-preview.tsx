@@ -30,7 +30,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
     // --- Loading state ---
     if (isLoading) {
         return (
-            <Card className="border-muted/40">
+            <Card className="rounded shadow-none">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Database className="text-muted-foreground h-5 w-5" />
@@ -68,9 +68,9 @@ export function TablePreview({ fileName }: TablePreviewProps) {
 
     // --- Successful match ---
     return (
-        <Card className="border-success/40">
+        <Card className="rounded shadow-none">
             <CardHeader>
-                <CardTitle className="text-success flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                     Recognized CSV
                 </CardTitle>

@@ -141,7 +141,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
         <div className="mb-6 w-full">
             <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-sm font-medium">CSV Preview</h3>
-                <div className="flex items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                <div className="border-accent bg-accent/50 flex items-center rounded-md px-2 py-1 text-xs">
                     <FileSpreadsheet className="mr-1 h-3 w-3" /> Data Preview
                 </div>
             </div>

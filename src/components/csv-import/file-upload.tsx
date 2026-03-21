@@ -125,7 +125,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
         <div className="mb-6">
             <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-sm font-medium">Upload CSV File</h3>
-                <div className="flex items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                <div className="bg-accent/50 border-accent flex items-center rounded-md px-2 py-1 text-xs">
                     <FileUp className="mr-1 h-3 w-3" /> CSV Import
                 </div>
             </div>
@@ -134,23 +134,20 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                 // File selection UI when no file is selected
                 <div
                     className={cn(
-                        'cursor-pointer rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/30 p-6 text-center transition-colors hover:bg-blue-50/50',
+                        'border-primary/50 bg-primary/10 hover:bg-primary/40 cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors',
                     )}
                     onClick={handleClickChangeFile}
                     onDragOver={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        e.currentTarget.classList.add('bg-blue-100')
                     }}
                     onDragLeave={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        e.currentTarget.classList.remove('bg-blue-100')
                     }}
                     onDrop={(e) => {
                         e.preventDefault()
                         e.stopPropagation()
-                        e.currentTarget.classList.remove('bg-blue-100')
 
                         // TODO: Recheck this drag-and-drop file handling. Doesn't look right. Why the unknown casting?
                         const droppedFile = e.dataTransfer.files[0]
@@ -172,8 +169,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     />
 
                     <div className="flex flex-col items-center gap-3">
-                        <div className="rounded-full bg-blue-100 p-3">
-                            <Upload className="h-6 w-6 text-blue-600" />
+                        <div className="bg-primary/20 rounded-full p-3">
+                            <Upload className="h-6 w-6" />
                         </div>
                         <div>
                             <p className="text-sm font-medium">
@@ -248,8 +245,8 @@ export const FileUpload: React.FC<FileUploadProps> = ({
                     <div className="bg-card rounded-lg border p-4">
                         <div className="flex items-start justify-between">
                             <div className="flex min-w-0 items-start">
-                                <div className="mr-3 rounded-md bg-blue-100 p-2">
-                                    <FileText className="h-6 w-6 text-blue-600" />
+                                <div className="bg-accent/50 mr-3 rounded-md p-2">
+                                    <FileText className="h-6 w-6" />
                                 </div>
                                 <div className="min-w-0">
                                     <p className="truncate text-sm font-medium">

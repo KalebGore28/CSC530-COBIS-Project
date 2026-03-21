@@ -209,7 +209,7 @@ function RouteComponent() {
                         <Link
                             to={'/cobis-tools/manage-tables/academic-standings'}
                         >
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -222,7 +222,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-sm"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -256,7 +256,7 @@ function RouteComponent() {
                             <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/admit-codes'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -269,7 +269,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -301,7 +301,7 @@ function RouteComponent() {
                     <CardAction className="flex gap-2">
                         {colleges.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/colleges'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -314,7 +314,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -374,7 +374,7 @@ function RouteComponent() {
                     <CardAction className="flex gap-2">
                         {courses.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/courses'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -388,7 +388,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     Title
                                 </Badge>
@@ -401,7 +401,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     Description
                                 </Badge>
@@ -414,7 +414,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     College
                                 </Badge>
@@ -449,7 +449,7 @@ function RouteComponent() {
                             <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/departments'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -462,7 +462,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -500,7 +500,7 @@ function RouteComponent() {
                                 '/cobis-tools/manage-tables/instructional-methods'
                             }
                         >
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -515,7 +515,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -549,7 +549,7 @@ function RouteComponent() {
                             <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/part-of-terms'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -562,7 +562,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>
@@ -622,7 +622,7 @@ function RouteComponent() {
                     <CardAction className="flex gap-2">
                         {programs.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/programs'}>
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>
                 </CardHeader>
@@ -636,7 +636,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     Description
                                 </Badge>
@@ -649,7 +649,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     Department
                                 </Badge>
@@ -662,7 +662,7 @@ function RouteComponent() {
                             >
                                 <Badge
                                     variant="outline"
-                                    className="cursor-pointer hover:shadow-md"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
                                     College
                                 </Badge>
@@ -701,7 +701,7 @@ function RouteComponent() {
                                 '/cobis-tools/manage-tables/registration-statuses'
                             }
                         >
-                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
                         </Link>
                     </CardAction>{' '}
                 </CardHeader>
@@ -716,7 +716,7 @@ function RouteComponent() {
                         >
                             <Badge
                                 variant="outline"
-                                className="cursor-pointer hover:shadow-md"
+                                className="cursor-pointer shadow-md hover:shadow-lg"
                             >
                                 Description
                             </Badge>

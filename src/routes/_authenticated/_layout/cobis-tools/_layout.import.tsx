@@ -1,6 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
-import { Separator } from '@radix-ui/react-separator'
 import { useQuery } from '@tanstack/react-query'
 import type { ParseResult } from 'papaparse'
 import {
@@ -129,88 +128,77 @@ function RouteComponent() {
                             <TablePreview fileName={selectedFile.name} />
                         </div>
                     )}
-
-                    {/* Step 4: Import Confirmation */}
-                    {selectedFile && csvData && (
-                        <div>
-                            <Separator className="my-6" />
-                            <CardFooter className="flex justify-end">
-                                {/* Import and Cancel Buttons */}
-                                {!isSuccess && (
-                                    <div
-                                        className={`${isFetching ? 'pointer-events-none hidden' : ''} flex`}
-                                    >
-                                        <Button
-                                            variant="secondary"
-                                            onClick={resetImport}
-                                            className="mr-4"
-                                        >
-                                            Cancel
-                                        </Button>
-                                        <Button
-                                            className={`${isFetching ? 'cursor-not-allowed opacity-70' : ''}`}
-                                            onClick={handleImport}
-                                            disabled={isFetching}
-                                        >
-                                            {isFetching
-                                                ? 'Importing…'
-                                                : 'Confirm Import'}
-                                        </Button>
-                                    </div>
-                                )}
-                                {/* Importing Indicator */}
-                                {isFetching && !isSuccess && (
-                                    <div className="flex items-center space-x-2">
-                                        <span>
-                                            Importing data, please wait...
-                                        </span>
-                                    </div>
-                                )}
-                                {/* Import Success Buttons */}
-                                {isSuccess && (
-                                    <>
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => setDrawerOpen(true)}
-                                            className="mr-4"
-                                        >
-                                            View Results
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            onClick={resetImport}
-                                        >
-                                            New Import
-                                        </Button>
-                                    </>
-                                )}
-                                <Drawer
-                                    open={drawerOpen}
-                                    onOpenChange={(e) => setDrawerOpen(e)}
-                                >
-                                    <DrawerContent>
-                                        <DrawerHeader>
-                                            <DrawerTitle>
-                                                Import Results
-                                            </DrawerTitle>
-                                            <DrawerDescription>
-                                                {isFetching
-                                                    ? 'Importing data, please wait...'
-                                                    : 'Import complete. Review the results below.'}
-                                            </DrawerDescription>
-                                        </DrawerHeader>
-
-                                        <div className="h-[75vh] px-4">
-                                            <ImportProgressList
-                                                messages={importResults}
-                                            />
-                                        </div>
-                                    </DrawerContent>
-                                </Drawer>
-                            </CardFooter>
-                        </div>
-                    )}
                 </CardContent>
+                {/* Step 4: Import Confirmation */}
+                {selectedFile && csvData && (
+                    <CardFooter className="flex justify-end">
+                        {/* Import and Cancel Buttons */}
+                        {!isSuccess && (
+                            <div
+                                className={`${isFetching ? 'pointer-events-none hidden' : ''} flex`}
+                            >
+                                <Button
+                                    variant="secondary"
+                                    onClick={resetImport}
+                                    className="mr-4"
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className={`${isFetching ? 'cursor-not-allowed opacity-70' : ''}`}
+                                    onClick={handleImport}
+                                    disabled={isFetching}
+                                >
+                                    {isFetching
+                                        ? 'Importing…'
+                                        : 'Confirm Import'}
+                                </Button>
+                            </div>
+                        )}
+                        {/* Importing Indicator */}
+                        {isFetching && !isSuccess && (
+                            <div className="flex items-center space-x-2">
+                                <span>Importing data, please wait...</span>
+                            </div>
+                        )}
+                        {/* Import Success Buttons */}
+                        {isSuccess && (
+                            <>
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setDrawerOpen(true)}
+                                    className="mr-4"
+                                >
+                                    View Results
+                                </Button>
+                                <Button variant="outline" onClick={resetImport}>
+                                    New Import
+                                </Button>
+                            </>
+                        )}
+                        <Drawer
+                            open={drawerOpen}
+                            onOpenChange={(e) => setDrawerOpen(e)}
+                        >
+                            <DrawerContent>
+                                <DrawerHeader>
+                                    <DrawerTitle>Import Results</DrawerTitle>
+                                    <DrawerDescription>
+                                        {isFetching
+                                            ? 'Importing data, please wait...'
+                                            : 'Import complete. Review the results below.'}
+                                    </DrawerDescription>
+                                </DrawerHeader>
+
+                                <div className="h-[75vh] px-4">
+                                    <ImportProgressList
+                                        messages={importResults}
+                                    />
+                                </div>
+                            </DrawerContent>
+                        </Drawer>
+                    </CardFooter>
+                )}
             </Card>
         </div>
     )
