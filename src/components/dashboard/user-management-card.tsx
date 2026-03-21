@@ -83,11 +83,7 @@ export function UserManangementCard() {
             </CardHeader>
             {hasNewUsers && (
                 <CardFooter className="flex-col items-start gap-1.5">
-                    <span>
-                        {newUsers.length === 1
-                            ? 'Review and assign M-number to the new user'
-                            : 'Review and assign M-numbers to new users'}
-                    </span>
+                    <span>Review/assign Mnumbers to new users</span>
                 </CardFooter>
             )}
         </Card>
