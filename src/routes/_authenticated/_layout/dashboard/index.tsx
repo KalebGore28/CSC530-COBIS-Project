@@ -27,10 +27,10 @@ function DashboardPage() {
     if (!userSession) return null
 
     return (
-        <div className="container mx-auto space-y-6 p-4">
+        <div className="container mx-auto space-y-6 p-6">
             {userSession.roles.has('cobis_administrator') && (
                 <>
-                    <h2 className="text-2xl">Maintainence Tools</h2>
+                    <h2 className="text-2xl font-bold">Maintainence Tools</h2>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                         <UserManangementCard />
                         <TableManangementCard />
@@ -44,7 +44,7 @@ function DashboardPage() {
             ) &&
                 !isLoading && (
                     <>
-                        <h2 className="text-2xl">
+                        <h2 className="text-2xl font-bold">
                             Performance/Metrics Overview
                         </h2>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

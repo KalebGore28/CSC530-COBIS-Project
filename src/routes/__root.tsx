@@ -4,6 +4,7 @@ import {
     createRootRouteWithContext,
 } from '@tanstack/react-router'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+
 import appCss from '../styles.css?url'
 import type { getQueryClient } from '@/integrations/tanstack-query/provider'
 import { authQuery } from '@/lib/queries'
