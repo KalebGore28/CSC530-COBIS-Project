@@ -45,7 +45,7 @@ function RouteComponent() {
     )
 
     return (
-        <Card className="max-w-4xl mx-auto mt-6">
+        <Card className="mx-auto mt-6 max-w-4xl">
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">
                     Search Programs
@@ -67,12 +67,12 @@ function RouteComponent() {
                         ))}
                     </div>
                 ) : programData.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">
+                    <p className="text-muted-foreground text-sm italic">
                         No programs found.
                     </p>
                 ) : (
                     <>
-                        <p className="text-xs text-muted-foreground mb-2">
+                        <p className="text-muted-foreground mb-2 text-xs">
                             Limited to programs within your department. Results
                             limited to 100 entries. Refine your search to narrow
                             results.
@@ -87,24 +87,24 @@ function RouteComponent() {
                                             params: { code: program.id },
                                         })
                                     }
-                                    className="border rounded-md p-3 hover:bg-accent cursor-pointer transition-colors"
+                                    className="hover:bg-accent cursor-pointer rounded-md border p-3 transition-colors"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium">
                                                 {program.id}
                                             </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground text-sm">
                                                 {program.description}
                                             </p>
-                                            <p className="text-[10px] text-muted-foreground mt-1">
+                                            <p className="text-muted-foreground mt-1 text-[10px]">
                                                 Last updated:{' '}
                                                 {new Date(
                                                     program.last_updated,
                                                 ).toLocaleDateString()}
                                             </p>
                                         </div>
-                                        <div className="flex gap-2 flex-wrap justify-end">
+                                        <div className="flex flex-wrap justify-end gap-2">
                                             {program.is_major && (
                                                 <Badge>Major</Badge>
                                             )}

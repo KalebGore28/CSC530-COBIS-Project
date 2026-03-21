@@ -46,7 +46,7 @@ export function ProgramSearchBox({
 
     if (selected) {
         return (
-            <div className="flex flex-col gap-2 border rounded-md px-3 py-2 bg-muted/30">
+            <div className="bg-muted/30 flex flex-col gap-2 rounded-md border px-3 py-2">
                 <div className="flex items-center justify-between gap-2">
                     <div>
                         <strong>{selected.id}</strong> — {selected.description}
@@ -67,7 +67,7 @@ export function ProgramSearchBox({
                 </div>
 
                 {/* Conditional Major / Minor checkboxes */}
-                <div className="flex gap-6 pl-1 items-center">
+                <div className="flex items-center gap-6 pl-1">
                     {selected.is_major === true && (
                         <div className="flex items-center space-x-2">
                             <Checkbox
@@ -178,21 +178,21 @@ function ProgramResults({
     if (filteredPrograms.length === 0) return null
 
     return (
-        <ul className="border rounded-md divide-y">
+        <ul className="divide-y rounded-md border">
             {filteredPrograms.map((prog) => (
                 <li
                     key={prog.id}
-                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    className="hover:bg-accent/30 cursor-pointer px-3 py-1 transition-colors"
                     onClick={() => onSelect(prog)}
                 >
-                    <div className="flex flex-wrap items-center justify-start space-x-2 w-full gap-2">
+                    <div className="flex w-full flex-wrap items-center justify-start gap-2 space-x-2">
                         <strong>{prog.id}</strong>
                         {prog.description}
                         <div className="space-x-2">
                             {prog.is_major && (
                                 <Badge
                                     variant="outline"
-                                    className="text-green-800 border-green-800 bg-green-100 dark:text-green-100 dark:bg-green-900"
+                                    className="border-green-800 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100"
                                 >
                                     Major
                                 </Badge>
@@ -200,7 +200,7 @@ function ProgramResults({
                             {prog.is_minor && (
                                 <Badge
                                     variant="outline"
-                                    className="text-blue-800 border-blue-800 bg-blue-100 dark:text-blue-100 dark:bg-blue-900"
+                                    className="border-blue-800 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100"
                                 >
                                     Minor
                                 </Badge>
@@ -208,7 +208,7 @@ function ProgramResults({
                             {prog.has_concentration && (
                                 <Badge
                                     variant="outline"
-                                    className="text-purple-800 border-purple-800 bg-purple-100 dark:text-purple-100 dark:bg-purple-900"
+                                    className="border-purple-800 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100"
                                 >
                                     Concentration
                                 </Badge>
@@ -216,7 +216,7 @@ function ProgramResults({
                             {prog.is_discontinued && (
                                 <Badge
                                     variant="outline"
-                                    className="text-red-800 border-red-800 bg-red-100 dark:text-red-100 dark:bg-red-900"
+                                    className="border-red-800 bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-100"
                                 >
                                     Discontinued
                                 </Badge>
@@ -224,7 +224,7 @@ function ProgramResults({
                             {prog.is_aacsb && (
                                 <Badge
                                     variant="outline"
-                                    className="text-amber-800 border-amber-800 bg-amber-100 dark:text-amber-100 dark:bg-amber-900"
+                                    className="border-amber-800 bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100"
                                 >
                                     AACSB
                                 </Badge>

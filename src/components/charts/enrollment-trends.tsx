@@ -96,7 +96,7 @@ export const EnrollmentTrends: React.FC<EnrollmentTrendsProps> = ({
             <CardHeader>
                 <CardTitle>{title}</CardTitle>
                 {description && (
-                    <CardDescription className="text-xs font-semibold text-gray-500 uppercase tracking-wide ">
+                    <CardDescription className="text-xs font-semibold tracking-wide text-gray-500 uppercase">
                         {description}
                     </CardDescription>
                 )}

@@ -7,7 +7,7 @@ export const Route = createFileRoute('/table-demo')({
 
 function TableDemoPage() {
     return (
-        <div className="min-h-screen bg-background p-8">
+        <div className="bg-background min-h-screen p-8">
             <div className="mx-auto max-w-7xl space-y-8">
                 {/* Page Header */}
                 <div className="space-y-2">

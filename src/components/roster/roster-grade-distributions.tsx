@@ -39,7 +39,7 @@ export function RosterGradeDistributions({
                 <CardHeader className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <CardTitle>Grade Distributions</CardTitle>
-                        <CardDescription className="text-sm text-muted-foreground">
+                        <CardDescription className="text-muted-foreground text-sm">
                             Loading grade distributions...
                         </CardDescription>
                     </div>
@@ -85,13 +85,13 @@ export function RosterGradeDistributions({
             <CardHeader className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <CardTitle>Grade Distributions</CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground">
+                    <CardDescription className="text-muted-foreground text-sm">
                         {gradeType === 'midterm'
                             ? 'Midterm grade distribution'
                             : 'Final grade distribution'}
                     </CardDescription>
                 </div>
-                <div className="space-x-2 flex-none">
+                <div className="flex-none space-x-2">
                     <Tabs
                         defaultValue="final"
                         onValueChange={(val) =>

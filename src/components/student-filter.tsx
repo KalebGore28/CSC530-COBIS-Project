@@ -81,9 +81,9 @@ export const StudentFilters = ({
         <Card className="w-full">
             <CardContent className="flex flex-col gap-4">
                 {/* Top Filters Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     {/* Academic Level */}
-                    <div className="flex flex-col gap-2 border rounded-md p-4 bg-muted/30">
+                    <div className="bg-muted/30 flex flex-col gap-2 rounded-md border p-4">
                         <span className="text-md font-semibold">
                             Academic Level
                         </span>
@@ -92,7 +92,7 @@ export const StudentFilters = ({
                                 <label
                                     key={level}
                                     htmlFor={`level-${level}`}
-                                    className="flex items-center gap-2 cursor-pointer select-none"
+                                    className="flex cursor-pointer items-center gap-2 select-none"
                                 >
                                     <Checkbox
                                         checked={(
@@ -110,7 +110,7 @@ export const StudentFilters = ({
                     </div>
 
                     {/* GPA Range */}
-                    <div className="flex flex-col gap-2 border rounded-md p-4 bg-muted/30">
+                    <div className="bg-muted/30 flex flex-col gap-2 rounded-md border p-4">
                         <span className="text-md font-semibold">GPA Range</span>
                         <div className="flex flex-col gap-2">
                             <Slider
@@ -124,7 +124,7 @@ export const StudentFilters = ({
                                 max={4.0}
                                 className="w-full"
                             />
-                            <div className="flex justify-between text-sm font-medium text-muted-foreground">
+                            <div className="text-muted-foreground flex justify-between text-sm font-medium">
                                 <span>{(filters.gpaMin ?? 0).toFixed(1)}</span>
                                 <span>
                                     {(filters.gpaMax ?? 4.0).toFixed(1)}
@@ -152,10 +152,10 @@ export const StudentFilters = ({
                     />
                 </div>
             </CardContent>
-            <CardFooter className="flex gap-2 justify-end p-2">
+            <CardFooter className="flex justify-end gap-2 p-2">
                 {onResetFilters && (
                     <button
-                        className="px-4 py-2 bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition"
+                        className="bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md px-4 py-2 transition"
                         onClick={() => {
                             setFilters({
                                 academicLevels: [],
@@ -172,14 +172,14 @@ export const StudentFilters = ({
                 )}
                 {/* Search button with loader when selected */}
                 <button
-                    className="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/80 transition flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="bg-primary hover:bg-primary/80 flex items-center gap-2 rounded-md px-4 py-2 text-white transition disabled:cursor-not-allowed disabled:opacity-60"
                     onClick={() => onApplyFilters(filters)}
                     disabled={isLoading}
                 >
                     {isLoading ? (
                         <>
                             Running...
-                            <Loader2 className="animate-spin h-4 w-4" />
+                            <Loader2 className="h-4 w-4 animate-spin" />
                         </>
                     ) : (
                         'Run Search'

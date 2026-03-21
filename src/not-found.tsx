@@ -6,11 +6,11 @@ export function NotFound() {
     const navigate = useNavigate()
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
-            <div className="text-center space-y-8 max-w-md">
+        <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 dark:from-gray-900 dark:to-gray-800">
+            <div className="max-w-md space-y-8 text-center">
                 {/* 404 Number */}
                 <div className="relative">
-                    <h1 className="text-9xl font-bold text-gray-200 dark:text-gray-700 select-none">
+                    <h1 className="text-9xl font-bold text-gray-200 select-none dark:text-gray-700">
                         404
                     </h1>
                 </div>
@@ -27,13 +27,13 @@ export function NotFound() {
                 </div>
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
                     <Button
                         onClick={() => navigate({ to: '/dashboard' })}
                         size="lg"
                         className="gap-2"
                     >
-                        <Home className="w-4 h-4" />
+                        <Home className="h-4 w-4" />
                         Go to Dashboard
                     </Button>
                     <Button
@@ -42,7 +42,7 @@ export function NotFound() {
                         size="lg"
                         className="gap-2"
                     >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="h-4 w-4" />
                         Go Back
                     </Button>
                 </div>

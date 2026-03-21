@@ -31,12 +31,12 @@ export function ErrorComponent(props: ErrorComponentProps) {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 px-4">
-            <div className="text-center space-y-8 max-w-2xl w-full">
+        <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 dark:from-gray-900 dark:to-gray-800">
+            <div className="w-full max-w-2xl space-y-8 text-center">
                 {/* Error Icon */}
                 <div className="flex justify-center">
-                    <div className="rounded-full bg-red-100 dark:bg-red-900/20 p-6">
-                        <CircleAlert className="w-16 h-16 text-red-600 dark:text-red-400" />
+                    <div className="rounded-full bg-red-100 p-6 dark:bg-red-900/20">
+                        <CircleAlert className="h-16 w-16 text-red-600 dark:text-red-400" />
                     </div>
                 </div>
 
@@ -53,8 +53,8 @@ export function ErrorComponent(props: ErrorComponentProps) {
 
                 {/* Error Details (Development Only) */}
                 {isDevelopment && (
-                    <div className="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg p-4 text-left">
-                        <div className="flex items-center justify-between mb-2">
+                    <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-left dark:border-red-800 dark:bg-red-900/10">
+                        <div className="mb-2 flex items-center justify-between">
                             <p className="text-sm font-semibold text-red-800 dark:text-red-300">
                                 Error Details:
                             </p>
@@ -62,34 +62,34 @@ export function ErrorComponent(props: ErrorComponentProps) {
                                 onClick={copyErrorDetails}
                                 variant="outline"
                                 size="sm"
-                                className="h-8 gap-2 text-red-700 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+                                className="h-8 gap-2 text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                             >
                                 {copied ? (
-                                    <Check className="w-4 h-4" />
+                                    <Check className="h-4 w-4" />
                                 ) : (
-                                    <Copy className="w-4 h-4" />
+                                    <Copy className="h-4 w-4" />
                                 )}
                             </Button>
                         </div>
-                        <p className="text-sm text-red-700 dark:text-red-400 font-mono wrap-break-word">
+                        <p className="font-mono text-sm wrap-break-word text-red-700 dark:text-red-400">
                             {props.error.message}
                         </p>
                         {props.error.stack && (
                             <details className="mt-3">
-                                <summary className="text-sm text-red-600 dark:text-red-400 cursor-pointer hover:underline">
+                                <summary className="cursor-pointer text-sm text-red-600 hover:underline dark:text-red-400">
                                     Stack Trace
                                 </summary>
-                                <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-x-auto whitespace-pre-wrap">
+                                <pre className="mt-2 overflow-x-auto text-xs whitespace-pre-wrap text-red-600 dark:text-red-400">
                                     {props.error.stack}
                                 </pre>
                             </details>
                         )}
                         {props.info?.componentStack && (
                             <details className="mt-3">
-                                <summary className="text-sm text-red-600 dark:text-red-400 cursor-pointer hover:underline">
+                                <summary className="cursor-pointer text-sm text-red-600 hover:underline dark:text-red-400">
                                     Component Stack
                                 </summary>
-                                <pre className="mt-2 text-xs text-red-600 dark:text-red-400 overflow-x-auto whitespace-pre-wrap">
+                                <pre className="mt-2 overflow-x-auto text-xs whitespace-pre-wrap text-red-600 dark:text-red-400">
                                     {props.info.componentStack}
                                 </pre>
                             </details>
@@ -98,14 +98,14 @@ export function ErrorComponent(props: ErrorComponentProps) {
                 )}
 
                 {/* Actions */}
-                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <div className="flex flex-col justify-center gap-3 sm:flex-row">
                     {props.reset && (
                         <Button
                             onClick={() => props.reset?.()}
                             size="lg"
                             className="gap-2"
                         >
-                            <RotateCcw className="w-4 h-4" />
+                            <RotateCcw className="h-4 w-4" />
                             Try Again
                         </Button>
                     )}
@@ -115,7 +115,7 @@ export function ErrorComponent(props: ErrorComponentProps) {
                         size="lg"
                         className="gap-2"
                     >
-                        <House className="w-4 h-4" />
+                        <House className="h-4 w-4" />
                         Go Home
                     </Button>
                 </div>

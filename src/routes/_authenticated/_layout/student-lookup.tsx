@@ -203,7 +203,7 @@ function StudentLookup() {
     }
 
     return (
-        <div className="p-4 gap-6 flex flex-col">
+        <div className="flex flex-col gap-6 p-4">
             <StudentFilters
                 onApplyFilters={(filters) => setCurrentFilters(filters)}
                 onResetFilters={() => setCurrentFilters(null)}
@@ -212,8 +212,8 @@ function StudentLookup() {
 
             {/* If no filters applied */}
             {!isLoading && !currentFilters && (
-                <Card className="w-full mt-6 text-center p-10">
-                    <p className="text-sm text-muted-foreground">
+                <Card className="mt-6 w-full p-10 text-center">
+                    <p className="text-muted-foreground text-sm">
                         Please apply filters to see students.
                     </p>
                 </Card>
@@ -240,11 +240,11 @@ function StudentLookup() {
                     <CardFooter>
                         <div
                             ref={sentinelRef}
-                            className="h-6 w-full flex justify-center items-center"
+                            className="flex h-6 w-full items-center justify-center"
                         >
                             {isFetching && <Skeleton className="h-4 w-20" />}
                             {!isFetching && !hasNextPage && (
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-muted-foreground text-sm">
                                     No more students to load.
                                 </span>
                             )}

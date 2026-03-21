@@ -86,7 +86,7 @@ export function AdvisedStudentsCard({
                                 advisedStudents.map((s) => (
                                     <TableRow
                                         key={`advised-student-${s.mnumber}-${s.term}-${s.year}`}
-                                        className="cursor-pointer hover:bg-muted/50 transition"
+                                        className="hover:bg-muted/50 cursor-pointer transition"
                                         onClick={() => {
                                             setSelectedStudent &&
                                                 setSelectedStudent(s.mnumber!)
@@ -94,10 +94,10 @@ export function AdvisedStudentsCard({
                                         }}
                                     >
                                         <TableCell>{s.mnumber}</TableCell>
-                                        <TableCell className="truncate max-w-30">
+                                        <TableCell className="max-w-30 truncate">
                                             {`${s.last_name}, ${s.first_name}${s.suffix ? ' ' + s.suffix : ''}`}
                                         </TableCell>
-                                        <TableCell className="truncate max-w-30">
+                                        <TableCell className="max-w-30 truncate">
                                             {s.email ?? (
                                                 <a
                                                     href={`mailto:${s.email}`}
@@ -111,7 +111,7 @@ export function AdvisedStudentsCard({
                                 <TableRow>
                                     <TableCell
                                         colSpan={5}
-                                        className="text-center py-8"
+                                        className="py-8 text-center"
                                     >
                                         No advised students found.
                                     </TableCell>

@@ -138,7 +138,7 @@ export function UserModal({ userId }: UserCardProps) {
                         <span className="font-medium">
                             Enabled:
                             {user.mnumber === userSession?.user.mnumber && (
-                                <span className="text-sm text-red-500 ml-2">
+                                <span className="ml-2 text-sm text-red-500">
                                     (Cannot change your own account status)
                                 </span>
                             )}

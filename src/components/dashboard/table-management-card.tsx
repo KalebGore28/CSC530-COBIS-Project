@@ -175,51 +175,43 @@ export function TableManangementCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
+            className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
             onClick={() => navigate({ to: '/cobis-tools/manage-tables' })}
         >
             <CardHeader className="h-full">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950">
-                        <Table className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                    </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <Table className="h-6 w-6" />
+
                     <CardTitle>Table Management</CardTitle>
                 </div>
-                <CardDescription className="text-lg">
+                <CardDescription>
                     {issuesSummary.slice(0, 2).map((issue) => (
                         <div
                             key={issue.name}
-                            className="flex items-center justify-between w-full"
+                            className="flex items-baseline gap-2"
                         >
-                            <span className="text-muted-foreground">
-                                {issue.name}
-                            </span>
+                            <span>{issue.name}</span>
                             <Badge variant="outline" className="ml-2">
-                                {issue.count}
+                                {issue.count} Issue(s)
                             </Badge>
                         </div>
                     ))}
                     {issuesSummary.length > 2 && (
-                        <span className="text-xs text-muted-foreground italic">
+                        <span className="text-xs italic">
                             +{issuesSummary.length - 2} more...
                         </span>
                     )}
                 </CardDescription>
                 {hasIssues && (
                     <CardAction>
-                        <Badge
-                            variant="secondary"
-                            className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                        >
-                            Action Required
-                        </Badge>
+                        <Badge>Action Required</Badge>
                     </CardAction>
                 )}
             </CardHeader>
             {hasIssues && (
-                <CardFooter className="flex-col items-start gap-1.5 text-sm">
+                <CardFooter className="flex-col items-start gap-1.5">
                     {hasIssues ? (
-                        <span className="text-orange-600 dark:text-orange-400 font-medium">
+                        <span className="text-orange-600 dark:text-orange-400">
                             {totalIssues} item{totalIssues !== 1 ? 's' : ''}{' '}
                             need attention
                         </span>

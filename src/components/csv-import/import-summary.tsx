@@ -91,8 +91,8 @@ export function ImportSummary({
     }
 
     return (
-        <div className="grid grid-cols-2 gap-4 w-full h-full">
-            <ScrollArea className="flex-1 rounded-md border p-4 w-full h-full">
+        <div className="grid h-full w-full grid-cols-2 gap-4">
+            <ScrollArea className="h-full w-full flex-1 rounded-md border p-4">
                 <span className="mb-4 block text-sm font-medium">
                     Import Progress by Table
                 </span>
@@ -117,7 +117,7 @@ export function ImportSummary({
 
                         return (
                             <Card key={table.table} className="relative">
-                                <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                                <CardHeader className="flex flex-row items-center justify-between pb-2">
                                     <CardTitle className="text-base font-semibold">
                                         {table.table}
                                     </CardTitle>
@@ -130,7 +130,7 @@ export function ImportSummary({
                                                   : table.completed
                                                     ? 'text-green-600'
                                                     : isImporting
-                                                      ? 'text-blue-500 animate-spin'
+                                                      ? 'animate-spin text-blue-500'
                                                       : 'text-muted-foreground'
                                         }`}
                                     />
@@ -138,7 +138,7 @@ export function ImportSummary({
 
                                 <CardContent className="space-y-3">
                                     <Progress value={progress} />
-                                    <div className="flex justify-between text-xs text-muted-foreground">
+                                    <div className="text-muted-foreground flex justify-between text-xs">
                                         <span>
                                             {table.currentRow.toLocaleString()}{' '}
                                             / {table.totalRows.toLocaleString()}{' '}
@@ -149,7 +149,7 @@ export function ImportSummary({
 
                                     {(table.warnings.length > 0 ||
                                         table.errors.length > 0) && (
-                                        <div className="flex text-xs space-x-4">
+                                        <div className="flex space-x-4 text-xs">
                                             {table.warnings.length > 0 && (
                                                 <div className="text-yellow-700">
                                                     ⚠️ {table.warnings.length}{' '}
@@ -176,7 +176,7 @@ export function ImportSummary({
                     })}
 
                     {tableSummaries.length === 0 && (
-                        <p className="text-sm text-muted-foreground italic">
+                        <p className="text-muted-foreground text-sm italic">
                             Waiting for import data…
                         </p>
                     )}
@@ -184,9 +184,9 @@ export function ImportSummary({
             </ScrollArea>
 
             {/* Right column: overall summary & issue stream */}
-            <div className="flex flex-col h-full space-y-4">
+            <div className="flex h-full flex-col space-y-4">
                 {/* Overall Summary */}
-                <Card className="border border-muted bg-muted/30 flex flex-col">
+                <Card className="border-muted bg-muted/30 flex flex-col border">
                     <CardHeader className="pb-2">
                         <CardTitle className="text-base font-semibold">
                             Overall Progress
@@ -203,7 +203,7 @@ export function ImportSummary({
                                     : 0
                             }
                         />
-                        <div className="flex justify-between text-xs text-muted-foreground">
+                        <div className="text-muted-foreground flex justify-between text-xs">
                             <span>
                                 {
                                     tableSummaries.filter((t) => t.completed)
@@ -229,7 +229,7 @@ export function ImportSummary({
                         <Button
                             size="sm"
                             variant="outline"
-                            className="w-full flex items-center gap-2"
+                            className="flex w-full items-center gap-2"
                             onClick={() => {
                                 const logData = {
                                     warnings: warnings.slice(0, 5000),
@@ -262,7 +262,7 @@ export function ImportSummary({
                 </Card>
 
                 {/* Live stream of issues */}
-                <Card className="flex-1 border border-muted bg-background/60 flex flex-col">
+                <Card className="border-muted bg-background/60 flex flex-1 flex-col border">
                     <CardHeader>
                         <CardTitle className="text-base font-semibold">
                             Issues Stream
@@ -272,7 +272,7 @@ export function ImportSummary({
                     <CardContent className="p-0">
                         <ScrollArea className="h-[calc(100%-2rem)] px-4">
                             {warnings.length === 0 && errors.length === 0 && (
-                                <p className="text-xs text-muted-foreground italic">
+                                <p className="text-muted-foreground text-xs italic">
                                     No warnings or errors yet.
                                 </p>
                             )}
@@ -286,21 +286,21 @@ export function ImportSummary({
                                         key={idx}
                                         className={`flex items-start gap-2 border-b py-2 text-xs ${
                                             issue.error
-                                                ? 'text-red-700 border-red-200/50'
-                                                : 'text-yellow-700 border-yellow-100/40'
+                                                ? 'border-red-200/50 text-red-700'
+                                                : 'border-yellow-100/40 text-yellow-700'
                                         }`}
                                     >
                                         {issue.error ? (
-                                            <AlertCircle className="h-4 w-4 text-red-500 mt-px" />
+                                            <AlertCircle className="mt-px h-4 w-4 text-red-500" />
                                         ) : (
-                                            <TriangleAlert className="h-4 w-4 text-yellow-500 mt-px" />
+                                            <TriangleAlert className="mt-px h-4 w-4 text-yellow-500" />
                                         )}
                                         <div className="flex-1">
                                             <p className="font-medium">
                                                 {issue.message}
                                             </p>
                                             {issue.error && (
-                                                <p className="text-[11px] text-muted-foreground">
+                                                <p className="text-muted-foreground text-[11px]">
                                                     {issue.error.slice(0, 300)}
                                                 </p>
                                             )}

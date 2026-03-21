@@ -19,7 +19,7 @@ export function PieChartDonut({ data }: PieChartDonutProps) {
     // If filtered data is empty, return a message
     if (data.filter((item) => item.count > 0).length === 0) {
         return (
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-muted-foreground text-center text-sm">
                 No valid grade data available
             </p>
         )

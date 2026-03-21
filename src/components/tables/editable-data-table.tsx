@@ -80,7 +80,7 @@ export function EditableDataTable<TData, TValue>({
 
     return (
         <div className="w-full">
-            <div className="flex flex-col sm:flex-row flex-wrap items-center gap-2 py-4 justify-between mx-auto">
+            <div className="mx-auto flex flex-col flex-wrap items-center justify-between gap-2 py-4 sm:flex-row">
                 <Input
                     placeholder={`Filter by ${activeFilterColumn}...`}
                     value={

@@ -28,7 +28,7 @@ export function ImportProgressList({ messages }: Props) {
     )
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="space-y-4">
                 <span className="text-lg font-medium">
                     Table Import Progress
@@ -40,11 +40,11 @@ export function ImportProgressList({ messages }: Props) {
                             <CardDescription className="space-x-2">
                                 {/* Is Table Import Finished? */}
                                 {table.rowIndex >= table.totalRows ? (
-                                    <span className="text-green-600 font-medium">
+                                    <span className="font-medium text-green-600">
                                         Import Finished
                                     </span>
                                 ) : (
-                                    <span className="text-blue-600 font-medium">
+                                    <span className="font-medium text-blue-600">
                                         Import In Progress
                                     </span>
                                 )}
@@ -119,7 +119,7 @@ export function ImportProgressList({ messages }: Props) {
                         <CardTitle>Logs</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                        <div className="max-h-64 space-y-2 overflow-y-auto">
                             {(() => {
                                 return allLogs.length > 0 ? (
                                     allLogs.map((logMsg, index) => (

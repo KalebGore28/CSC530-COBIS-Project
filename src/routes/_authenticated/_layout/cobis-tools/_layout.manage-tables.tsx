@@ -180,7 +180,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="w-full mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mx-auto grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Card className="h-50">
                 <CardHeader className="h-full">
                     <CardTitle>Academic Standing Table</CardTitle>
@@ -204,28 +204,26 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {academicStandings.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link
                             to={'/cobis-tools/manage-tables/academic-standings'}
                         >
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {academicStandings.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/academic-standings'}
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-sm"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -255,26 +253,24 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {admitCodes.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/admit-codes'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {admitCodes.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/admit-codes'}
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -303,27 +299,23 @@ function RouteComponent() {
                         )}
                     </CardDescription>
                     <CardAction className="flex gap-2">
-                        {colleges.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
-                        )}
+                        {colleges.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/colleges'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {colleges.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/colleges'}
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -380,28 +372,24 @@ function RouteComponent() {
                         )}
                     </CardDescription>
                     <CardAction className="flex gap-2">
-                        {courses.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
-                        )}
+                        {courses.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/courses'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {courses.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         {coursesWithoutTitle > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
                                 search={{ filterColumn: 'title' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     Title
                                 </Badge>
                             </Link>
@@ -411,7 +399,10 @@ function RouteComponent() {
                                 to={'/cobis-tools/manage-tables/courses'}
                                 search={{ filterColumn: 'description' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     Description
                                 </Badge>
                             </Link>
@@ -421,7 +412,10 @@ function RouteComponent() {
                                 to={'/cobis-tools/manage-tables/courses'}
                                 search={{ filterColumn: 'college' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     College
                                 </Badge>
                             </Link>
@@ -452,26 +446,24 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {departments.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/departments'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {departments.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/departments'}
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -501,24 +493,19 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {instructionalMethods.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link
                             to={
                                 '/cobis-tools/manage-tables/instructional-methods'
                             }
                         >
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {instructionalMethods.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={
@@ -526,7 +513,10 @@ function RouteComponent() {
                             }
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -556,26 +546,24 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {partOfTerms.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link to={'/cobis-tools/manage-tables/part-of-terms'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {partOfTerms.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/part-of-terms'}
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>
@@ -632,28 +620,24 @@ function RouteComponent() {
                         )}
                     </CardDescription>
                     <CardAction className="flex gap-2">
-                        {programs.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
-                        )}
+                        {programs.length > 0 && <Badge>Action Required</Badge>}
                         <Link to={'/cobis-tools/manage-tables/programs'}>
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>
                 </CardHeader>
                 {programs.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         {programsWithoutDescription > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
                                 search={{ filterColumn: 'description' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     Description
                                 </Badge>
                             </Link>
@@ -663,7 +647,10 @@ function RouteComponent() {
                                 to={'/cobis-tools/manage-tables/programs'}
                                 search={{ filterColumn: 'department' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     Department
                                 </Badge>
                             </Link>
@@ -673,7 +660,10 @@ function RouteComponent() {
                                 to={'/cobis-tools/manage-tables/programs'}
                                 search={{ filterColumn: 'college' }}
                             >
-                                <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer hover:shadow-md"
+                                >
                                     College
                                 </Badge>
                             </Link>
@@ -704,24 +694,19 @@ function RouteComponent() {
                     </CardDescription>
                     <CardAction className="flex gap-2">
                         {registrationStatuses.length > 0 && (
-                            <Badge
-                                variant="secondary"
-                                className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                            >
-                                Action Required
-                            </Badge>
+                            <Badge>Action Required</Badge>
                         )}
                         <Link
                             to={
                                 '/cobis-tools/manage-tables/registration-statuses'
                             }
                         >
-                            <ExternalLink className="w-5 h-5 bg-gray-300 rounded p-1 dark:text-black" />
+                            <ExternalLink className="h-5 w-5 rounded bg-gray-300 p-1 dark:text-black" />
                         </Link>
                     </CardAction>{' '}
                 </CardHeader>
                 {registrationStatuses.length > 0 && (
-                    <CardFooter className="flex items-start gap-1.5 text-sm">
+                    <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
                         <Link
                             to={
@@ -729,7 +714,10 @@ function RouteComponent() {
                             }
                             search={{ filterColumn: 'description' }}
                         >
-                            <Badge className="cursor-pointer transistion hover:scale-[1.05] hover:shadlow-lg">
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer hover:shadow-md"
+                            >
                                 Description
                             </Badge>
                         </Link>

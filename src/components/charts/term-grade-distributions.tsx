@@ -134,16 +134,14 @@ export function TermGradeDistribution({
     }))
 
     return (
-        <Card className={`gap-0 flex flex-col ${className}`}>
-            <CardHeader className="items-center border-b-0 pb-0">
+        <Card className={`${className}`}>
+            <CardHeader>
                 {/* Left column: title + description */}
-                <div className="text-center sm:text-left">
-                    <CardTitle>{title}</CardTitle>
-                    <CardDescription>{description}</CardDescription>
-                </div>
+                <CardTitle>{title}</CardTitle>
+                <CardDescription>{description}</CardDescription>
 
                 {/* Right column: fetch / select controls */}
-                <div className="flex justify-around sm:justify-start gap-4">
+                <div className="flex justify-around gap-4 pt-2 sm:justify-start">
                     {/* Select view */}
                     <Tabs
                         defaultValue="final"
@@ -151,7 +149,7 @@ export function TermGradeDistribution({
                             setView(val as 'midterm' | 'final')
                         }
                     >
-                        <TabsList className="rounded-lg">
+                        <TabsList>
                             <TabsTrigger value="midterm">Midterm</TabsTrigger>
                             <TabsTrigger value="final">Final</TabsTrigger>
                         </TabsList>
@@ -162,36 +160,23 @@ export function TermGradeDistribution({
                         defaultValue={'1'}
                         onValueChange={(val) => setOffset(Number(val))}
                     >
-                        <SelectTrigger
-                            className="w-40 rounded-lg"
-                            aria-label="Select time range"
-                        >
+                        <SelectTrigger aria-label="Select time range">
                             <SelectValue placeholder="Select time range" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                            <SelectItem value="10" className="rounded-lg">
-                                Last 10 years
-                            </SelectItem>
-                            <SelectItem value="5" className="rounded-lg">
-                                Last 5 years
-                            </SelectItem>
-                            <SelectItem value="3" className="rounded-lg">
-                                Last 3 years
-                            </SelectItem>
-                            <SelectItem value="2" className="rounded-lg">
-                                Last 2 years
-                            </SelectItem>
-                            <SelectItem value="1" className="rounded-lg">
-                                Last year
-                            </SelectItem>
+                        <SelectContent>
+                            <SelectItem value="1">Last year</SelectItem>
+                            <SelectItem value="2">Last 2 years</SelectItem>
+                            <SelectItem value="3">Last 3 years</SelectItem>
+                            <SelectItem value="5">Last 5 years</SelectItem>
+                            <SelectItem value="10">Last 10 years</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
             </CardHeader>
-            <CardContent className="p-2 w-full h-96">
+            <CardContent className="h-96 w-full">
                 <ChartContainer
                     config={{}}
-                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto h-full pb-0 aspect-auto"
+                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto aspect-auto h-full pb-0"
                 >
                     <AreaChart
                         data={

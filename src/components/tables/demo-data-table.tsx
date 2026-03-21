@@ -351,7 +351,7 @@ export function DemoDataTable() {
     return (
         <div className="w-full space-y-4">
             {/* Toolbar */}
-            <div className="flex items-center justify-between rounded-lg border bg-card p-4 shadow-sm">
+            <div className="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
                 <div className="flex items-center gap-2">
                     {/* Columns Button */}
                     <DropdownMenu>
@@ -406,7 +406,7 @@ export function DemoDataTable() {
                                 )}
                                 Sort
                                 {sortColumn && (
-                                    <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+                                    <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-xs">
                                         1
                                     </span>
                                 )}
@@ -414,7 +414,7 @@ export function DemoDataTable() {
                         </PopoverTrigger>
                         <PopoverContent align="start" className="w-48 p-2">
                             <div className="space-y-2">
-                                <div className="flex items-center text-center text-xs text-muted-foreground font-medium justify-between">
+                                <div className="text-muted-foreground flex items-center justify-between text-center text-xs font-medium">
                                     <span>Sort By</span>
                                     <div className="flex items-center gap-2">
                                         <Label htmlFor="sort-direction">
@@ -459,7 +459,7 @@ export function DemoDataTable() {
                                                         />
                                                         <Label
                                                             htmlFor={`sort-${column.id}`}
-                                                            className="font-normal capitalize cursor-pointer"
+                                                            className="cursor-pointer font-normal capitalize"
                                                         >
                                                             {column.id}
                                                         </Label>
@@ -499,7 +499,7 @@ export function DemoDataTable() {
                                 <Filter className="h-4 w-4" />
                                 Filter
                                 {columnFilters.length > 0 && (
-                                    <span className="ml-1 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
+                                    <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-xs">
                                         {columnFilters.length}
                                     </span>
                                 )}
@@ -508,10 +508,10 @@ export function DemoDataTable() {
                         <PopoverContent className="w-80" align="start">
                             <div className="space-y-4">
                                 <div className="space-y-2">
-                                    <h4 className="font-medium leading-none">
+                                    <h4 className="leading-none font-medium">
                                         Filter Data
                                     </h4>
-                                    <p className="text-sm text-muted-foreground">
+                                    <p className="text-muted-foreground text-sm">
                                         Filter table by column values
                                     </p>
                                 </div>
@@ -620,10 +620,10 @@ export function DemoDataTable() {
                                 <PopoverContent className="w-80" align="start">
                                     <div className="space-y-4">
                                         <div className="space-y-2">
-                                            <h4 className="font-medium leading-none">
+                                            <h4 className="leading-none font-medium">
                                                 Bulk Edit
                                             </h4>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground text-sm">
                                                 Update a column value for all{' '}
                                                 {selectedRowCount} selected
                                                 row(s)
@@ -701,14 +701,14 @@ export function DemoDataTable() {
                     )}
                 </div>
 
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                     {table.getFilteredRowModel().rows.length} of{' '}
                     {sampleData.length} row (s)
                 </div>
             </div>
 
             {/* Table */}
-            <div className="rounded-lg border bg-card shadow-sm">
+            <div className="bg-card rounded-lg border shadow-sm">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (

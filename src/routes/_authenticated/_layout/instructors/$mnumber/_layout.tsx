@@ -20,7 +20,7 @@ import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 
 function InstructorPageSkeleton() {
     return (
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-4">
             {/* Profile section */}
             <Card>
                 <CardContent>
@@ -29,7 +29,7 @@ function InstructorPageSkeleton() {
                         <Skeleton className="h-24 w-24 rounded-full" />
 
                         {/* Name + details */}
-                        <div className="space-y-2 w-full max-w-sm">
+                        <div className="w-full max-w-sm space-y-2">
                             <Skeleton className="h-8 w-3/4" /> {/* name */}
                             <Skeleton className="h-4 w-2/3" />{' '}
                             {/* department */}
@@ -41,8 +41,8 @@ function InstructorPageSkeleton() {
             </Card>
 
             {/* Tabs */}
-            <div className="w-full flex justify-center">
-                <div className="bg-background border rounded-lg w-full max-w-md">
+            <div className="flex w-full justify-center">
+                <div className="bg-background w-full max-w-md rounded-lg border">
                     <div className="grid grid-cols-3">
                         <Skeleton className="h-10 w-full rounded-none" />
                         <Skeleton className="h-10 w-full rounded-none" />
@@ -111,7 +111,7 @@ function RouteComponent() {
 
     if (!instructor) {
         return (
-            <div className="flex items-center justify-center h-screen">
+            <div className="flex h-screen items-center justify-center">
                 <div className="flex flex-col items-center gap-2">
                     <AlertCircle className="h-8 w-8 text-red-500" />
                     <p className="text-muted-foreground">
@@ -123,12 +123,12 @@ function RouteComponent() {
     }
 
     return (
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-4">
             {/* Profile picture and info */}
             <Card>
                 <CardContent>
                     <div className="flex items-center gap-4">
-                        <Avatar className="h-24 w-24 border-2 border-primary">
+                        <Avatar className="border-primary h-24 w-24 border-2">
                             <AvatarImage
                                 src={instructor.image || undefined}
                                 alt={instructor.first_name}
@@ -140,13 +140,13 @@ function RouteComponent() {
                         </Avatar>
                         <div>
                             <h1 className="text-3xl font-bold">{`${instructor.first_name} ${instructor.last_name}`}</h1>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                                 Department: {instructor.department_description}
                             </p>
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-muted-foreground text-sm">
                                 College: {instructor.college_description}
                             </p>
-                            <span className="inline-flex items-center text-sm space-x-1">
+                            <span className="inline-flex items-center space-x-1 text-sm">
                                 {instructor.email && (
                                     <a
                                         href={`mailto:${instructor.email}`}
@@ -161,11 +161,11 @@ function RouteComponent() {
                 </CardContent>
             </Card>
 
-            <div className="w-full flex justify-center">
+            <div className="flex w-full justify-center">
                 {/* Tabs */}
                 <Tabs
                     value={activeTab}
-                    className="bg-background border rounded-lg"
+                    className="bg-background rounded-lg border"
                 >
                     <TabsList className="grid grid-cols-3">
                         <TabsTrigger

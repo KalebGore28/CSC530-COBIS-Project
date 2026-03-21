@@ -33,7 +33,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
             <Card className="border-muted/40">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Database className="h-5 w-5 text-muted-foreground" />
+                        <Database className="text-muted-foreground h-5 w-5" />
                         Analyzing File
                     </CardTitle>
                     <CardDescription>
@@ -70,7 +70,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
     return (
         <Card className="border-success/40">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-success">
+                <CardTitle className="text-success flex items-center gap-2">
                     <CheckCircle2 className="h-5 w-5 text-green-500" />
                     Recognized CSV
                 </CardTitle>
@@ -84,7 +84,7 @@ export function TablePreview({ fileName }: TablePreviewProps) {
                     <Badge
                         key={table}
                         variant="secondary"
-                        className="text-sm font-mono px-3 py-1"
+                        className="px-3 py-1 font-mono text-sm"
                     >
                         {table}
                     </Badge>

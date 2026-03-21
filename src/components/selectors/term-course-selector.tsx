@@ -118,7 +118,7 @@ export function TermCourseSelector({
                     Select a term and course to view the class roster.
                 </CardDescription>
             </CardHeader>
-            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-4">
+            <CardContent className="grid grid-cols-1 gap-6 pb-4 md:grid-cols-2">
                 {/* Term Selector Component */}
                 <Card>
                     <CardContent>
@@ -175,7 +175,7 @@ export function TermCourseSelector({
                         <CardFooter className="flex flex-wrap gap-2">
                             <Badge
                                 variant="outline"
-                                className="bg-green-50 dark:bg-green-900 gap-1"
+                                className="gap-1 bg-green-50 dark:bg-green-900"
                             >
                                 <span>
                                     {selectedTerm.studentCount}{' '}

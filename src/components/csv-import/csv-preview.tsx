@@ -50,10 +50,10 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
     if (csvData.data.length === 0) {
         return (
             <div className="mb-6 w-full">
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2 flex items-center justify-between">
                     <h3 className="text-sm font-medium">CSV Preview</h3>
-                    <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
-                        <FileSpreadsheet className="h-3 w-3 mr-1" /> Data
+                    <div className="flex items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                        <FileSpreadsheet className="mr-1 h-3 w-3" /> Data
                         Preview
                     </div>
                 </div>
@@ -88,7 +88,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
             return {
                 value: '',
                 displayValue: (
-                    <span className="italic text-muted-foreground">
+                    <span className="text-muted-foreground italic">
                         (empty)
                     </span>
                 ),
@@ -106,7 +106,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
             return {
                 value,
                 displayValue: (
-                    <span className="italic text-purple-700">(NULL)</span>
+                    <span className="text-purple-700 italic">(NULL)</span>
                 ),
                 type: 'null',
                 isEmpty: true,
@@ -139,29 +139,29 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
 
     return (
         <div className="mb-6 w-full">
-            <div className="flex items-center justify-between mb-2">
+            <div className="mb-2 flex items-center justify-between">
                 <h3 className="text-sm font-medium">CSV Preview</h3>
-                <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded-md border border-blue-200 flex items-center">
-                    <FileSpreadsheet className="h-3 w-3 mr-1" /> Data Preview
+                <div className="flex items-center rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                    <FileSpreadsheet className="mr-1 h-3 w-3" /> Data Preview
                 </div>
             </div>
 
-            <div className="flex justify-between items-center mb-3">
-                <div className="text-sm text-muted-foreground flex items-center gap-2">
+            <div className="mb-3 flex items-center justify-between">
+                <div className="text-muted-foreground flex items-center gap-2 text-sm">
                     <span>{csvData.data.length} total rows</span>
                     <Badge
                         variant="outline"
-                        className="bg-blue-50 text-blue-700 border-blue-200 font-normal"
+                        className="border-blue-200 bg-blue-50 font-normal text-blue-700"
                     >
                         {headers.length} columns
                     </Badge>
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                     Showing rows {pageStart + 1}-{pageEnd}
                 </div>
             </div>
 
-            <div className="rounded-md border w-full overflow-hidden">
+            <div className="w-full overflow-hidden rounded-md border">
                 <div className="overflow-x-auto">
                     <Table
                         className="w-full table-fixed"
@@ -201,7 +201,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                                     key={rowIndex}
                                     className="hover:bg-muted/20"
                                 >
-                                    <TableCell className="font-mono text-center text-muted-foreground bg-muted/10 font-medium text-sm w-10">
+                                    <TableCell className="text-muted-foreground bg-muted/10 w-10 text-center font-mono text-sm font-medium">
                                         {pageStart + rowIndex + 1}
                                     </TableCell>
                                     {headers.map((header, colIndex) => {
@@ -237,18 +237,18 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
             </div>
 
             {hasSpecialValues && (
-                <div className="flex items-start gap-2 mt-3 p-2 rounded-md bg-amber-50 border border-amber-200 text-amber-800 w-full">
-                    <Info className="h-4 w-4 mt-0.5 shrink-0" />
+                <div className="mt-3 flex w-full items-start gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-amber-800">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0" />
                     <div className="text-sm">
                         <p>Special values in the preview are highlighted:</p>
-                        <div className="flex flex-wrap gap-3 mt-1">
+                        <div className="mt-1 flex flex-wrap gap-3">
                             {specialValueTypes.empty && (
-                                <span className="bg-amber-50 px-2 py-0.5 rounded text-amber-800 border border-amber-200">
+                                <span className="rounded border border-amber-200 bg-amber-50 px-2 py-0.5 text-amber-800">
                                     Empty cells
                                 </span>
                             )}
                             {specialValueTypes.null && (
-                                <span className="bg-purple-50 px-2 py-0.5 rounded text-purple-700 border border-purple-200">
+                                <span className="rounded border border-purple-200 bg-purple-50 px-2 py-0.5 text-purple-700">
                                     NULL values
                                 </span>
                             )}
@@ -258,7 +258,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
             )}
 
             {totalPages > 1 && (
-                <div className="flex justify-between items-center mt-3 w-full">
+                <div className="mt-3 flex w-full items-center justify-between">
                     <Button
                         variant="outline"
                         size="sm"
@@ -269,7 +269,7 @@ export const CsvPreview: React.FC<CsvPreviewProps> = ({
                         <ChevronLeft className="h-4 w-4" /> Previous
                     </Button>
 
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                         Page {page + 1} of {totalPages}
                     </div>
 

@@ -82,7 +82,7 @@ function RosterSummaryCardSkeleton({ className }: { className?: string }) {
 
                     {/* Additional Statistics */}
                     <div>
-                        <h3 className="text-sm font-semibold mb-2">
+                        <h3 className="mb-2 text-sm font-semibold">
                             <Skeleton className="h-4 w-32" />
                         </h3>
 
@@ -188,7 +188,7 @@ export function RosterSummaryCard({
 
                     {/* Additional Statistics */}
                     <div>
-                        <h3 className="text-sm font-semibold mb-2">
+                        <h3 className="mb-2 text-sm font-semibold">
                             Additional Insights
                         </h3>
                         <dl className="grid grid-cols-1 gap-4 text-sm">

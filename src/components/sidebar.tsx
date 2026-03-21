@@ -49,13 +49,13 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <Link
                             to="/dashboard"
-                            className="cursor-pointer flex items-center"
+                            className="flex cursor-pointer items-center"
                         >
                             {/* Shield logo - shown when sidebar is closed */}
                             <img
                                 src={logoShield}
                                 className={
-                                    open || isMobile ? 'hidden' : 'w-8 h-10'
+                                    open || isMobile ? 'hidden' : 'h-10 w-8'
                                 }
                                 alt="Murray Logo"
                             />
@@ -64,7 +64,7 @@ export function AppSidebar() {
                                 src={logoPrimaryNavy}
                                 className={
                                     open || isMobile
-                                        ? 'w-auto h-auto mt-4 dark:hidden'
+                                        ? 'mt-4 h-auto w-auto dark:hidden'
                                         : 'hidden'
                                 }
                                 alt="Murray Logo"
@@ -74,7 +74,7 @@ export function AppSidebar() {
                                 src={logoPrimaryWhite}
                                 className={
                                     open || isMobile
-                                        ? 'hidden w-auto h-auto mt-4 dark:block'
+                                        ? 'mt-4 hidden h-auto w-auto dark:block'
                                         : 'hidden'
                                 }
                                 alt="Murray Logo"
@@ -85,8 +85,8 @@ export function AppSidebar() {
                         <h1
                             className={
                                 open === true
-                                    ? 'text-sidebar-foreground text-sm text-center text-nowrap'
-                                    : 'hidden text-nowrap ml-5'
+                                    ? 'text-sidebar-foreground text-center text-sm text-nowrap'
+                                    : 'ml-5 hidden text-nowrap'
                             }
                         >
                             COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
@@ -109,7 +109,7 @@ export function AppSidebar() {
                             >
                                 <Link
                                     to="/dashboard"
-                                    className="w-full h-full flex items-center gap-2"
+                                    className="flex h-full w-full items-center gap-2"
                                 >
                                     <Compass />
                                     Dashboard
@@ -127,7 +127,7 @@ export function AppSidebar() {
                             >
                                 <Link
                                     to="/class-roster"
-                                    className="w-full h-full flex items-center gap-2"
+                                    className="flex h-full w-full items-center gap-2"
                                 >
                                     <Clipboard />
                                     Class Roster
@@ -145,7 +145,7 @@ export function AppSidebar() {
                             >
                                 <Link
                                     to="/advisees"
-                                    className="w-full h-full flex items-center gap-2"
+                                    className="flex h-full w-full items-center gap-2"
                                 >
                                     <BookUser />
                                     Advisees
@@ -160,7 +160,7 @@ export function AppSidebar() {
                         <SidebarMenu>
                             <SidebarMenuItem
                                 key="student-lookup"
-                                className="text-nowrap flex items-center justify-between"
+                                className="flex items-center justify-between text-nowrap"
                             >
                                 <SidebarMenuButton
                                     tooltip="Student Lookup"
@@ -169,7 +169,7 @@ export function AppSidebar() {
                                 >
                                     <Link
                                         to="/student-lookup"
-                                        className="w-full h-full flex items-center gap-2"
+                                        className="flex h-full w-full items-center gap-2"
                                     >
                                         <ScanSearch />
                                         Student Lookup
@@ -187,7 +187,7 @@ export function AppSidebar() {
                                 >
                                     <Link
                                         to="/instructors"
-                                        className="w-full h-full flex items-center gap-2"
+                                        className="flex h-full w-full items-center gap-2"
                                     >
                                         <PersonStanding />
                                         Instructors
@@ -223,7 +223,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSubButton asChild>
                                                     <Link
                                                         to="/enrollment/programs"
-                                                        className="w-full h-full flex items-center gap-2 p-1"
+                                                        className="flex h-full w-full items-center gap-2 p-1"
                                                     >
                                                         Programs
                                                     </Link>
@@ -233,7 +233,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSubButton asChild>
                                                     <Link
                                                         to="/enrollment/courses"
-                                                        className="w-full h-full flex items-center gap-2 p-1"
+                                                        className="flex h-full w-full items-center gap-2 p-1"
                                                     >
                                                         Courses
                                                     </Link>
@@ -271,7 +271,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSubButton asChild>
                                                     <Link
                                                         to="/cobis-tools/users"
-                                                        className="w-full h-full flex items-center gap-2 p-1"
+                                                        className="flex h-full w-full items-center gap-2 p-1"
                                                     >
                                                         Manage Users
                                                     </Link>
@@ -281,7 +281,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSubButton asChild>
                                                     <Link
                                                         to="/cobis-tools/manage-tables"
-                                                        className="w-full h-full flex items-center gap-2 p-1"
+                                                        className="flex h-full w-full items-center gap-2 p-1"
                                                     >
                                                         Manage Tables
                                                     </Link>
@@ -291,7 +291,7 @@ export function AppSidebar() {
                                                 <SidebarMenuSubButton asChild>
                                                     <Link
                                                         to="/cobis-tools/import"
-                                                        className="w-full h-full flex items-center gap-2 p-1"
+                                                        className="flex h-full w-full items-center gap-2 p-1"
                                                     >
                                                         Import Data
                                                     </Link>

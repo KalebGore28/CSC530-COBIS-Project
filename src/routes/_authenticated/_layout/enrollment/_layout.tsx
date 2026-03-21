@@ -34,7 +34,7 @@ function RouteComponent() {
 
     const activeTab = location.pathname.split('/').pop() || 'import'
     return (
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-4">
             <Card>
                 <CardHeader>
                     <CardTitle>Enrollment Metrics</CardTitle>

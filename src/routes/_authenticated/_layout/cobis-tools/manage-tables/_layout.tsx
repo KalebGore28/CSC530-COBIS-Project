@@ -12,8 +12,8 @@ function RouteComponent() {
     const navigate = useNavigate()
 
     return (
-        <div className="w-full mx-auto p-4">
-            <div className="w-full col-span-3">
+        <div className="mx-auto w-full p-4">
+            <div className="col-span-3 w-full">
                 <Button
                     variant="outline"
                     size="sm"

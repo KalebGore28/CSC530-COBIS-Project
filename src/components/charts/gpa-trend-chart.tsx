@@ -89,7 +89,7 @@ export const GPATrendChart = ({ gpaTrend }: GPATrendChartProps) => {
             </CardContent>
             <CardFooter>
                 <div className="flex w-full items-start gap-2 text-sm">
-                    <div className="flex items-center gap-2 font-medium leading-none">
+                    <div className="flex items-center gap-2 leading-none font-medium">
                         {/* e.g. compute the delta between first & last overall_gpa */}
                         {gpaTrend.length >= 2 &&
                             (() => {

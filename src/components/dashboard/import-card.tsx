@@ -13,18 +13,17 @@ export function ImportCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
+            className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
             onClick={() => navigate({ to: '/cobis-tools/import' })}
         >
             <CardHeader className="h-full">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950">
-                        <Upload className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                    </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <Upload className="h-6 w-6" />
+
                     <CardTitle>Import Data</CardTitle>
                 </div>
-                <CardDescription className="text-lg">
-                    <span className="text-muted-foreground">
+                <CardDescription>
+                    <span>
                         Begin a new import process to add or update data in the
                         system
                     </span>

@@ -43,10 +43,10 @@ function InstructorsPageSkeleton() {
     return (
         <Card>
             <CardHeader className="pb-3">
-                <div className="flex flex-wrap justify-between items-center">
+                <div className="flex flex-wrap items-center justify-between">
                     {/* Title & description skeletons */}
                     <div>
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="mb-2 flex items-center gap-2">
                             <Skeleton className="h-5 w-5 rounded-full" />
                             <Skeleton className="h-6 w-32" />
                         </div>
@@ -54,7 +54,7 @@ function InstructorsPageSkeleton() {
                     </div>
 
                     {/* Search & filter skeletons */}
-                    <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
                         <Skeleton className="h-10 w-62.5 rounded-lg" />
                         <Skeleton className="h-10 w-37.5 rounded-lg" />
                     </div>
@@ -159,9 +159,9 @@ function RouteComponent() {
 
     if (isLoading)
         return (
-            <div className="w-full p-6 mx-auto space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
-                    <h2 className="col-span-full text-center font-bold text-2xl">
+            <div className="mx-auto w-full space-y-6 p-6">
+                <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <h2 className="col-span-full text-center text-2xl font-bold">
                         Instructors
                     </h2>
                     <p className="text-muted-foreground col-span-full text-center">
@@ -173,16 +173,16 @@ function RouteComponent() {
         )
 
     if (facultyData.length === 0) {
-        ;<div className="w-full p-6 mx-auto space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
-                <h2 className="col-span-full text-center font-bold text-2xl">
+        ;<div className="mx-auto w-full space-y-6 p-6">
+            <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
+                <h2 className="col-span-full text-center text-2xl font-bold">
                     Instructors
                 </h2>
                 <p className="text-muted-foreground col-span-full text-center">
                     View and manage all instructors in your department
                 </p>
             </div>
-            <p className="text-center text-muted-foreground">
+            <p className="text-muted-foreground text-center">
                 No data available.
             </p>
         </div>
@@ -203,9 +203,9 @@ function RouteComponent() {
     }
 
     return (
-        <div className="w-full p-6 mx-auto space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
-                <h2 className="col-span-full text-center font-bold text-2xl">
+        <div className="mx-auto w-full space-y-6 p-6">
+            <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
+                <h2 className="col-span-full text-center text-2xl font-bold">
                     Instructors
                 </h2>
                 <p className="text-muted-foreground col-span-full text-center">
@@ -214,9 +214,9 @@ function RouteComponent() {
             </div>
             <Card>
                 <CardHeader className="pb-3">
-                    <div className="flex flex-wrap justify-between items-center">
+                    <div className="flex flex-wrap items-center justify-between">
                         <div className="pb-4">
-                            <CardTitle className="text-xl flex items-center gap-2">
+                            <CardTitle className="flex items-center gap-2 text-xl">
                                 <Users className="h-5 w-5" />
                                 Instructor Directory
                             </CardTitle>
@@ -235,11 +235,11 @@ function RouteComponent() {
                         {/* Search and Filter Controls*/}
                         <div className="flex flex-wrap gap-2 sm:gap-4">
                             <div className="relative">
-                                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                                <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
                                 <Input
                                     type="search"
                                     placeholder="Search instructors..."
-                                    className="pl-8 w-full"
+                                    className="w-full pl-8"
                                     value={searchQuery}
                                     onChange={handleSearchChange}
                                 />
@@ -268,7 +268,7 @@ function RouteComponent() {
                                         </Avatar>
                                         <div className="flex flex-col">
                                             <span className="font-semibold">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
-                                            <span className="text-sm text-muted-foreground">
+                                            <span className="text-muted-foreground text-sm">
                                                 {d.faculty.mnumber}
                                             </span>
                                         </div>
@@ -290,7 +290,7 @@ function RouteComponent() {
                     ) : (
                         filteredFaculty.length === 0 && (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <Users className="h-12 w-12 text-muted-foreground mb-4" />
+                                <Users className="text-muted-foreground mb-4 h-12 w-12" />
                                 <h3 className="text-lg font-medium">
                                     No instructors found
                                 </h3>

@@ -35,18 +35,18 @@ export function AdviseesMetricCard({ mnumber }: { mnumber: string }) {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
+            className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
             onClick={() => navigate({ to: '/advisees' })}
         >
             <CardHeader className="h-full">
-                <div className="flex items-center gap-3 mb-2">
+                <div className="mb-2 flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-950">
                         <BookUser className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                     </div>
                     <CardTitle>Advisee Metrics</CardTitle>
                 </div>
                 <CardDescription className="flex flex-wrap gap-2">
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-wrap items-center gap-2">
                         <span className="text-lg font-bold">
                             {advisedStudents.length}
                         </span>
@@ -60,7 +60,7 @@ export function AdviseesMetricCard({ mnumber }: { mnumber: string }) {
                 </CardDescription>
             </CardHeader>
             <CardFooter>
-                <div className="flex items-center gap-1 flex-wrap">
+                <div className="flex flex-wrap items-center gap-1">
                     <span>See more details about your advisees at</span>
                     <span className="font-semibold">Advisees</span>
                 </div>

@@ -115,10 +115,10 @@ function RouteComponent() {
     })
 
     return (
-        <div className="w-full mx-auto p-4 space-y-6">
+        <div className="mx-auto w-full space-y-6 p-4">
             {/* Statistics summary cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="w-full col-span-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="col-span-3 w-full">
                     {/* Back button */}
                     <Button
                         variant="outline"
@@ -144,9 +144,9 @@ function RouteComponent() {
                 <Card size="sm">
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <BookOpen className="h-8 w-8 text-secondary" />
+                            <BookOpen className="text-secondary h-8 w-8" />
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">
+                                <p className="text-muted-foreground text-sm font-medium">
                                     Courses
                                 </p>
                                 <p className="text-3xl font-bold">
@@ -160,9 +160,9 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Users className="h-8 w-8 text-secondary" />
+                            <Users className="text-secondary h-8 w-8" />
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">
+                                <p className="text-muted-foreground text-sm font-medium">
                                     Students
                                 </p>
                                 <p className="text-3xl font-bold">
@@ -176,9 +176,9 @@ function RouteComponent() {
                 <Card>
                     <CardContent className="pt-6">
                         <div className="flex items-center gap-3">
-                            <Calculator className="h-8 w-8 text-secondary" />
+                            <Calculator className="text-secondary h-8 w-8" />
                             <div>
-                                <p className="text-sm font-medium text-muted-foreground">
+                                <p className="text-muted-foreground text-sm font-medium">
                                     Credit Hours
                                 </p>
                                 <p className="text-3xl font-bold">
@@ -192,8 +192,8 @@ function RouteComponent() {
 
             {/* Course details table */}
             <Card className="p-0">
-                <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                    <div className="border rounded-lg bg-white dark:bg-gray-700">
+                <CardContent className="bg-primary m-0 rounded-xl border p-1">
+                    <div className="rounded-lg border bg-white dark:bg-gray-700">
                         <CoursesTable
                             data={Array.from(coursesMap.values()).map(
                                 (course) => ({

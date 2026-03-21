@@ -18,7 +18,7 @@ import { TeachingHistoryTable } from '@/components/tables/teaching-history-table
 
 function TermHistoryTableSkeleton() {
     return (
-        <div className="border rounded-lg">
+        <div className="rounded-lg border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -142,8 +142,8 @@ function RouteComponent() {
 
     if (termHistory.length === 0) {
         return (
-            <div className="border rounded-lg">
-                <p className="p-4 text-center text-muted-foreground">
+            <div className="rounded-lg border">
+                <p className="text-muted-foreground p-4 text-center">
                     No term history available.
                 </p>
             </div>
@@ -152,8 +152,8 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                <div className="border rounded-lg bg-white dark:bg-gray-700">
+            <CardContent className="bg-primary m-0 rounded-xl border p-1">
+                <div className="rounded-lg border bg-white dark:bg-gray-700">
                     <TeachingHistoryTable
                         data={Array.from(termHistoryMap.values()).map(
                             (term) => ({

@@ -21,7 +21,7 @@ function RouteComponent() {
     if (!userSession || !userSession.user.mnumber || isLoading) return null
 
     return (
-        <div className="container p-4 mx-auto space-y-6">
+        <div className="container mx-auto space-y-6 p-4">
             <>
                 <h2 className="text-2xl">Current Advisees</h2>
 

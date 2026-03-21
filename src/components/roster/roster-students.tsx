@@ -215,11 +215,11 @@ export function RosterStudents({
                 </div>
                 <div className="flex flex-wrap gap-4">
                     <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                        <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
                         <Input
                             type="search"
                             placeholder="Search students..."
-                            className="pl-8 w-full"
+                            className="w-full pl-8"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -246,7 +246,7 @@ export function RosterStudents({
             </CardHeader>
             <CardContent className="overflow-x-auto">
                 <Tabs defaultValue="list" className="w-full">
-                    <TabsList className="grid w-full md:w-auto grid-cols-2 mb-4">
+                    <TabsList className="mb-4 grid w-full grid-cols-2 md:w-auto">
                         <TabsTrigger value="list">List View</TabsTrigger>
                         <TabsTrigger value="grid">Grid View</TabsTrigger>
                     </TabsList>
@@ -265,9 +265,9 @@ export function RosterStudents({
                                             Student Name
                                             {sortField === 'name' &&
                                                 (sortDirection === 'asc' ? (
-                                                    <SortAsc className="inline ml-2 h-4 w-4" />
+                                                    <SortAsc className="ml-2 inline h-4 w-4" />
                                                 ) : (
-                                                    <SortDesc className="inline ml-2 h-4 w-4" />
+                                                    <SortDesc className="ml-2 inline h-4 w-4" />
                                                 ))}
                                         </TableHead>
                                         <TableHead>M-Number</TableHead>
@@ -282,9 +282,9 @@ export function RosterStudents({
                                             Midterm Grade
                                             {sortField === 'midterm' &&
                                                 (sortDirection === 'asc' ? (
-                                                    <SortAsc className="inline ml-2 h-4 w-4" />
+                                                    <SortAsc className="ml-2 inline h-4 w-4" />
                                                 ) : (
-                                                    <SortDesc className="inline ml-2 h-4 w-4" />
+                                                    <SortDesc className="ml-2 inline h-4 w-4" />
                                                 ))}
                                         </TableHead>
                                         <TableHead
@@ -296,9 +296,9 @@ export function RosterStudents({
                                             Final Grade
                                             {sortField === 'final' &&
                                                 (sortDirection === 'asc' ? (
-                                                    <SortAsc className="inline ml-2 h-4 w-4" />
+                                                    <SortAsc className="ml-2 inline h-4 w-4" />
                                                 ) : (
-                                                    <SortDesc className="inline ml-2 h-4 w-4" />
+                                                    <SortDesc className="ml-2 inline h-4 w-4" />
                                                 ))}
                                         </TableHead>
                                     </TableRow>
@@ -367,12 +367,12 @@ export function RosterStudents({
                         value="grid"
                         className="max-w-full overflow-x-auto"
                     >
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                        <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {filteredStudents.map((student) => (
                                 <Card key={student.mnumber} className="p-4">
                                     <CardHeader className="p-0">
                                         <div className="flex items-center gap-2">
-                                            <UserRound className="h-6 w-6 text-muted-foreground" />
+                                            <UserRound className="text-muted-foreground h-6 w-6" />
                                             <CardTitle className="text-lg">
                                                 {student.last_name},{' '}
                                                 {student.first_name}
@@ -382,7 +382,7 @@ export function RosterStudents({
                                             {student.mnumber}
                                         </CardDescription>
                                     </CardHeader>
-                                    <CardContent className="p-0 mt-2">
+                                    <CardContent className="mt-2 p-0">
                                         <div className="space-y-2">
                                             <div>
                                                 <span className="font-medium">

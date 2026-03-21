@@ -42,22 +42,19 @@ export function UserManangementCard() {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
+            className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
             onClick={() => navigate({ to: '/cobis-tools/users' })}
         >
             <CardHeader className="h-full">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950">
-                        <Users className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <Users className="h-6 w-6" />
+
                     <CardTitle>User Management</CardTitle>
                 </div>
                 <CardDescription>
                     {hasNewUsers ? (
                         <div className="flex items-baseline gap-2">
-                            <span className="text-lg font-bold">
-                                {newUsers.length}
-                            </span>
+                            <span className="font-bold">{newUsers.length}</span>
                             <span>
                                 {newUsers.length === 1
                                     ? 'user waiting to be assigned'
@@ -70,9 +67,7 @@ export function UserManangementCard() {
                         </span>
                     )}
                     <div className="flex items-baseline gap-2">
-                        <span className="text-lg font-bold">
-                            {totalLatestLogins}
-                        </span>
+                        <span className="font-bold">{totalLatestLogins}</span>
                         <span>
                             {totalLatestLogins === 1
                                 ? 'user logged in the past week'
@@ -82,22 +77,17 @@ export function UserManangementCard() {
                 </CardDescription>
                 {hasNewUsers && (
                     <CardAction>
-                        <Badge
-                            variant="secondary"
-                            className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
-                        >
-                            Action Required
-                        </Badge>
+                        <Badge>Action Required</Badge>
                     </CardAction>
                 )}
             </CardHeader>
             {hasNewUsers && (
-                <CardFooter className="flex-col items-start gap-1.5 text-sm">
-                    <div className="text-muted-foreground">
+                <CardFooter className="flex-col items-start gap-1.5">
+                    <span>
                         {newUsers.length === 1
                             ? 'Review and assign M-number to the new user'
                             : 'Review and assign M-numbers to new users'}
-                    </div>
+                    </span>
                 </CardFooter>
             )}
         </Card>

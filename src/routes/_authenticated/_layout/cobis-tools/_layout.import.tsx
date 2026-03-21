@@ -84,7 +84,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="max-w-5xl mx-auto p-4">
+        <div className="mx-auto max-w-5xl p-4">
             <Card>
                 <CardHeader>
                     <CardTitle className="text-3xl">CSV Import</CardTitle>
@@ -108,7 +108,7 @@ function RouteComponent() {
                     {/* Step 2: CSV Preview */}
                     {csvData && (
                         <div>
-                            <h2 className="text-xl font-bold mb-4">
+                            <h2 className="mb-4 text-xl font-bold">
                                 Step 2: Preview Your Data
                             </h2>
                             <CsvPreview
@@ -123,7 +123,7 @@ function RouteComponent() {
                     {/* Step 3: Table Preview */}
                     {selectedFile && (
                         <div>
-                            <h2 className="text-xl font-bold mb-4">
+                            <h2 className="mb-4 text-xl font-bold">
                                 Step 3: Matching Tables
                             </h2>
                             <TablePreview fileName={selectedFile.name} />
@@ -138,7 +138,7 @@ function RouteComponent() {
                                 {/* Import and Cancel Buttons */}
                                 {!isSuccess && (
                                     <div
-                                        className={`${isFetching ? 'hidden pointer-events-none' : ''} flex`}
+                                        className={`${isFetching ? 'pointer-events-none hidden' : ''} flex`}
                                     >
                                         <Button
                                             variant="secondary"
@@ -148,7 +148,7 @@ function RouteComponent() {
                                             Cancel
                                         </Button>
                                         <Button
-                                            className={`${isFetching ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                            className={`${isFetching ? 'cursor-not-allowed opacity-70' : ''}`}
                                             onClick={handleImport}
                                             disabled={isFetching}
                                         >

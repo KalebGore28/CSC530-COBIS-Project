@@ -128,7 +128,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="w-full mx-auto p-4 space-y-6">
+        <div className="mx-auto w-full space-y-6 p-4">
             <div className="flex flex-col">
                 <Button
                     variant="outline"
@@ -161,7 +161,7 @@ function RouteComponent() {
             {isLoading ? (
                 <Skeleton className="h-64 w-full" />
             ) : (
-                <div className="max-w-4xl mx-auto">
+                <div className="mx-auto max-w-4xl">
                     <EnrollmentTrends
                         className="max-w-4xl"
                         enrollments={

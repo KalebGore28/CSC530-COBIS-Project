@@ -21,14 +21,14 @@ export const Route = createFileRoute('/login')({
 
 function RouteComponent() {
     return (
-        <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 bg-blue-950">
-            <div className="flex w-full max-w-sm flex-col gap-6 items-center justify-center">
+        <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-blue-950 p-6 md:p-10">
+            <div className="flex w-full max-w-sm flex-col items-center justify-center gap-6">
                 <img
                     src={primaryLogo}
                     alt="COBIS Logo"
                     className="h-auto w-auto"
                 />
-                <span className="text-white dark:text-white font-bold">
+                <span className="font-bold text-white dark:text-white">
                     COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
                 </span>
                 <Card className="w-full">

@@ -98,15 +98,15 @@ function RouteComponent() {
 
     if (!isLoading && instructorCourses.length === 0) {
         return (
-            <div className="container p-4 mx-auto">
-                <h1 className="text-2xl font-bold mb-4">Course Roster</h1>
+            <div className="container mx-auto p-4">
+                <h1 className="mb-4 text-2xl font-bold">Course Roster</h1>
                 <p>No roster found for this course.</p>
             </div>
         )
     }
 
     return (
-        <div className="w-full mx-auto p-4 space-y-6">
+        <div className="mx-auto w-full space-y-6 p-4">
             <div className="flex flex-col">
                 {/* Back button */}
                 <Button
@@ -124,7 +124,7 @@ function RouteComponent() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 col-span-2">
+            <div className="col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
                 {!isLoading && (
                     <>
                         <RosterInfoCard

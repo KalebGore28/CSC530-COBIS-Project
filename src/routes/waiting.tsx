@@ -25,7 +25,7 @@ function RouteComponent() {
     const navigate = useNavigate()
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="bg-background flex min-h-screen items-center justify-center">
             <Card className="w-full max-w-md">
                 <CardHeader>
                     <CardTitle>Account Pending</CardTitle>

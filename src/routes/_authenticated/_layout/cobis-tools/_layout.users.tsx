@@ -91,7 +91,7 @@ function RouteComponent() {
 
     return (
         <div className="space-y-4">
-            <Card className="w-full max-w-4xl mx-auto">
+            <Card className="mx-auto w-full max-w-4xl">
                 <CardHeader>
                     <CardTitle>Filter Users</CardTitle>
                     <CardDescription>
@@ -107,14 +107,14 @@ function RouteComponent() {
                 </CardContent>
             </Card>
 
-            <div className="w-full max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-2 md:grid-cols-2">
                 {filteredUsers.map((user) => (
                     <Card
                         key={user.id}
-                        className="hover:shadow-md transition-shadow h-full"
+                        className="h-full transition-shadow hover:shadow-md"
                     >
                         <CardHeader className="h-full">
-                            <CardTitle className="text-2xl flex items-center gap-4">
+                            <CardTitle className="flex items-center gap-4 text-2xl">
                                 <Avatar className="h-12 w-12 shrink-0">
                                     <AvatarImage
                                         src={user.image ?? ''}
@@ -146,7 +146,7 @@ function RouteComponent() {
                                 </div>
                                 {(user.department_description ||
                                     user.college_description) && (
-                                    <div className="flex items-center gap-2 flex-wrap">
+                                    <div className="flex flex-wrap items-center gap-2">
                                         <span className="font-medium">
                                             Affiliation:
                                         </span>
@@ -177,7 +177,7 @@ function RouteComponent() {
                                 {user.mnumber === null && (
                                     <Badge
                                         variant="secondary"
-                                        className="bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300"
+                                        className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
                                     >
                                         Action Required
                                     </Badge>

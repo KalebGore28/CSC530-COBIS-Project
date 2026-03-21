@@ -102,7 +102,7 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
     return (
         <Card>
             <CardHeader>
-                <div className="flex justify-between items-center">
+                <div className="flex items-center justify-between">
                     <CardTitle>
                         {view === 'final' ? 'Final' : 'Midterm'} Grade
                         Distribution
@@ -124,10 +124,10 @@ export function CourseGradeChart({ studentCourses }: CourseGradeChartProps) {
                     </Tabs>
                 </div>
             </CardHeader>
-            <CardContent className="p-2 w-full h-64">
+            <CardContent className="h-64 w-full p-2">
                 <ChartContainer
                     config={{}}
-                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto h-full pb-0 aspect-auto"
+                    className="[&_.recharts-pie-label-text]:fill-foreground mx-auto aspect-auto h-full pb-0"
                 >
                     <BarChart
                         data={

@@ -45,7 +45,7 @@ function RouteComponent() {
     )
 
     return (
-        <Card className="max-w-4xl mx-auto mt-6">
+        <Card className="mx-auto mt-6 max-w-4xl">
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">
                     Search Courses
@@ -67,12 +67,12 @@ function RouteComponent() {
                         ))}
                     </div>
                 ) : courseData.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">
+                    <p className="text-muted-foreground text-sm italic">
                         No courses found.
                     </p>
                 ) : (
                     <>
-                        <p className="text-xs text-muted-foreground mb-2">
+                        <p className="text-muted-foreground mb-2 text-xs">
                             Limited to courses within your department. Results
                             limited to 100 entries. Refine your search to narrow
                             results.
@@ -90,19 +90,19 @@ function RouteComponent() {
                                             },
                                         })
                                     }
-                                    className="border rounded-md p-3 hover:bg-accent cursor-pointer transition-colors"
+                                    className="hover:bg-accent cursor-pointer rounded-md border p-3 transition-colors"
                                 >
                                     <div className="flex items-center justify-between">
                                         <div>
                                             <p className="font-medium">
                                                 {course.id}
                                             </p>
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-muted-foreground text-sm">
                                                 {course.title}
                                             </p>
                                         </div>
 
-                                        <div className="flex gap-2 flex-wrap justify-end text-right">
+                                        <div className="flex flex-wrap justify-end gap-2 text-right">
                                             <Badge variant="outline">
                                                 {course.hours} hr
                                                 {course.hours > 1 ? 's' : ''}
@@ -110,7 +110,7 @@ function RouteComponent() {
                                         </div>
                                     </div>
 
-                                    <p className="text-[10px] text-muted-foreground mt-1">
+                                    <p className="text-muted-foreground mt-1 text-[10px]">
                                         Last updated:{' '}
                                         {new Date(
                                             course.last_updated,

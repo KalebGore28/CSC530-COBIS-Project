@@ -25,7 +25,7 @@ function RosterInfoCardSkeleton({ className }: { className?: string }) {
     return (
         <Card className={className}>
             <CardContent>
-                <div className="flex flex-col md:flex-row justify-between gap-6">
+                <div className="flex flex-col justify-between gap-6 md:flex-row">
                     {/* Left column */}
                     <div className="flex flex-col gap-2">
                         <Skeleton className="h-7 w-40" />{' '}
@@ -36,7 +36,7 @@ function RosterInfoCardSkeleton({ className }: { className?: string }) {
                     </div>
 
                     {/* Right column */}
-                    <div className="flex flex-col justify-between items-end gap-4">
+                    <div className="flex flex-col items-end justify-between gap-4">
                         <Skeleton className="h-6 w-20 rounded-full" />{' '}
                         {/* Badge */}
                         <Skeleton className="h-7 w-24" /> {/* student count */}
@@ -79,15 +79,15 @@ export function RosterInfoCard({
     return (
         <Card className={className}>
             <CardContent>
-                <div className="flex flex-col md:flex-row justify-between gap-6">
+                <div className="flex flex-col justify-between gap-6 md:flex-row">
                     <div>
-                        <h2 className="text-2xl font-bold tracking-tight text-foreground">
+                        <h2 className="text-foreground text-2xl font-bold tracking-tight">
                             {course.course_id}-{course.course_section}
                         </h2>
-                        <p className="text-xl text-foreground">
+                        <p className="text-foreground text-xl">
                             {course.course_title}
                         </p>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-muted-foreground text-sm">
                             {course.term_description} {course.year} •{' '}
                             {uniqueCreditHours.length > 1
                                 ? 'Variable Credit Hours'
@@ -96,19 +96,19 @@ export function RosterInfoCard({
                             {totalCreditHours}
                         </p>
                     </div>
-                    <div className="flex flex-col justify-between items-end h-full gap-4">
+                    <div className="flex h-full flex-col items-end justify-between gap-4">
                         <Badge
                             variant={isActive ? 'default' : 'secondary'}
-                            className="text-sm font-medium rounded-full bg-primary px-4 py-1 dark:bg-primary/20"
+                            className="bg-primary dark:bg-primary/20 rounded-full px-4 py-1 text-sm font-medium"
                         >
                             <span className="text-xs font-normal text-white">
                                 {isActive ? 'Active' : 'Completed'}
                             </span>
                         </Badge>
                         <div className="text-right">
-                            <p className="text-2xl font-bold text-foreground">
+                            <p className="text-foreground text-2xl font-bold">
                                 {totalStudents}{' '}
-                                <span className="text-lg font-normal text-muted-foreground">
+                                <span className="text-muted-foreground text-lg font-normal">
                                     students
                                 </span>
                             </p>

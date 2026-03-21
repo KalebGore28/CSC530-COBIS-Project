@@ -19,28 +19,24 @@ import { signOut, useAuthentication } from '@/lib/auth-client'
 
 export function NavUser() {
     const { userSession } = useAuthentication()
-    const { open, isMobile } = useSidebar()
+    const { isMobile } = useSidebar()
 
     if (!userSession) return null
 
     const { user } = userSession
 
     return (
-        <SidebarMenu className={`rounded-lg ${open ? 'bg-muted/20' : ''}`}>
+        <SidebarMenu>
             <SidebarMenuItem>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton
-                            size="lg"
-                            className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-                        >
-                            <Avatar className="h-8 w-8 rounded-lg">
+                        <SidebarMenuButton size="lg">
+                            <Avatar className="h-8 w-8">
                                 <AvatarImage
                                     src={user.image ?? ''}
                                     alt={user.name}
-                                    className="rounded-lg"
                                 />
-                                <AvatarFallback className="rounded-lg">
+                                <AvatarFallback>
                                     {userSession.faculty.firstName.charAt(0)}
                                     {userSession.faculty.lastName.charAt(0)}
                                 </AvatarFallback>
@@ -63,15 +59,14 @@ export function NavUser() {
                         sideOffset={4}
                     >
                         <DropdownMenuGroup>
-                            <DropdownMenuLabel className="p-0 font-normal">
+                            <DropdownMenuLabel>
                                 <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                                    <Avatar className="h-8 w-8 rounded-lg">
+                                    <Avatar className="h-8 w-8">
                                         <AvatarImage
                                             src={user.image ?? ''}
                                             alt={user.name}
-                                            className="rounded-lg"
                                         />
-                                        <AvatarFallback className="rounded-lg">
+                                        <AvatarFallback>
                                             {userSession.faculty.firstName.charAt(
                                                 0,
                                             )}

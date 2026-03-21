@@ -24,7 +24,7 @@ function SelectedTermTableSkeleton() {
                 <CardTitle>Current Term Courses</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="border rounded-lg">
+                <div className="rounded-lg border">
                     <Table>
                         <TableHeader>
                             <TableRow>
@@ -122,8 +122,8 @@ function RouteComponent() {
 
     if (currentTermData.length === 0) {
         return (
-            <div className="border rounded-lg">
-                <p className="p-4 text-center text-muted-foreground">
+            <div className="rounded-lg border">
+                <p className="text-muted-foreground p-4 text-center">
                     No courses taught in {currentTerm.description}{' '}
                     {currentTerm.year}.
                 </p>
@@ -133,8 +133,8 @@ function RouteComponent() {
 
     return (
         <Card className="p-0">
-            <CardContent className="p-1 m-0 border bg-primary rounded-xl">
-                <div className="border rounded-lg bg-white dark:bg-gray-700">
+            <CardContent className="bg-primary m-0 rounded-xl border p-1">
+                <div className="rounded-lg border bg-white dark:bg-gray-700">
                     <CoursesTable
                         data={currentTermData
                             .map((course) => ({

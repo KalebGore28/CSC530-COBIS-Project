@@ -31,7 +31,7 @@ function RouteComponent() {
 
     const activeTab = location.pathname.split('/').pop() || 'import'
     return (
-        <div className="p-4 space-y-6">
+        <div className="space-y-6 p-4">
             <Card>
                 <CardHeader>
                     <CardTitle>Cobis Tools</CardTitle>
@@ -41,11 +41,8 @@ function RouteComponent() {
                 </CardHeader>
                 <CardContent>
                     <Tabs value={activeTab} className="w-full">
-                        <TabsList className="grid grid-cols-3">
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="users"
-                            >
+                        <TabsList>
+                            <TabsTrigger value="users">
                                 <Link
                                     to="/cobis-tools/users"
                                     className="w-full"
@@ -53,10 +50,7 @@ function RouteComponent() {
                                     Users
                                 </Link>
                             </TabsTrigger>
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="manage-tables"
-                            >
+                            <TabsTrigger value="manage-tables">
                                 <Link
                                     to="/cobis-tools/manage-tables"
                                     className="w-full"
@@ -64,10 +58,7 @@ function RouteComponent() {
                                     Manage Tables
                                 </Link>
                             </TabsTrigger>
-                            <TabsTrigger
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value="import"
-                            >
+                            <TabsTrigger value="import">
                                 <Link
                                     to="/cobis-tools/import"
                                     className="w-full"

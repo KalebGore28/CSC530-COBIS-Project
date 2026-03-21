@@ -84,19 +84,18 @@ export function CurrentTermMetricCard({ mnumber }: { mnumber: string }) {
 
     return (
         <Card
-            className="hover:shadow-lg cursor-pointer h-full transition-all hover:scale-[1.02]"
+            className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
             onClick={() => navigate({ to: '/class-roster' })}
         >
             <CardHeader className="h-full">
-                <div className="flex items-center gap-3 mb-2">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-950">
-                        <ChartBar className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                    </div>
+                <div className="mb-2 flex items-center gap-2">
+                    <ChartBar className="h-6 w-6" />
+
                     <CardTitle>Current Term Metrics</CardTitle>
                 </div>
                 <CardDescription className="flex flex-wrap gap-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-lg font-bold">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold">
                             {uniqueStudents.length}
                         </span>
                         <span>
@@ -105,25 +104,23 @@ export function CurrentTermMetricCard({ mnumber }: { mnumber: string }) {
                                 : 'unique students'}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-lg font-bold">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold">
                             {uniqueCourses.length}
                         </span>
                         <span>
                             {uniqueCourses.length === 1 ? 'course' : 'courses'}
                         </span>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-lg font-bold">
-                            {totalCreditHours}
-                        </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-bold">{totalCreditHours}</span>
 
                         <span>Total Credit Hours</span>
                     </div>
                 </CardDescription>
             </CardHeader>
             <CardFooter>
-                <div className="flex items-center gap-1 flex-wrap">
+                <div className="flex flex-wrap items-center gap-1">
                     <span>See more details about your courses at</span>
                     <span className="font-semibold">Class Roster</span>
                 </div>

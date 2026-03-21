@@ -56,7 +56,7 @@ export function CourseSearchBox({
 
     if (selected) {
         return (
-            <div className="flex flex-col gap-3 border rounded-md p-3 bg-muted/30">
+            <div className="bg-muted/30 flex flex-col gap-3 rounded-md border p-3">
                 <div className="flex items-center justify-between">
                     <span>
                         <strong> {selected.id}</strong> — {selected.title}
@@ -104,7 +104,7 @@ export function CourseSearchBox({
                                             : undefined,
                                 })
                             }}
-                            className="bg-background border rounded-lg"
+                            className="bg-background rounded-lg border"
                         >
                             <TabsList className="grid grid-cols-2">
                                 <TabsTrigger
@@ -125,7 +125,7 @@ export function CourseSearchBox({
 
                     {/* Show additional fields only if taken */}
                     {filterState.taken && (
-                        <div className="flex flex-col sm:flex-row gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row">
                             {/* Comparison selector */}
                             <div className="flex-1">
                                 <Select
@@ -235,11 +235,11 @@ function CourseResults({
     if (filteredCourses.length === 0) return null
 
     return (
-        <ul className="border rounded-md divide-y">
+        <ul className="divide-y rounded-md border">
             {filteredCourses.map((course) => (
                 <li
                     key={course.id}
-                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    className="hover:bg-accent/30 cursor-pointer px-3 py-1 transition-colors"
                     onClick={() => {
                         onSelect(course)
                     }}

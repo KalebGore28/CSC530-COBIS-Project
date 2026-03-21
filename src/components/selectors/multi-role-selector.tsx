@@ -53,7 +53,7 @@ export function MultiRoleSelector({
     }
 
     return (
-        <div className="w-full border rounded-md shadow-sm">
+        <div className="w-full rounded-md border shadow-sm">
             <Command>
                 <CommandList>
                     {rolesList.length === 0 ? (
@@ -95,7 +95,7 @@ export function MultiRoleSelector({
                                         }}
                                         className={`flex items-center justify-between ${
                                             isDisabled
-                                                ? 'opacity-50 pointer-events-none'
+                                                ? 'pointer-events-none opacity-50'
                                                 : ''
                                         }`}
                                     >

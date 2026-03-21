@@ -157,7 +157,7 @@ export function StudentDetailModal({
                         {studentDetails?.last_name} ({studentMnumber})
                     </DialogDescription>
                 </DialogHeader>
-                <div className="no-scrollbar -mx-4 max-h-[60vh] overflow-y-auto p-4 space-y-4">
+                <div className="no-scrollbar -mx-4 max-h-[60vh] space-y-4 overflow-y-auto p-4">
                     {/* Student Detail Card */}
                     <Card>
                         <CardHeader>
@@ -233,7 +233,7 @@ export function StudentDetailModal({
                                 List of student's majors and minors.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent className="flex justify-center overflow-x-auto max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
+                        <CardContent className="flex max-w-sm justify-center overflow-x-auto md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
                             <ProgramTable
                                 data={studentPrograms.map((program) => ({
                                     id: program.program_code,
@@ -255,7 +255,7 @@ export function StudentDetailModal({
                             <CardDescription>
                                 List of student's advisors.
                             </CardDescription>
-                            <CardContent className="flex justify-center overflow-x-auto max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
+                            <CardContent className="flex max-w-sm justify-center overflow-x-auto md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl">
                                 <AdvisorTable
                                     data={studentAdvisors.map((advisor) => ({
                                         id: `advisor-${advisor.advisor_mnumber}-${advisor.year}-${advisor.term_description}`,

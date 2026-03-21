@@ -41,7 +41,7 @@ export function CollegeSelector({
 
     if (selected) {
         return (
-            <div className="flex items-center justify-between gap-2 border rounded-md px-3 py-2 bg-muted/30">
+            <div className="bg-muted/30 flex items-center justify-between gap-2 rounded-md border px-3 py-2">
                 <div>
                     <strong>{selected.id}</strong> — {selected.description}
                 </div>
@@ -65,7 +65,7 @@ export function CollegeSelector({
 
     return (
         <div className="space-y-2">
-            <div className="flex align-center space-x-2">
+            <div className="align-center flex space-x-2">
                 <Input
                     placeholder="Search colleges..."
                     value={query}
@@ -99,11 +99,11 @@ function CollegeResults({
     if (filteredColleges.length === 0) return null
 
     return (
-        <ul className="border rounded-md divide-y">
+        <ul className="divide-y rounded-md border">
             {filteredColleges.map((college) => (
                 <li
                     key={college.id}
-                    className="px-3 py-1 cursor-pointer hover:bg-accent/30 transition-colors"
+                    className="hover:bg-accent/30 cursor-pointer px-3 py-1 transition-colors"
                     onClick={() =>
                         onSelect({
                             id: college.id,
