@@ -45,7 +45,7 @@ function RouteComponent() {
     )
 
     return (
-        <Card className="mx-auto mt-6 max-w-4xl">
+        <Card>
             <CardHeader>
                 <CardTitle className="text-lg font-semibold">
                     Search Courses
@@ -78,7 +78,7 @@ function RouteComponent() {
                             results.
                         </p>
 
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3">
                             {courseData.map((course) => (
                                 <div
                                     key={course.id}

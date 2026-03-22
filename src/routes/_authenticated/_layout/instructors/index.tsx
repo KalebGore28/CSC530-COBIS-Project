@@ -209,15 +209,7 @@ function RouteComponent() {
     }
 
     return (
-        <div className="mx-auto w-full space-y-6 p-6">
-            <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
-                <h2 className="col-span-full text-center text-2xl font-bold">
-                    Instructors
-                </h2>
-                <p className="text-muted-foreground col-span-full text-center">
-                    View and manage all instructors in your department
-                </p>
-            </div>
+        <div className="container mx-auto space-y-6 p-6">
             <Card>
                 <CardHeader>
                     <div className="flex flex-wrap items-center justify-between gap-4">

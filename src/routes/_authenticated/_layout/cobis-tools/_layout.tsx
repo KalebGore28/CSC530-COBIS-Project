@@ -31,7 +31,7 @@ function RouteComponent() {
 
     const activeTab = location.pathname.split('/').pop() || 'import'
     return (
-        <div className="space-y-6 p-4">
+        <div className="container mx-auto space-y-6 p-6">
             <Card>
                 <CardHeader>
                     <CardTitle>Cobis Tools</CardTitle>

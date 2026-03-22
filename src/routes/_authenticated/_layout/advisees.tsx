@@ -21,25 +21,21 @@ function RouteComponent() {
     if (!userSession || !userSession.user.mnumber || isLoading) return null
 
     return (
-        <div className="container mx-auto space-y-6 p-4">
-            <>
-                <h2 className="text-2xl">Current Advisees</h2>
+        <div className="container mx-auto space-y-6 p-6">
+            <AdvisedStudentsCard
+                advisorMnumber={userSession.user.mnumber}
+                term_info={currentTerm}
+                setModalOpen={setIsModalOpen}
+                setSelectedStudent={setSelectedStudent}
+            />
 
-                <AdvisedStudentsCard
-                    advisorMnumber={userSession.user.mnumber}
-                    term_info={currentTerm}
+            {selectedStudent && (
+                <StudentDetailModal
+                    modalOpen={isModalOpen}
                     setModalOpen={setIsModalOpen}
-                    setSelectedStudent={setSelectedStudent}
+                    studentMnumber={selectedStudent}
                 />
-
-                {selectedStudent && (
-                    <StudentDetailModal
-                        modalOpen={isModalOpen}
-                        setModalOpen={setIsModalOpen}
-                        studentMnumber={selectedStudent}
-                    />
-                )}
-            </>
+            )}
         </div>
     )
 }

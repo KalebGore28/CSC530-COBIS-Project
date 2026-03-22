@@ -203,7 +203,7 @@ function StudentLookup() {
     }
 
     return (
-        <div className="flex flex-col gap-6 p-4">
+        <div className="container mx-auto space-y-6 p-6">
             <StudentFilters
                 onApplyFilters={(filters) => setCurrentFilters(filters)}
                 onResetFilters={() => setCurrentFilters(null)}

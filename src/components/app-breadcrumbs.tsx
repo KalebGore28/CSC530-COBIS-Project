@@ -46,7 +46,11 @@ export function AppBreadcrumbs({
 
                         return (
                             <React.Fragment key={crumb.path}>
-                                <BreadcrumbItem className="hidden md:block">
+                                <BreadcrumbItem
+                                    className={
+                                        isLast ? undefined : 'hidden md:block'
+                                    }
+                                >
                                     {isLast ? (
                                         <BreadcrumbPage>
                                             {crumb.title}

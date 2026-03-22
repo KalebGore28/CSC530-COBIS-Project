@@ -30,7 +30,7 @@ function DashboardPage() {
         <div className="container mx-auto space-y-6 p-6">
             {userSession.roles.has('cobis_administrator') && (
                 <>
-                    <h2 className="text-2xl font-bold">Maintainence Tools</h2>
+                    <h1 className="text-2xl font-bold">Maintainence Tools</h1>
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                         <UserManangementCard />
                         <TableManangementCard />
@@ -44,9 +44,9 @@ function DashboardPage() {
             ) &&
                 !isLoading && (
                     <>
-                        <h2 className="text-2xl font-bold">
+                        <h1 className="text-2xl font-bold">
                             Performance/Metrics Overview
-                        </h2>
+                        </h1>
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                             <TermGradeDistribution
                                 mnumber={userSession.user.mnumber}

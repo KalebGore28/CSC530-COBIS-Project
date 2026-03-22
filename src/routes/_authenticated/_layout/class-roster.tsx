@@ -97,9 +97,7 @@ function ClassRosterPage() {
             : instructorCourses
 
     return (
-        <div className="container mx-auto space-y-6 p-4">
-            <h1 className="text-2xl font-bold">Class Roster</h1>
-
+        <div className="container mx-auto space-y-6 p-6">
             <div className="col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
                 <TermCourseSelector
                     className={'col-span-2'}
