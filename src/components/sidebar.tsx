@@ -212,7 +212,9 @@ export function AppSidebar() {
                                         <SidebarMenuButton
                                             tooltip={'Enrollment Metrics'}
                                         >
-                                            <ChartColumnIncreasing />
+                                            <Link to={'/enrollment/programs'}>
+                                                <ChartColumnIncreasing />
+                                            </Link>
                                             Enrollments
                                             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                         </SidebarMenuButton>
@@ -260,7 +262,9 @@ export function AppSidebar() {
                                         <SidebarMenuButton
                                             tooltip={'COBIS Tools'}
                                         >
-                                            <Wrench />
+                                            <Link to={'/cobis-tools/users'}>
+                                                <Wrench />
+                                            </Link>
                                             COBIS Tools
                                             <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                                         </SidebarMenuButton>
