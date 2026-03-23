@@ -12,22 +12,21 @@ function RouteComponent() {
     const navigate = useNavigate()
 
     return (
-        <div className="mx-auto w-full p-4">
-            <div className="col-span-3 w-full">
-                <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-fit"
-                    onClick={() =>
-                        navigate({
-                            to: `/cobis-tools/manage-tables`,
-                        })
-                    }
-                >
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back
-                </Button>
-            </div>
+        <div className="container mx-auto flex w-full flex-col gap-4 p-6">
+            <Button
+                variant="outline"
+                size="sm"
+                className="w-fit shadow-md"
+                onClick={() =>
+                    navigate({
+                        to: `/cobis-tools/manage-tables`,
+                    })
+                }
+            >
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Back
+            </Button>
+
             <Outlet />
         </div>
     )

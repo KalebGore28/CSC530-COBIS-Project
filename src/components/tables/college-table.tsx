@@ -40,20 +40,6 @@ const columns: Array<ColumnDef<College>> = [
     },
 ]
 
-export function CollegeTable({
-    data,
-    defaultFilterColumn,
-    defaultFilterColumnValue,
-}: {
-    data: Array<College>
-    defaultFilterColumn?: string
-    defaultFilterColumnValue?: string
-}) {
-    return (
-        <EditableDataTable
-            filterColumns={['id', 'description']}
-            columns={columns}
-            data={data}
-        />
-    )
+export function CollegeTable({ data }: { data: Array<College> }) {
+    return <EditableDataTable columns={columns} data={data} />
 }

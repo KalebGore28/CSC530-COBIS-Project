@@ -2,12 +2,14 @@ import * as React from 'react'
 import {
     type ColumnDef,
     type ColumnFiltersState,
+    type PaginationState,
     type RowSelectionState,
     type SortingState,
     type VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
+    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
@@ -15,6 +17,8 @@ import {
     ArrowDownAZ,
     ArrowUpAZ,
     ChevronDown,
+    ChevronLeft,
+    ChevronRight,
     Columns3,
     Edit,
     Filter,
@@ -73,6 +77,10 @@ export function EditableDataTable<TData>({
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
         {},
     )
+    const [pagination, setPagination] = React.useState<PaginationState>({
+        pageIndex: 0,
+        pageSize: 10,
+    })
 
     // State for sort dropdown
     const [sortColumn, setSortColumn] = React.useState<string>('')
@@ -93,9 +101,11 @@ export function EditableDataTable<TData>({
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
+        onPaginationChange: setPagination,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
         enableRowSelection: true,
@@ -105,6 +115,7 @@ export function EditableDataTable<TData>({
             columnFilters,
             columnVisibility,
             rowSelection,
+            pagination,
         },
     })
 
@@ -161,8 +172,8 @@ export function EditableDataTable<TData>({
     return (
         <div className="w-full space-y-4">
             {/* Toolbar */}
-            <div className="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
-                <div className="flex items-center gap-2">
+            <div className="bg-card flex flex-wrap items-center justify-between gap-2 rounded-lg border p-4 shadow-sm">
+                <div className="flex flex-wrap items-center gap-2">
                     {/* Columns Button */}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -403,117 +414,150 @@ export function EditableDataTable<TData>({
                     {/* Selection Actions - Show when rows are selected */}
                     {selectedRowCount > 0 && (
                         <>
-                            <Separator orientation="vertical" />
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                className="h-9 gap-2"
-                                onClick={handleDeleteSelected}
-                            >
-                                <Trash2 className="h-4 w-4" />
-                                <span>
-                                    Delete {selectedRowCount}{' '}
-                                    {selectedRowCount === 1 ? 'row' : 'rows'}
-                                </span>
-                            </Button>
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        className="h-9 gap-2"
-                                    >
-                                        <Edit className="h-4 w-4" />
-                                        Edit Selected
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80" align="start">
-                                    <div className="space-y-4">
-                                        <div className="space-y-2">
-                                            <h4 className="leading-none font-medium">
-                                                Bulk Edit
-                                            </h4>
-                                            <p className="text-muted-foreground text-sm">
-                                                Update a column value for all{' '}
-                                                {selectedRowCount} selected
-                                                row(s)
-                                            </p>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor="bulk-edit-column"
-                                                    className="text-xs"
-                                                >
-                                                    Column to Update
-                                                </Label>
-                                                <Select
-                                                    value={bulkEditColumn}
-                                                    onValueChange={
-                                                        setBulkEditColumn
-                                                    }
-                                                >
-                                                    <SelectTrigger id="bulk-edit-column">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="status">
-                                                            Status
-                                                        </SelectItem>
-                                                        <SelectItem value="category">
-                                                            Category
-                                                        </SelectItem>
-                                                        <SelectItem value="price">
-                                                            Price
-                                                        </SelectItem>
-                                                        <SelectItem value="stock">
-                                                            Stock
-                                                        </SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label
-                                                    htmlFor="bulk-edit-value"
-                                                    className="text-xs"
-                                                >
-                                                    New Value
-                                                </Label>
-                                                <Input
-                                                    id="bulk-edit-value"
-                                                    placeholder="Enter new value..."
-                                                    value={bulkEditValue}
-                                                    onChange={(e) =>
-                                                        setBulkEditValue(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            handleBulkEdit()
-                                                        }
-                                                    }}
-                                                />
-                                            </div>
-                                        </div>
+                            <div className="flex gap-2">
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    className="h-9 gap-2"
+                                    onClick={handleDeleteSelected}
+                                >
+                                    <Trash2 className="h-4 w-4" />
+                                    <span>
+                                        Delete {selectedRowCount}{' '}
+                                        {selectedRowCount === 1
+                                            ? 'row'
+                                            : 'rows'}
+                                    </span>
+                                </Button>
+                                <Popover>
+                                    <PopoverTrigger asChild>
                                         <Button
+                                            variant="outline"
                                             size="sm"
-                                            className="w-full"
-                                            onClick={handleBulkEdit}
-                                            disabled={!bulkEditValue}
+                                            className="h-9 gap-2"
                                         >
-                                            Update {selectedRowCount} Row(s)
+                                            <Edit className="h-4 w-4" />
+                                            Edit Selected
                                         </Button>
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        className="w-80"
+                                        align="start"
+                                    >
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <h4 className="leading-none font-medium">
+                                                    Bulk Edit
+                                                </h4>
+                                                <p className="text-muted-foreground text-sm">
+                                                    Update a column value for
+                                                    all {selectedRowCount}{' '}
+                                                    selected row(s)
+                                                </p>
+                                            </div>
+                                            <div className="space-y-3">
+                                                <div className="space-y-2">
+                                                    <Label
+                                                        htmlFor="bulk-edit-column"
+                                                        className="text-xs"
+                                                    >
+                                                        Column to Update
+                                                    </Label>
+                                                    <Select
+                                                        value={bulkEditColumn}
+                                                        onValueChange={
+                                                            setBulkEditColumn
+                                                        }
+                                                    >
+                                                        <SelectTrigger id="bulk-edit-column">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="status">
+                                                                Status
+                                                            </SelectItem>
+                                                            <SelectItem value="category">
+                                                                Category
+                                                            </SelectItem>
+                                                            <SelectItem value="price">
+                                                                Price
+                                                            </SelectItem>
+                                                            <SelectItem value="stock">
+                                                                Stock
+                                                            </SelectItem>
+                                                        </SelectContent>
+                                                    </Select>
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label
+                                                        htmlFor="bulk-edit-value"
+                                                        className="text-xs"
+                                                    >
+                                                        New Value
+                                                    </Label>
+                                                    <Input
+                                                        id="bulk-edit-value"
+                                                        placeholder="Enter new value..."
+                                                        value={bulkEditValue}
+                                                        onChange={(e) =>
+                                                            setBulkEditValue(
+                                                                e.target.value,
+                                                            )
+                                                        }
+                                                        onKeyDown={(e) => {
+                                                            if (
+                                                                e.key ===
+                                                                'Enter'
+                                                            ) {
+                                                                handleBulkEdit()
+                                                            }
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                className="w-full"
+                                                onClick={handleBulkEdit}
+                                                disabled={!bulkEditValue}
+                                            >
+                                                Update {selectedRowCount} Row(s)
+                                            </Button>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
                         </>
                     )}
                 </div>
-
-                <div className="text-muted-foreground text-sm">
-                    {table.getFilteredRowModel().rows.length} of {data.length}{' '}
-                    row(s)
+                <div className="flex items-center gap-2">
+                    {/* Page Size Selector */}
+                    <Select
+                        value={pagination.pageSize.toString()}
+                        onValueChange={(value) => {
+                            table.setPageSize(Number(value))
+                        }}
+                    >
+                        <SelectTrigger
+                            id="page-size"
+                            className="h-full w-32 gap-2 rounded-md"
+                        >
+                            <SelectValue className="h-full">
+                                {pagination.pageSize} rows
+                            </SelectValue>
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="10">10 rows</SelectItem>
+                            <SelectItem value="25">25 rows</SelectItem>
+                            <SelectItem value="50">50 rows</SelectItem>
+                            <SelectItem value="100">100 rows</SelectItem>
+                            <SelectItem value="200">200 rows</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <div className="text-muted-foreground text-sm">
+                        Showing {table.getState().pagination.pageSize} of{' '}
+                        {table.getFilteredRowModel().rows.length} row(s)
+                    </div>
                 </div>
             </div>
 
@@ -574,6 +618,36 @@ export function EditableDataTable<TData>({
                         )}
                     </TableBody>
                 </Table>
+            </div>
+
+            {/* Pagination Controls */}
+            <div className="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+                <div className="text-muted-foreground text-sm">
+                    Page {table.getState().pagination.pageIndex + 1} of{' '}
+                    {table.getPageCount()}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.previousPage()}
+                        disabled={!table.getCanPreviousPage()}
+                        className="h-9 gap-2"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => table.nextPage()}
+                        disabled={!table.getCanNextPage()}
+                        className="h-9 gap-2"
+                    >
+                        Next
+                        <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
             </div>
         </div>
     )

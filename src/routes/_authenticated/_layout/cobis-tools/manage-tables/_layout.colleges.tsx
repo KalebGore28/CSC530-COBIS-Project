@@ -22,20 +22,9 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
-    const { filterColumn, filterValue } = Route.useSearch()
     const { data: colleges, isLoading } = useLiveQuery((q) =>
         q.from({ colleges: collegesCollection }),
     )
 
-    return (
-        <div className="p-4">
-            {!isLoading && (
-                <CollegeTable
-                    data={colleges}
-                    defaultFilterColumn={filterColumn}
-                    defaultFilterColumnValue={filterValue}
-                />
-            )}
-        </div>
-    )
+    return <div>{!isLoading && <CollegeTable data={colleges} />}</div>
 }

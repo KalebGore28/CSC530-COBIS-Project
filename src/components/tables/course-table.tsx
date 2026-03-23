@@ -83,19 +83,6 @@ const columns: Array<ColumnDef<Course>> = [
     },
 ]
 
-export function CourseTable({
-    data,
-    defaultFilters,
-}: {
-    data: Array<Course>
-    defaultFilters?: Array<{ id: string; value: string }>
-}) {
-    return (
-        <EditableDataTable
-            filterColumns={['id', 'title', 'department_code', 'college_code']}
-            defaultFilters={defaultFilters}
-            columns={columns}
-            data={data}
-        />
-    )
+export function CourseTable({ data }: { data: Array<Course> }) {
+    return <EditableDataTable columns={columns} data={data} />
 }
