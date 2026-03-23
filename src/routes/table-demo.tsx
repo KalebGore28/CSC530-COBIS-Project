@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { DemoDataTable } from '@/components/tables/demo-data-table'
+import { DemoDataTableExample } from '@/components/tables/demo-data-table-example'
 
 export const Route = createFileRoute('/table-demo')({
     component: TableDemoPage,
@@ -21,7 +21,7 @@ function TableDemoPage() {
                 </div>
 
                 {/* Table Component */}
-                <DemoDataTable />
+                <DemoDataTableExample />
             </div>
         </div>
     )

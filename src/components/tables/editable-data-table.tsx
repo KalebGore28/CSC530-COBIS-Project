@@ -1,22 +1,41 @@
+import * as React from 'react'
 import {
+    type ColumnDef,
+    type ColumnFiltersState,
+    type RowSelectionState,
+    type SortingState,
+    type VisibilityState,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
-    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from '@tanstack/react-table'
-import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
-import type {
-    ColumnDef,
-    ColumnFiltersState,
-    SortingState,
-    VisibilityState,
-} from '@tanstack/react-table'
+import {
+    ArrowDownAZ,
+    ArrowUpAZ,
+    ChevronDown,
+    Columns3,
+    Edit,
+    Filter,
+    Trash2,
+} from 'lucide-react'
 
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-
+import { Button } from '@/components/ui/button'
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover'
 import {
     Table,
     TableBody,
@@ -25,39 +44,49 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table'
+import { Label } from '@/components/ui/label'
 import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select'
+import { Separator } from '../ui/separator'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Switch } from '@/components/ui/switch'
 
-interface DataTableProps<TData, TValue> {
-    filterColumns: Array<string>
-    defaultFilters?: Array<{ id: string; value: string }>
-    columns: Array<ColumnDef<TData, TValue>>
-    data: Array<TData>
+interface DataTableProps<TData> {
+    columns: ColumnDef<TData>[]
+    data: TData[]
 }
 
-export function EditableDataTable<TData, TValue>({
-    filterColumns,
-    defaultFilters,
+export function EditableDataTable<TData>({
     columns,
     data,
-}: DataTableProps<TData, TValue>) {
-    const [sorting, setSorting] = useState<SortingState>([])
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([
-        ...(defaultFilters || []),
-    ])
-    const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(
+}: DataTableProps<TData>) {
+    const [sorting, setSorting] = React.useState<SortingState>([])
+    const [columnFilters, setColumnFilters] =
+        React.useState<ColumnFiltersState>([])
+    const [columnVisibility, setColumnVisibility] =
+        React.useState<VisibilityState>({})
+    const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
         {},
     )
-    const [rowSelection, setRowSelection] = useState({})
-    const [activeFilterColumn, setActiveFilterColumn] = useState(
-        filterColumns[0],
+
+    // State for sort dropdown
+    const [sortColumn, setSortColumn] = React.useState<string>('')
+    const [sortDirection, setSortDirection] = React.useState<'asc' | 'desc'>(
+        'asc',
     )
+
+    // State for filter
+    const [filterColumn, setFilterColumn] = React.useState<string>('name')
+    const [filterValue, setFilterValue] = React.useState<string>('')
+
+    // State for bulk edit
+    const [bulkEditColumn, setBulkEditColumn] = React.useState<string>('status')
+    const [bulkEditValue, setBulkEditValue] = React.useState<string>('')
 
     const table = useReactTable({
         data,
@@ -67,9 +96,10 @@ export function EditableDataTable<TData, TValue>({
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
-        getPaginationRowModel: getPaginationRowModel(),
         onColumnVisibilityChange: setColumnVisibility,
         onRowSelectionChange: setRowSelection,
+        enableRowSelection: true,
+        getRowId: (row) => (row as { id: string }).id,
         state: {
             sorting,
             columnFilters,
@@ -78,80 +108,427 @@ export function EditableDataTable<TData, TValue>({
         },
     })
 
+    const selectedRowCount = Object.keys(rowSelection).length
+
+    // Auto-apply sorting when sort settings change
+    React.useEffect(() => {
+        if (sortColumn) {
+            setSorting([{ id: sortColumn, desc: sortDirection === 'desc' }])
+        } else {
+            setSorting([])
+        }
+    }, [sortColumn, sortDirection])
+
+    // Apply filter
+    const handleApplyFilter = () => {
+        if (filterColumn && filterValue) {
+            setColumnFilters([{ id: filterColumn, value: filterValue }])
+        } else {
+            setColumnFilters([])
+        }
+    }
+
+    // Clear filter
+    const handleClearFilter = () => {
+        setFilterValue('')
+        setColumnFilters([])
+    }
+
+    // Handle delete selected rows
+    const handleDeleteSelected = () => {
+        const selectedIds = Object.keys(rowSelection)
+        console.log('Deleting rows with IDs:', selectedIds)
+        // In a real app, you would delete from your data source here
+        alert(
+            `Would delete ${selectedIds.length} row(s): ${selectedIds.join(', ')}`,
+        )
+        setRowSelection({})
+    }
+
+    // Handle bulk edit
+    const handleBulkEdit = () => {
+        const selectedIds = Object.keys(rowSelection)
+        console.log(
+            `Updating column "${bulkEditColumn}" to "${bulkEditValue}" for rows:`,
+            selectedIds,
+        )
+        // In a real app, you would update your data source here
+        alert(
+            `Would update ${selectedIds.length} row(s)\nColumn: ${bulkEditColumn}\nNew Value: ${bulkEditValue}`,
+        )
+    }
+
     return (
-        <div className="w-full">
-            <div className="mx-auto flex flex-col flex-wrap items-center justify-between gap-2 py-4 sm:flex-row">
-                <Input
-                    placeholder={`Filter by ${activeFilterColumn}...`}
-                    value={
-                        table
-                            .getColumn(activeFilterColumn)
-                            ?.getFilterValue()
-                            ?.toString() ?? ''
-                    }
-                    onChange={(event) =>
-                        table
-                            .getColumn(activeFilterColumn)
-                            ?.setFilterValue(event.target.value)
-                    }
-                    className="max-w-sm"
-                />
-                <Tabs value={activeFilterColumn}>
-                    <TabsList className="ml-4">
-                        {filterColumns.map((col) => (
-                            <TabsTrigger
-                                key={col}
-                                className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
-                                value={col}
-                                onClick={() => {
-                                    table
-                                        .getColumn(activeFilterColumn)
-                                        ?.setFilterValue(undefined)
-                                    table.getColumn(col)?.setFilterValue('')
-                                    setActiveFilterColumn(col)
-                                }}
+        <div className="w-full space-y-4">
+            {/* Toolbar */}
+            <div className="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
+                <div className="flex items-center gap-2">
+                    {/* Columns Button */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 gap-2"
                             >
-                                {col.charAt(0).toUpperCase() +
-                                    col.slice(1).replaceAll('_', ' ')}
-                            </TabsTrigger>
-                        ))}
-                    </TabsList>
-                </Tabs>
-                <DropdownMenu>
-                    <DropdownMenuTrigger>
-                        <Button variant="outline">
-                            Columns <ChevronDown />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        {table
-                            .getAllColumns()
-                            .filter((column) => column.getCanHide())
-                            .map((column) => {
-                                return (
-                                    <DropdownMenuCheckboxItem
-                                        key={column.id}
-                                        className="capitalize"
-                                        checked={column.getIsVisible()}
-                                        onCheckedChange={(value) =>
-                                            column.toggleVisibility(!!value)
-                                        }
+                                <Columns3 className="h-4 w-4" />
+                                Columns
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-48">
+                            <DropdownMenuLabel>
+                                Toggle Columns
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {table
+                                .getAllColumns()
+                                .filter((column) => column.getCanHide())
+                                .map((column) => {
+                                    return (
+                                        <DropdownMenuCheckboxItem
+                                            key={column.id}
+                                            className="capitalize"
+                                            checked={column.getIsVisible()}
+                                            onCheckedChange={(value) =>
+                                                column.toggleVisibility(!!value)
+                                            }
+                                        >
+                                            {column.id}
+                                        </DropdownMenuCheckboxItem>
+                                    )
+                                })}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    {/* Sort Button */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 gap-2"
+                            >
+                                {sortDirection === 'asc' ? (
+                                    <ArrowUpAZ className="h-4 w-4" />
+                                ) : (
+                                    <ArrowDownAZ className="h-4 w-4" />
+                                )}
+                                Sort
+                                {sortColumn && (
+                                    <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-xs">
+                                        1
+                                    </span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent align="start" className="w-48 p-2">
+                            <div className="space-y-2">
+                                <div className="text-muted-foreground flex items-center justify-between text-center text-xs font-medium">
+                                    <span>Sort By</span>
+                                    <div className="flex items-center gap-2">
+                                        <Label htmlFor="sort-direction">
+                                            <span>
+                                                {sortDirection === 'asc'
+                                                    ? 'Ascending'
+                                                    : 'Descending'}
+                                            </span>
+                                        </Label>
+                                        <Switch
+                                            id="sort-direction"
+                                            size="sm"
+                                            checked={sortDirection === 'desc'}
+                                            onCheckedChange={(checked) =>
+                                                setSortDirection(
+                                                    checked ? 'desc' : 'asc',
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                                <Separator />
+                                <div className="space-y-3">
+                                    <div className="space-y-3">
+                                        <RadioGroup
+                                            value={sortColumn}
+                                            onValueChange={setSortColumn}
+                                        >
+                                            {table
+                                                .getAllColumns()
+                                                .filter((column) =>
+                                                    column.getCanSort(),
+                                                )
+                                                .map((column) => (
+                                                    <div
+                                                        key={column.id}
+                                                        className="flex items-center space-x-2"
+                                                    >
+                                                        <RadioGroupItem
+                                                            value={column.id}
+                                                            id={`sort-${column.id}`}
+                                                        />
+                                                        <Label
+                                                            htmlFor={`sort-${column.id}`}
+                                                            className="cursor-pointer font-normal capitalize"
+                                                        >
+                                                            {column.id}
+                                                        </Label>
+                                                    </div>
+                                                ))}
+                                        </RadioGroup>
+                                    </div>
+                                </div>
+                                {sortColumn && (
+                                    <>
+                                        <Separator />
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={() => {
+                                                setSortColumn('')
+                                                setSorting([])
+                                            }}
+                                        >
+                                            Clear Sorting
+                                        </Button>
+                                    </>
+                                )}
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Filter Button */}
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-9 gap-2"
+                            >
+                                <Filter className="h-4 w-4" />
+                                Filter
+                                {columnFilters.length > 0 && (
+                                    <span className="bg-primary text-primary-foreground ml-1 rounded-full px-1.5 py-0.5 text-xs">
+                                        {columnFilters.length}
+                                    </span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80" align="start">
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <h4 className="leading-none font-medium">
+                                        Filter Data
+                                    </h4>
+                                    <p className="text-muted-foreground text-sm">
+                                        Filter table by column values
+                                    </p>
+                                </div>
+                                <div className="space-y-3">
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="filter-column"
+                                            className="text-xs"
+                                        >
+                                            Column
+                                        </Label>
+                                        <Select
+                                            value={filterColumn}
+                                            onValueChange={setFilterColumn}
+                                        >
+                                            <SelectTrigger id="filter-column">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {table
+                                                    .getAllColumns()
+                                                    .filter((column) =>
+                                                        column.getCanFilter(),
+                                                    )
+                                                    .map((column) => (
+                                                        <SelectItem
+                                                            key={column.id}
+                                                            value={column.id}
+                                                        >
+                                                            {column.id}
+                                                        </SelectItem>
+                                                    ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label
+                                            htmlFor="filter-value"
+                                            className="text-xs"
+                                        >
+                                            Value
+                                        </Label>
+                                        <Input
+                                            id="filter-value"
+                                            placeholder="Enter filter value..."
+                                            value={filterValue}
+                                            onChange={(e) =>
+                                                setFilterValue(e.target.value)
+                                            }
+                                            onKeyDown={(e) => {
+                                                if (e.key === 'Enter') {
+                                                    handleApplyFilter()
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex gap-2 pt-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={handleClearFilter}
                                     >
-                                        {column.id}
-                                    </DropdownMenuCheckboxItem>
-                                )
-                            })}
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                                        Clear
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        className="flex-1"
+                                        onClick={handleApplyFilter}
+                                    >
+                                        Apply Filter
+                                    </Button>
+                                </div>
+                            </div>
+                        </PopoverContent>
+                    </Popover>
+
+                    {/* Selection Actions - Show when rows are selected */}
+                    {selectedRowCount > 0 && (
+                        <>
+                            <Separator orientation="vertical" />
+                            <Button
+                                variant="destructive"
+                                size="sm"
+                                className="h-9 gap-2"
+                                onClick={handleDeleteSelected}
+                            >
+                                <Trash2 className="h-4 w-4" />
+                                <span>
+                                    Delete {selectedRowCount}{' '}
+                                    {selectedRowCount === 1 ? 'row' : 'rows'}
+                                </span>
+                            </Button>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="h-9 gap-2"
+                                    >
+                                        <Edit className="h-4 w-4" />
+                                        Edit Selected
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80" align="start">
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <h4 className="leading-none font-medium">
+                                                Bulk Edit
+                                            </h4>
+                                            <p className="text-muted-foreground text-sm">
+                                                Update a column value for all{' '}
+                                                {selectedRowCount} selected
+                                                row(s)
+                                            </p>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="space-y-2">
+                                                <Label
+                                                    htmlFor="bulk-edit-column"
+                                                    className="text-xs"
+                                                >
+                                                    Column to Update
+                                                </Label>
+                                                <Select
+                                                    value={bulkEditColumn}
+                                                    onValueChange={
+                                                        setBulkEditColumn
+                                                    }
+                                                >
+                                                    <SelectTrigger id="bulk-edit-column">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="status">
+                                                            Status
+                                                        </SelectItem>
+                                                        <SelectItem value="category">
+                                                            Category
+                                                        </SelectItem>
+                                                        <SelectItem value="price">
+                                                            Price
+                                                        </SelectItem>
+                                                        <SelectItem value="stock">
+                                                            Stock
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label
+                                                    htmlFor="bulk-edit-value"
+                                                    className="text-xs"
+                                                >
+                                                    New Value
+                                                </Label>
+                                                <Input
+                                                    id="bulk-edit-value"
+                                                    placeholder="Enter new value..."
+                                                    value={bulkEditValue}
+                                                    onChange={(e) =>
+                                                        setBulkEditValue(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            handleBulkEdit()
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                        <Button
+                                            size="sm"
+                                            className="w-full"
+                                            onClick={handleBulkEdit}
+                                            disabled={!bulkEditValue}
+                                        >
+                                            Update {selectedRowCount} Row(s)
+                                        </Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </>
+                    )}
+                </div>
+
+                <div className="text-muted-foreground text-sm">
+                    {table.getFilteredRowModel().rows.length} of {data.length}{' '}
+                    row(s)
+                </div>
             </div>
-            <div className="overflow-hidden rounded-md border">
+
+            {/* Table */}
+            <div className="bg-card rounded-lg border shadow-sm">
                 <Table>
                     <TableHeader>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => {
                                     return (
-                                        <TableHead key={header.id}>
+                                        <TableHead
+                                            key={header.id}
+                                            className="font-semibold"
+                                        >
                                             {header.isPlaceholder
                                                 ? null
                                                 : flexRender(
@@ -166,13 +543,14 @@ export function EditableDataTable<TData, TValue>({
                         ))}
                     </TableHeader>
                     <TableBody>
-                        {table.getRowModel().rows.length ? (
+                        {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map((row) => (
                                 <TableRow
                                     key={row.id}
                                     data-state={
                                         row.getIsSelected() && 'selected'
                                     }
+                                    className="hover:bg-muted/50"
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -196,30 +574,6 @@ export function EditableDataTable<TData, TValue>({
                         )}
                     </TableBody>
                 </Table>
-            </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="text-muted-foreground flex-1 text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} row(s) selected.
-                </div>
-                <div className="space-x-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.previousPage()}
-                        disabled={!table.getCanPreviousPage()}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => table.nextPage()}
-                        disabled={!table.getCanNextPage()}
-                    >
-                        Next
-                    </Button>
-                </div>
             </div>
         </div>
     )
