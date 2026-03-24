@@ -218,7 +218,10 @@ function RouteComponent() {
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/academic-standings'}
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -265,7 +268,10 @@ function RouteComponent() {
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/admit-codes'}
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -310,7 +316,10 @@ function RouteComponent() {
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/colleges'}
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -384,7 +393,10 @@ function RouteComponent() {
                         {coursesWithoutTitle > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
-                                search={{ filterColumn: 'title' }}
+                                search={{
+                                    filterColumn: 'title',
+                                    filterValue: 'unknown',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -397,7 +409,10 @@ function RouteComponent() {
                         {coursesWithoutDepartment > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
-                                search={{ filterColumn: 'description' }}
+                                search={{
+                                    filterColumn: 'description',
+                                    filterValue: 'unknown',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -410,7 +425,10 @@ function RouteComponent() {
                         {coursesWithoutCollege > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
-                                search={{ filterColumn: 'college' }}
+                                search={{
+                                    filterColumn: 'college',
+                                    filterValue: 'null',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -458,7 +476,10 @@ function RouteComponent() {
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/departments'}
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -511,7 +532,10 @@ function RouteComponent() {
                             to={
                                 '/cobis-tools/manage-tables/instructional-methods'
                             }
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -558,7 +582,10 @@ function RouteComponent() {
                         <span>Problems to resolve:</span>
                         <Link
                             to={'/cobis-tools/manage-tables/part-of-terms'}
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
@@ -632,7 +659,10 @@ function RouteComponent() {
                         {programsWithoutDescription > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
-                                search={{ filterColumn: 'description' }}
+                                search={{
+                                    filterColumn: 'description',
+                                    filterValue: 'unknown',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -645,7 +675,10 @@ function RouteComponent() {
                         {programsWithoutDepartment > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
-                                search={{ filterColumn: 'department' }}
+                                search={{
+                                    filterColumn: 'department',
+                                    filterValue: 'null',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -658,7 +691,10 @@ function RouteComponent() {
                         {programsWithoutCollege > 0 && (
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
-                                search={{ filterColumn: 'college' }}
+                                search={{
+                                    filterColumn: 'college',
+                                    filterValue: 'null',
+                                }}
                             >
                                 <Badge
                                     variant="outline"
@@ -712,7 +748,10 @@ function RouteComponent() {
                             to={
                                 '/cobis-tools/manage-tables/registration-statuses'
                             }
-                            search={{ filterColumn: 'description' }}
+                            search={{
+                                filterColumn: 'description',
+                                filterValue: 'unknown',
+                            }}
                         >
                             <Badge
                                 variant="outline"
