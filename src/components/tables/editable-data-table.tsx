@@ -63,15 +63,24 @@ import { Switch } from '@/components/ui/switch'
 interface DataTableProps<TData> {
     columns: ColumnDef<TData>[]
     data: TData[]
+    initialFilterColumn?: string
+    initialFilterValue?: string
 }
 
 export function EditableDataTable<TData>({
     columns,
     data,
+    initialFilterColumn,
+    initialFilterValue,
 }: DataTableProps<TData>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] =
-        React.useState<ColumnFiltersState>([])
+        React.useState<ColumnFiltersState>(() => {
+            if (initialFilterColumn && initialFilterValue) {
+                return [{ id: initialFilterColumn, value: initialFilterValue }]
+            }
+            return []
+        })
     const [columnVisibility, setColumnVisibility] =
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState<RowSelectionState>(
@@ -89,8 +98,12 @@ export function EditableDataTable<TData>({
     )
 
     // State for filter
-    const [filterColumn, setFilterColumn] = React.useState<string>('name')
-    const [filterValue, setFilterValue] = React.useState<string>('')
+    const [filterColumn, setFilterColumn] = React.useState<string>(
+        initialFilterColumn ?? 'name',
+    )
+    const [filterValue, setFilterValue] = React.useState<string>(
+        initialFilterValue ?? '',
+    )
 
     // State for bulk edit
     const [bulkEditColumn, setBulkEditColumn] = React.useState<string>('status')

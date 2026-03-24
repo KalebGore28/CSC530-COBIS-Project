@@ -49,5 +49,12 @@ export function CollegeTable({
     filterColumn: string | undefined
     filterValue: string | undefined
 }) {
-    return <EditableDataTable columns={columns} data={data} />
+    return (
+        <EditableDataTable
+            columns={columns}
+            data={data}
+            initialFilterColumn={filterColumn}
+            initialFilterValue={filterValue}
+        />
+    )
 }
