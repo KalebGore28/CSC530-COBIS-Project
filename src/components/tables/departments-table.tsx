@@ -1,6 +1,6 @@
 import { EditableDataTable } from './editable-data-table'
 import type { ColumnDef } from '@tanstack/react-table'
-import type { courses } from '@/db/schema'
+import type { departments } from '@/db/schema'
 import { Checkbox } from '@/components/ui/checkbox'
 
 const nullFilter = (row: any, columnId: string, filterValue: string) => {
@@ -12,9 +12,9 @@ const nullFilter = (row: any, columnId: string, filterValue: string) => {
         .includes(filterValue.toLowerCase())
 }
 
-type Course = typeof courses.$inferSelect
+type Departments = typeof departments.$inferSelect
 
-const columns: Array<ColumnDef<Course>> = [
+const columns: Array<ColumnDef<Departments>> = [
     {
         id: 'select',
         header: ({ table }) => (
@@ -44,45 +44,32 @@ const columns: Array<ColumnDef<Course>> = [
         header: 'Id',
     },
     {
-        accessorKey: 'subject',
-        header: 'Subject',
+        accessorKey: 'description',
+        header: 'Description',
     },
     {
-        accessorKey: 'number',
-        header: 'Number',
-        filterFn: 'includesString',
-    },
-    {
-        accessorKey: 'suffix',
-        header: 'Suffix',
-    },
-    {
-        accessorKey: 'title',
-        header: 'Title',
-    },
-    {
-        accessorKey: 'hours',
-        header: 'Hours',
-        filterFn: 'includesString',
-    },
-    {
-        accessorKey: 'department_code',
-        header: 'Department Code',
+        accessorKey: 'college_id',
+        header: 'College ID',
         cell: ({ getValue }) => getValue() ?? '—', // or null
         filterFn: nullFilter,
-    },
-    {
-        accessorKey: 'college_code',
-        header: 'College Code',
-        cell: ({ getValue }) => getValue() ?? '—', // or null
-        filterFn: nullFilter,
-    },
-    {
-        accessorKey: 'last_updated',
-        header: 'Last Updated',
     },
 ]
 
-export function CourseTable({ data }: { data: Array<Course> }) {
-    return <EditableDataTable columns={columns} data={data} />
+export function DepartmentsTable({
+    data,
+    filterColumn,
+    filterValue,
+}: {
+    data: Array<Departments>
+    filterColumn: string | undefined
+    filterValue: string | undefined
+}) {
+    return (
+        <EditableDataTable
+            columns={columns}
+            data={data}
+            initialFilterColumn={filterColumn}
+            initialFilterValue={filterValue}
+        />
+    )
 }

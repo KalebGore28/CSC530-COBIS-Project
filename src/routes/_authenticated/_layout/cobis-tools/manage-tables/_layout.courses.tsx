@@ -2,7 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { useLiveQuery } from '@tanstack/react-db'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
-import { CourseTable } from '@/components/tables/course-table'
+import { CoursesTable } from '@/components/tables/courses-table'
 
 type RouteParams = {
     filterColumn?: string
@@ -22,8 +22,19 @@ export const Route = createFileRoute(
 })
 
 function RouteComponent() {
+    const { filterColumn, filterValue } = Route.useSearch()
     const { data: courses, isLoading } = useLiveQuery((q) =>
         q.from({ courses: coursesCollection }),
     )
-    return <div>{!isLoading && <CourseTable data={courses} />}</div>
+    return (
+        <div>
+            {!isLoading && (
+                <CoursesTable
+                    data={courses}
+                    filterColumn={filterColumn}
+                    filterValue={filterValue}
+                />
+            )}
+        </div>
+    )
 }

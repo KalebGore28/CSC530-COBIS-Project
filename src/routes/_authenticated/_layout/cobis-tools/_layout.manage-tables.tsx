@@ -148,8 +148,18 @@ function RouteComponent() {
         return sum
     }, 0)
 
+    const departmentWithoutDescription = departments.reduce((sum, d) => {
+        if (d.description.toLowerCase() === 'unknown') return sum + 1
+        return sum
+    }, 0)
+
+    const departmentWithoutCollege = departments.reduce((sum, d) => {
+        if (d.college_id === null) return sum + 1
+        return sum
+    }, 0)
+
     const programsWithoutDescription = programs.reduce((sum, p) => {
-        if (p.description === 'unknown') return sum + 1
+        if (p.description.toLowerCase() === 'unknown') return sum + 1
         return sum
     }, 0)
     const programsWithoutDepartment = programs.reduce((sum, p) => {
@@ -410,15 +420,15 @@ function RouteComponent() {
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
                                 search={{
-                                    filterColumn: 'description',
-                                    filterValue: 'unknown',
+                                    filterColumn: 'department_id',
+                                    filterValue: 'null',
                                 }}
                             >
                                 <Badge
                                     variant="outline"
                                     className="cursor-pointer shadow-md hover:shadow-lg"
                                 >
-                                    Description
+                                    Department
                                 </Badge>
                             </Link>
                         )}
@@ -426,7 +436,7 @@ function RouteComponent() {
                             <Link
                                 to={'/cobis-tools/manage-tables/courses'}
                                 search={{
-                                    filterColumn: 'college',
+                                    filterColumn: 'college_id',
                                     filterValue: 'null',
                                 }}
                             >
@@ -446,16 +456,32 @@ function RouteComponent() {
                     <CardTitle>Departments Table</CardTitle>
                     <CardDescription>
                         {departments.length > 0 ? (
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-lg font-bold">
-                                    {departments.length}
-                                </span>
-                                <span>
-                                    {departments.length === 1
-                                        ? 'row missing a description'
-                                        : 'rows missing a description'}
-                                </span>
-                            </div>
+                            <>
+                                {departmentWithoutDescription > 0 && (
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-lg font-bold">
+                                            {departmentWithoutDescription}
+                                        </span>
+                                        <span>
+                                            {departmentWithoutDescription === 1
+                                                ? 'row missing a description'
+                                                : 'rows missing a description'}
+                                        </span>
+                                    </div>
+                                )}
+                                {departmentWithoutCollege > 0 && (
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-lg font-bold">
+                                            {departmentWithoutCollege}
+                                        </span>
+                                        <span>
+                                            {departmentWithoutCollege === 1
+                                                ? 'row missing a college'
+                                                : 'rows missing a college'}
+                                        </span>
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <span className="text-green-600 dark:text-green-500">
                                 No issues found ✓
@@ -474,20 +500,38 @@ function RouteComponent() {
                 {departments.length > 0 && (
                     <CardFooter className="flex items-start gap-1.5">
                         <span>Problems to resolve:</span>
-                        <Link
-                            to={'/cobis-tools/manage-tables/departments'}
-                            search={{
-                                filterColumn: 'description',
-                                filterValue: 'unknown',
-                            }}
-                        >
-                            <Badge
-                                variant="outline"
-                                className="cursor-pointer shadow-md hover:shadow-lg"
+                        {departmentWithoutDescription > 0 && (
+                            <Link
+                                to={'/cobis-tools/manage-tables/departments'}
+                                search={{
+                                    filterColumn: 'description',
+                                    filterValue: 'unknown',
+                                }}
                             >
-                                Description
-                            </Badge>
-                        </Link>
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
+                                >
+                                    Description
+                                </Badge>
+                            </Link>
+                        )}
+                        {departmentWithoutCollege > 0 && (
+                            <Link
+                                to={'/cobis-tools/manage-tables/departments'}
+                                search={{
+                                    filterColumn: 'college_id',
+                                    filterValue: 'null',
+                                }}
+                            >
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
+                                >
+                                    College
+                                </Badge>
+                            </Link>
+                        )}
                     </CardFooter>
                 )}
             </Card>
@@ -676,7 +720,7 @@ function RouteComponent() {
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
                                 search={{
-                                    filterColumn: 'department',
+                                    filterColumn: 'department_id',
                                     filterValue: 'null',
                                 }}
                             >
@@ -692,7 +736,7 @@ function RouteComponent() {
                             <Link
                                 to={'/cobis-tools/manage-tables/programs'}
                                 search={{
-                                    filterColumn: 'college',
+                                    filterColumn: 'college_id',
                                     filterValue: 'null',
                                 }}
                             >
