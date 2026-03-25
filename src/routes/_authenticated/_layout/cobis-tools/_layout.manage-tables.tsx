@@ -453,6 +453,23 @@ function RouteComponent() {
             </Card>
             <Card className="h-50">
                 <CardHeader className="h-full">
+                    <CardTitle>Course Prefix Table</CardTitle>
+                    <CardDescription>WIP</CardDescription>
+                    <CardAction className="flex gap-2">
+                        <Badge>Action Required</Badge>
+                        {/*<Link to={'/cobis-tools/manage-tables/course-prefix'}>
+                            <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
+                        </Link>*/}
+                    </CardAction>
+                </CardHeader>
+
+                <CardFooter className="flex items-start gap-1.5">
+                    <span>Problems to resolve:</span>
+                    WIP
+                </CardFooter>
+            </Card>
+            <Card className="h-50">
+                <CardHeader className="h-full">
                     <CardTitle>Departments Table</CardTitle>
                     <CardDescription>
                         {departments.length > 0 ? (
