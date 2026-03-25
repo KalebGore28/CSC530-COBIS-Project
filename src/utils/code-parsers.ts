@@ -97,3 +97,61 @@ export function parseTermCode(termCode: string): ParsedTermCode {
         valid: true,
     }
 }
+
+export function safeParseDate(
+    value: string,
+    fallback: Date | undefined = undefined,
+) {
+    const d = new Date(value)
+    return Number.isNaN(d.getTime()) ? fallback : d
+}
+
+// If no transform is passed => return string | undefined
+export function safeParseString(
+    value: unknown,
+    options?: {
+        trim?: boolean
+        emptyAsUndefined?: boolean
+        nullStringAsUndefined?: boolean
+    },
+): string | undefined
+
+// If transform is passed => return T | undefined
+export function safeParseString<T>(
+    value: unknown,
+    options:
+        | {
+              trim?: boolean
+              emptyAsUndefined?: boolean
+              nullStringAsUndefined?: boolean
+          }
+        | undefined,
+    transform: (val: string) => T,
+): T | undefined
+
+export function safeParseString<T>(
+    value: unknown,
+    options?: {
+        trim?: boolean
+        emptyAsUndefined?: boolean
+        nullStringAsUndefined?: boolean
+    },
+    transform?: (val: string) => T,
+): string | T | undefined {
+    if (value == null) return undefined
+
+    let str = String(value)
+
+    if (options?.trim !== false) {
+        str = str.trim()
+    }
+
+    if (
+        (options?.emptyAsUndefined !== false && str === '') ||
+        (options?.nullStringAsUndefined && str.toLowerCase() === 'null')
+    ) {
+        return undefined
+    }
+
+    return transform ? transform(str) : str
+}

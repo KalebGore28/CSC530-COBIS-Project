@@ -1,24 +1,26 @@
-import fs from 'node:fs'
-import path from 'node:path'
-import { parseCSV } from './parse-csv'
-import { importData } from './import-data'
-import type { createCSVConfig } from './create-csv-config'
+import fs from 'fs'
+import path from 'path'
+
 import type { MySql2Database } from 'drizzle-orm/mysql2'
+
+import { parseCSV } from './parse-csv'
+
+import type { makeMySqlCSVConfig } from './make-csv-config'
+import { importMySqlData } from './import-data'
 
 /**
  * Reads a CSV file, parses it, and imports the data.
- * @param db - Drizzle database instance
- * @param filePath - Full path to the CSV file
- * @param csvConfig - CSV configuration
- * @returns Promise that resolves when import is complete
+ * @param db
+ * @param filePath
+ * @param csvConfig
  */
-export async function importCSVFile(
+export async function importMySqlCSVFile(
     db: MySql2Database<any>,
     filePath: string,
-    csvConfig: ReturnType<typeof createCSVConfig>,
+    csvConfig: ReturnType<typeof makeMySqlCSVConfig>,
 ) {
     const fileContent = fs.readFileSync(filePath, 'utf8')
     const parsedData = await parseCSV(fileContent)
     const fileName = path.basename(filePath)
-    await importData(db, parsedData, fileName, csvConfig)
+    await importMySqlData(db, parsedData, fileName, csvConfig)
 }

@@ -1,34 +1,31 @@
-import type { createCSVConfig } from './create-csv-config'
+import type { OptimizedLookup } from './make-csv-config'
 
 /**
- * Loops through all tables in configMapping and returns an array of
- * table names whose patterns match the given pattern_input.
- * @param pattern_input - The filename or pattern to match against
- * @param configMapping - The CSV configuration mapping
- * @returns Map of matching table names to their configurations
+ * Finds matching tables for a given CSV filename using an optimized lookup.
+ * @param csvFilename
+ * @param lookup
+ * @returns
  */
-export const findMatchingTables = (
-    pattern_input: string,
-    configMapping: ReturnType<typeof createCSVConfig>,
-) => {
-    const matchingTables = new Map<
-        string,
-        (typeof configMapping.tables)[string]
-    >()
+export function findMySqlMatchingTables(
+    csvFilename: string,
+    optimizedLookup: OptimizedLookup,
+): OptimizedLookup['lookup'] extends Map<any, infer V extends { tables: any }>
+    ? V['tables'] | null
+    : never {
+    const result = new Map() as OptimizedLookup['lookup'] extends Map<
+        any,
+        infer V extends { tables: any }
+    >
+        ? V['tables']
+        : never
 
-    for (const [tableName, tableMapping] of Object.entries(
-        configMapping.tables,
-    )) {
-        const patterns = tableMapping.patterns
-        const isMatch = patterns.some((pattern) =>
-            pattern instanceof RegExp
-                ? pattern.test(pattern_input)
-                : new RegExp(pattern).test(pattern_input),
-        )
-        if (isMatch) {
-            matchingTables.set(tableName, tableMapping)
+    for (const [, entry] of optimizedLookup.lookup) {
+        if (entry.regex.test(csvFilename)) {
+            for (const [tableName, tableDef] of entry.tables) {
+                result.set(tableName, tableDef)
+            }
         }
     }
 
-    return matchingTables
+    return result.size ? result : null
 }

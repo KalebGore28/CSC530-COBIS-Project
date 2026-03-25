@@ -1,19 +1,16 @@
-import { getColumns, sql } from 'drizzle-orm'
-import { findMatchingTables } from './find-matching-tables'
-import { dataConformer } from './data-conformer'
-import { CompositeCache } from './composite-cache'
-import type { MySqlTable } from 'drizzle-orm/mysql-core'
-import type { SQL } from 'drizzle-orm'
 import type { MySql2Database } from 'drizzle-orm/mysql2'
-import type { ImportStreamMessage } from './import-types'
+import type { MySqlTable } from 'drizzle-orm/mysql-core'
 import type { ParseResult } from 'papaparse'
-import type { createCSVConfig } from './create-csv-config'
+import { getColumns, sql, type SQL } from 'drizzle-orm'
+
+import type { ImportStreamMessage } from './import-types'
+import { CompositeCache } from './composite-cache'
+
+import type { makeMySqlCSVConfig } from './make-csv-config'
+import { findMySqlMatchingTables } from './find-matching-tables'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Helper to build conflict update columns
-// FUTURE USE: Plan to use this for batch inserts with conflict handling instead of single row inserts
-// BENEFIT: This will hopefully improve performance for large imports
 const buildConflictUpdateColumns = <
     T extends MySqlTable,
     Q extends keyof T['_']['columns'],
@@ -31,325 +28,173 @@ const buildConflictUpdateColumns = <
     )
 }
 
-export const importData = async (
+export const importMySqlData = async (
     db: MySql2Database<any>,
-    results: ParseResult<Record<string, string>>,
-    pattern: string,
-    configMapping: ReturnType<typeof createCSVConfig>,
+    csvData: ParseResult<Record<string, string>>,
+    fileName: string,
+    csvConfig: ReturnType<typeof makeMySqlCSVConfig>,
+    batchSize?: number,
     progress?: {
         send: (msg: ImportStreamMessage) => void
         end: () => void
-        batchSize: number
     },
 ) => {
-    const batchSize = progress?.batchSize ?? 10 // Default to every 10 rows
+    const importBatchSize = batchSize ?? 100 // Default to every 100 rows
 
     const emit = async (msg: ImportStreamMessage) => {
-        progress?.send(msg)
-        await sleep(5) // yield to event loop
+        if (progress !== undefined) {
+            progress.send(msg)
+            await sleep(5) // yield to event loop
+        }
     }
 
-    // Get tables matching the filename
-    const tableConfigMap = findMatchingTables(pattern, configMapping)
-    if (!tableConfigMap.size) {
-        throw new Error(`No matching tables found for pattern: ${pattern}`)
+    // Get tables matching the file name
+    const matchingTables = findMySqlMatchingTables(fileName, csvConfig)
+
+    if (!matchingTables) {
+        throw new Error(`No matching tables found for file: ${fileName}`)
     }
 
     await emit({
         type: 'start',
-        data: { message: 'Import started', totalTables: tableConfigMap.size },
+        data: {
+            message: `Starting import for file: ${fileName}`,
+            totalTables: matchingTables.size,
+        },
     })
 
-    const cacheData = new CompositeCache()
+    for (const [tableName, tableConfig] of matchingTables) {
+        const cacheData = new CompositeCache()
+        const processedTableData: Array<Record<string, any>> = []
 
-    // Find foreign keys for each table
-    for (const [tableName, _] of tableConfigMap.entries()) {
-        const foreignKeys = configMapping.tables[tableName]?.meta.foreignKeys
-        if (!foreignKeys) {
-            continue
-        }
-
-        // Cache foreign key tables if missingRowResolver is provided
-        for (const fk of foreignKeys) {
+        // Preload cache for foreign key tables
+        for (const fk of tableConfig.foreignKeys) {
             // If already cached, skip
-            if (cacheData.has(tableName)) continue
+            if (cacheData.has(fk.foreignTableName)) continue
 
-            // Get the foreign table config and schema
-            const foreignTableConfig = configMapping.tables[fk.foreignTableName]
-            const foreignTableSchema = configMapping.schema[fk.foreignTableName]
+            // If there is no resolver, its pointless to cache as we can't resolve missing rows
+            if (!fk.resolver) continue
 
-            // If the foreign table does not have a missingRowResolver, skip
-            if (!foreignTableConfig || !foreignTableConfig.missingRowResolver)
-                continue
+            const table = csvConfig.schema[fk.foreignTableName]
 
-            // Fetch existing data from the foreign table
+            // Build select object with actual column references
+            const selectedColumns = fk.foreignColumns.reduce(
+                (acc, col) => {
+                    acc[col] = (table as Record<string, any>)[col] // Use actual column reference from schema
+                    return acc
+                },
+                {} as Record<string, any>,
+            )
+
             await db
-                .select()
-                .from(foreignTableSchema)
+                .select(selectedColumns)
+                .from(table)
                 .then((rows) => {
                     for (const row of rows) {
-                        // Only use the foreign key columns
-                        const keyParts = fk.foreignColumns.map(
-                            (col) => row[col],
-                        )
-
-                        // Add to cache (table name + key parts)
-                        cacheData.add(fk.foreignTableName, ...keyParts)
+                        // Cache the row data. We don't need the keys
+                        const values = fk.foreignColumns.map((col) => row[col])
+                        cacheData.add(fk.foreignTableName, ...values)
                     }
                 })
         }
-    }
 
-    // Begin mapping data to tables from config
-    const tableDataMap = new Map<string, Array<Record<string, any>>>()
-    for (const [
-        tableName,
-        { config, rowExpander },
-    ] of tableConfigMap.entries()) {
-        if (config) {
-            const table = configMapping.schema[tableName]
-            if (!table)
-                throw new Error(`Table ${tableName} not found in schema`)
-
-            const columns = getColumns(table)
-
+        // Process each matching table
+        if (tableConfig.config) {
+            // Remap csv data to db columns
             const mappedRows = await Promise.all(
-                results.data.map(async (row) => {
+                csvData.data.map(async (row, _rowIndex) => {
                     const mapped: Record<string, any> = {}
 
-                    for (const [columnName, columnConfig] of Object.entries(
-                        config as Record<
-                            string,
-                            {
-                                csvColumnName: string | Array<string>
-                                transform?: (v: any) => any
-                                combineCSVColumns?: boolean
-                            }
-                        >,
+                    for (const [csvColumn, mappingInfo] of Object.entries(
+                        tableConfig.config,
                     )) {
-                        const { csvColumnName, transform, combineCSVColumns } =
-                            columnConfig
-                        // Normalize CSV column names to array
-                        const csvNames = Array.isArray(csvColumnName)
-                            ? csvColumnName
-                            : [csvColumnName]
-
-                        // Find first matching value
-                        const value = combineCSVColumns
-                            ? csvNames.map((name) => row[name] || '').join('')
-                            : csvNames
-                                  .map((name) => row[name])
-                                  .find((v) => v !== undefined)
-
-                        const column = columns[columnName]
-                        if (!column)
-                            throw new Error(
-                                `Column ${columnName} not found in table ${tableName}`,
-                            )
-
-                        try {
-                            // If transform is provided, use it; otherwise, use dataConformer
-                            mapped[columnName] = transform
-                                ? await transform(value)
-                                : dataConformer(value, column)
-                            // console.log(columnName, mapped[columnName])
-                        } catch (err) {
-                            void emit({
-                                type: 'error',
-                                data: {
-                                    table: tableName,
-                                    rowIndex: results.data.indexOf(row),
-                                },
-                                error:
-                                    'Failed to conform value. Error: ' +
-                                    String(err),
-                            })
-                            throw err
-                        }
+                        const value = row[csvColumn]
+                        const transformedValue = mappingInfo.transform
+                            ? await mappingInfo.transform(value)
+                            : value
+                        mapped[mappingInfo.dbColumnName] = transformedValue
                     }
 
                     return mapped
                 }),
             )
 
-            tableDataMap.set(tableName, mappedRows)
-            continue
+            processedTableData.push(...mappedRows)
+        } else {
+            // Remap csv data to db columns
+            const mappedRows = (
+                await Promise.all(
+                    csvData.data.map((row) => tableConfig.rowExpander(row)),
+                )
+            ).flat()
+
+            processedTableData.push(...mappedRows)
         }
 
-        if (rowExpander) {
-            const expandedData = rowExpander
-                ? results.data.flatMap((row) => rowExpander(row)) // fan out
-                : results.data
+        // Resolve any foreign key issues
+        for (const fk of tableConfig.foreignKeys) {
+            // If there is no resolver, we can't resolve those rows
+            if (!fk.resolver) continue
 
-            tableDataMap.set(tableName, expandedData)
-            continue
-        }
-    }
+            // Track missing rows for this foreign table
+            const missingRows: Array<Record<string, any>> = []
 
-    // Begin inserting data into tables
-    let tableIterations = 0
-    for (const [tableName, rows] of tableDataMap.entries()) {
-        tableIterations++
+            for (const row of processedTableData) {
+                // Build pickedDataObj using columnMap (tableCol -> foreignCol)
+                const pickedDataObj: Record<string, any> = {}
+                const cacheValues: any[] = []
 
-        await emit({
-            type: 'table-start',
-            data: {
-                message: `Starting import for table ${tableName}`,
-                table: tableName,
-                tableIndex: tableIterations,
-                totalTables: tableDataMap.size,
-                totalRows: rows.length,
-            },
-        })
-
-        const table = configMapping.schema[tableName]
-        const foreignKeys = configMapping.tables[tableName]?.meta.foreignKeys
-
-        if (!table) {
-            console.warn(`Table ${tableName} not found in schema, skipping`)
-            continue
-        }
-
-        if (!rows.length) {
-            console.warn(`No rows to import for table ${tableName}`)
-            continue
-        }
-
-        let importedRows = 0
-        try {
-            // Iterate over each row and perform an individual insert or update
-            for (const row of rows) {
-                for (const fk of foreignKeys || []) {
-                    // Get the foreign table config
-                    const foreignTableConfig =
-                        configMapping.tables[fk.foreignTableName]
-                    const foreignTableSchema =
-                        configMapping.schema[fk.foreignTableName]
-
-                    // If no resolver, skip
-                    if (
-                        !foreignTableConfig ||
-                        !foreignTableConfig.missingRowResolver
-                    ) {
-                        continue
-                    }
-                    // TODO: Need to do more testing here.
-                    const keyParts = fk.columns.map((col) => row[col])
-
-                    const existsInCache = cacheData.has(
-                        fk.foreignTableName,
-                        ...keyParts,
-                    )
-                    if (!existsInCache) {
-                        await emit({
-                            type: 'warning',
-                            data: {
-                                message: `Missing foreign key for table ${fk.foreignTableName} with key '${keyParts.join('|')}'. Attempting to resolve...`,
-                                table: tableName,
-                                rowIndex: importedRows,
-                            },
-                        })
-
-                        // Call the missing row resolver to get the missing data
-                        const missingData =
-                            foreignTableConfig.missingRowResolver(keyParts)
-                        // console.log('Missing Parts', keyParts, tableName,missingData, fk, row)
-                        if (missingData) {
-                            // Insert the missing data into the foreign table
-                            if (!foreignTableSchema) {
-                                throw new Error(
-                                    `Foreign table ${fk.foreignTableName} not found in schema`,
-                                )
-                            }
-
-                            await db
-                                .insert(foreignTableSchema)
-                                .values(missingData)
-                                .execute()
-
-                            await emit({
-                                type: 'log',
-                                data: {
-                                    table: tableName,
-                                    rowIndex: importedRows,
-                                    message: `Inserted missing foreign key '${keyParts.join('|')}' row into ${fk.foreignTableName}`,
-                                },
-                            })
-
-                            // Add to cache
-                            cacheData.add(fk.foreignTableName, ...keyParts)
-                        }
-                    }
+                for (const [tableCol, _foreignCol] of Object.entries(
+                    fk.columnMap,
+                )) {
+                    const value = row[tableCol]
+                    pickedDataObj[tableCol] = value
+                    cacheValues.push(value)
                 }
 
-                try {
-                    // Row here is being printed as a promise for some reason
-                    await db
-                        .insert(table)
-                        .values(row)
-                        .onDuplicateKeyUpdate({ set: row })
+                // Check if this combination exists in the cache
+                const exists = cacheData.has(
+                    fk.foreignTableName,
+                    ...cacheValues,
+                )
 
-                    importedRows++
+                if (!exists) {
+                    // Remap keys to foreign table columns
+                    const foreignKeyRow = Object.fromEntries(
+                        Object.entries(fk.columnMap).map(
+                            ([tableCol, foreignCol]) => [
+                                foreignCol,
+                                row[tableCol],
+                            ],
+                        ),
+                    )
 
-                    // Only emit progress every N rows OR on the last row
-                    if (
-                        importedRows % batchSize === 0 ||
-                        importedRows === rows.length
-                    ) {
-                        await emit({
-                            type: 'row-progress',
-                            data: {
-                                message: `Imported row ${importedRows} into table ${tableName}`,
-                                table: tableName,
-                                rowIndex: importedRows,
-                                totalRows: rows.length,
-                                tableIndex: tableIterations,
-                                totalTables: tableDataMap.size,
-                            },
-                        })
-                    }
-                } catch (err) {
-                    await emit({
-                        type: 'row-failure',
-                        data: {
-                            message: `Failed to import row ${importedRows} into table ${tableName}`,
-                            table: tableName,
-                            rowIndex: importedRows,
-                            totalRows: rows.length,
-                            tableIndex: tableIterations,
-                            totalTables: tableDataMap.size,
-                        },
-                        error: String(err),
-                    })
+                    missingRows.push(fk.resolver(foreignKeyRow))
                 }
             }
-        } catch (err) {
-            await emit({
-                type: 'error',
-                data: {
-                    table: tableName,
-                    rowIndex: importedRows,
-                },
-                error: String(err),
-            })
+
+            // Insert the missing values if found
+            if (missingRows.length > 0) {
+                await db
+                    .insert(csvConfig.schema[fk.foreignTableName])
+                    .values(missingRows)
+            }
         }
 
-        await emit({
-            type: 'table-complete',
-            data: {
-                message: `Import complete for table ${tableName}`,
-                table: tableName,
-                tableIndex: tableIterations,
-                totalTables: tableDataMap.size,
-                totalRows: importedRows,
-            },
-        })
+        const table = csvConfig.schema[tableName]
+        const nonPrimaryColumns = Object.entries(table)
+            .filter(([, column]) => !column.primary)
+            .map(([columnName]) => columnName)
+
+        for (let i = 0; i < processedTableData.length; i += importBatchSize) {
+            const batch = processedTableData.slice(i, i + importBatchSize)
+
+            await db
+                .insert(table)
+                .values(batch)
+                .onDuplicateKeyUpdate({
+                    set: buildConflictUpdateColumns(table, nonPrimaryColumns),
+                })
+        }
     }
-
-    await emit({
-        type: 'complete',
-        data: { message: 'Import complete', totalTables: tableDataMap.size },
-    })
-
-    // progress?.end();
 }

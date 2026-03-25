@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import type { ImportStreamMessage } from '@/utils/csv-importer'
 import { csvConfig } from '@/db/mapping-config'
-import { importData } from '@/utils/csv-importer'
+import { importMySqlData } from '@/utils/csv-importer'
 
 export const Route = createFileRoute('/api/__protected/import/process')({
     server: {
@@ -20,15 +20,15 @@ export const Route = createFileRoute('/api/__protected/import/process')({
                         }
 
                         try {
-                            await importData(
+                            await importMySqlData(
                                 context.db,
                                 csvData,
                                 filename,
                                 csvConfig,
+                                100,
                                 {
                                     send,
                                     end: () => controller.close(),
-                                    batchSize: 10,
                                 },
                             )
                         } catch (err) {

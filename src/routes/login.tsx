@@ -8,7 +8,7 @@ import {
     CardTitle,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import primaryLogo from '/logos/primary_white.png'
+import primaryLogo from '/logos/primary-white.png'
 
 export const Route = createFileRoute('/login')({
     beforeLoad: ({ context }) => {

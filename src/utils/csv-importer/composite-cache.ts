@@ -6,7 +6,7 @@ export class CompositeCache {
     }
 
     private _getMap(
-        levels: Array<unknown>,
+        levels: unknown[],
         createIfMissing = false,
     ): Map<any, any> | undefined {
         let current: Map<any, any> = this.root
@@ -20,14 +20,14 @@ export class CompositeCache {
         return current
     }
 
-    add(...keys: Array<string | number>): void {
+    add(...keys: (string | number)[]): void {
         if (keys.length === 0) return
         const lastKey = keys.pop()!
         const parentMap = this._getMap(keys, true)!
         parentMap.set(lastKey, true)
     }
 
-    has(...keys: Array<string | number>): boolean {
+    has(...keys: (string | number)[]): boolean {
         if (keys.length === 0) return false
         const lastKey = keys.pop()!
         const parentMap = this._getMap(keys)
