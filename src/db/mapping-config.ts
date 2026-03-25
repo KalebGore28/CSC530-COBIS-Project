@@ -6,7 +6,7 @@ import {
     safeParseDate,
     safeParseString,
 } from '../utils/code-parsers'
-// import { getCoursePrefix } from '@/utils/course-prefix-map'
+import { getCoursePrefix } from '@/utils/course-prefix-map'
 
 export const csvConfig = makeMySqlCSVConfig(schema, {
     coursePrefixes: {
@@ -41,25 +41,24 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
                     },
                     title: { csvColumnName: 'CRSETITLE' },
                     hours: { csvColumnName: 'CREDITHRS' },
-                    // Not including these as they are not provided in csv examples given:
-                    // department_id: {
-                    //     csvColumnName: 'COURSE',
-                    //     transform: async (val) =>
-                    //         (
-                    //             await getCoursePrefix(
-                    //                 parseCourseCode(val).subject,
-                    //             )
-                    //         ).department_id || undefined,
-                    // },
-                    // college_id: {
-                    //     csvColumnName: 'COURSE',
-                    //     transform: async (val) =>
-                    //         (
-                    //             await getCoursePrefix(
-                    //                 parseCourseCode(val).subject,
-                    //             )
-                    //         ).college_id || undefined,
-                    // },
+                    department_id: {
+                        csvColumnName: 'COURSE',
+                        transform: async (val) =>
+                            (
+                                await getCoursePrefix(
+                                    parseCourseCode(val).subject,
+                                )
+                            ).department_id || undefined,
+                    },
+                    college_id: {
+                        csvColumnName: 'COURSE',
+                        transform: async (val) =>
+                            (
+                                await getCoursePrefix(
+                                    parseCourseCode(val).subject,
+                                )
+                            ).college_id || undefined,
+                    },
                 },
             },
         ],
