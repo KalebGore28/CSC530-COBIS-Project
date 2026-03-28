@@ -16,21 +16,17 @@ export const usersCollection = createCollection(
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 5, // 5 minutes. Users may change more frequently
         onUpdate: async ({ transaction }) => {
-            const { original, modified } = transaction.mutations[0]
-            await fetch(`/api/data/users`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    ...modified, // only modify roles to be modified
-                    id: original.id,
-                    name: original.name,
-                    email: original.email,
-                    emailVerified: original.emailVerified,
-                    image: original.image,
-                    createdAt: new Date(original.createdAt),
-                    updatedAt: new Date(), // update updatedAt to current time
-                    lastLogin: original.lastLogin,
-                }),
-            })
+            await Promise.all(
+                transaction.mutations.map((mutation) =>
+                    fetch(`/api/data/users`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            id: mutation.original.id,
+                            ...mutation.changes,
+                        }),
+                    }),
+                ),
+            )
         },
     }),
 )
