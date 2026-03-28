@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type RegistrationStatus = typeof registrationStatus.$inferSelect
 
+import { registrationStatusCollection } from '@/integrations/tanstack-db/registration-status'
+
 const columns: Array<ColumnDef<RegistrationStatus>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function RegistrationStatusTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                registrationStatusCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type InstructionalMethods = typeof instructionalMethods.$inferSelect
 
+import { instructionalMethodsCollection } from '@/integrations/tanstack-db/instructional-methods'
+
 const columns: Array<ColumnDef<InstructionalMethods>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function InstructionalMethodsTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                instructionalMethodsCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

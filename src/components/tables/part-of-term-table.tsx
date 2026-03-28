@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type PartOfTerm = typeof partOfTerm.$inferSelect
 
+import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
+
 const columns: Array<ColumnDef<PartOfTerm>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function PartOfTermTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                partOfTermCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type College = typeof colleges.$inferSelect
 
+import { collegesCollection } from '@/integrations/tanstack-db/colleges'
+
 const columns: Array<ColumnDef<College>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function CollegeTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                collegesCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

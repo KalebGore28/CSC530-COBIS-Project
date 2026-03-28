@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type AdmitCodes = typeof admitCodes.$inferSelect
 
+import { admitCodesCollection } from '@/integrations/tanstack-db/admit-codes'
+
 const columns: Array<ColumnDef<AdmitCodes>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function AdmitCodesTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                admitCodesCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

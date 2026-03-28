@@ -16,14 +16,17 @@ export const instructionalMethodsCollection = createCollection(
         queryClient: getQueryClient(),
         staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
         onUpdate: async ({ transaction }) => {
-            const { original, modified } = transaction.mutations[0]
-            await fetch(`/api/data/instructional-methods`, {
-                method: 'PUT',
-                body: JSON.stringify({
-                    ...modified,
-                    id: original.id,
-                }),
-            })
+            await Promise.all(
+                transaction.mutations.map((mutation) =>
+                    fetch(`/api/data/instructional-methods`, {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            id: mutation.original.id,
+                            ...mutation.changes,
+                        }),
+                    }),
+                ),
+            )
         },
     }),
 )

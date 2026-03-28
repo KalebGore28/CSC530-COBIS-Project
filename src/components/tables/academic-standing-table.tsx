@@ -5,6 +5,8 @@ import { Checkbox } from '@/components/ui/checkbox'
 
 type AcademicStanding = typeof academicStanding.$inferSelect
 
+import { academicStandingCollection } from '@/integrations/tanstack-db/academic-standing'
+
 const columns: Array<ColumnDef<AcademicStanding>> = [
     {
         id: 'select',
@@ -55,6 +57,14 @@ export function AcademicStandingTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                academicStandingCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }

@@ -14,6 +14,8 @@ const nullFilter = (row: any, columnId: string, filterValue: string) => {
 
 type Departments = typeof departments.$inferSelect
 
+import { departmentsCollection } from '@/integrations/tanstack-db/departments'
+
 const columns: Array<ColumnDef<Departments>> = [
     {
         id: 'select',
@@ -70,6 +72,14 @@ export function DepartmentsTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, _column, value) => {
+                // Update all selected rows
+                departmentsCollection.update(selectedIds, (draft) => {
+                    draft.forEach((draft) => {
+                        draft.description = value
+                    })
+                })
+            }}
         />
     )
 }
