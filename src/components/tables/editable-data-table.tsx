@@ -22,7 +22,6 @@ import {
     Columns3,
     Edit,
     Filter,
-    Trash2,
 } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -65,6 +64,7 @@ interface DataTableProps<TData> {
     data: TData[]
     initialFilterColumn?: string
     initialFilterValue?: string
+    onBulkEdit?: (selectedIds: string[], column: string, value: string) => void
 }
 
 export function EditableDataTable<TData>({
@@ -72,6 +72,7 @@ export function EditableDataTable<TData>({
     data,
     initialFilterColumn,
     initialFilterValue,
+    onBulkEdit,
 }: DataTableProps<TData>) {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] =
@@ -99,14 +100,14 @@ export function EditableDataTable<TData>({
 
     // State for filter
     const [filterColumn, setFilterColumn] = React.useState<string>(
-        initialFilterColumn ?? 'name',
+        initialFilterColumn ?? '',
     )
     const [filterValue, setFilterValue] = React.useState<string>(
         initialFilterValue ?? '',
     )
 
     // State for bulk edit
-    const [bulkEditColumn, setBulkEditColumn] = React.useState<string>('status')
+    const [bulkEditColumn, setBulkEditColumn] = React.useState<string>('')
     const [bulkEditValue, setBulkEditValue] = React.useState<string>('')
 
     const table = useReactTable({
@@ -158,28 +159,19 @@ export function EditableDataTable<TData>({
         setColumnFilters([])
     }
 
-    // Handle delete selected rows
-    const handleDeleteSelected = () => {
-        const selectedIds = Object.keys(rowSelection)
-        console.log('Deleting rows with IDs:', selectedIds)
-        // In a real app, you would delete from your data source here
-        alert(
-            `Would delete ${selectedIds.length} row(s): ${selectedIds.join(', ')}`,
-        )
-        setRowSelection({})
-    }
-
     // Handle bulk edit
     const handleBulkEdit = () => {
         const selectedIds = Object.keys(rowSelection)
-        console.log(
-            `Updating column "${bulkEditColumn}" to "${bulkEditValue}" for rows:`,
-            selectedIds,
-        )
-        // In a real app, you would update your data source here
-        alert(
-            `Would update ${selectedIds.length} row(s)\nColumn: ${bulkEditColumn}\nNew Value: ${bulkEditValue}`,
-        )
+
+        // Call the callback if provided
+        if (onBulkEdit) {
+            onBulkEdit(selectedIds, bulkEditColumn, bulkEditValue)
+        }
+
+        // Reset selection and bulk edit state
+        setRowSelection({})
+        setBulkEditColumn('')
+        setBulkEditValue('')
     }
 
     return (
@@ -362,7 +354,7 @@ export function EditableDataTable<TData>({
                                             onValueChange={setFilterColumn}
                                         >
                                             <SelectTrigger id="filter-column">
-                                                <SelectValue />
+                                                <SelectValue placeholder="Select column" />
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {table
@@ -374,6 +366,7 @@ export function EditableDataTable<TData>({
                                                         <SelectItem
                                                             key={column.id}
                                                             value={column.id}
+                                                            className="capitalize"
                                                         >
                                                             {column.id}
                                                         </SelectItem>
@@ -426,121 +419,105 @@ export function EditableDataTable<TData>({
 
                     {/* Selection Actions - Show when rows are selected */}
                     {selectedRowCount > 0 && (
-                        <>
-                            <div className="flex gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
                                 <Button
-                                    variant="destructive"
+                                    variant="outline"
                                     size="sm"
                                     className="h-9 gap-2"
-                                    onClick={handleDeleteSelected}
                                 >
-                                    <Trash2 className="h-4 w-4" />
-                                    <span>
-                                        Delete {selectedRowCount}{' '}
-                                        {selectedRowCount === 1
-                                            ? 'row'
-                                            : 'rows'}
-                                    </span>
+                                    <Edit className="h-4 w-4" />
+                                    Edit Selected
                                 </Button>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="h-9 gap-2"
-                                        >
-                                            <Edit className="h-4 w-4" />
-                                            Edit Selected
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                        className="w-80"
-                                        align="start"
-                                    >
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <h4 className="leading-none font-medium">
-                                                    Bulk Edit
-                                                </h4>
-                                                <p className="text-muted-foreground text-sm">
-                                                    Update a column value for
-                                                    all {selectedRowCount}{' '}
-                                                    selected row(s)
-                                                </p>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <div className="space-y-2">
-                                                    <Label
-                                                        htmlFor="bulk-edit-column"
-                                                        className="text-xs"
-                                                    >
-                                                        Column to Update
-                                                    </Label>
-                                                    <Select
-                                                        value={bulkEditColumn}
-                                                        onValueChange={
-                                                            setBulkEditColumn
-                                                        }
-                                                    >
-                                                        <SelectTrigger id="bulk-edit-column">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="status">
-                                                                Status
-                                                            </SelectItem>
-                                                            <SelectItem value="category">
-                                                                Category
-                                                            </SelectItem>
-                                                            <SelectItem value="price">
-                                                                Price
-                                                            </SelectItem>
-                                                            <SelectItem value="stock">
-                                                                Stock
-                                                            </SelectItem>
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label
-                                                        htmlFor="bulk-edit-value"
-                                                        className="text-xs"
-                                                    >
-                                                        New Value
-                                                    </Label>
-                                                    <Input
-                                                        id="bulk-edit-value"
-                                                        placeholder="Enter new value..."
-                                                        value={bulkEditValue}
-                                                        onChange={(e) =>
-                                                            setBulkEditValue(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        onKeyDown={(e) => {
-                                                            if (
-                                                                e.key ===
-                                                                'Enter'
-                                                            ) {
-                                                                handleBulkEdit()
-                                                            }
-                                                        }}
-                                                    />
-                                                </div>
-                                            </div>
-                                            <Button
-                                                size="sm"
-                                                className="w-full"
-                                                onClick={handleBulkEdit}
-                                                disabled={!bulkEditValue}
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80" align="start">
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <h4 className="leading-none font-medium">
+                                            Bulk Edit
+                                        </h4>
+                                        <p className="text-muted-foreground text-sm">
+                                            Update a column value for all{' '}
+                                            {selectedRowCount} selected row(s)
+                                        </p>
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="bulk-edit-column"
+                                                className="text-xs"
                                             >
-                                                Update {selectedRowCount} Row(s)
-                                            </Button>
+                                                Column to Update
+                                            </Label>
+                                            <Select
+                                                value={bulkEditColumn}
+                                                onValueChange={
+                                                    setBulkEditColumn
+                                                }
+                                            >
+                                                <SelectTrigger id="bulk-edit-column">
+                                                    <SelectValue placeholder="Select column" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    {table
+                                                        .getAllColumns()
+                                                        .filter(
+                                                            (column) =>
+                                                                column.getCanHide() &&
+                                                                column.id !==
+                                                                    'select',
+                                                        )
+                                                        .map((column) => (
+                                                            <SelectItem
+                                                                key={column.id}
+                                                                value={
+                                                                    column.id
+                                                                }
+                                                                className="capitalize"
+                                                            >
+                                                                {column.id}
+                                                            </SelectItem>
+                                                        ))}
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                    </PopoverContent>
-                                </Popover>
-                            </div>
-                        </>
+                                        <div className="space-y-2">
+                                            <Label
+                                                htmlFor="bulk-edit-value"
+                                                className="text-xs"
+                                            >
+                                                New Value
+                                            </Label>
+                                            <Input
+                                                id="bulk-edit-value"
+                                                placeholder="Enter new value..."
+                                                value={bulkEditValue}
+                                                onChange={(e) =>
+                                                    setBulkEditValue(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        handleBulkEdit()
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <Button
+                                        size="sm"
+                                        className="w-full"
+                                        onClick={handleBulkEdit}
+                                        disabled={
+                                            !bulkEditColumn || !bulkEditValue
+                                        }
+                                    >
+                                        Update {selectedRowCount} Row(s)
+                                    </Button>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
                     )}
                 </div>
                 <div className="flex items-center gap-2">
