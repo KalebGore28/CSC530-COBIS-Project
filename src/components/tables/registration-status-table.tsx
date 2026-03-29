@@ -59,8 +59,8 @@ export function RegistrationStatusTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                registrationStatusCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                registrationStatusCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })

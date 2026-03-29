@@ -34,7 +34,7 @@ export const Route = createFileRoute('/api/__protected/data/programs')({
 
                 await context.db
                     .update(programs)
-                    .set(updateData)
+                    .set({ ...updateData, last_updated: new Date() })
                     .where(eq(programs.id, id))
                     .execute()
 

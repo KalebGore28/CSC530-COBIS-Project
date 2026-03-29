@@ -14,6 +14,8 @@ const nullFilter = (row: any, columnId: string, filterValue: string) => {
 
 type Courses = typeof courses.$inferSelect
 
+import { coursesCollection } from '@/integrations/tanstack-db/courses'
+
 const columns: Array<ColumnDef<Courses>> = [
     {
         id: 'select',
@@ -80,6 +82,12 @@ const columns: Array<ColumnDef<Courses>> = [
     {
         accessorKey: 'last_updated',
         header: 'Last Updated',
+        cell: ({ getValue }) => {
+            const value = getValue()
+            if (!value) return '—'
+            const date = new Date(value as string | number | Date)
+            return date.toLocaleDateString()
+        },
     },
 ]
 
@@ -98,6 +106,14 @@ export function CoursesTable({
             data={data}
             initialFilterColumn={filterColumn}
             initialFilterValue={filterValue}
+            onBulkEdit={(selectedIds, column, value) => {
+                // Update all selected rows
+                coursesCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
+                        ;(draft as Record<string, any>)[column] = value
+                    })
+                })
+            }}
         />
     )
 }

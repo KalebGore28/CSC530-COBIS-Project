@@ -9,6 +9,7 @@ import { academicStandingCollection } from '@/integrations/tanstack-db/academic-
 import { admitCodesCollection } from '@/integrations/tanstack-db/admit-codes'
 import { collegesCollection } from '@/integrations/tanstack-db/colleges'
 import { coursesCollection } from '@/integrations/tanstack-db/courses'
+import { coursePrefixesCollection } from '@/integrations/tanstack-db/course-prefixes'
 import { departmentsCollection } from '@/integrations/tanstack-db/departments'
 import { instructionalMethodsCollection } from '@/integrations/tanstack-db/instructional-methods'
 import { partOfTermCollection } from '@/integrations/tanstack-db/part-of-term'
@@ -32,6 +33,7 @@ export const Route = createFileRoute(
         void admitCodesCollection.preload()
         void collegesCollection.preload()
         void coursesCollection.preload()
+        void coursePrefixesCollection.preload()
         void departmentsCollection.preload()
         void instructionalMethodsCollection.preload()
         void partOfTermCollection.preload()
@@ -78,6 +80,17 @@ function RouteComponent() {
                 ),
             ),
     )
+    const { data: coursePrefixes, isLoading: isCoursePrefixesLoading } =
+        useLiveQuery((q) =>
+            q
+                .from({ coursePrefixes: coursePrefixesCollection })
+                .where(({ coursePrefixes }) =>
+                    or(
+                        isNull(coursePrefixes.department_id),
+                        isNull(coursePrefixes.college_id),
+                    ),
+                ),
+        )
 
     const { data: departments, isLoading: isDepartmentsLoading } = useLiveQuery(
         (q) =>
@@ -144,6 +157,16 @@ function RouteComponent() {
         return sum
     }, 0)
     const coursesWithoutCollege = courses.reduce((sum, c) => {
+        if (c.college_id === null) return sum + 1
+        return sum
+    }, 0)
+
+    const coursePrefixesWithoutDepartment = coursePrefixes.reduce((sum, c) => {
+        if (c.department_id === null) return sum + 1
+        return sum
+    }, 0)
+
+    const coursePrefixesWithoutCollege = coursePrefixes.reduce((sum, c) => {
         if (c.college_id === null) return sum + 1
         return sum
     }, 0)
@@ -453,20 +476,92 @@ function RouteComponent() {
             </Card>
             <Card className="h-50">
                 <CardHeader className="h-full">
-                    <CardTitle>Course Prefix Table</CardTitle>
-                    <CardDescription>WIP</CardDescription>
+                    <CardTitle>Course Prefixes Table</CardTitle>
+                    <CardDescription>
+                        {coursePrefixes.length > 0 ? (
+                            <>
+                                {coursePrefixesWithoutDepartment > 0 && (
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-lg font-bold">
+                                            {coursePrefixesWithoutDepartment}
+                                        </span>
+                                        <span>
+                                            {coursePrefixesWithoutDepartment ===
+                                            1
+                                                ? 'row missing a department'
+                                                : 'rows missing a department'}
+                                        </span>
+                                    </div>
+                                )}
+                                {coursePrefixesWithoutCollege > 0 && (
+                                    <div className="flex items-baseline gap-2">
+                                        <span className="text-lg font-bold">
+                                            {coursePrefixesWithoutCollege}
+                                        </span>
+                                        <span>
+                                            {coursePrefixesWithoutCollege === 1
+                                                ? 'row missing a college'
+                                                : 'rows missing a college'}
+                                        </span>
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <span className="text-green-600 dark:text-green-500">
+                                No issues found ✓
+                            </span>
+                        )}
+                    </CardDescription>
                     <CardAction className="flex gap-2">
-                        <Badge>Action Required</Badge>
-                        {/*<Link to={'/cobis-tools/manage-tables/course-prefix'}>
+                        {coursePrefixes.length > 0 && (
+                            <Badge>Action Required</Badge>
+                        )}
+                        <Link to={'/cobis-tools/manage-tables/course-prefixes'}>
                             <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-                        </Link>*/}
+                        </Link>
                     </CardAction>
                 </CardHeader>
-
-                <CardFooter className="flex items-start gap-1.5">
-                    <span>Problems to resolve:</span>
-                    WIP
-                </CardFooter>
+                {coursePrefixes.length > 0 && (
+                    <CardFooter className="flex items-start gap-1.5">
+                        <span>Problems to resolve:</span>
+                        {coursePrefixesWithoutDepartment > 0 && (
+                            <Link
+                                to={
+                                    '/cobis-tools/manage-tables/course-prefixes'
+                                }
+                                search={{
+                                    filterColumn: 'department_id',
+                                    filterValue: 'null',
+                                }}
+                            >
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
+                                >
+                                    Department
+                                </Badge>
+                            </Link>
+                        )}
+                        {coursePrefixesWithoutCollege > 0 && (
+                            <Link
+                                to={
+                                    '/cobis-tools/manage-tables/course-prefixes'
+                                }
+                                search={{
+                                    filterColumn: 'college_id',
+                                    filterValue: 'null',
+                                }}
+                            >
+                                <Badge
+                                    variant="outline"
+                                    className="cursor-pointer shadow-md hover:shadow-lg"
+                                >
+                                    College
+                                </Badge>
+                            </Link>
+                        )}
+                    </CardFooter>
+                )}
             </Card>
             <Card className="h-50">
                 <CardHeader className="h-full">

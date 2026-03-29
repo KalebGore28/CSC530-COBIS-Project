@@ -59,8 +59,8 @@ export function CollegeTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                collegesCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                collegesCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })

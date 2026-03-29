@@ -74,8 +74,8 @@ export function DepartmentsTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                departmentsCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                departmentsCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })

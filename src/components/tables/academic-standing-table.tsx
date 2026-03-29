@@ -59,8 +59,8 @@ export function AcademicStandingTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                academicStandingCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                academicStandingCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })

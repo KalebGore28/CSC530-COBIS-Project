@@ -59,8 +59,8 @@ export function AdmitCodesTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                admitCodesCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                admitCodesCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })

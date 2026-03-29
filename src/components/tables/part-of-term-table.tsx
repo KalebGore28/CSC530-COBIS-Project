@@ -59,8 +59,8 @@ export function PartOfTermTable({
             initialFilterValue={filterValue}
             onBulkEdit={(selectedIds, _column, value) => {
                 // Update all selected rows
-                partOfTermCollection.update(selectedIds, (draft) => {
-                    draft.forEach((draft) => {
+                partOfTermCollection.update(selectedIds, (drafts) => {
+                    drafts.forEach((draft) => {
                         draft.description = value
                     })
                 })
