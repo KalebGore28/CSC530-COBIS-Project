@@ -199,6 +199,7 @@ function RouteComponent() {
         isAdmitCodesLoading ||
         isCollegesLoading ||
         isCoursesLoading ||
+        isCoursePrefixesLoading ||
         isDepartmentsLoading ||
         isInstructionalMethodsLoading ||
         isPartOfTermsLoading ||
