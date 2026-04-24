@@ -1,5 +1,5 @@
 # ---------- Build Stage ----------
-FROM oven/bun:1.3.0 AS builder
+FROM oven/bun:1.3.13 AS builder
 
 # Set working directory
 WORKDIR /app
@@ -17,7 +17,7 @@ COPY . .
 RUN bun run build
 
 # ---------- Production Stage ----------
-FROM oven/bun:1.3.0 AS final
+FROM oven/bun:1.3.13 AS final
 
 # Set working directory
 WORKDIR /app
