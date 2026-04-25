@@ -23,11 +23,11 @@ To maintain referential integrity during large-scale imports, the application ut
 
 The application employs three distinct strategies for data handling:
 
-| Strategy            | Description                                                                 | Maintenance Frequency |
-| :------------------ | :-------------------------------------------------------------------------- | :-------------------- |
-| **Dynamic Import**  | High-complexity mapping with transformations and async lookups.             | Scheduled/Frequent    |
-| **Static Resolver** | Tables that rely on resolvers to handle new incoming references.            | Low (Mostly Static)   |
-| **System Core**     | Managed strictly by application logic; no CSV import capability.            | High (Automated)      |
+| Strategy            | Description                                                      | Maintenance Frequency |
+| :------------------ | :--------------------------------------------------------------- | :-------------------- |
+| **Dynamic Import**  | High-complexity mapping with transformations and async lookups.  | Scheduled/Frequent    |
+| **Static Resolver** | Tables that rely on resolvers to handle new incoming references. | Low (Mostly Static)   |
+| **System Core**     | Managed strictly by application logic; no CSV import capability. | High (Automated)      |
 
 ---
 
@@ -40,8 +40,8 @@ These files are provided as external CSV extracts and serve as the raw input for
 Contains academic history for students (BPA Majors or BPA Course enrollees).
 
 - **File Patterns:**
-  - `reg_cuba_courses_during_term _\d+_\d+\.csv`
-  - `REG_CUBA_Courses_Grade_Time_Extract _\d+\.csv`
+    - `reg_cuba_courses_during_term _\d+_\d+\.csv`
+    - `REG_CUBA_Courses_Grade_Time_Extract _\d+\.csv`
 - **Scope:** One term only.
 
 | Field Name     | Description                   | Format/Notes                        |
@@ -65,8 +65,8 @@ Contains academic history for students (BPA Majors or BPA Course enrollees).
 Contains a single record per student for the specific term.
 
 - **File Patterns:**
-  - `reg_cuba_demographic _\d+_\d+\.csv`
-  - `REG_CUBA_Demographic_Grade_Time_Extract _\d+\.csv`
+    - `reg_cuba_demographic _\d+_\d+\.csv`
+    - `REG_CUBA_Demographic_Grade_Time_Extract _\d+\.csv`
 
 | Field Name   | Description                | Format/Notes                |
 | :----------- | :------------------------- | :-------------------------- |
