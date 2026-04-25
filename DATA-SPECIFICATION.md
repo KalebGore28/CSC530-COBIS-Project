@@ -23,11 +23,11 @@ To maintain referential integrity during large-scale imports, the application ut
 
 The application employs three distinct strategies for data handling:
 
-| Strategy            | Description                                                      | Maintenance Frequency                                            |
-| :------------------ | :--------------------------------------------------------------- | :--------------------------------------------------------------- | ---------------- |
-| **Dynamic Import**  | High-complexity mapping with transformations and async lookups.  | Scheduled/Frequent                                               |
-| **Static Resolver** | Tables that rely on resolvers to handle new incoming references. | Low (Mostly Static)                                              |
-| $\text{}$           | **System Core**                                                  | Managed strictly by application logic; no CSV import capability. | High (Automated) |
+| Strategy            | Description                                                                 | Maintenance Frequency |
+| :------------------ | :-------------------------------------------------------------------------- | :-------------------- |
+| **Dynamic Import**  | High-complexity mapping with transformations and async lookups.             | Scheduled/Frequent    |
+| **Static Resolver** | Tables that rely on resolvers to handle new incoming references.            | Low (Mostly Static)   |
+| **System Core**     | Managed strictly by application logic; no CSV import capability.            | High (Automated)      |
 
 ---
 
