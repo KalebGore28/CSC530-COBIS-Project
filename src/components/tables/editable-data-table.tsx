@@ -171,7 +171,11 @@ export function EditableDataTable<TData>({
 
         // Call the callback if provided
         if (onBulkEdit) {
-            onBulkEdit(selectedIds, bulkEditColumn as keyof TData, bulkEditValue)
+            onBulkEdit(
+                selectedIds,
+                bulkEditColumn as keyof TData,
+                bulkEditValue,
+            )
         }
 
         // Reset selection and bulk edit state
@@ -467,31 +471,29 @@ export function EditableDataTable<TData>({
                                                 <SelectContent>
                                                     {table
                                                         .getAllColumns()
-                                                        .filter(
-                                                            (column) => {
-                                                                // Exclude select checkbox column
-                                                                if (
-                                                                    column.id ===
-                                                                    'select'
+                                                        .filter((column) => {
+                                                            // Exclude select checkbox column
+                                                            if (
+                                                                column.id ===
+                                                                'select'
+                                                            )
+                                                                return false
+                                                            // Exclude column if exactly 'id'
+                                                            if (
+                                                                column.id.toLowerCase() ===
+                                                                'id'
+                                                            )
+                                                                return false
+                                                            // Exclude columns from prop
+                                                            if (
+                                                                excludeFromBulkEdit.includes(
+                                                                    column.id,
                                                                 )
-                                                                    return false
-                                                                // Exclude column if exactly 'id'
-                                                                if (
-                                                                    column.id.toLowerCase() ===
-                                                                    'id'
-                                                                )
-                                                                    return false
-                                                                // Exclude columns from prop
-                                                                if (
-                                                                    excludeFromBulkEdit.includes(
-                                                                        column.id,
-                                                                    )
-                                                                )
-                                                                    return false
-                                                                // Must be editable
-                                                                return column.getCanHide()
-                                                            },
-                                                        )
+                                                            )
+                                                                return false
+                                                            // Must be editable
+                                                            return column.getCanHide()
+                                                        })
                                                         .map((column) => (
                                                             <SelectItem
                                                                 key={column.id}
