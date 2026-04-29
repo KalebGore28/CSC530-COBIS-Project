@@ -1,4 +1,4 @@
-import { createCollection } from '@tanstack/react-db'
+import { createCollection, BasicIndex } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import type { faculty } from '@/db/schema'
 import { getQueryClient } from '@/integrations/tanstack-query/provider'
@@ -14,6 +14,8 @@ export const facultyCollection = createCollection(
         },
         getKey: (faculty) => faculty.mnumber,
         queryClient: getQueryClient(),
+        defaultIndexType: BasicIndex,
+        autoIndex: 'eager',
         staleTime: 1000 * 60 * 5, // 5 minutes. Faculty data may change more frequently
         onUpdate: async ({ transaction }) => {
             await Promise.all(

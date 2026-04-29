@@ -1,4 +1,4 @@
-import { createCollection } from '@tanstack/react-db'
+import { createCollection, BasicIndex } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import type { studentPrograms } from '@/db/schema'
 import { getQueryClient } from '@/integrations/tanstack-query/provider'
@@ -15,6 +15,8 @@ export const studentProgramsCollection = createCollection(
         getKey: (studentProgram) =>
             `${studentProgram.mnumber}-${studentProgram.term_id}-${studentProgram.year}-${studentProgram.program_id}`,
         queryClient: getQueryClient(),
+        defaultIndexType: BasicIndex,
+        autoIndex: 'eager',
         staleTime: 1000 * 60 * 60, // 1 hour
     }),
 )
