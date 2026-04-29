@@ -1,4 +1,4 @@
-import { createCollection } from '@tanstack/react-db'
+import { createCollection, BasicIndex } from '@tanstack/react-db'
 import { queryCollectionOptions } from '@tanstack/query-db-collection'
 import { getQueryClient } from '@/integrations/tanstack-query/provider'
 
@@ -16,5 +16,7 @@ export const currentTermCollection = createCollection(
         },
         getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_id}`,
         queryClient: getQueryClient(),
+        defaultIndexType: BasicIndex,
+        autoIndex: 'eager',
     }),
 )
