@@ -1,7 +1,7 @@
 import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
-    out: './drizzle-beta',
+    out: './drizzle',
     schema: './src/db/schema.ts',
     dialect: 'mysql',
     dbCredentials: {
@@ -11,7 +11,6 @@ export default defineConfig({
         password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME!,
     },
-    casing: 'snake_case',
     verbose: true,
     strict: true,
 })
