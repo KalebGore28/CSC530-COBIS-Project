@@ -105,14 +105,15 @@ export const importMySqlData = async (
                 csvData.data.map(async (row, _rowIndex) => {
                     const mapped: Record<string, any> = {}
 
-                    for (const [csvColumn, mappingInfo] of Object.entries(
+                    for (const [dbColumn, mappingInfo] of Object.entries(
                         tableConfig.config,
                     )) {
-                        const value = row[csvColumn]
+                        const value = row[mappingInfo.csvColumnName]
                         const transformedValue = mappingInfo.transform
                             ? await mappingInfo.transform(value)
                             : value
-                        mapped[mappingInfo.dbColumnName] = transformedValue
+
+                        mapped[dbColumn] = transformedValue
                     }
 
                     return mapped
@@ -140,15 +141,12 @@ export const importMySqlData = async (
             const missingRows: Array<Record<string, any>> = []
 
             for (const row of processedTableData) {
-                // Build pickedDataObj using columnMap (tableCol -> foreignCol)
-                const pickedDataObj: Record<string, any> = {}
                 const cacheValues: any[] = []
 
                 for (const [tableCol, _foreignCol] of Object.entries(
                     fk.columnMap,
                 )) {
                     const value = row[tableCol]
-                    pickedDataObj[tableCol] = value
                     cacheValues.push(value)
                 }
 
@@ -158,7 +156,7 @@ export const importMySqlData = async (
                     ...cacheValues,
                 )
 
-                if (!exists) {
+                if (exists === undefined) {
                     // Remap keys to foreign table columns
                     const foreignKeyRow = Object.fromEntries(
                         Object.entries(fk.columnMap).map(

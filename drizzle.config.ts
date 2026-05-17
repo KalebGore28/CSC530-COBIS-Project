@@ -11,6 +11,7 @@ export default defineConfig({
         password: process.env.DB_PASSWORD!,
         database: process.env.DB_NAME!,
     },
+    breakpoints: true,
     verbose: true,
     strict: true,
 })
