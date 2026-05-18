@@ -184,15 +184,35 @@ export const importMySqlData = async (
             .filter(([, column]) => !column.primary)
             .map(([columnName]) => columnName)
 
-        for (let i = 0; i < processedTableData.length; i += importBatchSize) {
-            const batch = processedTableData.slice(i, i + importBatchSize)
-
-            await db
-                .insert(table)
-                .values(batch)
-                .onDuplicateKeyUpdate({
-                    set: buildConflictUpdateColumns(table, nonPrimaryColumns),
-                })
-        }
+        await db.transaction(async (tx) => {
+            for (
+                let i = 0;
+                i < processedTableData.length;
+                i += importBatchSize
+            ) {
+                const batch = processedTableData.slice(i, i + importBatchSize)
+                try {
+                    await tx
+                        .insert(table)
+                        .values(batch)
+                        .onDuplicateKeyUpdate({
+                            set: buildConflictUpdateColumns(
+                                table,
+                                nonPrimaryColumns,
+                            ),
+                        })
+                } catch (err) {
+                    console.log('DB rollback due to error')
+                    tx.rollback()
+                    emit({
+                        type: 'error',
+                        error: err.toString(),
+                        data: {
+                            message: 'DB Rollback due to import failure.',
+                        },
+                    })
+                }
+            }
+        })
     }
 }

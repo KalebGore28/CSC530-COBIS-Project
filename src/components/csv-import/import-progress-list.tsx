@@ -271,7 +271,7 @@ function buildTableProgress(messages: Array<ImportStreamMessage>) {
                 break
 
             default:
-                break
+                return {}
         }
     }
 
