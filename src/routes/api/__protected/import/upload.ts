@@ -4,6 +4,7 @@ import { randomUUID } from 'crypto'
 import { tmpdir } from 'os'
 import { join } from 'path'
 import { importJobs } from '@/db/schema'
+import { processImport } from '@/utils/process-import'
 
 export const Route = createFileRoute('/api/__protected/import/upload')({
     server: {
@@ -43,7 +44,13 @@ export const Route = createFileRoute('/api/__protected/import/upload')({
                 await context.db.insert(importJobs).values({
                     id: importId,
                     status: 'pending',
+                    fileName: file.name,
                     createdAt: new Date(),
+                })
+
+                // Trigger import processing in background (don't await)
+                processImport(importId, file.name, context.db).catch((err) => {
+                    console.error(`Background import ${importId} failed:`, err)
                 })
 
                 return new Response(JSON.stringify({ importId }), {

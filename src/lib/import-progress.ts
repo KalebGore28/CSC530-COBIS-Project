@@ -6,6 +6,10 @@ import {
 export type ProgressChunk = {
     processed: number
     total: number
+    totalRows: number
+    errorCount: number
+    warningCount: number
+    currentStep: string
     done?: boolean
     error?: string
 }
@@ -36,7 +40,14 @@ export const importProgressQuery = (importId: string) =>
             streamFn: () => fetchImportProgress(importId),
             // Keep a single "latest" chunk instead of accumulating all of them
             reducer: (_, chunk) => chunk,
-            initialValue: { processed: 0, total: 0 } as ProgressChunk,
+            initialValue: {
+                processed: 0,
+                total: 0,
+                totalRows: 0,
+                errorCount: 0,
+                warningCount: 0,
+                currentStep: 'Starting...',
+            } as ProgressChunk,
         }),
         enabled: !!importId,
     })
