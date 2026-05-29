@@ -56,11 +56,6 @@ function ImportProgressPage() {
                 {/* Cards Skeleton */}
                 <Skeleton className="h-48 w-full rounded-lg" />
                 <Skeleton className="h-64 w-full rounded-lg" />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Skeleton className="h-32 rounded-lg" />
-                    <Skeleton className="h-32 rounded-lg" />
-                    <Skeleton className="h-32 rounded-lg" />
-                </div>
             </div>
         )
     }
@@ -72,6 +67,13 @@ function ImportProgressPage() {
         progress.totalRows > 0
             ? Math.round((progress.processed / progress.totalRows) * 100)
             : 0
+
+    // Cap error message display to 200 characters (full error in logs)
+    const displayError = progress.error
+        ? progress.error.length > 200
+            ? progress.error.substring(0, 200) + '...'
+            : progress.error
+        : undefined
 
     // Determine status badge
     const getStatusBadge = () => {
@@ -124,7 +126,12 @@ function ImportProgressPage() {
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                        <strong>Import Failed:</strong> {progress.error}
+                        <strong>Import Failed:</strong> {displayError}
+                        {progress.error && progress.error.length > 200 && (
+                            <p className="text-xs mt-1 opacity-80">
+                                Download logs for full error details
+                            </p>
+                        )}
                     </AlertDescription>
                 </Alert>
             )}
@@ -194,61 +201,6 @@ function ImportProgressPage() {
                     </div>
                 </CardContent>
             </Card>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Total Rows */}
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardDescription>Total Rows</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">
-                            {progress.totalRows.toLocaleString()}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Warnings */}
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardDescription>Warnings</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <div className="text-3xl font-bold">
-                                {progress.warningCount.toLocaleString()}
-                            </div>
-                            {progress.warningCount > 0 && (
-                                <Badge variant="outline" className="text-yellow-600">
-                                    <AlertCircle className="h-3 w-3 mr-1" />
-                                    Review
-                                </Badge>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Errors */}
-                <Card>
-                    <CardHeader className="pb-3">
-                        <CardDescription>Errors</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <div className="text-3xl font-bold">
-                                {progress.errorCount.toLocaleString()}
-                            </div>
-                            {progress.errorCount > 0 && (
-                                <Badge variant="destructive" className="gap-1">
-                                    <XCircle className="h-3 w-3" />
-                                    Failed
-                                </Badge>
-                            )}
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
 
             {/* Actions */}
             {isDone && (

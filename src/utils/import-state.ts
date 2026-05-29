@@ -6,6 +6,7 @@ export type ImportState = {
     errorCount: number
     warningCount: number
     currentStep: string // Latest human-readable message
+    error?: string // Error message (only set when status is 'failed')
 
     // Internal streaming
     controller: ReadableStreamDefaultController | null
@@ -99,7 +100,8 @@ export function failImportState(importId: string, error: string): void {
     if (!state) return
 
     state.status = 'failed'
-    state.currentStep = `Failed: ${error}`
+    state.currentStep = 'Import failed' // Generic message, full error in error field
+    state.error = error // Store full error message
 
     // Send error to client
     if (state.controller) {
@@ -110,7 +112,7 @@ export function failImportState(importId: string, error: string): void {
             errorCount: state.errorCount,
             warningCount: state.warningCount,
             currentStep: state.currentStep,
-            error,
+            error, // Full error message sent separately
             done: true,
         })
         state.controller.enqueue(chunk + '\n')

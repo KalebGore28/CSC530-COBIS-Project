@@ -3,7 +3,6 @@ import type { MySqlTable } from 'drizzle-orm/mysql-core'
 import type { ParseResult } from 'papaparse'
 import { getColumns, sql, type SQL } from 'drizzle-orm'
 
-import type { ImportStreamMessage } from './import-types'
 import { CompositeCache } from './composite-cache'
 
 import type { makeMySqlCSVConfig } from './make-csv-config'
@@ -28,22 +27,29 @@ const buildConflictUpdateColumns = <
     )
 }
 
+export type ImportProgress = {
+    processed: number
+    totalRows: number
+    currentStep: string
+}
+
 export const importMySqlData = async (
     db: MySql2Database<any>,
     csvData: ParseResult<Record<string, string>>,
     fileName: string,
     csvConfig: ReturnType<typeof makeMySqlCSVConfig>,
     batchSize?: number,
-    progress?: {
-        send: (msg: ImportStreamMessage) => void
-        end: () => void
-    },
+    progress?: (update: ImportProgress) => void,
 ) => {
     const importBatchSize = batchSize ?? 100 // Default to every 100 rows
 
-    const emit = async (msg: ImportStreamMessage) => {
-        if (progress !== undefined) {
-            progress.send(msg)
+    const updateProgress = async (update: Partial<ImportProgress>) => {
+        if (progress) {
+            progress({
+                processed: update.processed ?? 0,
+                totalRows: update.totalRows ?? 0,
+                currentStep: update.currentStep ?? 'Processing...',
+            })
             await sleep(5) // yield to event loop
         }
     }
@@ -55,17 +61,25 @@ export const importMySqlData = async (
         throw new Error(`No matching tables found for file: ${fileName}`)
     }
 
-    await emit({
-        type: 'start',
-        data: {
-            message: `Starting import for file: ${fileName}`,
-            totalTables: matchingTables.size,
-        },
+    await updateProgress({
+        processed: 0,
+        totalRows: csvData.data.length,
+        currentStep: `Starting import for file: ${fileName}`,
     })
 
+    let tableIndex = 0
+    let totalProcessed = 0
+
     for (const [tableName, tableConfig] of matchingTables) {
+        tableIndex++
         const cacheData = new CompositeCache()
         const processedTableData: Array<Record<string, any>> = []
+
+        await updateProgress({
+            processed: totalProcessed,
+            totalRows: csvData.data.length,
+            currentStep: `Processing table ${tableName} (${tableIndex}/${matchingTables.size})`,
+        })
 
         // Preload cache for foreign key tables
         for (const fk of tableConfig.foreignKeys) {
@@ -191,28 +205,37 @@ export const importMySqlData = async (
                 i += importBatchSize
             ) {
                 const batch = processedTableData.slice(i, i + importBatchSize)
-                try {
-                    await tx
-                        .insert(table)
-                        .values(batch)
-                        .onDuplicateKeyUpdate({
-                            set: buildConflictUpdateColumns(
-                                table,
-                                nonPrimaryColumns,
-                            ),
-                        })
-                } catch (err) {
-                    console.log('DB rollback due to error')
-                    tx.rollback()
-                    emit({
-                        type: 'error',
-                        error: err.toString(),
-                        data: {
-                            message: 'DB Rollback due to import failure.',
-                        },
+
+                await updateProgress({
+                    processed: totalProcessed + i,
+                    totalRows: csvData.data.length,
+                    currentStep: `Inserting batch ${Math.floor(i / importBatchSize) + 1} for ${tableName}`,
+                })
+
+                await tx
+                    .insert(table)
+                    .values(batch)
+                    .onDuplicateKeyUpdate({
+                        set: buildConflictUpdateColumns(
+                            table,
+                            nonPrimaryColumns,
+                        ),
                     })
-                }
             }
         })
+
+        totalProcessed += processedTableData.length
+
+        await updateProgress({
+            processed: totalProcessed,
+            totalRows: csvData.data.length,
+            currentStep: `Completed table ${tableName}`,
+        })
     }
+
+    await updateProgress({
+        processed: csvData.data.length,
+        totalRows: csvData.data.length,
+        currentStep: 'Import complete',
+    })
 }

@@ -15,7 +15,36 @@ export const Route = createFileRoute(
                 const state = getImportState(importId)
 
                 if (state) {
-                    // Import is active - stream live updates
+                    // Check if import is already complete
+                    if (state.status === 'done' || state.status === 'failed') {
+                        // Send final status and close immediately
+                        const finalChunk = {
+                            processed: state.processed,
+                            total: state.total,
+                            totalRows: state.totalRows,
+                            errorCount: state.errorCount,
+                            warningCount: state.warningCount,
+                            currentStep: state.currentStep,
+                            done: true,
+                            error: state.error, // Use stored error message
+                        }
+
+                        const stream = new ReadableStream({
+                            start(controller) {
+                                controller.enqueue(JSON.stringify(finalChunk) + '\n')
+                                controller.close()
+                            },
+                        })
+
+                        return new Response(stream, {
+                            headers: {
+                                'Content-Type': 'text/plain',
+                                'Cache-Control': 'no-cache',
+                            },
+                        })
+                    }
+
+                    // Import is actively processing - stream live updates
                     const stream = new ReadableStream({
                         start(controller) {
                             // Attach controller to state so updates can be sent
@@ -76,7 +105,7 @@ export const Route = createFileRoute(
                         job.status === 'done'
                             ? 'Import complete'
                             : job.status === 'failed'
-                              ? `Failed: ${job.error}`
+                              ? 'Import failed' // Generic message, full error in error field
                               : 'Waiting to start...',
                     done: job.status === 'done' || job.status === 'failed',
                     error: job.status === 'failed' ? job.error : undefined,

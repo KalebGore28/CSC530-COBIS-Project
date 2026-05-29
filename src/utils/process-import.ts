@@ -7,13 +7,13 @@ import { eq } from 'drizzle-orm'
 
 import { importJobs } from '@/db/schema'
 import { importMySqlCSVFile } from '@/utils/csv-importer/import-csv-file'
-import type { ImportStreamMessage } from '@/utils/csv-importer/import-types'
 import { csvConfig } from '@/db/mapping-config'
 import {
     initializeImportState,
     updateImportState,
     completeImportState,
     failImportState,
+    getImportState,
 } from '@/utils/import-state'
 
 /**
@@ -30,9 +30,6 @@ export async function processImport(
     const logPath = join(tmpdir(), `${importId}.log`)
 
     let logStream: ReturnType<typeof createWriteStream> | null = null
-    let totalRows = 0
-    let errorCount = 0
-    let warningCount = 0
 
     try {
         // Verify CSV exists
@@ -50,51 +47,36 @@ export async function processImport(
         // Create log file stream
         logStream = createWriteStream(logPath, { flags: 'a' })
 
-        // Process the import with progress callbacks
-        await importMySqlCSVFile(db, csvPath, fileName, csvConfig, {
-            send: (msg: ImportStreamMessage) => {
-                // Write every message to log file
-                logStream?.write(JSON.stringify(msg) + '\n')
+        // Process the import with simple progress callback
+        await importMySqlCSVFile(db, csvPath, fileName, csvConfig, (progress) => {
+            // Write progress to log file
+            const timestamp = new Date().toISOString()
+            logStream?.write(
+                JSON.stringify({
+                    timestamp,
+                    ...progress,
+                }) + '\n',
+            )
 
-                // Update metrics
-                if (msg.type === 'row-progress') {
-                    totalRows = msg.data.totalRows
-                } else if (msg.type === 'error') {
-                    errorCount++
-                } else if (msg.type === 'warning') {
-                    warningCount++
-                }
-
-                // Determine current step message
-                let currentStep = 'Processing...'
-                if (msg.type === 'table-start') {
-                    currentStep = `Processing ${msg.data.table}...`
-                } else if (msg.type === 'table-complete') {
-                    currentStep = `Completed ${msg.data.table} (${msg.data.totalRows} rows)`
-                } else if (msg.type === 'error') {
-                    currentStep = `Error: ${msg.error.substring(0, 100)}`
-                } else if (msg.type === 'complete') {
-                    currentStep = 'Import complete'
-                }
-
-                // Update in-memory state for streaming
-                updateImportState(importId, {
-                    currentStep,
-                    totalRows,
-                    errorCount,
-                    warningCount,
-                })
-            },
-            end: () => {
-                // Close log stream when done
-                logStream?.end()
-            },
+            // Update in-memory state for streaming to client
+            updateImportState(importId, {
+                processed: progress.processed,
+                totalRows: progress.totalRows,
+                currentStep: progress.currentStep,
+            })
         })
+
+        // Close log stream
+        logStream?.end()
 
         // Delete CSV file (keep logs for download)
         await unlink(csvPath).catch(() => {
             /* ignore if already deleted */
         })
+
+        // Get final metrics from in-memory state
+        const finalState = getImportState(importId)
+        const totalRows = finalState?.totalRows || 0
 
         // Update database with final status
         await db
@@ -102,8 +84,6 @@ export async function processImport(
             .set({
                 status: 'done',
                 totalRows,
-                errorCount,
-                warningCount,
                 completedAt: new Date(),
             })
             .where(eq(importJobs.id, importId))
@@ -111,18 +91,20 @@ export async function processImport(
         // Mark import as complete in memory
         completeImportState(importId)
     } catch (error) {
-        // Log error
+        // Log full error to file and database
         const errorMsg = error instanceof Error ? error.message : String(error)
+        const timestamp = new Date().toISOString()
+
         logStream?.write(
             JSON.stringify({
-                type: 'error',
+                timestamp,
                 error: errorMsg,
-                data: { table: '', rowIndex: 0 },
+                currentStep: 'Import failed',
             }) + '\n',
         )
         logStream?.end()
 
-        // Update database
+        // Update database with full error
         await db
             .update(importJobs)
             .set({

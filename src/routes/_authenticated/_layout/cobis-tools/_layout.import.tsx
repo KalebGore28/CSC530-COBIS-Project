@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CheckCircle2, XCircle, Upload, ArrowRight } from 'lucide-react'
+import { CheckCircle2, XCircle, Upload, ArrowRight, History } from 'lucide-react'
 
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/import',
@@ -72,13 +72,28 @@ function ImportPage() {
         }
     }
 
+    const handleViewHistory = () => {
+        void navigate({ to: '/cobis-tools/import/history' })
+    }
+
     return (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Upload className="h-6 w-6" />
-                    CSV Import
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                        <Upload className="h-6 w-6" />
+                        CSV Import
+                    </CardTitle>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleViewHistory}
+                        className="gap-2"
+                    >
+                        <History className="h-4 w-4" />
+                        View History
+                    </Button>
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* File Input */}
