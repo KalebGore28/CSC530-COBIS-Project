@@ -9,7 +9,6 @@ import type {
     TableInsertType,
     TableConfig,
     MaybePromise,
-    ColumnMapping,
 } from './mapping-types'
 
 type ForeignKeyInfo = {
@@ -29,13 +28,6 @@ type TableConfigWithFKs<T> = {
     }
 }
 
-type InvertCSVConfig<T extends Record<string, ColumnMapping<any>>> = {
-    [K in keyof T as T[K]['csvColumnName']]: {
-        dbColumnName: K
-        transform?: T[K]['transform']
-    }
-}
-
 export type OptimizedLookup = {
     schema: Record<string, MySqlTable<any>>
     lookup: Map<
@@ -45,7 +37,7 @@ export type OptimizedLookup = {
             tables: Map<
                 string,
                 | {
-                      config: InvertCSVConfig<TableInsertType<any>>
+                      config: TableInsertType<any>
                       missingRowResolver?: (
                           data: PrimaryKeyType<any>,
                       ) => MaybePromise<TableInsertType<any>>
@@ -136,21 +128,6 @@ function getForeignKeys(
     })
 }
 
-function invertConfig<T extends Record<string, ColumnMapping<any>>>(
-    config: T,
-): InvertCSVConfig<T> {
-    const inverted = {} as any
-
-    for (const [dbColumn, value] of Object.entries(config)) {
-        inverted[value.csvColumnName] = {
-            dbColumnName: dbColumn,
-            transform: value.transform,
-        }
-    }
-
-    return inverted
-}
-
 function buildOptimizedLookup(
     input: TableConfigWithFKs<TableConfig<any>>,
     schema: Record<string, MySqlTable<any>>,
@@ -192,7 +169,7 @@ function buildOptimizedLookup(
                 }
 
                 optimizedLookup.lookup.get(key)!.tables.set(tableName, {
-                    config: invertConfig(mapping.config),
+                    config: mapping.config,
                     missingRowResolver: table.missingRowResolver,
                     foreignKeys: table.foreignKeys,
                 })

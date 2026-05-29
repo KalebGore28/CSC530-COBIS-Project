@@ -1,0 +1,9 @@
+[install]
+# Packages must be three days old before they will be able to install
+minimumReleaseAge = 259200
+# These packages will bypass the 3-day minimum age requirement
+minimumReleaseAgeExcludes = ["@types/bun", "typescript"]
+ignoreScripts = true
+
+[run]
+noOrphans = true

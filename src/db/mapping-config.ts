@@ -635,4 +635,7 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
     userRoles: {
         mappings: [],
     },
+    importJobs: {
+        mappings: [],
+    },
 })

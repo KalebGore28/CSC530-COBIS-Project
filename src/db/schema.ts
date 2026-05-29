@@ -7,6 +7,8 @@ import {
     real,
     unique,
     varchar,
+    mysqlEnum,
+    text,
 } from 'drizzle-orm/mysql-core'
 import { sql } from 'drizzle-orm'
 
@@ -357,3 +359,19 @@ export const userRoles = mysqlTable(
     },
     (table) => [unique('ux_user_roles_idx').on(table.user_id, table.role_id)],
 )
+
+export const importJobs = mysqlTable('import_jobs', {
+    id: varchar('id', { length: 36 }).primaryKey(),
+    status: mysqlEnum('status', ['pending', 'processing', 'done', 'failed'])
+        .notNull()
+        .default('pending'),
+    error: text('error'),
+    totalRows: int('total_rows'),
+    errorCount: int('error_count').default(0),
+    warningCount: int('warning_count').default(0),
+    fileName: varchar('file_name', { length: 255 }), // Original CSV name
+    createdAt: datetime('created_at')
+        .notNull()
+        .default(sql`CURRENT_TIMESTAMP`),
+    completedAt: datetime('completed_at'),
+})
