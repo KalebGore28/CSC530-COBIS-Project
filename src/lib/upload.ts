@@ -1,4 +1,3 @@
-// lib/upload.ts
 export async function uploadCsv(
     file: File,
     onProgress: (pct: number) => void,
