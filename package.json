@@ -2,7 +2,7 @@
     "name": "cobis-app",
     "private": true,
     "type": "module",
-    "version": "0.0.2",
+    "version": "0.1.0",
     "scripts": {
         "dev": "vite dev",
         "build": "vite build",
