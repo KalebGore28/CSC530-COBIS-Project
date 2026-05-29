@@ -366,6 +366,10 @@ export const importJobs = mysqlTable('import_jobs', {
         .notNull()
         .default('pending'),
     error: text('error'),
+    totalRows: int('total_rows'),
+    errorCount: int('error_count').default(0),
+    warningCount: int('warning_count').default(0),
+    fileName: varchar('file_name', { length: 255 }), // Original CSV name
     createdAt: datetime('created_at')
         .notNull()
         .default(sql`CURRENT_TIMESTAMP`),
