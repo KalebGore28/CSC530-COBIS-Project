@@ -4,7 +4,7 @@ This repo uses the **Conventional Commits** specification so tools like
 [release-please](https://github.com/googleapis/release-please) can automatically
 generate changelogs and version releases.
 
-👉 Full spec: <https://www.conventionalcommits.org/>
+Full spec: <https://www.conventionalcommits.org/>
 
 ---
 
@@ -100,8 +100,8 @@ fix(ui): button alignment issue
 ## Writing Good Descriptions
 
 - Use **imperative mood**
-    - ✅ `add login validation`
-    - ❌ `added login validation`
+    - `add login validation`
+    - `added login validation`
 - Keep it short (~50 chars ideal)
 - Be clear and specific
 
@@ -159,7 +159,7 @@ chore: maintenance
 
 ---
 
-## 📌 Notes
+## Notes
 
 - The tool release-please highly recommend that you use squash-merges when merging pull requests.
 
