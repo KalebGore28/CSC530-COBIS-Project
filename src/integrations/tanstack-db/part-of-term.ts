@@ -1,22 +1,20 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { partOfTerm } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type PartOfTerm = typeof partOfTerm.$inferSelect;
 
-export const partOfTermCollection = createCollection(
+export const partOfTermCollection = collectionOptions("partOfTerm", (client) =>
   queryCollectionOptions({
     queryKey: ["partOfTerm"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: async () => {
       const response = await fetch(`/api/data/part-of-term`);
       return (await response.json()) as Array<PartOfTerm>;
     },
-    getKey: (partOfTerm) => partOfTerm.id,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
     autoIndex: "eager",
-    staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
+    getKey: (partOfTerm) => partOfTerm.id,
     onUpdate: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>

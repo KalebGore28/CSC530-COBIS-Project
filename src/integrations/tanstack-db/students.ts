@@ -1,21 +1,20 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { students } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type Student = typeof students.$inferSelect;
 
-export const studentsCollection = createCollection(
+export const studentsCollection = collectionOptions("student", (client) =>
   queryCollectionOptions({
     queryKey: ["students"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: async () => {
       const response = await fetch(`/api/data/students`);
       return (await response.json()) as Array<Student>;
     },
-    getKey: (student) => student.mnumber,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
     autoIndex: "eager",
-    staleTime: 1000 * 60 * 60, // 1 hour
+    syncMode: "on-demand",
+    getKey: (student) => student.mnumber,
   }),
 );
