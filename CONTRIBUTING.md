@@ -100,8 +100,8 @@ fix(ui): button alignment issue
 ## Writing Good Descriptions
 
 - Use **imperative mood**
-    - `add login validation`
-    - `added login validation`
+  - `add login validation`
+  - `added login validation`
 - Keep it short (~50 chars ideal)
 - Be clear and specific
 

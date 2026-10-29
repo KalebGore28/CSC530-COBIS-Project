@@ -1,41 +1,41 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
-import { useCurrentTerm } from '@/providers/current-term-provider'
-import { useAuthentication } from '@/lib/auth-client'
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useCurrentTerm } from "@/providers/current-term-provider";
+import { useAuthentication } from "@/lib/auth-client";
 
 // import { Separator } from '@/components/ui/separator'
-import { AdvisedStudentsCard } from '@/components/advised-students/advised-students-card'
-import { StudentDetailModal } from '@/components/advised-students/student-detail'
+import { AdvisedStudentsCard } from "@/components/advised-students/advised-students-card";
+import { StudentDetailModal } from "@/components/advised-students/student-detail";
 
-export const Route = createFileRoute('/_authenticated/_layout/advisees')({
-    component: RouteComponent,
-})
+export const Route = createFileRoute("/_authenticated/_layout/advisees")({
+  component: RouteComponent,
+});
 
 function RouteComponent() {
-    const { userSession } = useAuthentication()
-    const [isModalOpen, setIsModalOpen] = useState(false)
-    const [selectedStudent, setSelectedStudent] = useState<string | null>(null)
+  const { userSession } = useAuthentication();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<string | null>(null);
 
-    const { currentTerm, isLoading } = useCurrentTerm()
+  const { currentTerm, isLoading } = useCurrentTerm();
 
-    if (!userSession || !userSession.user.mnumber || isLoading) return null
+  if (!userSession || !userSession.user.mnumber || isLoading) return null;
 
-    return (
-        <div className="container mx-auto space-y-6 p-6">
-            <AdvisedStudentsCard
-                advisorMnumber={userSession.user.mnumber}
-                term_info={currentTerm}
-                setModalOpen={setIsModalOpen}
-                setSelectedStudent={setSelectedStudent}
-            />
+  return (
+    <div className="container mx-auto space-y-6 p-6">
+      <AdvisedStudentsCard
+        advisorMnumber={userSession.user.mnumber}
+        term_info={currentTerm}
+        setModalOpen={setIsModalOpen}
+        setSelectedStudent={setSelectedStudent}
+      />
 
-            {selectedStudent && (
-                <StudentDetailModal
-                    modalOpen={isModalOpen}
-                    setModalOpen={setIsModalOpen}
-                    studentMnumber={selectedStudent}
-                />
-            )}
-        </div>
-    )
+      {selectedStudent && (
+        <StudentDetailModal
+          modalOpen={isModalOpen}
+          setModalOpen={setIsModalOpen}
+          studentMnumber={selectedStudent}
+        />
+      )}
+    </div>
+  );
 }

@@ -40,8 +40,8 @@ These files are provided as external CSV extracts and serve as the raw input for
 Contains academic history for students (BPA Majors or BPA Course enrollees).
 
 - **File Patterns:**
-    - `reg_cuba_courses_during_term _\d+_\d+\.csv`
-    - `REG_CUBA_Courses_Grade_Time_Extract _\d+\.csv`
+  - `reg_cuba_courses_during_term _\d+_\d+\.csv`
+  - `REG_CUBA_Courses_Grade_Time_Extract _\d+\.csv`
 - **Scope:** One term only.
 
 | Field Name     | Description                   | Format/Notes                        |
@@ -65,8 +65,8 @@ Contains academic history for students (BPA Majors or BPA Course enrollees).
 Contains a single record per student for the specific term.
 
 - **File Patterns:**
-    - `reg_cuba_demographic _\d+_\d+\.csv`
-    - `REG_CUBA_Demographic_Grade_Time_Extract _\d+\.csv`
+  - `reg_cuba_demographic _\d+_\d+\.csv`
+  - `REG_CUBA_Demographic_Grade_Time_Extract _\d+\.csv`
 
 | Field Name   | Description                | Format/Notes                |
 | :----------- | :------------------------- | :-------------------------- |

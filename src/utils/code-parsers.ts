@@ -2,10 +2,10 @@
  * Result type for parsed course code
  */
 export interface ParsedCourseCode {
-    subject: string
-    number: number
-    suffix: string
-    valid: boolean
+  subject: string;
+  number: number;
+  suffix: string;
+  valid: boolean;
 }
 
 /**
@@ -14,49 +14,49 @@ export interface ParsedCourseCode {
  * @returns An object with subject, number, and optional suffix
  */
 export function parseCourseCode(courseCode: string): ParsedCourseCode {
-    // Default result for invalid input
-    const invalidResult: ParsedCourseCode = {
-        subject: '',
-        number: 0,
-        suffix: '',
-        valid: false,
-    }
+  // Default result for invalid input
+  const invalidResult: ParsedCourseCode = {
+    subject: "",
+    number: 0,
+    suffix: "",
+    valid: false,
+  };
 
-    // Handle null, undefined, or non-string input
-    if (!courseCode) {
-        return invalidResult
-    }
+  // Handle null, undefined, or non-string input
+  if (!courseCode) {
+    return invalidResult;
+  }
 
-    // Ensure it's a string and trim whitespace
-    const cleanCode = String(courseCode).trim()
+  // Ensure it's a string and trim whitespace
+  const cleanCode = String(courseCode).trim();
 
-    // Match pattern: letters + numbers + optional letter suffix
-    const match = cleanCode.match(/^([A-Za-z]+)(\d+)([A-Za-z]?)$/)
+  // Match pattern: letters + numbers + optional letter suffix
+  const match = cleanCode.match(/^([A-Za-z]+)(\d+)([A-Za-z]?)$/);
 
-    if (!match) {
-        return invalidResult
-    }
+  if (!match) {
+    return invalidResult;
+  }
 
-    // Parse the components
-    const subject = match[1].toUpperCase() // Convert to uppercase
-    const number = parseInt(match[2], 10)
-    const suffix = match[3] || '' // Empty string if no suffix exists
+  // Parse the components
+  const subject = match[1].toUpperCase(); // Convert to uppercase
+  const number = parseInt(match[2], 10);
+  const suffix = match[3] || ""; // Empty string if no suffix exists
 
-    return {
-        subject,
-        number,
-        suffix,
-        valid: true,
-    }
+  return {
+    subject,
+    number,
+    suffix,
+    valid: true,
+  };
 }
 
 /**
  * Result type for parsed term code
  */
 export interface ParsedTermCode {
-    year: number
-    term: string
-    valid: boolean
+  year: number;
+  term: string;
+  valid: boolean;
 }
 
 /**
@@ -65,93 +65,90 @@ export interface ParsedTermCode {
  * @returns An object with year and term as numbers, and a valid flag
  */
 export function parseTermCode(termCode: string): ParsedTermCode {
-    // Default result for invalid input
-    const invalidResult: ParsedTermCode = {
-        year: 0,
-        term: '0',
-        valid: false,
-    }
+  // Default result for invalid input
+  const invalidResult: ParsedTermCode = {
+    year: 0,
+    term: "0",
+    valid: false,
+  };
 
-    // Handle null, undefined, or non-string input
-    if (!termCode) {
-        return invalidResult
-    }
+  // Handle null, undefined, or non-string input
+  if (!termCode) {
+    return invalidResult;
+  }
 
-    // Ensure it's a string and trim whitespace
-    const cleanTermCode = String(termCode).trim()
+  // Ensure it's a string and trim whitespace
+  const cleanTermCode = String(termCode).trim();
 
-    // Check the format using regex
-    const match = cleanTermCode.match(/^(\d{4})(\d{2})$/)
+  // Check the format using regex
+  const match = cleanTermCode.match(/^(\d{4})(\d{2})$/);
 
-    if (!match) {
-        return invalidResult
-    }
+  if (!match) {
+    return invalidResult;
+  }
 
-    // Convert captured groups to numbers
-    const year = parseInt(match[1], 10)
-    const term = match[2]
+  // Convert captured groups to numbers
+  const year = parseInt(match[1], 10);
+  const term = match[2];
 
-    return {
-        year,
-        term,
-        valid: true,
-    }
+  return {
+    year,
+    term,
+    valid: true,
+  };
 }
 
-export function safeParseDate(
-    value: string,
-    fallback: Date | undefined = undefined,
-) {
-    const d = new Date(value)
-    return Number.isNaN(d.getTime()) ? fallback : d
+export function safeParseDate(value: string, fallback: Date | undefined = undefined) {
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? fallback : d;
 }
 
 // If no transform is passed => return string | undefined
 export function safeParseString(
-    value: unknown,
-    options?: {
-        trim?: boolean
-        emptyAsUndefined?: boolean
-        nullStringAsUndefined?: boolean
-    },
-): string | undefined
+  value: unknown,
+  options?: {
+    trim?: boolean;
+    emptyAsUndefined?: boolean;
+    nullStringAsUndefined?: boolean;
+  },
+): string | undefined;
 
 // If transform is passed => return T | undefined
 export function safeParseString<T>(
-    value: unknown,
-    options:
-        | {
-              trim?: boolean
-              emptyAsUndefined?: boolean
-              nullStringAsUndefined?: boolean
-          }
-        | undefined,
-    transform: (val: string) => T,
-): T | undefined
+  value: unknown,
+  options:
+    | {
+        trim?: boolean;
+        emptyAsUndefined?: boolean;
+        nullStringAsUndefined?: boolean;
+      }
+    | undefined,
+  transform: (val: string) => T,
+): T | undefined;
 
 export function safeParseString<T>(
-    value: unknown,
-    options?: {
-        trim?: boolean
-        emptyAsUndefined?: boolean
-        nullStringAsUndefined?: boolean
-    },
-    transform?: (val: string) => T,
+  value: unknown,
+  options?: {
+    trim?: boolean;
+    emptyAsUndefined?: boolean;
+    nullStringAsUndefined?: boolean;
+  },
+  transform?: (val: string) => T,
 ): string | T | undefined {
-    if (value == null) return undefined
+  if (value == null) return undefined;
 
-    let str = String(value)
+  let str = String(value);
 
-    if (options?.trim !== false) {
-        str = str.trim()
-    }
+  if (options?.trim !== false) {
+    str = str.trim();
+  }
 
-    if (
-        (options?.emptyAsUndefined !== false && str === '') ||
-        (options?.nullStringAsUndefined && str.toLowerCase() === 'null')
-    ) {
-        return undefined
-    }
+  if (
+    (options?.emptyAsUndefined !== false && str === "") ||
+    (options?.nullStringAsUndefined && str.toLowerCase() === "null")
+  ) {
+    return undefined;
+  }
 
-    return transform ? transform(str) : str
+  return transform ? transform(str) : str;
 }

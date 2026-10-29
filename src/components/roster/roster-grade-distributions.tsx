@@ -1,115 +1,99 @@
-import { useState } from 'react'
-import type { GradeKey } from '@/types/grades'
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { PieChartDonut } from '@/components/charts/pie-chart-donut'
+import { useState } from "react";
+import type { GradeKey } from "@/types/grades";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PieChartDonut } from "@/components/charts/pie-chart-donut";
 
 type GradeEntry = {
-    grade: GradeKey
-    count: number
-}
+  grade: GradeKey;
+  count: number;
+};
 
 type RequiredStudentCourseProps = {
-    midterm_grade: string | null
-    final_grade: string | null
-} & Record<string, unknown>
+  midterm_grade: string | null;
+  final_grade: string | null;
+} & Record<string, unknown>;
 
 type RosterGradeDistributionsProps = {
-    studentCourses: Array<RequiredStudentCourseProps>
-    className?: string
-    isLoading?: boolean
-}
+  studentCourses: Array<RequiredStudentCourseProps>;
+  className?: string;
+  isLoading?: boolean;
+};
 
 export function RosterGradeDistributions({
-    studentCourses,
-    className,
-    isLoading,
+  studentCourses,
+  className,
+  isLoading,
 }: RosterGradeDistributionsProps) {
-    const [gradeType, setGradeType] = useState<'midterm' | 'final'>('final')
+  const [gradeType, setGradeType] = useState<"midterm" | "final">("final");
 
-    if (isLoading) {
-        return (
-            <Card className={className}>
-                <CardHeader className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <CardTitle>Grade Distributions</CardTitle>
-                        <CardDescription className="text-muted-foreground text-sm">
-                            Loading grade distributions...
-                        </CardDescription>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <p>Loading data...</p>
-                </CardContent>
-            </Card>
-        )
+  if (isLoading) {
+    return (
+      <Card className={className}>
+        <CardHeader className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <CardTitle>Grade Distributions</CardTitle>
+            <CardDescription className="text-muted-foreground text-sm">
+              Loading grade distributions...
+            </CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p>Loading data...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const midtermGrades: Array<GradeEntry> = [];
+  const finalGrades: Array<GradeEntry> = [];
+
+  studentCourses.forEach((sc) => {
+    const midtermGrade = sc.midterm_grade ? sc.midterm_grade : "NA";
+    const finalGrade = sc.final_grade ? sc.final_grade : "NA";
+
+    const midtermEntry = midtermGrades.find((entry) => entry.grade === midtermGrade);
+    if (midtermEntry) {
+      midtermEntry.count += 1;
+    } else {
+      midtermGrades.push({
+        grade: midtermGrade as GradeKey,
+        count: 1,
+      });
     }
 
-    const midtermGrades: Array<GradeEntry> = []
-    const finalGrades: Array<GradeEntry> = []
+    const finalEntry = finalGrades.find((entry) => entry.grade === finalGrade);
+    if (finalEntry) {
+      finalEntry.count += 1;
+    } else {
+      finalGrades.push({ grade: finalGrade as GradeKey, count: 1 });
+    }
+  });
 
-    studentCourses.forEach((sc) => {
-        const midtermGrade = sc.midterm_grade ? sc.midterm_grade : 'NA'
-        const finalGrade = sc.final_grade ? sc.final_grade : 'NA'
-
-        const midtermEntry = midtermGrades.find(
-            (entry) => entry.grade === midtermGrade,
-        )
-        if (midtermEntry) {
-            midtermEntry.count += 1
-        } else {
-            midtermGrades.push({
-                grade: midtermGrade as GradeKey,
-                count: 1,
-            })
-        }
-
-        const finalEntry = finalGrades.find(
-            (entry) => entry.grade === finalGrade,
-        )
-        if (finalEntry) {
-            finalEntry.count += 1
-        } else {
-            finalGrades.push({ grade: finalGrade as GradeKey, count: 1 })
-        }
-    })
-
-    return (
-        <Card className={className}>
-            <CardHeader className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <CardTitle>Grade Distributions</CardTitle>
-                    <CardDescription className="text-muted-foreground text-sm">
-                        {gradeType === 'midterm'
-                            ? 'Midterm grade distribution'
-                            : 'Final grade distribution'}
-                    </CardDescription>
-                </div>
-                <div className="flex-none space-x-2">
-                    <Tabs
-                        defaultValue="final"
-                        onValueChange={(val) =>
-                            setGradeType(val as 'midterm' | 'final')
-                        }
-                    >
-                        <TabsList className="rounded-lg">
-                            <TabsTrigger value="midterm">Midterm</TabsTrigger>
-                            <TabsTrigger value="final">Final</TabsTrigger>
-                        </TabsList>
-                    </Tabs>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <PieChartDonut
-                    data={gradeType === 'midterm' ? midtermGrades : finalGrades}
-                />
-            </CardContent>
-        </Card>
-    )
+  return (
+    <Card className={className}>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <CardTitle>Grade Distributions</CardTitle>
+          <CardDescription className="text-muted-foreground text-sm">
+            {gradeType === "midterm" ? "Midterm grade distribution" : "Final grade distribution"}
+          </CardDescription>
+        </div>
+        <div className="flex-none space-x-2">
+          <Tabs
+            defaultValue="final"
+            onValueChange={(val) => setGradeType(val as "midterm" | "final")}
+          >
+            <TabsList className="rounded-lg">
+              <TabsTrigger value="midterm">Midterm</TabsTrigger>
+              <TabsTrigger value="final">Final</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <PieChartDonut data={gradeType === "midterm" ? midtermGrades : finalGrades} />
+      </CardContent>
+    </Card>
+  );
 }

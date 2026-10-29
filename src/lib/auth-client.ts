@@ -1,35 +1,35 @@
-import { createAuthClient } from 'better-auth/react'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { authQuery } from './queries'
-import { getRouter } from '@/router'
-import { getQueryClient } from '@/integrations/tanstack-query/provider'
+import { createAuthClient } from "better-auth/react";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { authQuery } from "./queries";
+import { getRouter } from "@/router";
+import { getQueryClient } from "@/integrations/tanstack-query/provider";
 
 export const authClient = createAuthClient({
-    fetchOptions: {
-        credentials: 'include',
-    },
-})
+  fetchOptions: {
+    credentials: "include",
+  },
+});
 
 export const signinGoogle = async () => {
-    return await authClient.signIn.social({
-        provider: 'google',
-        callbackURL: process.env.GOOGLE_CALLBACK_URL,
-        // errorCallbackURL: '/error-login',
-        // newUserCallbackURL: '/welcome',
-    })
-}
+  return await authClient.signIn.social({
+    provider: "google",
+    callbackURL: process.env.GOOGLE_CALLBACK_URL,
+    // errorCallbackURL: '/error-login',
+    // newUserCallbackURL: '/welcome',
+  });
+};
 
 export const signOut = async () => {
-    const queryClient = getQueryClient()
-    const router = getRouter()
+  const queryClient = getQueryClient();
+  const router = getRouter();
 
-    await authClient.signOut()
-    await queryClient.invalidateQueries()
-    void router.invalidate()
-}
+  await authClient.signOut();
+  await queryClient.invalidateQueries();
+  void router.invalidate();
+};
 
 export const useAuthentication = () => {
-    const { data: userSession } = useSuspenseQuery(authQuery.user())
+  const { data: userSession } = useSuspenseQuery(authQuery.user());
 
-    return { userSession, isAuthenticated: !!userSession }
-}
+  return { userSession, isAuthenticated: !!userSession };
+};

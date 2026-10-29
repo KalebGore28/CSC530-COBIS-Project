@@ -1,257 +1,227 @@
-import { useState } from 'react'
-import { createFileRoute, redirect } from '@tanstack/react-router'
-import { Download } from 'lucide-react'
-import { format } from 'date-fns'
-import { toast } from 'sonner'
-import Papa from 'papaparse'
+import { useState } from "react";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { Download } from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import Papa from "papaparse";
 
-import { useInView } from 'react-intersection-observer'
+import { useInView } from "react-intersection-observer";
 
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import type { FilterState } from '@/components/student-filter'
-import type { StudentLookup } from '@/components/tables/student-lookup-table'
-import { coursesCollection } from '@/integrations/tanstack-db/courses'
-import { programsCollection } from '@/integrations/tanstack-db/programs'
-import { StudentFilters } from '@/components/student-filter'
-import { Skeleton } from '@/components/ui/skeleton'
+import { keepPreviousData, useInfiniteQuery } from "@tanstack/react-query";
+import type { FilterState } from "@/components/student-filter";
+import type { StudentLookup } from "@/components/tables/student-lookup-table";
+import { coursesCollection } from "@/integrations/tanstack-db/courses";
+import { programsCollection } from "@/integrations/tanstack-db/programs";
+import { StudentFilters } from "@/components/student-filter";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
-import { StudentLookupTable } from '@/components/tables/student-lookup-table'
-import { Button } from '@/components/ui/button'
+import { StudentLookupTable } from "@/components/tables/student-lookup-table";
+import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute('/_authenticated/_layout/student-lookup')({
-    beforeLoad: ({ context }) => {
-        const roles = context.userSession?.roles
-        if (
-            !roles ||
-            (!roles.has('department_chair') &&
-                !roles.has('cobis_administrator'))
-        ) {
-            throw redirect({ to: '/login' })
-        }
-        void programsCollection.preload()
-        void coursesCollection.preload()
-    },
-    component: StudentLookup,
-})
+export const Route = createFileRoute("/_authenticated/_layout/student-lookup")({
+  beforeLoad: ({ context }) => {
+    const roles = context.userSession?.roles;
+    if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
+      throw redirect({ to: "/login" });
+    }
+    void programsCollection.preload();
+    void coursesCollection.preload();
+  },
+  component: StudentLookup,
+});
 
 const makePreHeader = (filters: FilterState): Array<string> => {
-    const lines: Array<string> = []
+  const lines: Array<string> = [];
 
-    if (filters.academicLevels && filters.academicLevels.length) {
-        lines.push(`# Academic Levels,${filters.academicLevels.join('|')}`)
-    }
-    if (filters.gpaMin !== undefined && filters.gpaMax !== undefined) {
-        lines.push(`# GPA,${filters.gpaMin}-${filters.gpaMax}`)
-    }
+  if (filters.academicLevels && filters.academicLevels.length) {
+    lines.push(`# Academic Levels,${filters.academicLevels.join("|")}`);
+  }
+  if (filters.gpaMin !== undefined && filters.gpaMax !== undefined) {
+    lines.push(`# GPA,${filters.gpaMin}-${filters.gpaMax}`);
+  }
 
-    if (filters.program) {
-        const programLine = `${filters.program.id} - ${
-            filters.program.is_major ? ' (major)' : ''
-        }${filters.program.is_minor ? ' (minor)' : ''}`
-        lines.push(`# Programs,${programLine}`)
-    }
+  if (filters.program) {
+    const programLine = `${filters.program.id} - ${
+      filters.program.is_major ? " (major)" : ""
+    }${filters.program.is_minor ? " (minor)" : ""}`;
+    lines.push(`# Programs,${programLine}`);
+  }
 
-    if (filters.course) {
-        const courseLine = `${filters.course.id} - ${
-            filters.taken ? 'Taken' : 'Not Taken'
-        } ${
-            filters.operator ? filters.operator : ''
-        } ${filters.grade ? filters.grade : ''}`
-        lines.push(`# Courses,${courseLine}`)
-    }
+  if (filters.course) {
+    const courseLine = `${filters.course.id} - ${filters.taken ? "Taken" : "Not Taken"} ${
+      filters.operator ? filters.operator : ""
+    } ${filters.grade ? filters.grade : ""}`;
+    lines.push(`# Courses,${courseLine}`);
+  }
 
-    return lines
-}
+  return lines;
+};
 
 function StudentLookup() {
-    const [currentFilters, setCurrentFilters] = useState<FilterState | null>(
-        null,
-    )
+  const [currentFilters, setCurrentFilters] = useState<FilterState | null>(null);
 
-    const fetchStudents = async ({
-        pageParam,
-        filters,
-    }: {
-        pageParam: number
-        filters: FilterState | null
-    }) => {
-        const params = new URLSearchParams()
-        params.append('offset', pageParam.toString())
-        params.append('limit', '10')
-        if (filters) {
-            if (filters.academicLevels && filters.academicLevels.length) {
-                for (const level of filters.academicLevels) {
-                    params.append('academicLevel', level)
-                }
-            }
-            if (filters.gpaMin !== undefined) {
-                params.append('gpaMin', filters.gpaMin.toString())
-            }
-            if (filters.gpaMax !== undefined) {
-                params.append('gpaMax', filters.gpaMax.toString())
-            }
-            if (filters.program) {
-                params.append('program_id', filters.program.id)
-
-                if (filters.majorOnly) {
-                    params.append('is_major', 'true')
-                }
-                if (filters.minorOnly) {
-                    params.append('is_minor', 'true')
-                }
-            }
-            if (filters.course) {
-                params.append('course_id', filters.course.id)
-                params.append('taken', String(!!filters.taken))
-                if (filters.operator) {
-                    params.append('operator', filters.operator)
-                }
-                if (filters.grade) {
-                    params.append('grade', filters.grade)
-                }
-            }
+  const fetchStudents = async ({
+    pageParam,
+    filters,
+  }: {
+    pageParam: number;
+    filters: FilterState | null;
+  }) => {
+    const params = new URLSearchParams();
+    params.append("offset", pageParam.toString());
+    params.append("limit", "10");
+    if (filters) {
+      if (filters.academicLevels && filters.academicLevels.length) {
+        for (const level of filters.academicLevels) {
+          params.append("academicLevel", level);
         }
+      }
+      if (filters.gpaMin !== undefined) {
+        params.append("gpaMin", filters.gpaMin.toString());
+      }
+      if (filters.gpaMax !== undefined) {
+        params.append("gpaMax", filters.gpaMax.toString());
+      }
+      if (filters.program) {
+        params.append("program_id", filters.program.id);
 
-        return fetch(`/api/lookup-students?${params.toString()}`, {
-            headers: {
-                Accept: 'application/json',
-            },
-        }).then((res) => {
-            if (!res.ok) {
-                throw new Error('Network response was not ok')
-            }
-            return res.json() as Promise<{
-                students: Array<StudentLookup>
-                errors?: Array<string>
-                nextCursor: number
-            }>
-        })
-    }
-
-    const { data, isLoading, isFetching, fetchNextPage, hasNextPage } =
-        useInfiniteQuery({
-            queryKey: ['student-lookup', currentFilters],
-            queryFn: ({ pageParam = 0 }) =>
-                fetchStudents({ pageParam, filters: currentFilters }),
-            placeholderData: keepPreviousData,
-            initialPageParam: 0,
-            getNextPageParam: (lastPage, _pages) => lastPage.nextCursor,
-            enabled: !!currentFilters,
-        })
-
-    // sentinel hook
-    const { ref: sentinelRef, inView } = useInView({
-        threshold: 1,
-        rootMargin: '0px 0px 200px 0px', // trigger point
-    })
-
-    // trigger fetch automatically
-    if (inView && hasNextPage && !isFetching) {
-        void fetchNextPage()
-    }
-
-    const exportToCSV = () => {
-        if (
-            !data ||
-            data.pages.flatMap((page) => page.students).length === 0 ||
-            !currentFilters
-        ) {
-            toast.error('No data to export. Try adjusting the filters.')
-            return
+        if (filters.majorOnly) {
+          params.append("is_major", "true");
         }
-
-        const header = makePreHeader(currentFilters).join('\n')
-
-        const studentData = data.pages
-            .flatMap((page) => page.students)
-            .map((student) => [
-                student.mnumber,
-                student.first_name,
-                student.last_name,
-                student.email,
-            ])
-        const csv = Papa.unparse({
-            fields: ['MNumber', 'First Name', 'Last Name', 'Email'],
-            data: studentData,
-        })
-
-        // Create a blob and download
-        const blob = new Blob([header + '\n' + csv], {
-            type: 'text/csv;charset=utf-8;',
-        })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-
-        link.setAttribute('href', url)
-        link.setAttribute(
-            'download',
-            'student-lookup-' + format(new Date(), 'yyyyMMddHHmmss') + '.csv',
-        )
-        link.style.visibility = 'hidden'
-
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
+        if (filters.minorOnly) {
+          params.append("is_minor", "true");
+        }
+      }
+      if (filters.course) {
+        params.append("course_id", filters.course.id);
+        params.append("taken", String(!!filters.taken));
+        if (filters.operator) {
+          params.append("operator", filters.operator);
+        }
+        if (filters.grade) {
+          params.append("grade", filters.grade);
+        }
+      }
     }
 
-    return (
-        <div className="container mx-auto space-y-6 p-6">
-            <StudentFilters
-                onApplyFilters={(filters) => setCurrentFilters(filters)}
-                onResetFilters={() => setCurrentFilters(null)}
-                isLoading={isLoading}
-            />
+    return fetch(`/api/lookup-students?${params.toString()}`, {
+      headers: {
+        Accept: "application/json",
+      },
+    }).then((res) => {
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return res.json() as Promise<{
+        students: Array<StudentLookup>;
+        errors?: Array<string>;
+        nextCursor: number;
+      }>;
+    });
+  };
 
-            {/* If no filters applied */}
-            {!isLoading && !currentFilters && (
-                <Card className="mt-6 w-full p-10 text-center">
-                    <p className="text-muted-foreground text-sm">
-                        Please apply filters to see students.
-                    </p>
-                </Card>
-            )}
+  const { data, isLoading, isFetching, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ["student-lookup", currentFilters],
+    queryFn: ({ pageParam = 0 }) => fetchStudents({ pageParam, filters: currentFilters }),
+    placeholderData: keepPreviousData,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _pages) => lastPage.nextCursor,
+    enabled: !!currentFilters,
+  });
 
-            {/* If data is available */}
-            {data && currentFilters && (
-                <Card className="w-full">
-                    <CardHeader className="flex items-center justify-between">
-                        <CardTitle>Student Lookup</CardTitle>
-                        <CardDescription>
-                            Results are limited to students in your department.
-                        </CardDescription>
-                        <Button variant="outline" onClick={exportToCSV}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Export as CSV
-                        </Button>
-                    </CardHeader>
-                    <CardContent>
-                        <StudentLookupTable
-                            data={data.pages.flatMap((page) => page.students)}
-                        />
-                    </CardContent>
-                    <CardFooter>
-                        <div
-                            ref={sentinelRef}
-                            className="flex h-6 w-full items-center justify-center"
-                        >
-                            {isFetching && <Skeleton className="h-4 w-20" />}
-                            {!isFetching && !hasNextPage && (
-                                <span className="text-muted-foreground text-sm">
-                                    No more students to load.
-                                </span>
-                            )}
-                        </div>
-                    </CardFooter>
-                </Card>
-            )}
-        </div>
-    )
+  // sentinel hook
+  const { ref: sentinelRef, inView } = useInView({
+    threshold: 1,
+    rootMargin: "0px 0px 200px 0px", // trigger point
+  });
+
+  // trigger fetch automatically
+  if (inView && hasNextPage && !isFetching) {
+    void fetchNextPage();
+  }
+
+  const exportToCSV = () => {
+    if (!data || data.pages.flatMap((page) => page.students).length === 0 || !currentFilters) {
+      toast.error("No data to export. Try adjusting the filters.");
+      return;
+    }
+
+    const header = makePreHeader(currentFilters).join("\n");
+
+    const studentData = data.pages
+      .flatMap((page) => page.students)
+      .map((student) => [student.mnumber, student.first_name, student.last_name, student.email]);
+    const csv = Papa.unparse({
+      fields: ["MNumber", "First Name", "Last Name", "Email"],
+      data: studentData,
+    });
+
+    // Create a blob and download
+    const blob = new Blob([header + "\n" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      "student-lookup-" + format(new Date(), "yyyyMMddHHmmss") + ".csv",
+    );
+    link.style.visibility = "hidden";
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="container mx-auto space-y-6 p-6">
+      <StudentFilters
+        onApplyFilters={(filters) => setCurrentFilters(filters)}
+        onResetFilters={() => setCurrentFilters(null)}
+        isLoading={isLoading}
+      />
+
+      {/* If no filters applied */}
+      {!isLoading && !currentFilters && (
+        <Card className="mt-6 w-full p-10 text-center">
+          <p className="text-muted-foreground text-sm">Please apply filters to see students.</p>
+        </Card>
+      )}
+
+      {/* If data is available */}
+      {data && currentFilters && (
+        <Card className="w-full">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Student Lookup</CardTitle>
+            <CardDescription>Results are limited to students in your department.</CardDescription>
+            <Button variant="outline" onClick={exportToCSV}>
+              <Download className="mr-2 h-4 w-4" />
+              Export as CSV
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <StudentLookupTable data={data.pages.flatMap((page) => page.students)} />
+          </CardContent>
+          <CardFooter>
+            <div ref={sentinelRef} className="flex h-6 w-full items-center justify-center">
+              {isFetching && <Skeleton className="h-4 w-20" />}
+              {!isFetching && !hasNextPage && (
+                <span className="text-muted-foreground text-sm">No more students to load.</span>
+              )}
+            </div>
+          </CardFooter>
+        </Card>
+      )}
+    </div>
+  );
 }
