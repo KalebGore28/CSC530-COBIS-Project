@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { getDb as getTestDb } from './helpers/db'
 import { instructorAccessCheck } from '@/utils/access-checks/instructor-access'
 

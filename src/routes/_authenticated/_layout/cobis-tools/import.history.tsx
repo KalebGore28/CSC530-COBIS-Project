@@ -98,7 +98,7 @@ function ImportHistoryPage() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-7xl space-y-6">
+        <div className="container mx-auto max-w-7xl space-y-6 p-6">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Button
@@ -137,11 +137,13 @@ function ImportHistoryPage() {
                             <Skeleton className="h-12 w-full" />
                         </div>
                     ) : !imports || imports.length === 0 ? (
-                        <div className="text-center py-12 text-muted-foreground">
+                        <div className="text-muted-foreground py-12 text-center">
                             <p>No imports found</p>
                             <Button
                                 variant="link"
-                                onClick={() => navigate({ to: '/cobis-tools/import' })}
+                                onClick={() =>
+                                    navigate({ to: '/cobis-tools/import' })
+                                }
                                 className="mt-2"
                             >
                                 Start your first import
@@ -191,7 +193,9 @@ function ImportHistoryPage() {
                                             <TableCell>
                                                 {job.completedAt ? (
                                                     format(
-                                                        new Date(job.completedAt),
+                                                        new Date(
+                                                            job.completedAt,
+                                                        ),
                                                         'MMM d, yyyy h:mm a',
                                                     )
                                                 ) : (
@@ -206,14 +210,17 @@ function ImportHistoryPage() {
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() =>
-                                                            handleViewProgress(job.id)
+                                                            handleViewProgress(
+                                                                job.id,
+                                                            )
                                                         }
                                                     >
-                                                        <Eye className="h-4 w-4 mr-1" />
+                                                        <Eye className="mr-1 h-4 w-4" />
                                                         View
                                                     </Button>
                                                     {(job.status === 'done' ||
-                                                        job.status === 'failed') && (
+                                                        job.status ===
+                                                            'failed') && (
                                                         <Button
                                                             variant="ghost"
                                                             size="sm"
@@ -223,7 +230,7 @@ function ImportHistoryPage() {
                                                                 )
                                                             }
                                                         >
-                                                            <Download className="h-4 w-4 mr-1" />
+                                                            <Download className="mr-1 h-4 w-4" />
                                                             Logs
                                                         </Button>
                                                     )}

@@ -7,3 +7,4 @@ dist
 routeTree.gen.ts
 .agents/react-doctor/AGENTS.md
 .agents/react-doctor/SKILL.md
+.vitest/

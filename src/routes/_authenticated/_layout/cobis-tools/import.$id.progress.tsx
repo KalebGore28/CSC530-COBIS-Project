@@ -34,7 +34,9 @@ function ImportProgressPage() {
     const { id: importId } = Route.useParams()
     const navigate = useNavigate()
 
-    const { data: progress, isLoading } = useQuery(importProgressQuery(importId))
+    const { data: progress, isLoading } = useQuery(
+        importProgressQuery(importId),
+    )
 
     const handleNewImport = () => {
         void navigate({ to: '/cobis-tools/import' })
@@ -46,7 +48,7 @@ function ImportProgressPage() {
 
     if (isLoading || !progress) {
         return (
-            <div className="container mx-auto p-6 max-w-5xl space-y-6">
+            <div className="container mx-auto max-w-5xl space-y-6 p-6">
                 {/* Header Skeleton */}
                 <div className="flex items-center gap-4">
                     <Skeleton className="h-10 w-10 rounded" />
@@ -102,7 +104,7 @@ function ImportProgressPage() {
     }
 
     return (
-        <div className="container mx-auto p-6 max-w-5xl space-y-6">
+        <div className="container mx-auto max-w-5xl space-y-6 p-6">
             {/* Header */}
             <div className="flex items-center gap-4">
                 <Button
@@ -128,7 +130,7 @@ function ImportProgressPage() {
                     <AlertDescription>
                         <strong>Import Failed:</strong> {displayError}
                         {progress.error && progress.error.length > 200 && (
-                            <p className="text-xs mt-1 opacity-80">
+                            <p className="mt-1 text-xs opacity-80">
                                 Download logs for full error details
                             </p>
                         )}
@@ -151,16 +153,18 @@ function ImportProgressPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Import Details</CardTitle>
-                    <CardDescription>Information about this import job</CardDescription>
+                    <CardDescription>
+                        Information about this import job
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Import ID</span>
-                        <code className="text-xs bg-muted px-2 py-1 rounded">
+                        <code className="bg-muted rounded px-2 py-1 text-xs">
                             {importId}
                         </code>
                     </div>
-                    <div className="flex justify-between items-center">
+                    <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">Status</span>
                         {getStatusBadge()}
                     </div>
@@ -172,7 +176,7 @@ function ImportProgressPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         {isProcessing && (
-                            <Loader2Icon className="h-5 w-5 animate-spin text-primary" />
+                            <Loader2Icon className="text-primary h-5 w-5 animate-spin" />
                         )}
                         Import Progress
                     </CardTitle>
@@ -196,8 +200,10 @@ function ImportProgressPage() {
                     </div>
 
                     {/* Current Step */}
-                    <div className="p-4 bg-muted rounded-md">
-                        <p className="text-sm font-mono">{progress.currentStep}</p>
+                    <div className="bg-muted rounded-md p-4">
+                        <p className="font-mono text-sm">
+                            {progress.currentStep}
+                        </p>
                     </div>
                 </CardContent>
             </Card>

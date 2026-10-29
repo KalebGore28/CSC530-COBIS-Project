@@ -87,9 +87,12 @@ export function completeImportState(importId: string): void {
     }
 
     // Clean up after 5 minutes
-    setTimeout(() => {
-        activeImports.delete(importId)
-    }, 5 * 60 * 1000)
+    setTimeout(
+        () => {
+            activeImports.delete(importId)
+        },
+        5 * 60 * 1000,
+    )
 }
 
 /**
@@ -120,9 +123,12 @@ export function failImportState(importId: string, error: string): void {
     }
 
     // Clean up after 5 minutes
-    setTimeout(() => {
-        activeImports.delete(importId)
-    }, 5 * 60 * 1000)
+    setTimeout(
+        () => {
+            activeImports.delete(importId)
+        },
+        5 * 60 * 1000,
+    )
 }
 
 /**

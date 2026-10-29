@@ -24,5 +24,12 @@ export async function importMySqlCSVFile(
 ) {
     const fileContent = fs.readFileSync(filePath, 'utf8')
     const parsedData = await parseCSV(fileContent)
-    await importMySqlData(db, parsedData, fileName, csvConfig, undefined, progress)
+    await importMySqlData(
+        db,
+        parsedData,
+        fileName,
+        csvConfig,
+        undefined,
+        progress,
+    )
 }

@@ -31,7 +31,9 @@ export const Route = createFileRoute(
 
                         const stream = new ReadableStream({
                             start(controller) {
-                                controller.enqueue(JSON.stringify(finalChunk) + '\n')
+                                controller.enqueue(
+                                    JSON.stringify(finalChunk) + '\n',
+                                )
                                 controller.close()
                             },
                         })

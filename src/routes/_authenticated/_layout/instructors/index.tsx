@@ -221,7 +221,9 @@ function RouteComponent() {
                             <CardDescription className="max-w-100">
                                 Currently only showing instructors from your
                                 department. Use the search to find other
-                                instructors. Showing {filteredFaculty.length}{' '}
+                                instructors. Showing {
+                                    filteredFaculty.length
+                                }{' '}
                                 instructor
                                 {filteredFaculty.length !== 1 ? 's' : ''}.
                             </CardDescription>

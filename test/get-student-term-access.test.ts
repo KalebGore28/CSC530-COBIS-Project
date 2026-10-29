@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vite-plus/test'
 import { eq } from 'drizzle-orm'
 import { getDb as getTestDb } from './helpers/db'
 import { getStudentTermAccess } from '@/utils/get-student-term-access'
