@@ -1,11 +1,10 @@
 import { drizzle } from "drizzle-orm/mysql2";
 import mysql from "mysql2/promise";
 import type { MySql2Database } from "drizzle-orm/mysql2";
-import type * as schema from "@/db/schema.ts";
 import { relations } from "@/db/relations";
 import "dotenv/config";
 
-let dbConnection: MySql2Database<typeof schema | typeof relations> | null = null;
+let dbConnection: MySql2Database | null = null;
 
 export function getDb() {
   if (!dbConnection) {
