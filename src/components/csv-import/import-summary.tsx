@@ -1,316 +1,253 @@
-import {
-    AlertCircle,
-    CheckCircle2,
-    Download,
-    Loader2,
-    TriangleAlert,
-} from 'lucide-react'
-import { saveAs } from 'file-saver'
+import { AlertCircle, CheckCircle2, Download, Loader2, TriangleAlert } from "lucide-react";
+import { saveAs } from "file-saver";
 import type {
-    IssueMessage,
-    ProgressMessage,
-} from '@/routes/_authenticated/_layout/cobis-tools/_layout.import'
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Progress } from '@/components/ui/progress'
-import { Button } from '@/components/ui/button'
+  IssueMessage,
+  ProgressMessage,
+} from "@/routes/_authenticated/_layout/cobis-tools/_layout.import";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 
 interface TableSummary {
-    table: string
-    totalRows: number
-    currentRow: number
-    completed: boolean
-    message: string
-    warnings: Array<IssueMessage>
-    errors: Array<IssueMessage>
+  table: string;
+  totalRows: number;
+  currentRow: number;
+  completed: boolean;
+  message: string;
+  warnings: Array<IssueMessage>;
+  errors: Array<IssueMessage>;
 }
 
 interface ImportSummaryProps {
-    progressMessages: Array<ProgressMessage>
-    warnings: Array<IssueMessage>
-    errors: Array<IssueMessage>
-    isImporting: boolean
+  progressMessages: Array<ProgressMessage>;
+  warnings: Array<IssueMessage>;
+  errors: Array<IssueMessage>;
+  isImporting: boolean;
 }
 
 /**
  * Summarizes import progress by table, showing progress, warnings, and errors.
  */
 export function ImportSummary({
-    progressMessages,
-    warnings,
-    errors,
-    isImporting,
+  progressMessages,
+  warnings,
+  errors,
+  isImporting,
 }: ImportSummaryProps) {
-    // Reduce messages into latest state per table
-    const tableSummaries: Array<TableSummary> = Object.values(
-        progressMessages.reduce(
-            (acc, msg) => {
-                if (!acc[msg.table]) {
-                    acc[msg.table] = {
-                        table: msg.table,
-                        totalRows: msg.totalRows,
-                        currentRow: msg.currentRow,
-                        completed: false,
-                        message: msg.message,
-                        warnings: [],
-                        errors: [],
-                    }
-                } else {
-                    acc[msg.table].currentRow = msg.currentRow
-                    acc[msg.table].message = msg.message
-                    acc[msg.table].completed = msg.currentRow >= msg.totalRows
-                }
-                return acc
-            },
-            {} as Record<string, TableSummary>,
-        ),
-    )
+  // Reduce messages into latest state per table
+  const tableSummaries: Array<TableSummary> = Object.values(
+    progressMessages.reduce(
+      (acc, msg) => {
+        if (!acc[msg.table]) {
+          acc[msg.table] = {
+            table: msg.table,
+            totalRows: msg.totalRows,
+            currentRow: msg.currentRow,
+            completed: false,
+            message: msg.message,
+            warnings: [],
+            errors: [],
+          };
+        } else {
+          acc[msg.table].currentRow = msg.currentRow;
+          acc[msg.table].message = msg.message;
+          acc[msg.table].completed = msg.currentRow >= msg.totalRows;
+        }
+        return acc;
+      },
+      {} as Record<string, TableSummary>,
+    ),
+  );
 
-    // Try to attach warnings/errors to the right table (best effort)
-    // If no table context, attach to the last active one
-    if (warnings.length > 0 || errors.length > 0) {
-        const lastTable = tableSummaries[tableSummaries.length - 1]?.table
-        warnings.forEach((w) => {
-            const target =
-                tableSummaries.find((t) => w.message.includes(t.table)) ??
-                tableSummaries.find((t) => t.table === lastTable)
-            if (target) target.warnings.push(w)
-        })
-        errors.forEach((e) => {
-            const target =
-                tableSummaries.find((t) => e.message.includes(t.table)) ??
-                tableSummaries.find((t) => t.table === lastTable)
-            if (target) target.errors.push(e)
-        })
-    }
+  // Try to attach warnings/errors to the right table (best effort)
+  // If no table context, attach to the last active one
+  if (warnings.length > 0 || errors.length > 0) {
+    const lastTable = tableSummaries[tableSummaries.length - 1]?.table;
+    warnings.forEach((w) => {
+      const target =
+        tableSummaries.find((t) => w.message.includes(t.table)) ??
+        tableSummaries.find((t) => t.table === lastTable);
+      if (target) target.warnings.push(w);
+    });
+    errors.forEach((e) => {
+      const target =
+        tableSummaries.find((t) => e.message.includes(t.table)) ??
+        tableSummaries.find((t) => t.table === lastTable);
+      if (target) target.errors.push(e);
+    });
+  }
 
-    return (
-        <div className="grid h-full w-full grid-cols-2 gap-4">
-            <ScrollArea className="h-full w-full flex-1 rounded-md border p-4">
-                <span className="mb-4 block text-sm font-medium">
-                    Import Progress by Table
-                </span>
-                <div className="space-y-4">
-                    {tableSummaries.map((table) => {
-                        const progress =
-                            table.totalRows > 0
-                                ? Math.min(
-                                      (table.currentRow / table.totalRows) *
-                                          100,
-                                      100,
-                                  )
-                                : 0
-                        const Icon =
-                            table.completed && table.errors.length === 0
-                                ? CheckCircle2
-                                : table.errors.length > 0
-                                  ? AlertCircle
-                                  : isImporting
-                                    ? Loader2
-                                    : TriangleAlert
+  return (
+    <div className="grid h-full w-full grid-cols-2 gap-4">
+      <ScrollArea className="h-full w-full flex-1 rounded-md border p-4">
+        <span className="mb-4 block text-sm font-medium">Import Progress by Table</span>
+        <div className="space-y-4">
+          {tableSummaries.map((table) => {
+            const progress =
+              table.totalRows > 0 ? Math.min((table.currentRow / table.totalRows) * 100, 100) : 0;
+            const Icon =
+              table.completed && table.errors.length === 0
+                ? CheckCircle2
+                : table.errors.length > 0
+                  ? AlertCircle
+                  : isImporting
+                    ? Loader2
+                    : TriangleAlert;
 
-                        return (
-                            <Card key={table.table} className="relative">
-                                <CardHeader className="flex flex-row items-center justify-between pb-2">
-                                    <CardTitle className="text-base font-semibold">
-                                        {table.table}
-                                    </CardTitle>
-                                    <Icon
-                                        className={`h-5 w-5 ${
-                                            table.errors.length > 0
-                                                ? 'text-red-600'
-                                                : table.warnings.length > 0
-                                                  ? 'text-yellow-600'
-                                                  : table.completed
-                                                    ? 'text-green-600'
-                                                    : isImporting
-                                                      ? 'animate-spin text-blue-500'
-                                                      : 'text-muted-foreground'
-                                        }`}
-                                    />
-                                </CardHeader>
+            return (
+              <Card key={table.table} className="relative">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-base font-semibold">{table.table}</CardTitle>
+                  <Icon
+                    className={`h-5 w-5 ${
+                      table.errors.length > 0
+                        ? "text-red-600"
+                        : table.warnings.length > 0
+                          ? "text-yellow-600"
+                          : table.completed
+                            ? "text-green-600"
+                            : isImporting
+                              ? "animate-spin text-blue-500"
+                              : "text-muted-foreground"
+                    }`}
+                  />
+                </CardHeader>
 
-                                <CardContent className="space-y-3">
-                                    <Progress value={progress} />
-                                    <div className="text-muted-foreground flex justify-between text-xs">
-                                        <span>
-                                            {table.currentRow.toLocaleString()}{' '}
-                                            / {table.totalRows.toLocaleString()}{' '}
-                                            rows
-                                        </span>
-                                        <span>{table.message}</span>
-                                    </div>
+                <CardContent className="space-y-3">
+                  <Progress value={progress} />
+                  <div className="text-muted-foreground flex justify-between text-xs">
+                    <span>
+                      {table.currentRow.toLocaleString()} / {table.totalRows.toLocaleString()} rows
+                    </span>
+                    <span>{table.message}</span>
+                  </div>
 
-                                    {(table.warnings.length > 0 ||
-                                        table.errors.length > 0) && (
-                                        <div className="flex space-x-4 text-xs">
-                                            {table.warnings.length > 0 && (
-                                                <div className="text-yellow-700">
-                                                    ⚠️ {table.warnings.length}{' '}
-                                                    warning
-                                                    {table.warnings.length > 1
-                                                        ? 's'
-                                                        : ''}
-                                                </div>
-                                            )}
-                                            {table.errors.length > 0 && (
-                                                <div className="text-red-700">
-                                                    ❌ {table.errors.length}{' '}
-                                                    error
-                                                    {table.errors.length > 1
-                                                        ? 's'
-                                                        : ''}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </Card>
-                        )
-                    })}
-
-                    {tableSummaries.length === 0 && (
-                        <p className="text-muted-foreground text-sm italic">
-                            Waiting for import data…
-                        </p>
-                    )}
-                </div>
-            </ScrollArea>
-
-            {/* Right column: overall summary & issue stream */}
-            <div className="flex h-full flex-col space-y-4">
-                {/* Overall Summary */}
-                <Card className="border-muted bg-muted/30 flex flex-col border">
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-base font-semibold">
-                            Overall Progress
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                        <Progress
-                            value={
-                                tableSummaries.length > 0
-                                    ? (tableSummaries.filter((t) => t.completed)
-                                          .length /
-                                          tableSummaries.length) *
-                                      100
-                                    : 0
-                            }
-                        />
-                        <div className="text-muted-foreground flex justify-between text-xs">
-                            <span>
-                                {
-                                    tableSummaries.filter((t) => t.completed)
-                                        .length
-                                }
-                                /{tableSummaries.length} tables completed
-                            </span>
-                            <span>
-                                ⚠️{' '}
-                                {tableSummaries.reduce(
-                                    (sum, t) => sum + t.warnings.length,
-                                    0,
-                                )}{' '}
-                                · ❌{' '}
-                                {tableSummaries.reduce(
-                                    (sum, t) => sum + t.errors.length,
-                                    0,
-                                )}
-                            </span>
+                  {(table.warnings.length > 0 || table.errors.length > 0) && (
+                    <div className="flex space-x-4 text-xs">
+                      {table.warnings.length > 0 && (
+                        <div className="text-yellow-700">
+                          ⚠️ {table.warnings.length} warning
+                          {table.warnings.length > 1 ? "s" : ""}
                         </div>
-                    </CardContent>
-                    <CardFooter className="pt-0">
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex w-full items-center gap-2"
-                            onClick={() => {
-                                const logData = {
-                                    warnings: warnings.slice(0, 5000),
-                                    errors: errors.slice(0, 5000),
-                                    summary: {
-                                        tablesCompleted: tableSummaries.filter(
-                                            (t) => t.completed,
-                                        ).length,
-                                        totalTables: tableSummaries.length,
-                                        totalWarnings: warnings.length,
-                                        totalErrors: errors.length,
-                                    },
-                                }
-                                const blob = new Blob(
-                                    [JSON.stringify(logData, null, 2)],
-                                    {
-                                        type: 'application/json',
-                                    },
-                                )
-                                saveAs(
-                                    blob,
-                                    `import-logs-${new Date().toISOString()}.json`,
-                                )
-                            }}
-                        >
-                            <Download className="h-4 w-4" />
-                            Download Logs
-                        </Button>
-                    </CardFooter>
-                </Card>
+                      )}
+                      {table.errors.length > 0 && (
+                        <div className="text-red-700">
+                          ❌ {table.errors.length} error
+                          {table.errors.length > 1 ? "s" : ""}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
 
-                {/* Live stream of issues */}
-                <Card className="border-muted bg-background/60 flex flex-1 flex-col border">
-                    <CardHeader>
-                        <CardTitle className="text-base font-semibold">
-                            Issues Stream
-                        </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="p-0">
-                        <ScrollArea className="h-[calc(100%-2rem)] px-4">
-                            {warnings.length === 0 && errors.length === 0 && (
-                                <p className="text-muted-foreground text-xs italic">
-                                    No warnings or errors yet.
-                                </p>
-                            )}
-
-                            {/* Combine + limit issue entries */}
-                            {[...errors, ...warnings]
-                                .slice(-100)
-                                .reverse()
-                                .map((issue, idx) => (
-                                    <div
-                                        key={idx}
-                                        className={`flex items-start gap-2 border-b py-2 text-xs ${
-                                            issue.error
-                                                ? 'border-red-200/50 text-red-700'
-                                                : 'border-yellow-100/40 text-yellow-700'
-                                        }`}
-                                    >
-                                        {issue.error ? (
-                                            <AlertCircle className="mt-px h-4 w-4 text-red-500" />
-                                        ) : (
-                                            <TriangleAlert className="mt-px h-4 w-4 text-yellow-500" />
-                                        )}
-                                        <div className="flex-1">
-                                            <p className="font-medium">
-                                                {issue.message}
-                                            </p>
-                                            {issue.error && (
-                                                <p className="text-muted-foreground text-[11px]">
-                                                    {issue.error.slice(0, 300)}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                        </ScrollArea>
-                    </CardContent>
-                </Card>
-            </div>
+          {tableSummaries.length === 0 && (
+            <p className="text-muted-foreground text-sm italic">Waiting for import data…</p>
+          )}
         </div>
-    )
+      </ScrollArea>
+
+      {/* Right column: overall summary & issue stream */}
+      <div className="flex h-full flex-col space-y-4">
+        {/* Overall Summary */}
+        <Card className="border-muted bg-muted/30 flex flex-col border">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Overall Progress</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Progress
+              value={
+                tableSummaries.length > 0
+                  ? (tableSummaries.filter((t) => t.completed).length / tableSummaries.length) * 100
+                  : 0
+              }
+            />
+            <div className="text-muted-foreground flex justify-between text-xs">
+              <span>
+                {tableSummaries.filter((t) => t.completed).length}/{tableSummaries.length} tables
+                completed
+              </span>
+              <span>
+                ⚠️ {tableSummaries.reduce((sum, t) => sum + t.warnings.length, 0)} · ❌{" "}
+                {tableSummaries.reduce((sum, t) => sum + t.errors.length, 0)}
+              </span>
+            </div>
+          </CardContent>
+          <CardFooter className="pt-0">
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex w-full items-center gap-2"
+              onClick={() => {
+                const logData = {
+                  warnings: warnings.slice(0, 5000),
+                  errors: errors.slice(0, 5000),
+                  summary: {
+                    tablesCompleted: tableSummaries.filter((t) => t.completed).length,
+                    totalTables: tableSummaries.length,
+                    totalWarnings: warnings.length,
+                    totalErrors: errors.length,
+                  },
+                };
+                const blob = new Blob([JSON.stringify(logData, null, 2)], {
+                  type: "application/json",
+                });
+                saveAs(blob, `import-logs-${new Date().toISOString()}.json`);
+              }}
+            >
+              <Download className="h-4 w-4" />
+              Download Logs
+            </Button>
+          </CardFooter>
+        </Card>
+
+        {/* Live stream of issues */}
+        <Card className="border-muted bg-background/60 flex flex-1 flex-col border">
+          <CardHeader>
+            <CardTitle className="text-base font-semibold">Issues Stream</CardTitle>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            <ScrollArea className="h-[calc(100%-2rem)] px-4">
+              {warnings.length === 0 && errors.length === 0 && (
+                <p className="text-muted-foreground text-xs italic">No warnings or errors yet.</p>
+              )}
+
+              {/* Combine + limit issue entries */}
+              {[...errors, ...warnings]
+                .slice(-100)
+                .reverse()
+                .map((issue, idx) => (
+                  <div
+                    key={idx}
+                    className={`flex items-start gap-2 border-b py-2 text-xs ${
+                      issue.error
+                        ? "border-red-200/50 text-red-700"
+                        : "border-yellow-100/40 text-yellow-700"
+                    }`}
+                  >
+                    {issue.error ? (
+                      <AlertCircle className="mt-px h-4 w-4 text-red-500" />
+                    ) : (
+                      <TriangleAlert className="mt-px h-4 w-4 text-yellow-500" />
+                    )}
+                    <div className="flex-1">
+                      <p className="font-medium">{issue.message}</p>
+                      {issue.error && (
+                        <p className="text-muted-foreground text-[11px]">
+                          {issue.error.slice(0, 300)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
 }

@@ -1,38 +1,26 @@
-import {
-    and,
-    asc,
-    desc,
-    eq,
-    gt,
-    gte,
-    ilike,
-    inArray,
-    like,
-    lt,
-    lte,
-} from 'drizzle-orm'
-import type { SQL, SQLWrapper } from 'drizzle-orm'
-import type { AnyMySqlTable } from 'drizzle-orm/mysql-core'
+import { and, asc, desc, eq, gt, gte, ilike, inArray, like, lt, lte } from "drizzle-orm";
+import type { SQL, SQLWrapper } from "drizzle-orm";
+import type { AnyMySqlTable } from "drizzle-orm/mysql-core";
 
 /**
  * Basic sanitization to prevent malicious input
  */
 function sanitizeParamValue(value: string): string {
-    // Remove null bytes
-    let sanitized = value.replace(/\0/g, '')
+  // Remove null bytes
+  let sanitized = value.replace(/\0/g, "");
 
-    // Limit to 500 characters
-    if (sanitized.length > 500) {
-        sanitized = sanitized.slice(0, 500)
-    }
+  // Limit to 500 characters
+  if (sanitized.length > 500) {
+    sanitized = sanitized.slice(0, 500);
+  }
 
-    // Block SQL-like keywords and special characters that could be problematic
-    // Allow: letters, numbers, spaces, hyphens, underscores, @, ., commas
-    if (!/^[a-zA-Z0-9\s\-_@.,:]*$/.test(sanitized)) {
-        throw new Error('Invalid characters in input: ' + sanitized)
-    }
+  // Block SQL-like keywords and special characters that could be problematic
+  // Allow: letters, numbers, spaces, hyphens, underscores, @, ., commas
+  if (!/^[a-zA-Z0-9\s\-_@.,:]*$/.test(sanitized)) {
+    throw new Error("Invalid characters in input: " + sanitized);
+  }
 
-    return sanitized.trim()
+  return sanitized.trim();
 }
 
 /**
@@ -46,72 +34,71 @@ function sanitizeParamValue(value: string): string {
  * @returns SQLWrapper representing the where conditions
  */
 export function urlParamsParser(params: URLSearchParams, table: AnyMySqlTable) {
-    const limit = parseInt(params.get('limit') || '0', 10)
-    const whereConditions: Array<SQLWrapper> = []
-    const sortCondition: Array<SQL> = []
+  const limit = parseInt(params.get("limit") || "0", 10);
+  const whereConditions: Array<SQLWrapper> = [];
+  const sortCondition: Array<SQL> = [];
 
-    params.forEach((value, key) => {
-        if (key === 'limit') return
+  params.forEach((value, key) => {
+    if (key === "limit") return;
 
-        const sanitizedValue = sanitizeParamValue(value)
+    const sanitizedValue = sanitizeParamValue(value);
 
-        if (key === 'sort') {
-            const [field, direction, _nulls] = sanitizedValue.split(':')
-            const col = (table as any)[field]
-            if (!col) return
+    if (key === "sort") {
+      const [field, direction, _nulls] = sanitizedValue.split(":");
+      const col = (table as any)[field];
+      if (!col) return;
 
-            if (direction === 'asc') {
-                sortCondition.push(asc(col))
-            } else {
-                sortCondition.push(desc(col))
-            }
-        } else if (key.endsWith('_eq')) {
-            const field = key.slice(0, -3)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(eq(col, sanitizedValue))
-        } else if (key.endsWith('_lt')) {
-            const field = key.slice(0, -3)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(lt(col, sanitizedValue))
-        } else if (key.endsWith('_lte')) {
-            const field = key.slice(0, -4)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(lte(col, sanitizedValue))
-        } else if (key.endsWith('_gt')) {
-            const field = key.slice(0, -3)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(gt(col, sanitizedValue))
-        } else if (key.endsWith('_gte')) {
-            const field = key.slice(0, -4)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(gte(col, sanitizedValue))
-        } else if (key.endsWith('_like')) {
-            const field = key.slice(0, -5)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(like(col, `%${sanitizedValue}%`))
-        } else if (key.endsWith('_ilike')) {
-            const field = key.slice(0, -6)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(ilike(col, `%${sanitizedValue}%`))
-        } else if (key.endsWith('_in')) {
-            const field = key.slice(0, -3)
-            const col = (table as any)[field]
-            if (!col) return
-            whereConditions.push(inArray(col, sanitizedValue.split(',')))
-        }
-    })
-
-    return {
-        limit: limit === 0 ? undefined : limit,
-        sort: sortCondition,
-        whereConditions:
-            whereConditions.length > 0 ? and(...whereConditions) : undefined,
+      if (direction === "asc") {
+        sortCondition.push(asc(col));
+      } else {
+        sortCondition.push(desc(col));
+      }
+    } else if (key.endsWith("_eq")) {
+      const field = key.slice(0, -3);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(eq(col, sanitizedValue));
+    } else if (key.endsWith("_lt")) {
+      const field = key.slice(0, -3);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(lt(col, sanitizedValue));
+    } else if (key.endsWith("_lte")) {
+      const field = key.slice(0, -4);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(lte(col, sanitizedValue));
+    } else if (key.endsWith("_gt")) {
+      const field = key.slice(0, -3);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(gt(col, sanitizedValue));
+    } else if (key.endsWith("_gte")) {
+      const field = key.slice(0, -4);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(gte(col, sanitizedValue));
+    } else if (key.endsWith("_like")) {
+      const field = key.slice(0, -5);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(like(col, `%${sanitizedValue}%`));
+    } else if (key.endsWith("_ilike")) {
+      const field = key.slice(0, -6);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(ilike(col, `%${sanitizedValue}%`));
+    } else if (key.endsWith("_in")) {
+      const field = key.slice(0, -3);
+      const col = (table as any)[field];
+      if (!col) return;
+      whereConditions.push(inArray(col, sanitizedValue.split(",")));
     }
+  });
+
+  return {
+    limit: limit === 0 ? undefined : limit,
+    sort: sortCondition,
+    whereConditions: whereConditions.length > 0 ? and(...whereConditions) : undefined,
+  };
 }

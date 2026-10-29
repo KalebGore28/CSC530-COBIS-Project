@@ -1,444 +1,371 @@
-import { useState } from 'react'
+import { useState } from "react";
+import { Download, Filter, Search, SortAsc, SortDesc, UserRound } from "lucide-react";
+import { toast } from "sonner";
+import Papa from "papaparse";
+import { and, eq, inArray, useLiveQuery } from "@tanstack/react-db";
+import type { GradeKey } from "@/types/grades";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    Download,
-    Filter,
-    Search,
-    SortAsc,
-    SortDesc,
-    UserRound,
-} from 'lucide-react'
-import { toast } from 'sonner'
-import Papa from 'papaparse'
-import { and, eq, inArray, useLiveQuery } from '@tanstack/react-db'
-import type { GradeKey } from '@/types/grades'
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card'
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from '@/components/ui/table'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 
-import { programsCollection } from '@/integrations/tanstack-db/programs'
-import { studentProgramsCollection } from '@/integrations/tanstack-db/student-programs'
-import { GRADE_DEFINITION } from '@/types/grades'
+import { programsCollection } from "@/integrations/tanstack-db/programs";
+import { studentProgramsCollection } from "@/integrations/tanstack-db/student-programs";
+import { GRADE_DEFINITION } from "@/types/grades";
 
 type RequiredStudentCourseProps = {
-    mnumber: string
-    first_name: string | undefined
-    last_name: string | undefined
-    email: string | undefined
-    midterm_grade: string | null
-    final_grade: string | null
-    course_id: string
-    course_section: string
-    year: number
-    term_id: string
-    term_description: string | undefined
-} & Record<string, unknown>
+  mnumber: string;
+  first_name: string | undefined;
+  last_name: string | undefined;
+  email: string | undefined;
+  midterm_grade: string | null;
+  final_grade: string | null;
+  course_id: string;
+  course_section: string;
+  year: number;
+  term_id: string;
+  term_description: string | undefined;
+} & Record<string, unknown>;
 
 export interface RosterStudentsProps {
-    studentCourses: Array<RequiredStudentCourseProps>
-    className?: string
-    isLoading?: boolean
+  studentCourses: Array<RequiredStudentCourseProps>;
+  className?: string;
+  isLoading?: boolean;
 }
 
-export function RosterStudents({
-    studentCourses,
-    className,
-    isLoading,
-}: RosterStudentsProps) {
-    const [searchQuery, setSearchQuery] = useState('')
-    const [gradeFilter, setGradeFilter] = useState('all')
-    const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
-    const [sortField, setSortField] = useState<'name' | 'midterm' | 'final'>(
-        'name',
-    )
+export function RosterStudents({ studentCourses, className, isLoading }: RosterStudentsProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [gradeFilter, setGradeFilter] = useState("all");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortField, setSortField] = useState<"name" | "midterm" | "final">("name");
 
-    const studentMnumbers = studentCourses.map((sc) => sc.mnumber)
+  const studentMnumbers = studentCourses.map((sc) => sc.mnumber);
 
-    const { data: studentPrograms, isLoading: programsLoading } = useLiveQuery(
-        (q) =>
-            q
-                .from({ studentProgram: studentProgramsCollection })
-                .where(({ studentProgram }) =>
-                    and(
-                        inArray(studentProgram.mnumber, studentMnumbers),
-                        eq(studentProgram.term_id, studentCourses[0].term_id),
-                        eq(studentProgram.year, studentCourses[0].year),
-                    ),
-                )
-                .leftJoin(
-                    { program: programsCollection },
-                    ({ studentProgram, program }) =>
-                        eq(studentProgram.program_id, program.id),
-                )
-                .select(({ studentProgram, program }) => ({
-                    mnumber: studentProgram.mnumber,
-                    description: program?.description,
-                })),
-    )
+  const { data: studentPrograms, isLoading: programsLoading } = useLiveQuery((q) =>
+    q
+      .from({ studentProgram: studentProgramsCollection })
+      .where(({ studentProgram }) =>
+        and(
+          inArray(studentProgram.mnumber, studentMnumbers),
+          eq(studentProgram.term_id, studentCourses[0].term_id),
+          eq(studentProgram.year, studentCourses[0].year),
+        ),
+      )
+      .leftJoin({ program: programsCollection }, ({ studentProgram, program }) =>
+        eq(studentProgram.program_id, program.id),
+      )
+      .select(({ studentProgram, program }) => ({
+        mnumber: studentProgram.mnumber,
+        description: program?.description,
+      })),
+  );
 
-    if (isLoading || programsLoading) {
-        return (
-            <div className={className}>
-                <p>Loading student programs...</p>
-            </div>
-        )
-    }
-
-    const studentProgramsMap = new Map<
-        string,
-        Array<{ mnumber: string; description: string }>
-    >()
-    studentPrograms.forEach((sp) => {
-        if (!studentProgramsMap.has(sp.mnumber)) {
-            studentProgramsMap.set(sp.mnumber, [])
-        }
-        studentProgramsMap.get(sp.mnumber)?.push({
-            mnumber: sp.mnumber,
-            description: sp.description || 'Unknown',
-        })
-    })
-
-    const courseDetail = studentCourses[0]
-
-    const exportFilename = `${courseDetail.course_id}-${courseDetail.course_section}_${courseDetail.term_description}_${courseDetail.year}`
-
-    // Filter and sort students
-    const filteredStudents = studentCourses
-        .filter((student) => {
-            const fullName =
-                `${student.first_name} ${student.last_name}`.toLowerCase()
-            const matchesSearch =
-                fullName.includes(searchQuery.toLowerCase()) ||
-                student.mnumber
-                    .toLowerCase()
-                    .includes(searchQuery.toLowerCase()) ||
-                student.email?.toLowerCase().includes(searchQuery.toLowerCase())
-
-            const matchesGrade =
-                gradeFilter === 'all' ||
-                student.final_grade?.startsWith(gradeFilter) ||
-                (!student.final_grade && gradeFilter === 'E')
-
-            return matchesSearch && matchesGrade
-        })
-        .sort((a, b) => {
-            const multiplier = sortDirection === 'asc' ? 1 : -1
-
-            if (sortField === 'name') {
-                const nameA = `${a.last_name} ${a.first_name}`.toLowerCase()
-                const nameB = `${b.last_name} ${b.first_name}`.toLowerCase()
-                return multiplier * nameA.localeCompare(nameB)
-            } else if (sortField === 'midterm') {
-                const gradeA = a.midterm_grade || 'Z'
-                const gradeB = b.midterm_grade || 'Z'
-                return multiplier * gradeA.localeCompare(gradeB)
-            } else {
-                const gradeA = a.final_grade || 'Z'
-                const gradeB = b.final_grade || 'Z'
-                return multiplier * gradeA.localeCompare(gradeB)
-            }
-        })
-
-    const handleHeaderClick = (field: 'name' | 'midterm' | 'final') => {
-        if (sortField === field) {
-            setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc')
-        } else {
-            setSortField(field)
-            setSortDirection('asc')
-        }
-    }
-
-    const exportToCSV = () => {
-        if (filteredStudents.length === 0) {
-            toast.error('No students to export.')
-            return
-        }
-
-        // Prepare data for CSV
-        const csvData = filteredStudents.map((student) => ({
-            'M-Number': student.mnumber,
-            'First Name': student.first_name || '',
-            'Last Name': student.last_name || '',
-            Email: student.email || '',
-            Programs: (studentProgramsMap.get(student.mnumber) || [])
-                .map((p) => p.description)
-                .join(', '),
-            'Midterm Grade': student.midterm_grade || 'N/A',
-            'Final Grade': student.final_grade || 'N/A',
-        }))
-
-        const csv = Papa.unparse(csvData)
-
-        // Trigger download
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
-        const url = URL.createObjectURL(blob)
-        const link = document.createElement('a')
-
-        link.setAttribute('href', url)
-        link.setAttribute('download', `${exportFilename}_roster.csv`)
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-    }
-
+  if (isLoading || programsLoading) {
     return (
-        <Card className={className}>
-            <CardHeader className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <CardTitle>Student Roster</CardTitle>
-                    <CardDescription>
-                        {filteredStudents.length} of {studentCourses.length}{' '}
-                        students
-                    </CardDescription>
-                </div>
-                <div className="flex flex-wrap gap-4">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
-                        <Input
-                            type="search"
-                            placeholder="Search students..."
-                            className="w-full pl-8 shadow-xs"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+      <div className={className}>
+        <p>Loading student programs...</p>
+      </div>
+    );
+  }
+
+  const studentProgramsMap = new Map<string, Array<{ mnumber: string; description: string }>>();
+  studentPrograms.forEach((sp) => {
+    if (!studentProgramsMap.has(sp.mnumber)) {
+      studentProgramsMap.set(sp.mnumber, []);
+    }
+    studentProgramsMap.get(sp.mnumber)?.push({
+      mnumber: sp.mnumber,
+      description: sp.description || "Unknown",
+    });
+  });
+
+  const courseDetail = studentCourses[0];
+
+  const exportFilename = `${courseDetail.course_id}-${courseDetail.course_section}_${courseDetail.term_description}_${courseDetail.year}`;
+
+  // Filter and sort students
+  const filteredStudents = studentCourses
+    .filter((student) => {
+      const fullName = `${student.first_name} ${student.last_name}`.toLowerCase();
+      const matchesSearch =
+        fullName.includes(searchQuery.toLowerCase()) ||
+        student.mnumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        student.email?.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesGrade =
+        gradeFilter === "all" ||
+        student.final_grade?.startsWith(gradeFilter) ||
+        (!student.final_grade && gradeFilter === "E");
+
+      return matchesSearch && matchesGrade;
+    })
+    .sort((a, b) => {
+      const multiplier = sortDirection === "asc" ? 1 : -1;
+
+      if (sortField === "name") {
+        const nameA = `${a.last_name} ${a.first_name}`.toLowerCase();
+        const nameB = `${b.last_name} ${b.first_name}`.toLowerCase();
+        return multiplier * nameA.localeCompare(nameB);
+      } else if (sortField === "midterm") {
+        const gradeA = a.midterm_grade || "Z";
+        const gradeB = b.midterm_grade || "Z";
+        return multiplier * gradeA.localeCompare(gradeB);
+      } else {
+        const gradeA = a.final_grade || "Z";
+        const gradeB = b.final_grade || "Z";
+        return multiplier * gradeA.localeCompare(gradeB);
+      }
+    });
+
+  const handleHeaderClick = (field: "name" | "midterm" | "final") => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  const exportToCSV = () => {
+    if (filteredStudents.length === 0) {
+      toast.error("No students to export.");
+      return;
+    }
+
+    // Prepare data for CSV
+    const csvData = filteredStudents.map((student) => ({
+      "M-Number": student.mnumber,
+      "First Name": student.first_name || "",
+      "Last Name": student.last_name || "",
+      Email: student.email || "",
+      Programs: (studentProgramsMap.get(student.mnumber) || [])
+        .map((p) => p.description)
+        .join(", "),
+      "Midterm Grade": student.midterm_grade || "N/A",
+      "Final Grade": student.final_grade || "N/A",
+    }));
+
+    const csv = Papa.unparse(csvData);
+
+    // Trigger download
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${exportFilename}_roster.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <Card className={className}>
+      <CardHeader className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <CardTitle>Student Roster</CardTitle>
+          <CardDescription>
+            {filteredStudents.length} of {studentCourses.length} students
+          </CardDescription>
+        </div>
+        <div className="flex flex-wrap gap-4">
+          <div className="relative w-full sm:w-64">
+            <Search className="text-muted-foreground absolute top-2.5 left-2.5 h-4 w-4" />
+            <Input
+              type="search"
+              placeholder="Search students..."
+              className="w-full pl-8 shadow-xs"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <Select value={gradeFilter} onValueChange={setGradeFilter}>
+            <SelectTrigger>
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Grades</SelectItem>
+              {Object.keys(GRADE_DEFINITION).map((grade) => (
+                <SelectItem key={grade} value={grade}>
+                  {grade}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button className="shadow-xs" onClick={exportToCSV}>
+            <Download className="mr-2 h-4 w-4" />
+            Export as CSV
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="overflow-x-auto">
+        <Tabs defaultValue="list" className="w-full">
+          <TabsList className="mb-4 w-full">
+            <TabsTrigger value="list">List View</TabsTrigger>
+            <TabsTrigger value="grid">Grid View</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="list">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead
+                    className="w-50 cursor-pointer"
+                    onClick={() => handleHeaderClick("name")}
+                  >
+                    Student Name
+                    {sortField === "name" &&
+                      (sortDirection === "asc" ? (
+                        <SortAsc className="ml-2 inline h-4 w-4" />
+                      ) : (
+                        <SortDesc className="ml-2 inline h-4 w-4" />
+                      ))}
+                  </TableHead>
+                  <TableHead>M-Number</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Major/Minor(s)</TableHead>
+                  <TableHead
+                    className="cursor-pointer"
+                    onClick={() => handleHeaderClick("midterm")}
+                  >
+                    Midterm Grade
+                    {sortField === "midterm" &&
+                      (sortDirection === "asc" ? (
+                        <SortAsc className="ml-2 inline h-4 w-4" />
+                      ) : (
+                        <SortDesc className="ml-2 inline h-4 w-4" />
+                      ))}
+                  </TableHead>
+                  <TableHead className="cursor-table" onClick={() => handleHeaderClick("final")}>
+                    Final Grade
+                    {sortField === "final" &&
+                      (sortDirection === "asc" ? (
+                        <SortAsc className="ml-2 inline h-4 w-4" />
+                      ) : (
+                        <SortDesc className="ml-2 inline h-4 w-4" />
+                      ))}
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredStudents.map((student) => (
+                  <TableRow key={student.mnumber}>
+                    <TableCell className="font-medium">
+                      {student.last_name}, {student.first_name}
+                    </TableCell>
+                    <TableCell>{student.mnumber}</TableCell>
+                    <TableCell>
+                      <a
+                        href={`mailto:${student.email?.toLowerCase()}`}
+                        className="hover:underline"
+                      >
+                        {student.email?.toLowerCase()}
+                      </a>
+                    </TableCell>
+                    <TableCell>
+                      {(studentProgramsMap.get(student.mnumber) || [])
+                        .map((p) => p.description)
+                        .join(", ") || "Undeclared"}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={GRADE_DEFINITION[student.midterm_grade as GradeKey].className}
+                      >
+                        {student.midterm_grade || "N/A"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={GRADE_DEFINITION[student.final_grade as GradeKey].className}
+                      >
+                        {student.final_grade || "N/A"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TabsContent>
+
+          <TabsContent value="grid" className="max-w-full overflow-x-auto">
+            <div className="grid w-full grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:grid-cols-3">
+              {filteredStudents.map((student) => (
+                <Card key={student.mnumber} className="p-4">
+                  <CardHeader className="p-0">
+                    <div className="flex items-center gap-2">
+                      <UserRound className="text-muted-foreground h-6 w-6" />
+                      <CardTitle className="text-lg">
+                        {student.last_name}, {student.first_name}
+                      </CardTitle>
                     </div>
-                    <Select value={gradeFilter} onValueChange={setGradeFilter}>
-                        <SelectTrigger>
-                            <Filter className="mr-2 h-4 w-4" />
-                            <SelectValue placeholder="Filter" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Grades</SelectItem>
-                            {Object.keys(GRADE_DEFINITION).map((grade) => (
-                                <SelectItem key={grade} value={grade}>
-                                    {grade}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <Button className="shadow-xs" onClick={exportToCSV}>
-                        <Download className="mr-2 h-4 w-4" />
-                        Export as CSV
-                    </Button>
-                </div>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-                <Tabs defaultValue="list" className="w-full">
-                    <TabsList className="mb-4 w-full">
-                        <TabsTrigger value="list">List View</TabsTrigger>
-                        <TabsTrigger value="grid">Grid View</TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="list">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead
-                                        className="w-50 cursor-pointer"
-                                        onClick={() =>
-                                            handleHeaderClick('name')
-                                        }
-                                    >
-                                        Student Name
-                                        {sortField === 'name' &&
-                                            (sortDirection === 'asc' ? (
-                                                <SortAsc className="ml-2 inline h-4 w-4" />
-                                            ) : (
-                                                <SortDesc className="ml-2 inline h-4 w-4" />
-                                            ))}
-                                    </TableHead>
-                                    <TableHead>M-Number</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Major/Minor(s)</TableHead>
-                                    <TableHead
-                                        className="cursor-pointer"
-                                        onClick={() =>
-                                            handleHeaderClick('midterm')
-                                        }
-                                    >
-                                        Midterm Grade
-                                        {sortField === 'midterm' &&
-                                            (sortDirection === 'asc' ? (
-                                                <SortAsc className="ml-2 inline h-4 w-4" />
-                                            ) : (
-                                                <SortDesc className="ml-2 inline h-4 w-4" />
-                                            ))}
-                                    </TableHead>
-                                    <TableHead
-                                        className="cursor-table"
-                                        onClick={() =>
-                                            handleHeaderClick('final')
-                                        }
-                                    >
-                                        Final Grade
-                                        {sortField === 'final' &&
-                                            (sortDirection === 'asc' ? (
-                                                <SortAsc className="ml-2 inline h-4 w-4" />
-                                            ) : (
-                                                <SortDesc className="ml-2 inline h-4 w-4" />
-                                            ))}
-                                    </TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredStudents.map((student) => (
-                                    <TableRow key={student.mnumber}>
-                                        <TableCell className="font-medium">
-                                            {student.last_name},{' '}
-                                            {student.first_name}
-                                        </TableCell>
-                                        <TableCell>{student.mnumber}</TableCell>
-                                        <TableCell>
-                                            <a
-                                                href={`mailto:${student.email?.toLowerCase()}`}
-                                                className="hover:underline"
-                                            >
-                                                {student.email?.toLowerCase()}
-                                            </a>
-                                        </TableCell>
-                                        <TableCell>
-                                            {(
-                                                studentProgramsMap.get(
-                                                    student.mnumber,
-                                                ) || []
-                                            )
-                                                .map((p) => p.description)
-                                                .join(', ') || 'Undeclared'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={
-                                                    GRADE_DEFINITION[
-                                                        student.midterm_grade as GradeKey
-                                                    ].className
-                                                }
-                                            >
-                                                {student.midterm_grade || 'N/A'}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge
-                                                variant="outline"
-                                                className={
-                                                    GRADE_DEFINITION[
-                                                        student.final_grade as GradeKey
-                                                    ].className
-                                                }
-                                            >
-                                                {student.final_grade || 'N/A'}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TabsContent>
-
-                    <TabsContent
-                        value="grid"
-                        className="max-w-full overflow-x-auto"
-                    >
-                        <div className="grid w-full grid-cols-1 gap-4 p-2 sm:grid-cols-2 lg:grid-cols-3">
-                            {filteredStudents.map((student) => (
-                                <Card key={student.mnumber} className="p-4">
-                                    <CardHeader className="p-0">
-                                        <div className="flex items-center gap-2">
-                                            <UserRound className="text-muted-foreground h-6 w-6" />
-                                            <CardTitle className="text-lg">
-                                                {student.last_name},{' '}
-                                                {student.first_name}
-                                            </CardTitle>
-                                        </div>
-                                        <CardDescription>
-                                            {student.mnumber}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="mt-2 p-0">
-                                        <div className="space-y-2">
-                                            <div>
-                                                <span className="font-medium">
-                                                    Email:{' '}
-                                                </span>
-                                                <a
-                                                    href={`mailto:${student.email?.toLowerCase()}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {student.email?.toLowerCase()}
-                                                </a>
-                                            </div>
-                                            <div>
-                                                <span className="font-medium">
-                                                    Major/Minor(s):{' '}
-                                                </span>
-                                                {(
-                                                    studentProgramsMap.get(
-                                                        student.mnumber,
-                                                    ) || []
-                                                )
-                                                    .map((p) => p.description)
-                                                    .join(', ') || 'Undeclared'}
-                                            </div>
-                                            <div className="flex gap-2">
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        GRADE_DEFINITION[
-                                                            student.midterm_grade
-                                                                ? (student.midterm_grade as GradeKey)
-                                                                : 'NA'
-                                                        ].className
-                                                    }
-                                                >
-                                                    Mid:{' '}
-                                                    {student.midterm_grade ||
-                                                        'N/A'}
-                                                </Badge>
-                                                <Badge
-                                                    variant="outline"
-                                                    className={
-                                                        GRADE_DEFINITION[
-                                                            student.final_grade
-                                                                ? (student.final_grade as GradeKey)
-                                                                : 'NA'
-                                                        ].className
-                                                    }
-                                                >
-                                                    Final:{' '}
-                                                    {student.final_grade ||
-                                                        'N/A'}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            ))}
-                        </div>
-                    </TabsContent>
-                </Tabs>
-            </CardContent>
-        </Card>
-    )
+                    <CardDescription>{student.mnumber}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="mt-2 p-0">
+                    <div className="space-y-2">
+                      <div>
+                        <span className="font-medium">Email: </span>
+                        <a
+                          href={`mailto:${student.email?.toLowerCase()}`}
+                          className="hover:underline"
+                        >
+                          {student.email?.toLowerCase()}
+                        </a>
+                      </div>
+                      <div>
+                        <span className="font-medium">Major/Minor(s): </span>
+                        {(studentProgramsMap.get(student.mnumber) || [])
+                          .map((p) => p.description)
+                          .join(", ") || "Undeclared"}
+                      </div>
+                      <div className="flex gap-2">
+                        <Badge
+                          variant="outline"
+                          className={
+                            GRADE_DEFINITION[
+                              student.midterm_grade ? (student.midterm_grade as GradeKey) : "NA"
+                            ].className
+                          }
+                        >
+                          Mid: {student.midterm_grade || "N/A"}
+                        </Badge>
+                        <Badge
+                          variant="outline"
+                          className={
+                            GRADE_DEFINITION[
+                              student.final_grade ? (student.final_grade as GradeKey) : "NA"
+                            ].className
+                          }
+                        >
+                          Final: {student.final_grade || "N/A"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
+  );
 }

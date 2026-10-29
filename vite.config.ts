@@ -35,12 +35,7 @@ const config = defineConfig({
     globals: true,
     environment: "node",
   },
-  plugins: lazyPlugins(() => [
-    devtools(),
-    tailwindcss(),
-    tanstackStart(),
-    viteReact(),
-  ]),
+  plugins: lazyPlugins(() => [devtools(), tailwindcss(), tanstackStart(), viteReact()]),
   define: {
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version),
   },
