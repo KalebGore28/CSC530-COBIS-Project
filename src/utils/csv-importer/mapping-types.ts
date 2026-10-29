@@ -22,17 +22,21 @@ type ColumnIsOptional<C> =
 
 // Extract columns from a table and make columns with defaults optional
 export type TableInsertType<T extends MySqlTable<any>> = {
-    [K in keyof T['_']['columns'] as ColumnIsOptional<
-        T['_']['columns'][K]
-    > extends true
-        ? never
-        : K]: T['_']['columns'][K]['_']['data']
+    [
+        K in keyof T['_']['columns'] as ColumnIsOptional<
+            T['_']['columns'][K]
+        > extends true
+            ? never
+            : K
+    ]: T['_']['columns'][K]['_']['data']
 } & {
-    [K in keyof T['_']['columns'] as ColumnIsOptional<
-        T['_']['columns'][K]
-    > extends true
-        ? K
-        : never]?: T['_']['columns'][K]['_']['data']
+    [
+        K in keyof T['_']['columns'] as ColumnIsOptional<
+            T['_']['columns'][K]
+        > extends true
+            ? K
+            : never
+    ]?: T['_']['columns'][K]['_']['data']
 }
 
 // Extract primary key column names from a table

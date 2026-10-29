@@ -48,23 +48,29 @@ export async function processImport(
         logStream = createWriteStream(logPath, { flags: 'a' })
 
         // Process the import with simple progress callback
-        await importMySqlCSVFile(db, csvPath, fileName, csvConfig, (progress) => {
-            // Write progress to log file
-            const timestamp = new Date().toISOString()
-            logStream?.write(
-                JSON.stringify({
-                    timestamp,
-                    ...progress,
-                }) + '\n',
-            )
+        await importMySqlCSVFile(
+            db,
+            csvPath,
+            fileName,
+            csvConfig,
+            (progress) => {
+                // Write progress to log file
+                const timestamp = new Date().toISOString()
+                logStream?.write(
+                    JSON.stringify({
+                        timestamp,
+                        ...progress,
+                    }) + '\n',
+                )
 
-            // Update in-memory state for streaming to client
-            updateImportState(importId, {
-                processed: progress.processed,
-                totalRows: progress.totalRows,
-                currentStep: progress.currentStep,
-            })
-        })
+                // Update in-memory state for streaming to client
+                updateImportState(importId, {
+                    processed: progress.processed,
+                    totalRows: progress.totalRows,
+                    currentStep: progress.currentStep,
+                })
+            },
+        )
 
         // Close log stream
         logStream?.end()

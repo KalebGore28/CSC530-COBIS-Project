@@ -7,7 +7,13 @@ import { Progress } from '@/components/ui/progress'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { CheckCircle2, XCircle, Upload, ArrowRight, History } from 'lucide-react'
+import {
+    CheckCircle2,
+    XCircle,
+    Upload,
+    ArrowRight,
+    History,
+} from 'lucide-react'
 
 export const Route = createFileRoute(
     '/_authenticated/_layout/cobis-tools/_layout/import',
@@ -107,9 +113,9 @@ function ImportPage() {
                         disabled={uploading}
                     />
                     {file && (
-                        <p className="text-sm text-muted-foreground">
-                            Selected: {file.name} ({(file.size / 1024).toFixed(2)}{' '}
-                            KB)
+                        <p className="text-muted-foreground text-sm">
+                            Selected: {file.name} (
+                            {(file.size / 1024).toFixed(2)} KB)
                         </p>
                     )}
                 </div>
@@ -131,7 +137,9 @@ function ImportPage() {
                         <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
                         <AlertDescription className="text-green-800 dark:text-green-200">
                             <div className="space-y-2">
-                                <p className="font-semibold">Upload successful!</p>
+                                <p className="font-semibold">
+                                    Upload successful!
+                                </p>
                                 <p className="text-sm">
                                     Your file has been uploaded and is ready for
                                     processing.
@@ -173,10 +181,7 @@ function ImportPage() {
                                 Track Import Progress
                                 <ArrowRight className="ml-2 h-4 w-4" />
                             </Button>
-                            <Button
-                                onClick={handleReset}
-                                variant="outline"
-                            >
+                            <Button onClick={handleReset} variant="outline">
                                 New Import
                             </Button>
                         </>
