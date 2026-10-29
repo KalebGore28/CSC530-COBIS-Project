@@ -13,5 +13,4 @@ export default defineConfig({
   },
   breakpoints: true,
   verbose: true,
-  strict: true,
 });
