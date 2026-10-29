@@ -1,22 +1,20 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { admitCodes } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type AdmitCode = typeof admitCodes.$inferSelect;
 
-export const admitCodesCollection = createCollection(
+export const admitCodesCollection = collectionOptions("admitCodes", (client) =>
   queryCollectionOptions({
     queryKey: ["admitCodes"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: async () => {
       const response = await fetch(`/api/data/admit-codes`);
       return (await response.json()) as Array<AdmitCode>;
     },
-    getKey: (admitCode) => admitCode.id,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
     autoIndex: "eager",
-    staleTime: 1000 * 60 * 60, // 1 hour. Not expected to change hardly ever
+    getKey: (admitCode) => admitCode.id,
     onUpdate: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>

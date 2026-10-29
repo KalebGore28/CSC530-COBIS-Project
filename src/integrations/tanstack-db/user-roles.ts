@@ -1,21 +1,20 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { userRoles } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type UserRole = typeof userRoles.$inferSelect;
 
-export const userRolesCollection = createCollection(
+export const userRolesCollection = collectionOptions("userRole", (client) =>
   queryCollectionOptions({
     queryKey: ["user-roles"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: async () => {
       const response = await fetch(`/api/data/user-roles`);
       return (await response.json()) as Array<UserRole>;
     },
-    getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
     autoIndex: "eager",
+    getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
     onInsert: async ({ transaction }) => {
       const newUserRole: UserRole = transaction.mutations[0].modified;
       await fetch(`/api/data/user-roles`, {

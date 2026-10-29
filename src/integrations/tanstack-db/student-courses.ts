@@ -1,22 +1,23 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { studentCourses } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type StudentCourse = typeof studentCourses.$inferSelect;
 
-export const studentCoursesCollection = createCollection(
-  queryCollectionOptions({
-    queryKey: ["studentCourses"],
-    queryFn: async () => {
-      const response = await fetch(`/api/data/student-courses`);
-      return (await response.json()) as Array<StudentCourse>;
-    },
-    getKey: (studentCourse) =>
-      `${studentCourse.mnumber}-${studentCourse.term_id}-${studentCourse.year}-${studentCourse.course_id}-${studentCourse.course_section}`,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
-    autoIndex: "eager",
-    staleTime: 1000 * 60 * 60, // 1 hour
-  }),
+export const studentCoursesCollection = collectionOptions(
+  "studentCourses",
+  (client) =>
+    queryCollectionOptions({
+      queryKey: ["studentCourses"],
+      queryClient: client.requireDependency<QueryClient>("queryClient"),
+      queryFn: async () => {
+        const response = await fetch(`/api/data/student-courses`);
+        return (await response.json()) as Array<StudentCourse>;
+      },
+      autoIndex: "eager",
+      syncMode: "on-demand",
+      getKey: (studentCourse) =>
+        `${studentCourse.mnumber}-${studentCourse.term_id}-${studentCourse.year}-${studentCourse.course_id}-${studentCourse.course_section}`,
+    }),
 );

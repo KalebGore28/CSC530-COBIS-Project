@@ -5,28 +5,30 @@ import { QueryClient } from "@tanstack/react-query";
 
 type AcademicStanding = typeof academicStanding.$inferSelect;
 
-export const academicStandingCollection = collectionOptions("academicStanding", (client) =>
-  queryCollectionOptions({
-    id: "academicStanding",
-    queryKey: ["academicStanding"],
-    queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch("/api/data/academic-standing");
-      return (await response.json()) as Array<AcademicStanding>;
-    },
-    getKey: (standing) => standing.id,
-    onUpdate: async ({ transaction }) => {
-      await Promise.all(
-        transaction.mutations.map((mutation) =>
-          fetch(`/api/data/academic-standing`, {
-            method: "PUT",
-            body: JSON.stringify({
-              id: mutation.original.id,
-              ...mutation.changes,
+export const academicStandingCollection = collectionOptions(
+  "academicStanding",
+  (client) =>
+    queryCollectionOptions({
+      queryKey: ["academicStanding"],
+      queryClient: client.requireDependency<QueryClient>("queryClient"),
+      queryFn: async () => {
+        const response = await fetch("/api/data/academic-standing");
+        return (await response.json()) as Array<AcademicStanding>;
+      },
+      autoIndex: "eager",
+      getKey: (standing) => standing.id,
+      onUpdate: async ({ transaction }) => {
+        await Promise.all(
+          transaction.mutations.map((mutation) =>
+            fetch(`/api/data/academic-standing`, {
+              method: "PUT",
+              body: JSON.stringify({
+                id: mutation.original.id,
+                ...mutation.changes,
+              }),
             }),
-          }),
-        ),
-      );
-    },
-  }),
+          ),
+        );
+      },
+    }),
 );

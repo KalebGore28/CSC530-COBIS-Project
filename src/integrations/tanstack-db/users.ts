@@ -1,22 +1,20 @@
-import { createCollection, BasicIndex } from "@tanstack/react-db";
+import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { user } from "@/db/schema";
-import { getQueryClient } from "@/integrations/tanstack-query/provider";
+import { QueryClient } from "@tanstack/react-query";
 
 type User = typeof user.$inferSelect;
 
-export const usersCollection = createCollection(
+export const usersCollection = collectionOptions("user", (client) =>
   queryCollectionOptions({
     queryKey: ["users"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: async () => {
       const response = await fetch(`/api/data/users`);
       return (await response.json()) as Array<User>;
     },
-    getKey: (user) => user.id,
-    queryClient: getQueryClient(),
-    defaultIndexType: BasicIndex,
     autoIndex: "eager",
-    staleTime: 1000 * 60 * 5, // 5 minutes. Users may change more frequently
+    getKey: (user) => user.id,
     onUpdate: async ({ transaction }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
