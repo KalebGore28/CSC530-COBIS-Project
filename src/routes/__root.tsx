@@ -1,16 +1,16 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import appCss from "../styles.css?url";
-import type { getQueryClient } from "@/integrations/tanstack-query/provider";
 import { authQuery } from "@/lib/queries";
-import { TanstackQueryProvider } from "@/integrations/tanstack-query/provider";
 
 // Providers
 import { ThemeProvider } from "@/providers/theme";
+import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 
 interface RootRouteContext {
-  queryClient: ReturnType<typeof getQueryClient>;
+  queryClient: ReturnType<typeof useQueryClient>;
 }
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({
@@ -36,22 +36,34 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
   }),
   shellComponent: RootDocument,
   beforeLoad: async ({ context }) => {
-    const userSession = await context.queryClient.fetchQuery(authQuery.user());
+    const userSession = await context.queryClient.query(authQuery.user());
     return { userSession };
   },
 });
 
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   return (
     <html lang="en">
       <head>
         <HeadContent />
       </head>
       <body className="antialiased">
-        <TanstackQueryProvider>
+        <QueryClientProvider client={queryClient}>
           <ThemeProvider>{children}</ThemeProvider>
-        </TanstackQueryProvider>
-        <TanStackRouterDevtools position="bottom-right" />
+        </QueryClientProvider>
+
+        <TanStackDevtools
+          config={{
+            position: "bottom-right",
+          }}
+          plugins={[
+            {
+              name: "Tanstack Router",
+              render: <TanStackRouterDevtoolsPanel />,
+            },
+          ]}
+        />
         <Scripts />
       </body>
     </html>

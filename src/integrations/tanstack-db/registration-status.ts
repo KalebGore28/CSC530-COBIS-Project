@@ -2,6 +2,7 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { registrationStatus } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchCollection, updateCollectionItem } from "./api";
 
 type RegistrationStatus = typeof registrationStatus.$inferSelect;
 
@@ -9,24 +10,20 @@ export const registrationStatusCollection = collectionOptions("registrationStatu
   queryCollectionOptions({
     queryKey: ["registrationStatus"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch(`/api/data/registration-status`);
-      return (await response.json()) as Array<RegistrationStatus>;
-    },
+    queryFn: () => fetchCollection<RegistrationStatus>("registration-status"),
     autoIndex: "eager",
     getKey: (status) => status.id,
-    onUpdate: async ({ transaction }) => {
+    onUpdate: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/registration-status`, {
-            method: "PUT",
-            body: JSON.stringify({
-              id: mutation.original.id,
-              ...mutation.changes,
-            }),
-          }),
+          updateCollectionItem<RegistrationStatus>(
+            "registration-status",
+            mutation.original,
+            mutation.changes,
+          ),
         ),
       );
+      await collection.utils.refetch();
     },
   }),
 );

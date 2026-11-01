@@ -2,31 +2,29 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { academicStanding } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchCollection, updateCollectionItem } from "./api";
 
 type AcademicStanding = typeof academicStanding.$inferSelect;
 
 export const academicStandingCollection = collectionOptions("academicStanding", (client) =>
-  queryCollectionOptions({
+  queryCollectionOptions<AcademicStanding>({
+    id: "academicStanding",
     queryKey: ["academicStanding"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch("/api/data/academic-standing");
-      return (await response.json()) as Array<AcademicStanding>;
-    },
+    queryFn: () => fetchCollection<AcademicStanding>("academic-standing"),
     autoIndex: "eager",
     getKey: (standing) => standing.id,
-    onUpdate: async ({ transaction }) => {
+    onUpdate: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/academic-standing`, {
-            method: "PUT",
-            body: JSON.stringify({
-              id: mutation.original.id,
-              ...mutation.changes,
-            }),
-          }),
+          updateCollectionItem<AcademicStanding>(
+            "academic-standing",
+            mutation.original,
+            mutation.changes,
+          ),
         ),
       );
+      await collection.utils.refetch();
     },
   }),
 );
