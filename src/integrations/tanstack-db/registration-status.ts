@@ -5,30 +5,28 @@ import { QueryClient } from "@tanstack/react-query";
 
 type RegistrationStatus = typeof registrationStatus.$inferSelect;
 
-export const registrationStatusCollection = collectionOptions(
-  "registrationStatus",
-  (client) =>
-    queryCollectionOptions({
-      queryKey: ["registrationStatus"],
-      queryClient: client.requireDependency<QueryClient>("queryClient"),
-      queryFn: async () => {
-        const response = await fetch(`/api/data/registration-status`);
-        return (await response.json()) as Array<RegistrationStatus>;
-      },
-      autoIndex: "eager",
-      getKey: (status) => status.id,
-      onUpdate: async ({ transaction }) => {
-        await Promise.all(
-          transaction.mutations.map((mutation) =>
-            fetch(`/api/data/registration-status`, {
-              method: "PUT",
-              body: JSON.stringify({
-                id: mutation.original.id,
-                ...mutation.changes,
-              }),
+export const registrationStatusCollection = collectionOptions("registrationStatus", (client) =>
+  queryCollectionOptions({
+    queryKey: ["registrationStatus"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
+    queryFn: async () => {
+      const response = await fetch(`/api/data/registration-status`);
+      return (await response.json()) as Array<RegistrationStatus>;
+    },
+    autoIndex: "eager",
+    getKey: (status) => status.id,
+    onUpdate: async ({ transaction }) => {
+      await Promise.all(
+        transaction.mutations.map((mutation) =>
+          fetch(`/api/data/registration-status`, {
+            method: "PUT",
+            body: JSON.stringify({
+              id: mutation.original.id,
+              ...mutation.changes,
             }),
-          ),
-        );
-      },
-    }),
+          }),
+        ),
+      );
+    },
+  }),
 );

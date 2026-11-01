@@ -7,17 +7,15 @@ type CurrentTerm = {
   term_id: string;
 };
 
-export const currentTermCollection = collectionOptions(
-  "currentTerm",
-  (client) =>
-    queryCollectionOptions({
-      queryKey: ["currentTerm"],
-      queryClient: client.requireDependency<QueryClient>("queryClient"),
-      queryFn: async () => {
-        const response = await fetch("/api/current-term");
-        return (await response.json()) as Array<CurrentTerm>;
-      },
-      getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_id}`,
-      autoIndex: "eager",
-    }),
+export const currentTermCollection = collectionOptions("currentTerm", (client) =>
+  queryCollectionOptions({
+    queryKey: ["currentTerm"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
+    queryFn: async () => {
+      const response = await fetch("/api/current-term");
+      return (await response.json()) as Array<CurrentTerm>;
+    },
+    getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_id}`,
+    autoIndex: "eager",
+  }),
 );
