@@ -1,6 +1,7 @@
 import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { useQueryClient } from "@tanstack/react-query";
 import { DbClient } from "@tanstack/react-db";
 
 import appCss from "../styles.css?url";
@@ -8,7 +9,6 @@ import { authQuery } from "@/lib/queries";
 
 // Providers
 import { ThemeProvider } from "@/providers/theme";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface RootRouteContext {
   queryClient: ReturnType<typeof useQueryClient>;
