@@ -2,6 +2,7 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { admitCodes } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchCollection, updateCollectionItem } from "./api";
 
 type AdmitCode = typeof admitCodes.$inferSelect;
 
@@ -9,24 +10,16 @@ export const admitCodesCollection = collectionOptions("admitCodes", (client) =>
   queryCollectionOptions({
     queryKey: ["admitCodes"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch(`/api/data/admit-codes`);
-      return (await response.json()) as Array<AdmitCode>;
-    },
+    queryFn: () => fetchCollection<AdmitCode>("admit-codes"),
     autoIndex: "eager",
     getKey: (admitCode) => admitCode.id,
-    onUpdate: async ({ transaction }) => {
+    onUpdate: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/admit-codes`, {
-            method: "PUT",
-            body: JSON.stringify({
-              id: mutation.original.id,
-              ...mutation.changes,
-            }),
-          }),
+          updateCollectionItem<AdmitCode>("admit-codes", mutation.original, mutation.changes),
         ),
       );
+      await collection.utils.refetch();
     },
   }),
 );

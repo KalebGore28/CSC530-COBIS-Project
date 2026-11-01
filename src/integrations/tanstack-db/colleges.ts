@@ -2,6 +2,7 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { colleges } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchCollection, updateCollectionItem } from "./api";
 
 type College = typeof colleges.$inferSelect;
 
@@ -9,24 +10,16 @@ export const collegesCollection = collectionOptions("colleges", (client) =>
   queryCollectionOptions({
     queryKey: ["colleges"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch(`/api/data/colleges`);
-      return (await response.json()) as Array<College>;
-    },
+    queryFn: () => fetchCollection<College>("colleges"),
     autoIndex: "eager",
     getKey: (college) => college.id,
-    onUpdate: async ({ transaction }) => {
+    onUpdate: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/colleges`, {
-            method: "PUT",
-            body: JSON.stringify({
-              id: mutation.original.id,
-              ...mutation.changes,
-            }),
-          }),
+          updateCollectionItem<College>("colleges", mutation.original, mutation.changes),
         ),
       );
+      await collection.utils.refetch();
     },
   }),
 );
