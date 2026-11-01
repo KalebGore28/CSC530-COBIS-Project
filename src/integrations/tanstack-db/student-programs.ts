@@ -5,19 +5,17 @@ import { QueryClient } from "@tanstack/react-query";
 
 type StudentProgram = typeof studentPrograms.$inferSelect;
 
-export const studentProgramsCollection = collectionOptions(
-  "studentProgram",
-  (client) =>
-    queryCollectionOptions({
-      queryKey: ["studentPrograms"],
-      queryClient: client.requireDependency<QueryClient>("queryClient"),
-      queryFn: async () => {
-        const response = await fetch(`/api/data/student-programs`);
-        return (await response.json()) as Array<StudentProgram>;
-      },
-      autoIndex: "eager",
-      syncMode: "on-demand",
-      getKey: (studentProgram) =>
-        `${studentProgram.mnumber}-${studentProgram.term_id}-${studentProgram.year}-${studentProgram.program_id}`,
-    }),
+export const studentProgramsCollection = collectionOptions("studentProgram", (client) =>
+  queryCollectionOptions({
+    queryKey: ["studentPrograms"],
+    queryClient: client.requireDependency<QueryClient>("queryClient"),
+    queryFn: async () => {
+      const response = await fetch(`/api/data/student-programs`);
+      return (await response.json()) as Array<StudentProgram>;
+    },
+    autoIndex: "eager",
+    syncMode: "on-demand",
+    getKey: (studentProgram) =>
+      `${studentProgram.mnumber}-${studentProgram.term_id}-${studentProgram.year}-${studentProgram.program_id}`,
+  }),
 );
