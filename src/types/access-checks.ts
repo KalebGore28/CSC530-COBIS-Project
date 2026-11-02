@@ -7,6 +7,7 @@
  * - COBIS Administrator: Technically has access to all student data on backend database if they maintain it, but front-end will restrict access unless one of the other roles are present.
  */
 export const ROLES = {
+  FACULTY: "faculty", // This role is not required to be passed in user_roles, as it's determined by course assignments
   INSTRUCTOR: "instructor", // This role is not required to be passed in user_roles, as it's determined by course assignments
   ADVISOR: "advisor", // This role is not required to be passed in user_roles, as it's determined by advisor assignments
   PROGRAM_COORDINATOR: "program_coordinator",
@@ -42,6 +43,18 @@ export const DATA_CATEGORIES = [
   "advisors", // student_advisors
 ] as const;
 
+// The app features a role can be given. Which roles have them is stored in role_capabilities.
+export const CAPABILITIES = [
+  "roster.view",
+  "advisees.view",
+  "dashboard.metrics",
+  "student.lookup",
+  "instructors.view",
+  "enrollment.view",
+  "tools.manage",
+] as const;
+
+export type Capability = (typeof CAPABILITIES)[number];
 export type DataRelationship = (typeof DATA_RELATIONSHIPS)[number];
 export type DataCategory = (typeof DATA_CATEGORIES)[number];
 
