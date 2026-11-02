@@ -45,7 +45,7 @@ export const Route = createFileRoute("/api/__protected/data/users")({
           .update(user)
           .set({
             ...updateData,
-            isEnabled: context.user.mnumber === updatedUser.mnumber ? true : updateData.isEnabled, // prevent disabling self
+            isEnabled: context.user.id === id ? true : updateData.isEnabled, // prevent disabling self
             name: undefined, // prevent updating
             email: undefined, // prevent updating
             emailVerified: undefined, // prevent updating

@@ -182,7 +182,13 @@ export function UserModal({ userId }: UserCardProps) {
                 onClick={() => {
                   const { faculty, department, college, roles, isEnabled } = provisionParams;
 
-                  if (!faculty || !department || !college || !roles || !isEnabled) {
+                  if (
+                    !faculty ||
+                    !department ||
+                    !college ||
+                    !roles ||
+                    typeof isEnabled !== "boolean"
+                  ) {
                     toast.error(
                       "Please select faculty, department, college, roles, and enabled status before provisioning.",
                     );
@@ -193,15 +199,21 @@ export function UserModal({ userId }: UserCardProps) {
 
                   const selfProvisioning = user.mnumber === userSession?.user.mnumber;
 
-                  dbClient.collection(usersCollection).update(user.id, (draft) => {
-                    draft.mnumber = faculty.mnumber || user.mnumber;
-                    draft.isEnabled = selfProvisioning ? true : isEnabled;
-                  });
+                  const transactions: Array<{ when: (state: "settled") => Promise<unknown> }> = [];
 
-                  dbClient.collection(facultyCollection).update(faculty.mnumber, (draft) => {
-                    draft.department_id = department.id || draft.department_id;
-                    draft.college_id = college.id || draft.college_id;
-                  });
+                  transactions.push(
+                    dbClient.collection(usersCollection).update(user.id, (draft) => {
+                      draft.mnumber = faculty.mnumber || user.mnumber;
+                      draft.isEnabled = selfProvisioning ? true : isEnabled;
+                    }),
+                  );
+
+                  transactions.push(
+                    dbClient.collection(facultyCollection).update(faculty.mnumber, (draft) => {
+                      draft.department_id = department.id || draft.department_id;
+                      draft.college_id = college.id || draft.college_id;
+                    }),
+                  );
 
                   // Get current roles for the user to determine which to add and which to remove
                   const currentRoles = userRoleData.map((ur) => ur.role);
@@ -214,39 +226,48 @@ export function UserModal({ userId }: UserCardProps) {
 
                   // Remove all roles associated with the user and then re-add based on selection
                   if (rolesToRemove.length > 0) {
-                    dbClient
-                      .collection(userRolesCollection)
-                      .delete(
-                        rolesToRemove.map(
-                          (role) => `${user.id}-${role.id}`,
-                        ) as Array<`${string}-${number}`>,
-                      );
+                    transactions.push(
+                      dbClient
+                        .collection(userRolesCollection)
+                        .delete(
+                          rolesToRemove.map(
+                            (role) => `${user.id}-${role.id}`,
+                          ) as Array<`${string}-${number}`>,
+                        ),
+                    );
                   }
 
                   // Next add the selected roles
                   if (rolesToAdd.length > 0) {
-                    dbClient.collection(userRolesCollection).insert(
-                      rolesToAdd.map((role) => ({
-                        user_id: user.id,
-                        role_id: role.id,
-                      })) as Array<{
-                        user_id: string;
-                        role_id: number;
-                      }>,
+                    transactions.push(
+                      dbClient.collection(userRolesCollection).insert(
+                        rolesToAdd.map((role) => ({
+                          user_id: user.id,
+                          role_id: role.id,
+                        })) as Array<{
+                          user_id: string;
+                          role_id: number;
+                        }>,
+                      ),
                     );
                   }
 
-                  // If it is a self provision, we need to refresh the app to update the session with new roles and permissions
-                  if (selfProvisioning) {
-                    toast.success(
-                      "Your account has been updated. The app will refresh to apply new permissions.",
-                    );
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 2000);
-                  } else {
-                    toast.success("User provisioned successfully.");
-                  }
+                  // Wait for every save, as a failed one rejects here after its own error toast
+                  Promise.all(transactions.map((transaction) => transaction.when("settled")))
+                    .then(() => {
+                      // If it is a self provision, we need to refresh the app to update the session with new roles and permissions
+                      if (selfProvisioning) {
+                        toast.success(
+                          "Your account has been updated. The app will refresh to apply new permissions.",
+                        );
+                        setTimeout(() => {
+                          window.location.reload();
+                        }, 2000);
+                      } else {
+                        toast.success("User provisioned successfully.");
+                      }
+                    })
+                    .catch(() => undefined);
                 }}
               >
                 Update User
