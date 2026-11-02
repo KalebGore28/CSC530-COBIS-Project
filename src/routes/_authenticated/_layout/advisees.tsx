@@ -2,12 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useCurrentTerm } from "@/providers/current-term-provider";
 import { useAuthentication } from "@/lib/auth-client";
+import { requirePageCapability } from "@/lib/page-guards";
 
 // import { Separator } from '@/components/ui/separator'
 import { AdvisedStudentsCard } from "@/components/advised-students/advised-students-card";
 import { StudentDetailModal } from "@/components/advised-students/student-detail";
 
 export const Route = createFileRoute("/_authenticated/_layout/advisees")({
+  beforeLoad: ({ context }) => {
+    requirePageCapability(context.userSession, "advisees.view");
+  },
   component: RouteComponent,
 });
 

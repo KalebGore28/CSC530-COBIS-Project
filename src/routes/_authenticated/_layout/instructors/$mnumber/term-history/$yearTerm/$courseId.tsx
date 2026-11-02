@@ -1,5 +1,6 @@
-import { createFileRoute, redirect, useNavigate, useParams } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useParams } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
+import { requirePageCapability } from "@/lib/page-guards";
 import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { Button } from "@/components/ui/button";
 
@@ -18,10 +19,7 @@ export const Route = createFileRoute(
   "/_authenticated/_layout/instructors/$mnumber/term-history/$yearTerm/$courseId",
 )({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
-      throw redirect({ to: "/login" });
-    }
+    requirePageCapability(context.userSession, "instructors.view");
   },
   component: RouteComponent,
 });

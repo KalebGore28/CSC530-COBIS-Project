@@ -23,8 +23,8 @@ export const Route = createFileRoute("/api/__protected/data/academic-standing")(
         });
       },
       PUT: async ({ request, context }) => {
-        // Only allow if user is cobis_administrator
-        if (!context.roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 

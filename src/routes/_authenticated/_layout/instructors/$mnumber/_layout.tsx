@@ -1,12 +1,6 @@
-import {
-  Link,
-  Outlet,
-  createFileRoute,
-  redirect,
-  useLocation,
-  useParams,
-} from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation, useParams } from "@tanstack/react-router";
 import { AlertCircle } from "lucide-react";
+import { requirePageCapability } from "@/lib/page-guards";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -55,10 +49,7 @@ function InstructorPageSkeleton() {
 
 export const Route = createFileRoute("/_authenticated/_layout/instructors/$mnumber/_layout")({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
-      throw redirect({ to: "/login" });
-    }
+    requirePageCapability(context.userSession, "instructors.view");
   },
   component: RouteComponent,
 });

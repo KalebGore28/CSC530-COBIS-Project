@@ -21,16 +21,17 @@ export const Route = createFileRoute("/_authenticated/_layout/dashboard/")({
   context: () => ({ getTitle: () => "Dashboard" }),
 });
 
-const gradeDistributionRoles = ["faculty", "department_chair"];
-
 function DashboardPage() {
-  const { userSession } = useAuthentication();
+  const { userSession, can } = useAuthentication();
   const { isLoading } = useCurrentTerm();
   if (!userSession) return null;
 
+  const showMetrics = can("dashboard.metrics");
+  const showAdvisees = can("advisees.view");
+
   return (
     <div className="container mx-auto space-y-6 p-6">
-      {userSession.roles.has("cobis_administrator") && (
+      {can("tools.manage") && (
         <>
           <h1 className="text-2xl font-bold">Maintainence Tools</h1>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -41,18 +42,22 @@ function DashboardPage() {
           <Separator />
         </>
       )}
-      {gradeDistributionRoles.some((role) => userSession.roles.has(role)) && !isLoading && (
+      {(showMetrics || showAdvisees) && !isLoading && (
         <>
           <h1 className="text-2xl font-bold">Performance/Metrics Overview</h1>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <TermGradeDistribution
-              mnumber={userSession.user.mnumber}
-              className="col-span-2"
-              title="Term Grade Distributions"
-              description="View the distribution of class grades over your recent terms. (Each term represents all respective class grades combined)"
-            />
-            <CurrentTermMetricCard mnumber={userSession.user.mnumber} />
-            <AdviseesMetricCard mnumber={userSession.user.mnumber} />
+            {showMetrics && (
+              <>
+                <TermGradeDistribution
+                  mnumber={userSession.user.mnumber}
+                  className="col-span-2"
+                  title="Term Grade Distributions"
+                  description="View the distribution of class grades over your recent terms. (Each term represents all respective class grades combined)"
+                />
+                <CurrentTermMetricCard mnumber={userSession.user.mnumber} />
+              </>
+            )}
+            {showAdvisees && <AdviseesMetricCard mnumber={userSession.user.mnumber} />}
           </div>
 
           <Separator />

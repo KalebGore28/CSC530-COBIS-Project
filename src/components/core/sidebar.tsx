@@ -34,9 +34,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 
 export function AppSidebar() {
   const { open, isMobile } = useSidebar();
-  const { userSession } = useAuthentication();
+  const { userSession, can } = useAuthentication();
   if (!userSession) return null;
-  const roles = userSession.roles;
 
   return (
     <Sidebar collapsible="icon" variant="floating">
@@ -89,51 +88,59 @@ export function AppSidebar() {
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
-            <SidebarMenuItem key="class-roster" className="text-nowrap">
-              <SidebarMenuButton tooltip="Class Roster" className="p-1" asChild>
-                <Link to="/class-roster" className="flex h-full w-full items-center gap-2">
-                  <Clipboard />
-                  Class Roster
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem key="advisor-page" className="text-nowrap">
-              <SidebarMenuButton tooltip={"Advisor Page"} className="p-1" asChild>
-                <Link to="/advisees" className="flex h-full w-full items-center gap-2">
-                  <BookUser />
-                  Advisees
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {can("roster.view") && (
+              <SidebarMenuItem key="class-roster" className="text-nowrap">
+                <SidebarMenuButton tooltip="Class Roster" className="p-1" asChild>
+                  <Link to="/class-roster" className="flex h-full w-full items-center gap-2">
+                    <Clipboard />
+                    Class Roster
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {can("advisees.view") && (
+              <SidebarMenuItem key="advisor-page" className="text-nowrap">
+                <SidebarMenuButton tooltip={"Advisor Page"} className="p-1" asChild>
+                  <Link to="/advisees" className="flex h-full w-full items-center gap-2">
+                    <BookUser />
+                    Advisees
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
           </SidebarMenu>
         </SidebarGroup>
-        {roles.has("department_chair") && (
+        {(can("student.lookup") || can("instructors.view")) && (
           <SidebarGroup>
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
             <SidebarMenu>
-              <SidebarMenuItem
-                key="student-lookup"
-                className="flex items-center justify-between text-nowrap"
-              >
-                <SidebarMenuButton tooltip="Student Lookup" className="p-1" asChild>
-                  <Link to="/student-lookup" className="flex h-full w-full items-center gap-2">
-                    <ScanSearch />
-                    Student Lookup
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="instructors" className="text-nowrap">
-                <SidebarMenuButton tooltip="Instructors" className="p-1" asChild>
-                  <Link to="/instructors" className="flex h-full w-full items-center gap-2">
-                    <PersonStanding />
-                    Instructors
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {can("student.lookup") && (
+                <SidebarMenuItem
+                  key="student-lookup"
+                  className="flex items-center justify-between text-nowrap"
+                >
+                  <SidebarMenuButton tooltip="Student Lookup" className="p-1" asChild>
+                    <Link to="/student-lookup" className="flex h-full w-full items-center gap-2">
+                      <ScanSearch />
+                      Student Lookup
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
+              {can("instructors.view") && (
+                <SidebarMenuItem key="instructors" className="text-nowrap">
+                  <SidebarMenuButton tooltip="Instructors" className="p-1" asChild>
+                    <Link to="/instructors" className="flex h-full w-full items-center gap-2">
+                      <PersonStanding />
+                      Instructors
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroup>
         )}
-        {(roles.has("department_chair") || roles.has("admin_assistant")) && (
+        {can("enrollment.view") && (
           <SidebarGroup>
             <SidebarGroupLabel>Metrics</SidebarGroupLabel>
             <SidebarMenu>
@@ -177,7 +184,7 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroup>
         )}
-        {roles.has("cobis_administrator") && (
+        {can("tools.manage") && (
           <SidebarGroup>
             <SidebarGroupLabel>Maintenance</SidebarGroupLabel>
             <SidebarMenu>

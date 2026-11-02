@@ -4,7 +4,12 @@ import { and, desc, eq, exists, gt, gte, lt, lte, ne, notExists, or } from "driz
 import * as z from "zod";
 import type { SQLWrapper } from "drizzle-orm";
 import { studentAcademicInfo, studentCourses, studentPrograms, students } from "@/db/schema";
-import { getStudentAccessLevel } from "@/utils/get-student-access-level";
+import {
+  STUDENT_ACADEMIC_INFO_ROW,
+  STUDENT_COURSE_ROW,
+  STUDENT_PROGRAM_ROW,
+  STUDENT_ROW,
+} from "@/utils/data-access";
 
 // Custom Boolean Coercion because of Javascript's truthy coercion of strings
 const booleanCoercion = z
@@ -48,7 +53,7 @@ export const searchParamsSchema = z
     course_id: z.string().optional(),
     taken: booleanCoercion,
     grade: z.enum(allowedGrades).optional(),
-    operator: z.string().optional(),
+    operator: z.enum(["EQ", "NE", "LT", "LTE", "GT", "GTE"]).optional(),
 
     offset: z.coerce.number().min(0).optional(),
     limit: z.coerce.number().min(1).max(1000).optional(),
@@ -121,6 +126,10 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
   server: {
     handlers: {
       GET: async ({ request, context }) => {
+        if (!context.capabilities.has("student.lookup")) {
+          return new Response("Forbidden", { status: 403 });
+        }
+
         const params = new URL(request.url).searchParams;
 
         const errors: Array<string> = [];
@@ -143,16 +152,23 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
           });
         }
 
+        const { access } = context;
+
         // Build where clauses based on filters
-        const whereClauses: Array<SQLWrapper> = [];
+        // Each filter below only looks at rows the user can see. Otherwise, whether a student
+        // comes back would reveal a GPA or grade the user isn't allowed to see.
+        const whereClauses: Array<SQLWrapper> = [access.canSee("identity", STUDENT_ROW)];
+
+        // These all apply to the same academic info row
+        const academicInfoWhere: Array<SQLWrapper> = [];
 
         // GPA filters
         if (parsed.data.gpaMin !== undefined) {
-          whereClauses.push(gte(studentAcademicInfo.overall_gpa, parsed.data.gpaMin));
+          academicInfoWhere.push(gte(studentAcademicInfo.overall_gpa, parsed.data.gpaMin));
         }
 
         if (parsed.data.gpaMax !== undefined) {
-          whereClauses.push(lte(studentAcademicInfo.overall_gpa, parsed.data.gpaMax));
+          academicInfoWhere.push(lte(studentAcademicInfo.overall_gpa, parsed.data.gpaMax));
         }
 
         // First get the latest year and term_code found in the student_academic_info table
@@ -202,7 +218,7 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
           const validLevelClauses = levelClauses.filter((clause) => clause !== undefined);
           if (validLevelClauses.length > 0) {
             // Enforce the latest year and term data
-            whereClauses.push(
+            academicInfoWhere.push(
               // @ts-ignore ignore for now
               and(
                 or(...validLevelClauses),
@@ -213,12 +229,31 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
           }
         }
 
+        if (academicInfoWhere.length > 0) {
+          whereClauses.push(
+            exists(
+              context.db
+                .select()
+                .from(studentAcademicInfo)
+                .where(
+                  and(
+                    eq(studentAcademicInfo.mnumber, students.mnumber),
+                    access.canSee("academic_info", STUDENT_ACADEMIC_INFO_ROW),
+                    ...academicInfoWhere,
+                  ),
+                )
+                .limit(1),
+            ),
+          );
+        }
+
         // Program filters
         if (parsed.data.program_id) {
           // We need to create a subquery to filter students in the specified program
           const progWhere: Array<SQLWrapper> = [
             eq(studentPrograms.mnumber, students.mnumber),
             eq(studentPrograms.program_id, parsed.data.program_id),
+            access.canSee("programs", STUDENT_PROGRAM_ROW),
           ];
 
           if (parsed.data.is_major) {
@@ -275,7 +310,7 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
                 throw new Error(`Unknown comparison operator: ${operator}`);
             }
 
-            courseWhere.push(gradeCondition);
+            courseWhere.push(gradeCondition, access.canSee("grades", STUDENT_COURSE_ROW));
 
             whereClauses.push(
               exists(
@@ -287,7 +322,9 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
               ),
             );
           } else {
-            // If not taken, we want to ensure no records exist for this student and course
+            // If not taken, we want to ensure no records the user can see exist for this student and course
+            courseWhere.push(access.canSee("courses", STUDENT_COURSE_ROW));
+
             whereClauses.push(
               notExists(
                 context.db
@@ -300,8 +337,6 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
           }
         }
 
-        const finalWhere = whereClauses.length ? and(...whereClauses) : undefined;
-
         const results = await context.db
           .select({
             mnumber: students.mnumber,
@@ -310,30 +345,16 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
             email: students.email,
           })
           .from(students)
-          .leftJoin(studentAcademicInfo, eq(students.mnumber, studentAcademicInfo.mnumber))
-          .leftJoin(studentPrograms, eq(students.mnumber, studentPrograms.mnumber))
-          .leftJoin(studentCourses, eq(students.mnumber, studentCourses.mnumber))
-          .where(finalWhere)
-          .groupBy(students.mnumber)
+          .where(and(...whereClauses))
+          .orderBy(students.mnumber) // Keeps offset pages from overlapping
           .offset(parsed.data.offset || 0)
           .limit(parsed.data.limit || 100);
 
-        // Apply student access restrictions based on roles
-        const studentMnumbers = await getStudentAccessLevel(
-          context.user.mnumber,
-          context.roles,
-          context.faculty.department_id || "",
-        );
-
-        const finalResults = results.filter((student) =>
-          studentMnumbers.students.has(student.mnumber),
-        );
-
         // Figure out if we have a next cursor
-        const hasMore = finalResults.length === (parsed.data.limit || 100);
+        const hasMore = results.length === (parsed.data.limit || 100);
 
         const json = JSON.stringify({
-          students: finalResults,
+          students: results,
           errors: errors.length ? errors : undefined,
           nextCursor: hasMore ? (parsed.data.offset || 0) + (parsed.data.limit || 100) : undefined,
         });

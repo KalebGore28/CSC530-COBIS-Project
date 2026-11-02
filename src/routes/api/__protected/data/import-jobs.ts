@@ -7,6 +7,11 @@ export const Route = createFileRoute("/api/__protected/data/import-jobs")({
   server: {
     handlers: {
       GET: async ({ context }) => {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
+          return new Response("Forbidden", { status: 403 });
+        }
+
         // Get all import jobs ordered by most recent first
         const jobs = await context.db.select().from(importJobs).orderBy(desc(importJobs.createdAt));
 

@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import type { SelectedCourse, SelectedTerm } from "@/components/selectors/term-course-selector";
 import { useAuthentication } from "@/lib/auth-client";
+import { requirePageCapability } from "@/lib/page-guards";
 
 import { studentsCollection } from "@/integrations/tanstack-db/students";
 import { termsCollection } from "@/integrations/tanstack-db/terms";
@@ -18,6 +19,8 @@ import { TermCourseSelector } from "@/components/selectors/term-course-selector"
 
 export const Route = createFileRoute("/_authenticated/_layout/class-roster")({
   beforeLoad: ({ context }) => {
+    requirePageCapability(context.userSession, "roster.view");
+
     const dbClient = context.dbClient;
     void dbClient.collection(termsCollection).preload();
     void dbClient.collection(coursesCollection).preload();

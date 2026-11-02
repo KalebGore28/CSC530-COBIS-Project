@@ -1,13 +1,11 @@
-import { Link, Outlet, createFileRoute, redirect, useLocation } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
+import { requirePageCapability } from "@/lib/page-guards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/_layout/enrollment/_layout")({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || (!roles.has("department_chair") && !roles.has("admin_assistant"))) {
-      throw redirect({ to: "/login" });
-    }
+    requirePageCapability(context.userSession, "enrollment.view");
   },
   component: RouteComponent,
 });
