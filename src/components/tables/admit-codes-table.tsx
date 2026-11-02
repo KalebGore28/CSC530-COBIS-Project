@@ -1,5 +1,6 @@
 import { EditableDataTable } from "./editable-data-table";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { EditableColumnDef } from "./editable-data-table";
+import { useDbClient } from "@tanstack/react-db";
 import type { admitCodes } from "@/db/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -7,7 +8,7 @@ type AdmitCodes = typeof admitCodes.$inferSelect;
 
 import { admitCodesCollection } from "@/integrations/tanstack-db/admit-codes";
 
-const columns: Array<ColumnDef<AdmitCodes>> = [
+const columns: Array<EditableColumnDef<AdmitCodes>> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -48,6 +49,8 @@ export function AdmitCodesTable({
   filterColumn: string | undefined;
   filterValue: string | undefined;
 }) {
+  const collection = useDbClient().collection(admitCodesCollection);
+
   return (
     <EditableDataTable
       columns={columns}
@@ -56,7 +59,7 @@ export function AdmitCodesTable({
       initialFilterValue={filterValue}
       onBulkEdit={(selectedIds, _column, value) => {
         // Update all selected rows
-        admitCodesCollection.update(selectedIds, (drafts) => {
+        collection.update(selectedIds, (drafts) => {
           drafts.forEach((draft) => {
             draft.description = value;
           });

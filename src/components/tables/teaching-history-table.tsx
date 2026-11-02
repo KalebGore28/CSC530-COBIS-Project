@@ -1,6 +1,6 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import type { JSX } from "react";
 import { DataTable } from "@/components/tables/data-table";
+import type { DataTableColumnDef } from "@/components/tables/data-table";
 
 type TeachingHistory = {
   term: string;
@@ -10,7 +10,7 @@ type TeachingHistory = {
   action: JSX.Element;
 };
 
-const columns: Array<ColumnDef<TeachingHistory>> = [
+const columns: Array<DataTableColumnDef<TeachingHistory>> = [
   {
     accessorKey: "term",
     header: "Term",

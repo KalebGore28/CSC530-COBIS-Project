@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { eq, useDbClient, useLiveQuery } from "@tanstack/react-db";
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import type { colleges, departments, faculty, roles, user } from "@/db/schema";
 import { CollegeSelector } from "@/components/selectors/college-selector";
@@ -46,6 +46,7 @@ type UserCardProps = {
 
 export function UserModal({ userId }: UserCardProps) {
   const { userSession } = useAuthentication();
+  const dbClient = useDbClient();
   const [provisionParams, setProvisionParams] = useState<ProvisionState | undefined>(undefined);
 
   const { data: user, isLoading } = useLiveQuery(
@@ -192,12 +193,12 @@ export function UserModal({ userId }: UserCardProps) {
 
                   const selfProvisioning = user.mnumber === userSession?.user.mnumber;
 
-                  usersCollection.update(user.id, (draft) => {
+                  dbClient.collection(usersCollection).update(user.id, (draft) => {
                     draft.mnumber = faculty.mnumber || user.mnumber;
                     draft.isEnabled = selfProvisioning ? true : isEnabled;
                   });
 
-                  facultyCollection.update(faculty.mnumber, (draft) => {
+                  dbClient.collection(facultyCollection).update(faculty.mnumber, (draft) => {
                     draft.department_id = department.id || draft.department_id;
                     draft.college_id = college.id || draft.college_id;
                   });
@@ -213,16 +214,18 @@ export function UserModal({ userId }: UserCardProps) {
 
                   // Remove all roles associated with the user and then re-add based on selection
                   if (rolesToRemove.length > 0) {
-                    userRolesCollection.delete(
-                      rolesToRemove.map(
-                        (role) => `${user.id}-${role.id}`,
-                      ) as Array<`${string}-${number}`>,
-                    );
+                    dbClient
+                      .collection(userRolesCollection)
+                      .delete(
+                        rolesToRemove.map(
+                          (role) => `${user.id}-${role.id}`,
+                        ) as Array<`${string}-${number}`>,
+                      );
                   }
 
                   // Next add the selected roles
                   if (rolesToAdd.length > 0) {
-                    userRolesCollection.insert(
+                    dbClient.collection(userRolesCollection).insert(
                       rolesToAdd.map((role) => ({
                         user_id: user.id,
                         role_id: role.id,

@@ -2,16 +2,23 @@ import * as React from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
+  type ColumnVisibilityState,
   type PaginationState,
+  type RowData,
   type RowSelectionState,
   type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  createFilteredRowModel,
+  createPaginatedRowModel,
+  createSortedRowModel,
+  filterFns,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  sortFns,
+  tableFeatures,
+  useTable,
 } from "@tanstack/react-table";
 import {
   ArrowDownAZ,
@@ -55,8 +62,23 @@ import { Separator } from "../ui/separator";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 
-interface DataTableProps<TData> {
-  columns: ColumnDef<TData>[];
+const features = tableFeatures({
+  columnFilteringFeature,
+  columnVisibilityFeature,
+  rowPaginationFeature,
+  rowSelectionFeature,
+  rowSortingFeature,
+  filteredRowModel: createFilteredRowModel(),
+  paginatedRowModel: createPaginatedRowModel(),
+  sortedRowModel: createSortedRowModel(),
+  filterFns,
+  sortFns,
+});
+
+export type EditableColumnDef<TData extends RowData> = ColumnDef<typeof features, TData>;
+
+interface DataTableProps<TData extends RowData> {
+  columns: EditableColumnDef<TData>[];
   data: TData[];
   initialFilterColumn?: string;
   initialFilterValue?: string;
@@ -64,7 +86,7 @@ interface DataTableProps<TData> {
   excludeFromBulkEdit?: string[];
 }
 
-export function EditableDataTable<TData>({
+export function EditableDataTable<TData extends RowData>({
   columns,
   data,
   initialFilterColumn,
@@ -79,7 +101,7 @@ export function EditableDataTable<TData>({
     }
     return [];
   });
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnVisibility, setColumnVisibility] = React.useState<ColumnVisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState<RowSelectionState>({});
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
@@ -98,16 +120,13 @@ export function EditableDataTable<TData>({
   const [bulkEditColumn, setBulkEditColumn] = React.useState<string>("");
   const [bulkEditValue, setBulkEditValue] = React.useState<string>("");
 
-  const table = useReactTable({
+  const table = useTable({
+    features,
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     enableRowSelection: true,
@@ -442,8 +461,7 @@ export function EditableDataTable<TData>({
             </SelectContent>
           </Select>
           <div className="text-muted-foreground text-sm">
-            Showing {table.getState().pagination.pageSize} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s)
+            Showing {pagination.pageSize} of {table.getFilteredRowModel().rows.length} row(s)
           </div>
         </div>
       </div>
@@ -457,9 +475,7 @@ export function EditableDataTable<TData>({
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id} className="font-semibold">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
+                      {header.isPlaceholder ? null : <table.FlexRender header={header} />}
                     </TableHead>
                   );
                 })}
@@ -476,7 +492,7 @@ export function EditableDataTable<TData>({
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      <table.FlexRender cell={cell} />
                     </TableCell>
                   ))}
                 </TableRow>
@@ -495,7 +511,7 @@ export function EditableDataTable<TData>({
       {/* Pagination Controls */}
       <div className="bg-card flex items-center justify-between rounded-lg border p-4 shadow-sm">
         <div className="text-muted-foreground text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+          Page {pagination.pageIndex + 1} of {table.getPageCount()}
         </div>
         <div className="flex items-center gap-2">
           <Button

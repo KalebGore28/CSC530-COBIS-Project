@@ -1,5 +1,6 @@
 import { EditableDataTable } from "./editable-data-table";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { EditableColumnDef } from "./editable-data-table";
+import { useDbClient } from "@tanstack/react-db";
 import type { registrationStatus } from "@/db/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -7,7 +8,7 @@ type RegistrationStatus = typeof registrationStatus.$inferSelect;
 
 import { registrationStatusCollection } from "@/integrations/tanstack-db/registration-status";
 
-const columns: Array<ColumnDef<RegistrationStatus>> = [
+const columns: Array<EditableColumnDef<RegistrationStatus>> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -48,6 +49,8 @@ export function RegistrationStatusTable({
   filterColumn: string | undefined;
   filterValue: string | undefined;
 }) {
+  const collection = useDbClient().collection(registrationStatusCollection);
+
   return (
     <EditableDataTable
       columns={columns}
@@ -56,7 +59,7 @@ export function RegistrationStatusTable({
       initialFilterValue={filterValue}
       onBulkEdit={(selectedIds, _column, value) => {
         // Update all selected rows
-        registrationStatusCollection.update(selectedIds, (drafts) => {
+        collection.update(selectedIds, (drafts) => {
           drafts.forEach((draft) => {
             draft.description = value;
           });

@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/tables/data-table";
+import type { DataTableColumnDef } from "@/components/tables/data-table";
 
 export type StudentLookup = {
   mnumber: string;
@@ -8,7 +8,7 @@ export type StudentLookup = {
   email: string;
 };
 
-const columns: Array<ColumnDef<StudentLookup>> = [
+const columns: Array<DataTableColumnDef<StudentLookup>> = [
   {
     accessorKey: "mnumber",
     header: "MNumber",
