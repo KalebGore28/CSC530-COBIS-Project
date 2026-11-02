@@ -10,8 +10,9 @@ import { useAuthentication } from "@/lib/auth-client";
 import { programsCollection } from "@/integrations/tanstack-db/programs";
 
 export const Route = createFileRoute("/_authenticated/_layout/enrollment/_layout/programs")({
-  beforeLoad: () => {
-    void programsCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(programsCollection).preload();
   },
   component: RouteComponent,
 });

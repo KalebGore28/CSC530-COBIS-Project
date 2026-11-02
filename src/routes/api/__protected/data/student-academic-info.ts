@@ -1,41 +1,34 @@
 import { gzipSync } from "node:zlib";
 import { createFileRoute } from "@tanstack/react-router";
-import { inArray } from "drizzle-orm";
+import { and } from "drizzle-orm";
 import { studentAcademicInfo } from "@/db/schema";
-import { createAccessKey, getStudentAccessLevel } from "@/utils/get-student-access-level";
+import { STUDENT_ACADEMIC_INFO_ROW } from "@/utils/data-access";
+import { buildSubsetWhere, readSubsetFilters } from "@/utils/subset-filters";
+
+const FILTERABLE_COLUMNS = {
+  mnumber: studentAcademicInfo.mnumber,
+  term_id: studentAcademicInfo.term_id,
+  year: studentAcademicInfo.year,
+};
 
 export const Route = createFileRoute("/api/__protected/data/student-academic-info")({
   server: {
     handlers: {
-      GET: async ({ context }) => {
-        // Get student access restrictions based on roles
-        const studentMnumbers = await getStudentAccessLevel(
-          context.user.mnumber,
-          context.roles,
-          context.faculty.department_id || "",
-        );
+      POST: async ({ request, context }) => {
+        const filters = await readSubsetFilters(request);
+        if (!filters) return new Response("Invalid filters", { status: 400 });
 
         const results = await context.db
           .select()
           .from(studentAcademicInfo)
-          // Immediately filter out students with no access
-          .where(inArray(studentAcademicInfo.mnumber, Array.from(studentMnumbers.students)));
+          .where(
+            and(
+              context.access.canSee("academic_info", STUDENT_ACADEMIC_INFO_ROW),
+              ...buildSubsetWhere(filters, FILTERABLE_COLUMNS),
+            ),
+          );
 
-        const finalResults: typeof results = [];
-        for (const student of results) {
-          const studentCacheKey = createAccessKey(student.mnumber, student.year, student.term_id);
-
-          const accessData = studentMnumbers.terms.get(studentCacheKey);
-          if (!accessData) continue;
-
-          // Only users with full access can see student academic info
-          if (accessData.accessLevel === "limited" || accessData.accessLevel === "course_scoped")
-            continue;
-
-          finalResults.push(student);
-        }
-
-        const json = JSON.stringify(finalResults);
+        const json = JSON.stringify(results);
         const compressed = gzipSync(Buffer.from(json));
 
         return new Response(compressed, {

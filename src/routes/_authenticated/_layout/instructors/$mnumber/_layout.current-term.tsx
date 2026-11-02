@@ -66,8 +66,9 @@ function SelectedTermTableSkeleton() {
 export const Route = createFileRoute(
   "/_authenticated/_layout/instructors/$mnumber/_layout/current-term",
 )({
-  beforeLoad: () => {
-    void coursesCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(coursesCollection).preload();
   },
   component: RouteComponent,
 });

@@ -79,6 +79,7 @@ function RouteComponent() {
         term_description: term?.description,
         midterm_grade: studentCourse.midterm_grade,
         final_grade: studentCourse.final_grade,
+        grades_visible: studentCourse.grades_visible,
         last_attendance: studentCourse.last_attendance,
       })),
   );

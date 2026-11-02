@@ -32,8 +32,9 @@ export const Route = createFileRoute("/_authenticated/_layout/student-lookup")({
     if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
       throw redirect({ to: "/login" });
     }
-    void programsCollection.preload();
-    void coursesCollection.preload();
+    const dbClient = context.dbClient;
+    void dbClient.collection(programsCollection).preload();
+    void dbClient.collection(coursesCollection).preload();
   },
   component: StudentLookup,
 });

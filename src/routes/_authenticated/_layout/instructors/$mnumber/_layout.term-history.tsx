@@ -58,8 +58,9 @@ function TermHistoryTableSkeleton() {
 export const Route = createFileRoute(
   "/_authenticated/_layout/instructors/$mnumber/_layout/term-history",
 )({
-  beforeLoad: () => {
-    void termsCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(termsCollection).preload();
   },
   component: RouteComponent,
 });

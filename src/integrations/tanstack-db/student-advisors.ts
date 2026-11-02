@@ -2,6 +2,7 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { studentAdvisors } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { fetchCollectionSubset } from "./api";
 
 type StudentAdvisor = typeof studentAdvisors.$inferSelect;
 
@@ -9,10 +10,7 @@ export const studentAdvisorsCollection = collectionOptions("studentAdvisor", (cl
   queryCollectionOptions({
     queryKey: ["studentAdvisors"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
-    queryFn: async () => {
-      const response = await fetch(`/api/data/student-advisors`);
-      return (await response.json()) as Array<StudentAdvisor>;
-    },
+    queryFn: (context) => fetchCollectionSubset<StudentAdvisor>("student-advisors", context),
     syncMode: "on-demand",
     getKey: (studentAdvisor) =>
       `${studentAdvisor.mnumber}-${studentAdvisor.term_id}-${studentAdvisor.year}`,

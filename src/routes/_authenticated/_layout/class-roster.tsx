@@ -17,9 +17,10 @@ import { RosterStudents } from "@/components/roster/roster-students";
 import { TermCourseSelector } from "@/components/selectors/term-course-selector";
 
 export const Route = createFileRoute("/_authenticated/_layout/class-roster")({
-  beforeLoad: () => {
-    void termsCollection.preload();
-    void coursesCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(termsCollection).preload();
+    void dbClient.collection(coursesCollection).preload();
   },
   component: ClassRosterPage,
 });
@@ -56,6 +57,7 @@ function ClassRosterPage() {
         term_description: term?.description,
         midterm_grade: studentCourse.midterm_grade,
         final_grade: studentCourse.final_grade,
+        grades_visible: studentCourse.grades_visible,
         last_attendance: studentCourse.last_attendance,
       })),
   );
