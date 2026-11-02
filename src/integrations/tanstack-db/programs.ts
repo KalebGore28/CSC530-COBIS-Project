@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { programs } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const programsCollection = collectionOptions("program", (client) =>
   queryCollectionOptions({
     queryKey: ["program"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<Program>("programs"),
     getKey: (program) => program.id,
     onUpdate: async ({ transaction, collection }) => {

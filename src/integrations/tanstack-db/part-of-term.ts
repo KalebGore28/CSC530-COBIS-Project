@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { partOfTerm } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const partOfTermCollection = collectionOptions("partOfTerm", (client) =>
   queryCollectionOptions({
     queryKey: ["partOfTerm"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<PartOfTerm>("part-of-term"),
     getKey: (partOfTerm) => partOfTerm.id,
     onUpdate: async ({ transaction, collection }) => {

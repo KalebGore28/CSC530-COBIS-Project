@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { roleDataAccess } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const roleDataAccessCollection = collectionOptions("roleDataAccess", (cli
   queryCollectionOptions({
     queryKey: ["role-data-access"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<RoleDataAccess>("role-data-access"),
     getKey: (row) => `${row.role_id}-${row.relationship}-${row.category}`,
     onInsert: async ({ transaction, collection }) => {

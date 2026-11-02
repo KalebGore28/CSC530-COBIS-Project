@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { studentAcademicInfo } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const studentAcademicInfoCollection = collectionOptions("studentAcademicI
   queryCollectionOptions({
     queryKey: ["studentAcademicInfo"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: (context) =>
       fetchCollectionSubset<StudentAcademicInfo>("student-academic-info", context),
     syncMode: "on-demand",

@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { terms } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -9,6 +9,8 @@ export const termsCollection = collectionOptions("term", (client) =>
   queryCollectionOptions({
     queryKey: ["terms"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: async () => {
       const response = await fetch(`/api/data/terms`);
       return (await response.json()) as Array<Term>;

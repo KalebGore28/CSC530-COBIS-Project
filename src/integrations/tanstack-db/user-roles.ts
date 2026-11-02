@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { userRoles } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const userRolesCollection = collectionOptions("userRole", (client) =>
   queryCollectionOptions({
     queryKey: ["user-roles"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: async () => {
       const response = await fetch(`/api/data/user-roles`);
       return (await response.json()) as Array<UserRole>;
