@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { importJobsCollection } from "@/integrations/tanstack-db/import-jobs";
+import { GoBackButton } from "@/components/common/go-back-button";
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import/history")({
   component: ImportHistoryPage,
@@ -85,9 +86,9 @@ function ImportHistoryPage() {
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate({ to: "/cobis-tools/import" })}>
+        <GoBackButton fallback={{ to: "/cobis-tools/import" }} variant="ghost" size="icon">
           <ArrowLeft className="h-5 w-5" />
-        </Button>
+        </GoBackButton>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Import History</h1>
           <p className="text-muted-foreground">View all previous CSV imports</p>

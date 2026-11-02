@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useCanGoBack, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft, CheckCircle2, XCircle, AlertCircle, Download, Loader2Icon } from "lucide-react";
 
@@ -15,6 +15,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+
+import { GoBackButton } from "@/components/common/go-back-button";
 import { importProgressQuery } from "@/lib/import-progress";
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import/$id/progress")({
@@ -24,9 +26,6 @@ export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import
 function ImportProgressPage() {
   const { id: importId } = Route.useParams();
   const navigate = useNavigate();
-
-  const router = useRouter();
-  const canGoBack = useCanGoBack();
 
   const { data: progress, isLoading } = useQuery(importProgressQuery(importId));
 
@@ -97,19 +96,9 @@ function ImportProgressPage() {
     <div className="container mx-auto max-w-5xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => {
-            if (canGoBack) {
-              router.history.back();
-            } else {
-              void navigate({ to: "/cobis-tools/import" });
-            }
-          }}
-        >
+        <GoBackButton fallback={{ to: "/cobis-tools/import" }} variant="ghost" size="icon">
           <ArrowLeft className="h-5 w-5" />
-        </Button>
+        </GoBackButton>
 
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Import Progress</h1>

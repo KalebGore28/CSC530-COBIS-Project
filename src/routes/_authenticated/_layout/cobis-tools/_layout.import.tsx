@@ -11,6 +11,7 @@ import { CheckCircle2, XCircle, Upload, ArrowRight, History } from "lucide-react
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/import")({
   component: ImportPage,
+  context: () => ({ getTitle: () => "Import" }),
 });
 
 function ImportPage() {
