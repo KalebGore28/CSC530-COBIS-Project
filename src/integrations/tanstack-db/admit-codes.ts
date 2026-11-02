@@ -1,4 +1,4 @@
-import { collectionOptions } from "@tanstack/react-db";
+import { BasicIndex, collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { admitCodes } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
@@ -10,6 +10,8 @@ export const admitCodesCollection = collectionOptions("admitCodes", (client) =>
   queryCollectionOptions({
     queryKey: ["admitCodes"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    autoIndex: "eager",
+    defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<AdmitCode>("admit-codes"),
     getKey: (admitCode) => admitCode.id,
     onUpdate: async ({ transaction, collection }) => {
