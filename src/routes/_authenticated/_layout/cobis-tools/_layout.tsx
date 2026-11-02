@@ -27,6 +27,9 @@ function RouteComponent() {
               <TabsTrigger value="users">
                 <Link to="/cobis-tools/users">Users</Link>
               </TabsTrigger>
+              <TabsTrigger value="permissions">
+                <Link to="/cobis-tools/permissions">Permissions</Link>
+              </TabsTrigger>
               <TabsTrigger value="manage-tables">
                 <Link to="/cobis-tools/manage-tables">Manage Tables</Link>
               </TabsTrigger>

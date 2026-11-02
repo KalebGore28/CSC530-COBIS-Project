@@ -19,6 +19,7 @@ export const departmentsCollection = collectionOptions("departments", (client) =
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

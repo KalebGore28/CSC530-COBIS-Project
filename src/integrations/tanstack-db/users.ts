@@ -19,6 +19,7 @@ export const usersCollection = collectionOptions("user", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

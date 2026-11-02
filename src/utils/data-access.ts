@@ -15,7 +15,7 @@ import {
   studentPrograms,
   students,
 } from "@/db/schema";
-import { CAPABILITIES, ROLES } from "@/types/access-checks";
+import { CAPABILITIES, ROLES, isCategoryLockedForRole } from "@/types/access-checks";
 
 type Db = ReturnType<typeof getDb>;
 
@@ -251,14 +251,6 @@ export async function getEffectiveRoles(
   return effectiveRoles;
 }
 
-// FERPA: an admin assistant's department access can never include these, whatever role_data_access says.
-// Their own classes and advisees still work, since those come through the faculty and advisor roles.
-const ADMIN_ASSISTANT_BLOCKED_CATEGORIES = new Set<DataCategory>([
-  "grades",
-  "academic_info",
-  "attendance",
-]);
-
 export async function loadDataGrants(db: Db, effectiveRoles: Set<string>): Promise<DataGrants> {
   const grants: DataGrants = new Map();
   if (effectiveRoles.size === 0) return grants;
@@ -274,9 +266,7 @@ export async function loadDataGrants(db: Db, effectiveRoles: Set<string>): Promi
     .where(inArray(roles.name, Array.from(effectiveRoles)));
 
   for (const { roleName, relationship, category } of rows) {
-    if (roleName === ROLES.ADMIN_ASSISTANT && ADMIN_ASSISTANT_BLOCKED_CATEGORIES.has(category)) {
-      continue;
-    }
+    if (isCategoryLockedForRole(roleName, category)) continue;
 
     const relationships = grants.get(category) ?? new Set<DataRelationship>();
     relationships.add(relationship);

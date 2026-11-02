@@ -2,6 +2,7 @@ import { collectionOptions } from "@tanstack/react-db";
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { userRoles } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
+import { insertCollectionItem, deleteCollectionItem } from "./api";
 
 type UserRole = typeof userRoles.$inferSelect;
 
@@ -14,25 +15,23 @@ export const userRolesCollection = collectionOptions("userRole", (client) =>
       return (await response.json()) as Array<UserRole>;
     },
     getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
-    onInsert: async ({ transaction }) => {
+    onInsert: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/user-roles`, {
-            method: "POST",
-            body: JSON.stringify(mutation.modified),
-          }),
+          insertCollectionItem<UserRole>("user-roles", mutation.modified),
         ),
       );
+      await collection.utils.refetch();
+      return { refetch: false };
     },
-    onDelete: async ({ transaction }) => {
+    onDelete: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>
-          fetch(`/api/data/user-roles`, {
-            method: "DELETE",
-            body: JSON.stringify(mutation.original),
-          }),
+          deleteCollectionItem<UserRole>("user-roles", mutation.original),
         ),
       );
+      await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

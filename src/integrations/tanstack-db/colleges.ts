@@ -19,6 +19,7 @@ export const collegesCollection = collectionOptions("colleges", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

@@ -58,6 +58,25 @@ export type Capability = (typeof CAPABILITIES)[number];
 export type DataRelationship = (typeof DATA_RELATIONSHIPS)[number];
 export type DataCategory = (typeof DATA_CATEGORIES)[number];
 
+// FERPA: an admin assistant's department access can never include these, whatever role_data_access says.
+// Their own classes and advisees still work, since those come through the faculty and advisor roles.
+const ADMIN_ASSISTANT_BLOCKED_CATEGORIES: ReadonlyArray<DataCategory> = [
+  "grades",
+  "academic_info",
+  "attendance",
+];
+
+export function isCategoryLockedForRole(roleName: string, category: DataCategory) {
+  return (
+    roleName === ROLES.ADMIN_ASSISTANT && ADMIN_ASSISTANT_BLOCKED_CATEGORIES.includes(category)
+  );
+}
+
+// Removing this would leave nobody able to open the permissions page to put it back.
+export function isCapabilityLockedForRole(roleName: string, capability: Capability) {
+  return roleName === ROLES.COBIS_ADMINISTRATOR && capability === "tools.manage";
+}
+
 export const ACCESS_LEVELS = {
   LIMITED: "limited", // Basic Student Info Only. No grades or GPAs
   COURSE_SCOPED: "course_scoped", // Access to specific student course grades, no GPA access

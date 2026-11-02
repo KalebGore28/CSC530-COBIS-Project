@@ -23,6 +23,7 @@ export const instructionalMethodsCollection = collectionOptions("instructionalMe
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

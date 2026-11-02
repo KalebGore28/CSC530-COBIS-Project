@@ -23,6 +23,7 @@ export const registrationStatusCollection = collectionOptions("registrationStatu
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

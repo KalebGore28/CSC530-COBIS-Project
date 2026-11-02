@@ -19,6 +19,7 @@ export const programsCollection = collectionOptions("program", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

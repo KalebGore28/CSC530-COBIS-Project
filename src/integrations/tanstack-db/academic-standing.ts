@@ -24,6 +24,7 @@ export const academicStandingCollection = collectionOptions("academicStanding", 
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );
