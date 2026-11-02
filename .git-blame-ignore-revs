@@ -1,0 +1,5 @@
+# Commits ignored by `git blame`. GitHub picks this file up automatically.
+# Locally, run once per clone: git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# chore: accepting new formatter
+cb1b7ff6ee029335250eb80d87059dde65aebed3
