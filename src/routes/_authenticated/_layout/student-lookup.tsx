@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { Download } from "lucide-react";
+import { requirePageCapability } from "@/lib/page-guards";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import Papa from "papaparse";
@@ -28,10 +29,8 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/_layout/student-lookup")({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
-      throw redirect({ to: "/login" });
-    }
+    requirePageCapability(context.userSession, "student.lookup");
+
     const dbClient = context.dbClient;
     void dbClient.collection(programsCollection).preload();
     void dbClient.collection(coursesCollection).preload();
@@ -85,10 +84,12 @@ function StudentLookup() {
           params.append("academicLevel", level);
         }
       }
-      if (filters.gpaMin !== undefined) {
+      // The slider's full range means no GPA filter. Sending it would leave out
+      // students whose GPA the user can't see, like non-majors in a department course.
+      if (filters.gpaMin !== undefined && filters.gpaMin > 0) {
         params.append("gpaMin", filters.gpaMin.toString());
       }
-      if (filters.gpaMax !== undefined) {
+      if (filters.gpaMax !== undefined && filters.gpaMax < 4) {
         params.append("gpaMax", filters.gpaMax.toString());
       }
       if (filters.program) {

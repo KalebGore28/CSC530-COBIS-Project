@@ -9,9 +9,11 @@ export const Route = createFileRoute("/api/__protected/data/faculty")({
   server: {
     handlers: {
       GET: async ({ context }) => {
-        // Check if user is either cobis_administrator or department_chair
-        const user_roles = context.roles;
-        if (!user_roles.has("cobis_administrator") && !user_roles.has("department_chair")) {
+        // Used by the instructor pages and the user management tools
+        if (
+          !context.capabilities.has("instructors.view") &&
+          !context.capabilities.has("tools.manage")
+        ) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {
             status: 403,
             headers: {
@@ -34,8 +36,8 @@ export const Route = createFileRoute("/api/__protected/data/faculty")({
         });
       },
       PUT: async ({ context, request }) => {
-        // Only allow if user is cobis_administrator
-        if (!context.roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 

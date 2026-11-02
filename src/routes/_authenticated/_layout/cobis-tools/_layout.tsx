@@ -1,13 +1,11 @@
-import { Link, Outlet, createFileRoute, redirect, useLocation } from "@tanstack/react-router";
+import { Link, Outlet, createFileRoute, useLocation } from "@tanstack/react-router";
+import { requirePageCapability } from "@/lib/page-guards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout")({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || !roles.has("cobis_administrator")) {
-      throw redirect({ to: "/dashboard" });
-    }
+    requirePageCapability(context.userSession, "tools.manage");
   },
   component: RouteComponent,
 });

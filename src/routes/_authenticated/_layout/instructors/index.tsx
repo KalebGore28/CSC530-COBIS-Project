@@ -1,5 +1,6 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Search, Users } from "lucide-react";
+import { requirePageCapability } from "@/lib/page-guards";
 import { useState } from "react";
 import { eq, ilike, or, useLiveQuery } from "@tanstack/react-db";
 import { InstructorsTable } from "@/components/tables/instructors-table";
@@ -101,10 +102,7 @@ function InstructorsPageSkeleton() {
 
 export const Route = createFileRoute("/_authenticated/_layout/instructors/")({
   beforeLoad: ({ context }) => {
-    const roles = context.userSession?.roles;
-    if (!roles || (!roles.has("department_chair") && !roles.has("cobis_administrator"))) {
-      throw redirect({ to: "/login" });
-    }
+    requirePageCapability(context.userSession, "instructors.view");
 
     const dbClient = context.dbClient;
     void dbClient.collection(facultyCollection).preload();

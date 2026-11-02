@@ -1,7 +1,7 @@
 import { gzipSync } from "node:zlib";
 import { createFileRoute } from "@tanstack/react-router";
 import { and, eq } from "drizzle-orm";
-import { userRoles } from "@/db/schema";
+import { roles, userRoles } from "@/db/schema";
 
 type UserRole = typeof userRoles.$inferSelect;
 
@@ -9,8 +9,8 @@ export const Route = createFileRoute("/api/__protected/data/user-roles")({
   server: {
     handlers: {
       GET: async ({ context }) => {
-        // Only allow if user is cobis_administrator
-        if (!context.roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 
@@ -28,8 +28,8 @@ export const Route = createFileRoute("/api/__protected/data/user-roles")({
         });
       },
       POST: async ({ request, context }) => {
-        // Only allow if user is cobis_administrator
-        if (!context.roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 
@@ -40,20 +40,23 @@ export const Route = createFileRoute("/api/__protected/data/user-roles")({
         return new Response(null, { status: 201 });
       },
       DELETE: async ({ request, context }) => {
-        // Only allow if user is cobis_administrator
-        if (!context.roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 
         const deletedUserRole: UserRole = await request.json();
 
         // Make sure the admin doesn't delete their own admin role and lock themselves out
-        if (
-          deletedUserRole.user_id === context.user.id &&
-          context.roles.has("cobis_administrator") &&
-          deletedUserRole.role_id === 4 // Cobis Administrator role ID
-        ) {
-          return new Response("Forbidden", { status: 403 });
+        if (deletedUserRole.user_id === context.user.id) {
+          const [deletedRole] = await context.db
+            .select({ name: roles.name })
+            .from(roles)
+            .where(eq(roles.id, deletedUserRole.role_id));
+
+          if (deletedRole?.name === "cobis_administrator") {
+            return new Response("Forbidden", { status: 403 });
+          }
         }
 
         await context.db

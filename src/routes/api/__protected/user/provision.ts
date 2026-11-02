@@ -2,12 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { eq } from "drizzle-orm";
 import { loadUser } from "@/middleware/load-user";
 import { isEnabled } from "@/middleware/is-enabled";
-import { requireCobisAdmin } from "@/middleware/require-cobis-admin";
-import { faculty, user, userRoles } from "@/db/schema";
+import { requireCapability } from "@/middleware/require-capability";
+import { faculty, roles, user, userRoles } from "@/db/schema";
 
 export const Route = createFileRoute("/api/__protected/user/provision")({
   server: {
-    middleware: [loadUser, isEnabled, requireCobisAdmin],
+    middleware: [loadUser, isEnabled, requireCapability("tools.manage")],
     handlers: {
       POST: async ({ request, context }) => {
         const url = new URL(request.url);
@@ -69,13 +69,13 @@ export const Route = createFileRoute("/api/__protected/user/provision")({
           );
         }
 
-        const COBIS_ADMINISTRATOR_ROLE_ID = 6;
+        const [adminRole] = await context.db
+          .select({ id: roles.id })
+          .from(roles)
+          .where(eq(roles.name, "cobis_administrator"));
 
         // Check if an admin is trying to remove their own admin role (cobis_administrator)
-        if (
-          context.user.id === userId &&
-          !role_ids.includes(COBIS_ADMINISTRATOR_ROLE_ID.toString())
-        ) {
+        if (context.user.id === userId && !role_ids.includes(String(adminRole?.id))) {
           return new Response(
             JSON.stringify({
               error: "You cannot remove your own administrator role",

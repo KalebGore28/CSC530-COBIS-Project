@@ -9,12 +9,13 @@ export const Route = createFileRoute("/api/__protected/data/users")({
   server: {
     handlers: {
       GET: async ({ context }) => {
-        const user_roles = context.roles;
-
         let userResults = await context.db.select().from(user);
 
-        // Filter results based on roles
-        if (!user_roles.has("cobis_administrator") && !user_roles.has("department_chair")) {
+        // Only the instructor pages and the user management tools need every user
+        if (
+          !context.capabilities.has("instructors.view") &&
+          !context.capabilities.has("tools.manage")
+        ) {
           // Filter to only the current user
           userResults = userResults.filter((u) => u.id === context.user.id);
         }
@@ -31,10 +32,8 @@ export const Route = createFileRoute("/api/__protected/data/users")({
         });
       },
       PUT: async ({ request, context }) => {
-        const user_roles = context.roles;
-
-        // Only allow if user is cobis_administrator
-        if (!user_roles.has("cobis_administrator")) {
+        // Only allow users who can manage COBIS data
+        if (!context.capabilities.has("tools.manage")) {
           return new Response("Forbidden", { status: 403 });
         }
 
