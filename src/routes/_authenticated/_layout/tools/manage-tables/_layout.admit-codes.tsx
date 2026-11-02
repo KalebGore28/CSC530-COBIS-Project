@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { useLiveQuery } from "@tanstack/react-db";
-import { academicStandingCollection } from "@/integrations/tanstack-db/academic-standing";
-import { AcademicStandingTable } from "@/components/tables/academic-standing-table";
+import { admitCodesCollection } from "@/integrations/tanstack-db/admit-codes";
+import { AdmitCodesTable } from "@/components/tables/admit-codes-table";
 
 type RouteParams = {
   filterColumn?: string;
@@ -10,7 +10,7 @@ type RouteParams = {
 };
 
 export const Route = createFileRoute(
-  "/_authenticated/_layout/cobis-tools/manage-tables/_layout/academic-standings",
+  "/_authenticated/_layout/tools/manage-tables/_layout/admit-codes",
 )({
   component: RouteComponent,
   validateSearch: (search): RouteParams => {
@@ -23,17 +23,13 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { filterColumn, filterValue } = Route.useSearch();
-  const { data: academicStandings, isLoading } = useLiveQuery((q) =>
-    q.from({ academicStandings: academicStandingCollection }),
+  const { data: admitCodes, isLoading } = useLiveQuery((q) =>
+    q.from({ admitCodes: admitCodesCollection }),
   );
   return (
     <div>
       {!isLoading && (
-        <AcademicStandingTable
-          data={academicStandings}
-          filterColumn={filterColumn}
-          filterValue={filterValue}
-        />
+        <AdmitCodesTable data={admitCodes} filterColumn={filterColumn} filterValue={filterValue} />
       )}
     </div>
   );

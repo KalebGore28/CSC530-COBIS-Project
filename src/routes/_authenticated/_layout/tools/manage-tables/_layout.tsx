@@ -2,7 +2,7 @@ import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/manage-tables/_layout")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/manage-tables/_layout")({
   component: RouteComponent,
 });
 
@@ -17,7 +17,7 @@ function RouteComponent() {
         className="w-fit shadow-md"
         onClick={() =>
           navigate({
-            to: `/cobis-tools/manage-tables`,
+            to: `/tools/manage-tables`,
           })
         }
       >

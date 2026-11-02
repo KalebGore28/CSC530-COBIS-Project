@@ -154,7 +154,7 @@ export function TableManangementCard() {
   return (
     <Card
       className="h-full cursor-pointer transition-all hover:scale-[1.02] hover:shadow-lg"
-      onClick={() => navigate({ to: "/cobis-tools/manage-tables" })}
+      onClick={() => navigate({ to: "/tools/manage-tables" })}
     >
       <CardHeader className="h-full">
         <div className="mb-2 flex items-center gap-2">

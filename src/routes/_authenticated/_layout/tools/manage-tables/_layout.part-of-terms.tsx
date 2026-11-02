@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { useLiveQuery } from "@tanstack/react-db";
-import { coursesCollection } from "@/integrations/tanstack-db/courses";
-import { CoursesTable } from "@/components/tables/courses-table";
+import { partOfTermCollection } from "@/integrations/tanstack-db/part-of-term";
+import { PartOfTermTable } from "@/components/tables/part-of-term-table";
 
 type RouteParams = {
   filterColumn?: string;
@@ -10,7 +10,7 @@ type RouteParams = {
 };
 
 export const Route = createFileRoute(
-  "/_authenticated/_layout/cobis-tools/manage-tables/_layout/courses",
+  "/_authenticated/_layout/tools/manage-tables/_layout/part-of-terms",
 )({
   component: RouteComponent,
   validateSearch: (search): RouteParams => {
@@ -23,11 +23,13 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { filterColumn, filterValue } = Route.useSearch();
-  const { data: courses, isLoading } = useLiveQuery((q) => q.from({ courses: coursesCollection }));
+  const { data: partOfTerms, isLoading } = useLiveQuery((q) =>
+    q.from({ partOfTerms: partOfTermCollection }),
+  );
   return (
     <div>
       {!isLoading && (
-        <CoursesTable data={courses} filterColumn={filterColumn} filterValue={filterValue} />
+        <PartOfTermTable data={partOfTerms} filterColumn={filterColumn} filterValue={filterValue} />
       )}
     </div>
   );

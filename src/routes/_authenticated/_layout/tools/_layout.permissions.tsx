@@ -58,7 +58,7 @@ const CAPABILITY_LABELS: Record<Capability, string> = {
   "student.lookup": "Student lookup",
   "instructors.view": "Instructors",
   "enrollment.view": "Enrollment metrics",
-  "tools.manage": "COBIS tools",
+  "tools.manage": "Tools",
 };
 
 // A category can't be shown without these, so they get ticked and unticked together
@@ -68,7 +68,7 @@ function getRequiredCategories(category: DataCategory): Array<DataCategory> {
   return ["identity"];
 }
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/permissions")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/permissions")({
   beforeLoad: ({ context }) => {
     const dbClient = context.dbClient;
     void dbClient.collection(rolesCollection).preload();

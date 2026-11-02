@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { importJobsCollection } from "@/integrations/tanstack-db/import-jobs";
 import { GoBackButton } from "@/components/common/go-back-button";
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import/history")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/import/history")({
   component: ImportHistoryPage,
   beforeLoad: ({ context }) => {
     const dbClient = context.dbClient;
@@ -38,7 +38,7 @@ function ImportHistoryPage() {
 
   const handleViewProgress = (importId: string) => {
     void navigate({
-      to: "/cobis-tools/import/$id/progress",
+      to: "/tools/import/$id/progress",
       params: { id: importId },
     });
   };
@@ -86,14 +86,14 @@ function ImportHistoryPage() {
     <div className="container mx-auto max-w-7xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <GoBackButton fallback={{ to: "/cobis-tools/import" }} variant="ghost" size="icon">
+        <GoBackButton fallback={{ to: "/tools/import" }} variant="ghost" size="icon">
           <ArrowLeft className="h-5 w-5" />
         </GoBackButton>
         <div className="flex-1">
           <h1 className="text-3xl font-bold">Import History</h1>
           <p className="text-muted-foreground">View all previous CSV imports</p>
         </div>
-        <Button onClick={() => navigate({ to: "/cobis-tools/import" })}>New Import</Button>
+        <Button onClick={() => navigate({ to: "/tools/import" })}>New Import</Button>
       </div>
 
       {/* Imports Table */}
@@ -116,7 +116,7 @@ function ImportHistoryPage() {
               <p>No imports found</p>
               <Button
                 variant="link"
-                onClick={() => navigate({ to: "/cobis-tools/import" })}
+                onClick={() => navigate({ to: "/tools/import" })}
                 className="mt-2"
               >
                 Start your first import

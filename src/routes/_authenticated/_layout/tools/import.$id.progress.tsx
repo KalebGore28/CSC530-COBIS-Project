@@ -19,7 +19,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { GoBackButton } from "@/components/common/go-back-button";
 import { importProgressQuery } from "@/lib/import-progress";
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import/$id/progress")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/import/$id/progress")({
   component: ImportProgressPage,
 });
 
@@ -30,7 +30,7 @@ function ImportProgressPage() {
   const { data: progress, isLoading } = useQuery(importProgressQuery(importId));
 
   const handleNewImport = () => {
-    void navigate({ to: "/cobis-tools/import" });
+    void navigate({ to: "/tools/import" });
   };
 
   const handleDownloadLogs = () => {
@@ -96,7 +96,7 @@ function ImportProgressPage() {
     <div className="container mx-auto max-w-5xl space-y-6 p-6">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <GoBackButton fallback={{ to: "/cobis-tools/import" }} variant="ghost" size="icon">
+        <GoBackButton fallback={{ to: "/tools/import" }} variant="ghost" size="icon">
           <ArrowLeft className="h-5 w-5" />
         </GoBackButton>
 
