@@ -3,6 +3,7 @@ import path from "node:path";
 import { seed } from "drizzle-seed";
 import * as schema from "../../src/db/schema.ts";
 import { closeDb, getDb, resetDb } from "./db";
+import { seedPolicy } from "@/db/seed/seed-policy";
 import { parseCSV } from "@/utils/csv-importer";
 import { invalidateEntireCache } from "@/utils/get-student-access-level.ts";
 
@@ -154,6 +155,7 @@ async function seedStaticLookups(db: ReturnType<typeof getDb>) {
   await db.insert(schema.courses).values(courses);
   await db.insert(schema.coursePrefixes).values(coursePrefixes);
   await db.insert(schema.programs).values(programs);
+  await seedPolicy(db);
 }
 
 async function seedTestDatabase() {
@@ -175,6 +177,8 @@ async function seedTestDatabase() {
       userRoles: undefined,
       // Static lookup tables
       roles: undefined,
+      roleDataAccess: undefined,
+      roleCapabilities: undefined,
       terms: undefined,
       admitCodes: undefined,
       academicStanding: undefined,
