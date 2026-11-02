@@ -19,6 +19,7 @@ export const coursesCollection = collectionOptions("courses", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

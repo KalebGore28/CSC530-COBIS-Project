@@ -19,6 +19,7 @@ export const partOfTermCollection = collectionOptions("partOfTerm", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

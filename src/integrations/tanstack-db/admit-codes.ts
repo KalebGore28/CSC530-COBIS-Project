@@ -19,6 +19,7 @@ export const admitCodesCollection = collectionOptions("admitCodes", (client) =>
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );

@@ -214,6 +214,16 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <Link
+                            to="/cobis-tools/permissions"
+                            className="flex h-full w-full items-center gap-2 p-1"
+                          >
+                            Permissions
+                          </Link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                      <SidebarMenuSubItem>
+                        <SidebarMenuSubButton asChild>
+                          <Link
                             to="/cobis-tools/manage-tables"
                             className="flex h-full w-full items-center gap-2 p-1"
                           >

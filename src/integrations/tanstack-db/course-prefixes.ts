@@ -23,6 +23,7 @@ export const coursePrefixesCollection = collectionOptions("coursePrefixes", (cli
         ),
       );
       await collection.utils.refetch();
+      return { refetch: false };
     },
   }),
 );
