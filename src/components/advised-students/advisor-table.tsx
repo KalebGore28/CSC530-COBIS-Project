@@ -1,5 +1,5 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import { DataTable } from "@/components/tables/data-table";
+import type { DataTableColumnDef } from "@/components/tables/data-table";
 
 type Advisor = {
   id: string;
@@ -9,7 +9,7 @@ type Advisor = {
   year_term: string;
 };
 
-const columns: Array<ColumnDef<Advisor>> = [
+const columns: Array<DataTableColumnDef<Advisor>> = [
   {
     accessorKey: "mnumber",
     header: "MNumber",

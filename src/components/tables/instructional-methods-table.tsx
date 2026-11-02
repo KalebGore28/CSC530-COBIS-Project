@@ -1,5 +1,6 @@
 import { EditableDataTable } from "./editable-data-table";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { EditableColumnDef } from "./editable-data-table";
+import { useDbClient } from "@tanstack/react-db";
 import type { instructionalMethods } from "@/db/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -7,7 +8,7 @@ type InstructionalMethods = typeof instructionalMethods.$inferSelect;
 
 import { instructionalMethodsCollection } from "@/integrations/tanstack-db/instructional-methods";
 
-const columns: Array<ColumnDef<InstructionalMethods>> = [
+const columns: Array<EditableColumnDef<InstructionalMethods>> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -48,6 +49,8 @@ export function InstructionalMethodsTable({
   filterColumn: string | undefined;
   filterValue: string | undefined;
 }) {
+  const collection = useDbClient().collection(instructionalMethodsCollection);
+
   return (
     <EditableDataTable
       columns={columns}
@@ -56,7 +59,7 @@ export function InstructionalMethodsTable({
       initialFilterValue={filterValue}
       onBulkEdit={(selectedIds, _column, value) => {
         // Update all selected rows
-        instructionalMethodsCollection.update(selectedIds, (drafts) => {
+        collection.update(selectedIds, (drafts) => {
           drafts.forEach((draft) => {
             draft.description = value;
           });

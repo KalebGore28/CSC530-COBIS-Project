@@ -1,5 +1,6 @@
 import { EditableDataTable } from "./editable-data-table";
-import type { ColumnDef } from "@tanstack/react-table";
+import type { EditableColumnDef } from "./editable-data-table";
+import { useDbClient } from "@tanstack/react-db";
 import type { programs } from "@/db/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -14,7 +15,7 @@ type Programs = typeof programs.$inferSelect;
 
 import { programsCollection } from "@/integrations/tanstack-db/programs";
 
-const columns: Array<ColumnDef<Programs>> = [
+const columns: Array<EditableColumnDef<Programs>> = [
   {
     id: "select",
     header: ({ table }) => (
@@ -103,6 +104,8 @@ export function ProgramsTable({
   filterColumn: string | undefined;
   filterValue: string | undefined;
 }) {
+  const collection = useDbClient().collection(programsCollection);
+
   return (
     <EditableDataTable
       columns={columns}
@@ -111,7 +114,7 @@ export function ProgramsTable({
       initialFilterValue={filterValue}
       onBulkEdit={(selectedIds, column, value) => {
         // Update all selected rows
-        programsCollection.update(selectedIds, (drafts) => {
+        collection.update(selectedIds, (drafts) => {
           drafts.forEach((draft) => {
             (draft as Record<string, any>)[column] = value;
           });

@@ -1,6 +1,6 @@
-import type { ColumnDef } from "@tanstack/react-table";
 import type { JSX } from "react";
 import { DataTable } from "@/components/tables/data-table";
+import type { DataTableColumnDef } from "@/components/tables/data-table";
 
 type InstructorTableRow = {
   instructor: JSX.Element;
@@ -10,7 +10,7 @@ type InstructorTableRow = {
   email: string;
 };
 
-const columns: Array<ColumnDef<InstructorTableRow>> = [
+const columns: Array<DataTableColumnDef<InstructorTableRow>> = [
   {
     header: "Instructor",
     cell: ({ row }) => row.original.instructor, // render the JSX

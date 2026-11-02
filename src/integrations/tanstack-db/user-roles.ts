@@ -15,18 +15,24 @@ export const userRolesCollection = collectionOptions("userRole", (client) =>
     },
     getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
     onInsert: async ({ transaction }) => {
-      const newUserRole: UserRole = transaction.mutations[0].modified;
-      await fetch(`/api/data/user-roles`, {
-        method: "POST",
-        body: JSON.stringify(newUserRole),
-      });
+      await Promise.all(
+        transaction.mutations.map((mutation) =>
+          fetch(`/api/data/user-roles`, {
+            method: "POST",
+            body: JSON.stringify(mutation.modified),
+          }),
+        ),
+      );
     },
     onDelete: async ({ transaction }) => {
-      const deletedUserRole: UserRole = transaction.mutations[0].original;
-      await fetch(`/api/data/user-roles`, {
-        method: "DELETE",
-        body: JSON.stringify(deletedUserRole),
-      });
+      await Promise.all(
+        transaction.mutations.map((mutation) =>
+          fetch(`/api/data/user-roles`, {
+            method: "DELETE",
+            body: JSON.stringify(mutation.original),
+          }),
+        ),
+      );
     },
   }),
 );

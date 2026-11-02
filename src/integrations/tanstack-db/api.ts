@@ -43,7 +43,7 @@ export async function updateCollectionItem<T>(
   original: T,
   changes: Partial<T>,
   key: keyof T = "id" as keyof T,
-): Promise<T> {
+): Promise<void> {
   const response = await fetch(`/api/data/${endpoint}`, {
     method: "PUT",
     body: JSON.stringify({
@@ -54,5 +54,4 @@ export async function updateCollectionItem<T>(
   if (!response.ok) {
     throw new Error(`Failed to update ${endpoint} item: ${response.statusText}`);
   }
-  return response.json();
 }
