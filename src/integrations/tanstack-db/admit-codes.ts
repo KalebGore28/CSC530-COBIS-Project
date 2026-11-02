@@ -11,7 +11,6 @@ export const admitCodesCollection = collectionOptions("admitCodes", (client) =>
     queryKey: ["admitCodes"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<AdmitCode>("admit-codes"),
-    autoIndex: "eager",
     getKey: (admitCode) => admitCode.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

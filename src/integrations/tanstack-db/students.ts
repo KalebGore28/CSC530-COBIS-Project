@@ -13,7 +13,6 @@ export const studentsCollection = collectionOptions("student", (client) =>
       const response = await fetch(`/api/data/students`);
       return (await response.json()) as Array<Student>;
     },
-    autoIndex: "eager",
     syncMode: "on-demand",
     getKey: (student) => student.mnumber,
   }),

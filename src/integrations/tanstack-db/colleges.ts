@@ -11,7 +11,6 @@ export const collegesCollection = collectionOptions("colleges", (client) =>
     queryKey: ["colleges"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<College>("colleges"),
-    autoIndex: "eager",
     getKey: (college) => college.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

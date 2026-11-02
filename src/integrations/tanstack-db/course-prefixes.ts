@@ -11,7 +11,6 @@ export const coursePrefixesCollection = collectionOptions("coursePrefixes", (cli
     queryKey: ["coursePrefixes"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<CoursePrefixes>("course-prefixes"),
-    autoIndex: "eager",
     getKey: (prefix) => prefix.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

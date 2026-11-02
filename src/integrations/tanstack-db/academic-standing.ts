@@ -12,7 +12,6 @@ export const academicStandingCollection = collectionOptions("academicStanding", 
     queryKey: ["academicStanding"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<AcademicStanding>("academic-standing"),
-    autoIndex: "eager",
     getKey: (standing) => standing.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

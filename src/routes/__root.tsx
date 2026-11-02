@@ -13,6 +13,7 @@ import { ThemeProvider } from "@/providers/theme";
 interface RootRouteContext {
   queryClient: ReturnType<typeof useQueryClient>;
   dbClient: DbClient;
+  getTitle?: () => string;
 }
 
 export const Route = createRootRouteWithContext<RootRouteContext>()({

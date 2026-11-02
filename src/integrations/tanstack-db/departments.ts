@@ -11,7 +11,6 @@ export const departmentsCollection = collectionOptions("departments", (client) =
     queryKey: ["departments"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<Department>("departments"),
-    autoIndex: "eager",
     getKey: (department) => department.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

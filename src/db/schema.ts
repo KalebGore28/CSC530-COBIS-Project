@@ -53,6 +53,7 @@ export const account = mysqlTable("account", {
   accessTokenExpiresAt: datetime("access_token_expires_at"),
   refreshTokenExpiresAt: datetime("refresh_token_expires_at"),
   scope: varchar("scope", { length: 255 }),
+  password: varchar("password", { length: 255 }),
   createdAt: datetime("created_at").notNull(),
   updatedAt: datetime("updated_at").notNull(),
 });

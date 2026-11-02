@@ -13,7 +13,6 @@ export const studentAcademicInfoCollection = collectionOptions("studentAcademicI
       const response = await fetch(`/api/data/student-academic-info`);
       return (await response.json()) as Array<StudentAcademicInfo>;
     },
-    autoIndex: "eager",
     syncMode: "on-demand",
     getKey: (studentInfo) => `${studentInfo.mnumber}-${studentInfo.term_id}-${studentInfo.year}`,
   }),

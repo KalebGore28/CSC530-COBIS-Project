@@ -11,7 +11,6 @@ export const partOfTermCollection = collectionOptions("partOfTerm", (client) =>
     queryKey: ["partOfTerm"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<PartOfTerm>("part-of-term"),
-    autoIndex: "eager",
     getKey: (partOfTerm) => partOfTerm.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

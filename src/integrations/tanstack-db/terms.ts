@@ -13,7 +13,6 @@ export const termsCollection = collectionOptions("term", (client) =>
       const response = await fetch(`/api/data/terms`);
       return (await response.json()) as Array<Term>;
     },
-    autoIndex: "eager",
     getKey: (term) => term.id,
   }),
 );

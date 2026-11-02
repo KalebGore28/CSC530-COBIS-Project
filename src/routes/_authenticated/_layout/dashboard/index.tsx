@@ -13,10 +13,12 @@ import { CurrentTermMetricCard } from "@/components/dashboard/current-courses-me
 import { AdviseesMetricCard } from "@/components/dashboard/advisees-metrics-card";
 
 export const Route = createFileRoute("/_authenticated/_layout/dashboard/")({
-  beforeLoad: () => {
-    void usersCollection.preload();
+  beforeLoad: async ({ context }) => {
+    const dbClient = context.dbClient;
+    dbClient.collection(usersCollection).preload();
   },
   component: DashboardPage,
+  context: () => ({ getTitle: () => "Dashboard" }),
 });
 
 const gradeDistributionRoles = ["faculty", "department_chair"];
