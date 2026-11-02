@@ -12,6 +12,7 @@ type GradeEntry = {
 type RequiredStudentCourseProps = {
   midterm_grade: string | null;
   final_grade: string | null;
+  grades_visible?: boolean;
 } & Record<string, unknown>;
 
 type RosterGradeDistributionsProps = {
@@ -49,6 +50,9 @@ export function RosterGradeDistributions({
   const finalGrades: Array<GradeEntry> = [];
 
   studentCourses.forEach((sc) => {
+    // A hidden grade shouldn't count as a missing one
+    if (sc.grades_visible === false) return;
+
     const midtermGrade = sc.midterm_grade ? sc.midterm_grade : "NA";
     const finalGrade = sc.final_grade ? sc.final_grade : "NA";
 

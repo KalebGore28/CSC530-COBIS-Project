@@ -34,11 +34,12 @@ const getInitials = (name: string | null | undefined): string => {
 };
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/users")({
-  beforeLoad: () => {
-    void usersCollection.preload();
-    void facultyCollection.preload();
-    void departmentsCollection.preload();
-    void collegesCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(usersCollection).preload();
+    void dbClient.collection(facultyCollection).preload();
+    void dbClient.collection(departmentsCollection).preload();
+    void dbClient.collection(collegesCollection).preload();
   },
   component: RouteComponent,
 });

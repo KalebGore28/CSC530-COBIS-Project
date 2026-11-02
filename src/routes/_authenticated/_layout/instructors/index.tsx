@@ -106,10 +106,11 @@ export const Route = createFileRoute("/_authenticated/_layout/instructors/")({
       throw redirect({ to: "/login" });
     }
 
-    void facultyCollection.preload();
-    void departmentsCollection.preload();
-    void collegesCollection.preload();
-    void usersCollection.preload();
+    const dbClient = context.dbClient;
+    void dbClient.collection(facultyCollection).preload();
+    void dbClient.collection(departmentsCollection).preload();
+    void dbClient.collection(collegesCollection).preload();
+    void dbClient.collection(usersCollection).preload();
   },
   component: RouteComponent,
 });

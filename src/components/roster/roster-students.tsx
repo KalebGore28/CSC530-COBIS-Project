@@ -41,7 +41,13 @@ type RequiredStudentCourseProps = {
   year: number;
   term_id: string;
   term_description: string | undefined;
+  grades_visible?: boolean;
 } & Record<string, unknown>;
+
+function getGradeLabel(grade: string | null, gradesVisible?: boolean) {
+  if (gradesVisible === false) return "Restricted";
+  return grade || "N/A";
+}
 
 export interface RosterStudentsProps {
   studentCourses: Array<RequiredStudentCourseProps>;
@@ -111,7 +117,7 @@ export function RosterStudents({ studentCourses, className, isLoading }: RosterS
       const matchesGrade =
         gradeFilter === "all" ||
         student.final_grade?.startsWith(gradeFilter) ||
-        (!student.final_grade && gradeFilter === "E");
+        (!student.final_grade && student.grades_visible !== false && gradeFilter === "E");
 
       return matchesSearch && matchesGrade;
     })
@@ -157,8 +163,8 @@ export function RosterStudents({ studentCourses, className, isLoading }: RosterS
       Programs: (studentProgramsMap.get(student.mnumber) || [])
         .map((p) => p.description)
         .join(", "),
-      "Midterm Grade": student.midterm_grade || "N/A",
-      "Final Grade": student.final_grade || "N/A",
+      "Midterm Grade": getGradeLabel(student.midterm_grade, student.grades_visible),
+      "Final Grade": getGradeLabel(student.final_grade, student.grades_visible),
     }));
 
     const csv = Papa.unparse(csvData);
@@ -287,17 +293,25 @@ export function RosterStudents({ studentCourses, className, isLoading }: RosterS
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={GRADE_DEFINITION[student.midterm_grade as GradeKey].className}
+                        className={
+                          GRADE_DEFINITION[
+                            student.midterm_grade ? (student.midterm_grade as GradeKey) : "NA"
+                          ].className
+                        }
                       >
-                        {student.midterm_grade || "N/A"}
+                        {getGradeLabel(student.midterm_grade, student.grades_visible)}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant="outline"
-                        className={GRADE_DEFINITION[student.final_grade as GradeKey].className}
+                        className={
+                          GRADE_DEFINITION[
+                            student.final_grade ? (student.final_grade as GradeKey) : "NA"
+                          ].className
+                        }
                       >
-                        {student.final_grade || "N/A"}
+                        {getGradeLabel(student.final_grade, student.grades_visible)}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -345,7 +359,7 @@ export function RosterStudents({ studentCourses, className, isLoading }: RosterS
                             ].className
                           }
                         >
-                          Mid: {student.midterm_grade || "N/A"}
+                          Mid: {getGradeLabel(student.midterm_grade, student.grades_visible)}
                         </Badge>
                         <Badge
                           variant="outline"
@@ -355,7 +369,7 @@ export function RosterStudents({ studentCourses, className, isLoading }: RosterS
                             ].className
                           }
                         >
-                          Final: {student.final_grade || "N/A"}
+                          Final: {getGradeLabel(student.final_grade, student.grades_visible)}
                         </Badge>
                       </div>
                     </div>

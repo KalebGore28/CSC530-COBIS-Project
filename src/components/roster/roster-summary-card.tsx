@@ -5,6 +5,7 @@ type RequiredStudentCourseProps = {
   midterm_grade: string | null;
   final_grade: string | null;
   student_gpa?: number | null;
+  grades_visible?: boolean;
 } & Record<string, unknown>;
 
 type RosterSummaryCardProps = {
@@ -110,18 +111,19 @@ export function RosterSummaryCard({
   const classGPA =
     studentCourses.reduce((acc, sc) => acc + (sc.student_gpa || 0), 0) / (totalStudents || 1);
 
-  // Calculate Midterm and Final Averages
+  // Calculate Midterm and Final Averages, leaving out grades the user can't see
+  const visibleGrades = studentCourses.filter((sc) => sc.grades_visible !== false);
   const midtermAverage =
-    studentCourses.reduce((acc, sc) => {
+    visibleGrades.reduce((acc, sc) => {
       const grade = sc.midterm_grade ? gradeValues.get(sc.midterm_grade) || 0 : 0;
       return acc + grade;
-    }, 0) / (totalStudents || 1);
+    }, 0) / (visibleGrades.length || 1);
 
   const finalAverage =
-    studentCourses.reduce((acc, sc) => {
+    visibleGrades.reduce((acc, sc) => {
       const grade = sc.final_grade ? gradeValues.get(sc.final_grade) || 0 : 0;
       return acc + grade;
-    }, 0) / (totalStudents || 1);
+    }, 0) / (visibleGrades.length || 1);
 
   const averageTrend = finalAverage - midtermAverage;
 

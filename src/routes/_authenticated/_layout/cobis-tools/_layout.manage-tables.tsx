@@ -26,17 +26,18 @@ import {
 } from "@/components/ui/card";
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/manage-tables")({
-  beforeLoad: () => {
-    void academicStandingCollection.preload();
-    void admitCodesCollection.preload();
-    void collegesCollection.preload();
-    void coursesCollection.preload();
-    void coursePrefixesCollection.preload();
-    void departmentsCollection.preload();
-    void instructionalMethodsCollection.preload();
-    void partOfTermCollection.preload();
-    void programsCollection.preload();
-    void registrationStatusCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    void dbClient.collection(academicStandingCollection).preload();
+    void dbClient.collection(admitCodesCollection).preload();
+    void dbClient.collection(collegesCollection).preload();
+    void dbClient.collection(coursesCollection).preload();
+    void dbClient.collection(coursePrefixesCollection).preload();
+    void dbClient.collection(departmentsCollection).preload();
+    void dbClient.collection(instructionalMethodsCollection).preload();
+    void dbClient.collection(partOfTermCollection).preload();
+    void dbClient.collection(programsCollection).preload();
+    void dbClient.collection(registrationStatusCollection).preload();
   },
   component: RouteComponent,
 });
