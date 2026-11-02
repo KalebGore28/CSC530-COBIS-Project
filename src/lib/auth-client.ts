@@ -1,6 +1,7 @@
 import { createAuthClient } from "better-auth/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { authQuery } from "./queries";
+import type { Capability, DataCategory } from "@/types/access-checks";
 
 export const authClient = createAuthClient({
   fetchOptions: {
@@ -25,5 +26,11 @@ export const signOut = async () => {
 export const useAuthentication = () => {
   const { data: userSession } = useSuspenseQuery(authQuery.user());
 
-  return { userSession, isAuthenticated: !!userSession };
+  return {
+    userSession,
+    isAuthenticated: !!userSession,
+    can: (capability: Capability) => userSession?.capabilities.has(capability) ?? false,
+    // Whether the user could ever see this category, for hiding whole columns and cards
+    hasCategory: (category: DataCategory) => (userSession?.dataGrants.get(category)?.size ?? 0) > 0,
+  };
 };

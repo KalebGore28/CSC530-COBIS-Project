@@ -3,6 +3,7 @@ import { getRequest } from "@tanstack/react-start/server";
 import { eq } from "drizzle-orm";
 import { faculty, roles, userRoles } from "@/db/schema";
 import { auth } from "@/lib/auth";
+import { getEffectiveRoles, loadCapabilities, loadDataGrants } from "@/utils/data-access";
 
 export const getAuthUser = createServerFn({ method: "GET" }).handler(async ({ context }) => {
   const request = getRequest();
@@ -30,11 +31,24 @@ export const getAuthUser = createServerFn({ method: "GET" }).handler(async ({ co
       .innerJoin(roles, eq(userRoles.role_id, roles.id))
       .where(eq(userRoles.user_id, session.user.id));
 
+    const assignedRoles = new Set(userRolesData.map((r) => r.roleName));
+    const effectiveRoles = await getEffectiveRoles(
+      context.db,
+      session.user.mnumber ?? null,
+      assignedRoles,
+    );
+    const [capabilities, dataGrants] = await Promise.all([
+      loadCapabilities(context.db, effectiveRoles),
+      loadDataGrants(context.db, effectiveRoles),
+    ]);
+
     return {
       session: session.session,
       user: session.user,
       faculty: dbFaculty,
-      roles: new Set(userRolesData.map((r) => r.roleName)),
+      roles: assignedRoles,
+      capabilities,
+      dataGrants,
     };
   }
 

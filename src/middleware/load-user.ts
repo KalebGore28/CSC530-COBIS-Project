@@ -2,6 +2,8 @@ import { createMiddleware } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { user } from "@/db/schema";
 import { getAuthUser } from "@/functions/get-auth-user";
+import { createDataAccess } from "@/utils/data-access";
+import type { Capability } from "@/types/access-checks";
 
 export const loadUser = createMiddleware().server(async ({ next, request, context }) => {
   const session = await getAuthUser();
@@ -51,6 +53,8 @@ export const loadUser = createMiddleware().server(async ({ next, request, contex
           college_id: "",
         },
         roles: new Set<string>(),
+        capabilities: new Set<Capability>(),
+        access: createDataAccess(context.db, { mnumber: null, departmentId: null }, new Map()),
       },
     };
   }
@@ -65,6 +69,16 @@ export const loadUser = createMiddleware().server(async ({ next, request, contex
       user: session.user,
       faculty: session.faculty,
       roles: session.roles,
+      capabilities: session.capabilities,
+      access: createDataAccess(
+        context.db,
+        {
+          mnumber: session.user.mnumber ?? null,
+          // Not every user has a faculty record, so this can be missing
+          departmentId: session.faculty?.department_id ?? null,
+        },
+        session.dataGrants,
+      ),
     },
   });
 });
