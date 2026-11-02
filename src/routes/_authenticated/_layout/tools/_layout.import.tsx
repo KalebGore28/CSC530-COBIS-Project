@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { CheckCircle2, XCircle, Upload, ArrowRight, History } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/import")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/import")({
   component: ImportPage,
   context: () => ({ getTitle: () => "Import" }),
 });
@@ -65,14 +65,14 @@ function ImportPage() {
   const handleTrackImport = () => {
     if (importId) {
       void navigate({
-        to: "/cobis-tools/import/$id/progress",
+        to: "/tools/import/$id/progress",
         params: { id: importId },
       });
     }
   };
 
   const handleViewHistory = () => {
-    void navigate({ to: "/cobis-tools/import/history" });
+    void navigate({ to: "/tools/import/history" });
   };
 
   return (

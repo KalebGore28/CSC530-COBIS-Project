@@ -25,7 +25,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/_layout/manage-tables")({
+export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/manage-tables")({
   beforeLoad: ({ context }) => {
     const dbClient = context.dbClient;
     void dbClient.collection(academicStandingCollection).preload();
@@ -207,7 +207,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {academicStandings.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/academic-standings"}>
+            <Link to={"/tools/manage-tables/academic-standings"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -216,7 +216,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/academic-standings"}
+              to={"/tools/manage-tables/academic-standings"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",
@@ -248,7 +248,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {admitCodes.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/admit-codes"}>
+            <Link to={"/tools/manage-tables/admit-codes"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -257,7 +257,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/admit-codes"}
+              to={"/tools/manage-tables/admit-codes"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",
@@ -289,7 +289,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {colleges.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/colleges"}>
+            <Link to={"/tools/manage-tables/colleges"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -298,7 +298,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/colleges"}
+              to={"/tools/manage-tables/colleges"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",
@@ -352,7 +352,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {courses.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/courses"}>
+            <Link to={"/tools/manage-tables/courses"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -362,7 +362,7 @@ function RouteComponent() {
             <span>Problems to resolve:</span>
             {coursesWithoutTitle > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/courses"}
+                to={"/tools/manage-tables/courses"}
                 search={{
                   filterColumn: "title",
                   filterValue: "unknown",
@@ -375,7 +375,7 @@ function RouteComponent() {
             )}
             {coursesWithoutDepartment > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/courses"}
+                to={"/tools/manage-tables/courses"}
                 search={{
                   filterColumn: "department_id",
                   filterValue: "null",
@@ -388,7 +388,7 @@ function RouteComponent() {
             )}
             {coursesWithoutCollege > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/courses"}
+                to={"/tools/manage-tables/courses"}
                 search={{
                   filterColumn: "college_id",
                   filterValue: "null",
@@ -435,7 +435,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {coursePrefixes.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/course-prefixes"}>
+            <Link to={"/tools/manage-tables/course-prefixes"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -445,7 +445,7 @@ function RouteComponent() {
             <span>Problems to resolve:</span>
             {coursePrefixesWithoutDepartment > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/course-prefixes"}
+                to={"/tools/manage-tables/course-prefixes"}
                 search={{
                   filterColumn: "department_id",
                   filterValue: "null",
@@ -458,7 +458,7 @@ function RouteComponent() {
             )}
             {coursePrefixesWithoutCollege > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/course-prefixes"}
+                to={"/tools/manage-tables/course-prefixes"}
                 search={{
                   filterColumn: "college_id",
                   filterValue: "null",
@@ -505,7 +505,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {departments.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/departments"}>
+            <Link to={"/tools/manage-tables/departments"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -515,7 +515,7 @@ function RouteComponent() {
             <span>Problems to resolve:</span>
             {departmentWithoutDescription > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/departments"}
+                to={"/tools/manage-tables/departments"}
                 search={{
                   filterColumn: "description",
                   filterValue: "unknown",
@@ -528,7 +528,7 @@ function RouteComponent() {
             )}
             {departmentWithoutCollege > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/departments"}
+                to={"/tools/manage-tables/departments"}
                 search={{
                   filterColumn: "college_id",
                   filterValue: "null",
@@ -561,7 +561,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {instructionalMethods.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/instructional-methods"}>
+            <Link to={"/tools/manage-tables/instructional-methods"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -570,7 +570,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/instructional-methods"}
+              to={"/tools/manage-tables/instructional-methods"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",
@@ -602,7 +602,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {partOfTerms.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/part-of-terms"}>
+            <Link to={"/tools/manage-tables/part-of-terms"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -611,7 +611,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/part-of-terms"}
+              to={"/tools/manage-tables/part-of-terms"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",
@@ -667,7 +667,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {programs.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/programs"}>
+            <Link to={"/tools/manage-tables/programs"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>
@@ -677,7 +677,7 @@ function RouteComponent() {
             <span>Problems to resolve:</span>
             {programsWithoutDescription > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/programs"}
+                to={"/tools/manage-tables/programs"}
                 search={{
                   filterColumn: "description",
                   filterValue: "unknown",
@@ -690,7 +690,7 @@ function RouteComponent() {
             )}
             {programsWithoutDepartment > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/programs"}
+                to={"/tools/manage-tables/programs"}
                 search={{
                   filterColumn: "department_id",
                   filterValue: "null",
@@ -703,7 +703,7 @@ function RouteComponent() {
             )}
             {programsWithoutCollege > 0 && (
               <Link
-                to={"/cobis-tools/manage-tables/programs"}
+                to={"/tools/manage-tables/programs"}
                 search={{
                   filterColumn: "college_id",
                   filterValue: "null",
@@ -736,7 +736,7 @@ function RouteComponent() {
           </CardDescription>
           <CardAction className="flex gap-2">
             {registrationStatuses.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/cobis-tools/manage-tables/registration-statuses"}>
+            <Link to={"/tools/manage-tables/registration-statuses"}>
               <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
             </Link>
           </CardAction>{" "}
@@ -745,7 +745,7 @@ function RouteComponent() {
           <CardFooter className="flex items-start gap-1.5">
             <span>Problems to resolve:</span>
             <Link
-              to={"/cobis-tools/manage-tables/registration-statuses"}
+              to={"/tools/manage-tables/registration-statuses"}
               search={{
                 filterColumn: "description",
                 filterValue: "unknown",

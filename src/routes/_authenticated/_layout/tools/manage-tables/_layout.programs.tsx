@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 
 import { useLiveQuery } from "@tanstack/react-db";
-import { departmentsCollection } from "@/integrations/tanstack-db/departments";
-import { DepartmentsTable } from "@/components/tables/departments-table";
+import { programsCollection } from "@/integrations/tanstack-db/programs";
+import { ProgramsTable } from "@/components/tables/programs-table";
 
 type RouteParams = {
   filterColumn?: string;
@@ -10,7 +10,7 @@ type RouteParams = {
 };
 
 export const Route = createFileRoute(
-  "/_authenticated/_layout/cobis-tools/manage-tables/_layout/departments",
+  "/_authenticated/_layout/tools/manage-tables/_layout/programs",
 )({
   component: RouteComponent,
   validateSearch: (search): RouteParams => {
@@ -23,17 +23,13 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { filterColumn, filterValue } = Route.useSearch();
-  const { data: departments, isLoading } = useLiveQuery((q) =>
-    q.from({ departments: departmentsCollection }),
+  const { data: programs, isLoading } = useLiveQuery((q) =>
+    q.from({ programs: programsCollection }),
   );
   return (
     <div>
       {!isLoading && (
-        <DepartmentsTable
-          data={departments}
-          filterColumn={filterColumn}
-          filterValue={filterValue}
-        />
+        <ProgramsTable data={programs} filterColumn={filterColumn} filterValue={filterValue} />
       )}
     </div>
   );

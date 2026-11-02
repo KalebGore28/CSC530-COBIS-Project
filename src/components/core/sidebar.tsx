@@ -191,11 +191,11 @@ export function AppSidebar() {
               <Collapsible asChild defaultOpen={true} className="group/collapsible">
                 <SidebarMenuItem>
                   <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={"COBIS Tools"}>
-                      <Link to={"/cobis-tools/users"}>
+                    <SidebarMenuButton tooltip={"Tools"}>
+                      <Link to={"/tools/users"}>
                         <Wrench />
                       </Link>
-                      COBIS Tools
+                      Tools
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                     </SidebarMenuButton>
                   </CollapsibleTrigger>
@@ -204,7 +204,7 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <Link
-                            to="/cobis-tools/users"
+                            to="/tools/users"
                             className="flex h-full w-full items-center gap-2 p-1"
                           >
                             Manage Users
@@ -214,7 +214,7 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <Link
-                            to="/cobis-tools/permissions"
+                            to="/tools/permissions"
                             className="flex h-full w-full items-center gap-2 p-1"
                           >
                             Permissions
@@ -224,7 +224,7 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <Link
-                            to="/cobis-tools/manage-tables"
+                            to="/tools/manage-tables"
                             className="flex h-full w-full items-center gap-2 p-1"
                           >
                             Manage Tables
@@ -234,7 +234,7 @@ export function AppSidebar() {
                       <SidebarMenuSubItem>
                         <SidebarMenuSubButton asChild>
                           <Link
-                            to="/cobis-tools/import"
+                            to="/tools/import"
                             className="flex h-full w-full items-center gap-2 p-1"
                           >
                             Import Data
