@@ -11,6 +11,7 @@ import {
   text,
 } from "drizzle-orm/mysql-core";
 import { sql } from "drizzle-orm";
+import { DATA_CATEGORIES, DATA_RELATIONSHIPS } from "../types/access-checks";
 
 // --- BETTERAUTH TABLES ---
 
@@ -333,6 +334,36 @@ export const userRoles = mysqlTable(
       .references(() => roles.id, { onDelete: "cascade" }),
   },
   (table) => [unique("ux_user_roles_idx").on(table.user_id, table.role_id)],
+);
+
+/**
+ * Each row is one ticked box on the permissions page:
+ * this role can see this category of data through this relationship.
+ */
+export const roleDataAccess = mysqlTable(
+  "role_data_access",
+  {
+    role_id: int("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    relationship: mysqlEnum("relationship", DATA_RELATIONSHIPS).notNull(),
+    category: mysqlEnum("category", DATA_CATEGORIES).notNull(),
+  },
+  (table) => [
+    unique("ux_role_data_access_idx").on(table.role_id, table.relationship, table.category),
+  ],
+);
+
+// Which app features a role can use. e.g. "student.lookup"
+export const roleCapabilities = mysqlTable(
+  "role_capabilities",
+  {
+    role_id: int("role_id")
+      .notNull()
+      .references(() => roles.id, { onDelete: "cascade" }),
+    capability: varchar("capability", { length: 100 }).notNull(),
+  },
+  (table) => [unique("ux_role_capabilities_idx").on(table.role_id, table.capability)],
 );
 
 export const importJobs = mysqlTable("import_jobs", {

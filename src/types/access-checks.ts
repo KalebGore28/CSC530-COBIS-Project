@@ -15,6 +15,36 @@ export const ROLES = {
   COBIS_ADMINISTRATOR: "cobis_administrator",
 } as const;
 
+/**
+ * How a user is connected to a student or course row. Each value is enforced by code,
+ * so adding one requires a migration and a build. Which roles use it is stored in role_data_access.
+ */
+export const DATA_RELATIONSHIPS = [
+  "teaches_course",
+  "course_in_department",
+  "advises_student",
+  "coordinates_program",
+  "student_in_department",
+] as const;
+
+/**
+ * The groups of student data a role can be granted. Each value is enforced by code,
+ * so adding one requires a migration and a build. Which roles use it is stored in role_data_access.
+ */
+export const DATA_CATEGORIES = [
+  "identity", // students: name and email
+  "demographics", // students: gender
+  "programs", // student_programs
+  "courses", // student_courses: course, section and status
+  "grades", // student_courses: midterm and final grades
+  "attendance", // student_courses: last attendance
+  "academic_info", // student_academic_info: GPA, hours and standing
+  "advisors", // student_advisors
+] as const;
+
+export type DataRelationship = (typeof DATA_RELATIONSHIPS)[number];
+export type DataCategory = (typeof DATA_CATEGORIES)[number];
+
 export const ACCESS_LEVELS = {
   LIMITED: "limited", // Basic Student Info Only. No grades or GPAs
   COURSE_SCOPED: "course_scoped", // Access to specific student course grades, no GPA access

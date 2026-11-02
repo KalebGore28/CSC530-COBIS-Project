@@ -24,6 +24,16 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.faculty.mnumber.through(r.studentCourses.instructor_mnumber),
     }),
   },
+  roles: {
+    dataAccess: r.many.roleDataAccess({
+      from: r.roles.id,
+      to: r.roleDataAccess.role_id,
+    }),
+    capabilities: r.many.roleCapabilities({
+      from: r.roles.id,
+      to: r.roleCapabilities.role_id,
+    }),
+  },
   // studentPrograms: {
   //     student: r.one.students({
   //         from: r.studentPrograms.mnumber,
