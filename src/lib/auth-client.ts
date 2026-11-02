@@ -1,7 +1,6 @@
 import { createAuthClient } from "better-auth/react";
-import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { authQuery } from "./queries";
-import { getRouter } from "@/router";
 
 export const authClient = createAuthClient({
   fetchOptions: {
@@ -19,12 +18,8 @@ export const signinGoogle = async () => {
 };
 
 export const signOut = async () => {
-  const queryClient = useQueryClient();
-  const router = getRouter();
-
   await authClient.signOut();
-  await queryClient.invalidateQueries();
-  void router.invalidate();
+  window.location.assign("/login");
 };
 
 export const useAuthentication = () => {

@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useLiveQuery } from "@tanstack/react-db";
-import { eq } from "@tanstack/react-db/utils";
 import { ArrowLeft, CheckCircle2, XCircle, Clock, Download, Eye } from "lucide-react";
 import { format } from "date-fns";
 
@@ -20,9 +19,9 @@ import { importJobsCollection } from "@/integrations/tanstack-db/import-jobs";
 
 export const Route = createFileRoute("/_authenticated/_layout/cobis-tools/import/history")({
   component: ImportHistoryPage,
-  beforeLoad: () => {
-    // Preload the collection
-    void importJobsCollection.preload();
+  beforeLoad: ({ context }) => {
+    const dbClient = context.dbClient;
+    dbClient.collection(importJobsCollection).preload();
   },
 });
 
