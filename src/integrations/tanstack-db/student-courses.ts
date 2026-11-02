@@ -13,7 +13,6 @@ export const studentCoursesCollection = collectionOptions("studentCourses", (cli
       const response = await fetch(`/api/data/student-courses`);
       return (await response.json()) as Array<StudentCourse>;
     },
-    autoIndex: "eager",
     syncMode: "on-demand",
     getKey: (studentCourse) =>
       `${studentCourse.mnumber}-${studentCourse.term_id}-${studentCourse.year}-${studentCourse.course_id}-${studentCourse.course_section}`,

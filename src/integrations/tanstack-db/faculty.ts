@@ -13,7 +13,6 @@ export const facultyCollection = collectionOptions("faculty", (client) =>
       const response = await fetch(`/api/data/faculty`);
       return (await response.json()) as Array<Faculty>;
     },
-    autoIndex: "eager",
     getKey: (faculty) => faculty.mnumber,
     onUpdate: async ({ transaction }) => {
       await Promise.all(

@@ -11,7 +11,6 @@ export const instructionalMethodsCollection = collectionOptions("instructionalMe
     queryKey: ["instructionalMethods"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<InstructionalMethod>("instructional-methods"),
-    autoIndex: "eager",
     getKey: (method) => method.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

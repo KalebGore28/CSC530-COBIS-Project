@@ -16,6 +16,5 @@ export const currentTermCollection = collectionOptions("currentTerm", (client) =
       return (await response.json()) as Array<CurrentTerm>;
     },
     getKey: (currentTerm) => `${currentTerm.year}-${currentTerm.term_id}`,
-    autoIndex: "eager",
   }),
 );

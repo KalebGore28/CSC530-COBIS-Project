@@ -11,7 +11,6 @@ export const usersCollection = collectionOptions("user", (client) =>
     queryKey: ["users"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<User>("users"),
-    autoIndex: "eager",
     getKey: (user) => user.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

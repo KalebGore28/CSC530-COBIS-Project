@@ -11,7 +11,6 @@ export const importJobsCollection = collectionOptions("importJobs", (client) =>
     queryKey: ["importJobs"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<ImportJob>("import-jobs"),
-    autoIndex: "eager",
     getKey: (job) => job.id,
   }),
 );

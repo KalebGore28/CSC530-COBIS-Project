@@ -11,7 +11,6 @@ export const rolesCollection = collectionOptions("roles", (client) =>
     queryKey: ["roles"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<Role>("roles"),
-    autoIndex: "eager",
     getKey: (role) => role.id,
   }),
 );

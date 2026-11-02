@@ -11,7 +11,6 @@ export const registrationStatusCollection = collectionOptions("registrationStatu
     queryKey: ["registrationStatus"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<RegistrationStatus>("registration-status"),
-    autoIndex: "eager",
     getKey: (status) => status.id,
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(

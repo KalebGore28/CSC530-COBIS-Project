@@ -42,6 +42,18 @@ function RouteComponent() {
                   </svg>
                   Login with Google
                 </Button>
+                {import.meta.env.DEV && (
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={async () => {
+                      await fetch("/api/dev-login", { method: "POST" });
+                      window.location.assign("/");
+                    }}
+                  >
+                    Dev Login (local only)
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

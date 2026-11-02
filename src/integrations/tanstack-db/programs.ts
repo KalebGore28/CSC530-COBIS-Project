@@ -12,7 +12,6 @@ export const programsCollection = collectionOptions("program", (client) =>
     queryClient: client.requireDependency<QueryClient>("queryClient"),
     queryFn: () => fetchCollection<Program>("programs"),
     getKey: (program) => program.id,
-    autoIndex: "eager",
     onUpdate: async ({ transaction, collection }) => {
       await Promise.all(
         transaction.mutations.map((mutation) =>

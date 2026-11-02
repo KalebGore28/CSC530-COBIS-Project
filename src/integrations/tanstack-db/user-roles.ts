@@ -13,7 +13,6 @@ export const userRolesCollection = collectionOptions("userRole", (client) =>
       const response = await fetch(`/api/data/user-roles`);
       return (await response.json()) as Array<UserRole>;
     },
-    autoIndex: "eager",
     getKey: (userRole) => `${userRole.user_id}-${userRole.role_id}`,
     onInsert: async ({ transaction }) => {
       const newUserRole: UserRole = transaction.mutations[0].modified;

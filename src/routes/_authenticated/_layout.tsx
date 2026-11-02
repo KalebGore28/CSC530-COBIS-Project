@@ -41,6 +41,7 @@ export const Route = createFileRoute("/_authenticated/_layout")({
     ]);
   },
   component: App,
+  ssr: false,
 });
 
 function App() {
