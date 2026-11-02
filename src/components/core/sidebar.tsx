@@ -16,7 +16,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { NavUser } from "@/components/nav-user";
+import { NavUser } from "@/components/core/nav-user";
 import logoPrimaryWhite from "/logos/primary-white.png";
 import logoPrimaryNavy from "/logos/primary-navy.png";
 import logoShield from "/logos/primary-shield.png";
