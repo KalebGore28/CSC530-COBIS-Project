@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDbClient, useLiveQuery } from "@tanstack/react-db";
 import { format, formatDistanceStrict } from "date-fns";
 import { DownloadIcon, FileSpreadsheetIcon, UploadIcon, XIcon } from "lucide-react";
@@ -123,6 +123,7 @@ function ImportPage() {
   const importFinished = progress.data?.done === true || progress.isError;
 
   const dbClient = useDbClient();
+  const queryClient = useQueryClient();
   const { data: jobs, isLoading: jobsLoading } = useLiveQuery((q) =>
     q.from({ jobs: importJobsCollection }).orderBy(({ jobs }) => jobs.createdAt, "desc"),
   );
@@ -136,10 +137,13 @@ function ImportPage() {
     !otherImportRunning &&
     (status.step === "ready" || status.step === "failed");
 
-  // Picks up the finished import's final row count and status in the list below
+  // Picks up the finished import's final row count and status in the list below, and marks the
+  // rest of the data stale so pages show the imported rows instead of waiting out their stale time
   useEffect(() => {
-    if (importFinished) void dbClient.collection(importJobsCollection).utils.refetch();
-  }, [importFinished, dbClient]);
+    if (!importFinished) return;
+    void dbClient.collection(importJobsCollection).utils.refetch();
+    void queryClient.invalidateQueries();
+  }, [importFinished, dbClient, queryClient]);
 
   const chooseFile = (chosen: File | undefined) => {
     if (!chosen) return;
@@ -373,6 +377,7 @@ function RecentImports({ jobs, isLoading }: { jobs: Array<ImportJob>; isLoading:
 
 function ImportJobRow({ job }: { job: ImportJob }) {
   const dbClient = useDbClient();
+  const queryClient = useQueryClient();
   const isRunning = job.status === "pending" || job.status === "processing";
 
   // A running import started earlier, or in another tab, still shows its progress here
@@ -381,9 +386,12 @@ function ImportJobRow({ job }: { job: ImportJob }) {
     enabled: isRunning,
   });
   const finishedWhileOpen = isRunning && progress.data?.done === true;
+  // Same as when an import started here finishes, for one started in another tab or by someone else
   useEffect(() => {
-    if (finishedWhileOpen) void dbClient.collection(importJobsCollection).utils.refetch();
-  }, [finishedWhileOpen, dbClient]);
+    if (!finishedWhileOpen) return;
+    void dbClient.collection(importJobsCollection).utils.refetch();
+    void queryClient.invalidateQueries();
+  }, [finishedWhileOpen, dbClient, queryClient]);
 
   const startedAt = new Date(job.createdAt);
   let description = format(startedAt, "MMM d, yyyy h:mm a");

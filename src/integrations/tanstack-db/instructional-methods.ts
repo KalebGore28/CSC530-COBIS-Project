@@ -3,6 +3,7 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { instructionalMethods } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
 import { fetchCollection, updateCollectionItem } from "./api";
+import { LOOKUP_STALE_TIME } from "./stale-times";
 
 type InstructionalMethod = typeof instructionalMethods.$inferSelect;
 
@@ -10,6 +11,7 @@ export const instructionalMethodsCollection = collectionOptions("instructionalMe
   queryCollectionOptions({
     queryKey: ["instructionalMethods"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    staleTime: LOOKUP_STALE_TIME,
     autoIndex: "eager",
     defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<InstructionalMethod>("instructional-methods"),
