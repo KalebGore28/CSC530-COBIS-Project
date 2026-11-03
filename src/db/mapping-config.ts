@@ -3,6 +3,7 @@ import { makeMySqlCSVConfig } from "../utils/csv-importer";
 import {
   parseCourseCode,
   parseTermCode,
+  safeParseBoolean,
   safeParseDate,
   safeParseString,
 } from "../utils/code-parsers";
@@ -136,14 +137,20 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
             csvColumnName: "DESCRIPTION",
             transform: undefined,
           },
-          cip_code: { csvColumnName: "CIP_CODE" },
-          is_major: { csvColumnName: "IS_MAJOR" },
-          is_minor: { csvColumnName: "IS_MINOR" },
-          has_concentration: {
-            csvColumnName: "HAS_CONCENTRATION",
+          // The export writes the text NULL for missing values, which the database can't store as a number or yes/no
+          cip_code: {
+            csvColumnName: "CIP_CODE",
+            transform: (val) =>
+              safeParseString(val, {
+                emptyAsUndefined: true,
+                nullStringAsUndefined: true,
+              }),
           },
-          is_discontinued: { csvColumnName: "IS_DISCONTINUED" },
-          is_aacsb: { csvColumnName: "IS_AACSB" },
+          is_major: { csvColumnName: "IS_MAJOR", transform: safeParseBoolean },
+          is_minor: { csvColumnName: "IS_MINOR", transform: safeParseBoolean },
+          has_concentration: { csvColumnName: "HAS_CONCENTRATION", transform: safeParseBoolean },
+          is_discontinued: { csvColumnName: "IS_DISCONTINUED", transform: safeParseBoolean },
+          is_aacsb: { csvColumnName: "IS_AACSB", transform: safeParseBoolean },
           department_id: {
             csvColumnName: "DEPARTMENT",
             transform: (val) =>

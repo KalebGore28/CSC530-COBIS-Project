@@ -103,6 +103,14 @@ export function safeParseDate(value: string, fallback?: Date) {
   return Number.isNaN(d.getTime()) ? fallback : d;
 }
 
+// Exports write yes/no columns as 1 or 0, and anything else (like the text NULL) is left undefined so the column's default is used
+export function safeParseBoolean(value: string): boolean | undefined {
+  const str = value.trim().toLowerCase();
+  if (str === "1" || str === "true") return true;
+  if (str === "0" || str === "false") return false;
+  return undefined;
+}
+
 // If no transform is passed => return string | undefined
 export function safeParseString(
   value: unknown,
