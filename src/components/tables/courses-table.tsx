@@ -1,42 +1,12 @@
-import { EditableDataTable } from "./editable-data-table";
-import type { EditableColumnDef } from "./editable-data-table";
 import { useDbClient } from "@tanstack/react-db";
 import type { courses } from "@/db/schema";
-import { Checkbox } from "@/components/ui/checkbox";
-
-const nullFilter = (row: any, columnId: string, filterValue: string) => {
-  if (filterValue.toLowerCase() === "null") {
-    return row.getValue(columnId) == null;
-  }
-  return String(row.getValue(columnId)).toLowerCase().includes(filterValue.toLowerCase());
-};
+import { EditableDataTable } from "./editable-data-table";
+import type { EditableColumnDef } from "./editable-data-table";
+import { coursesCollection } from "@/integrations/tanstack-db/courses";
 
 type Courses = typeof courses.$inferSelect;
 
-import { coursesCollection } from "@/integrations/tanstack-db/courses";
-
 const columns: Array<EditableColumnDef<Courses>> = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
   {
     accessorKey: "id",
     header: "Id",
@@ -48,7 +18,6 @@ const columns: Array<EditableColumnDef<Courses>> = [
   {
     accessorKey: "number",
     header: "Number",
-    filterFn: "includesString",
   },
   {
     accessorKey: "suffix",
@@ -61,28 +30,23 @@ const columns: Array<EditableColumnDef<Courses>> = [
   {
     accessorKey: "hours",
     header: "Hours",
-    filterFn: "includesString",
   },
   {
     accessorKey: "department_id",
     header: "Department ID",
-    cell: ({ getValue }) => getValue() ?? "—", // or null
-    filterFn: nullFilter,
+    cell: ({ getValue }) => getValue() ?? "—",
   },
   {
     accessorKey: "college_id",
     header: "College ID",
-    cell: ({ getValue }) => getValue() ?? "—", // or null
-    filterFn: nullFilter,
+    cell: ({ getValue }) => getValue() ?? "—",
   },
   {
     accessorKey: "last_updated",
     header: "Last Updated",
     cell: ({ getValue }) => {
       const value = getValue();
-      if (!value) return "—";
-      const date = new Date(value as string | number | Date);
-      return date.toLocaleDateString();
+      return value ? new Date(value as string | number | Date).toLocaleDateString() : "—";
     },
   },
 ];
@@ -102,16 +66,14 @@ export function CoursesTable({
     <EditableDataTable
       columns={columns}
       data={data}
-      initialFilterColumn={filterColumn}
-      initialFilterValue={filterValue}
-      onBulkEdit={(selectedIds, column, value) => {
-        // Update all selected rows
-        collection.update(selectedIds, (drafts) => {
-          drafts.forEach((draft) => {
-            (draft as Record<string, any>)[column] = value;
-          });
+      editableColumns={{ title: "text", department_id: "department", college_id: "college" }}
+      onSave={(ids, changes) => {
+        collection.update(ids, (drafts) => {
+          drafts.forEach((draft) => Object.assign(draft, changes));
         });
       }}
+      initialFilterColumn={filterColumn}
+      initialFilterValue={filterValue}
     />
   );
 }

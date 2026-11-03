@@ -6,7 +6,7 @@ import type { MySql2Database } from "drizzle-orm/mysql2";
 import * as schema from "@/db/schema.ts";
 import { relations } from "@/db/relations.ts";
 
-let db: MySql2Database<typeof schema | typeof relations> | null = null;
+let db: MySql2Database<typeof relations> | null = null;
 let poolConnection: mysql.Pool | null = null;
 
 export function getDb() {

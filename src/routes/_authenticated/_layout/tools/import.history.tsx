@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/import/histo
   component: ImportHistoryPage,
   beforeLoad: ({ context }) => {
     const dbClient = context.dbClient;
-    dbClient.collection(importJobsCollection).preload();
+    void dbClient.collection(importJobsCollection).preload();
   },
 });
 

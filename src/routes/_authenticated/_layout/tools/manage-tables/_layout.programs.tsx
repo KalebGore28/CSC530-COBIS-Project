@@ -13,6 +13,7 @@ export const Route = createFileRoute(
   "/_authenticated/_layout/tools/manage-tables/_layout/programs",
 )({
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Programs" }),
   validateSearch: (search): RouteParams => {
     return {
       filterColumn: search.filterColumn as string | undefined,
