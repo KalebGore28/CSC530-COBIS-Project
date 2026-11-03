@@ -32,6 +32,11 @@ function inDepartmentPrograms(access: DataAccess, departmentId: string, term: En
 // sum() is null when there are no rows, so it's 0 instead
 const creditHours = sql<number>`coalesce(sum(${studentCourses.course_hours}), 0)`.mapWith(Number);
 
+// A final grade's points, or null for anything that isn't a letter grade (not in yet, NA)
+const gradePoints = sql`case ${studentCourses.final_grade}
+  when 'A' then 4 when 'B' then 3 when 'C' then 2 when 'D' then 1 when 'E' then 0
+end`;
+
 // A section is a course and section number together, since section "01" exists in many courses
 const sectionKey = sql`concat(${studentCourses.course_id}, '-', ${studentCourses.course_section})`;
 
@@ -136,6 +141,11 @@ export async function getInstructorEnrollments(
       enrolled: sql<number>`count(*)`.mapWith(Number),
       sections: countDistinct(sectionKey),
       credit_hours: creditHours,
+      // Average grade points of the final grades that are in and that the viewer can see, or null when there are none.
+      // Cast to a double, since MySQL otherwise returns an average as a decimal string.
+      gpa: sql<
+        number | null
+      >`cast(avg(case when ${access.canSee("grades", STUDENT_COURSE_ROW)} then ${gradePoints} end) as double)`,
     })
     .from(studentCourses)
     .innerJoin(courses, eq(studentCourses.course_id, courses.id))

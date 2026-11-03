@@ -9,20 +9,17 @@ export const Route = createFileRoute("/api/__protected/data/faculty")({
   server: {
     handlers: {
       GET: async ({ context }) => {
-        // Used by the instructor pages and the user management tools
-        if (
-          !context.capabilities.has("instructors.view") &&
-          !context.capabilities.has("tools.manage")
-        ) {
-          return new Response(JSON.stringify({ error: "Unauthorized" }), {
-            status: 403,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-        }
+        // The instructor pages and the user management tools need everyone. Anyone else, like faculty
+        // opening their own teaching page, only gets their own record.
+        const canSeeAll =
+          context.capabilities.has("instructors.view") || context.capabilities.has("tools.manage");
 
-        const facultyResults = await context.db.select().from(faculty);
+        const facultyResults = canSeeAll
+          ? await context.db.select().from(faculty)
+          : await context.db
+              .select()
+              .from(faculty)
+              .where(eq(faculty.mnumber, context.user.mnumber ?? ""));
 
         const json = JSON.stringify(facultyResults);
         const compressed = gzipSync(Buffer.from(json));

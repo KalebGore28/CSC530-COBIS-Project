@@ -28,6 +28,7 @@ import {
   ChartColumnIncreasing,
   ChevronRight,
   Wrench,
+  ChartNoAxesColumn,
   Clipboard,
 } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -94,6 +95,21 @@ export function AppSidebar() {
                   <Link to="/class-roster" className="flex h-full w-full items-center gap-2">
                     <Clipboard />
                     Class Roster
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )}
+            {/* Faculty can see their own grade distribution and teaching history (story 3) */}
+            {can("roster.view") && userSession?.user.mnumber && (
+              <SidebarMenuItem key="my-teaching" className="text-nowrap">
+                <SidebarMenuButton tooltip="My Teaching" className="p-1" asChild>
+                  <Link
+                    to="/instructors/$mnumber"
+                    params={{ mnumber: userSession.user.mnumber }}
+                    className="flex h-full w-full items-center gap-2"
+                  >
+                    <ChartNoAxesColumn />
+                    My Teaching
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

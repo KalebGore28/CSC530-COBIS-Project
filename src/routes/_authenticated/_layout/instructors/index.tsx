@@ -1,256 +1,268 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Search, Users } from "lucide-react";
-import { requirePageCapability } from "@/lib/page-guards";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useLiveQuery } from "@tanstack/react-db";
 import { useState } from "react";
-import { eq, ilike, or, useLiveQuery } from "@tanstack/react-db";
-import { InstructorsTable } from "@/components/tables/instructors-table";
+import { PersonStandingIcon, SearchIcon } from "lucide-react";
+import { cn } from "cn";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
-
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAuthentication } from "@/lib/auth-client";
+import { SortableTable } from "@/components/tables/sortable-table";
+import type { SortableColumnDef } from "@/components/tables/sortable-table";
+import { formatGpa } from "@/components/instructors/grade-distribution-card";
+import { enrollmentQuery } from "@/lib/enrollment";
+import type { EnrollmentTerm, InstructorEnrollment } from "@/lib/enrollment";
+import { requirePageCapability } from "@/lib/page-guards";
 
 import { departmentsCollection } from "@/integrations/tanstack-db/departments";
-import { collegesCollection } from "@/integrations/tanstack-db/colleges";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
-import { usersCollection } from "@/integrations/tanstack-db/users";
+import { termsCollection } from "@/integrations/tanstack-db/terms";
 
-// Helper function to get initials from name
-const getInitials = (name: string): string => {
-  if (!name) return "N/A";
-  return name
-    .split(" ")
-    .map((part) => part.charAt(0))
-    .join("")
-    .toUpperCase();
-};
-
-// Custom skeleton for InstructorsPage
-function InstructorsPageSkeleton() {
-  return (
-    <Card>
-      <CardHeader className="pb-3">
-        <div className="flex flex-wrap items-center justify-between">
-          {/* Title & description skeletons */}
-          <div>
-            <div className="mb-2 flex items-center gap-2">
-              <Skeleton className="h-5 w-5 rounded-full" />
-              <Skeleton className="h-6 w-32" />
-            </div>
-            <Skeleton className="h-4 w-40" />
-          </div>
-
-          {/* Search & filter skeletons */}
-          <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-            <Skeleton className="h-10 w-62.5 rounded-lg" />
-            <Skeleton className="h-10 w-37.5 rounded-lg" />
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        <Table>
-          {/* Table header skeleton */}
-          <TableHeader>
-            <TableRow>
-              <TableHead>
-                <Skeleton className="h-4 w-32" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-24" />
-              </TableHead>
-              <TableHead>
-                <Skeleton className="h-4 w-40" />
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-
-          {/* Table body skeleton rows */}
-          <TableBody>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-8 w-8 rounded-full" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-20" />
-                </TableCell>
-                <TableCell>
-                  <Skeleton className="h-4 w-32" />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  );
-}
+// The term lives in the URL as one value like "2025-80", since the router would quote a lone "80"
+type InstructorsSearch = { term?: string };
 
 export const Route = createFileRoute("/_authenticated/_layout/instructors/")({
   beforeLoad: ({ context }) => {
     requirePageCapability(context.userSession, "instructors.view");
 
-    const dbClient = context.dbClient;
-    void dbClient.collection(facultyCollection).preload();
-    void dbClient.collection(departmentsCollection).preload();
-    void dbClient.collection(collegesCollection).preload();
-    void dbClient.collection(usersCollection).preload();
+    void context.dbClient.collection(facultyCollection).preload();
   },
-  component: RouteComponent,
+  validateSearch: (search): InstructorsSearch => ({
+    term:
+      typeof search.term === "string" && /^\d{4}-\w+$/.test(search.term) ? search.term : undefined,
+  }),
+  component: InstructorsPage,
+  context: () => ({ getTitle: () => "Instructors" }),
 });
 
-function RouteComponent() {
-  const { userSession } = useAuthentication();
+function termKey(term: EnrollmentTerm) {
+  return `${term.year}-${term.term_id}`;
+}
 
-  const navigate = useNavigate();
+function parseTermKey(key?: string): EnrollmentTerm | undefined {
+  const match = key ? /^(\d{4})-(\w+)$/.exec(key) : null;
+  return match ? { year: Number(match[1]), term_id: match[2] } : undefined;
+}
 
-  const [searchQuery, setSearchQuery] = useState("");
+const columns: Array<SortableColumnDef<InstructorEnrollment>> = [
+  {
+    id: "instructor",
+    header: "Instructor",
+    accessorFn: (row) => `${row.last_name}, ${row.first_name}`,
+    cell: ({ row }) => (
+      <div className="whitespace-normal">
+        <div className="font-medium">
+          {row.original.first_name} {row.original.last_name}
+        </div>
+        <div className="text-muted-foreground text-xs">{row.original.mnumber}</div>
+      </div>
+    ),
+  },
+  {
+    id: "sections",
+    header: "Sections",
+    accessorFn: (row) => row.sections,
+    meta: { numeric: true, hideOnMobile: true },
+  },
+  {
+    id: "enrolled",
+    header: "Enrolled",
+    accessorFn: (row) => row.enrolled,
+    meta: { numeric: true },
+  },
+  {
+    id: "credit_hours",
+    header: "Credit hours",
+    accessorFn: (row) => row.credit_hours,
+    meta: { numeric: true, hideOnMobile: true },
+  },
+  {
+    id: "gpa",
+    header: "GPA",
+    accessorFn: (row) => row.gpa ?? undefined,
+    cell: ({ row }) => formatGpa(row.original.gpa),
+    meta: { numeric: true },
+  },
+];
 
-  const { data: facultyData, isLoading } = useLiveQuery(
-    (q) =>
+function InstructorsPage() {
+  const search: InstructorsSearch = Route.useSearch();
+  const navigate = useNavigate({ from: Route.fullPath });
+  const [query, setQuery] = useState("");
+
+  // The same counts as the enrollment page's Instructors tab, so the two always agree
+  const enrollment = useQuery({
+    ...enrollmentQuery(parseTermKey(search.term)),
+    placeholderData: keepPreviousData,
+  });
+
+  const { data: termNames } = useLiveQuery({ query: (q) => q.from({ terms: termsCollection }) });
+  const { data: faculty } = useLiveQuery({
+    query: (q) =>
       q
         .from({ faculty: facultyCollection })
-        .where(({ faculty }) =>
-          or(
-            ilike(faculty.first_name, `%${searchQuery}%`),
-            ilike(faculty.last_name, `%${searchQuery}%`),
-            ilike(faculty.mnumber, `%${searchQuery}%`),
-          ),
-        )
-        .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
-          eq(faculty.department_id, departments.id),
-        )
-        .leftJoin({ colleges: collegesCollection }, ({ faculty, colleges }) =>
-          eq(faculty.college_id, colleges.id),
-        )
-        .leftJoin({ users: usersCollection }, ({ faculty, users }) =>
-          eq(faculty.mnumber, users.mnumber),
-        )
-        .orderBy(({ faculty }) => faculty.last_name, "asc"),
-    [searchQuery], // Re-run when searchQuery changes
-  );
+        .orderBy(({ faculty }) => faculty.last_name)
+        .orderBy(({ faculty }) => faculty.first_name),
+  });
+  const { data: departments } = useLiveQuery({
+    query: (q) => q.from({ departments: departmentsCollection }),
+  });
 
-  if (isLoading)
+  if (enrollment.isPending) {
     return (
-      <div className="mx-auto w-full space-y-6 p-6">
-        <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
-          <h2 className="col-span-full text-center text-2xl font-bold">Instructors</h2>
-          <p className="text-muted-foreground col-span-full text-center">
-            View and manage all instructors in your department
-          </p>
-        </div>
-        <InstructorsPageSkeleton />
+      <div className="container mx-auto space-y-4 py-6">
+        <Skeleton className="h-12 w-96" />
+        <Skeleton className="h-96" />
       </div>
     );
-
-  if (facultyData.length === 0) {
-    <div className="mx-auto w-full space-y-6 p-6">
-      <div className="mb-8 grid grid-cols-1 gap-2 md:grid-cols-2">
-        <h2 className="col-span-full text-center text-2xl font-bold">Instructors</h2>
-        <p className="text-muted-foreground col-span-full text-center">
-          View and manage all instructors in your department
-        </p>
-      </div>
-      <p className="text-muted-foreground text-center">No data available.</p>
-    </div>;
   }
 
-  const filteredFaculty =
-    searchQuery !== ""
-      ? facultyData
-      : facultyData.filter((d) => d.faculty.department_id === userSession?.faculty.department_id);
+  if (enrollment.isError) {
+    return (
+      <div className="container mx-auto py-6">
+        <Empty className="border">
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <PersonStandingIcon />
+            </EmptyMedia>
+            <EmptyTitle>Instructors couldn't load</EmptyTitle>
+            <EmptyDescription>{enrollment.error.message}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </div>
+    );
+  }
 
-  // Handle search input change with debounce
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
-  };
+  const data = enrollment.data;
+  const term = data.term;
+  const termLabel = (t: EnrollmentTerm) =>
+    `${termNames.find((name) => name.id === t.term_id)?.description ?? t.term_id} ${t.year}`;
+
+  const text = query.trim().toLowerCase();
+  const matches = (first: string, last: string, mnumber: string) =>
+    !text || [first, last, `${first} ${last}`, mnumber].some((v) => v.toLowerCase().includes(text));
+
+  const instructors = (data.instructors ?? []).filter((i) =>
+    matches(i.first_name, i.last_name, i.mnumber),
+  );
+
+  // Anyone else on the faculty, found by searching, since chairs sometimes look up someone outside their courses
+  const teaching = new Set((data.instructors ?? []).map((i) => i.mnumber));
+  const otherFaculty =
+    text.length >= 2
+      ? faculty
+          .filter((f) => !teaching.has(f.mnumber) && matches(f.first_name, f.last_name, f.mnumber))
+          .slice(0, 20)
+      : [];
+  const departmentName = (id: string | null) =>
+    departments.find((d) => d.id === id)?.description ?? "No department";
+
+  const openInstructor = (mnumber: string) =>
+    void navigate({
+      to: "/instructors/$mnumber",
+      params: { mnumber },
+      // Open their page on the same term
+      search: term ? { from: termKey(term), to: termKey(term) } : {},
+    });
 
   return (
-    <div className="container mx-auto space-y-6 p-6">
-      <Card>
-        <CardHeader>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <CardTitle className="flex items-center gap-2 text-xl">
-                <Users className="h-5 w-5" />
-                Instructor Directory
-              </CardTitle>
-              <CardDescription className="max-w-100">
-                Currently only showing instructors from your department. Use the search to find
-                other instructors. Showing {filteredFaculty.length} instructor
-                {filteredFaculty.length !== 1 ? "s" : ""}.
-              </CardDescription>
-            </div>
-            {/* Search and Filter Controls*/}
-            <InputGroup className="w-full sm:max-w-80">
-              <InputGroupInput
-                id="input-group-url"
-                placeholder="Search instructors..."
-                onChange={handleSearchChange}
-              />
+    <div className="container mx-auto space-y-4 py-6">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-xl font-semibold">Instructors</h1>
+          <p className="text-muted-foreground text-sm">
+            {term
+              ? `Everyone teaching your department's courses in ${termLabel(term)}. Counts only those courses and enrolled students. An instructor's own page includes every course they teach.`
+              : "Nobody has taught your department's courses yet."}
+          </p>
+        </div>
+        {term && (
+          <Select
+            value={termKey(term)}
+            onValueChange={(value) => void navigate({ search: { term: value } })}
+          >
+            <SelectTrigger className="w-44 max-md:w-full" aria-label="Term">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {data.terms.map((t) => (
+                <SelectItem key={termKey(t)} value={termKey(t)}>
+                  {termLabel(t)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      </div>
 
-              <InputGroupAddon align="inline-end">
-                <Search className="text-muted-foreground h-4 w-4" />
-              </InputGroupAddon>
-            </InputGroup>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {filteredFaculty.length > 0 ? (
-            <InstructorsTable
-              data={filteredFaculty.map((d) => ({
-                instructor: (
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarImage src={d.users?.image ?? undefined} alt={d.faculty.first_name} />
-                      <AvatarFallback>
-                        {getInitials(`${d.faculty.first_name} ${d.faculty.last_name}`)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-semibold">{`${d.faculty.first_name} ${d.faculty.last_name}`}</span>
-                      <span className="text-muted-foreground text-sm">{d.faculty.mnumber}</span>
-                    </div>
-                  </div>
-                ),
-                mnumber: d.faculty.mnumber,
-                department: d.departments?.description ?? "Unassigned",
-                college: d.colleges?.description ?? "Unassigned",
-                email: d.users?.email ?? "N/A",
-              }))}
-              onRowSelect={(row) => {
-                void navigate({
-                  to: `/instructors/${row.mnumber}`,
-                });
-              }}
-            />
-          ) : (
-            filteredFaculty.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Users className="text-muted-foreground mb-4 h-12 w-12" />
-                <h3 className="text-lg font-medium">No instructors found</h3>
-                <p className="text-muted-foreground mt-1">
-                  Try adjusting your search or filter to find what you're looking for.
-                </p>
-              </div>
-            )
-          )}
+      <InputGroup className="w-72 max-md:w-full">
+        <InputGroupAddon>
+          <SearchIcon />
+        </InputGroupAddon>
+        <InputGroupInput
+          placeholder="Search name or M-Number"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          aria-label="Search instructors"
+        />
+      </InputGroup>
+
+      <Card className={cn("py-0", enrollment.isPlaceholderData && "opacity-60")}>
+        <CardContent className="px-0">
+          <SortableTable
+            columns={columns}
+            data={instructors}
+            initialSorting={[{ id: "credit_hours", desc: true }]}
+            emptyMessage={
+              text ? "Nobody teaching this term matches your search." : "Nobody taught this term."
+            }
+            onRowClick={(instructor) => openInstructor(instructor.mnumber)}
+          />
         </CardContent>
       </Card>
+
+      {otherFaculty.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Other faculty</CardTitle>
+            <CardDescription>
+              Matches who didn't teach your department's courses this term.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-1">
+            {otherFaculty.map((f) => (
+              <Link
+                key={f.mnumber}
+                to="/instructors/$mnumber"
+                params={{ mnumber: f.mnumber }}
+                className="hover:bg-muted -mx-2 flex items-baseline justify-between gap-3 rounded-md px-2 py-1.5"
+              >
+                <span className="font-medium">
+                  {f.first_name} {f.last_name}
+                </span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {f.mnumber} · {departmentName(f.department_id)}
+                </span>
+              </Link>
+            ))}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
