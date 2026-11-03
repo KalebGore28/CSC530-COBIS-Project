@@ -1,367 +1,154 @@
 import { gzipSync } from "node:zlib";
 import { createFileRoute } from "@tanstack/react-router";
-import { and, desc, eq, exists, gt, gte, lt, lte, ne, notExists, or } from "drizzle-orm";
+import Papa from "papaparse";
 import * as z from "zod";
-import type { SQLWrapper } from "drizzle-orm";
-import { studentAcademicInfo, studentCourses, studentPrograms, students } from "@/db/schema";
+import { requireCapability } from "@/middleware/require-capability";
 import {
-  STUDENT_ACADEMIC_INFO_ROW,
-  STUDENT_COURSE_ROW,
-  STUDENT_PROGRAM_ROW,
-  STUDENT_ROW,
-} from "@/utils/data-access";
+  CLASS_LEVELS,
+  LETTER_GRADES,
+  countStudents,
+  findStudents,
+  getCurrentPrograms,
+} from "@/utils/student-lookup";
+import type { StudentLookupFilters } from "@/utils/student-lookup";
 
-// Custom Boolean Coercion because of Javascript's truthy coercion of strings
-const booleanCoercion = z
-  .union([
-    z.boolean(),
-    z.string().transform((val) => {
-      if (val.toLowerCase() === "true") return true;
-      if (val.toLowerCase() === "false") return false;
-      throw new Error("Invalid boolean string");
-    }),
-  ])
-  .optional();
+const PAGE_SIZE = 25;
 
-const allowedGrades = ["A", "B", "C", "D", "E"] as const;
-const allowedAcademicLevels = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"] as const;
-const academicLevelHours: Record<(typeof allowedAcademicLevels)[number], number> = {
-  Freshman: 30,
-  Sophomore: 60,
-  Junior: 90,
-  Senior: 120,
-  Graduate: 120,
-};
-
-export const searchParamsSchema = z
-  .object({
-    // GPA
-    gpaMin: z.coerce.number().min(0).max(4).optional(),
-    gpaMax: z.coerce.number().min(0).max(4).optional(),
-
-    // string OR string[]
-    academicLevel: z
-      .union([z.enum(allowedAcademicLevels), z.array(z.enum(allowedAcademicLevels))])
-      .optional(),
-
-    // Program filters
-    program_id: z.string().optional(),
-    is_major: booleanCoercion,
-    is_minor: booleanCoercion,
-
-    // Course filters
-    course_id: z.string().optional(),
-    taken: booleanCoercion,
-    grade: z.enum(allowedGrades).optional(),
-    operator: z.enum(["EQ", "NE", "LT", "LTE", "GT", "GTE"]).optional(),
-
-    offset: z.coerce.number().min(0).optional(),
-    limit: z.coerce.number().min(1).max(1000).optional(),
-  })
-  .superRefine((val, ctx) => {
-    // Program filters validation
-    if (val.program_id) {
-      // Require exactly one of is_major or is_minor
-
-      // If neither is provided
-      if (val.is_major === undefined && val.is_minor === undefined) {
-        ctx.addIssue({
-          path: ["is_major"],
-          code: "custom",
-          message: "Either is_major or is_minor must be provided when program_code is set",
-        });
-        ctx.addIssue({
-          path: ["is_minor"],
-          code: "custom",
-          message: "Either is_major or is_minor must be provided when program_code is set",
-        });
-      }
-
-      // If both are provided
-      if (val.is_major !== undefined && val.is_minor !== undefined) {
-        ctx.addIssue({
-          path: ["is_major"],
-          code: "custom",
-          message: "Cannot provide both is_major and is_minor",
-        });
-        ctx.addIssue({
-          path: ["is_minor"],
-          code: "custom",
-          message: "Cannot provide both is_major and is_minor",
-        });
-      }
-    }
-
-    // Course filters validation
-    if (val.course_id) {
-      // taken is required if course_id is provided
-      if (val.taken === undefined) {
-        ctx.addIssue({
-          path: ["taken"],
-          code: "custom",
-          message: "taken must be provided when course_id is set",
-        });
-      }
-      if (val.taken) {
-        // If taken is true, grade and operator are required
-        if (!val.grade) {
-          ctx.addIssue({
-            path: ["grade"],
-            code: "custom",
-            message: "grade is required when taken is true",
-          });
-        }
-        if (!val.operator) {
-          ctx.addIssue({
-            path: ["operator"],
-            code: "custom",
-            message: "operator is required when taken is true",
-          });
-        }
-      }
-    }
-  });
+const searchParamsSchema = z.object({
+  program: z.array(z.string().min(1)),
+  programType: z.enum(["major", "minor", "any"]).default("any"),
+  course: z.array(z.string().min(1)),
+  // Defaults to students who have taken the course
+  courseTaken: z.enum(["true", "false"]).default("true"),
+  minGrade: z.enum(LETTER_GRADES).optional(),
+  level: z.array(z.enum(CLASS_LEVELS)),
+  gpaMin: z.coerce.number().min(0).max(4).optional(),
+  sort: z.enum(["name", "gpa"]).default("name"),
+  page: z.coerce.number().int().min(1).default(1),
+  format: z.enum(["json", "csv"]).default("json"),
+});
 
 export const Route = createFileRoute("/api/__protected/lookup-students")({
   server: {
+    middleware: [requireCapability("student.lookup")],
     handlers: {
       GET: async ({ request, context }) => {
-        if (!context.capabilities.has("student.lookup")) {
-          return new Response("Forbidden", { status: 403 });
-        }
-
         const params = new URL(request.url).searchParams;
-
-        const errors: Array<string> = [];
-
-        // Convert URLSearchParams to object so Zod can read
-        const rawParams: Record<string, unknown> = {};
-        for (const [key, value] of params.entries()) {
-          // If there are multiple entries for the same key,
-          // represent them as an array so Zod can match string | string[]
-          const allValues = params.getAll(key);
-          rawParams[key] = allValues.length > 1 ? allValues : value;
-        }
-
-        // Validate with Zod
-        const parsed = searchParamsSchema.safeParse(rawParams);
-
-        if (!parsed.success) {
-          return new Response(JSON.stringify({ error: parsed.error }), {
-            status: 400,
-          });
-        }
-
-        const { access } = context;
-
-        // Build where clauses based on filters
-        // Each filter below only looks at rows the user can see. Otherwise, whether a student
-        // comes back would reveal a GPA or grade the user isn't allowed to see.
-        const whereClauses: Array<SQLWrapper> = [access.canSee("identity", STUDENT_ROW)];
-
-        // These all apply to the same academic info row
-        const academicInfoWhere: Array<SQLWrapper> = [];
-
-        // GPA filters
-        if (parsed.data.gpaMin !== undefined) {
-          academicInfoWhere.push(gte(studentAcademicInfo.overall_gpa, parsed.data.gpaMin));
-        }
-
-        if (parsed.data.gpaMax !== undefined) {
-          academicInfoWhere.push(lte(studentAcademicInfo.overall_gpa, parsed.data.gpaMax));
-        }
-
-        // First get the latest year and term_code found in the student_academic_info table
-        const [currentTerm] = await context.db
-          .select({
-            year: studentAcademicInfo.year,
-            term: studentAcademicInfo.term_id,
-          })
-          .from(studentAcademicInfo)
-          .orderBy(desc(studentAcademicInfo.year), desc(studentAcademicInfo.term_id))
-          .limit(1);
-
-        // Academic level filters
-        if (parsed.data.academicLevel) {
-          const levels = Array.isArray(parsed.data.academicLevel)
-            ? parsed.data.academicLevel
-            : [parsed.data.academicLevel];
-
-          const levelClauses = levels.map((level) => {
-            const hours = academicLevelHours[level];
-            switch (level) {
-              case "Freshman":
-                return lt(studentAcademicInfo.overall_earned_hours, academicLevelHours["Freshman"]);
-              case "Sophomore":
-                return and(
-                  gte(studentAcademicInfo.overall_earned_hours, academicLevelHours["Freshman"]),
-                  lt(studentAcademicInfo.overall_earned_hours, hours),
-                );
-              case "Junior":
-                return and(
-                  gte(studentAcademicInfo.overall_earned_hours, academicLevelHours["Sophomore"]),
-                  lt(studentAcademicInfo.overall_earned_hours, hours),
-                );
-              case "Senior":
-                return and(
-                  gte(studentAcademicInfo.overall_earned_hours, academicLevelHours["Junior"]),
-                  lt(studentAcademicInfo.overall_earned_hours, hours),
-                );
-              case "Graduate":
-                return gte(studentAcademicInfo.overall_earned_hours, hours);
-              default:
-                return undefined;
-            }
-          });
-
-          // Filter out any null clauses before combining with OR
-          const validLevelClauses = levelClauses.filter((clause) => clause !== undefined);
-          if (validLevelClauses.length > 0) {
-            // Enforce the latest year and term data
-            academicInfoWhere.push(
-              // @ts-ignore ignore for now
-              and(
-                or(...validLevelClauses),
-                eq(studentAcademicInfo.year, currentTerm.year),
-                eq(studentAcademicInfo.term_id, currentTerm.term),
-              ),
-            );
-          }
-        }
-
-        if (academicInfoWhere.length > 0) {
-          whereClauses.push(
-            exists(
-              context.db
-                .select()
-                .from(studentAcademicInfo)
-                .where(
-                  and(
-                    eq(studentAcademicInfo.mnumber, students.mnumber),
-                    access.canSee("academic_info", STUDENT_ACADEMIC_INFO_ROW),
-                    ...academicInfoWhere,
-                  ),
-                )
-                .limit(1),
-            ),
-          );
-        }
-
-        // Program filters
-        if (parsed.data.program_id) {
-          // We need to create a subquery to filter students in the specified program
-          const progWhere: Array<SQLWrapper> = [
-            eq(studentPrograms.mnumber, students.mnumber),
-            eq(studentPrograms.program_id, parsed.data.program_id),
-            access.canSee("programs", STUDENT_PROGRAM_ROW),
-          ];
-
-          if (parsed.data.is_major) {
-            progWhere.push(eq(studentPrograms.type, "MAJOR"));
-          } else if (parsed.data.is_minor) {
-            progWhere.push(eq(studentPrograms.type, "MINOR"));
-          }
-
-          // Add the exists subquery to the main where clauses
-          whereClauses.push(
-            exists(
-              context.db
-                .select()
-                .from(studentPrograms)
-                .where(and(...progWhere))
-                .limit(1),
-            ),
-          );
-        }
-
-        // Course filters
-        if (parsed.data.course_id) {
-          const courseWhere: Array<SQLWrapper> = [
-            eq(studentCourses.mnumber, students.mnumber),
-            eq(studentCourses.course_id, parsed.data.course_id),
-          ];
-
-          if (parsed.data.taken) {
-            // If taken is true, we want to ensure a record exists for this student and course
-            const grade = parsed.data.grade!;
-            const operator = parsed.data.operator!;
-            let gradeCondition: SQLWrapper;
-
-            switch (operator) {
-              case "EQ":
-                gradeCondition = eq(studentCourses.final_grade, grade);
-                break;
-              case "NE":
-                gradeCondition = ne(studentCourses.final_grade, grade);
-                break;
-              case "LT":
-                gradeCondition = gt(studentCourses.final_grade, grade); // academically “<”  → string-wise “>”
-                break;
-              case "LTE":
-                gradeCondition = gte(studentCourses.final_grade, grade); // academically “<=” → string-wise “>=”
-                break;
-              case "GT":
-                gradeCondition = lt(studentCourses.final_grade, grade); // academically “>” → string-wise “<”
-                break;
-              case "GTE":
-                gradeCondition = lte(studentCourses.final_grade, grade); // academically “>=” → string-wise “<=”
-                break;
-              default:
-                throw new Error(`Unknown comparison operator: ${operator}`);
-            }
-
-            courseWhere.push(gradeCondition, access.canSee("grades", STUDENT_COURSE_ROW));
-
-            whereClauses.push(
-              exists(
-                context.db
-                  .select()
-                  .from(studentCourses)
-                  .where(and(...courseWhere))
-                  .limit(1),
-              ),
-            );
-          } else {
-            // If not taken, we want to ensure no records the user can see exist for this student and course
-            courseWhere.push(access.canSee("courses", STUDENT_COURSE_ROW));
-
-            whereClauses.push(
-              notExists(
-                context.db
-                  .select()
-                  .from(studentCourses)
-                  .where(and(...courseWhere))
-                  .limit(1),
-              ),
-            );
-          }
-        }
-
-        const results = await context.db
-          .select({
-            mnumber: students.mnumber,
-            first_name: students.first_name,
-            last_name: students.last_name,
-            email: students.email,
-          })
-          .from(students)
-          .where(and(...whereClauses))
-          .orderBy(students.mnumber) // Keeps offset pages from overlapping
-          .offset(parsed.data.offset || 0)
-          .limit(parsed.data.limit || 100);
-
-        // Figure out if we have a next cursor
-        const hasMore = results.length === (parsed.data.limit || 100);
-
-        const json = JSON.stringify({
-          students: results,
-          errors: errors.length ? errors : undefined,
-          nextCursor: hasMore ? (parsed.data.offset || 0) + (parsed.data.limit || 100) : undefined,
+        const parsed = searchParamsSchema.safeParse({
+          program: params.getAll("program"),
+          programType: params.get("programType") ?? undefined,
+          course: params.getAll("course"),
+          courseTaken: params.get("courseTaken") ?? undefined,
+          minGrade: params.get("minGrade") ?? undefined,
+          level: params.getAll("level"),
+          gpaMin: params.get("gpaMin") ?? undefined,
+          sort: params.get("sort") ?? undefined,
+          page: params.get("page") ?? undefined,
+          format: params.get("format") ?? undefined,
         });
 
-        const compressed = gzipSync(Buffer.from(json));
+        if (!parsed.success) {
+          return Response.json({ error: z.prettifyError(parsed.error) }, { status: 400 });
+        }
 
-        return new Response(compressed, {
+        const { db, access } = context;
+        const search = parsed.data;
+        const canSeeAcademicInfo = access.hasCategory("academic_info");
+
+        // These would only ever match nothing for someone who can't see them, like an admin assistant
+        if (!canSeeAcademicInfo && (search.gpaMin !== undefined || search.level.length > 0)) {
+          return Response.json(
+            { error: "You can't search by GPA or class level" },
+            { status: 403 },
+          );
+        }
+        if (!access.hasCategory("grades") && search.minGrade) {
+          return Response.json({ error: "You can't search by grade" }, { status: 403 });
+        }
+
+        const filters: StudentLookupFilters = {
+          programIds: search.program,
+          programType:
+            search.programType === "major"
+              ? "MAJOR"
+              : search.programType === "minor"
+                ? "MINOR"
+                : "ANY",
+          courseIds: search.course,
+          courseTaken: search.courseTaken === "true",
+          // A minimum grade only applies to students who took the course
+          minGrade: search.courseTaken === "true" ? search.minGrade : undefined,
+          levels: search.level,
+          gpaMin: search.gpaMin,
+        };
+
+        if (search.format === "csv") {
+          // Every match, not just the page on screen
+          const matches = await findStudents(db, access, filters, search.sort);
+          const programRows = await getCurrentPrograms(
+            db,
+            access,
+            matches.map((student) => student.mnumber),
+          );
+
+          const csv = Papa.unparse(
+            matches.map((student) => ({
+              "M-Number": student.mnumber,
+              "Last name": student.last_name,
+              "First name": student.first_name,
+              Email: student.email ?? "",
+              Programs: programRows
+                .filter((program) => program.mnumber === student.mnumber)
+                .map(
+                  (program) =>
+                    `${program.description} (${program.type === "MAJOR" ? "Major" : "Minor"})`,
+                )
+                .join("; "),
+              ...(canSeeAcademicInfo && {
+                Level: student.class_level ?? "",
+                GPA: student.overall_gpa ?? "",
+              }),
+            })),
+          );
+
+          return new Response(gzipSync(Buffer.from(csv)), {
+            status: 200,
+            headers: {
+              "Content-Type": "text/csv; charset=utf-8",
+              "Content-Disposition": `attachment; filename="student-lookup-${new Date().toISOString().slice(0, 10)}.csv"`,
+              "Content-Encoding": "gzip",
+            },
+          });
+        }
+
+        const [total, matches] = await Promise.all([
+          countStudents(db, access, filters),
+          findStudents(db, access, filters, search.sort, {
+            offset: (search.page - 1) * PAGE_SIZE,
+            limit: PAGE_SIZE,
+          }),
+        ]);
+        const programRows = await getCurrentPrograms(
+          db,
+          access,
+          matches.map((student) => student.mnumber),
+        );
+
+        const studentsWithPrograms = matches.map((student) => ({
+          ...student,
+          programs: programRows
+            .filter((program) => program.mnumber === student.mnumber)
+            .map(({ program_id, description, type }) => ({ program_id, description, type })),
+        }));
+
+        const json = JSON.stringify({
+          students: studentsWithPrograms,
+          total,
+          page: search.page,
+          pageSize: PAGE_SIZE,
+        });
+
+        return new Response(gzipSync(Buffer.from(json)), {
           status: 200,
           headers: {
             "Content-Type": "application/json",
