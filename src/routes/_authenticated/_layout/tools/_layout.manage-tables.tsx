@@ -204,7 +204,7 @@ function RouteComponent() {
           if (!open) void navigate({ to: "/tools/manage-tables", search: {} });
         }}
       >
-        <SheetContent className="w-full gap-0 data-[side=right]:sm:max-w-4xl">
+        <SheetContent className="bg-background w-full gap-0 data-[side=right]:sm:max-w-4xl">
           {openTable && (
             <>
               <SheetHeader className="pr-12">

@@ -13,6 +13,7 @@ export const Route = createFileRoute(
   "/_authenticated/_layout/tools/manage-tables/_layout/part-of-terms",
 )({
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Parts of Term" }),
   validateSearch: (search): RouteParams => {
     return {
       filterColumn: search.filterColumn as string | undefined,

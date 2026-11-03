@@ -21,6 +21,8 @@ const config = defineConfig({
     sortTailwindcss: true,
   },
   lint: {
+    // Only used by the Dockerfile's old SSR setup, and likely to be removed
+    ignorePatterns: ["server.ts"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },

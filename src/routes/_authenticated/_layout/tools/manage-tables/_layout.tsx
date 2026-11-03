@@ -1,29 +1,19 @@
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { GoBackButton } from "@/components/common/go-back-button";
 
 export const Route = createFileRoute("/_authenticated/_layout/tools/manage-tables/_layout")({
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Manage Tables" }),
 });
 
 function RouteComponent() {
-  const navigate = useNavigate();
-
   return (
     <div className="flex flex-col gap-4">
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-fit shadow-md"
-        onClick={() =>
-          navigate({
-            to: `/tools/manage-tables`,
-          })
-        }
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
+      <GoBackButton fallback={{ to: "/tools/manage-tables" }} variant="outline" className="w-fit">
+        <ArrowLeft />
         Back
-      </Button>
+      </GoBackButton>
 
       <Outlet />
     </div>
