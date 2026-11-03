@@ -1,6 +1,7 @@
 import { defineConfig, lazyPlugins } from "vite-plus";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import { devtools } from "@tanstack/devtools-vite";
+import { nitro } from "nitro/vite";
 
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
@@ -17,13 +18,13 @@ const config = defineConfig({
       "yarn.lock",
       "CHANGELOG.md",
       "**/drizzle",
+      ".output",
     ],
     sortTailwindcss: true,
   },
   lint: {
-    // server.ts is only used by the Dockerfile's old SSR setup, and likely to be removed.
     // components/ui is shadcn's generated code, so fixes there would be lost the next time it's regenerated.
-    ignorePatterns: ["server.ts", "src/components/ui/**"],
+    ignorePatterns: [".output/**", "src/components/ui/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
@@ -38,7 +39,15 @@ const config = defineConfig({
     globals: true,
     environment: "node",
   },
-  plugins: lazyPlugins(() => [devtools(), tailwindcss(), tanstackStart(), viteReact()]),
+  plugins: lazyPlugins(() => [
+    devtools(),
+    tailwindcss(),
+    tanstackStart(),
+    // Builds a self-contained Bun server into .output, started with `bun .output/server/index.mjs`.
+    // Static files are compressed at build time and served compressed to browsers that accept it.
+    nitro({ preset: "bun", compressPublicAssets: true }),
+    viteReact(),
+  ]),
   define: {
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(pkg.version),
   },
