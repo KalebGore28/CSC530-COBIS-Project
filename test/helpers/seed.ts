@@ -5,7 +5,8 @@ import * as schema from "../../src/db/schema.ts";
 import { closeDb, getDb, resetDb } from "./db";
 import { seedPolicy } from "@/db/seed/seed-policy";
 import { parseCSV } from "@/utils/csv-importer";
-import { invalidateEntireCache } from "@/utils/get-student-access-level.ts";
+// The old access cache was removed along with get-student-access-level.ts
+// import { invalidateEntireCache } from "@/utils/get-student-access-level.ts";
 
 async function getCSVData(filePath: string): Promise<Array<Record<string, string>>> {
   const basePath = "src/db/seed/csvs";
@@ -396,7 +397,7 @@ seedTestDatabase()
     console.error("❌ Error seeding test database:", error);
   })
   .finally(async () => {
-    console.log("Invalidating access cache...");
-    invalidateEntireCache();
+    // console.log("Invalidating access cache...");
+    // invalidateEntireCache();
     await closeDb();
   });
