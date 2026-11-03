@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DbClient } from "@tanstack/react-db";
 
 import appCss from "../styles.css?url";
+// Linked on its own rather than imported by styles.css, so replacing styles.css with a new shadcn theme keeps it
 import spacingCss from "../spacing.css?url";
 import { authQuery } from "@/lib/queries";
 
