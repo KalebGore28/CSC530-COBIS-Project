@@ -4,6 +4,8 @@ import { randomUUID } from "crypto";
 import { tmpdir } from "os";
 import { join } from "path";
 import { importJobs } from "@/db/schema";
+import { csvConfig } from "@/db/mapping-config";
+import { findMySqlMatchingTables } from "@/utils/csv-importer";
 import { processImport } from "@/utils/process-import";
 
 export const Route = createFileRoute("/api/__protected/import/upload")({
@@ -22,6 +24,14 @@ export const Route = createFileRoute("/api/__protected/import/upload")({
 
         if (!file.name.endsWith(".csv")) {
           return new Response(JSON.stringify({ error: "File must be a CSV" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          });
+        }
+
+        // The file name decides which tables get updated, so turn away names the importer doesn't know
+        if (!findMySqlMatchingTables(file.name, csvConfig)) {
+          return new Response(JSON.stringify({ error: "COBIS doesn't recognize this file name" }), {
             status: 400,
             headers: { "Content-Type": "application/json" },
           });

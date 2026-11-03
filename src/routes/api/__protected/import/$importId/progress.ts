@@ -1,7 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { eq } from "drizzle-orm";
 import { importJobs } from "@/db/schema";
-import { getImportState, attachStreamController } from "@/utils/import-state";
+import {
+  attachStreamController,
+  detachStreamController,
+  getImportState,
+  toProgressChunk,
+} from "@/utils/import-state";
+import type { ProgressChunk } from "@/utils/import-state";
+
+// A stream with a single chunk, for imports that have already finished
+function singleChunkResponse(chunk: ProgressChunk) {
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(JSON.stringify(chunk) + "\n");
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain",
+      "Cache-Control": "no-cache",
+    },
+  });
+}
 
 export const Route = createFileRoute("/api/__protected/import/$importId/progress")({
   server: {
@@ -13,56 +36,24 @@ export const Route = createFileRoute("/api/__protected/import/$importId/progress
         const state = getImportState(importId);
 
         if (state) {
-          // Check if import is already complete
+          // Already finished, so send the final status and close
           if (state.status === "done" || state.status === "failed") {
-            // Send final status and close immediately
-            const finalChunk = {
-              processed: state.processed,
-              total: state.total,
-              totalRows: state.totalRows,
-              errorCount: state.errorCount,
-              warningCount: state.warningCount,
-              currentStep: state.currentStep,
-              done: true,
-              error: state.error, // Use stored error message
-            };
-
-            const stream = new ReadableStream({
-              start(controller) {
-                controller.enqueue(JSON.stringify(finalChunk) + "\n");
-                controller.close();
-              },
-            });
-
-            return new Response(stream, {
-              headers: {
-                "Content-Type": "text/plain",
-                "Cache-Control": "no-cache",
-              },
-            });
+            return singleChunkResponse(toProgressChunk(state));
           }
 
           // Import is actively processing - stream live updates
+          let streamController: ReadableStreamDefaultController | null = null;
           const stream = new ReadableStream({
             start(controller) {
+              streamController = controller;
               // Attach controller to state so updates can be sent
               attachStreamController(importId, controller);
-
               // Send current state immediately
-              const chunk = JSON.stringify({
-                processed: state.processed,
-                total: state.total,
-                totalRows: state.totalRows,
-                errorCount: state.errorCount,
-                warningCount: state.warningCount,
-                currentStep: state.currentStep,
-              });
-              controller.enqueue(chunk + "\n");
-
-              // Stream will be updated by processImport callbacks
+              controller.enqueue(JSON.stringify(toProgressChunk(state)) + "\n");
             },
             cancel() {
-              // Client disconnected - controller will be cleaned up
+              // Client disconnected, so stop sending it updates
+              if (streamController) detachStreamController(importId, streamController);
             },
           });
 
@@ -89,36 +80,24 @@ export const Route = createFileRoute("/api/__protected/import/$importId/progress
           });
         }
 
-        // Job exists but not in memory - send final status
-        const finalStatus = {
+        // Imports only run in memory, so one still marked pending or processing here was cut off by a server restart
+        const error =
+          job.status === "done"
+            ? undefined
+            : job.status === "failed"
+              ? (job.error ?? "Import failed")
+              : "The server restarted before this import finished. Import the file again.";
+
+        return singleChunkResponse({
           processed: job.totalRows || 0,
           total: job.totalRows || 0,
           totalRows: job.totalRows || 0,
+          percent: job.status === "done" ? 100 : 0,
           errorCount: job.errorCount || 0,
           warningCount: job.warningCount || 0,
-          currentStep:
-            job.status === "done"
-              ? "Import complete"
-              : job.status === "failed"
-                ? "Import failed" // Generic message, full error in error field
-                : "Waiting to start...",
-          done: job.status === "done" || job.status === "failed",
-          error: job.status === "failed" ? job.error : undefined,
-        };
-
-        // Return single chunk with final status
-        const stream = new ReadableStream({
-          start(controller) {
-            controller.enqueue(JSON.stringify(finalStatus) + "\n");
-            controller.close();
-          },
-        });
-
-        return new Response(stream, {
-          headers: {
-            "Content-Type": "text/plain",
-            "Cache-Control": "no-cache",
-          },
+          currentStep: job.status === "done" ? "Import complete" : "Import failed",
+          done: true,
+          error,
         });
       },
     },
