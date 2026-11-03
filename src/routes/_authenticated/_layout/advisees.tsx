@@ -239,10 +239,13 @@ function RouteComponent() {
               key={key}
               value={key}
               disabled={key !== "all" && filterCounts[key] === 0}
-              className="h-(--control-height)"
+              // The toggle's own "on" style matches its hover, so the active filter is filled in to stand out
+              className="data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 h-(--control-height)"
             >
               {filterLabels[key]}
-              <span className="text-muted-foreground tabular-nums">{filterCounts[key]}</span>
+              <span className="text-muted-foreground group-data-[state=on]/toggle:text-primary-foreground/80 tabular-nums">
+                {filterCounts[key]}
+              </span>
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
