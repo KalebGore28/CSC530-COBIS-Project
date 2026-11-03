@@ -1,4 +1,3 @@
-import { and, eq, useLiveQuery } from "@tanstack/react-db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,8 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { studentAdvisorsCollection } from "@/integrations/tanstack-db/student-advisors";
-import { studentsCollection } from "@/integrations/tanstack-db/students";
+import { useAdvisees } from "@/hooks/use-advisees";
 
 type CurrentTerm = {
   year: number;
@@ -31,29 +29,7 @@ export function AdvisedStudentsCard({
   setModalOpen,
   setSelectedStudent,
 }: AdvisedStudentsCardProps) {
-  const { data: advisedStudents } = useLiveQuery((q) =>
-    q
-      .from({ studentAdvisors: studentAdvisorsCollection })
-      .leftJoin({ students: studentsCollection }, ({ studentAdvisors, students }) =>
-        eq(studentAdvisors.mnumber, students.mnumber),
-      )
-      .where(({ studentAdvisors }) =>
-        and(
-          eq(studentAdvisors.advisor_mnumber, advisorMnumber),
-          eq(studentAdvisors.year, term_info.year),
-          eq(studentAdvisors.term_id, term_info.term_id),
-        ),
-      )
-      .select(({ students, studentAdvisors }) => ({
-        mnumber: students?.mnumber,
-        first_name: students?.first_name,
-        last_name: students?.last_name,
-        suffix: students?.suffix ?? undefined,
-        email: students?.email ?? undefined,
-        term: studentAdvisors.term_id,
-        year: studentAdvisors.year,
-      })),
-  );
+  const { advisees: advisedStudents } = useAdvisees(advisorMnumber, term_info);
 
   return (
     <Card className="w-full">
@@ -77,10 +53,10 @@ export function AdvisedStudentsCard({
               {advisedStudents.length > 0 ? (
                 advisedStudents.map((s) => (
                   <TableRow
-                    key={`advised-student-${s.mnumber}-${s.term}-${s.year}`}
+                    key={s.mnumber}
                     className="hover:bg-muted/50 cursor-pointer transition"
                     onClick={() => {
-                      setSelectedStudent && setSelectedStudent(s.mnumber!);
+                      setSelectedStudent && setSelectedStudent(s.mnumber);
                       setModalOpen && setModalOpen(true);
                     }}
                   >
@@ -89,7 +65,11 @@ export function AdvisedStudentsCard({
                       {`${s.last_name}, ${s.first_name}${s.suffix ? " " + s.suffix : ""}`}
                     </TableCell>
                     <TableCell className="max-w-30 truncate">
-                      {s.email ?? <a href={`mailto:${s.email}`} className="hover:underline"></a>}
+                      {s.email && (
+                        <a href={`mailto:${s.email}`} className="hover:underline">
+                          {s.email}
+                        </a>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

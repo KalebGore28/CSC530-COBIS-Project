@@ -3,13 +3,11 @@ import type { getDb } from "@/db";
 import type { DataAccess } from "@/utils/data-access";
 import { courses, faculty, programs, studentCourses, studentPrograms } from "@/db/schema";
 import { STUDENT_COURSE_ROW, STUDENT_PROGRAM_ROW } from "@/utils/data-access";
+import { ENROLLED_STATUSES } from "@/lib/enrolled-statuses";
 
 type Db = ReturnType<typeof getDb>;
 
 export type EnrollmentTerm = { year: number; term_id: string };
-
-// Registered, web registered and reinstated. Drops, withdrawals, cancellations and audits don't count as enrolled.
-export const ENROLLED_STATUSES = ["RE", "RW", "RC"];
 
 // Every count below is for one term, in one department, and only over rows the viewer can see
 function enrolledInDepartment(access: DataAccess, departmentId: string, term: EnrollmentTerm) {

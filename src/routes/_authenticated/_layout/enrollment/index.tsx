@@ -21,8 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EnrollmentTable } from "@/components/enrollment/enrollment-table";
-import type { EnrollmentColumnDef } from "@/components/enrollment/enrollment-table";
+import { SortableTable } from "@/components/tables/sortable-table";
+import type { SortableColumnDef } from "@/components/tables/sortable-table";
 import { useAuthentication } from "@/lib/auth-client";
 import { enrollmentQuery, previousYearTerm } from "@/lib/enrollment";
 import type {
@@ -83,7 +83,7 @@ function Change({ current, previous }: { current: number; previous: number | und
   return <span className="text-muted-foreground">{formatChange(current, previous)}</span>;
 }
 
-const programColumns: Array<EnrollmentColumnDef<WithPrevious<ProgramEnrollment>>> = [
+const programColumns: Array<SortableColumnDef<WithPrevious<ProgramEnrollment>>> = [
   {
     id: "program",
     header: "Program",
@@ -116,7 +116,7 @@ const programColumns: Array<EnrollmentColumnDef<WithPrevious<ProgramEnrollment>>
   },
 ];
 
-const courseColumns: Array<EnrollmentColumnDef<WithPrevious<CourseEnrollment>>> = [
+const courseColumns: Array<SortableColumnDef<WithPrevious<CourseEnrollment>>> = [
   {
     id: "course",
     header: "Course",
@@ -155,7 +155,7 @@ const courseColumns: Array<EnrollmentColumnDef<WithPrevious<CourseEnrollment>>> 
   },
 ];
 
-const instructorColumns: Array<EnrollmentColumnDef<WithPrevious<InstructorEnrollment>>> = [
+const instructorColumns: Array<SortableColumnDef<WithPrevious<InstructorEnrollment>>> = [
   {
     id: "instructor",
     header: "Instructor",
@@ -395,7 +395,7 @@ function RouteComponent() {
         <Card className="py-0">
           <CardContent className="px-0">
             <TabsContent value="programs">
-              <EnrollmentTable
+              <SortableTable
                 columns={programColumns}
                 data={programs}
                 initialSorting={[{ id: "majors", desc: true }]}
@@ -403,7 +403,7 @@ function RouteComponent() {
               />
             </TabsContent>
             <TabsContent value="courses">
-              <EnrollmentTable
+              <SortableTable
                 columns={courseColumns}
                 data={courses}
                 initialSorting={[{ id: "enrolled", desc: true }]}
@@ -411,7 +411,7 @@ function RouteComponent() {
               />
             </TabsContent>
             <TabsContent value="instructors">
-              <EnrollmentTable
+              <SortableTable
                 columns={instructorColumns}
                 data={instructors}
                 initialSorting={[{ id: "credit_hours", desc: true }]}
