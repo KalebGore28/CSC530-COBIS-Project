@@ -375,6 +375,21 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
     mappings: [
       {
         regex: [/reg_cuba_courses_during_term_\d+_\d+\.csv$/i],
+        requiredColumns: [
+          "MNUMBER",
+          "TERM",
+          "CRSESUBJ",
+          "CRSENUMB",
+          "CRHRS",
+          "SECTION",
+          "RSTSCODE",
+          "INSMCODE",
+          "PARTOFTERM",
+          "INSTMNUMBER",
+          "LASTATTEND",
+          "MIDGRADE",
+          "FINGRADE",
+        ],
         rowExpander: (row) => {
           return [
             {
@@ -401,6 +416,21 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
       },
       {
         regex: [/\d+_REG_CUBA_Courses_Grade_Time_Extract_\d+\.csv$/i],
+        requiredColumns: [
+          "MNUMBER",
+          "TERM",
+          "CRSESUBJ",
+          "CRSENUMB",
+          "CRHRS",
+          "SECTION",
+          "RSTSCODE",
+          "INSMCODE",
+          "PARTOFTERM",
+          "INSTMNUMBER",
+          "LASTATTEND",
+          "MIDGRADE",
+          "FINGRADE",
+        ],
         rowExpander: (row) => {
           return [
             {
@@ -431,6 +461,15 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
     mappings: [
       {
         regex: [/reg_cuba_demographic_\d+_\d+\.csv$/i],
+        requiredColumns: [
+          // LEVL is left out, since a missing level falls back to UG
+          "MNUMBER",
+          "TERM",
+          "MAJOR1",
+          "MAJOR2",
+          "MINOR1",
+          "MINOR2",
+        ],
         rowExpander: (row) => {
           const results = [];
           const level = row.LEVL || "UG"; // Default level if not provided
@@ -488,6 +527,15 @@ export const csvConfig = makeMySqlCSVConfig(schema, {
       },
       {
         regex: [/\d+_REG_CUBA_Demographic_Grade_Time_Extract_\d+\.csv$/i],
+        requiredColumns: [
+          // LEVL is left out, since a missing level falls back to UG
+          "MNUMBER",
+          "TERM",
+          "MAJOR1",
+          "MAJOR2",
+          "MINOR1",
+          "MINOR2",
+        ],
         rowExpander: (row) => {
           const results = [];
           const level = row.LEVL || "UG"; // Default level if not provided
