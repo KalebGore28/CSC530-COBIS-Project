@@ -67,23 +67,41 @@ function isWithdrawnWithW(registration: Registration) {
   return W_STATUSES.includes(registration.status_id ?? "");
 }
 
+function sectionKey(registration: Registration) {
+  return `${registration.year}-${registration.term_id}-${registration.course_id}-${registration.section}`;
+}
+
+// A final letter grade that's in and that the viewer can see
+function visibleFinalGrade(registration: Registration) {
+  const grade = registration.final_grade as LetterGrade | null;
+  return registration.grades_visible && grade && LETTER_GRADES.includes(grade) ? grade : null;
+}
+
 function breakdown(registrations: Array<Registration>): GradeBreakdown {
   const counts: Record<LetterGrade | "W", number> = { A: 0, B: 0, C: 0, D: 0, E: 0, W: 0 };
   let enrolled = 0;
   let graded = 0;
   let points = 0;
 
+  // A W only counts once its section's final grades are in. Otherwise a section still in
+  // progress, with one early withdrawal and no grades yet, would show a 100% DFW rate.
+  const gradedSections = new Set(
+    registrations
+      .filter((registration) => isEnrolled(registration) && visibleFinalGrade(registration))
+      .map(sectionKey),
+  );
+
   for (const registration of registrations) {
     if (isWithdrawnWithW(registration)) {
-      counts.W += 1;
+      if (gradedSections.has(sectionKey(registration))) counts.W += 1;
       continue;
     }
     if (!isEnrolled(registration)) continue;
     enrolled += 1;
 
     // Grades the viewer can't see, or that aren't in yet, are left out rather than counted as an E
-    const grade = registration.final_grade as LetterGrade | null;
-    if (!registration.grades_visible || !grade || !LETTER_GRADES.includes(grade)) continue;
+    const grade = visibleFinalGrade(registration);
+    if (!grade) continue;
     counts[grade] += 1;
     points += GRADE_POINTS[grade];
     graded += 1;

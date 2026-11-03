@@ -1,6 +1,6 @@
-import { and, eq, exists, inArray, or, sql } from "drizzle-orm";
+import { eq, inArray, or, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/mysql-core";
-import type { AnyColumn, SQL } from "drizzle-orm";
+import type { AnyColumn, SQL, SQLWrapper } from "drizzle-orm";
 import type { getDb } from "@/db";
 import type { Capability, DataCategory, DataRelationship } from "@/types/access-checks";
 import {
@@ -67,15 +67,28 @@ const accessCourses = alias(studentCourses, "access_student_courses");
 const accessAdvisors = alias(studentAdvisors, "access_student_advisors");
 const accessPrograms = alias(studentPrograms, "access_student_programs");
 
-function sameStudentAndTerm(
-  table: { mnumber: AnyColumn; year: AnyColumn; term_id: AnyColumn },
-  row: RowRef,
-) {
-  return and(
-    eq(table.mnumber, row.mnumber),
-    row.term ? eq(table.year, row.term.year) : undefined,
-    row.term ? eq(table.term_id, row.term.term_id) : undefined,
-  );
+type StudentTermTable = { mnumber: AnyColumn; year: AnyColumn; term_id: AnyColumn };
+
+/**
+ * The columns a relationship's subquery returns: the student and term, or just the student when
+ * the row being checked has no term.
+ */
+function studentTermColumns(table: StudentTermTable, row: RowRef): Record<string, AnyColumn> {
+  return row.term
+    ? { mnumber: table.mnumber, year: table.year, term_id: table.term_id }
+    : { mnumber: table.mnumber };
+}
+
+/**
+ * Whether the row's student and term are among the ones a subquery returns.
+ * The subquery doesn't refer to the row, so MySQL runs it once and looks each row up in the
+ * result. A correlated EXISTS would run again for every row checked, which got slow once
+ * there were tens of thousands of rows.
+ */
+function isAmong(row: RowRef, subquery: SQLWrapper) {
+  return row.term
+    ? sql`(${row.mnumber}, ${row.term.year}, ${row.term.term_id}) in ${subquery}`
+    : sql`${row.mnumber} in ${subquery}`;
 }
 
 const NO_ACCESS = sql`false`;
@@ -91,93 +104,72 @@ const RELATIONSHIPS: Record<DataRelationship, (db: Db, viewer: Viewer, row: RowR
     if (!viewer.mnumber) return NO_ACCESS;
     if (row.course) return eq(row.course.instructor_mnumber, viewer.mnumber);
 
-    return exists(
+    return isAmong(
+      row,
       db
-        .select({ found: sql`1` })
+        .select(studentTermColumns(accessCourses, row))
         .from(accessCourses)
-        .where(
-          and(
-            sameStudentAndTerm(accessCourses, row),
-            eq(accessCourses.instructor_mnumber, viewer.mnumber),
-          ),
-        ),
+        .where(eq(accessCourses.instructor_mnumber, viewer.mnumber)),
     );
   },
 
   course_in_department: (db, viewer, row) => {
     if (!viewer.departmentId) return NO_ACCESS;
     if (row.course) {
-      return exists(
+      return inArray(
+        row.course.course_id,
         db
-          .select({ found: sql`1` })
+          .select({ id: courses.id })
           .from(courses)
-          .where(
-            and(
-              eq(courses.id, row.course.course_id),
-              eq(courses.department_id, viewer.departmentId),
-            ),
-          ),
+          .where(eq(courses.department_id, viewer.departmentId)),
       );
     }
 
-    return exists(
+    return isAmong(
+      row,
       db
-        .select({ found: sql`1` })
+        .select(studentTermColumns(accessCourses, row))
         .from(accessCourses)
         .innerJoin(courses, eq(accessCourses.course_id, courses.id))
-        .where(
-          and(
-            sameStudentAndTerm(accessCourses, row),
-            eq(courses.department_id, viewer.departmentId),
-          ),
-        ),
+        .where(eq(courses.department_id, viewer.departmentId)),
     );
   },
 
   advises_student: (db, viewer, row) => {
     if (!viewer.mnumber) return NO_ACCESS;
 
-    return exists(
+    return isAmong(
+      row,
       db
-        .select({ found: sql`1` })
+        .select(studentTermColumns(accessAdvisors, row))
         .from(accessAdvisors)
-        .where(
-          and(
-            sameStudentAndTerm(accessAdvisors, row),
-            eq(accessAdvisors.advisor_mnumber, viewer.mnumber),
-          ),
-        ),
+        .where(eq(accessAdvisors.advisor_mnumber, viewer.mnumber)),
     );
   },
 
   coordinates_program: (db, viewer, row) => {
     if (!viewer.mnumber) return NO_ACCESS;
 
-    return exists(
+    return isAmong(
+      row,
       db
-        .select({ found: sql`1` })
+        .select(studentTermColumns(accessPrograms, row))
         .from(accessPrograms)
         .innerJoin(programs, eq(accessPrograms.program_id, programs.id))
-        .where(
-          and(sameStudentAndTerm(accessPrograms, row), eq(programs.coordinator, viewer.mnumber)),
-        ),
+        .where(eq(programs.coordinator, viewer.mnumber)),
     );
   },
 
   student_in_department: (db, viewer, row) => {
     if (!viewer.departmentId) return NO_ACCESS;
 
-    return exists(
+    return isAmong(
+      row,
       db
-        .select({ found: sql`1` })
+        .select(studentTermColumns(accessPrograms, row))
         .from(accessPrograms)
         .innerJoin(programs, eq(accessPrograms.program_id, programs.id))
-        .where(
-          and(
-            sameStudentAndTerm(accessPrograms, row),
-            eq(programs.department_id, viewer.departmentId),
-          ),
-        ),
+        .where(eq(programs.department_id, viewer.departmentId)),
     );
   },
 };

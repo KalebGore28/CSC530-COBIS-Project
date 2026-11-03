@@ -38,9 +38,10 @@ export function DepartmentHubCard() {
       description={
         current.isError
           ? current.error.message
-          : summary
-            ? "Your department's newest term, enrolled students only."
-            : "No enrollments have been imported for your department yet."
+          : // Only once it has loaded and come back empty, so the card doesn't say so while loading
+            current.isSuccess && !summary
+            ? "No enrollments have been imported for your department yet."
+            : "Your department's newest term, enrolled students only."
       }
       isLoading={current.isPending}
       stats={
