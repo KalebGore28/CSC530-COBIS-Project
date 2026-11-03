@@ -3,13 +3,13 @@ import path from "node:path";
 import { seed } from "drizzle-seed";
 import * as schema from "../../src/db/schema.ts";
 import { closeDb, getDb, resetDb } from "./db";
-import { seedPolicy } from "@/db/seed/seed-policy";
+import { seedRoleCapabilities, seedRoleDataAccess } from "../../db/seed/seed-policy";
 import { parseCSV } from "@/utils/csv-importer";
 // The old access cache was removed along with get-student-access-level.ts
 // import { invalidateEntireCache } from "@/utils/get-student-access-level.ts";
 
 async function getCSVData(filePath: string): Promise<Array<Record<string, string>>> {
-  const basePath = "src/db/seed/csvs";
+  const basePath = "db/seed/csvs";
   const fileContent = fs.readFileSync(path.join(basePath, filePath), "utf8");
   const parsedData = await parseCSV(fileContent);
 
@@ -156,7 +156,8 @@ async function seedStaticLookups(db: ReturnType<typeof getDb>) {
   await db.insert(schema.courses).values(courses);
   await db.insert(schema.coursePrefixes).values(coursePrefixes);
   await db.insert(schema.programs).values(programs);
-  await seedPolicy(db);
+  await seedRoleDataAccess(db);
+  await seedRoleCapabilities(db);
 }
 
 async function seedTestDatabase() {
