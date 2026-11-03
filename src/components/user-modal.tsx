@@ -36,6 +36,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useAuthentication } from "@/lib/auth-client";
+import { formatRoleName } from "@/lib/roles";
 
 import { usersCollection } from "@/integrations/tanstack-db/users";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
@@ -55,13 +56,6 @@ type UserEdits = {
   college?: College | null;
   isEnabled?: boolean;
   roleIds?: Array<number>;
-};
-
-const formatRoleName = (name: string): string => {
-  return name
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
 };
 
 export function UserModal({ userId }: { userId: string }) {
