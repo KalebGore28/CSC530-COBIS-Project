@@ -15,9 +15,9 @@
     "db:gen": "drizzle-kit generate",
     "db:mig": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx src/db/seed/seed.ts",
+    "db:seed": "tsx db/seed/deploy.ts",
+    "db:make-admin": "tsx db/seed/make-admin.ts",
     "db:new-seed": "vpx test/helpers/seed.ts",
-    "db:seed-policy": "tsx src/db/seed/run-seed-policy.ts",
     "docker:build": "docker build -t cobis-app:latest .",
     "docker:run": "docker run -d --env-file .env.docker -p 3000:3000 cobis-app:latest",
     "prepare": "vp config"
