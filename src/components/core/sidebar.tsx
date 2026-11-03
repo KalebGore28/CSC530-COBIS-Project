@@ -144,43 +144,14 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Metrics</SidebarGroupLabel>
             <SidebarMenu>
-              <Collapsible asChild defaultOpen={true} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={"Enrollment Metrics"}>
-                      <Link to={"/enrollment/programs"}>
-                        <ChartColumnIncreasing />
-                      </Link>
-                      Enrollments
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/enrollment/programs"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Programs
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/enrollment/courses"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Courses
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
+              <SidebarMenuItem key="enrollment" className="text-nowrap">
+                <SidebarMenuButton tooltip="Enrollment" className="p-1" asChild>
+                  <Link to="/enrollment" className="flex h-full w-full items-center gap-2">
+                    <ChartColumnIncreasing />
+                    Enrollment
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
         )}
