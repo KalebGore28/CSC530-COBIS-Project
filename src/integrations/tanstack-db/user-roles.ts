@@ -3,6 +3,7 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { userRoles } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
 import { insertCollectionItem, deleteCollectionItem } from "./api";
+import { RECORD_STALE_TIME } from "./stale-times";
 
 type UserRole = typeof userRoles.$inferSelect;
 
@@ -10,6 +11,7 @@ export const userRolesCollection = collectionOptions("userRole", (client) =>
   queryCollectionOptions({
     queryKey: ["user-roles"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    staleTime: RECORD_STALE_TIME,
     autoIndex: "eager",
     defaultIndexType: BasicIndex,
     queryFn: async () => {

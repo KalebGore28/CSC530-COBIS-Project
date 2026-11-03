@@ -3,6 +3,7 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { studentCourses } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
 import { fetchCollectionSubset } from "./api";
+import { RECORD_STALE_TIME } from "./stale-times";
 
 type StudentCourse = typeof studentCourses.$inferSelect & {
   // Tells a hidden grade apart from one that hasn't been entered, as both are null
@@ -13,6 +14,7 @@ export const studentCoursesCollection = collectionOptions("studentCourses", (cli
   queryCollectionOptions({
     queryKey: ["studentCourses"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    staleTime: RECORD_STALE_TIME,
     autoIndex: "eager",
     defaultIndexType: BasicIndex,
     queryFn: (context) => fetchCollectionSubset<StudentCourse>("student-courses", context),

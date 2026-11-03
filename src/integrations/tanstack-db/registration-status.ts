@@ -3,6 +3,7 @@ import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import type { registrationStatus } from "@/db/schema";
 import { QueryClient } from "@tanstack/react-query";
 import { fetchCollection, updateCollectionItem } from "./api";
+import { LOOKUP_STALE_TIME } from "./stale-times";
 
 type RegistrationStatus = typeof registrationStatus.$inferSelect;
 
@@ -10,6 +11,7 @@ export const registrationStatusCollection = collectionOptions("registrationStatu
   queryCollectionOptions({
     queryKey: ["registrationStatus"],
     queryClient: client.requireDependency<QueryClient>("queryClient"),
+    staleTime: LOOKUP_STALE_TIME,
     autoIndex: "eager",
     defaultIndexType: BasicIndex,
     queryFn: () => fetchCollection<RegistrationStatus>("registration-status"),
