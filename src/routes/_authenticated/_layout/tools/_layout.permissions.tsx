@@ -2,9 +2,15 @@ import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useDbClient, useLiveQuery } from "@tanstack/react-db";
 import type { Capability, DataCategory, DataRelationship } from "@/types/access-checks";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
+import { Field, FieldLabel } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -21,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { formatRoleName } from "@/lib/roles";
 import { roleCapabilitiesCollection } from "@/integrations/tanstack-db/role-capabilities";
 import { roleDataAccessCollection } from "@/integrations/tanstack-db/role-data-access";
 import { rolesCollection } from "@/integrations/tanstack-db/roles";
@@ -76,6 +83,7 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/perm
     void dbClient.collection(roleCapabilitiesCollection).preload();
   },
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Manage Role Permissions" }),
 });
 
 function RouteComponent() {
@@ -155,13 +163,13 @@ function RouteComponent() {
             value={String(role.id)}
             onValueChange={(value) => setSelectedRoleId(Number(value))}
           >
-            <SelectTrigger className="w-64" aria-label="Role">
+            <SelectTrigger className="w-full sm:w-64" aria-label="Role">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {roles.map((r) => (
                 <SelectItem key={r.id} value={String(r.id)}>
-                  {r.name}
+                  {formatRoleName(r.name)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -178,38 +186,77 @@ function RouteComponent() {
             exists.
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead />
-                {DATA_RELATIONSHIPS.map((relationship) => (
-                  <TableHead key={relationship} className="text-center whitespace-normal">
+        <CardContent className="@container">
+          {/* The grid needs about 600px, so narrower cards get one section per connection instead */}
+          <Accordion type="multiple" className="@2xl:hidden">
+            {DATA_RELATIONSHIPS.map((relationship) => (
+              <AccordionItem key={relationship} value={relationship}>
+                <AccordionTrigger className="min-h-(--control-height) items-center">
+                  <span className="flex flex-1 items-center justify-between gap-2 pr-2">
                     {RELATIONSHIP_LABELS[relationship]}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {DATA_CATEGORIES.map((category) => (
-                <TableRow key={category}>
-                  <TableCell className="font-medium">{CATEGORY_LABELS[category]}</TableCell>
+                    <span className="text-muted-foreground font-normal">
+                      {DATA_CATEGORIES.filter((c) => isTicked(relationship, c)).length} of{" "}
+                      {DATA_CATEGORIES.length}
+                    </span>
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {DATA_CATEGORIES.map((category) => (
+                    <Field
+                      key={category}
+                      orientation="horizontal"
+                      className="min-h-(--control-height) items-center"
+                      data-disabled={isCategoryLockedForRole(role.name, category)}
+                    >
+                      <Checkbox
+                        id={`${relationship}-${category}`}
+                        checked={isTicked(relationship, category)}
+                        disabled={isCategoryLockedForRole(role.name, category)}
+                        onCheckedChange={() => toggleCategory(relationship, category)}
+                      />
+                      <FieldLabel htmlFor={`${relationship}-${category}`} className="font-normal">
+                        {CATEGORY_LABELS[category]}
+                      </FieldLabel>
+                    </Field>
+                  ))}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+
+          <div className="hidden @2xl:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead />
                   {DATA_RELATIONSHIPS.map((relationship) => (
-                    <TableCell key={relationship}>
-                      <div className="flex justify-center">
-                        <Checkbox
-                          aria-label={`${CATEGORY_LABELS[category]}: ${RELATIONSHIP_LABELS[relationship]}`}
-                          checked={isTicked(relationship, category)}
-                          disabled={isCategoryLockedForRole(role.name, category)}
-                          onCheckedChange={() => toggleCategory(relationship, category)}
-                        />
-                      </div>
-                    </TableCell>
+                    <TableHead key={relationship} className="text-center whitespace-normal">
+                      {RELATIONSHIP_LABELS[relationship]}
+                    </TableHead>
                   ))}
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {DATA_CATEGORIES.map((category) => (
+                  <TableRow key={category}>
+                    <TableCell className="font-medium">{CATEGORY_LABELS[category]}</TableCell>
+                    {DATA_RELATIONSHIPS.map((relationship) => (
+                      <TableCell key={relationship}>
+                        <div className="flex justify-center">
+                          <Checkbox
+                            aria-label={`${CATEGORY_LABELS[category]}: ${RELATIONSHIP_LABELS[relationship]}`}
+                            checked={isTicked(relationship, category)}
+                            disabled={isCategoryLockedForRole(role.name, category)}
+                            onCheckedChange={() => toggleCategory(relationship, category)}
+                          />
+                        </div>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
@@ -218,17 +265,24 @@ function RouteComponent() {
           <CardTitle>App features</CardTitle>
           <CardDescription>Which pages and tools this role can use.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
+        <CardContent className="grid gap-x-3 sm:grid-cols-2">
           {CAPABILITIES.map((capability) => (
-            <div key={capability} className="flex items-center gap-2">
+            <Field
+              key={capability}
+              orientation="horizontal"
+              className="min-h-(--control-height) items-center"
+              data-disabled={isCapabilityLockedForRole(role.name, capability)}
+            >
               <Checkbox
                 id={capability}
                 checked={hasCapability(capability)}
                 disabled={isCapabilityLockedForRole(role.name, capability)}
                 onCheckedChange={() => toggleCapability(capability)}
               />
-              <Label htmlFor={capability}>{CAPABILITY_LABELS[capability]}</Label>
-            </div>
+              <FieldLabel htmlFor={capability} className="font-normal">
+                {CAPABILITY_LABELS[capability]}
+              </FieldLabel>
+            </Field>
           ))}
         </CardContent>
       </Card>
