@@ -39,6 +39,8 @@ interface SortableTableProps<TData extends RowData> {
   emptyMessage: string;
   // Makes each row a button, like opening a side panel for it
   onRowClick?: (row: TData) => void;
+  // Extra classes for some rows, like fading ones that matter less
+  rowClassName?: (row: TData) => string | undefined;
 }
 
 export function SortableTable<TData extends RowData>({
@@ -47,6 +49,7 @@ export function SortableTable<TData extends RowData>({
   initialSorting,
   emptyMessage,
   onRowClick,
+  rowClassName,
 }: SortableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
 
@@ -108,7 +111,7 @@ export function SortableTable<TData extends RowData>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn(onRowClick && "cursor-pointer")}
+              className={cn(onRowClick && "cursor-pointer", rowClassName?.(row.original))}
               onClick={onRowClick ? () => onRowClick(row.original) : undefined}
               // Reachable with Tab and opened with Enter, like a button
               tabIndex={onRowClick ? 0 : undefined}
