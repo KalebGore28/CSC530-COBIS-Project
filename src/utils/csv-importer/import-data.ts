@@ -8,6 +8,7 @@ import { CompositeCache } from "./composite-cache";
 import type { makeMySqlCSVConfig } from "./make-csv-config";
 import { findMySqlMatchingTables } from "./find-matching-tables";
 import { findMissingColumns } from "./find-missing-columns";
+import { describeDatabaseError } from "./describe-database-error";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -33,6 +34,15 @@ export type ImportProgress = {
   currentStep: string;
 };
 
+// What's worth keeping about an import, as opposed to progress updates that are only for watching it run
+export type ImportLogEntry = {
+  level: "info" | "error";
+  message: string;
+};
+
+// Long lists of values are cut off in the log, since a huge export could otherwise list thousands
+const MAX_LOGGED_VALUES = 50;
+
 export const importMySqlData = async (
   db: MySql2Database<any>,
   csvData: ParseResult<Record<string, string>>,
@@ -40,8 +50,10 @@ export const importMySqlData = async (
   csvConfig: ReturnType<typeof makeMySqlCSVConfig>,
   batchSize?: number,
   progress?: (update: ImportProgress) => void,
+  log?: (entry: ImportLogEntry) => void,
 ) => {
   const importBatchSize = batchSize ?? 100; // Default to every 100 rows
+  const writeLog = (level: ImportLogEntry["level"], message: string) => log?.({ level, message });
 
   const updateProgress = async (update: Partial<ImportProgress>) => {
     if (progress) {
@@ -68,6 +80,11 @@ export const importMySqlData = async (
     throw new Error(`Missing columns: ${missingColumns.join(", ")}`);
   }
 
+  writeLog(
+    "info",
+    `Importing ${csvData.data.length.toLocaleString()} rows from ${fileName} into ${[...matchingTables.keys()].join(", ")}`,
+  );
+
   // Each table is an equal share of the import, and tableFraction is how far into the current one it is
   const overallPercent = (finishedTables: number, tableFraction: number) =>
     Math.floor(((finishedTables + tableFraction) / matchingTables.size) * 100);
@@ -84,6 +101,7 @@ export const importMySqlData = async (
 
   for (const [tableName, tableConfig] of matchingTables) {
     tableIndex++;
+    const tableStartedAt = Date.now();
     const cacheData = new CompositeCache();
     const processedTableData: Array<Record<string, any>> = [];
 
@@ -160,8 +178,9 @@ export const importMySqlData = async (
       // If there is no resolver, we can't resolve those rows
       if (!fk.resolver) continue;
 
-      // Track missing rows for this foreign table
+      // Track missing rows for this foreign table, and their keys for the log
       const missingRows: Array<Record<string, any>> = [];
+      const missingKeys: Array<string> = [];
 
       for (const row of processedTableData) {
         const cacheValues: any[] = [];
@@ -171,25 +190,47 @@ export const importMySqlData = async (
           cacheValues.push(value);
         }
 
-        // Check if this combination exists in the cache
-        const exists = cacheData.has(fk.foreignTableName, ...cacheValues);
-
-        if (exists === undefined) {
-          // Remap keys to foreign table columns
-          const foreignKeyRow = Object.fromEntries(
-            Object.entries(fk.columnMap).map(([tableCol, foreignCol]) => [
-              foreignCol,
-              row[tableCol],
-            ]),
-          );
-
-          missingRows.push(fk.resolver(foreignKeyRow));
+        // A blank reference doesn't point at anything, so there's nothing to add
+        if (cacheValues.some((value) => value === undefined || value === null || value === "")) {
+          continue;
         }
+
+        // Check if this combination exists in the cache
+        if (cacheData.has(fk.foreignTableName, ...cacheValues)) continue;
+
+        // Cached now, so a value many rows share is only added once
+        cacheData.add(fk.foreignTableName, ...cacheValues);
+
+        // Remap keys to foreign table columns
+        const foreignKeyRow = Object.fromEntries(
+          Object.entries(fk.columnMap).map(([tableCol, foreignCol]) => [foreignCol, row[tableCol]]),
+        );
+
+        missingRows.push(await fk.resolver(foreignKeyRow));
+        missingKeys.push(cacheValues.join("/"));
       }
 
       // Insert the missing values if found
       if (missingRows.length > 0) {
-        await db.insert(csvConfig.schema[fk.foreignTableName]).values(missingRows);
+        try {
+          await db.insert(csvConfig.schema[fk.foreignTableName]).values(missingRows);
+        } catch (error) {
+          const { reason } = describeDatabaseError(error);
+          throw new Error(
+            `${tableName}: couldn't add placeholder ${fk.foreignTableName} rows: ${reason}`,
+            { cause: error },
+          );
+        }
+
+        const shownKeys = missingKeys.slice(0, MAX_LOGGED_VALUES).join(", ");
+        const moreKeys =
+          missingKeys.length > MAX_LOGGED_VALUES
+            ? ` and ${missingKeys.length - MAX_LOGGED_VALUES} more`
+            : "";
+        writeLog(
+          "info",
+          `${tableName}: added ${missingKeys.length} placeholder rows to ${fk.foreignTableName} for values COBIS didn't have yet: ${shownKeys}${moreKeys}`,
+        );
       }
     }
 
@@ -209,16 +250,43 @@ export const importMySqlData = async (
           currentStep: `Inserting batch ${Math.floor(i / importBatchSize) + 1} for ${tableName}`,
         });
 
-        await tx
-          .insert(table)
-          .values(batch)
-          .onDuplicateKeyUpdate({
-            set: buildConflictUpdateColumns(table, nonPrimaryColumns),
-          });
+        try {
+          await tx
+            .insert(table)
+            .values(batch)
+            .onDuplicateKeyUpdate({
+              set: buildConflictUpdateColumns(table, nonPrimaryColumns),
+            });
+        } catch (error) {
+          const { reason, rowInBatch } = describeDatabaseError(error);
+          const failedRow = rowInBatch !== undefined ? batch[rowInBatch - 1] : undefined;
+
+          // Mapped tables write one row per CSV row, so the failed row points back to a line in the file (line 1 is the header).
+          // Expanded rows don't line up with the file, so those only get the range being written.
+          const where =
+            tableConfig.config && rowInBatch !== undefined
+              ? `CSV line ${(i + rowInBatch + 1).toLocaleString()}`
+              : `while writing rows ${(i + 1).toLocaleString()}–${(i + batch.length).toLocaleString()}`;
+
+          if (failedRow) {
+            writeLog("error", `${tableName}: the row that failed had ${JSON.stringify(failedRow)}`);
+          }
+          throw new Error(`${tableName}, ${where}: ${reason}`, { cause: error });
+        }
       }
     });
 
     totalProcessed += processedTableData.length;
+
+    const seconds = ((Date.now() - tableStartedAt) / 1000).toFixed(1);
+    const fromRows =
+      processedTableData.length === csvData.data.length
+        ? ""
+        : ` (from ${csvData.data.length.toLocaleString()} CSV rows)`;
+    writeLog(
+      "info",
+      `${tableName}: wrote ${processedTableData.length.toLocaleString()} rows${fromRows} in ${seconds}s`,
+    );
 
     await updateProgress({
       processed: totalProcessed,
