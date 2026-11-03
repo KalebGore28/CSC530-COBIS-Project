@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.0...v0.2.1) (2026-11-03)
+
+
+### Performance Improvements
+
+* keep collections fresh longer so going back doesn't refetch them ([d82fbe2](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/d82fbe2343ce750cde4ef0931aafe1d08ca82221))
+
 ## [0.2.0](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.1.1...v0.2.0) (2026-11-03)
 
 
