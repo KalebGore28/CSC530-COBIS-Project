@@ -8,5 +8,4 @@ ROLE_ID,CAPABILITY
 4,dashboard.metrics
 5,enrollment.view
 5,student.lookup
-6,instructors.view
 6,tools.manage
