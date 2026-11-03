@@ -1,6 +1,6 @@
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ENROLLED_STATUSES, W_STATUSES } from "@/lib/enrolled-statuses";
-import { GRADE_DEFINITION } from "@/types/grades";
+import { GRADE_POINTS } from "@/types/grades";
 import { LETTER_GRADES } from "@/hooks/use-roster";
 import type { LetterGrade } from "@/hooks/use-roster";
 
@@ -85,7 +85,7 @@ function breakdown(registrations: Array<Registration>): GradeBreakdown {
     const grade = registration.final_grade as LetterGrade | null;
     if (!registration.grades_visible || !grade || !LETTER_GRADES.includes(grade)) continue;
     counts[grade] += 1;
-    points += GRADE_DEFINITION[grade].gpa;
+    points += GRADE_POINTS[grade];
     graded += 1;
   }
 

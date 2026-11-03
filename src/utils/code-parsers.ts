@@ -143,7 +143,10 @@ export function safeParseString<T>(
   },
   transform?: (val: string) => T,
 ): string | T | undefined {
-  if (value == null) return undefined;
+  // CSV values are text, so anything else (like an object) has no sensible text and counts as missing
+  if (typeof value !== "string" && typeof value !== "number" && typeof value !== "boolean") {
+    return undefined;
+  }
 
   let str = String(value);
 

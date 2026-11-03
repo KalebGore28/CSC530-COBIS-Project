@@ -1,6 +1,6 @@
 import { and, eq, inArray, useLiveQuery } from "@tanstack/react-db";
 import { ENROLLED_STATUSES } from "@/lib/enrolled-statuses";
-import { GRADE_DEFINITION } from "@/types/grades";
+import { GRADE_POINTS } from "@/types/grades";
 
 import { coursesCollection } from "@/integrations/tanstack-db/courses";
 import { programsCollection } from "@/integrations/tanstack-db/programs";
@@ -81,7 +81,7 @@ function summarizeGrades(students: Array<RosterStudent>, which: "midterm" | "fin
     const grade = which === "midterm" ? student.midterm_grade : student.final_grade;
     if (!student.grades_visible || !isLetterGrade(grade)) continue;
     counts[grade] += 1;
-    points += GRADE_DEFINITION[grade].gpa;
+    points += GRADE_POINTS[grade];
     graded += 1;
   }
 

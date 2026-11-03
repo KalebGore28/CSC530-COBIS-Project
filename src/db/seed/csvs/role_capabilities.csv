@@ -1,11 +1,9 @@
 ROLE_ID,CAPABILITY
 1,roster.view
-1,dashboard.metrics
 2,advisees.view
 4,student.lookup
 4,instructors.view
 4,enrollment.view
-4,dashboard.metrics
 5,enrollment.view
 5,student.lookup
 6,tools.manage

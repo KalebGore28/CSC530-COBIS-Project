@@ -61,7 +61,6 @@ const CATEGORY_LABELS: Record<DataCategory, string> = {
 const CAPABILITY_LABELS: Record<Capability, string> = {
   "roster.view": "Class roster",
   "advisees.view": "Advisees",
-  "dashboard.metrics": "Dashboard metrics",
   "student.lookup": "Student lookup",
   "instructors.view": "Instructors",
   "enrollment.view": "Enrollment metrics",
