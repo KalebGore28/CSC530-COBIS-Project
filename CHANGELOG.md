@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.1.1...v0.2.0) (2026-11-03)
+
+
+### Features
+
+* redesigned advisees page ([b1f7a13](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/b1f7a13ad6b4b8f349c5d0929d1f1fbc77bd6506))
+* redesigned class roster page ([d7f373d](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/d7f373dc3637a5d83707213ad7646131451fb36c))
+* redesigned dashboard ([7834673](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/78346731696221e5a83a6b06ddbf3cf763ea2069))
+* redesigned instructor page ([420df71](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/420df7158d029dc5558f2173a2641300ba64dff1))
+* redesigning enrollment page for better metrics ([b887406](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/b8874063c753666ce5e6aecb67441b915b40addb))
+* redesigning student lookup ([cee1097](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/cee10978eff9a6d7bbefcb9ad537b50c1a133de3))
+
 ## [0.1.1](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.1.0...v0.1.1) (2026-11-03)
 
 
