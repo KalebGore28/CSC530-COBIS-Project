@@ -1,9 +1,31 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
-import { ilike, isNull, or, useLiveQuery } from "@tanstack/react-db";
-import { ExternalLink } from "lucide-react";
+import { Fragment } from "react";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { ChevronRightIcon, ExternalLinkIcon } from "lucide-react";
 
-import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ManagedTableContent } from "@/components/tables/managed-table-content";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useTableProblems } from "@/hooks/use-table-problems";
+import type { ManagedTableSlug } from "@/hooks/use-table-problems";
 
 import { academicStandingCollection } from "@/integrations/tanstack-db/academic-standing";
 import { admitCodesCollection } from "@/integrations/tanstack-db/admit-codes";
@@ -16,14 +38,25 @@ import { partOfTermCollection } from "@/integrations/tanstack-db/part-of-term";
 import { programsCollection } from "@/integrations/tanstack-db/programs";
 import { registrationStatusCollection } from "@/integrations/tanstack-db/registration-status";
 
-import {
-  Card,
-  CardAction,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+const TABLE_SLUGS: Array<ManagedTableSlug> = [
+  "academic-standings",
+  "admit-codes",
+  "colleges",
+  "courses",
+  "course-prefixes",
+  "departments",
+  "instructional-methods",
+  "part-of-terms",
+  "programs",
+  "registration-statuses",
+];
+
+// The open side panel lives in the URL, so Back closes it and links can open it directly
+type ManageTablesSearch = {
+  table?: ManagedTableSlug;
+  filterColumn?: string;
+  filterValue?: string;
+};
 
 export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/manage-tables")({
   beforeLoad: ({ context }) => {
@@ -39,725 +72,176 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/mana
     void dbClient.collection(programsCollection).preload();
     void dbClient.collection(registrationStatusCollection).preload();
   },
+  validateSearch: (search): ManageTablesSearch => {
+    const table = TABLE_SLUGS.find((slug) => slug === search.table);
+    return {
+      table,
+      filterColumn: table ? (search.filterColumn as string | undefined) : undefined,
+      filterValue: table ? (search.filterValue as string | undefined) : undefined,
+    };
+  },
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Manage Tables" }),
 });
 
-function RouteComponent() {
-  const { data: academicStandings, isLoading: isAcademicStandingsLoading } = useLiveQuery((q) =>
-    q
-      .from({ academicStandings: academicStandingCollection })
-      .where(({ academicStandings }) => ilike(academicStandings.description, "unknown%")),
-  );
+// Opens the side panel on larger screens, and the full table page on phones where a panel is too narrow
+function TableLink({
+  slug,
+  filterColumn,
+  filterValue,
+  className,
+  children,
+}: {
+  slug: ManagedTableSlug;
+  filterColumn?: string;
+  filterValue?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const isMobile = useIsMobile();
 
-  const { data: admitCodes, isLoading: isAdmitCodesLoading } = useLiveQuery((q) =>
-    q
-      .from({ admitCodes: admitCodesCollection })
-      .where(({ admitCodes }) => ilike(admitCodes.description, "unknown%")),
-  );
-
-  const { data: colleges, isLoading: isCollegesLoading } = useLiveQuery((q) =>
-    q
-      .from({ colleges: collegesCollection })
-      .where(({ colleges }) => ilike(colleges.description, "unknown%")),
-  );
-
-  const { data: courses, isLoading: isCoursesLoading } = useLiveQuery((q) =>
-    q
-      .from({ courses: coursesCollection })
-      .where(({ courses }) =>
-        or(
-          ilike(courses.title, "Not known to COBIS yet%"),
-          ilike(courses.title, "unknown%"),
-          isNull(courses.department_id),
-          isNull(courses.college_id),
-        ),
-      ),
-  );
-  const { data: coursePrefixes, isLoading: isCoursePrefixesLoading } = useLiveQuery((q) =>
-    q
-      .from({ coursePrefixes: coursePrefixesCollection })
-      .where(({ coursePrefixes }) =>
-        or(isNull(coursePrefixes.department_id), isNull(coursePrefixes.college_id)),
-      ),
-  );
-
-  const { data: departments, isLoading: isDepartmentsLoading } = useLiveQuery((q) =>
-    q
-      .from({ departments: departmentsCollection })
-      .where(({ departments }) =>
-        or(ilike(departments.description, "unknown%"), isNull(departments.college_id)),
-      ),
-  );
-
-  const { data: instructionalMethods, isLoading: isInstructionalMethodsLoading } = useLiveQuery(
-    (q) =>
-      q
-        .from({ instructionalMethods: instructionalMethodsCollection })
-        .where(({ instructionalMethods }) => ilike(instructionalMethods.description, "unknown%")),
-  );
-
-  const { data: partOfTerms, isLoading: isPartOfTermsLoading } = useLiveQuery((q) =>
-    q
-      .from({ partOfTerms: partOfTermCollection })
-      .where(({ partOfTerms }) => ilike(partOfTerms.description, "unknown%")),
-  );
-
-  const { data: programs, isLoading: isProgramsLoading } = useLiveQuery((q) =>
-    q
-      .from({ programs: programsCollection })
-      .where(({ programs }) =>
-        or(
-          ilike(programs.description, "unknown%"),
-          isNull(programs.department_id),
-          isNull(programs.college_id),
-        ),
-      ),
-  );
-
-  const { data: registrationStatuses, isLoading: isRegistrationStatusLoading } = useLiveQuery((q) =>
-    q
-      .from({ registrationStatuses: registrationStatusCollection })
-      .where(({ registrationStatuses }) => ilike(registrationStatuses.description, "unknown%")),
-  );
-
-  const coursesWithoutTitle = courses.reduce((sum, c) => {
-    if (c.title.toLowerCase() === "not known to cobis yet") return sum + 1;
-    if (c.title.toLowerCase() === "unknown") return sum + 1;
-    return sum;
-  }, 0);
-  const coursesWithoutDepartment = courses.reduce((sum, c) => {
-    if (c.department_id === null) return sum + 1;
-    return sum;
-  }, 0);
-  const coursesWithoutCollege = courses.reduce((sum, c) => {
-    if (c.college_id === null) return sum + 1;
-    return sum;
-  }, 0);
-
-  const coursePrefixesWithoutDepartment = coursePrefixes.reduce((sum, c) => {
-    if (c.department_id === null) return sum + 1;
-    return sum;
-  }, 0);
-
-  const coursePrefixesWithoutCollege = coursePrefixes.reduce((sum, c) => {
-    if (c.college_id === null) return sum + 1;
-    return sum;
-  }, 0);
-
-  const departmentWithoutDescription = departments.reduce((sum, d) => {
-    if (d.description.toLowerCase() === "unknown") return sum + 1;
-    return sum;
-  }, 0);
-
-  const departmentWithoutCollege = departments.reduce((sum, d) => {
-    if (d.college_id === null) return sum + 1;
-    return sum;
-  }, 0);
-
-  const programsWithoutDescription = programs.reduce((sum, p) => {
-    if (p.description.toLowerCase() === "unknown") return sum + 1;
-    return sum;
-  }, 0);
-  const programsWithoutDepartment = programs.reduce((sum, p) => {
-    if (p.department_id === null) return sum + 1;
-    return sum;
-  }, 0);
-  const programsWithoutCollege = programs.reduce((sum, p) => {
-    if (p.college_id === null) return sum + 1;
-    return sum;
-  }, 0);
-
-  if (
-    isAcademicStandingsLoading ||
-    isAdmitCodesLoading ||
-    isCollegesLoading ||
-    isCoursesLoading ||
-    isCoursePrefixesLoading ||
-    isDepartmentsLoading ||
-    isInstructionalMethodsLoading ||
-    isPartOfTermsLoading ||
-    isProgramsLoading ||
-    isRegistrationStatusLoading
-  ) {
+  if (isMobile) {
     return (
-      <div>
-        <Skeleton />
-      </div>
+      <Link
+        to={`/tools/manage-tables/${slug}`}
+        search={{ filterColumn, filterValue }}
+        className={className}
+      >
+        {children}
+      </Link>
     );
   }
 
   return (
-    <div className="mx-auto grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Academic Standing Table</CardTitle>
+    <Link
+      to="/tools/manage-tables"
+      search={{ table: slug, filterColumn, filterValue }}
+      className={className}
+    >
+      {children}
+    </Link>
+  );
+}
+
+function RouteComponent() {
+  const search: ManageTablesSearch = Route.useSearch();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  const { tables, isLoading } = useTableProblems();
+
+  if (isLoading) return <Skeleton className="h-96 w-full" />;
+
+  const countProblems = (problems: Array<{ count: number }>) =>
+    problems.reduce((sum, problem) => sum + problem.count, 0);
+
+  // Most problems first, then alphabetical so tables without problems keep a steady order
+  const sortedTables = [...tables].sort(
+    (a, b) => countProblems(b.problems) - countProblems(a.problems) || a.name.localeCompare(b.name),
+  );
+  const tablesWithProblems = tables.filter((table) => table.problems.length > 0).length;
+  const openTable = tables.find((table) => table.slug === search.table);
+
+  return (
+    <div className="mx-auto max-w-4xl space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Tables</CardTitle>
           <CardDescription>
-            {academicStandings.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{academicStandings.length}</span>
-                <span>
-                  {academicStandings.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
+            {tablesWithProblems === 0
+              ? "All tables are up to date."
+              : `${tablesWithProblems} of ${tables.length} tables need attention.`}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="px-0">
+          <ItemGroup className="gap-0">
+            {sortedTables.map((table, index) => (
+              <Fragment key={table.slug}>
+                {index > 0 && <ItemSeparator className="my-0" />}
+                {/* The title link stretches over the whole row, and the problem links sit above it */}
+                <Item className="hover:bg-muted/50 relative rounded-none px-(--card-spacing)">
+                  <ItemContent className="gap-2">
+                    <ItemTitle>
+                      <TableLink slug={table.slug} className="after:absolute after:inset-0">
+                        {table.name}
+                      </TableLink>
+                    </ItemTitle>
+                    {table.problems.length === 0 ? (
+                      <ItemDescription>No issues</ItemDescription>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5 max-md:gap-2">
+                        {table.problems.map((problem) => (
+                          <Badge
+                            key={problem.filterColumn}
+                            variant="outline"
+                            className="relative z-10 max-md:h-(--control-height) max-md:px-3 max-md:text-sm"
+                            asChild
+                          >
+                            <TableLink
+                              slug={table.slug}
+                              filterColumn={problem.filterColumn}
+                              filterValue={problem.filterValue}
+                            >
+                              {problem.count} {problem.label}
+                            </TableLink>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </ItemContent>
+                  <ItemActions>
+                    <ChevronRightIcon className="text-muted-foreground size-4" />
+                  </ItemActions>
+                </Item>
+              </Fragment>
+            ))}
+          </ItemGroup>
+        </CardContent>
+      </Card>
+
+      <Sheet
+        open={!!openTable && !isMobile}
+        onOpenChange={(open) => {
+          if (!open) void navigate({ to: "/tools/manage-tables", search: {} });
+        }}
+      >
+        <SheetContent className="w-full gap-0 data-[side=right]:sm:max-w-4xl">
+          {openTable && (
+            <>
+              <SheetHeader className="pr-12">
+                <SheetTitle>{openTable.name}</SheetTitle>
+                <SheetDescription>
+                  {openTable.problems.length === 0
+                    ? "No issues"
+                    : openTable.problems
+                        .map((problem) => `${problem.count} ${problem.label}`)
+                        .join(" · ")}
+                </SheetDescription>
+                <Button variant="outline" size="sm" className="mt-2 w-fit" asChild>
+                  <Link
+                    to={`/tools/manage-tables/${openTable.slug}`}
+                    search={{
+                      filterColumn: search.filterColumn,
+                      filterValue: search.filterValue,
+                    }}
+                  >
+                    Open full page
+                    <ExternalLinkIcon />
+                  </Link>
+                </Button>
+              </SheetHeader>
+              {/* Keyed so switching tables or problems starts the table's filter fresh */}
+              <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
+                <ManagedTableContent
+                  key={`${openTable.slug}-${search.filterColumn}-${search.filterValue}`}
+                  slug={openTable.slug}
+                  filterColumn={search.filterColumn}
+                  filterValue={search.filterValue}
+                />
               </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {academicStandings.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/academic-standings"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {academicStandings.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/academic-standings"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Admit Code Table</CardTitle>
-          <CardDescription>
-            {admitCodes.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{admitCodes.length}</span>
-                <span>
-                  {admitCodes.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {admitCodes.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/admit-codes"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {admitCodes.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/admit-codes"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Colleges Table</CardTitle>
-          <CardDescription>
-            {colleges.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{colleges.length}</span>
-                <span>
-                  {colleges.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {colleges.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/colleges"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {colleges.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/colleges"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Courses Table</CardTitle>
-          <CardDescription>
-            {courses.length > 0 ? (
-              <>
-                {coursesWithoutTitle > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{coursesWithoutTitle}</span>
-                    <span>
-                      {coursesWithoutTitle === 1 ? "row missing a title" : "rows missing a title"}
-                    </span>
-                  </div>
-                )}
-                {coursesWithoutDepartment > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{coursesWithoutDepartment}</span>
-                    <span>
-                      {coursesWithoutDepartment === 1
-                        ? "row missing a department"
-                        : "rows missing a department"}
-                    </span>
-                  </div>
-                )}
-                {coursesWithoutCollege > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{coursesWithoutCollege}</span>
-                    <span>
-                      {coursesWithoutCollege === 1
-                        ? "row missing a college"
-                        : "rows missing a college"}
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {courses.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/courses"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {courses.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            {coursesWithoutTitle > 0 && (
-              <Link
-                to={"/tools/manage-tables/courses"}
-                search={{
-                  filterColumn: "title",
-                  filterValue: "unknown",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Title
-                </Badge>
-              </Link>
-            )}
-            {coursesWithoutDepartment > 0 && (
-              <Link
-                to={"/tools/manage-tables/courses"}
-                search={{
-                  filterColumn: "department_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Department
-                </Badge>
-              </Link>
-            )}
-            {coursesWithoutCollege > 0 && (
-              <Link
-                to={"/tools/manage-tables/courses"}
-                search={{
-                  filterColumn: "college_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  College
-                </Badge>
-              </Link>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Course Prefixes Table</CardTitle>
-          <CardDescription>
-            {coursePrefixes.length > 0 ? (
-              <>
-                {coursePrefixesWithoutDepartment > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{coursePrefixesWithoutDepartment}</span>
-                    <span>
-                      {coursePrefixesWithoutDepartment === 1
-                        ? "row missing a department"
-                        : "rows missing a department"}
-                    </span>
-                  </div>
-                )}
-                {coursePrefixesWithoutCollege > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{coursePrefixesWithoutCollege}</span>
-                    <span>
-                      {coursePrefixesWithoutCollege === 1
-                        ? "row missing a college"
-                        : "rows missing a college"}
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {coursePrefixes.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/course-prefixes"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {coursePrefixes.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            {coursePrefixesWithoutDepartment > 0 && (
-              <Link
-                to={"/tools/manage-tables/course-prefixes"}
-                search={{
-                  filterColumn: "department_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Department
-                </Badge>
-              </Link>
-            )}
-            {coursePrefixesWithoutCollege > 0 && (
-              <Link
-                to={"/tools/manage-tables/course-prefixes"}
-                search={{
-                  filterColumn: "college_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  College
-                </Badge>
-              </Link>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Departments Table</CardTitle>
-          <CardDescription>
-            {departments.length > 0 ? (
-              <>
-                {departmentWithoutDescription > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{departmentWithoutDescription}</span>
-                    <span>
-                      {departmentWithoutDescription === 1
-                        ? "row missing a description"
-                        : "rows missing a description"}
-                    </span>
-                  </div>
-                )}
-                {departmentWithoutCollege > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{departmentWithoutCollege}</span>
-                    <span>
-                      {departmentWithoutCollege === 1
-                        ? "row missing a college"
-                        : "rows missing a college"}
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {departments.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/departments"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {departments.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            {departmentWithoutDescription > 0 && (
-              <Link
-                to={"/tools/manage-tables/departments"}
-                search={{
-                  filterColumn: "description",
-                  filterValue: "unknown",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Description
-                </Badge>
-              </Link>
-            )}
-            {departmentWithoutCollege > 0 && (
-              <Link
-                to={"/tools/manage-tables/departments"}
-                search={{
-                  filterColumn: "college_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  College
-                </Badge>
-              </Link>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Instructional Methods Table</CardTitle>
-          <CardDescription>
-            {instructionalMethods.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{instructionalMethods.length}</span>
-                <span>
-                  {instructionalMethods.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {instructionalMethods.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/instructional-methods"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {instructionalMethods.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/instructional-methods"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Part Of Terms Table</CardTitle>
-          <CardDescription>
-            {partOfTerms.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{partOfTerms.length}</span>
-                <span>
-                  {partOfTerms.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {partOfTerms.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/part-of-terms"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {partOfTerms.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/part-of-terms"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Programs Table</CardTitle>
-          <CardDescription>
-            {programs.length > 0 ? (
-              <>
-                {programsWithoutDescription > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{programsWithoutDescription}</span>
-                    <span>
-                      {coursesWithoutTitle === 1
-                        ? "row missing a description"
-                        : "rows missing a description"}
-                    </span>
-                  </div>
-                )}
-                {programsWithoutDepartment > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{programsWithoutDepartment}</span>
-                    <span>
-                      {programsWithoutDepartment === 1
-                        ? "row missing a department"
-                        : "rows missing a department"}
-                    </span>
-                  </div>
-                )}
-                {programsWithoutCollege > 0 && (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-lg font-bold">{programsWithoutCollege}</span>
-                    <span>
-                      {coursesWithoutCollege === 1
-                        ? "row missing a college"
-                        : "rows missing a college"}
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {programs.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/programs"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>
-        </CardHeader>
-        {programs.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            {programsWithoutDescription > 0 && (
-              <Link
-                to={"/tools/manage-tables/programs"}
-                search={{
-                  filterColumn: "description",
-                  filterValue: "unknown",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Description
-                </Badge>
-              </Link>
-            )}
-            {programsWithoutDepartment > 0 && (
-              <Link
-                to={"/tools/manage-tables/programs"}
-                search={{
-                  filterColumn: "department_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  Department
-                </Badge>
-              </Link>
-            )}
-            {programsWithoutCollege > 0 && (
-              <Link
-                to={"/tools/manage-tables/programs"}
-                search={{
-                  filterColumn: "college_id",
-                  filterValue: "null",
-                }}
-              >
-                <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                  College
-                </Badge>
-              </Link>
-            )}
-          </CardFooter>
-        )}
-      </Card>
-      <Card className="h-50">
-        <CardHeader className="h-full">
-          <CardTitle>Registration Statuses Table</CardTitle>
-          <CardDescription>
-            {registrationStatuses.length > 0 ? (
-              <div className="flex items-baseline gap-2">
-                <span className="text-lg font-bold">{registrationStatuses.length}</span>
-                <span>
-                  {registrationStatuses.length === 1
-                    ? "row missing a description"
-                    : "rows missing a description"}
-                </span>
-              </div>
-            ) : (
-              <span className="text-green-600 dark:text-green-500">No issues found ✓</span>
-            )}
-          </CardDescription>
-          <CardAction className="flex gap-2">
-            {registrationStatuses.length > 0 && <Badge>Action Required</Badge>}
-            <Link to={"/tools/manage-tables/registration-statuses"}>
-              <ExternalLink className="bg-secondary/50 dark:text-secondary-foreground h-5 w-5 rounded p-1" />
-            </Link>
-          </CardAction>{" "}
-        </CardHeader>
-        {registrationStatuses.length > 0 && (
-          <CardFooter className="flex items-start gap-1.5">
-            <span>Problems to resolve:</span>
-            <Link
-              to={"/tools/manage-tables/registration-statuses"}
-              search={{
-                filterColumn: "description",
-                filterValue: "unknown",
-              }}
-            >
-              <Badge variant="outline" className="cursor-pointer shadow-md hover:shadow-lg">
-                Description
-              </Badge>
-            </Link>
-          </CardFooter>
-        )}
-      </Card>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
