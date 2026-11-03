@@ -9,7 +9,8 @@ const CSV_FOLDER = path.join(import.meta.dirname, "csvs");
  */
 export async function readSeedCSV(fileName: string) {
   const fileContent = fs.readFileSync(path.join(CSV_FOLDER, fileName), "utf8");
-  const parsed = await parseCSV(fileContent);
+  // Some exports start with a byte order mark, which would otherwise end up in the first header
+  const parsed = await parseCSV(fileContent.replace(/^\uFEFF/, ""));
   return parsed.data;
 }
 

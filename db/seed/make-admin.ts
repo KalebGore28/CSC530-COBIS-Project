@@ -13,7 +13,8 @@ import { getDb } from "@/db";
 import { roles, user, userRoles } from "@/db/schema";
 
 const ADMIN_ROLE = "cobis_administrator";
-const MNUMBER_FORMAT = /^M\d{8}$/;
+// Murray State M-numbers are an M and 8 digits, though some exports pad them to 9
+const MNUMBER_FORMAT = /^M\d{8,9}$/;
 
 function fail(message: string): never {
   console.error(`❌ ${message}`);
@@ -30,7 +31,7 @@ if (!email || !mnumber) {
   fail("Usage: bun run db:make-admin --email you@missouristate.edu --mnumber M01234567");
 }
 if (!MNUMBER_FORMAT.test(mnumber)) {
-  fail(`"${mnumber}" isn't an M-number. It should be an M followed by 8 digits.`);
+  fail(`"${mnumber}" isn't an M-number. It should be an M followed by 8 or 9 digits.`);
 }
 
 const db = getDb();
