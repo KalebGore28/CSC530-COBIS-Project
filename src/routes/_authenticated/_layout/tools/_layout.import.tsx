@@ -1,7 +1,10 @@
-import { useRef, useState } from "react";
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { Fragment, useEffect, useRef, useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { DownloadIcon, FileSpreadsheetIcon, HistoryIcon, UploadIcon, XIcon } from "lucide-react";
+import { useDbClient, useLiveQuery } from "@tanstack/react-db";
+import { format, formatDistanceStrict } from "date-fns";
+import { DownloadIcon, FileSpreadsheetIcon, UploadIcon, XIcon } from "lucide-react";
+import Papa from "papaparse";
 
 import {
   Attachment,
@@ -12,10 +15,10 @@ import {
   AttachmentMedia,
   AttachmentTitle,
 } from "@/components/ui/attachment";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -30,12 +33,27 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "@/components/ui/item";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
+import type { importJobs } from "@/db/schema";
+import { importJobsCollection } from "@/integrations/tanstack-db/import-jobs";
 import { Spinner } from "@/components/ui/spinner";
 import { importProgressQuery } from "@/lib/import-progress";
 import { uploadCsv } from "@/lib/upload";
 
 export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/import")({
+  beforeLoad: ({ context }) => {
+    void context.dbClient.collection(importJobsCollection).preload();
+  },
   component: ImportPage,
   context: () => ({ getTitle: () => "Import" }),
 });
@@ -48,12 +66,30 @@ type UploadStatus =
 
 type AttachmentState = "idle" | "uploading" | "processing" | "error" | "done";
 
-// The file name decides which tables an import updates, so it's checked before uploading
-async function fetchMatchingTables(fileName: string): Promise<Array<string>> {
-  const response = await fetch(`/api/import/match?filename=${encodeURIComponent(fileName)}`);
-  if (!response.ok) throw new Error(`Could not check the file name (${response.status})`);
-  const body = (await response.json()) as { tableNames: Array<string> };
-  return body.tableNames;
+type ImportJob = typeof importJobs.$inferSelect;
+
+// How many past imports show before "Show all"
+const RECENT_IMPORT_COUNT = 5;
+
+type FileCheck = { tableNames: Array<string>; missingColumns: Array<string> };
+
+// Only the start of the file is read, which is plenty for the header row of even a very large export
+async function readHeaderRow(file: File): Promise<Array<string>> {
+  const start = await file.slice(0, 64 * 1024).text();
+  const firstRow = Papa.parse<Array<string>>(start, { preview: 1 }).data[0] ?? [];
+  // Some exports start with a byte order mark, which would otherwise stick to the first column name
+  return firstRow.map((header, index) => (index === 0 ? header.replace(/^\uFEFF/, "") : header));
+}
+
+// The file name decides which tables an import updates, and the header row has to have the columns they read,
+// so both are checked before uploading
+async function checkFile(file: File): Promise<FileCheck> {
+  const params = new URLSearchParams({ filename: file.name });
+  for (const header of await readHeaderRow(file)) params.append("header", header);
+
+  const response = await fetch(`/api/import/match?${params.toString()}`);
+  if (!response.ok) throw new Error(`Could not check the file (${response.status})`);
+  return (await response.json()) as FileCheck;
 }
 
 // Turns a schema key like "studentAcademicInfo" into "Student academic info"
@@ -73,17 +109,37 @@ function ImportPage() {
 
   const isCsv = file?.name.toLowerCase().endsWith(".csv") ?? false;
   const match = useQuery({
-    queryKey: ["import-match", file?.name],
-    queryFn: () => fetchMatchingTables(file?.name ?? ""),
+    // Size and modified time too, so choosing an edited file with the same name checks it again
+    queryKey: ["import-match", file?.name, file?.size, file?.lastModified],
+    queryFn: () => (file ? checkFile(file) : null),
     enabled: isCsv,
   });
-  const tableNames = isCsv ? (match.data ?? []) : [];
-  const canImport = tableNames.length > 0 && (status.step === "ready" || status.step === "failed");
+  const tableNames = isCsv ? (match.data?.tableNames ?? []) : [];
+  const missingColumns = isCsv ? (match.data?.missingColumns ?? []) : [];
 
   // Streams the import's progress once the file is on the server
   const importId = status.step === "uploaded" ? status.importId : "";
   const progress = useQuery(importProgressQuery(importId));
   const importFinished = progress.data?.done === true || progress.isError;
+
+  const dbClient = useDbClient();
+  const { data: jobs, isLoading: jobsLoading } = useLiveQuery((q) =>
+    q.from({ jobs: importJobsCollection }).orderBy(({ jobs }) => jobs.createdAt, "desc"),
+  );
+  // Imports run one file at a time, including ones started from another tab or by someone else
+  const otherImportRunning = jobs.some(
+    (job) => (job.status === "pending" || job.status === "processing") && job.id !== importId,
+  );
+  const canImport =
+    tableNames.length > 0 &&
+    missingColumns.length === 0 &&
+    !otherImportRunning &&
+    (status.step === "ready" || status.step === "failed");
+
+  // Picks up the finished import's final row count and status in the list below
+  useEffect(() => {
+    if (importFinished) void dbClient.collection(importJobsCollection).utils.refetch();
+  }, [importFinished, dbClient]);
 
   const chooseFile = (chosen: File | undefined) => {
     if (!chosen) return;
@@ -102,6 +158,7 @@ function ImportPage() {
     try {
       const result = await uploadCsv(file, (percent) => setStatus({ step: "uploading", percent }));
       setStatus({ step: "uploaded", importId: result.importId });
+      void dbClient.collection(importJobsCollection).utils.refetch();
     } catch (error) {
       setStatus({
         step: "failed",
@@ -139,34 +196,29 @@ function ImportPage() {
       attachmentState = "error";
       description = "Only .csv files can be imported";
     } else if (match.isPending) {
-      description = `${size} · Checking file name…`;
+      description = `${size} · Checking file…`;
     } else if (match.isError) {
       attachmentState = "error";
-      description = "Couldn't check the file name. Try choosing it again.";
+      description = "Couldn't check the file. Try choosing it again.";
     } else if (tableNames.length === 0) {
       attachmentState = "error";
       description = "COBIS doesn't recognize this file name";
+    } else if (missingColumns.length > 0) {
+      attachmentState = "error";
+      description = `Missing ${missingColumns.length} ${missingColumns.length === 1 ? "column" : "columns"}`;
     } else {
       description = `${size} · Ready to import`;
     }
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl space-y-4">
       <Card>
         <CardHeader>
           <CardTitle>Import CSV</CardTitle>
           <CardDescription>
             Import one export file at a time. Large files can take several minutes.
           </CardDescription>
-          <CardAction>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/tools/import/history">
-                <HistoryIcon />
-                History
-              </Link>
-            </Button>
-          </CardAction>
         </CardHeader>
 
         <CardContent className="space-y-3">
@@ -218,19 +270,32 @@ function ImportPage() {
 
               {status.step === "uploaded" && progress.data?.done && progress.data.error && (
                 // Database errors can be long, so the log keeps the rest
-                <p className="text-destructive line-clamp-3 text-sm break-words">
+                <p className="text-destructive line-clamp-3 text-sm wrap-anywhere">
                   {progress.data.error}
                 </p>
               )}
-              {tableNames.length > 0 && status.step !== "uploaded" && (
-                <p className="text-muted-foreground text-sm">
-                  Updates {tableNames.map(formatTableName).join(", ")}.
+              {missingColumns.length > 0 && (
+                <p className="text-muted-foreground text-sm wrap-anywhere">
+                  This file doesn't have {missingColumns.join(", ")}. Check it was exported with all
+                  of its original columns, with their names unchanged.
                 </p>
               )}
+              {tableNames.length > 0 &&
+                missingColumns.length === 0 &&
+                status.step !== "uploaded" && (
+                  <p className="text-muted-foreground text-sm">
+                    Updates {tableNames.map(formatTableName).join(", ")}.
+                  </p>
+                )}
               {isCsv && !match.isPending && !match.isError && tableNames.length === 0 && (
                 <p className="text-muted-foreground text-sm">
                   The file name tells COBIS which tables to update, so keep the name the export came
                   with, like reg_cuba_demographic_202510_20250117.csv.
+                </p>
+              )}
+              {otherImportRunning && status.step !== "uploaded" && (
+                <p className="text-muted-foreground text-sm">
+                  Another import is running. You can import this file once it finishes.
                 </p>
               )}
             </>
@@ -255,7 +320,117 @@ function ImportPage() {
           </CardFooter>
         )}
       </Card>
+
+      <RecentImports
+        // The current import already shows its progress above, so it joins the list once it's finished
+        jobs={jobs.filter((job) => job.id !== importId || importFinished)}
+        isLoading={jobsLoading}
+      />
     </div>
+  );
+}
+
+function RecentImports({ jobs, isLoading }: { jobs: Array<ImportJob>; isLoading: boolean }) {
+  const [showAll, setShowAll] = useState(false);
+  const shownJobs = showAll ? jobs : jobs.slice(0, RECENT_IMPORT_COUNT);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Recent imports</CardTitle>
+        <CardDescription>
+          Logs are stored temporarily, so download any you need to keep.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-0">
+        {isLoading ? (
+          <div className="px-(--card-spacing)">
+            <Skeleton className="h-32 w-full" />
+          </div>
+        ) : jobs.length === 0 ? (
+          <p className="text-muted-foreground px-(--card-spacing) text-sm">No imports yet.</p>
+        ) : (
+          <ItemGroup className="gap-0">
+            {shownJobs.map((job, index) => (
+              <Fragment key={job.id}>
+                {index > 0 && <ItemSeparator className="my-0" />}
+                <ImportJobRow job={job} />
+              </Fragment>
+            ))}
+          </ItemGroup>
+        )}
+      </CardContent>
+      {jobs.length > RECENT_IMPORT_COUNT && (
+        <CardFooter>
+          <Button variant="outline" size="sm" onClick={() => setShowAll(!showAll)}>
+            {showAll ? "Show fewer" : `Show all ${jobs.length} imports`}
+          </Button>
+        </CardFooter>
+      )}
+    </Card>
+  );
+}
+
+function ImportJobRow({ job }: { job: ImportJob }) {
+  const dbClient = useDbClient();
+  const isRunning = job.status === "pending" || job.status === "processing";
+
+  // A running import started earlier, or in another tab, still shows its progress here
+  const progress = useQuery({
+    ...importProgressQuery(job.id),
+    enabled: isRunning,
+  });
+  const finishedWhileOpen = isRunning && progress.data?.done === true;
+  useEffect(() => {
+    if (finishedWhileOpen) void dbClient.collection(importJobsCollection).utils.refetch();
+  }, [finishedWhileOpen, dbClient]);
+
+  const startedAt = new Date(job.createdAt);
+  let description = format(startedAt, "MMM d, yyyy h:mm a");
+  if (isRunning) {
+    description = `Importing · ${progress.data?.percent ?? 0}%`;
+  } else if (job.status === "failed") {
+    description += ` · ${job.error ?? "Import failed"}`;
+  } else {
+    description += ` · ${(job.totalRows ?? 0).toLocaleString()} rows`;
+    // Only worth saying for the larger imports
+    const finishedAt = job.completedAt ? new Date(job.completedAt) : null;
+    if (finishedAt && finishedAt.getTime() - startedAt.getTime() >= 60_000) {
+      description += ` in ${formatDistanceStrict(finishedAt, startedAt)}`;
+    }
+  }
+
+  return (
+    <Item className="rounded-none px-(--card-spacing)">
+      {/* min-w-0 and wrap-anywhere let long names and errors wrap instead of widening the page */}
+      <ItemContent className="min-w-0">
+        <ItemTitle className="wrap-anywhere">{job.fileName ?? "Unknown file"}</ItemTitle>
+        <ItemDescription className="wrap-anywhere">{description}</ItemDescription>
+      </ItemContent>
+      <ItemActions>
+        {isRunning ? (
+          <Badge variant="outline">
+            <Spinner />
+            Running
+          </Badge>
+        ) : job.status === "failed" ? (
+          <Badge variant="destructive">Failed</Badge>
+        ) : (
+          <Badge variant="secondary">Done</Badge>
+        )}
+        {!isRunning && (
+          <Button variant="ghost" size="icon-sm" asChild>
+            <a
+              href={`/api/import/${job.id}/logs`}
+              download
+              aria-label={`Download the import log for ${job.fileName ?? "this import"}`}
+            >
+              <DownloadIcon />
+            </a>
+          </Button>
+        )}
+      </ItemActions>
+    </Item>
   );
 }
 

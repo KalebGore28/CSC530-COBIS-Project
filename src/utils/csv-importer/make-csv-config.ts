@@ -32,6 +32,7 @@ export type OptimizedLookup = {
           }
         | {
             rowExpander: (row: Record<string, string>) => MaybePromise<TableInsertType<any>[]>;
+            requiredColumns: Array<string>;
             foreignKeys: Array<ForeignKeyInfo>;
             config?: never;
           }
@@ -123,6 +124,7 @@ function buildOptimizedLookup(
 
           optimizedLookup.lookup.get(key)!.tables.set(tableName, {
             rowExpander: mapping.rowExpander!,
+            requiredColumns: mapping.requiredColumns!,
             foreignKeys: table.foreignKeys,
           });
         }

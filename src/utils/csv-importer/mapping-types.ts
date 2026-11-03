@@ -62,6 +62,9 @@ export type TableMapping<T extends MySqlTable<any>> =
   | {
       regex: RegExp[];
       rowExpander: (row: Record<string, string>) => MaybePromise<TableInsertType<T>[]>;
+      // The CSV columns rowExpander reads, since they can't be found from the function itself.
+      // Used to turn away files missing them before anything gets imported.
+      requiredColumns: Array<string>;
       config?: never;
     };
 

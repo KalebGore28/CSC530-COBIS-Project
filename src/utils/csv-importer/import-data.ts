@@ -7,6 +7,7 @@ import { CompositeCache } from "./composite-cache";
 
 import type { makeMySqlCSVConfig } from "./make-csv-config";
 import { findMySqlMatchingTables } from "./find-matching-tables";
+import { findMissingColumns } from "./find-missing-columns";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -59,6 +60,12 @@ export const importMySqlData = async (
 
   if (!matchingTables) {
     throw new Error(`No matching tables found for file: ${fileName}`);
+  }
+
+  // Checked before anything is written, so a renamed or missing column doesn't fail partway with a database error
+  const missingColumns = findMissingColumns(fileName, csvData.meta.fields ?? [], csvConfig);
+  if (missingColumns.length > 0) {
+    throw new Error(`Missing columns: ${missingColumns.join(", ")}`);
   }
 
   // Each table is an equal share of the import, and tableFraction is how far into the current one it is
