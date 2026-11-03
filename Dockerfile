@@ -1,38 +1,29 @@
-# ---------- Build Stage ----------
-FROM oven/bun:1.3.13 AS builder
-
-# Set working directory
+# ---------- Build ----------
+FROM oven/bun:1.4.4 AS build
 WORKDIR /app
 
-# Copy only package manifests for dependency install layer caching
-COPY bun.lock package*.json ./
+# Dependencies first, so this layer is reused until the lockfile changes.
+# --ignore-scripts skips the project's prepare script, which sets up git hooks and needs git.
+# bunfig.toml already keeps dependencies' install scripts from running.
+COPY package.json bun.lock bunfig.toml ./
+RUN bun install --frozen-lockfile --ignore-scripts
 
-# Install all dependencies including devDependencies
-RUN bun install --frozen-lockfile
-
-# Copy the rest of the source code
 COPY . .
-
-# Build the app
+# Nitro writes a self-contained server and the static files to .output
 RUN bun run build
 
-# ---------- Production Stage ----------
-FROM oven/bun:1.3.13 AS final
-
-# Set working directory
+# ---------- Run ----------
+# Only .output is copied over: the server is already bundled, so no node_modules or source code
+FROM oven/bun:1.4.4-slim
 WORKDIR /app
 
-# Copy only the necessary built artifacts from the builder
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/bun.lock ./
-COPY --from=builder /app/server.ts ./
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# Install only production dependencies
-RUN bun install --production  --frozen-lockfile
+COPY --from=build --chown=bun:bun /app/.output ./
 
-# Expose application port
-EXPOSE 8080
+USER bun
+EXPOSE 3000
 
-# Run the built server
-CMD ["bun","server.ts"]
+# The database and sign-in settings come from the environment, like `docker run --env-file`
+CMD ["bun", "server/index.mjs"]

@@ -1,0 +1,21 @@
+# Kept out of the build so secrets and local files never end up in an image layer
+.env
+.env.*
+!.env.example
+
+# Rebuilt inside the image
+node_modules
+.output
+dist
+.tanstack
+
+# Not needed to build the app
+.git
+.github
+.claude
+.agents
+.vitest
+db/seed
+drizzle
+*.md
+.DS_Store
