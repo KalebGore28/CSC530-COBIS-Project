@@ -27,6 +27,8 @@ const buildConflictUpdateColumns = <T extends MySqlTable, Q extends keyof T["_"]
 export type ImportProgress = {
   processed: number;
   totalRows: number;
+  // Across every table the file updates, since processed counts rows again for each table
+  percent: number;
   currentStep: string;
 };
 
@@ -45,6 +47,7 @@ export const importMySqlData = async (
       progress({
         processed: update.processed ?? 0,
         totalRows: update.totalRows ?? 0,
+        percent: update.percent ?? 0,
         currentStep: update.currentStep ?? "Processing...",
       });
       await sleep(5); // yield to event loop
@@ -58,9 +61,14 @@ export const importMySqlData = async (
     throw new Error(`No matching tables found for file: ${fileName}`);
   }
 
+  // Each table is an equal share of the import, and tableFraction is how far into the current one it is
+  const overallPercent = (finishedTables: number, tableFraction: number) =>
+    Math.floor(((finishedTables + tableFraction) / matchingTables.size) * 100);
+
   await updateProgress({
     processed: 0,
     totalRows: csvData.data.length,
+    percent: 0,
     currentStep: `Starting import for file: ${fileName}`,
   });
 
@@ -75,6 +83,7 @@ export const importMySqlData = async (
     await updateProgress({
       processed: totalProcessed,
       totalRows: csvData.data.length,
+      percent: overallPercent(tableIndex - 1, 0),
       currentStep: `Processing table ${tableName} (${tableIndex}/${matchingTables.size})`,
     });
 
@@ -189,6 +198,7 @@ export const importMySqlData = async (
         await updateProgress({
           processed: totalProcessed + i,
           totalRows: csvData.data.length,
+          percent: overallPercent(tableIndex - 1, i / processedTableData.length),
           currentStep: `Inserting batch ${Math.floor(i / importBatchSize) + 1} for ${tableName}`,
         });
 
@@ -206,6 +216,7 @@ export const importMySqlData = async (
     await updateProgress({
       processed: totalProcessed,
       totalRows: csvData.data.length,
+      percent: overallPercent(tableIndex, 0),
       currentStep: `Completed table ${tableName}`,
     });
   }
@@ -213,6 +224,7 @@ export const importMySqlData = async (
   await updateProgress({
     processed: csvData.data.length,
     totalRows: csvData.data.length,
+    percent: 100,
     currentStep: "Import complete",
   });
 };

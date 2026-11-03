@@ -31,12 +31,12 @@ export async function processImport(
 
   let logStream: ReturnType<typeof createWriteStream> | null = null;
 
+  // Set up before the first await, so the state exists by the time the upload responds and the client asks for progress
+  initializeImportState(importId);
+
   try {
     // Verify CSV exists
     await access(csvPath);
-
-    // Initialize in-memory state
-    initializeImportState(importId);
 
     // Update job status to processing
     await db.update(importJobs).set({ status: "processing" }).where(eq(importJobs.id, importId));
@@ -59,6 +59,7 @@ export async function processImport(
       updateImportState(importId, {
         processed: progress.processed,
         totalRows: progress.totalRows,
+        percent: progress.percent,
         currentStep: progress.currentStep,
       });
     });

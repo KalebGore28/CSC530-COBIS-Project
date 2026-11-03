@@ -1,174 +1,312 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { uploadCsv } from "@/lib/upload";
+import { useRef, useState } from "react";
+import { Link, createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { DownloadIcon, FileSpreadsheetIcon, HistoryIcon, UploadIcon, XIcon } from "lucide-react";
+
+import {
+  Attachment,
+  AttachmentAction,
+  AttachmentActions,
+  AttachmentContent,
+  AttachmentDescription,
+  AttachmentMedia,
+  AttachmentTitle,
+} from "@/components/ui/attachment";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { Progress } from "@/components/ui/progress";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle2, XCircle, Upload, ArrowRight, History } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
+import { importProgressQuery } from "@/lib/import-progress";
+import { uploadCsv } from "@/lib/upload";
 
 export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/import")({
   component: ImportPage,
   context: () => ({ getTitle: () => "Import" }),
 });
 
+type UploadStatus =
+  | { step: "ready" }
+  | { step: "uploading"; percent: number }
+  | { step: "uploaded"; importId: string }
+  | { step: "failed"; message: string };
+
+type AttachmentState = "idle" | "uploading" | "processing" | "error" | "done";
+
+// The file name decides which tables an import updates, so it's checked before uploading
+async function fetchMatchingTables(fileName: string): Promise<Array<string>> {
+  const response = await fetch(`/api/import/match?filename=${encodeURIComponent(fileName)}`);
+  if (!response.ok) throw new Error(`Could not check the file name (${response.status})`);
+  const body = (await response.json()) as { tableNames: Array<string> };
+  return body.tableNames;
+}
+
+// Turns a schema key like "studentAcademicInfo" into "Student academic info"
+function formatTableName(name: string) {
+  const words = name.replace(/([A-Z])/g, " $1").toLowerCase();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
 function ImportPage() {
-  const navigate = useNavigate();
   const [file, setFile] = useState<File | null>(null);
-  const [progress, setProgress] = useState(0);
-  const [uploading, setUploading] = useState(false);
-  const [importId, setImportId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<UploadStatus>({ step: "ready" });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0] || null;
-    setFile(selectedFile);
-    setImportId(null);
-    setError(null);
-    setProgress(0);
+  const isCsv = file?.name.toLowerCase().endsWith(".csv") ?? false;
+  const match = useQuery({
+    queryKey: ["import-match", file?.name],
+    queryFn: () => fetchMatchingTables(file?.name ?? ""),
+    enabled: isCsv,
+  });
+  const tableNames = isCsv ? (match.data ?? []) : [];
+  const canImport = tableNames.length > 0 && (status.step === "ready" || status.step === "failed");
+
+  // Streams the import's progress once the file is on the server
+  const importId = status.step === "uploaded" ? status.importId : "";
+  const progress = useQuery(importProgressQuery(importId));
+  const importFinished = progress.data?.done === true || progress.isError;
+
+  const chooseFile = (chosen: File | undefined) => {
+    if (!chosen) return;
+    setFile(chosen);
+    setStatus({ step: "ready" });
   };
 
-  const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file first");
-      return;
-    }
-
-    setUploading(true);
-    setError(null);
-    setImportId(null);
-    setProgress(0);
-
-    try {
-      const result = await uploadCsv(file, (pct) => {
-        setProgress(pct);
-      });
-
-      setImportId(result.importId);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Upload failed");
-    } finally {
-      setUploading(false);
-    }
-  };
-
-  const handleReset = () => {
+  const clearFile = () => {
     setFile(null);
-    setProgress(0);
-    setImportId(null);
-    setError(null);
-    setUploading(false);
+    setStatus({ step: "ready" });
   };
 
-  const handleTrackImport = () => {
-    if (importId) {
-      void navigate({
-        to: "/tools/import/$id/progress",
-        params: { id: importId },
+  const handleImport = async () => {
+    if (!file) return;
+    setStatus({ step: "uploading", percent: 0 });
+    try {
+      const result = await uploadCsv(file, (percent) => setStatus({ step: "uploading", percent }));
+      setStatus({ step: "uploaded", importId: result.importId });
+    } catch (error) {
+      setStatus({
+        step: "failed",
+        message: error instanceof Error ? error.message : "Upload failed",
       });
     }
   };
 
-  const handleViewHistory = () => {
-    void navigate({ to: "/tools/import/history" });
-  };
+  // One description per stage, so the attachment always says what's happening to the file
+  let attachmentState: AttachmentState = "idle";
+  let description = "";
+  if (file) {
+    const size = formatFileSize(file.size);
+    if (status.step === "uploading") {
+      attachmentState = "uploading";
+      description = `Uploading · ${status.percent}%`;
+    } else if (status.step === "uploaded") {
+      if (progress.isError) {
+        attachmentState = "error";
+        description = "Lost track of the import. Check History for how it finished.";
+      } else if (progress.data?.done && progress.data.error) {
+        attachmentState = "error";
+        description = "Import failed · The log has the full error";
+      } else if (progress.data?.done) {
+        attachmentState = "done";
+        description = `${size} · ${progress.data.totalRows.toLocaleString()} rows imported`;
+      } else {
+        attachmentState = "processing";
+        description = `Importing · ${progress.data?.percent ?? 0}%`;
+      }
+    } else if (status.step === "failed") {
+      attachmentState = "error";
+      description = status.message;
+    } else if (!isCsv) {
+      attachmentState = "error";
+      description = "Only .csv files can be imported";
+    } else if (match.isPending) {
+      description = `${size} · Checking file name…`;
+    } else if (match.isError) {
+      attachmentState = "error";
+      description = "Couldn't check the file name. Try choosing it again.";
+    } else if (tableNames.length === 0) {
+      attachmentState = "error";
+      description = "COBIS doesn't recognize this file name";
+    } else {
+      description = `${size} · Ready to import`;
+    }
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-6 w-6" />
-            CSV Import
-          </CardTitle>
-          <Button variant="outline" size="sm" onClick={handleViewHistory} className="gap-2">
-            <History className="h-4 w-4" />
-            View History
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* File Input */}
-        <div className="space-y-2">
-          <Label htmlFor="file-upload">Select CSV File</Label>
-          <Input
-            id="file-upload"
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            disabled={uploading}
-          />
-          {file && (
-            <p className="text-muted-foreground text-sm">
-              Selected: {file.name} ({(file.size / 1024).toFixed(2)} KB)
-            </p>
-          )}
-        </div>
-
-        {/* Progress Bar */}
-        {uploading && (
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Uploading...</span>
-              <span>{progress}%</span>
-            </div>
-            <Progress value={progress} />
-          </div>
-        )}
-
-        {/* Success Message */}
-        {importId && (
-          <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
-            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400" />
-            <AlertDescription className="text-green-800 dark:text-green-200">
-              <div className="space-y-2">
-                <p className="font-semibold">Upload successful!</p>
-                <p className="text-sm">Your file has been uploaded and is ready for processing.</p>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <Alert className="border-red-500 bg-red-50 dark:bg-red-950">
-            <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-            <AlertDescription className="text-red-800 dark:text-red-200">
-              <p className="font-semibold">Upload failed</p>
-              <p className="text-sm">{error}</p>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          {!importId && (
-            <Button onClick={handleUpload} disabled={!file || uploading} className="flex-1">
-              {uploading ? "Uploading..." : "Upload CSV"}
+    <div className="mx-auto max-w-4xl">
+      <Card>
+        <CardHeader>
+          <CardTitle>Import CSV</CardTitle>
+          <CardDescription>
+            Import one export file at a time. Large files can take several minutes.
+          </CardDescription>
+          <CardAction>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/tools/import/history">
+                <HistoryIcon />
+                History
+              </Link>
             </Button>
-          )}
+          </CardAction>
+        </CardHeader>
 
-          {importId && (
+        <CardContent className="space-y-3">
+          {file ? (
             <>
-              <Button onClick={handleTrackImport} className="flex-1">
-                Track Import Progress
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-              <Button onClick={handleReset} variant="outline">
-                New Import
-              </Button>
-            </>
-          )}
+              <Attachment state={attachmentState} className="w-full">
+                <AttachmentMedia>
+                  {attachmentState === "uploading" || attachmentState === "processing" ? (
+                    <Spinner />
+                  ) : (
+                    <FileSpreadsheetIcon />
+                  )}
+                </AttachmentMedia>
+                <AttachmentContent>
+                  <AttachmentTitle>{file.name}</AttachmentTitle>
+                  <AttachmentDescription>{description}</AttachmentDescription>
+                </AttachmentContent>
+                {(status.step === "ready" || status.step === "failed") && (
+                  <AttachmentActions>
+                    <AttachmentAction aria-label={`Remove ${file.name}`} onClick={clearFile}>
+                      <XIcon />
+                    </AttachmentAction>
+                  </AttachmentActions>
+                )}
+                {status.step === "uploaded" && progress.data?.done && (
+                  <AttachmentActions>
+                    <AttachmentAction
+                      aria-label={`Download the import log for ${file.name}`}
+                      asChild
+                    >
+                      <a href={`/api/import/${status.importId}/logs`} download>
+                        <DownloadIcon />
+                      </a>
+                    </AttachmentAction>
+                  </AttachmentActions>
+                )}
+              </Attachment>
 
-          {error && (
-            <Button onClick={handleReset} variant="outline" disabled={uploading}>
-              Reset
-            </Button>
+              {status.step === "uploading" && <Progress value={status.percent} />}
+              {status.step === "uploaded" && !importFinished && (
+                <>
+                  <Progress value={progress.data?.percent ?? 0} />
+                  <p className="text-muted-foreground text-sm">
+                    {progress.data?.currentStep}. You can leave this page, and the import keeps
+                    running.
+                  </p>
+                </>
+              )}
+
+              {status.step === "uploaded" && progress.data?.done && progress.data.error && (
+                // Database errors can be long, so the log keeps the rest
+                <p className="text-destructive line-clamp-3 text-sm break-words">
+                  {progress.data.error}
+                </p>
+              )}
+              {tableNames.length > 0 && status.step !== "uploaded" && (
+                <p className="text-muted-foreground text-sm">
+                  Updates {tableNames.map(formatTableName).join(", ")}.
+                </p>
+              )}
+              {isCsv && !match.isPending && !match.isError && tableNames.length === 0 && (
+                <p className="text-muted-foreground text-sm">
+                  The file name tells COBIS which tables to update, so keep the name the export came
+                  with, like reg_cuba_demographic_202510_20250117.csv.
+                </p>
+              )}
+            </>
+          ) : (
+            <FileDropArea onChoose={chooseFile} />
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+
+        {file && (
+          <CardFooter className="justify-end gap-2">
+            {status.step === "uploaded" ? (
+              // Only once it's finished, since imports run one file at a time
+              <Button variant="outline" onClick={clearFile} disabled={!importFinished}>
+                Import another file
+              </Button>
+            ) : (
+              <Button onClick={() => void handleImport()} disabled={!canImport}>
+                {status.step === "uploading" ? <Spinner /> : <UploadIcon />}
+                {status.step === "failed" ? "Try again" : "Import"}
+              </Button>
+            )}
+          </CardFooter>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+function FileDropArea({ onChoose }: { onChoose: (file: File | undefined) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  return (
+    <Empty
+      data-dragging={isDragging}
+      className="data-[dragging=true]:border-primary data-[dragging=true]:bg-muted/50 border transition-colors"
+      onDragOver={(event) => {
+        event.preventDefault();
+        setIsDragging(true);
+      }}
+      onDragLeave={(event) => {
+        // Moving over the area's own children also fires dragleave, so only stop once the pointer leaves the area
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsDragging(false);
+      }}
+      onDrop={(event) => {
+        event.preventDefault();
+        setIsDragging(false);
+        onChoose(event.dataTransfer.files[0]);
+      }}
+    >
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <UploadIcon />
+        </EmptyMedia>
+        <EmptyTitle>Choose a CSV file</EmptyTitle>
+        <EmptyDescription>
+          Drag it here or use the button below. Keep the export's original file name, since it
+          decides which tables get updated.
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <input
+          ref={inputRef}
+          type="file"
+          accept=".csv"
+          className="hidden"
+          onChange={(event) => {
+            onChoose(event.target.files?.[0]);
+            // Cleared so choosing the same file again still fires a change
+            event.target.value = "";
+          }}
+        />
+        <Button variant="outline" onClick={() => inputRef.current?.click()}>
+          Choose file
+        </Button>
+      </EmptyContent>
+    </Empty>
   );
 }
