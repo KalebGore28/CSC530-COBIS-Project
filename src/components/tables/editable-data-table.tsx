@@ -189,7 +189,7 @@ export function EditableDataTable<TData extends RowData>({
           {/* Columns Button */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 gap-2">
+              <Button variant="outline" size="sm" className="gap-2 md:h-9">
                 <Columns3 className="h-4 w-4" />
                 Columns
                 <ChevronDown className="h-4 w-4 opacity-50" />
@@ -219,7 +219,7 @@ export function EditableDataTable<TData extends RowData>({
           {/* Sort Button */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 gap-2">
+              <Button variant="outline" size="sm" className="gap-2 md:h-9">
                 {sortDirection === "asc" ? (
                   <ArrowUpAZ className="h-4 w-4" />
                 ) : (
@@ -293,7 +293,7 @@ export function EditableDataTable<TData extends RowData>({
           {/* Filter Button */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-9 gap-2">
+              <Button variant="outline" size="sm" className="gap-2 md:h-9">
                 <Filter className="h-4 w-4" />
                 Filter
                 {columnFilters.length > 0 && (
@@ -368,7 +368,7 @@ export function EditableDataTable<TData extends RowData>({
           {selectedRowCount > 0 && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-9 gap-2">
+                <Button variant="outline" size="sm" className="gap-2 md:h-9">
                   <Edit className="h-4 w-4" />
                   Edit Selected
                 </Button>
@@ -519,7 +519,7 @@ export function EditableDataTable<TData extends RowData>({
             size="sm"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="h-9 gap-2"
+            className="gap-2 md:h-9"
           >
             <ChevronLeft className="h-4 w-4" />
             Previous
@@ -529,7 +529,7 @@ export function EditableDataTable<TData extends RowData>({
             size="sm"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="h-9 gap-2"
+            className="gap-2 md:h-9"
           >
             Next
             <ChevronRight className="h-4 w-4" />

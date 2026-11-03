@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { DbClient } from "@tanstack/react-db";
 
 import appCss from "../styles.css?url";
+import spacingCss from "../spacing.css?url";
 import { authQuery } from "@/lib/queries";
 
 // Providers
@@ -34,6 +35,10 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "stylesheet",
+        href: spacingCss,
       },
     ],
   }),

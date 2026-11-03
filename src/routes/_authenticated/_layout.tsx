@@ -51,7 +51,7 @@ function App() {
         <Toaster richColors />
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset>
+          <SidebarInset className="px-(--page-gutter)">
             <SiteHeader />
             <Outlet />
           </SidebarInset>

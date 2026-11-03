@@ -10,7 +10,7 @@ function RouteComponent() {
   const navigate = useNavigate();
 
   return (
-    <div className="container mx-auto flex w-full flex-col gap-4 p-6">
+    <div className="flex flex-col gap-4">
       <Button
         variant="outline"
         size="sm"

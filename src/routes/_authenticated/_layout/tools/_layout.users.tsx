@@ -1,16 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { eq, ilike, or, useLiveQuery } from "@tanstack/react-db";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -33,15 +26,19 @@ const getInitials = (name: string | null | undefined): string => {
     .toUpperCase();
 };
 
+// Google profile picture URLs end in a size like =s96-c, which looks soft on high-density screens
+const getLargeProfileImage = (image: string | null): string => {
+  return image?.replace(/=s\d+(-c)?$/, "=s300-c") ?? "";
+};
+
 export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/users")({
   beforeLoad: ({ context }) => {
     const dbClient = context.dbClient;
     void dbClient.collection(usersCollection).preload();
     void dbClient.collection(facultyCollection).preload();
-    void dbClient.collection(departmentsCollection).preload();
-    void dbClient.collection(collegesCollection).preload();
   },
   component: RouteComponent,
+  context: () => ({ getTitle: () => "Manage Users" }),
 });
 
 function RouteComponent() {
@@ -67,6 +64,7 @@ function RouteComponent() {
             ilike(users.email, `%${query}%`),
           ),
         )
+        .orderBy(({ users }) => users.name, "asc")
         .select(({ users, departments, colleges }) => ({
           id: users.id,
           mnumber: users.mnumber,
@@ -84,77 +82,68 @@ function RouteComponent() {
   if (isLoading) return <Skeleton className="h-10 w-full" />;
 
   return (
-    <div className="space-y-4">
-      <Card className="mx-auto w-full max-w-4xl">
-        <CardHeader>
-          <CardTitle>Filter Users</CardTitle>
-          <CardDescription>Search by name, M#, or email.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Input
-            placeholder="Search users..."
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </CardContent>
-      </Card>
+    <div className="@container mx-auto max-w-4xl space-y-4">
+      <Input
+        placeholder="Search by name, M#, or email..."
+        aria-label="Search users"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+      />
 
-      <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-2 md:grid-cols-2">
+      {filteredUsers.length === 0 && (
+        <Empty>
+          <EmptyHeader>
+            <EmptyTitle>No users found</EmptyTitle>
+            <EmptyDescription>Try a different name, M#, or email.</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 @2xl:grid-cols-2">
         {filteredUsers.map((user) => (
-          <Card key={user.id} className="h-full transition-shadow hover:shadow-md">
-            <CardHeader className="h-full">
-              <CardTitle className="flex items-center gap-4 text-2xl">
-                <Avatar className="h-12 w-12 shrink-0">
-                  <AvatarImage src={user.image ?? ""} alt={user.name} />
-                  <AvatarFallback className="text-lg font-semibold">
-                    {getInitials(user.name)}
-                  </AvatarFallback>
-                </Avatar>
-                {user.name}
+          <Card key={user.id} className="h-full gap-0 py-0 transition-shadow hover:shadow-md">
+            <div className="bg-muted/50 flex items-center">
+              <Avatar className="size-24 self-start rounded-none after:hidden">
+                <AvatarImage
+                  className="rounded-none"
+                  src={getLargeProfileImage(user.image)}
+                  alt={user.name}
+                  referrerPolicy="no-referrer"
+                />
+                <AvatarFallback className="rounded-none text-2xl font-semibold">
+                  {getInitials(user.name)}
+                </AvatarFallback>
+              </Avatar>
+              <CardHeader className="min-w-0 flex-1 py-(--card-spacing)">
+                <CardTitle className="text-lg wrap-anywhere">{user.name}</CardTitle>
+                <CardDescription className="wrap-anywhere">{user.email}</CardDescription>
+              </CardHeader>
+            </div>
+            <div className="flex flex-1 flex-col gap-3 py-(--card-spacing)">
+              <CardContent className="text-muted-foreground flex flex-col gap-1">
+                <span>{user.mnumber ?? "No M# set"}</span>
+                {(user.department_description || user.college_description) && (
+                  <span>
+                    {[user.department_description, user.college_description]
+                      .filter(Boolean)
+                      .join(" • ")}
+                  </span>
+                )}
+                <span>
+                  Last login{" "}
+                  {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : "never"}
+                </span>
+              </CardContent>
+              <CardContent className="mt-auto flex flex-wrap items-center gap-2">
                 <Badge variant={user.isEnabled ? "default" : "destructive"}>
                   {user.isEnabled ? "Enabled" : "Disabled"}
                 </Badge>
-              </CardTitle>
-              <CardDescription>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Email:</span>
-                  <span>{user.email}</span>
+                {user.mnumber === null && <Badge variant="secondary">Action Required</Badge>}
+                <div className="ml-auto">
+                  <UserModal userId={user.id} />
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">M#:</span>
-                  <span>{user.mnumber ?? "Not set"}</span>
-                </div>
-                {(user.department_description || user.college_description) && (
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium">Affiliation:</span>
-                    <span>
-                      {[user.department_description, user.college_description]
-                        .filter(Boolean)
-                        .join(" • ")}
-                    </span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">Last Login:</span>
-                  <span>
-                    {user.lastLogin ? new Date(user.lastLogin).toLocaleString() : "Never"}
-                  </span>
-                </div>
-              </CardDescription>
-              <CardAction>
-                {user.mnumber === null && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300"
-                  >
-                    Action Required
-                  </Badge>
-                )}
-              </CardAction>
-            </CardHeader>
-            <CardFooter>
-              <UserModal userId={user.id} />
-            </CardFooter>
+              </CardContent>
+            </div>
           </Card>
         ))}
       </div>
