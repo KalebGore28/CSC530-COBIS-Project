@@ -49,7 +49,7 @@ export const Route = createFileRoute("/api/__protected/data/faculty")({
             first_name: undefined, // prevent updating first_name
             last_name: undefined, // prevent updating last_name
           })
-          .where(eq(faculty.mnumber, updatedFaculty.mnumber))
+          .where(eq(faculty.mnumber, mnumber))
           .execute();
 
         return new Response(null, { status: 204 });

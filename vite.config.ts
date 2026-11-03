@@ -21,8 +21,9 @@ const config = defineConfig({
     sortTailwindcss: true,
   },
   lint: {
-    // Only used by the Dockerfile's old SSR setup, and likely to be removed
-    ignorePatterns: ["server.ts"],
+    // server.ts is only used by the Dockerfile's old SSR setup, and likely to be removed.
+    // components/ui is shadcn's generated code, so fixes there would be lost the next time it's regenerated.
+    ignorePatterns: ["server.ts", "src/components/ui/**"],
     jsPlugins: [{ name: "vite-plus", specifier: "vite-plus/oxlint-plugin" }],
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },

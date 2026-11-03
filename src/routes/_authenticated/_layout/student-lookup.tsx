@@ -452,7 +452,7 @@ function StudentLookup() {
               {/* The server builds the file from every match, not just this page */}
               <Button variant="outline" asChild className="max-md:flex-1">
                 <a
-                  href={`/api/lookup-students?${lookupParams({ ...search, page: undefined }).toString()}&format=csv`}
+                  href={`/api/lookup-students?${new URLSearchParams([...lookupParams({ ...search, page: undefined }), ["format", "csv"]]).toString()}`}
                   download
                 >
                   <DownloadIcon />

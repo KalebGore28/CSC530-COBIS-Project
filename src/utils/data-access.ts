@@ -293,10 +293,3 @@ export async function loadCapabilities(db: Db, effectiveRoles: Set<string>) {
       .filter((capability): capability is Capability => knownCapabilities.has(capability)),
   );
 }
-
-export async function loadDataAccess(db: Db, viewer: Viewer, assignedRoles: Set<string>) {
-  const effectiveRoles = await getEffectiveRoles(db, viewer.mnumber, assignedRoles);
-  const grants = await loadDataGrants(db, effectiveRoles);
-
-  return createDataAccess(db, viewer, grants);
-}

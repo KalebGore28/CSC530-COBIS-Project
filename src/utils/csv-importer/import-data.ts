@@ -166,9 +166,13 @@ export const importMySqlData = async (
       processedTableData.push(...mappedRows);
     } else {
       // Remap csv data to db columns
-      const mappedRows = (
-        await Promise.all(csvData.data.map((row) => tableConfig.rowExpander(row)))
-      ).flat();
+      const mappedRows =
+        // rowExpander may or may not be async, so each result is wrapped to wait on them the same way
+        (
+          await Promise.all(
+            csvData.data.map((row) => Promise.resolve(tableConfig.rowExpander(row))),
+          )
+        ).flat();
 
       processedTableData.push(...mappedRows);
     }

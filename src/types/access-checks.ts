@@ -47,7 +47,6 @@ export const DATA_CATEGORIES = [
 export const CAPABILITIES = [
   "roster.view",
   "advisees.view",
-  "dashboard.metrics",
   "student.lookup",
   "instructors.view",
   "enrollment.view",
@@ -76,25 +75,3 @@ export function isCategoryLockedForRole(roleName: string, category: DataCategory
 export function isCapabilityLockedForRole(roleName: string, capability: Capability) {
   return roleName === ROLES.COBIS_ADMINISTRATOR && capability === "tools.manage";
 }
-
-export const ACCESS_LEVELS = {
-  LIMITED: "limited", // Basic Student Info Only. No grades or GPAs
-  COURSE_SCOPED: "course_scoped", // Access to specific student course grades, no GPA access
-  FULL: "full", // Full Access to all student data
-} as const;
-
-export type TermEntry = {
-  accessLevel: (typeof ACCESS_LEVELS)[keyof typeof ACCESS_LEVELS];
-  role: (typeof ROLES)[keyof typeof ROLES];
-  reason: string;
-};
-
-export type TermAccessKey = `${string}:${number}-${string}`; // "M12345:2024-10"
-
-export type CacheEntry = {
-  students: Set<string>; // Set of student MNumbers the faculty can at least see limited info for.
-  terms: Map<TermAccessKey, TermEntry>;
-  timestamp: number;
-};
-
-export type FacultyMNumber = string;
