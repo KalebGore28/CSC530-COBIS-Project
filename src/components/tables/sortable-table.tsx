@@ -27,24 +27,27 @@ const features = tableFeatures({
   sortFns,
 });
 
-export type EnrollmentColumnDef<TData extends RowData> = ColumnDef<typeof features, TData> & {
+export type SortableColumnDef<TData extends RowData> = ColumnDef<typeof features, TData> & {
   // Numbers line up on the right so they're easy to compare down a column
   meta?: { numeric?: boolean; hideOnMobile?: boolean };
 };
 
-interface EnrollmentTableProps<TData extends RowData> {
-  columns: Array<EnrollmentColumnDef<TData>>;
+interface SortableTableProps<TData extends RowData> {
+  columns: Array<SortableColumnDef<TData>>;
   data: Array<TData>;
   initialSorting: SortingState;
   emptyMessage: string;
+  // Makes each row a button, like opening a side panel for it
+  onRowClick?: (row: TData) => void;
 }
 
-export function EnrollmentTable<TData extends RowData>({
+export function SortableTable<TData extends RowData>({
   columns,
   data,
   initialSorting,
   emptyMessage,
-}: EnrollmentTableProps<TData>) {
+  onRowClick,
+}: SortableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
 
   const table = useTable({
@@ -64,7 +67,7 @@ export function EnrollmentTable<TData extends RowData>({
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
-              const meta = (header.column.columnDef as EnrollmentColumnDef<TData>).meta;
+              const meta = (header.column.columnDef as SortableColumnDef<TData>).meta;
               const sorted = header.column.getIsSorted();
               const SortIcon =
                 sorted === "asc"
@@ -103,12 +106,25 @@ export function EnrollmentTable<TData extends RowData>({
       <TableBody>
         {table.getRowModel().rows.length ? (
           table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
+            <TableRow
+              key={row.id}
+              className={cn(onRowClick && "cursor-pointer")}
+              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
+              // Reachable with Tab and opened with Enter, like a button
+              tabIndex={onRowClick ? 0 : undefined}
+              onKeyDown={
+                onRowClick
+                  ? (event) => {
+                      if (event.key === "Enter") onRowClick(row.original);
+                    }
+                  : undefined
+              }
+            >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
                   key={cell.id}
                   className={columnClassName(
-                    (cell.column.columnDef as EnrollmentColumnDef<TData>).meta,
+                    (cell.column.columnDef as SortableColumnDef<TData>).meta,
                   )}
                 >
                   <table.FlexRender cell={cell} />
