@@ -98,7 +98,7 @@ export function parseTermCode(termCode: string): ParsedTermCode {
   };
 }
 
-export function safeParseDate(value: string, fallback: Date | undefined) {
+export function safeParseDate(value: string, fallback?: Date) {
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? fallback : d;
 }

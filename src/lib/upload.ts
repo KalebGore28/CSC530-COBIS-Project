@@ -17,7 +17,15 @@ export async function uploadCsv(
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(JSON.parse(xhr.responseText)); // { importId }
       } else {
-        reject(new Error(`Upload failed: ${xhr.status}`));
+        // The server explains rejected uploads as { error }, so show that instead of just the status code
+        let message = `Upload failed (${xhr.status})`;
+        try {
+          const body = JSON.parse(xhr.responseText) as { error?: string };
+          if (body.error) message = body.error;
+        } catch {
+          // Not JSON, so keep the status code message
+        }
+        reject(new Error(message));
       }
     });
 
