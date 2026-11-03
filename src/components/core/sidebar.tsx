@@ -10,9 +10,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -26,12 +23,13 @@ import {
   ScanSearch,
   PersonStanding,
   ChartColumnIncreasing,
-  ChevronRight,
-  Wrench,
+  ShieldCheck,
+  Table,
+  Upload,
+  Users,
   ChartNoAxesColumn,
   Clipboard,
 } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export function AppSidebar() {
   const { open, isMobile } = useSidebar();
@@ -126,19 +124,17 @@ export function AppSidebar() {
             )}
           </SidebarMenu>
         </SidebarGroup>
-        {(can("student.lookup") || can("instructors.view")) && (
+        {/* The same three pages, in the same order, as the dashboard's Department card */}
+        {(can("enrollment.view") || can("instructors.view") || can("student.lookup")) && (
           <SidebarGroup>
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
             <SidebarMenu>
-              {can("student.lookup") && (
-                <SidebarMenuItem
-                  key="student-lookup"
-                  className="flex items-center justify-between text-nowrap"
-                >
-                  <SidebarMenuButton tooltip="Student Lookup" className="p-1" asChild>
-                    <Link to="/student-lookup" className="flex h-full w-full items-center gap-2">
-                      <ScanSearch />
-                      Student Lookup
+              {can("enrollment.view") && (
+                <SidebarMenuItem key="enrollment" className="text-nowrap">
+                  <SidebarMenuButton tooltip="Enrollment" className="p-1" asChild>
+                    <Link to="/enrollment" className="flex h-full w-full items-center gap-2">
+                      <ChartColumnIncreasing />
+                      Enrollment
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -153,21 +149,16 @@ export function AppSidebar() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               )}
-            </SidebarMenu>
-          </SidebarGroup>
-        )}
-        {can("enrollment.view") && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Metrics</SidebarGroupLabel>
-            <SidebarMenu>
-              <SidebarMenuItem key="enrollment" className="text-nowrap">
-                <SidebarMenuButton tooltip="Enrollment" className="p-1" asChild>
-                  <Link to="/enrollment" className="flex h-full w-full items-center gap-2">
-                    <ChartColumnIncreasing />
-                    Enrollment
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {can("student.lookup") && (
+                <SidebarMenuItem key="student-lookup" className="text-nowrap">
+                  <SidebarMenuButton tooltip="Student Lookup" className="p-1" asChild>
+                    <Link to="/student-lookup" className="flex h-full w-full items-center gap-2">
+                      <ScanSearch />
+                      Student Lookup
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              )}
             </SidebarMenu>
           </SidebarGroup>
         )}
@@ -175,63 +166,38 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Maintenance</SidebarGroupLabel>
             <SidebarMenu>
-              <Collapsible asChild defaultOpen={true} className="group/collapsible">
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={"Tools"}>
-                      <Link to={"/tools/users"}>
-                        <Wrench />
-                      </Link>
-                      Tools
-                      <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/tools/users"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Manage Users
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/tools/permissions"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Permissions
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/tools/manage-tables"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Manage Tables
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton asChild>
-                          <Link
-                            to="/tools/import"
-                            className="flex h-full w-full items-center gap-2 p-1"
-                          >
-                            Import Data
-                          </Link>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
+              <SidebarMenuItem key="manage-users" className="text-nowrap">
+                <SidebarMenuButton tooltip="Manage Users" className="p-1" asChild>
+                  <Link to="/tools/users" className="flex h-full w-full items-center gap-2">
+                    <Users />
+                    Manage Users
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem key="permissions" className="text-nowrap">
+                <SidebarMenuButton tooltip="Permissions" className="p-1" asChild>
+                  <Link to="/tools/permissions" className="flex h-full w-full items-center gap-2">
+                    <ShieldCheck />
+                    Permissions
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem key="manage-tables" className="text-nowrap">
+                <SidebarMenuButton tooltip="Manage Tables" className="p-1" asChild>
+                  <Link to="/tools/manage-tables" className="flex h-full w-full items-center gap-2">
+                    <Table />
+                    Manage Tables
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem key="import-data" className="text-nowrap">
+                <SidebarMenuButton tooltip="Import Data" className="p-1" asChild>
+                  <Link to="/tools/import" className="flex h-full w-full items-center gap-2">
+                    <Upload />
+                    Import Data
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroup>
         )}
