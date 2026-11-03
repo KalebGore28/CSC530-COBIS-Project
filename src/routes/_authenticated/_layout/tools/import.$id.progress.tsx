@@ -39,7 +39,7 @@ function ImportProgressPage() {
 
   if (isLoading || !progress) {
     return (
-      <div className="container mx-auto max-w-5xl space-y-6 p-6">
+      <div className="mx-auto max-w-5xl space-y-6">
         {/* Header Skeleton */}
         <div className="flex items-center gap-4">
           <Skeleton className="h-10 w-10 rounded" />
@@ -93,7 +93,7 @@ function ImportProgressPage() {
   };
 
   return (
-    <div className="container mx-auto max-w-5xl space-y-6 p-6">
+    <div className="mx-auto max-w-5xl space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4">
         <GoBackButton fallback={{ to: "/tools/import" }} variant="ghost" size="icon">

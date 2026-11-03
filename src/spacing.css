@@ -1,0 +1,16 @@
+/* Kept apart from styles.css so that a new shadcn theme can replace that file without losing these */
+:root {
+  --page-gutter: 1.5rem;
+  --card-padding: 1rem;
+  --control-height: 2rem;
+  --control-height-sm: 1.75rem;
+}
+
+@media (max-width: 47.99rem) {
+  :root {
+    --page-gutter: 2rem;
+    --card-padding: 1.25rem;
+    --control-height: 2.75rem;
+    --control-height-sm: 2.75rem;
+  }
+}

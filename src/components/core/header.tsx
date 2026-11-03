@@ -14,10 +14,10 @@ export function SiteHeader() {
   });
 
   return (
-    <header className="flex h-16 shrink-0 items-center gap-2 px-4">
+    <header className="flex h-16 shrink-0 items-center gap-2">
       <SidebarTrigger className="-ml-1" />
       <AppBreadcrumbs breadcrumbs={breadcrumbs} />
-      <ModeToggle className="mr-4 ml-auto shadow-xs" />
+      <ModeToggle className="ml-auto shadow-xs" />
     </header>
   );
 }
