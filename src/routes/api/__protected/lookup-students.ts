@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import Papa from "papaparse";
 import * as z from "zod";
 import { requireCapability } from "@/middleware/require-capability";
+import { ROLES } from "@/types/access-checks";
 import {
   CLASS_LEVELS,
   LETTER_GRADES,
@@ -51,7 +52,12 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
           return Response.json({ error: z.prettifyError(parsed.error) }, { status: 400 });
         }
 
-        const { db, access } = context;
+        const { db } = context;
+        // Admin assistants never get GPA or class level here, even for students they teach or advise.
+        // Otherwise some rows would show a GPA and others wouldn't, which looks like a leak.
+        const access = context.roles.has(ROLES.ADMIN_ASSISTANT)
+          ? context.access.withoutCategory("academic_info")
+          : context.access;
         const search = parsed.data;
         const canSeeAcademicInfo = access.hasCategory("academic_info");
 
