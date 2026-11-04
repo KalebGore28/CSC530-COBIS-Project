@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.1...v0.2.2) (2026-11-04)
+
+
+### Bug Fixes
+
+* hide GPA from admin assistants on student lookup ([#44](https://github.com/KalebGore28/CSC530-COBIS-Project/issues/44)) ([88dc593](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/88dc59358b998701a001da8d0185649d356a8a6e))
+
 ## [0.2.1](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.0...v0.2.1) (2026-11-03)
 
 
