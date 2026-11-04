@@ -47,7 +47,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthentication } from "@/lib/auth-client";
 import { requirePageCapability } from "@/lib/page-guards";
 import { lookupParams, studentLookupQuery } from "@/lib/student-lookup";
-import { ROLES } from "@/types/access-checks";
+import { hidesAcademicInfoOnLookup } from "@/types/access-checks";
 import type {
   ClassLevel,
   LetterGrade,
@@ -127,8 +127,9 @@ function StudentLookup() {
   const { userSession, hasCategory } = useAuthentication();
   // Admin assistants can't see GPA, standing or grades, so those filters and columns are left out for them.
   // That holds even when they also teach or advise, since the server leaves GPA out for them on this page.
-  const isAdminAssistant = userSession?.roles.has(ROLES.ADMIN_ASSISTANT) ?? false;
-  const canSeeAcademicInfo = hasCategory("academic_info") && !isAdminAssistant;
+  const canSeeAcademicInfo =
+    hasCategory("academic_info") &&
+    !hidesAcademicInfoOnLookup(userSession?.roles ?? new Set<string>());
   const canSeeGrades = hasCategory("grades");
 
   const { data: programs } = useLiveQuery({

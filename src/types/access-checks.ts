@@ -71,6 +71,12 @@ export function isCategoryLockedForRole(roleName: string, category: DataCategory
   );
 }
 
+// Student lookup leaves out GPA and class level for admin assistants, even when they also teach or
+// advise, since a GPA on only some rows looks like a leak. A department chair still sees them.
+export function hidesAcademicInfoOnLookup(roleNames: ReadonlySet<string>) {
+  return roleNames.has(ROLES.ADMIN_ASSISTANT) && !roleNames.has(ROLES.DEPARTMENT_CHAIR);
+}
+
 // Removing this would leave nobody able to open the permissions page to put it back.
 export function isCapabilityLockedForRole(roleName: string, capability: Capability) {
   return roleName === ROLES.COBIS_ADMINISTRATOR && capability === "tools.manage";
