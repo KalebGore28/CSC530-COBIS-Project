@@ -176,7 +176,7 @@ const RELATIONSHIPS: Record<DataRelationship, (db: Db, viewer: Viewer, row: RowR
 
 export type DataGrants = Map<DataCategory, Set<DataRelationship>>;
 
-export function createDataAccess(db: Db, viewer: Viewer, grants: DataGrants) {
+export function createDataAccess(db: Db, viewer: Viewer, grants: DataGrants): DataAccess {
   // Permissions only ever add, so a row is visible if any granted relationship matches it.
   function canSee(category: DataCategory, row: RowRef): SQL {
     const relationships = Array.from(grants.get(category) ?? []);
@@ -207,10 +207,27 @@ export function createDataAccess(db: Db, viewer: Viewer, grants: DataGrants) {
     hasCategory(category: DataCategory) {
       return (grants.get(category)?.size ?? 0) > 0;
     },
+
+    // The same access with one category taken away entirely, for pages that should never show it.
+    withoutCategory(category: DataCategory) {
+      const remainingGrants: DataGrants = new Map(grants);
+      remainingGrants.delete(category);
+      return createDataAccess(db, viewer, remainingGrants);
+    },
   };
 }
 
-export type DataAccess = ReturnType<typeof createDataAccess>;
+export type DataAccess = {
+  canSee: (category: DataCategory, row: RowRef) => SQL;
+  masked: <TColumn extends AnyColumn>(
+    category: DataCategory,
+    row: RowRef,
+    column: TColumn,
+  ) => SQL<TColumn["_"]["data"] | null>;
+  isVisible: (category: DataCategory, row: RowRef) => SQL<boolean>;
+  hasCategory: (category: DataCategory) => boolean;
+  withoutCategory: (category: DataCategory) => DataAccess;
+};
 
 /**
  * Faculty and advisor are determined by course and advisor assignments,
