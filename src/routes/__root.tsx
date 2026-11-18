@@ -55,6 +55,16 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       },
     ],
     links: [
+      // Fonts load from a <link> rather than @import in styles.css, which made the browser fetch
+      // styles.css before it could even discover the font CSS. Preconnecting starts both
+      // connections early (fonts.gstatic.com serves the font files, so it needs crossorigin).
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        // Only the families styles.css uses: Oxanium for text, Fira Code for numbers in charts
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Oxanium:wght@200..800&display=swap",
+      },
       {
         rel: "stylesheet",
         href: appCss,

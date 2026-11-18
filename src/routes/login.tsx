@@ -2,7 +2,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { signinGoogle } from "../lib/auth-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import primaryLogo from "/logos/primary-white.png";
+import primaryLogo from "/logos/primary-white.avif";
 
 export const Route = createFileRoute("/login")({
   beforeLoad: ({ context }) => {
@@ -17,7 +17,15 @@ function RouteComponent() {
   return (
     <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-blue-950 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col items-center justify-center gap-6">
-        <img src={primaryLogo} alt="COBIS Logo" className="h-auto w-auto" />
+        {/* The largest thing on screen, so it's fetched first. Its size is set so nothing shifts as it loads. */}
+        <img
+          src={primaryLogo}
+          width={800}
+          height={148}
+          fetchPriority="high"
+          alt="Murray State University"
+          className="h-auto w-auto"
+        />
         <span className="font-bold text-white dark:text-white">
           COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
         </span>

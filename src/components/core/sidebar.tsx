@@ -15,9 +15,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/core/nav-user";
-import logoPrimaryWhite from "/logos/primary-white.png";
-import logoPrimaryNavy from "/logos/primary-navy.png";
-import logoShield from "/logos/primary-shield.png";
+import logoPrimaryWhite from "/logos/primary-white.avif";
+import logoPrimaryNavy from "/logos/primary-navy.avif";
+import logoShield from "/logos/primary-shield.avif";
 import {
   Compass,
   BookUser,
@@ -47,28 +47,43 @@ export function AppSidebar() {
               className="flex cursor-pointer items-center"
               onClick={() => setOpenMobile(false)}
             >
-              {/* Shield logo - shown when sidebar is closed */}
-              <img
-                src={logoShield}
-                className={open || isMobile ? "hidden" : "h-10 w-8"}
-                alt="Murray Logo"
-              />
-              {/* Navy logo - shown in light mode when sidebar is open */}
-              <img
-                src={logoPrimaryNavy}
-                className={open || isMobile ? "mt-4 h-auto w-auto dark:hidden" : "hidden"}
-                alt="Murray Logo"
-              />
-              {/* White logo - shown in dark mode when sidebar is open */}
-              <img
-                src={logoPrimaryWhite}
-                className={open || isMobile ? "mt-4 hidden h-auto w-auto dark:block" : "hidden"}
-                alt="Murray Logo"
-              />
+              {/* Only the logo for the sidebar's current width is rendered, so the others aren't downloaded.
+                  The image is the link's only content, so its alt text says where the link goes. */}
+              {open || isMobile ? (
+                <>
+                  {/* Navy in light mode, white in dark mode. A lazy image that's hidden isn't
+                      fetched until shown, so only the one for the current theme downloads. */}
+                  <img
+                    src={logoPrimaryNavy}
+                    width={800}
+                    height={148}
+                    loading="lazy"
+                    className="mt-4 h-auto w-auto dark:hidden"
+                    alt="COBIS dashboard"
+                  />
+                  <img
+                    src={logoPrimaryWhite}
+                    width={800}
+                    height={148}
+                    loading="lazy"
+                    className="mt-4 hidden h-auto w-auto dark:block"
+                    alt="COBIS dashboard"
+                  />
+                </>
+              ) : (
+                <img
+                  src={logoShield}
+                  width={94}
+                  height={120}
+                  className="h-10 w-8"
+                  alt="COBIS dashboard"
+                />
+              )}
             </Link>
           </SidebarMenuItem>
           <SidebarMenuItem className="text-center">
-            <h1
+            {/* Not a heading, so each page's own <h1> is the only one */}
+            <p
               className={
                 open === true
                   ? "text-sidebar-foreground text-center text-sm text-nowrap"
@@ -76,7 +91,7 @@ export function AppSidebar() {
               }
             >
               COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
-            </h1>
+            </p>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

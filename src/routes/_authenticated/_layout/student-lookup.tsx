@@ -36,6 +36,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -345,9 +346,13 @@ function StudentLookup() {
               <SheetTitle>Filters</SheetTitle>
               <SheetDescription>Results update as you change them.</SheetDescription>
             </SheetHeader>
-            <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4 pb-2">
+            {/* <search> marks these as the page's search controls, a landmark screen readers can jump to */}
+            <search
+              aria-label="Filter students"
+              className="flex min-h-0 flex-col gap-3 overflow-y-auto px-4 pb-2"
+            >
               {filterControls}
-            </div>
+            </search>
             <SheetFooter>
               <SheetClose asChild>
                 <Button>
@@ -359,14 +364,14 @@ function StudentLookup() {
           </SheetContent>
         </Sheet>
       ) : (
-        <div className="flex flex-wrap items-center gap-2">
+        <search aria-label="Filter students" className="flex flex-wrap items-center gap-2">
           {filterControls}
           {hasFilters && (
             <Button variant="ghost" onClick={() => void navigate({ search: {} })}>
               Clear filters
             </Button>
           )}
-        </div>
+        </search>
       )}
 
       {/* What's picked, so it's visible without opening the pickers */}
@@ -473,6 +478,8 @@ function StudentLookup() {
 
           <CardContent className="px-0">
             <Table>
+              {/* Names the table for screen readers; the count above already says it visually */}
+              <TableCaption className="sr-only">Students matching the filters</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Student</TableHead>
@@ -514,7 +521,11 @@ function StudentLookup() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-muted-foreground h-24 text-center">
+                    {/* Spans every column, which depends on what this user may see */}
+                    <TableCell
+                      colSpan={canSeeAcademicInfo ? 5 : 3}
+                      className="text-muted-foreground h-24 text-center"
+                    >
                       No students match these filters.
                     </TableCell>
                   </TableRow>
