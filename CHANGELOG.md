@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.3...v0.3.0) (2026-11-18)
+
+
+### Features
+
+* align colors and fonts with Murray State brand guidelines ([#48](https://github.com/KalebGore28/CSC530-COBIS-Project/issues/48)) ([7c90aef](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/7c90aef3c9fbd2809ec5319d99f6ee5e706393ba))
+
 ## [0.2.3](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.2...v0.2.3) (2026-11-18)
 
 
