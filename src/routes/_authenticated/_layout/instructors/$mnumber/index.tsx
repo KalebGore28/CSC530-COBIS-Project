@@ -340,6 +340,7 @@ function InstructorPage() {
                 columns={sectionColumns}
                 data={teaching.sections}
                 initialSorting={[{ id: "term", desc: true }]}
+                caption="Sections taught"
                 emptyMessage="No sections in these terms."
                 rowLink={{
                   // The section name is unique per row, unlike the term

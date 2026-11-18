@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { signinGoogle } from "../lib/auth-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
 import primaryLogo from "/logos/primary-white.avif";
 
 export const Route = createFileRoute("/login")({
@@ -50,23 +52,52 @@ function RouteComponent() {
                   </svg>
                   Login with Google
                 </Button>
-                {import.meta.env.DEV && (
-                  <Button
-                    variant="secondary"
-                    className="w-full"
-                    onClick={async () => {
-                      await fetch("/api/dev-login", { method: "POST" });
-                      window.location.assign("/");
-                    }}
-                  >
-                    Dev Login (local only)
-                  </Button>
-                )}
+                {import.meta.env.DEV && <DevLoginButton />}
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
     </div>
+  );
+}
+
+/** Signs in as the seeded dev user. Only rendered in development. */
+function DevLoginButton() {
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const signIn = async () => {
+    setIsSigningIn(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/dev-login", { method: "POST" });
+      if (!response.ok) throw new Error(`The server answered ${response.status}`);
+      window.location.assign("/");
+    } catch (cause) {
+      // Without this the button looked like it did nothing, for example when the database is down
+      setError(cause instanceof Error ? cause.message : "Something went wrong");
+      setIsSigningIn(false);
+    }
+  };
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="secondary"
+        className="w-full"
+        disabled={isSigningIn}
+        onClick={() => void signIn()}
+      >
+        {isSigningIn && <Spinner />}
+        Dev Login (local only)
+      </Button>
+      {error && (
+        <p role="alert" className="text-destructive text-center text-sm">
+          Dev login failed: {error}
+        </p>
+      )}
+    </>
   );
 }

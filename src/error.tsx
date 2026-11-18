@@ -42,9 +42,10 @@ export function ErrorComponent(props: ErrorComponentProps) {
 
         {/* Message */}
         <div className="space-y-3">
-          <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+          {/* The page's main heading, as the error replaces the page's own <h1> */}
+          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
             Something went wrong
-          </h2>
+          </h1>
           <p className="text-gray-600 dark:text-gray-400">
             We encountered an unexpected error. Please try again or return home.
           </p>
@@ -62,7 +63,13 @@ export function ErrorComponent(props: ErrorComponentProps) {
                 className="h-8 gap-2 text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                {/* Icon-only, so the name comes from hidden text */}
+                <span className="sr-only">Copy error details</span>
               </Button>
+              {/* Announces the copy, which the icon swap only shows visually */}
+              <span role="status" className="sr-only">
+                {copied ? "Copied" : ""}
+              </span>
             </div>
             <p className="font-mono text-sm wrap-break-word text-red-700 dark:text-red-400">
               {props.error.message}

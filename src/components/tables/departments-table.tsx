@@ -35,6 +35,7 @@ export function DepartmentsTable({
 
   return (
     <EditableDataTable
+      caption="Departments"
       columns={columns}
       data={data}
       editableColumns={{ description: "text", college_id: "college" }}

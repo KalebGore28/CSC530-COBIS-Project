@@ -257,6 +257,7 @@ function RouteComponent() {
             columns={columns}
             data={shown}
             initialSorting={[{ id: "attention", desc: true }]}
+            caption="Advisees"
             emptyMessage="No advisees match your search."
             rowLink={{
               column: "student",

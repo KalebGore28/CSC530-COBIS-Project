@@ -64,6 +64,7 @@ export function CoursesTable({
 
   return (
     <EditableDataTable
+      caption="Courses"
       columns={columns}
       data={data}
       editableColumns={{ title: "text", department_id: "department", college_id: "college" }}

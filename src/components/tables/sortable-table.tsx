@@ -15,6 +15,7 @@ import { cn } from "cn";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -38,6 +39,8 @@ interface SortableTableProps<TData extends RowData> {
   data: Array<TData>;
   initialSorting: SortingState;
   emptyMessage: string;
+  // Names the table for screen readers, like a heading does for a section. Not shown on screen.
+  caption: string;
   /**
    * Makes each row open a page. The cell in `column` becomes a real link, and its click area is
    * stretched over the whole row, so the row works with a mouse, the keyboard, screen readers,
@@ -57,6 +60,7 @@ export function SortableTable<TData extends RowData>({
   data,
   initialSorting,
   emptyMessage,
+  caption,
   rowLink,
   rowClassName,
 }: SortableTableProps<TData>) {
@@ -75,6 +79,7 @@ export function SortableTable<TData extends RowData>({
 
   return (
     <Table>
+      <TableCaption className="sr-only">{caption}</TableCaption>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>

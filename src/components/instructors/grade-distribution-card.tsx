@@ -13,6 +13,7 @@ import {
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -169,6 +170,7 @@ export function GradeDistributionCard({
 
         <div className="rounded-md border">
           <Table>
+            <TableCaption className="sr-only">Grade distribution</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>

@@ -78,6 +78,7 @@ export function ProgramsTable({
 
   return (
     <EditableDataTable
+      caption="Programs"
       columns={columns}
       data={data}
       editableColumns={{

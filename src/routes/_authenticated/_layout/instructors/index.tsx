@@ -228,6 +228,7 @@ function InstructorsPage() {
             columns={columns}
             data={instructors}
             initialSorting={[{ id: "credit_hours", desc: true }]}
+            caption="Instructors this term"
             emptyMessage={
               text ? "Nobody teaching this term matches your search." : "Nobody taught this term."
             }

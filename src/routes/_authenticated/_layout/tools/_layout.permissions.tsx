@@ -22,6 +22,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -225,9 +226,14 @@ function RouteComponent() {
 
           <div className="hidden @2xl:block">
             <Table>
+              <TableCaption className="sr-only">
+                Student data each relationship can see
+              </TableCaption>
               <TableHeader>
                 <TableRow>
-                  <TableHead />
+                  <TableHead>
+                    <span className="sr-only">Data</span>
+                  </TableHead>
                   {DATA_RELATIONSHIPS.map((relationship) => (
                     <TableHead key={relationship} className="text-center whitespace-normal">
                       {RELATIONSHIP_LABELS[relationship]}
@@ -238,7 +244,10 @@ function RouteComponent() {
               <TableBody>
                 {DATA_CATEGORIES.map((category) => (
                   <TableRow key={category}>
-                    <TableCell className="font-medium">{CATEGORY_LABELS[category]}</TableCell>
+                    {/* Row header, so each checkbox is announced with its data category */}
+                    <TableHead scope="row" className="font-medium">
+                      {CATEGORY_LABELS[category]}
+                    </TableHead>
                     {DATA_RELATIONSHIPS.map((relationship) => (
                       <TableCell key={relationship}>
                         <div className="flex justify-center">

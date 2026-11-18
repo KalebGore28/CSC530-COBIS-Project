@@ -69,6 +69,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -115,6 +116,8 @@ function getColumnLabel<TData extends RowData>(column: Column<typeof features, T
 }
 
 interface EditableDataTableProps<TData extends RowData> {
+  // Names the table for screen readers. Not shown on screen, as the page title already says it.
+  caption: string;
   columns: Array<EditableColumnDef<TData>>;
   data: Array<TData>;
   // Columns that bulk edit can change, and what kind of value each takes
@@ -125,6 +128,7 @@ interface EditableDataTableProps<TData extends RowData> {
 }
 
 export function EditableDataTable<TData extends RowData>({
+  caption,
   columns,
   data,
   editableColumns,
@@ -544,6 +548,7 @@ export function EditableDataTable<TData extends RowData>({
       </div>
 
       <Table>
+        <TableCaption className="sr-only">{caption}</TableCaption>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

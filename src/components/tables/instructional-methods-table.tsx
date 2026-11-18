@@ -30,6 +30,7 @@ export function InstructionalMethodsTable({
 
   return (
     <EditableDataTable
+      caption="Instructional methods"
       columns={columns}
       data={data}
       editableColumns={{ description: "text" }}
