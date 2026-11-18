@@ -7,6 +7,14 @@
  *
  * Only these weights are served (FreightSans has no 600 here, so font-semibold uses Bold).
  * Browsers only download a weight once a page uses it.
+ *
+ * KNOWN ISSUE, numbers: these files (and the toolkit's desktop fonts) only have old-style figures,
+ * where 3, 4, 5, 7 and 9 dip below the line, and no lining or tabular figure sets. So
+ * font-variant-numeric (lining-nums, tabular-nums) does nothing, and numbers in tables and stat
+ * cards look uneven. The fix is FreightSans Pro, which has lining figures, ideally from an
+ * Adobe Fonts web project in an account Murray State controls.
+ * Once it's available, swap the @font-face rules below for that kit and add
+ * `font-variant-numeric: lining-nums` to body. Tabular figures in FreightSans Pro are unconfirmed.
  */
 
 @font-face {
