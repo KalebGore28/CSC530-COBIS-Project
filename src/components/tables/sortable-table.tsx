@@ -8,7 +8,7 @@ import {
   useTable,
 } from "@tanstack/react-table";
 import type { ColumnDef, RowData, SortingState } from "@tanstack/react-table";
-import { Link, type AnyRouter, type LinkOptions } from "@tanstack/react-router";
+import { Link, useRouter, type AnyRouter, type LinkOptions } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 import { cn } from "cn";
 
@@ -42,9 +42,8 @@ interface SortableTableProps<TData extends RowData> {
   // Names the table for screen readers, like a heading does for a section. Not shown on screen.
   caption: string;
   /**
-   * Makes each row open a page. The cell in `column` becomes a real link, and its click area is
-   * stretched over the whole row, so the row works with a mouse, the keyboard, screen readers,
-   * and "open in new tab". Cells must not hold other links or buttons, as the link covers them.
+   * Makes each row open a page. The cell in `column` becomes a real link, which keyboard, screen
+   * reader, and "open in new tab" users get, and clicking anywhere else in the row follows it too.
    */
   rowLink?: {
     column: string;
@@ -65,6 +64,7 @@ export function SortableTable<TData extends RowData>({
   rowClassName,
 }: SortableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
+  const router = useRouter();
 
   const table = useTable({
     features,
@@ -125,11 +125,30 @@ export function SortableTable<TData extends RowData>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              // The row is the positioning box for the link's stretched click area
               className={cn(
-                rowLink && "relative has-[a:focus-visible]:bg-muted/50",
+                rowLink && "cursor-pointer has-[a:focus-visible]:bg-muted/50",
                 rowClassName?.(row.original),
               )}
+              // A mouse shortcut for the row's link, so the whole row can be clicked. Keyboard and
+              // screen reader users get the real link in the row, so the row itself isn't focusable.
+              // (A link stretched over the row with ::after was avoided: Safari long ignored
+              // position: relative on <tr>, which made every row's link cover the whole table.)
+              onClick={
+                rowLink
+                  ? (event) => {
+                      // The link handles its own clicks, including Cmd/Ctrl-click
+                      if ((event.target as Element).closest("a")) return;
+                      // Selecting text in a row shouldn't open it
+                      if (window.getSelection()?.toString()) return;
+                      const options = rowLink.to(row.original);
+                      if (event.metaKey || event.ctrlKey) {
+                        window.open(router.buildLocation(options).href, "_blank", "noopener");
+                      } else {
+                        void router.navigate(options);
+                      }
+                    }
+                  : undefined
+              }
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
@@ -141,7 +160,7 @@ export function SortableTable<TData extends RowData>({
                   {rowLink?.column === cell.column.id ? (
                     <Link
                       {...rowLink.to(row.original)}
-                      className="after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:outline-none"
+                      className="underline-offset-4 hover:underline focus-visible:underline"
                     >
                       <table.FlexRender cell={cell} />
                     </Link>
