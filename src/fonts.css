@@ -1,0 +1,70 @@
+/*
+ * Murray State's brand typefaces (murraystate.edu/toolkit). FreightSans is for body copy, titles and
+ * UI text; FreightText is for headings. The brand guide allows no other typeface alongside them.
+ *
+ * Kept apart from styles.css, like spacing.css, so a new shadcn theme can replace styles.css
+ * without losing the brand fonts: this file loads after it, so its --font-* values win.
+ *
+ * Only these weights are served (FreightSans has no 600 here, so font-semibold uses Bold).
+ * Browsers only download a weight once a page uses it.
+ */
+
+@font-face {
+  font-family: "Freight Sans";
+  src: url("/fonts/freightsans_book-webfont.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Freight Sans";
+  src: url("/fonts/freightsans_medium-webfont.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Freight Sans";
+  src: url("/fonts/freightsans_bold-webfont.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Freight Text";
+  src: url("/fonts/freighttext_medium-webfont.woff2") format("woff2");
+  font-weight: 400 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Freight Text";
+  src: url("/fonts/freighttext_bold-webfont.woff2") format("woff2");
+  font-weight: 600 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-sans: "Freight Sans", system-ui, sans-serif;
+  --font-serif: "Freight Text", Georgia, serif;
+  /* No monospace in the brand. Numbers that need to line up use tabular-nums instead. */
+  --font-mono: "Freight Sans", system-ui, sans-serif;
+}
+
+body {
+  /* Scales the fallback font to Freight's x-height while Freight loads, so text doesn't jump in size
+     when it swaps in */
+  font-size-adjust: from-font;
+}
+
+/* FreightText for page and dialog headings, as the guide sets it for headings and high-level
+   messaging */
+h1,
+h2 {
+  font-family: var(--font-serif);
+}

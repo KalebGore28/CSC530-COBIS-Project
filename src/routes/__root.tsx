@@ -7,6 +7,8 @@ import { DbClient } from "@tanstack/react-db";
 import appCss from "../styles.css?url";
 // Linked on its own rather than imported by styles.css, so replacing styles.css with a new shadcn theme keeps it
 import spacingCss from "../spacing.css?url";
+// Murray State's brand fonts, also kept out of styles.css so a new theme can't drop them
+import fontsCss from "../fonts.css?url";
 import { authQuery } from "@/lib/queries";
 
 // Providers
@@ -55,15 +57,14 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       },
     ],
     links: [
-      // Fonts load from a <link> rather than @import in styles.css, which made the browser fetch
-      // styles.css before it could even discover the font CSS. Preconnecting starts both
-      // connections early (fonts.gstatic.com serves the font files, so it needs crossorigin).
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      // Body text is FreightSans Book on every page, so it's fetched right away instead of once the
+      // CSS is parsed. Fonts are always fetched in CORS mode, so the preload needs crossorigin too.
       {
-        // Only the families styles.css uses: Oxanium for text, Fira Code for numbers in charts
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Oxanium:wght@200..800&display=swap",
+        rel: "preload",
+        href: "/fonts/freightsans_book-webfont.woff2",
+        as: "font",
+        type: "font/woff2",
+        crossOrigin: "anonymous",
       },
       {
         rel: "stylesheet",
@@ -72,6 +73,11 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
       {
         rel: "stylesheet",
         href: spacingCss,
+      },
+      {
+        // After styles.css, so the brand fonts win over whatever a shadcn theme sets
+        rel: "stylesheet",
+        href: fontsCss,
       },
     ],
   }),

@@ -6,19 +6,18 @@ export function NotFound() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 dark:from-gray-900 dark:to-gray-800">
+    // Theme colors only: the brand guide rules out custom gradients and off-palette grays
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="max-w-md space-y-8 text-center">
-        {/* 404 Number */}
-        <div className="relative">
-          <h1 className="text-9xl font-bold text-gray-200 select-none dark:text-gray-700">404</h1>
-        </div>
+        {/* Decorative, so screen readers start at the heading that says what happened */}
+        <p aria-hidden="true" className="text-muted-foreground text-9xl font-bold select-none">
+          404
+        </p>
 
         {/* Message */}
         <div className="space-y-3">
-          <h2 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-            Page Not Found
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-3xl font-semibold">Page Not Found</h1>
+          <p className="text-muted-foreground">
             The page you're looking for doesn't exist or has been moved.
           </p>
         </div>
