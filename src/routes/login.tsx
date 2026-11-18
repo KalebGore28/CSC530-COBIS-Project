@@ -17,7 +17,8 @@ export const Route = createFileRoute("/login")({
 
 function RouteComponent() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-blue-950 p-6 md:p-10">
+    // Murray State Blue in both themes (the sidebar color), the approved background for the white logo
+    <div className="bg-sidebar flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="flex w-full max-w-sm flex-col items-center justify-center gap-6">
         {/* The largest thing on screen, so it's fetched first. Its size is set so nothing shifts as it loads. */}
         <img
@@ -28,7 +29,7 @@ function RouteComponent() {
           alt="Murray State University"
           className="h-auto w-auto"
         />
-        <span className="font-bold text-white dark:text-white">
+        <span className="text-sidebar-foreground font-bold">
           COBIS Tool (v{import.meta.env.VITE_APP_VERSION})
         </span>
         <Card className="w-full">

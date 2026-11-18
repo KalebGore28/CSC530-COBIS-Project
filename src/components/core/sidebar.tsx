@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/sidebar";
 import { NavUser } from "@/components/core/nav-user";
 import logoPrimaryWhite from "/logos/primary-white.avif";
-import logoPrimaryNavy from "/logos/primary-navy.avif";
 import logoShield from "/logos/primary-shield.avif";
 import {
   Compass,
@@ -50,26 +49,15 @@ export function AppSidebar() {
               {/* Only the logo for the sidebar's current width is rendered, so the others aren't downloaded.
                   The image is the link's only content, so its alt text says where the link goes. */}
               {open || isMobile ? (
-                <>
-                  {/* Navy in light mode, white in dark mode. A lazy image that's hidden isn't
-                      fetched until shown, so only the one for the current theme downloads. */}
-                  <img
-                    src={logoPrimaryNavy}
-                    width={800}
-                    height={148}
-                    loading="lazy"
-                    className="mt-4 h-auto w-auto dark:hidden"
-                    alt="COBIS dashboard"
-                  />
-                  <img
-                    src={logoPrimaryWhite}
-                    width={800}
-                    height={148}
-                    loading="lazy"
-                    className="mt-4 hidden h-auto w-auto dark:block"
-                    alt="COBIS dashboard"
-                  />
-                </>
+                // The sidebar is Murray State Blue in both themes, so it always takes the
+                // white-text logo, the approved version for a blue background
+                <img
+                  src={logoPrimaryWhite}
+                  width={800}
+                  height={148}
+                  className="mt-4 h-auto w-auto"
+                  alt="COBIS dashboard"
+                />
               ) : (
                 <img
                   src={logoShield}
@@ -252,7 +240,7 @@ function NavItem({
     <SidebarMenuItem className="text-nowrap">
       <SidebarMenuButton
         tooltip={tooltip}
-        className="aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground p-1 aria-[current=page]:font-medium max-md:h-(--control-height) max-md:px-2"
+        className="aria-[current=page]:bg-sidebar-primary aria-[current=page]:text-sidebar-primary-foreground p-1 aria-[current=page]:font-medium max-md:h-(--control-height) max-md:px-2"
         asChild
       >
         <Link

@@ -31,36 +31,34 @@ export function ErrorComponent(props: ErrorComponentProps) {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4 dark:from-gray-900 dark:to-gray-800">
+    <div className="bg-background flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-2xl space-y-8 text-center">
         {/* Error Icon */}
         <div className="flex justify-center">
-          <div className="rounded-full bg-red-100 p-6 dark:bg-red-900/20">
-            <CircleAlert className="h-16 w-16 text-red-600 dark:text-red-400" />
+          <div className="bg-muted rounded-full p-6">
+            <CircleAlert className="text-destructive h-16 w-16" />
           </div>
         </div>
 
         {/* Message */}
         <div className="space-y-3">
           {/* The page's main heading, as the error replaces the page's own <h1> */}
-          <h1 className="text-3xl font-semibold text-gray-900 dark:text-gray-100">
-            Something went wrong
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <h1 className="text-foreground text-3xl font-semibold">Something went wrong</h1>
+          <p className="text-muted-foreground">
             We encountered an unexpected error. Please try again or return home.
           </p>
         </div>
 
         {/* Error Details (Development Only) */}
         {isDevelopment && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-left dark:border-red-800 dark:bg-red-900/10">
+          <div className="border-destructive bg-muted rounded-lg border p-4 text-left">
             <div className="mb-2 flex items-center justify-between">
-              <p className="text-sm font-semibold text-red-800 dark:text-red-300">Error Details:</p>
+              <p className="text-destructive text-sm font-semibold">Error Details:</p>
               <Button
                 onClick={copyErrorDetails}
                 variant="outline"
                 size="sm"
-                className="h-8 gap-2 text-red-700 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                className="text-destructive h-8 gap-2"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {/* Icon-only, so the name comes from hidden text */}
@@ -71,25 +69,25 @@ export function ErrorComponent(props: ErrorComponentProps) {
                 {copied ? "Copied" : ""}
               </span>
             </div>
-            <p className="font-mono text-sm wrap-break-word text-red-700 dark:text-red-400">
+            <p className="text-destructive font-mono text-sm wrap-break-word">
               {props.error.message}
             </p>
             {props.error.stack && (
               <details className="mt-3">
-                <summary className="cursor-pointer text-sm text-red-600 hover:underline dark:text-red-400">
+                <summary className="text-destructive cursor-pointer text-sm hover:underline">
                   Stack Trace
                 </summary>
-                <pre className="mt-2 overflow-x-auto text-xs whitespace-pre-wrap text-red-600 dark:text-red-400">
+                <pre className="text-foreground mt-2 overflow-x-auto text-xs whitespace-pre-wrap">
                   {props.error.stack}
                 </pre>
               </details>
             )}
             {props.info?.componentStack && (
               <details className="mt-3">
-                <summary className="cursor-pointer text-sm text-red-600 hover:underline dark:text-red-400">
+                <summary className="text-destructive cursor-pointer text-sm hover:underline">
                   Component Stack
                 </summary>
-                <pre className="mt-2 overflow-x-auto text-xs whitespace-pre-wrap text-red-600 dark:text-red-400">
+                <pre className="text-foreground mt-2 overflow-x-auto text-xs whitespace-pre-wrap">
                   {props.info.componentStack}
                 </pre>
               </details>
