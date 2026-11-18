@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, linkOptions, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { SearchIcon, UsersIcon } from "lucide-react";
 
@@ -257,8 +257,13 @@ function RouteComponent() {
             columns={columns}
             data={shown}
             initialSorting={[{ id: "attention", desc: true }]}
+            caption="Advisees"
             emptyMessage="No advisees match your search."
-            onRowClick={(advisee) => void navigate({ search: { student: advisee.mnumber } })}
+            rowLink={{
+              column: "student",
+              to: (advisee) =>
+                linkOptions({ to: "/advisees", search: { student: advisee.mnumber } }),
+            }}
           />
         </CardContent>
       </Card>

@@ -30,6 +30,7 @@ export function RegistrationStatusTable({
 
   return (
     <EditableDataTable
+      caption="Registration statuses"
       columns={columns}
       data={data}
       editableColumns={{ description: "text" }}

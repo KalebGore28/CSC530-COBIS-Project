@@ -30,6 +30,7 @@ export function AdmitCodesTable({
 
   return (
     <EditableDataTable
+      caption="Admit codes"
       columns={columns}
       data={data}
       editableColumns={{ description: "text" }}

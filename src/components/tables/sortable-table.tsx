@@ -8,12 +8,14 @@ import {
   useTable,
 } from "@tanstack/react-table";
 import type { ColumnDef, RowData, SortingState } from "@tanstack/react-table";
+import { Link, useRouter, type AnyRouter, type LinkOptions } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 import { cn } from "cn";
 
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -37,8 +39,17 @@ interface SortableTableProps<TData extends RowData> {
   data: Array<TData>;
   initialSorting: SortingState;
   emptyMessage: string;
-  // Makes each row a button, like opening a side panel for it
-  onRowClick?: (row: TData) => void;
+  // Names the table for screen readers, like a heading does for a section. Not shown on screen.
+  caption: string;
+  /**
+   * Makes each row open a page. The cell in `column` becomes a real link, which keyboard, screen
+   * reader, and "open in new tab" users get, and clicking anywhere else in the row follows it too.
+   */
+  rowLink?: {
+    column: string;
+    // Build it with linkOptions() so the route and its params are checked where it's written
+    to: (row: TData) => LinkOptions<AnyRouter, string, string>;
+  };
   // Extra classes for some rows, like fading ones that matter less
   rowClassName?: (row: TData) => string | undefined;
 }
@@ -48,10 +59,12 @@ export function SortableTable<TData extends RowData>({
   data,
   initialSorting,
   emptyMessage,
-  onRowClick,
+  caption,
+  rowLink,
   rowClassName,
 }: SortableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
+  const router = useRouter();
 
   const table = useTable({
     features,
@@ -66,6 +79,7 @@ export function SortableTable<TData extends RowData>({
 
   return (
     <Table>
+      <TableCaption className="sr-only">{caption}</TableCaption>
       <TableHeader>
         {table.getHeaderGroups().map((headerGroup) => (
           <TableRow key={headerGroup.id}>
@@ -111,14 +125,27 @@ export function SortableTable<TData extends RowData>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn(onRowClick && "cursor-pointer", rowClassName?.(row.original))}
-              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-              // Reachable with Tab and opened with Enter, like a button
-              tabIndex={onRowClick ? 0 : undefined}
-              onKeyDown={
-                onRowClick
+              className={cn(
+                rowLink && "cursor-pointer has-[a:focus-visible]:bg-muted/50",
+                rowClassName?.(row.original),
+              )}
+              // A mouse shortcut for the row's link, so the whole row can be clicked. Keyboard and
+              // screen reader users get the real link in the row, so the row itself isn't focusable.
+              // (A link stretched over the row with ::after was avoided: Safari long ignored
+              // position: relative on <tr>, which made every row's link cover the whole table.)
+              onClick={
+                rowLink
                   ? (event) => {
-                      if (event.key === "Enter") onRowClick(row.original);
+                      // The link handles its own clicks, including Cmd/Ctrl-click
+                      if ((event.target as Element).closest("a")) return;
+                      // Selecting text in a row shouldn't open it
+                      if (window.getSelection()?.toString()) return;
+                      const options = rowLink.to(row.original);
+                      if (event.metaKey || event.ctrlKey) {
+                        window.open(router.buildLocation(options).href, "_blank", "noopener");
+                      } else {
+                        void router.navigate(options);
+                      }
                     }
                   : undefined
               }
@@ -130,7 +157,16 @@ export function SortableTable<TData extends RowData>({
                     (cell.column.columnDef as SortableColumnDef<TData>).meta,
                   )}
                 >
-                  <table.FlexRender cell={cell} />
+                  {rowLink?.column === cell.column.id ? (
+                    <Link
+                      {...rowLink.to(row.original)}
+                      className="underline-offset-4 hover:underline focus-visible:underline"
+                    >
+                      <table.FlexRender cell={cell} />
+                    </Link>
+                  ) : (
+                    <table.FlexRender cell={cell} />
+                  )}
                 </TableCell>
               ))}
             </TableRow>

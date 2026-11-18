@@ -69,6 +69,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -115,6 +116,8 @@ function getColumnLabel<TData extends RowData>(column: Column<typeof features, T
 }
 
 interface EditableDataTableProps<TData extends RowData> {
+  // Names the table for screen readers. Not shown on screen, as the page title already says it.
+  caption: string;
   columns: Array<EditableColumnDef<TData>>;
   data: Array<TData>;
   // Columns that bulk edit can change, and what kind of value each takes
@@ -125,6 +128,7 @@ interface EditableDataTableProps<TData extends RowData> {
 }
 
 export function EditableDataTable<TData extends RowData>({
+  caption,
   columns,
   data,
   editableColumns,
@@ -207,6 +211,8 @@ export function EditableDataTable<TData extends RowData>({
     },
   });
 
+  // Unique per table, so two tables on one page never share label/field ids
+  const formId = React.useId();
   const selectedIds = Object.keys(rowSelection);
   const sortColumn = sorting.at(0)?.id ?? "";
   const filteredRowCount = table.getFilteredRowModel().rows.length;
@@ -353,49 +359,59 @@ export function EditableDataTable<TData extends RowData>({
                 {columnFilters.length > 0 && <Badge>{columnFilters.length}</Badge>}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80" align="start">
-              <div>
-                <p className="font-medium">Filter rows</p>
-                <p className="text-muted-foreground">Type null to find empty values.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="filter-column">Column</Label>
-                <Select value={filterColumn} onValueChange={setFilterColumn}>
-                  <SelectTrigger id="filter-column" className="w-full">
-                    <SelectValue placeholder="Select column" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {table
-                      .getAllColumns()
-                      .filter((column) => column.getCanFilter())
-                      .map((column) => (
-                        <SelectItem key={column.id} value={column.id}>
-                          {getColumnLabel(column)}
-                        </SelectItem>
-                      ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="filter-value">Value</Label>
-                <Input
-                  id="filter-value"
-                  placeholder="Enter a value..."
-                  value={filterValue}
-                  onChange={(e) => setFilterValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleApplyFilter();
-                  }}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button variant="outline" className="flex-1" onClick={handleClearFilter}>
-                  Clear
-                </Button>
-                <Button className="flex-1" onClick={handleApplyFilter}>
-                  Apply
-                </Button>
-              </div>
+            <PopoverContent className="w-80" align="start" asChild>
+              {/* A form, so Enter in the value field applies the filter like the Apply button */}
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleApplyFilter();
+                }}
+              >
+                <div>
+                  <p className="font-medium">Filter rows</p>
+                  <p className="text-muted-foreground">Type null to find empty values.</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`${formId}-filter-column`}>Column</Label>
+                  <Select value={filterColumn} onValueChange={setFilterColumn}>
+                    <SelectTrigger id={`${formId}-filter-column`} className="w-full">
+                      <SelectValue placeholder="Select column" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {table
+                        .getAllColumns()
+                        .filter((column) => column.getCanFilter())
+                        .map((column) => (
+                          <SelectItem key={column.id} value={column.id}>
+                            {getColumnLabel(column)}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor={`${formId}-filter-value`}>Value</Label>
+                  <Input
+                    id={`${formId}-filter-value`}
+                    placeholder="Enter a value..."
+                    value={filterValue}
+                    onChange={(e) => setFilterValue(e.target.value)}
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleClearFilter}
+                  >
+                    Clear
+                  </Button>
+                  <Button type="submit" className="flex-1">
+                    Apply
+                  </Button>
+                </div>
+              </form>
             </PopoverContent>
           </Popover>
 
@@ -407,95 +423,101 @@ export function EditableDataTable<TData extends RowData>({
                   Edit {selectedIds.length} selected
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80" align="start">
-                <div>
-                  <p className="font-medium">Bulk edit</p>
-                  <p className="text-muted-foreground">
-                    Set one column for the {selectedIds.length} selected row(s).
-                  </p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bulk-edit-column">Column</Label>
-                  <Select value={bulkEditColumn} onValueChange={handleBulkEditColumnChange}>
-                    <SelectTrigger id="bulk-edit-column" className="w-full">
-                      <SelectValue placeholder="Select column" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {table
-                        .getAllColumns()
-                        .filter((column) => column.id in editableColumns)
-                        .map((column) => (
-                          <SelectItem key={column.id} value={column.id}>
-                            {getColumnLabel(column)}
-                          </SelectItem>
-                        ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {bulkEditKind === "text" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="bulk-edit-value">New value</Label>
-                    <Input
-                      id="bulk-edit-value"
-                      placeholder="Enter a value..."
-                      value={typeof bulkEditValue === "string" ? bulkEditValue : ""}
-                      onChange={(e) => setBulkEditValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") handleBulkEdit();
-                      }}
-                    />
+              <PopoverContent className="w-80" align="start" asChild>
+                <form
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    if (canBulkEdit) handleBulkEdit();
+                  }}
+                >
+                  <div>
+                    <p className="font-medium">Bulk edit</p>
+                    <p className="text-muted-foreground">
+                      Set one column for the {selectedIds.length} selected row(s).
+                    </p>
                   </div>
-                )}
+                  <div className="space-y-2">
+                    <Label htmlFor={`${formId}-bulk-edit-column`}>Column</Label>
+                    <Select value={bulkEditColumn} onValueChange={handleBulkEditColumnChange}>
+                      <SelectTrigger id={`${formId}-bulk-edit-column`} className="w-full">
+                        <SelectValue placeholder="Select column" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {table
+                          .getAllColumns()
+                          .filter((column) => column.id in editableColumns)
+                          .map((column) => (
+                            <SelectItem key={column.id} value={column.id}>
+                              {getColumnLabel(column)}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
 
-                {bulkEditKind === "boolean" && (
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="bulk-edit-value">New value</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">{bulkEditValue ? "Yes" : "No"}</span>
-                      <Switch
-                        id="bulk-edit-value"
-                        checked={bulkEditValue === true}
-                        onCheckedChange={setBulkEditValue}
+                  {bulkEditKind === "text" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="bulk-edit-value">New value</Label>
+                      <Input
+                        id={`${formId}-bulk-edit-value`}
+                        placeholder="Enter a value..."
+                        value={typeof bulkEditValue === "string" ? bulkEditValue : ""}
+                        onChange={(e) => setBulkEditValue(e.target.value)}
                       />
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {(bulkEditKind === "department" || bulkEditKind === "college") && (
-                  <div className="space-y-2">
-                    <Label>New value</Label>
-                    <Command className="rounded-lg border">
-                      <CommandInput placeholder="Search..." />
-                      <CommandList className="max-h-48">
-                        <CommandEmpty>Nothing found</CommandEmpty>
-                        <CommandGroup>
-                          <CommandItem
-                            value="none"
-                            data-checked={bulkEditValue === null}
-                            onSelect={() => setBulkEditValue(null)}
-                          >
-                            None
-                          </CommandItem>
-                          {pickerOptions.map((option) => (
+                  {bulkEditKind === "boolean" && (
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor={`${formId}-bulk-edit-value`}>New value</Label>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">
+                          {bulkEditValue ? "Yes" : "No"}
+                        </span>
+                        <Switch
+                          id={`${formId}-bulk-edit-value`}
+                          checked={bulkEditValue === true}
+                          onCheckedChange={setBulkEditValue}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {(bulkEditKind === "department" || bulkEditKind === "college") && (
+                    <div className="space-y-2">
+                      <Label>New value</Label>
+                      <Command className="rounded-lg border">
+                        <CommandInput placeholder="Search..." />
+                        <CommandList className="max-h-48">
+                          <CommandEmpty>Nothing found</CommandEmpty>
+                          <CommandGroup>
                             <CommandItem
-                              key={option.id}
-                              value={`${option.label} ${option.id}`}
-                              data-checked={bulkEditValue === option.id}
-                              onSelect={() => setBulkEditValue(option.id)}
+                              value="none"
+                              data-checked={bulkEditValue === null}
+                              onSelect={() => setBulkEditValue(null)}
                             >
-                              {option.label} ({option.id})
+                              None
                             </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </div>
-                )}
+                            {pickerOptions.map((option) => (
+                              <CommandItem
+                                key={option.id}
+                                value={`${option.label} ${option.id}`}
+                                data-checked={bulkEditValue === option.id}
+                                onSelect={() => setBulkEditValue(option.id)}
+                              >
+                                {option.label} ({option.id})
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </div>
+                  )}
 
-                <Button className="w-full" onClick={handleBulkEdit} disabled={!canBulkEdit}>
-                  Update {selectedIds.length} row(s)
-                </Button>
+                  <Button type="submit" className="w-full" disabled={!canBulkEdit}>
+                    Update {selectedIds.length} row(s)
+                  </Button>
+                </form>
               </PopoverContent>
             </Popover>
           )}
@@ -526,6 +548,7 @@ export function EditableDataTable<TData extends RowData>({
       </div>
 
       <Table>
+        <TableCaption className="sr-only">{caption}</TableCaption>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>

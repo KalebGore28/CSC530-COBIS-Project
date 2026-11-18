@@ -226,6 +226,13 @@ function ImportPage() {
         </CardHeader>
 
         <CardContent className="space-y-3">
+          {/* Always mounted so screen readers announce when a file finishes or fails.
+              The progress percentages aren't announced, as they'd talk over everything. */}
+          <p role="status" className="sr-only">
+            {file && (attachmentState === "done" || attachmentState === "error")
+              ? `${file.name}: ${description}`
+              : ""}
+          </p>
           {file ? (
             <>
               <Attachment state={attachmentState} className="w-full">
@@ -261,11 +268,17 @@ function ImportPage() {
                 )}
               </Attachment>
 
-              {status.step === "uploading" && <Progress value={status.percent} />}
+              {status.step === "uploading" && (
+                <Progress value={status.percent} aria-label={`Uploading ${file.name}`} />
+              )}
               {status.step === "uploaded" && !importFinished && (
                 <>
-                  <Progress value={progress.data?.percent ?? 0} />
-                  <p className="text-muted-foreground text-sm">
+                  <Progress
+                    value={progress.data?.percent ?? 0}
+                    aria-label={`Importing ${file.name}`}
+                  />
+                  {/* Announces each step without moving focus */}
+                  <p role="status" className="text-muted-foreground text-sm">
                     {progress.data?.currentStep}. You can leave this page, and the import keeps
                     running.
                   </p>
@@ -274,7 +287,7 @@ function ImportPage() {
 
               {status.step === "uploaded" && progress.data?.done && progress.data.error && (
                 // Database errors can be long, so the log keeps the rest
-                <p className="text-destructive line-clamp-3 text-sm wrap-anywhere">
+                <p role="alert" className="text-destructive line-clamp-3 text-sm wrap-anywhere">
                   {progress.data.error}
                 </p>
               )}

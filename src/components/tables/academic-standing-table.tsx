@@ -30,6 +30,7 @@ export function AcademicStandingTable({
 
   return (
     <EditableDataTable
+      caption="Academic standings"
       columns={columns}
       data={data}
       editableColumns={{ description: "text" }}

@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -172,6 +173,7 @@ export function AdviseePanel({ advisee, term }: { advisee: Advisee; term: Term }
         ) : (
           <div className="rounded-md border">
             <Table>
+              <TableCaption className="sr-only">{`${term.description} ${term.year} courses`}</TableCaption>
               <TableHeader>
                 <TableRow>
                   <TableHead>Course</TableHead>

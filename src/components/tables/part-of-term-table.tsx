@@ -30,6 +30,7 @@ export function PartOfTermTable({
 
   return (
     <EditableDataTable
+      caption="Parts of term"
       columns={columns}
       data={data}
       editableColumns={{ description: "text" }}

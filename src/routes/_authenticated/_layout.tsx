@@ -49,9 +49,23 @@ function App() {
     <CurrentTermProvider>
       <TooltipProvider>
         <Toaster richColors />
+        {/* First thing Tab reaches, so keyboard users can jump past the sidebar's links.
+            Hidden until focused. */}
+        <a
+          href="#main-content"
+          className="bg-background text-foreground ring-ring sr-only z-50 rounded-md px-4 py-2 font-medium focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-2"
+        >
+          Skip to main content
+        </a>
         <SidebarProvider>
           <AppSidebar />
-          <SidebarInset className="px-(--page-gutter)">
+          {/* tabIndex -1 lets the skip link move focus here (screen magnifiers follow it) without
+              adding it to the Tab order */}
+          <SidebarInset
+            id="main-content"
+            tabIndex={-1}
+            className="px-(--page-gutter) focus:outline-none"
+          >
             <SiteHeader />
             <Outlet />
           </SidebarInset>

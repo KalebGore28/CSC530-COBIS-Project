@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
@@ -29,54 +30,71 @@ const initialState: ThemeProviderState = {
 
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
+export const THEME_STORAGE_KEY = "vite-ui-theme";
+
+/**
+ * Runs inline in <head> before the first paint, so dark mode doesn't flash light first.
+ * Keep it in step with how ThemeProvider resolves the theme below.
+ */
+export const themeInitScript = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var d=t==="dark"||(t!=="light"&&matchMedia("(prefers-color-scheme: dark)").matches);document.documentElement.classList.add(d?"dark":"light")}catch(e){}})()`;
+
+function readStoredTheme(storageKey: string, fallback: Theme): Theme {
+  try {
+    const stored = localStorage.getItem(storageKey);
+    return stored === "dark" || stored === "light" || stored === "system" ? stored : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function ThemeProvider({
   children,
   defaultTheme = "system",
-  storageKey = "vite-ui-theme",
+  storageKey = THEME_STORAGE_KEY,
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(() => {
-    // SSR-safe: only access localStorage on client
-    if (typeof window === "undefined") return defaultTheme;
-
-    const stored = localStorage.getItem(storageKey) as Theme | null;
-    if (stored) return stored;
-
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const systemTheme: Theme = systemPrefersDark ? "dark" : "light";
-    localStorage.setItem(storageKey, systemTheme);
-    return systemTheme;
-  });
+  // SSR-safe: only read storage on the client. Nothing is saved until the user picks a theme,
+  // so "system" keeps following the OS setting.
+  const [theme, setTheme] = useState<Theme>(() =>
+    typeof window === "undefined" ? defaultTheme : readStoredTheme(storageKey, defaultTheme),
+  );
 
   useEffect(() => {
     // Sync with localStorage changes from other tabs/windows
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === storageKey && e.newValue) {
-        setTheme(e.newValue as Theme);
+      if (e.key === storageKey) {
+        setTheme(readStoredTheme(storageKey, defaultTheme));
       }
     };
 
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [storageKey]);
+  }, [storageKey, defaultTheme]);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.classList.remove("light", "dark");
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
 
-    const applied =
-      theme === "system"
-        ? window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light"
-        : theme;
+    const apply = () => {
+      const applied = theme === "system" ? (media.matches ? "dark" : "light") : theme;
+      root.classList.remove("light", "dark");
+      root.classList.add(applied);
+    };
 
-    root.classList.add(applied);
+    apply();
+    // Only "system" follows the OS switching between light and dark
+    if (theme !== "system") return;
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
   }, [theme]);
 
   const value = {
     theme,
     setTheme: (t: Theme) => {
-      localStorage.setItem(storageKey, t);
+      try {
+        localStorage.setItem(storageKey, t);
+      } catch {
+        // Storage can be blocked; the choice still applies for this visit
+      }
       setTheme(t);
     },
   };
@@ -89,7 +107,7 @@ export const useTheme = () => {
 };
 
 export function ModeToggle({ className }: { className?: string }) {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
 
   return (
     <DropdownMenu>
@@ -97,13 +115,16 @@ export function ModeToggle({ className }: { className?: string }) {
         <Button size="icon" className={cn(className)}>
           <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-          <span className="sr-only">Toggle theme</span>
+          <span className="sr-only">Theme</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+        {/* Radio items mark the current choice, visually and for screen readers (aria-checked) */}
+        <DropdownMenuRadioGroup value={theme} onValueChange={(value) => setTheme(value as Theme)}>
+          <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
   );

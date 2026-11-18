@@ -329,6 +329,7 @@ export function SectionRoster({
             columns={columns}
             data={shown}
             initialSorting={[{ id: "student", desc: false }]}
+            caption="Students in this section"
             emptyMessage={
               students.length === 0
                 ? "No students in this section."

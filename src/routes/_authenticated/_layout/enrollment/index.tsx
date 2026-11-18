@@ -400,6 +400,7 @@ function RouteComponent() {
                 data={programs}
                 initialSorting={[{ id: "majors", desc: true }]}
                 emptyMessage="No students in your department's programs this term."
+                caption="Enrollment by program"
               />
             </TabsContent>
             <TabsContent value="courses">
@@ -408,6 +409,7 @@ function RouteComponent() {
                 data={courses}
                 initialSorting={[{ id: "enrolled", desc: true }]}
                 emptyMessage="None of your department's courses had students this term."
+                caption="Enrollment by course"
               />
             </TabsContent>
             <TabsContent value="instructors">
@@ -416,6 +418,7 @@ function RouteComponent() {
                 data={instructors}
                 initialSorting={[{ id: "credit_hours", desc: true }]}
                 emptyMessage="No one taught your department's courses this term."
+                caption="Enrollment by instructor"
               />
             </TabsContent>
           </CardContent>

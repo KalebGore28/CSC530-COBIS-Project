@@ -36,6 +36,7 @@ export function CoursePrefixesTable({
 
   return (
     <EditableDataTable
+      caption="Course prefixes"
       columns={columns}
       data={data}
       editableColumns={{ department_id: "department", college_id: "college" }}

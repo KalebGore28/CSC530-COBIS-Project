@@ -1,4 +1,5 @@
-import { useTheme } from "next-themes";
+// Follows the app's own theme provider, so toasts match the chosen light or dark theme
+import { useTheme } from "@/providers/theme";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
   CircleCheckIcon,
