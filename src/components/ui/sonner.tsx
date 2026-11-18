@@ -1,4 +1,4 @@
-// The app's own theme provider; next-themes isn't set up, so its hook always returned "system"
+// Follows the app's own theme provider, so toasts match the chosen light or dark theme
 import { useTheme } from "@/providers/theme";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
