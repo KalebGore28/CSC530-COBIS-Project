@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, linkOptions, useNavigate } from "@tanstack/react-router";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ArrowLeftIcon, MailIcon, PersonStandingIcon } from "lucide-react";
 
@@ -341,16 +341,19 @@ function InstructorPage() {
                 data={teaching.sections}
                 initialSorting={[{ id: "term", desc: true }]}
                 emptyMessage="No sections in these terms."
-                onRowClick={(section) =>
-                  void navigate({
-                    to: "/instructors/$mnumber/roster",
-                    params: { mnumber },
-                    search: {
-                      term: termKey(section),
-                      section: `${section.course_id}-${section.section}`,
-                    },
-                  })
-                }
+                rowLink={{
+                  // The section name is unique per row, unlike the term
+                  column: "section",
+                  to: (section) =>
+                    linkOptions({
+                      to: "/instructors/$mnumber/roster",
+                      params: { mnumber },
+                      search: {
+                        term: termKey(section),
+                        section: `${section.course_id}-${section.section}`,
+                      },
+                    }),
+                }}
               />
             </CardContent>
           </Card>

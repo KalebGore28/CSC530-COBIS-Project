@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+import { Link, linkOptions, type AnyRouter, type LinkOptions } from "@tanstack/react-router";
+import type { LucideIcon } from "lucide-react";
 import { useAuthentication } from "@/lib/auth-client";
 import {
   Sidebar,
@@ -32,7 +33,7 @@ import {
 } from "lucide-react";
 
 export function AppSidebar() {
-  const { open, isMobile } = useSidebar();
+  const { open, isMobile, setOpenMobile } = useSidebar();
   const { userSession, can } = useAuthentication();
   if (!userSession) return null;
 
@@ -41,7 +42,11 @@ export function AppSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link to="/dashboard" className="flex cursor-pointer items-center">
+            <Link
+              to="/dashboard"
+              className="flex cursor-pointer items-center"
+              onClick={() => setOpenMobile(false)}
+            >
               {/* Shield logo - shown when sidebar is closed */}
               <img
                 src={logoShield}
@@ -79,48 +84,47 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarMenu>
-            <SidebarMenuItem key="dashboard" className="text-nowrap">
-              <SidebarMenuButton tooltip="Dashboard" className="p-1" asChild>
-                <Link to="/dashboard" className="flex h-full w-full items-center gap-2">
-                  <Compass />
-                  Dashboard
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <NavItem
+              key="dashboard"
+              tooltip="Dashboard"
+              icon={Compass}
+              link={linkOptions({ to: "/dashboard" })}
+            >
+              Dashboard
+            </NavItem>
             {can("roster.view") && (
-              <SidebarMenuItem key="class-roster" className="text-nowrap">
-                <SidebarMenuButton tooltip="Class Roster" className="p-1" asChild>
-                  <Link to="/class-roster" className="flex h-full w-full items-center gap-2">
-                    <Clipboard />
-                    Class Roster
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <NavItem
+                key="class-roster"
+                tooltip="Class Roster"
+                icon={Clipboard}
+                link={linkOptions({ to: "/class-roster" })}
+              >
+                Class Roster
+              </NavItem>
             )}
             {/* Faculty can see their own grade distribution and teaching history (story 3) */}
             {can("roster.view") && userSession?.user.mnumber && (
-              <SidebarMenuItem key="my-teaching" className="text-nowrap">
-                <SidebarMenuButton tooltip="My Teaching" className="p-1" asChild>
-                  <Link
-                    to="/instructors/$mnumber"
-                    params={{ mnumber: userSession.user.mnumber }}
-                    className="flex h-full w-full items-center gap-2"
-                  >
-                    <ChartNoAxesColumn />
-                    My Teaching
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <NavItem
+                key="my-teaching"
+                tooltip="My Teaching"
+                icon={ChartNoAxesColumn}
+                link={linkOptions({
+                  to: "/instructors/$mnumber",
+                  params: { mnumber: userSession.user.mnumber },
+                })}
+              >
+                My Teaching
+              </NavItem>
             )}
             {can("advisees.view") && (
-              <SidebarMenuItem key="advisor-page" className="text-nowrap">
-                <SidebarMenuButton tooltip={"Advisor Page"} className="p-1" asChild>
-                  <Link to="/advisees" className="flex h-full w-full items-center gap-2">
-                    <BookUser />
-                    Advisees
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <NavItem
+                key="advisor-page"
+                tooltip="Advisor Page"
+                icon={BookUser}
+                link={linkOptions({ to: "/advisees" })}
+              >
+                Advisees
+              </NavItem>
             )}
           </SidebarMenu>
         </SidebarGroup>
@@ -130,34 +134,34 @@ export function AppSidebar() {
             <SidebarGroupLabel>Administration</SidebarGroupLabel>
             <SidebarMenu>
               {can("enrollment.view") && (
-                <SidebarMenuItem key="enrollment" className="text-nowrap">
-                  <SidebarMenuButton tooltip="Enrollment" className="p-1" asChild>
-                    <Link to="/enrollment" className="flex h-full w-full items-center gap-2">
-                      <ChartColumnIncreasing />
-                      Enrollment
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <NavItem
+                  key="enrollment"
+                  tooltip="Enrollment"
+                  icon={ChartColumnIncreasing}
+                  link={linkOptions({ to: "/enrollment" })}
+                >
+                  Enrollment
+                </NavItem>
               )}
               {can("instructors.view") && (
-                <SidebarMenuItem key="instructors" className="text-nowrap">
-                  <SidebarMenuButton tooltip="Instructors" className="p-1" asChild>
-                    <Link to="/instructors" className="flex h-full w-full items-center gap-2">
-                      <PersonStanding />
-                      Instructors
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <NavItem
+                  key="instructors"
+                  tooltip="Instructors"
+                  icon={PersonStanding}
+                  link={linkOptions({ to: "/instructors" })}
+                >
+                  Instructors
+                </NavItem>
               )}
               {can("student.lookup") && (
-                <SidebarMenuItem key="student-lookup" className="text-nowrap">
-                  <SidebarMenuButton tooltip="Student Lookup" className="p-1" asChild>
-                    <Link to="/student-lookup" className="flex h-full w-full items-center gap-2">
-                      <ScanSearch />
-                      Student Lookup
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <NavItem
+                  key="student-lookup"
+                  tooltip="Student Lookup"
+                  icon={ScanSearch}
+                  link={linkOptions({ to: "/student-lookup" })}
+                >
+                  Student Lookup
+                </NavItem>
               )}
             </SidebarMenu>
           </SidebarGroup>
@@ -166,38 +170,38 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Maintenance</SidebarGroupLabel>
             <SidebarMenu>
-              <SidebarMenuItem key="manage-users" className="text-nowrap">
-                <SidebarMenuButton tooltip="Manage Users" className="p-1" asChild>
-                  <Link to="/tools/users" className="flex h-full w-full items-center gap-2">
-                    <Users />
-                    Manage Users
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="permissions" className="text-nowrap">
-                <SidebarMenuButton tooltip="Permissions" className="p-1" asChild>
-                  <Link to="/tools/permissions" className="flex h-full w-full items-center gap-2">
-                    <ShieldCheck />
-                    Permissions
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="manage-tables" className="text-nowrap">
-                <SidebarMenuButton tooltip="Manage Tables" className="p-1" asChild>
-                  <Link to="/tools/manage-tables" className="flex h-full w-full items-center gap-2">
-                    <Table />
-                    Manage Tables
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem key="import-data" className="text-nowrap">
-                <SidebarMenuButton tooltip="Import Data" className="p-1" asChild>
-                  <Link to="/tools/import" className="flex h-full w-full items-center gap-2">
-                    <Upload />
-                    Import Data
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              <NavItem
+                key="manage-users"
+                tooltip="Manage Users"
+                icon={Users}
+                link={linkOptions({ to: "/tools/users" })}
+              >
+                Manage Users
+              </NavItem>
+              <NavItem
+                key="permissions"
+                tooltip="Permissions"
+                icon={ShieldCheck}
+                link={linkOptions({ to: "/tools/permissions" })}
+              >
+                Permissions
+              </NavItem>
+              <NavItem
+                key="manage-tables"
+                tooltip="Manage Tables"
+                icon={Table}
+                link={linkOptions({ to: "/tools/manage-tables" })}
+              >
+                Manage Tables
+              </NavItem>
+              <NavItem
+                key="import-data"
+                tooltip="Import Data"
+                icon={Upload}
+                link={linkOptions({ to: "/tools/import" })}
+              >
+                Import Data
+              </NavItem>
             </SidebarMenu>
           </SidebarGroup>
         )}
@@ -207,5 +211,44 @@ export function AppSidebar() {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
+  );
+}
+
+/**
+ * One page in the sidebar. The page you're on is highlighted (the link carries aria-current="page"),
+ * phones get 44px-tall touch targets, and choosing a page on a phone closes the drawer so the page
+ * is visible. Radix then returns focus to the menu button.
+ */
+function NavItem({
+  tooltip,
+  icon: Icon,
+  link,
+  children,
+}: {
+  tooltip: string;
+  icon: LucideIcon;
+  // Build it with linkOptions() so the route and its params are checked where it's written
+  link: LinkOptions<AnyRouter, string, string>;
+  children: React.ReactNode;
+}) {
+  const { setOpenMobile } = useSidebar();
+
+  return (
+    <SidebarMenuItem className="text-nowrap">
+      <SidebarMenuButton
+        tooltip={tooltip}
+        className="aria-[current=page]:bg-sidebar-accent aria-[current=page]:text-sidebar-accent-foreground p-1 aria-[current=page]:font-medium max-md:h-(--control-height) max-md:px-2"
+        asChild
+      >
+        <Link
+          {...link}
+          className="flex h-full w-full items-center gap-2"
+          onClick={() => setOpenMobile(false)}
+        >
+          <Icon aria-hidden="true" />
+          {children}
+        </Link>
+      </SidebarMenuButton>
+    </SidebarMenuItem>
   );
 }

@@ -1,4 +1,4 @@
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, linkOptions, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useLiveQuery } from "@tanstack/react-db";
 import { useState } from "react";
@@ -172,8 +172,8 @@ function InstructorsPage() {
   const departmentName = (id: string | null) =>
     departments.find((d) => d.id === id)?.description ?? "No department";
 
-  const openInstructor = (mnumber: string) =>
-    void navigate({
+  const instructorLink = (mnumber: string) =>
+    linkOptions({
       to: "/instructors/$mnumber",
       params: { mnumber },
       // Open their page on the same term
@@ -231,7 +231,10 @@ function InstructorsPage() {
             emptyMessage={
               text ? "Nobody teaching this term matches your search." : "Nobody taught this term."
             }
-            onRowClick={(instructor) => openInstructor(instructor.mnumber)}
+            rowLink={{
+              column: "instructor",
+              to: (instructor) => instructorLink(instructor.mnumber),
+            }}
           />
         </CardContent>
       </Card>

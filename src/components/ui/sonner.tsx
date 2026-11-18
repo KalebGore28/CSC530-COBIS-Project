@@ -1,4 +1,5 @@
-import { useTheme } from "next-themes";
+// The app's own theme provider; next-themes isn't set up, so its hook always returned "system"
+import { useTheme } from "@/providers/theme";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
   CircleCheckIcon,

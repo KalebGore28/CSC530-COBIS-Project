@@ -30,6 +30,8 @@ const config = defineConfig({
     options: { typeAware: true, typeCheck: true },
   },
   resolve: { tsconfigPaths: true },
+  // Matches tsconfig's ES2024, so ES2024 code ships as written instead of being rewritten for older browsers
+  build: { target: "es2024" },
   test: {
     // Vitest v4 compatibility: preserve mock call history.
     // Remove after tests no longer rely on calls from setup or earlier tests.

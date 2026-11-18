@@ -8,6 +8,7 @@ import {
   useTable,
 } from "@tanstack/react-table";
 import type { ColumnDef, RowData, SortingState } from "@tanstack/react-table";
+import { Link, type AnyRouter, type LinkOptions } from "@tanstack/react-router";
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from "lucide-react";
 import { cn } from "cn";
 
@@ -37,8 +38,16 @@ interface SortableTableProps<TData extends RowData> {
   data: Array<TData>;
   initialSorting: SortingState;
   emptyMessage: string;
-  // Makes each row a button, like opening a side panel for it
-  onRowClick?: (row: TData) => void;
+  /**
+   * Makes each row open a page. The cell in `column` becomes a real link, and its click area is
+   * stretched over the whole row, so the row works with a mouse, the keyboard, screen readers,
+   * and "open in new tab". Cells must not hold other links or buttons, as the link covers them.
+   */
+  rowLink?: {
+    column: string;
+    // Build it with linkOptions() so the route and its params are checked where it's written
+    to: (row: TData) => LinkOptions<AnyRouter, string, string>;
+  };
   // Extra classes for some rows, like fading ones that matter less
   rowClassName?: (row: TData) => string | undefined;
 }
@@ -48,7 +57,7 @@ export function SortableTable<TData extends RowData>({
   data,
   initialSorting,
   emptyMessage,
-  onRowClick,
+  rowLink,
   rowClassName,
 }: SortableTableProps<TData>) {
   const [sorting, setSorting] = React.useState<SortingState>(initialSorting);
@@ -111,17 +120,11 @@ export function SortableTable<TData extends RowData>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              className={cn(onRowClick && "cursor-pointer", rowClassName?.(row.original))}
-              onClick={onRowClick ? () => onRowClick(row.original) : undefined}
-              // Reachable with Tab and opened with Enter, like a button
-              tabIndex={onRowClick ? 0 : undefined}
-              onKeyDown={
-                onRowClick
-                  ? (event) => {
-                      if (event.key === "Enter") onRowClick(row.original);
-                    }
-                  : undefined
-              }
+              // The row is the positioning box for the link's stretched click area
+              className={cn(
+                rowLink && "relative has-[a:focus-visible]:bg-muted/50",
+                rowClassName?.(row.original),
+              )}
             >
               {row.getVisibleCells().map((cell) => (
                 <TableCell
@@ -130,7 +133,16 @@ export function SortableTable<TData extends RowData>({
                     (cell.column.columnDef as SortableColumnDef<TData>).meta,
                   )}
                 >
-                  <table.FlexRender cell={cell} />
+                  {rowLink?.column === cell.column.id ? (
+                    <Link
+                      {...rowLink.to(row.original)}
+                      className="after:absolute after:inset-0 after:content-[''] focus-visible:underline focus-visible:outline-none"
+                    >
+                      <table.FlexRender cell={cell} />
+                    </Link>
+                  ) : (
+                    <table.FlexRender cell={cell} />
+                  )}
                 </TableCell>
               ))}
             </TableRow>

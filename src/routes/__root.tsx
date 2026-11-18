@@ -10,7 +10,7 @@ import spacingCss from "../spacing.css?url";
 import { authQuery } from "@/lib/queries";
 
 // Providers
-import { ThemeProvider } from "@/providers/theme";
+import { ThemeProvider, themeInitScript } from "@/providers/theme";
 
 interface RootRouteContext {
   queryClient: ReturnType<typeof useQueryClient>;
@@ -18,8 +18,20 @@ interface RootRouteContext {
   getTitle?: () => string;
 }
 
+/**
+ * Names each page after the deepest route's getTitle (the same one its breadcrumb shows), so tabs,
+ * history, and screen readers can tell pages apart, like "Student Lookup | COBIS".
+ */
+function pageTitle(matches: ReadonlyArray<{ context?: unknown }>) {
+  const titleOf = (match: { context?: unknown }) =>
+    (match.context as Partial<RootRouteContext> | undefined)?.getTitle;
+  const getTitle = titleOf(matches.findLast((match) => titleOf(match)) ?? {});
+  return getTitle ? `${getTitle()} | COBIS` : "COBIS";
+}
+
 export const Route = createRootRouteWithContext<RootRouteContext>()({
-  head: () => ({
+  // Typed by hand, as inferring it from this route's own context is circular
+  head: ({ matches }: { matches: ReadonlyArray<{ context?: unknown }> }) => ({
     meta: [
       {
         charSet: "utf-8",
@@ -29,7 +41,17 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "COBIS App",
+        // Lets phones scale 1rem with the OS text size setting. Needs the root font size left unset.
+        name: "text-scale",
+        content: "scale",
+      },
+      {
+        // The page supports both themes, so the browser can pick matching defaults before CSS loads
+        name: "color-scheme",
+        content: "light dark",
+      },
+      {
+        title: pageTitle(matches),
       },
     ],
     links: [
@@ -52,8 +74,10 @@ export const Route = createRootRouteWithContext<RootRouteContext>()({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    // The theme script below adds a class to <html> before React hydrates
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <HeadContent />
       </head>
       <body className="antialiased">

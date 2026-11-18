@@ -425,9 +425,14 @@ function StudentLookup() {
           </EmptyHeader>
         </Empty>
       ) : (
-        <Card className={cn("gap-0 py-0", results.isPlaceholderData && "opacity-60")}>
+        <Card
+          className={cn("gap-0 py-0", results.isPlaceholderData && "opacity-60")}
+          // Tells screen readers the rows shown are stale while new results load
+          aria-busy={results.isPlaceholderData || undefined}
+        >
           <div className="flex flex-wrap items-center justify-between gap-2 border-b p-(--card-padding)">
-            <span className="text-sm font-medium">
+            {/* Announced as filters change, since the results update without a page load */}
+            <span role="status" className="text-sm font-medium">
               {data?.total.toLocaleString()} {data?.total === 1 ? "student" : "students"}
             </span>
             <div className="flex flex-wrap gap-2 max-md:w-full">
