@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.2...v0.2.3) (2026-11-18)
+
+
+### Bug Fixes
+
+* frontend accessibility, dark mode, and mobile improvements ([#46](https://github.com/KalebGore28/CSC530-COBIS-Project/issues/46)) ([a9f02fe](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/a9f02fed49a517741e8c8cdf3a351dfb69e98186))
+
 ## [0.2.2](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.1...v0.2.2) (2026-11-04)
 
 
