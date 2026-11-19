@@ -17,6 +17,12 @@ import { SortableTable } from "@/components/tables/sortable-table";
 import type { SortableColumnDef } from "@/components/tables/sortable-table";
 import { LETTER_GRADES, useSectionRoster } from "@/hooks/use-roster";
 import { useAuthentication } from "@/lib/auth-client";
+import { AccessChip } from "@/components/students/access-chip";
+import { StudentSheet } from "@/components/students/student-sheet";
+import type { SheetStudent } from "@/components/students/student-sheet";
+import { useAccessReasons } from "@/hooks/use-access-reasons";
+import { distinguishingReasons } from "@/lib/access-reasons";
+import type { DataRelationship } from "@/types/access-checks";
 import type { GradeSummary, RosterStudent } from "@/hooks/use-roster";
 
 type Term = { year: number; term_id: string; description: string };
@@ -68,68 +74,89 @@ function ProgramSummary({ student }: { student: RosterStudent }) {
   );
 }
 
-const columns: Array<SortableColumnDef<RosterStudent>> = [
-  {
-    id: "student",
-    header: "Student",
-    accessorFn: (row) => `${row.last_name}, ${row.first_name}`,
-    cell: ({ row }) => (
-      <div className="whitespace-normal">
-        <div className="font-medium">{fullName(row.original)}</div>
-        <div className="text-muted-foreground text-xs">
-          {row.original.mnumber}
-          {/* Says why a faded row is there */}
-          {!row.original.enrolled && row.original.status && ` · ${row.original.status}`}
+// Each row with why the viewer can see the student: every reason, and the ones that set them apart
+type RosterRow = RosterStudent & {
+  reasons: Array<DataRelationship>;
+  distinct: Array<DataRelationship>;
+};
+
+function rosterColumns(
+  openStudent: (student: SheetStudent) => void,
+): Array<SortableColumnDef<RosterRow>> {
+  return [
+    {
+      id: "student",
+      header: "Student",
+      accessorFn: (row) => `${row.last_name}, ${row.first_name}`,
+      cell: ({ row }) => (
+        <div className="whitespace-normal">
+          <div className="flex flex-wrap items-center gap-1.5">
+            <button
+              type="button"
+              className="font-medium hover:underline"
+              onClick={() =>
+                openStudent({ mnumber: row.original.mnumber, name: fullName(row.original) })
+              }
+            >
+              {fullName(row.original)}
+            </button>
+            <AccessChip shown={row.original.distinct} all={row.original.reasons} />
+          </div>
+          <div className="text-muted-foreground text-xs">
+            {row.original.mnumber}
+            {/* Says why a faded row is there */}
+            {!row.original.enrolled && row.original.status && ` · ${row.original.status}`}
+          </div>
         </div>
-      </div>
-    ),
-  },
-  {
-    id: "programs",
-    header: "Programs",
-    accessorFn: (row) => row.programs[0]?.description,
-    cell: ({ row }) => <ProgramSummary student={row.original} />,
-    meta: { hideOnMobile: true },
-  },
-  {
-    id: "midterm",
-    header: "Midterm",
-    // Letters sort A first, and hidden or missing grades go last
-    accessorFn: (row) => (row.grades_visible ? (row.midterm_grade ?? undefined) : undefined),
-    cell: ({ row }) => formatGrade(row.original.midterm_grade, row.original.grades_visible),
-  },
-  {
-    id: "final",
-    header: "Final",
-    accessorFn: (row) => (row.grades_visible ? (row.final_grade ?? undefined) : undefined),
-    cell: ({ row }) => formatGrade(row.original.final_grade, row.original.grades_visible),
-  },
-  {
-    id: "last_attendance",
-    header: "Last attended",
-    accessorFn: (row) =>
-      row.last_attendance ? new Date(row.last_attendance).getTime() : undefined,
-    cell: ({ row }) =>
-      row.original.last_attendance
-        ? new Date(row.original.last_attendance).toLocaleDateString()
-        : "—",
-    meta: { hideOnMobile: true },
-  },
-  {
-    id: "email",
-    header: "Email",
-    accessorFn: (row) => row.email ?? undefined,
-    cell: ({ row }) =>
-      row.original.email ? (
-        <a href={`mailto:${row.original.email}`} className="hover:underline">
-          {row.original.email}
-        </a>
-      ) : (
-        "—"
       ),
-    meta: { hideOnMobile: true },
-  },
-];
+    },
+    {
+      id: "programs",
+      header: "Programs",
+      accessorFn: (row) => row.programs[0]?.description,
+      cell: ({ row }) => <ProgramSummary student={row.original} />,
+      meta: { hideOnMobile: true },
+    },
+    {
+      id: "midterm",
+      header: "Midterm",
+      // Letters sort A first, and hidden or missing grades go last
+      accessorFn: (row) => (row.grades_visible ? (row.midterm_grade ?? undefined) : undefined),
+      cell: ({ row }) => formatGrade(row.original.midterm_grade, row.original.grades_visible),
+    },
+    {
+      id: "final",
+      header: "Final",
+      accessorFn: (row) => (row.grades_visible ? (row.final_grade ?? undefined) : undefined),
+      cell: ({ row }) => formatGrade(row.original.final_grade, row.original.grades_visible),
+    },
+    {
+      id: "last_attendance",
+      header: "Last attended",
+      accessorFn: (row) =>
+        row.last_attendance ? new Date(row.last_attendance).getTime() : undefined,
+      cell: ({ row }) =>
+        row.original.last_attendance
+          ? new Date(row.original.last_attendance).toLocaleDateString()
+          : "—",
+      meta: { hideOnMobile: true },
+    },
+    {
+      id: "email",
+      header: "Email",
+      accessorFn: (row) => row.email ?? undefined,
+      cell: ({ row }) =>
+        row.original.email ? (
+          <a href={`mailto:${row.original.email}`} className="hover:underline">
+            {row.original.email}
+          </a>
+        ) : (
+          "—"
+        ),
+      meta: { hideOnMobile: true },
+    },
+  ];
+}
 
 // Grade and attendance columns, left out when the viewer can't see grades in the section, like an admin assistant
 const GRADE_COLUMNS = new Set(["midterm", "final"]);
@@ -197,7 +224,18 @@ export function SectionRoster({
   // The server masks each row, so this only decides whether the columns are worth showing.
   const showGrades = !withoutGrades && students.some((student) => student.grades_visible);
   const showAttendance = showGrades && hasCategory("attendance");
-  const shownColumns = columns.filter(
+  const [sheetStudent, setSheetStudent] = useState<SheetStudent | null>(null);
+  const access = useAccessReasons(term);
+  const allReasons = students.map((student) =>
+    access.reasonsFor({
+      mnumber: student.mnumber,
+      programIds: student.programs.map((program) => program.program_id),
+      courses: [{ course_id: courseId, instructor_mnumber: instructorMnumber }],
+    }),
+  );
+  const distinct = distinguishingReasons(allReasons);
+  const reasonsByStudent = new Map(students.map((student, i) => [student.mnumber, allReasons[i]]));
+  const shownColumns = rosterColumns(setSheetStudent).filter(
     (column) =>
       (showGrades || !GRADE_COLUMNS.has(column.id ?? "")) &&
       (showAttendance || !ATTENDANCE_COLUMNS.has(column.id ?? "")),
@@ -217,14 +255,19 @@ export function SectionRoster({
   }
 
   const text = search.trim().toLowerCase();
-  const shown = students.filter(
-    (student) =>
-      (showDropped || student.enrolled) &&
-      (!text ||
-        [student.first_name, student.last_name, student.mnumber, student.email ?? ""].some(
-          (value) => value.toLowerCase().includes(text),
-        )),
-  );
+  const shown: Array<RosterRow> = students
+    .filter(
+      (student) =>
+        (showDropped || student.enrolled) &&
+        (!text ||
+          [student.first_name, student.last_name, student.mnumber, student.email ?? ""].some(
+            (value) => value.toLowerCase().includes(text),
+          )),
+    )
+    .map((student) => {
+      const reasons = reasonsByStudent.get(student.mnumber) ?? [];
+      return { ...student, reasons, distinct: distinct(reasons) };
+    });
 
   const chartSummary = chartGrade === "final" ? summary.final : summary.midterm;
   const chartData = LETTER_GRADES.map((grade) => ({
@@ -369,6 +412,7 @@ export function SectionRoster({
           />
         </CardContent>
       </Card>
+      <StudentSheet student={sheetStudent} onClose={() => setSheetStudent(null)} />
     </div>
   );
 }
