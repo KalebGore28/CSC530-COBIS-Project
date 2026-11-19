@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.3.0...v0.4.0) (2026-11-19)
+
+
+### Features
+
+* access chips and a student detail sheet ([013b130](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/013b1306b6c346506ae4c18583a462d85b51aa20))
+* department section rosters for admin assistants ([a77fdca](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/a77fdcaff65a06a39ab1d5403d55d90d29c40c97))
+* saved reports and scoped Student Lookup ([7aa51cd](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/7aa51cd9d0b64e400781a1cf132f30d48312a2f3))
+
+
+### Bug Fixes
+
+* chart axis label colors and the grade distribution's 100% tick ([756f78d](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/756f78dcf57529a8b3b06c18b0c827e1bcd5f005))
+* migrate useLiveQuery to config-object form ([757d0c8](https://github.com/KalebGore28/CSC530-COBIS-Project/commit/757d0c8ea31b494870ede292513775dd415dda1e))
+
 ## [0.3.0](https://github.com/KalebGore28/CSC530-COBIS-Project/compare/v0.2.3...v0.3.0) (2026-11-18)
 
 
