@@ -5,13 +5,16 @@ import { useCurrentTerm } from "@/providers/current-term-provider";
 import { AdvisingHubCard } from "@/components/dashboard/advising-hub-card";
 import { DepartmentHubCard } from "@/components/dashboard/department-hub-card";
 import { MaintenanceHubCard } from "@/components/dashboard/maintenance-hub-card";
+import { SavedReportsCard } from "@/components/dashboard/saved-reports-card";
 import { TeachingHubCard } from "@/components/dashboard/teaching-hub-card";
 
 import { importJobsCollection } from "@/integrations/tanstack-db/import-jobs";
+import { savedReportsCollection } from "@/integrations/tanstack-db/saved-reports";
 import { usersCollection } from "@/integrations/tanstack-db/users";
 
 export const Route = createFileRoute("/_authenticated/_layout/dashboard/")({
   beforeLoad: ({ context }) => {
+    void context.dbClient.collection(savedReportsCollection).preload();
     // Only the maintenance card needs these, and only people who can manage tools may load them
     if (context.userSession?.capabilities.has("tools.manage")) {
       void context.dbClient.collection(usersCollection).preload();
@@ -58,6 +61,7 @@ function DashboardPage() {
             {showAdvising && <AdvisingHubCard mnumber={mnumber} term={currentTerm} />}
             {showDepartment && <DepartmentHubCard />}
             {showMaintenance && <MaintenanceHubCard />}
+            <SavedReportsCard />
           </div>
         )
       ) : (

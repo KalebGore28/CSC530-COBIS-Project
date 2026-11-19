@@ -3,6 +3,7 @@ import {
   check,
   datetime,
   int,
+  json,
   mysqlTable,
   real,
   unique,
@@ -364,6 +365,29 @@ export const roleCapabilities = mysqlTable(
     capability: varchar("capability", { length: 100 }).notNull(),
   },
   (table) => [unique("ux_role_capabilities_idx").on(table.role_id, table.capability)],
+);
+
+/**
+ * A report someone saved: a page and the filters it was run with, not its results.
+ * Running it again re-runs the query with the viewer's current permissions.
+ */
+export const savedReports = mysqlTable(
+  "saved_reports",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    user_id: varchar("user_id", { length: 50 })
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 100 }).notNull(),
+    // The page's route, e.g. "/student-lookup"
+    page: varchar("page", { length: 100 }).notNull(),
+    search: json("search").$type<Record<string, unknown>>().notNull(),
+    is_favorite: boolean("is_favorite").notNull().default(false),
+    created_at: datetime("created_at")
+      .notNull()
+      .default(sql`CURRENT_TIMESTAMP`),
+  },
+  (table) => [unique("ux_saved_reports_name_idx").on(table.user_id, table.name)],
 );
 
 export const importJobs = mysqlTable("import_jobs", {
