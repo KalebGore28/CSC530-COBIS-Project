@@ -363,7 +363,9 @@ export function SectionRoster({
                 ? "No students in this section."
                 : "No students match your search."
             }
-            rowClassName={(student) => (student.enrolled ? undefined : "text-muted-foreground")}
+            // Faded as a whole, since muted text alone is close to normal text in both themes.
+            // The status under the name still says why, for anyone who can't make out the fade.
+            rowClassName={(student) => (student.enrolled ? undefined : "bg-muted/50 opacity-55")}
           />
         </CardContent>
       </Card>
