@@ -129,7 +129,10 @@ export function GradeDistributionCard({
               <CartesianGrid horizontal={false} />
               <XAxis
                 type="number"
+                // Shares like 1/3 can sum to 100.00000000000001, which would otherwise stretch the axis past 100
                 domain={[0, 100]}
+                allowDataOverflow
+                ticks={[0, 25, 50, 75, 100]}
                 tickFormatter={(value) => `${value}%`}
                 tickLine={false}
                 axisLine={false}
