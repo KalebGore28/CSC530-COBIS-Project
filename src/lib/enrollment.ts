@@ -5,12 +5,14 @@ import type {
   getEnrollmentSummary,
   getInstructorEnrollments,
   getProgramEnrollments,
+  getSectionEnrollments,
 } from "@/utils/enrollment-counts";
 
 export type { EnrollmentTerm };
 export type EnrollmentSummary = Awaited<ReturnType<typeof getEnrollmentSummary>>;
 export type CourseEnrollment = Awaited<ReturnType<typeof getCourseEnrollments>>[number];
 export type InstructorEnrollment = Awaited<ReturnType<typeof getInstructorEnrollments>>[number];
+export type SectionEnrollment = Awaited<ReturnType<typeof getSectionEnrollments>>[number];
 export type ProgramEnrollment = Awaited<ReturnType<typeof getProgramEnrollments>>[number];
 
 export type EnrollmentResponse = {
@@ -21,6 +23,7 @@ export type EnrollmentResponse = {
   courses?: Array<CourseEnrollment>;
   instructors?: Array<InstructorEnrollment>;
   programs?: Array<ProgramEnrollment>;
+  sections?: Array<SectionEnrollment>;
 };
 
 /**

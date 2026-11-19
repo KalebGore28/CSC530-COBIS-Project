@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { DownloadIcon, SearchIcon } from "lucide-react";
 import Papa from "papaparse";
+import { cn } from "cn";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { SortableTable } from "@/components/tables/sortable-table";
 import type { SortableColumnDef } from "@/components/tables/sortable-table";
 import { LETTER_GRADES, useSectionRoster } from "@/hooks/use-roster";
+import { useAuthentication } from "@/lib/auth-client";
 import type { GradeSummary, RosterStudent } from "@/hooks/use-roster";
 
 type Term = { year: number; term_id: string; description: string };
@@ -129,7 +131,11 @@ const columns: Array<SortableColumnDef<RosterStudent>> = [
   },
 ];
 
-function exportRoster(students: Array<RosterStudent>, filename: string) {
+// Grade and attendance columns, left out when the viewer can't see grades in the section, like an admin assistant
+const GRADE_COLUMNS = new Set(["midterm", "final"]);
+const ATTENDANCE_COLUMNS = new Set(["last_attendance"]);
+
+function exportRoster(students: Array<RosterStudent>, filename: string, showGrades: boolean) {
   const csv = Papa.unparse(
     students.map((student) => ({
       "M-Number": student.mnumber,
@@ -141,8 +147,10 @@ function exportRoster(students: Array<RosterStudent>, filename: string) {
           (program) => `${program.description} (${program.type === "MAJOR" ? "Major" : "Minor"})`,
         )
         .join("; "),
-      "Midterm grade": formatGrade(student.midterm_grade, student.grades_visible),
-      "Final grade": formatGrade(student.final_grade, student.grades_visible),
+      ...(showGrades && {
+        "Midterm grade": formatGrade(student.midterm_grade, student.grades_visible),
+        "Final grade": formatGrade(student.final_grade, student.grades_visible),
+      }),
       Status: student.enrolled ? "Enrolled" : (student.status ?? "Not enrolled"),
     })),
   );
@@ -165,12 +173,15 @@ export function SectionRoster({
   courseId,
   section,
   title,
+  withoutGrades = false,
 }: {
   instructorMnumber: string;
   term: Term;
   courseId: string;
   section: string;
   title: string;
+  // For enrollment views, like the rosters on Enrollment's Sections tab: who's in the class, not how they're doing
+  withoutGrades?: boolean;
 }) {
   const { students, summary, isLoading } = useSectionRoster(
     instructorMnumber,
@@ -181,6 +192,16 @@ export function SectionRoster({
   const [search, setSearch] = useState("");
   const [showDropped, setShowDropped] = useState(false);
   const [chartGrade, setChartGrade] = useState<"final" | "midterm">("final");
+  const { hasCategory } = useAuthentication();
+  // Per section, so an admin assistant who also teaches sees grades on their own classes only.
+  // The server masks each row, so this only decides whether the columns are worth showing.
+  const showGrades = !withoutGrades && students.some((student) => student.grades_visible);
+  const showAttendance = showGrades && hasCategory("attendance");
+  const shownColumns = columns.filter(
+    (column) =>
+      (showGrades || !GRADE_COLUMNS.has(column.id ?? "")) &&
+      (showAttendance || !ATTENDANCE_COLUMNS.has(column.id ?? "")),
+  );
 
   if (isLoading) {
     return (
@@ -222,7 +243,7 @@ export function SectionRoster({
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className={cn("grid grid-cols-2 gap-4", showGrades && "md:grid-cols-4")}>
         <SummaryTile
           label="Enrolled"
           value={summary.enrolled.toLocaleString()}
@@ -232,16 +253,20 @@ export function SectionRoster({
               : "No drops or withdrawals"
           }
         />
-        <SummaryTile
-          label="Class GPA"
-          value={formatAverage(summary.final)}
-          detail={`${summary.final.graded} of ${summary.enrolled} final grades in`}
-        />
-        <SummaryTile
-          label="Midterm average"
-          value={formatAverage(summary.midterm)}
-          detail={`${summary.midterm.graded} of ${summary.enrolled} midterm grades in`}
-        />
+        {showGrades && (
+          <>
+            <SummaryTile
+              label="Class GPA"
+              value={formatAverage(summary.final)}
+              detail={`${summary.final.graded} of ${summary.enrolled} final grades in`}
+            />
+            <SummaryTile
+              label="Midterm average"
+              value={formatAverage(summary.midterm)}
+              detail={`${summary.midterm.graded} of ${summary.enrolled} midterm grades in`}
+            />
+          </>
+        )}
         <SummaryTile
           label="Credit hours"
           value={summary.credit_hours.toLocaleString()}
@@ -249,46 +274,48 @@ export function SectionRoster({
         />
       </div>
 
-      <Card>
-        <CardHeader className="flex flex-wrap items-start justify-between gap-2">
-          <div>
-            <CardTitle>Grade distribution</CardTitle>
-            <CardDescription>
-              {chartSummary.graded === 0
-                ? "No grades are in yet."
-                : `${chartSummary.graded} ${chartGrade} ${chartSummary.graded === 1 ? "grade" : "grades"} from enrolled students`}
-            </CardDescription>
-          </div>
-          <ToggleGroup
-            type="single"
-            variant="outline"
-            value={chartGrade}
-            onValueChange={(value) => value && setChartGrade(value as "final" | "midterm")}
-            aria-label="Grades to show"
-          >
-            {(["final", "midterm"] as const).map((value) => (
-              <ToggleGroupItem
-                key={value}
-                value={value}
-                className="data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 h-(--control-height) capitalize"
-              >
-                {value}
-              </ToggleGroupItem>
-            ))}
-          </ToggleGroup>
-        </CardHeader>
-        <CardContent>
-          <ChartContainer config={chartConfig} className="aspect-auto h-48 w-full">
-            <BarChart accessibilityLayer data={chartData} margin={{ left: -20 }}>
-              <CartesianGrid vertical={false} />
-              <XAxis dataKey="grade" tickLine={false} axisLine={false} tickMargin={8} />
-              <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
-              <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
-              <Bar dataKey="students" fill="var(--color-students)" radius={4} />
-            </BarChart>
-          </ChartContainer>
-        </CardContent>
-      </Card>
+      {showGrades && (
+        <Card>
+          <CardHeader className="flex flex-wrap items-start justify-between gap-2">
+            <div>
+              <CardTitle>Grade distribution</CardTitle>
+              <CardDescription>
+                {chartSummary.graded === 0
+                  ? "No grades are in yet."
+                  : `${chartSummary.graded} ${chartGrade} ${chartSummary.graded === 1 ? "grade" : "grades"} from enrolled students`}
+              </CardDescription>
+            </div>
+            <ToggleGroup
+              type="single"
+              variant="outline"
+              value={chartGrade}
+              onValueChange={(value) => value && setChartGrade(value as "final" | "midterm")}
+              aria-label="Grades to show"
+            >
+              {(["final", "midterm"] as const).map((value) => (
+                <ToggleGroupItem
+                  key={value}
+                  value={value}
+                  className="data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground data-[state=on]:hover:bg-primary/90 h-(--control-height) capitalize"
+                >
+                  {value}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="aspect-auto h-48 w-full">
+              <BarChart accessibilityLayer data={chartData} margin={{ left: -20 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="grade" tickLine={false} axisLine={false} tickMargin={8} />
+                <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
+                <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                <Bar dataKey="students" fill="var(--color-students)" radius={4} />
+              </BarChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="flex flex-wrap items-center gap-3">
         <InputGroup className="w-72 max-md:w-full">
@@ -315,6 +342,7 @@ export function SectionRoster({
             exportRoster(
               shown,
               `${courseId}-${section}_${term.description}_${term.year}_roster.csv`,
+              showGrades,
             )
           }
         >
@@ -326,7 +354,7 @@ export function SectionRoster({
       <Card className="py-0">
         <CardContent className="px-0">
           <SortableTable
-            columns={columns}
+            columns={shownColumns}
             data={shown}
             initialSorting={[{ id: "student", desc: false }]}
             caption="Students in this section"
