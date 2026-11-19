@@ -86,40 +86,43 @@ function UserForm({ userId, onClose }: { userId: string; onClose: () => void }) 
   // Closing with unsaved changes asks first, instead of silently dropping them
   const [confirmingDiscard, setConfirmingDiscard] = useState(false);
 
-  const { data: user, isLoading: isUserLoading } = useLiveQuery(
-    (q) =>
+  const { data: user, isLoading: isUserLoading } = useLiveQuery({
+    query: (q) =>
       q
         .from({ users: usersCollection })
         .where(({ users }) => eq(users.id, userId))
         .findOne(),
-    [userId],
-  );
+  });
 
-  const { data: facultyList, isLoading: isFacultyLoading } = useLiveQuery((q) =>
-    q.from({ faculty: facultyCollection }).orderBy(({ faculty }) => faculty.last_name, "asc"),
-  );
+  const { data: facultyList, isLoading: isFacultyLoading } = useLiveQuery({
+    query: (q) =>
+      q.from({ faculty: facultyCollection }).orderBy(({ faculty }) => faculty.last_name, "asc"),
+  });
 
-  const { data: departmentList, isLoading: isDepartmentsLoading } = useLiveQuery((q) =>
-    q
-      .from({ departments: departmentsCollection })
-      .orderBy(({ departments }) => departments.description, "asc"),
-  );
+  const { data: departmentList, isLoading: isDepartmentsLoading } = useLiveQuery({
+    query: (q) =>
+      q
+        .from({ departments: departmentsCollection })
+        .orderBy(({ departments }) => departments.description, "asc"),
+  });
 
-  const { data: collegeList, isLoading: isCollegesLoading } = useLiveQuery((q) =>
-    q.from({ colleges: collegesCollection }).orderBy(({ colleges }) => colleges.description, "asc"),
-  );
+  const { data: collegeList, isLoading: isCollegesLoading } = useLiveQuery({
+    query: (q) =>
+      q
+        .from({ colleges: collegesCollection })
+        .orderBy(({ colleges }) => colleges.description, "asc"),
+  });
 
-  const { data: roleList, isLoading: isRolesLoading } = useLiveQuery((q) =>
-    q.from({ roles: rolesCollection }).orderBy(({ roles }) => roles.name, "asc"),
-  );
+  const { data: roleList, isLoading: isRolesLoading } = useLiveQuery({
+    query: (q) => q.from({ roles: rolesCollection }).orderBy(({ roles }) => roles.name, "asc"),
+  });
 
-  const { data: userRoles, isLoading: isUserRolesLoading } = useLiveQuery(
-    (q) =>
+  const { data: userRoles, isLoading: isUserRolesLoading } = useLiveQuery({
+    query: (q) =>
       q
         .from({ userRoles: userRolesCollection })
         .where(({ userRoles }) => eq(userRoles.user_id, userId)),
-    [userId],
-  );
+  });
 
   const isLoaded =
     !isUserLoading &&
@@ -239,7 +242,9 @@ function UserForm({ userId, onClose }: { userId: string; onClose: () => void }) 
       return;
     }
 
-    const transactions: Array<{ when: (state: "settled") => Promise<unknown> }> = [];
+    const transactions: Array<{
+      when: (state: "settled") => Promise<unknown>;
+    }> = [];
 
     if (userChanged) {
       transactions.push(

@@ -90,15 +90,15 @@ function RouteComponent() {
   const dbClient = useDbClient();
   const [selectedRoleId, setSelectedRoleId] = useState<number | undefined>(undefined);
 
-  const { data: roles, isLoading: isRolesLoading } = useLiveQuery((q) =>
-    q.from({ role: rolesCollection }).orderBy(({ role }) => role.id, "asc"),
-  );
-  const { data: dataAccess, isLoading: isDataAccessLoading } = useLiveQuery((q) =>
-    q.from({ row: roleDataAccessCollection }),
-  );
-  const { data: capabilities, isLoading: isCapabilitiesLoading } = useLiveQuery((q) =>
-    q.from({ row: roleCapabilitiesCollection }),
-  );
+  const { data: roles, isLoading: isRolesLoading } = useLiveQuery({
+    query: (q) => q.from({ role: rolesCollection }).orderBy(({ role }) => role.id, "asc"),
+  });
+  const { data: dataAccess, isLoading: isDataAccessLoading } = useLiveQuery({
+    query: (q) => q.from({ row: roleDataAccessCollection }),
+  });
+  const { data: capabilities, isLoading: isCapabilitiesLoading } = useLiveQuery({
+    query: (q) => q.from({ row: roleCapabilitiesCollection }),
+  });
 
   if (isRolesLoading || isDataAccessLoading || isCapabilitiesLoading) {
     return <Skeleton className="h-96 w-full" />;

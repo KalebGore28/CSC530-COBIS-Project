@@ -24,9 +24,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { filterColumn, filterValue } = Route.useSearch();
-  const { data: registrationStatus, isLoading } = useLiveQuery((q) =>
-    q.from({ registrationStatus: registrationStatusCollection }),
-  );
+  const { data: registrationStatus, isLoading } = useLiveQuery({
+    query: (q) => q.from({ registrationStatus: registrationStatusCollection }),
+  });
   return (
     <div>
       {!isLoading && (
