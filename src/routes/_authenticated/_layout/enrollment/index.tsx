@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { eq, useLiveQuery } from "@tanstack/react-db";
 import { ChartColumnIncreasingIcon } from "lucide-react";
@@ -31,12 +31,13 @@ import type {
   EnrollmentTerm,
   InstructorEnrollment,
   ProgramEnrollment,
+  SectionEnrollment,
 } from "@/lib/enrollment";
 
 import { departmentsCollection } from "@/integrations/tanstack-db/departments";
 import { termsCollection } from "@/integrations/tanstack-db/terms";
 
-const TABS = ["programs", "courses", "instructors"] as const;
+const TABS = ["programs", "courses", "sections", "instructors"] as const;
 type EnrollmentTab = (typeof TABS)[number];
 
 // The term and tab live in the URL, so a link opens the same view.
@@ -154,6 +155,58 @@ const courseColumns: Array<SortableColumnDef<WithPrevious<CourseEnrollment>>> = 
     meta: { numeric: true, hideOnMobile: true },
   },
 ];
+
+// Each section links to its roster, which needs the term the table is showing
+function sectionColumns(term: string): Array<SortableColumnDef<SectionEnrollment>> {
+  return [
+    {
+      id: "section",
+      header: "Section",
+      accessorFn: (row) => `${row.course_id}-${row.section}`,
+      cell: ({ row }) => (
+        <div className="whitespace-normal md:min-w-40">
+          <Link
+            to="/enrollment/roster"
+            search={{
+              term,
+              section: `${row.original.course_id}-${row.original.section}`,
+              instructor: row.original.instructor_mnumber,
+            }}
+            className="font-medium hover:underline"
+          >
+            {row.original.course_id}-{row.original.section}
+          </Link>
+          <div className="text-muted-foreground text-xs">{row.original.title}</div>
+        </div>
+      ),
+    },
+    {
+      id: "instructor",
+      header: "Instructor",
+      accessorFn: (row) =>
+        row.instructor_last_name
+          ? `${row.instructor_last_name}, ${row.instructor_first_name}`
+          : row.instructor_mnumber,
+      cell: ({ row }) =>
+        row.original.instructor_last_name
+          ? `${row.original.instructor_first_name} ${row.original.instructor_last_name}`
+          : row.original.instructor_mnumber,
+      meta: { hideOnMobile: true },
+    },
+    {
+      id: "enrolled",
+      header: "Enrolled",
+      accessorFn: (row) => row.enrolled,
+      meta: { numeric: true },
+    },
+    {
+      id: "credit_hours",
+      header: "Credit hours",
+      accessorFn: (row) => row.credit_hours,
+      meta: { numeric: true, hideOnMobile: true },
+    },
+  ];
+}
 
 const instructorColumns: Array<SortableColumnDef<WithPrevious<InstructorEnrollment>>> = [
   {
@@ -392,6 +445,7 @@ function RouteComponent() {
         <TabsList variant="line" className="max-md:w-full">
           <TabsTrigger value="programs">Programs</TabsTrigger>
           <TabsTrigger value="courses">Courses</TabsTrigger>
+          <TabsTrigger value="sections">Sections</TabsTrigger>
           <TabsTrigger value="instructors">Instructors</TabsTrigger>
         </TabsList>
 
@@ -413,6 +467,15 @@ function RouteComponent() {
                 initialSorting={[{ id: "enrolled", desc: true }]}
                 emptyMessage="None of your department's courses had students this term."
                 caption="Enrollment by course"
+              />
+            </TabsContent>
+            <TabsContent value="sections">
+              <SortableTable
+                columns={sectionColumns(termKey(term))}
+                data={data.sections ?? []}
+                initialSorting={[{ id: "section", desc: false }]}
+                emptyMessage="None of your department's sections had students this term."
+                caption="Enrollment by section. Each section links to its roster."
               />
             </TabsContent>
             <TabsContent value="instructors">

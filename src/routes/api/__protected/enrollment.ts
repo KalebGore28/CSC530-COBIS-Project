@@ -8,6 +8,7 @@ import {
   getEnrollmentTerms,
   getInstructorEnrollments,
   getProgramEnrollments,
+  getSectionEnrollments,
 } from "@/utils/enrollment-counts";
 
 // Both or neither, and the newest term is used when they're left out
@@ -57,13 +58,15 @@ export const Route = createFileRoute("/api/__protected/enrollment")({
               getCourseEnrollments(db, access, departmentId, term),
               getInstructorEnrollments(db, access, departmentId, term),
               getProgramEnrollments(db, access, departmentId, term),
-            ]).then(([summary, courses, instructors, programs]) => ({
+              getSectionEnrollments(db, access, departmentId, term),
+            ]).then(([summary, courses, instructors, programs, sections]) => ({
               terms,
               term,
               summary,
               courses,
               instructors,
               programs,
+              sections,
             }))
           : { terms, term: null };
 
