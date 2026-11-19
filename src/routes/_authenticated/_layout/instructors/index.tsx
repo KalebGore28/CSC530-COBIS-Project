@@ -32,6 +32,7 @@ import { requirePageCapability } from "@/lib/page-guards";
 import { departmentsCollection } from "@/integrations/tanstack-db/departments";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
 import { termsCollection } from "@/integrations/tanstack-db/terms";
+import { facultyByNameQuery } from "@/queries/lookups";
 
 // The term lives in the URL as one value like "2025-80", since the router would quote a lone "80"
 type InstructorsSearch = { term?: string };
@@ -112,13 +113,7 @@ function InstructorsPage() {
   });
 
   const { data: termNames } = useLiveQuery({ query: (q) => q.from({ terms: termsCollection }) });
-  const { data: faculty } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ faculty: facultyCollection })
-        .orderBy(({ faculty }) => faculty.last_name)
-        .orderBy(({ faculty }) => faculty.first_name),
-  });
+  const { data: faculty } = useLiveQuery({ query: facultyByNameQuery() });
   const { data: departments } = useLiveQuery({
     query: (q) => q.from({ departments: departmentsCollection }),
   });

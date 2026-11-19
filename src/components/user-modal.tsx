@@ -41,10 +41,13 @@ import { cn } from "@/lib/utils";
 
 import { usersCollection } from "@/integrations/tanstack-db/users";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
-import { departmentsCollection } from "@/integrations/tanstack-db/departments";
-import { collegesCollection } from "@/integrations/tanstack-db/colleges";
 import { userRolesCollection } from "@/integrations/tanstack-db/user-roles";
-import { rolesCollection } from "@/integrations/tanstack-db/roles";
+import {
+  collegesByNameQuery,
+  departmentsByNameQuery,
+  facultyByNameQuery,
+  rolesByNameQuery,
+} from "@/queries/lookups";
 
 type Department = typeof departments.$inferSelect;
 type College = typeof colleges.$inferSelect;
@@ -95,26 +98,19 @@ function UserForm({ userId, onClose }: { userId: string; onClose: () => void }) 
   });
 
   const { data: facultyList, isLoading: isFacultyLoading } = useLiveQuery({
-    query: (q) =>
-      q.from({ faculty: facultyCollection }).orderBy(({ faculty }) => faculty.last_name, "asc"),
+    query: facultyByNameQuery(),
   });
 
   const { data: departmentList, isLoading: isDepartmentsLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ departments: departmentsCollection })
-        .orderBy(({ departments }) => departments.description, "asc"),
+    query: departmentsByNameQuery(),
   });
 
   const { data: collegeList, isLoading: isCollegesLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ colleges: collegesCollection })
-        .orderBy(({ colleges }) => colleges.description, "asc"),
+    query: collegesByNameQuery(),
   });
 
   const { data: roleList, isLoading: isRolesLoading } = useLiveQuery({
-    query: (q) => q.from({ roles: rolesCollection }).orderBy(({ roles }) => roles.name, "asc"),
+    query: rolesByNameQuery(),
   });
 
   const { data: userRoles, isLoading: isUserRolesLoading } = useLiveQuery({

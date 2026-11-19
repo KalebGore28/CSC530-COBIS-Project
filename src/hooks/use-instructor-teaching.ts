@@ -1,12 +1,10 @@
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { ENROLLED_STATUSES, W_STATUSES } from "@/lib/enrolled-statuses";
 import { GRADE_POINTS } from "@/types/grades";
 import { LETTER_GRADES } from "@/hooks/use-roster";
 import type { LetterGrade } from "@/hooks/use-roster";
 
-import { coursesCollection } from "@/integrations/tanstack-db/courses";
-import { studentCoursesCollection } from "@/integrations/tanstack-db/student-courses";
-import { termsCollection } from "@/integrations/tanstack-db/terms";
+import { instructorRegistrationsQuery } from "@/queries/instructors";
 
 type Term = { year: number; term_id: string };
 
@@ -127,29 +125,7 @@ function breakdown(registrations: Array<Registration>): GradeBreakdown {
  */
 export function useInstructorTeaching(instructorMnumber: string, fromKey?: string, toKey?: string) {
   const { data: registrations, isLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentCourses: studentCoursesCollection })
-        .innerJoin({ courses: coursesCollection }, ({ studentCourses, courses }) =>
-          eq(studentCourses.course_id, courses.id),
-        )
-        .leftJoin({ terms: termsCollection }, ({ studentCourses, terms }) =>
-          eq(studentCourses.term_id, terms.id),
-        )
-        .where(({ studentCourses }) => eq(studentCourses.instructor_mnumber, instructorMnumber))
-        .select(({ studentCourses, courses, terms }) => ({
-          mnumber: studentCourses.mnumber,
-          year: studentCourses.year,
-          term_id: studentCourses.term_id,
-          term_description: terms?.description,
-          course_id: studentCourses.course_id,
-          section: studentCourses.course_section,
-          title: courses.title,
-          hours: studentCourses.course_hours,
-          status_id: studentCourses.registration_status_id,
-          final_grade: studentCourses.final_grade,
-          grades_visible: studentCourses.grades_visible,
-        })),
+    query: instructorRegistrationsQuery(instructorMnumber),
   });
 
   // Every term taught, newest first, for the range pickers

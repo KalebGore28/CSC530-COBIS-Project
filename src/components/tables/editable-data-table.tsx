@@ -76,8 +76,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { collegesCollection } from "@/integrations/tanstack-db/colleges";
-import { departmentsCollection } from "@/integrations/tanstack-db/departments";
+import { collegesByNameQuery, departmentsByNameQuery } from "@/queries/lookups";
 
 const features = tableFeatures({
   columnFilteringFeature,
@@ -158,18 +157,8 @@ export function EditableDataTable<TData extends RowData>({
   const [bulkEditValue, setBulkEditValue] = React.useState<EditValue | undefined>(undefined);
   const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false);
 
-  const { data: departments } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ departments: departmentsCollection })
-        .orderBy(({ departments }) => departments.description, "asc"),
-  });
-  const { data: colleges } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ colleges: collegesCollection })
-        .orderBy(({ colleges }) => colleges.description, "asc"),
-  });
+  const { data: departments } = useLiveQuery({ query: departmentsByNameQuery() });
+  const { data: colleges } = useLiveQuery({ query: collegesByNameQuery() });
 
   const selectColumn: EditableColumnDef<TData> = {
     id: "select",

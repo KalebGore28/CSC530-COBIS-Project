@@ -1,8 +1,7 @@
 import { createContext, useContext } from "react";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import type { JSX } from "react";
-import { currentTermCollection } from "@/integrations/tanstack-db/current-term";
-import { termsCollection } from "@/integrations/tanstack-db/terms";
+import { currentTermQuery } from "@/queries/lookups";
 
 type CurrentTermContextValue = {
   currentTerm: {
@@ -27,20 +26,7 @@ export function useCurrentTerm() {
 }
 
 export function CurrentTermProvider({ children }: { children: JSX.Element }) {
-  const { data: currentTerm, isLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ current_term: currentTermCollection })
-        .leftJoin({ terms: termsCollection }, ({ current_term, terms }) =>
-          eq(current_term.term_id, terms.id),
-        )
-        .select(({ current_term, terms }) => ({
-          year: current_term.year,
-          term_id: current_term.term_id,
-          description: terms?.description,
-        }))
-        .findOne(),
-  });
+  const { data: currentTerm, isLoading } = useLiveQuery({ query: currentTermQuery() });
 
   const normalizedData = {
     year: currentTerm?.year || 1970,
