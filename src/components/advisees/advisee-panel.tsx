@@ -1,4 +1,4 @@
-import { and, eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { MailIcon } from "lucide-react";
 import { cn } from "cn";
 
@@ -19,11 +19,7 @@ import { AttentionBadges } from "@/components/advisees/attention-badges";
 import type { Advisee } from "@/hooks/use-advisees";
 import { ENROLLED_STATUSES } from "@/lib/enrolled-statuses";
 
-import { coursesCollection } from "@/integrations/tanstack-db/courses";
-import { registrationStatusCollection } from "@/integrations/tanstack-db/registration-status";
-import { studentAcademicInfoCollection } from "@/integrations/tanstack-db/student-academic-info";
-import { studentCoursesCollection } from "@/integrations/tanstack-db/student-courses";
-import { termsCollection } from "@/integrations/tanstack-db/terms";
+import { gpaHistoryQuery, termCoursesQuery } from "@/queries/students";
 
 type Term = { year: number; term_id: string; description: string };
 
@@ -61,52 +57,11 @@ function Fact({ label, value }: { label: string; value: React.ReactNode }) {
  */
 export function AdviseePanel({ advisee, term }: { advisee: Advisee; term: Term }) {
   const { data: history, isLoading: historyLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ info: studentAcademicInfoCollection })
-        .leftJoin({ terms: termsCollection }, ({ info, terms }) => eq(info.term_id, terms.id))
-        .where(({ info }) => eq(info.mnumber, advisee.mnumber))
-        .orderBy(({ info }) => info.year, "asc")
-        .orderBy(({ info }) => info.term_id, "asc")
-        .select(({ info, terms }) => ({
-          year: info.year,
-          term_id: info.term_id,
-          term_description: terms?.description,
-          overall_gpa: info.overall_gpa,
-          msu_gpa: info.msu_gpa,
-          overall_earned_hours: info.overall_earned_hours,
-        })),
+    query: gpaHistoryQuery(advisee.mnumber),
   });
 
   const { data: courses, isLoading: coursesLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentCourses: studentCoursesCollection })
-        .innerJoin({ courses: coursesCollection }, ({ studentCourses, courses }) =>
-          eq(studentCourses.course_id, courses.id),
-        )
-        .leftJoin({ statuses: registrationStatusCollection }, ({ studentCourses, statuses }) =>
-          eq(studentCourses.registration_status_id, statuses.id),
-        )
-        .where(({ studentCourses }) =>
-          and(
-            eq(studentCourses.mnumber, advisee.mnumber),
-            eq(studentCourses.year, term.year),
-            eq(studentCourses.term_id, term.term_id),
-          ),
-        )
-        .orderBy(({ studentCourses }) => studentCourses.course_id, "asc")
-        .select(({ studentCourses, courses, statuses }) => ({
-          course_id: studentCourses.course_id,
-          section: studentCourses.course_section,
-          title: courses.title,
-          hours: studentCourses.course_hours,
-          status_id: studentCourses.registration_status_id,
-          status: statuses?.description,
-          midterm_grade: studentCourses.midterm_grade,
-          final_grade: studentCourses.final_grade,
-          grades_visible: studentCourses.grades_visible,
-        })),
+    query: termCoursesQuery(advisee.mnumber, term),
   });
 
   const latest = history.at(-1);

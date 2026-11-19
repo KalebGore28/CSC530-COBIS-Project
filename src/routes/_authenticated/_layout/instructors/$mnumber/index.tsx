@@ -1,5 +1,5 @@
 import { Link, createFileRoute, linkOptions, useNavigate } from "@tanstack/react-router";
-import { eq, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { ArrowLeftIcon, MailIcon, PersonStandingIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -31,9 +31,9 @@ import type { TaughtSection, TaughtTerm } from "@/hooks/use-instructor-teaching"
 import { useAuthentication } from "@/lib/auth-client";
 import { requirePageCapability } from "@/lib/page-guards";
 
-import { departmentsCollection } from "@/integrations/tanstack-db/departments";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
 import { usersCollection } from "@/integrations/tanstack-db/users";
+import { instructorProfileQuery } from "@/queries/instructors";
 
 // The range lives in the URL, as one value per end like "2025-80", since the router would quote a lone "80"
 type InstructorSearch = {
@@ -141,23 +141,7 @@ function InstructorPage() {
   const { can } = useAuthentication();
 
   const { data: instructor, isLoading: instructorLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ faculty: facultyCollection })
-        .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
-          eq(faculty.department_id, departments.id),
-        )
-        .leftJoin({ users: usersCollection }, ({ faculty, users }) =>
-          eq(faculty.mnumber, users.mnumber),
-        )
-        .where(({ faculty }) => eq(faculty.mnumber, mnumber))
-        .select(({ faculty, departments, users }) => ({
-          first_name: faculty.first_name,
-          last_name: faculty.last_name,
-          department: departments?.description,
-          email: users?.email,
-        }))
-        .findOne(),
+    query: instructorProfileQuery(mnumber),
   });
 
   const teaching = useInstructorTeaching(mnumber, search.from, search.to);

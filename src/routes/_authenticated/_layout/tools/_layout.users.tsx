@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { eq, ilike, or, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
@@ -9,8 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { usersCollection } from "@/integrations/tanstack-db/users";
 import { facultyCollection } from "@/integrations/tanstack-db/faculty";
-import { departmentsCollection } from "@/integrations/tanstack-db/departments";
-import { collegesCollection } from "@/integrations/tanstack-db/colleges";
+import { userDirectoryQuery } from "@/queries/users";
 
 import { UserModal } from "@/components/user-modal";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -44,39 +43,7 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/user
 function RouteComponent() {
   const [query, setQuery] = useState("");
 
-  const { data: filteredUsers, isLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ users: usersCollection })
-        .leftJoin({ faculty: facultyCollection }, ({ users, faculty }) =>
-          eq(users.mnumber, faculty.mnumber),
-        )
-        .leftJoin({ departments: departmentsCollection }, ({ faculty, departments }) =>
-          eq(faculty?.department_id, departments.id),
-        )
-        .leftJoin({ colleges: collegesCollection }, ({ faculty, colleges }) =>
-          eq(faculty?.college_id, colleges.id),
-        )
-        .where(({ users }) =>
-          or(
-            ilike(users.name, `%${query}%`),
-            ilike(users.mnumber, `%${query}%`),
-            ilike(users.email, `%${query}%`),
-          ),
-        )
-        .orderBy(({ users }) => users.name, "asc")
-        .select(({ users, departments, colleges }) => ({
-          id: users.id,
-          mnumber: users.mnumber,
-          name: users.name,
-          email: users.email,
-          image: users.image,
-          isEnabled: users.isEnabled,
-          lastLogin: users.lastLogin,
-          department_description: departments?.description,
-          college_description: colleges?.description,
-        })),
-  });
+  const { data: filteredUsers, isLoading } = useLiveQuery({ query: userDirectoryQuery(query) });
 
   if (isLoading) return <Skeleton className="h-10 w-full" />;
 

@@ -1,13 +1,11 @@
-import { and, eq, inArray, sum, useLiveQuery } from "@tanstack/react-db";
-import { ENROLLED_STATUSES } from "@/lib/enrolled-statuses";
+import { useLiveQuery } from "@tanstack/react-db";
 
-import { academicStandingCollection } from "@/integrations/tanstack-db/academic-standing";
-import { programsCollection } from "@/integrations/tanstack-db/programs";
-import { studentAcademicInfoCollection } from "@/integrations/tanstack-db/student-academic-info";
-import { studentAdvisorsCollection } from "@/integrations/tanstack-db/student-advisors";
-import { studentCoursesCollection } from "@/integrations/tanstack-db/student-courses";
-import { studentProgramsCollection } from "@/integrations/tanstack-db/student-programs";
-import { studentsCollection } from "@/integrations/tanstack-db/students";
+import {
+  academicInfoQuery,
+  advisorStudentsQuery,
+  enrolledHoursQuery,
+  studentProgramsQuery,
+} from "@/queries/students";
 
 type Term = { year: number; term_id: string };
 
@@ -66,85 +64,21 @@ function isLaterTerm(a: Term, b: Term) {
  */
 export function useAdvisees(advisorMnumber: string, term: Term) {
   const { data: assignments, isLoading: assignmentsLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ advisors: studentAdvisorsCollection })
-        .innerJoin({ students: studentsCollection }, ({ advisors, students }) =>
-          eq(advisors.mnumber, students.mnumber),
-        )
-        .where(({ advisors }) =>
-          and(
-            eq(advisors.advisor_mnumber, advisorMnumber),
-            eq(advisors.year, term.year),
-            eq(advisors.term_id, term.term_id),
-          ),
-        )
-        .select(({ advisors, students }) => ({
-          mnumber: advisors.mnumber,
-          first_name: students.first_name,
-          last_name: students.last_name,
-          suffix: students.suffix,
-          email: students.email,
-        })),
+    query: advisorStudentsQuery(advisorMnumber, term),
   });
 
   const mnumbers = assignments.map((assignment) => assignment.mnumber);
 
   const { data: academicInfo, isLoading: academicInfoLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ info: studentAcademicInfoCollection })
-        .leftJoin({ standing: academicStandingCollection }, ({ info, standing }) =>
-          eq(info.academic_standing_id, standing.id),
-        )
-        .where(({ info }) => inArray(info.mnumber, mnumbers))
-        .select(({ info, standing }) => ({
-          mnumber: info.mnumber,
-          year: info.year,
-          term_id: info.term_id,
-          overall_gpa: info.overall_gpa,
-          overall_earned_hours: info.overall_earned_hours,
-          standing_id: info.academic_standing_id,
-          standing: standing?.description,
-        })),
+    query: academicInfoQuery(mnumbers),
   });
 
   const { data: programs, isLoading: programsLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentPrograms: studentProgramsCollection })
-        .innerJoin({ programs: programsCollection }, ({ studentPrograms, programs }) =>
-          eq(studentPrograms.program_id, programs.id),
-        )
-        .where(({ studentPrograms }) => inArray(studentPrograms.mnumber, mnumbers))
-        .select(({ studentPrograms, programs }) => ({
-          mnumber: studentPrograms.mnumber,
-          year: studentPrograms.year,
-          term_id: studentPrograms.term_id,
-          program_id: studentPrograms.program_id,
-          description: programs.description,
-          type: studentPrograms.type,
-          level: studentPrograms.level,
-        })),
+    query: studentProgramsQuery(mnumbers),
   });
 
   const { data: enrolledHours, isLoading: hoursLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ courses: studentCoursesCollection })
-        .where(({ courses }) =>
-          and(
-            inArray(courses.mnumber, mnumbers),
-            eq(courses.year, term.year),
-            eq(courses.term_id, term.term_id),
-            inArray(courses.registration_status_id, ENROLLED_STATUSES),
-          ),
-        )
-        .groupBy(({ courses }) => courses.mnumber)
-        .select(({ courses }) => ({
-          mnumber: courses.mnumber,
-          hours: sum(courses.course_hours),
-        })),
+    query: enrolledHoursQuery(mnumbers, term),
   });
 
   // Each student's newest academic info row

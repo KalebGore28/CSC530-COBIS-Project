@@ -1,14 +1,9 @@
-import { and, eq, inArray, useLiveQuery } from "@tanstack/react-db";
+import { useLiveQuery } from "@tanstack/react-db";
 import { ENROLLED_STATUSES } from "@/lib/enrolled-statuses";
 import { GRADE_POINTS } from "@/types/grades";
 
-import { coursesCollection } from "@/integrations/tanstack-db/courses";
-import { programsCollection } from "@/integrations/tanstack-db/programs";
-import { registrationStatusCollection } from "@/integrations/tanstack-db/registration-status";
-import { studentCoursesCollection } from "@/integrations/tanstack-db/student-courses";
-import { studentProgramsCollection } from "@/integrations/tanstack-db/student-programs";
-import { studentsCollection } from "@/integrations/tanstack-db/students";
-import { termsCollection } from "@/integrations/tanstack-db/terms";
+import { instructorRegistrationsQuery, sectionRosterQuery } from "@/queries/instructors";
+import { studentProgramsQuery } from "@/queries/students";
 
 export type RosterTerm = { year: number; term_id: string; description: string };
 
@@ -93,25 +88,7 @@ function summarizeGrades(students: Array<RosterStudent>, which: "midterm" | "fin
  */
 export function useTeachingSections(instructorMnumber: string) {
   const { data: rows, isLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentCourses: studentCoursesCollection })
-        .innerJoin({ courses: coursesCollection }, ({ studentCourses, courses }) =>
-          eq(studentCourses.course_id, courses.id),
-        )
-        .leftJoin({ terms: termsCollection }, ({ studentCourses, terms }) =>
-          eq(studentCourses.term_id, terms.id),
-        )
-        .where(({ studentCourses }) => eq(studentCourses.instructor_mnumber, instructorMnumber))
-        .select(({ studentCourses, courses, terms }) => ({
-          year: studentCourses.year,
-          term_id: studentCourses.term_id,
-          term_description: terms?.description,
-          course_id: studentCourses.course_id,
-          section: studentCourses.course_section,
-          title: courses.title,
-          status_id: studentCourses.registration_status_id,
-        })),
+    query: instructorRegistrationsQuery(instructorMnumber),
   });
 
   // Rows are one per student, so they're grouped into terms and their sections here
@@ -160,59 +137,13 @@ export function useSectionRoster(
   section: string,
 ) {
   const { data: registrations, isLoading: rosterLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentCourses: studentCoursesCollection })
-        // Inner, so a row only shows once its student has loaded and never has a blank name
-        .innerJoin({ students: studentsCollection }, ({ studentCourses, students }) =>
-          eq(studentCourses.mnumber, students.mnumber),
-        )
-        .leftJoin({ statuses: registrationStatusCollection }, ({ studentCourses, statuses }) =>
-          eq(studentCourses.registration_status_id, statuses.id),
-        )
-        .where(({ studentCourses }) =>
-          and(
-            eq(studentCourses.instructor_mnumber, instructorMnumber),
-            eq(studentCourses.year, term.year),
-            eq(studentCourses.term_id, term.term_id),
-            eq(studentCourses.course_id, courseId),
-            eq(studentCourses.course_section, section),
-          ),
-        )
-        .select(({ studentCourses, students, statuses }) => ({
-          mnumber: studentCourses.mnumber,
-          first_name: students.first_name,
-          last_name: students.last_name,
-          suffix: students.suffix,
-          email: students.email,
-          hours: studentCourses.course_hours,
-          status_id: studentCourses.registration_status_id,
-          status: statuses?.description,
-          midterm_grade: studentCourses.midterm_grade,
-          final_grade: studentCourses.final_grade,
-          grades_visible: studentCourses.grades_visible,
-          last_attendance: studentCourses.last_attendance,
-        })),
+    query: sectionRosterQuery(instructorMnumber, term, courseId, section),
   });
 
   const mnumbers = registrations.map((registration) => registration.mnumber);
 
   const { data: programRows, isLoading: programsLoading } = useLiveQuery({
-    query: (q) =>
-      q
-        .from({ studentPrograms: studentProgramsCollection })
-        .innerJoin({ programs: programsCollection }, ({ studentPrograms, programs }) =>
-          eq(studentPrograms.program_id, programs.id),
-        )
-        .where(({ studentPrograms }) => inArray(studentPrograms.mnumber, mnumbers))
-        .select(({ studentPrograms, programs }) => ({
-          mnumber: studentPrograms.mnumber,
-          year: studentPrograms.year,
-          term_id: studentPrograms.term_id,
-          program_id: studentPrograms.program_id,
-          description: programs.description,
-          type: studentPrograms.type,
-        })),
+    query: studentProgramsQuery(mnumbers),
   });
 
   // The programs each student had when they took the class, or their newest if that term wasn't imported
