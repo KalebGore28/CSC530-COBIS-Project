@@ -1,7 +1,22 @@
 import { queryOptions } from "@tanstack/react-query";
+import type { DataCategory, DataRelationship } from "@/types/access-checks";
 import type { ClassLevel, LetterGrade } from "@/utils/student-lookup";
 
 export type { ClassLevel, LetterGrade };
+
+/**
+ * Which students Lookup is about, from the Permissions page: students currently in the viewer's
+ * department's programs, in programs they coordinate, or both. Students the viewer only sees through
+ * a course or as an advisee are left out, since their GPA and level are usually hidden.
+ */
+export function lookupScope(
+  hasRelationship: (category: DataCategory, relationship: DataRelationship) => boolean,
+) {
+  return {
+    department: hasRelationship("identity", "student_in_department"),
+    coordinated: hasRelationship("identity", "coordinates_program"),
+  };
+}
 
 // What the page keeps in the URL, and sends to /api/lookup-students
 export type StudentLookupSearch = {

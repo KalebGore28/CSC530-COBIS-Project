@@ -4,6 +4,7 @@ import Papa from "papaparse";
 import * as z from "zod";
 import { requireCapability } from "@/middleware/require-capability";
 import { hidesAcademicInfoOnLookup } from "@/types/access-checks";
+import { lookupScope } from "@/lib/student-lookup";
 import {
   CLASS_LEVELS,
   LETTER_GRADES,
@@ -71,6 +72,13 @@ export const Route = createFileRoute("/api/__protected/lookup-students")({
         }
 
         const filters: StudentLookupFilters = {
+          scope: (() => {
+            const scope = lookupScope(access.hasRelationship);
+            return {
+              departmentId: scope.department ? (context.faculty?.department_id ?? null) : null,
+              coordinatorMnumber: scope.coordinated ? (context.user.mnumber ?? null) : null,
+            };
+          })(),
           programIds: search.program,
           programType:
             search.programType === "major"

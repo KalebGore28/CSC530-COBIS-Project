@@ -44,10 +44,11 @@ import {
 } from "@/components/ui/table";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MultiPicker } from "@/components/student-lookup/multi-picker";
+import { SaveReportButton, SavedReportsButton } from "@/components/saved-reports/saved-reports";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAuthentication } from "@/lib/auth-client";
 import { requirePageCapability } from "@/lib/page-guards";
-import { lookupParams, studentLookupQuery } from "@/lib/student-lookup";
+import { lookupParams, lookupScope, studentLookupQuery } from "@/lib/student-lookup";
 import { hidesAcademicInfoOnLookup } from "@/types/access-checks";
 import type {
   ClassLevel,
@@ -58,6 +59,7 @@ import type {
 
 import { coursesCollection } from "@/integrations/tanstack-db/courses";
 import { programsCollection } from "@/integrations/tanstack-db/programs";
+import { savedReportsCollection } from "@/integrations/tanstack-db/saved-reports";
 
 const CLASS_LEVELS: Array<ClassLevel> = ["Freshman", "Sophomore", "Junior", "Senior", "Graduate"];
 const MIN_GRADES: Array<LetterGrade> = ["A", "B", "C", "D"];
@@ -76,6 +78,7 @@ export const Route = createFileRoute("/_authenticated/_layout/student-lookup")({
     const dbClient = context.dbClient;
     void dbClient.collection(programsCollection).preload();
     void dbClient.collection(coursesCollection).preload();
+    void dbClient.collection(savedReportsCollection).preload();
   },
   // The filters live in the URL, so a search can be bookmarked or shared
   validateSearch: (search): StudentLookupSearch => {
@@ -133,13 +136,31 @@ function StudentLookup() {
     !hidesAcademicInfoOnLookup(userSession?.roles ?? new Set<string>());
   const canSeeGrades = hasCategory("grades");
 
-  const { data: programs } = useLiveQuery({
+  // Only programs in Lookup's scope are offered: the viewer's department's, the ones they coordinate, or both.
+  // The server only returns students in those programs, so any other pick would find nobody.
+  const scope = lookupScope(
+    (category, relationship) => userSession?.dataGrants.get(category)?.has(relationship) ?? false,
+  );
+  const departmentId = scope.department ? userSession?.faculty?.department_id : undefined;
+  const coordinatorMnumber = scope.coordinated ? userSession?.user.mnumber : undefined;
+
+  const { data: allPrograms } = useLiveQuery({
     query: (q) =>
       q.from({ programs: programsCollection }).orderBy(({ programs }) => programs.description),
   });
-  const { data: courses } = useLiveQuery({
+  const { data: allCourses } = useLiveQuery({
     query: (q) => q.from({ courses: coursesCollection }).orderBy(({ courses }) => courses.id),
   });
+
+  const programs = allPrograms.filter(
+    (program) =>
+      (!!departmentId && program.department_id === departmentId) ||
+      (!!coordinatorMnumber && program.coordinator === coordinatorMnumber),
+  );
+  // Courses from the departments those programs belong to, e.g. a coordinator's program in another department
+  const courseDepartments = new Set(programs.map((program) => program.department_id));
+  if (departmentId) courseDepartments.add(departmentId);
+  const courses = allCourses.filter((course) => courseDepartments.has(course.department_id));
 
   const isMobile = useIsMobile();
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -313,11 +334,23 @@ function StudentLookup() {
   return (
     <div className="container mx-auto space-y-4 py-6">
       <div>
-        <h1 className="text-xl font-semibold">Student Lookup</h1>
-        <p className="text-muted-foreground text-sm">
-          Students in your department. A student has to match every filter, and any of the programs
-          or courses picked.
-        </p>
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h1 className="text-xl font-semibold">Student Lookup</h1>
+            <p className="text-muted-foreground text-sm">
+              {departmentId && coordinatorMnumber
+                ? "Students in your department and the programs you coordinate."
+                : coordinatorMnumber
+                  ? "Students in the programs you coordinate."
+                  : "Students in your department."}{" "}
+              A student has to match every filter, and any of the programs or courses picked.
+            </p>
+          </div>
+          <div className="flex gap-2 max-md:w-full">
+            <SavedReportsButton page="/student-lookup" />
+            <SaveReportButton page="/student-lookup" search={search} disabled={!hasFilters} />
+          </div>
+        </div>
       </div>
 
       {isMobile ? (

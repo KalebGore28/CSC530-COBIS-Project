@@ -1,4 +1,17 @@
-import { and, asc, count, desc, eq, exists, gte, inArray, ne, notExists, sql } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  exists,
+  gte,
+  inArray,
+  ne,
+  notExists,
+  or,
+  sql,
+} from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import type { getDb } from "@/db";
 import type { DataAccess } from "@/utils/data-access";
@@ -27,6 +40,9 @@ export const LETTER_GRADES = ["A", "B", "C", "D", "E"] as const;
 export type LetterGrade = (typeof LETTER_GRADES)[number];
 
 export type StudentLookupFilters = {
+  // Only students with a current program in this department, or coordinated by this person, come back.
+  // Neither set means nobody.
+  scope: { departmentId: string | null; coordinatorMnumber: string | null };
   programIds: Array<string>;
   // Which kind of declaration counts, when programs are picked
   programType: "MAJOR" | "MINOR" | "ANY";
@@ -127,6 +143,32 @@ function lookupWhere(
   const { latestInfo, latestPrograms } = records;
   // Only students the viewer can see come back at all
   const conditions: Array<SQL | undefined> = [access.canSee("identity", STUDENT_ROW)];
+
+  // Lookup is about the department's or the coordinator's own students. Others the viewer can see, like
+  // students from other departments taking one of its courses, are left out: their GPA and level are
+  // usually hidden. "Current" is the same as the Programs column: the newest term of programs the viewer can see.
+  const { departmentId, coordinatorMnumber } = filters.scope;
+  const inScope = or(
+    departmentId ? eq(programs.department_id, departmentId) : undefined,
+    coordinatorMnumber ? eq(programs.coordinator, coordinatorMnumber) : undefined,
+  );
+  conditions.push(
+    inScope
+      ? exists(
+          db
+            .select({ found: sql`1` })
+            .from(latestPrograms)
+            .innerJoin(programs, eq(programs.id, latestPrograms.program_id))
+            .where(
+              and(
+                eq(latestPrograms.mnumber, students.mnumber),
+                eq(latestPrograms.rank, 1),
+                inScope,
+              ),
+            ),
+        )
+      : sql`false`,
+  );
 
   if (filters.programIds.length > 0) {
     conditions.push(

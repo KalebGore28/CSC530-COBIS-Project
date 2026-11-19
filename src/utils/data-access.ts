@@ -208,6 +208,11 @@ export function createDataAccess(db: Db, viewer: Viewer, grants: DataGrants): Da
       return (grants.get(category)?.size ?? 0) > 0;
     },
 
+    // Whether the viewer sees this category through this relationship, for pages scoped to one
+    hasRelationship(category: DataCategory, relationship: DataRelationship) {
+      return grants.get(category)?.has(relationship) ?? false;
+    },
+
     // The same access with one category taken away entirely, for pages that should never show it.
     withoutCategory(category: DataCategory) {
       const remainingGrants: DataGrants = new Map(grants);
@@ -226,6 +231,7 @@ export type DataAccess = {
   ) => SQL<TColumn["_"]["data"] | null>;
   isVisible: (category: DataCategory, row: RowRef) => SQL<boolean>;
   hasCategory: (category: DataCategory) => boolean;
+  hasRelationship: (category: DataCategory, relationship: DataRelationship) => boolean;
   withoutCategory: (category: DataCategory) => DataAccess;
 };
 
