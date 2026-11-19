@@ -44,8 +44,8 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/_layout/user
 function RouteComponent() {
   const [query, setQuery] = useState("");
 
-  const { data: filteredUsers, isLoading } = useLiveQuery(
-    (q) =>
+  const { data: filteredUsers, isLoading } = useLiveQuery({
+    query: (q) =>
       q
         .from({ users: usersCollection })
         .leftJoin({ faculty: facultyCollection }, ({ users, faculty }) =>
@@ -76,8 +76,7 @@ function RouteComponent() {
           department_description: departments?.description,
           college_description: colleges?.description,
         })),
-    [query], // Re-run when query changes
-  );
+  });
 
   if (isLoading) return <Skeleton className="h-10 w-full" />;
 

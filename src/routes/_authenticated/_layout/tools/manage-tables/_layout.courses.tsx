@@ -24,7 +24,9 @@ export const Route = createFileRoute("/_authenticated/_layout/tools/manage-table
 
 function RouteComponent() {
   const { filterColumn, filterValue } = Route.useSearch();
-  const { data: courses, isLoading } = useLiveQuery((q) => q.from({ courses: coursesCollection }));
+  const { data: courses, isLoading } = useLiveQuery({
+    query: (q) => q.from({ courses: coursesCollection }),
+  });
   return (
     <div>
       {!isLoading && (

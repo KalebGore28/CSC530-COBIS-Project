@@ -65,18 +65,36 @@ const missingCollege = (count: number): TableProblem => ({
 });
 
 export function useTableProblems() {
-  const academicStandings = useLiveQuery((q) => q.from({ rows: academicStandingCollection }));
-  const admitCodes = useLiveQuery((q) => q.from({ rows: admitCodesCollection }));
-  const colleges = useLiveQuery((q) => q.from({ rows: collegesCollection }));
-  const courses = useLiveQuery((q) => q.from({ rows: coursesCollection }));
-  const coursePrefixes = useLiveQuery((q) => q.from({ rows: coursePrefixesCollection }));
-  const departments = useLiveQuery((q) => q.from({ rows: departmentsCollection }));
-  const instructionalMethods = useLiveQuery((q) =>
-    q.from({ rows: instructionalMethodsCollection }),
-  );
-  const partOfTerms = useLiveQuery((q) => q.from({ rows: partOfTermCollection }));
-  const programs = useLiveQuery((q) => q.from({ rows: programsCollection }));
-  const registrationStatuses = useLiveQuery((q) => q.from({ rows: registrationStatusCollection }));
+  const academicStandings = useLiveQuery({
+    query: (q) => q.from({ rows: academicStandingCollection }),
+  });
+  const admitCodes = useLiveQuery({
+    query: (q) => q.from({ rows: admitCodesCollection }),
+  });
+  const colleges = useLiveQuery({
+    query: (q) => q.from({ rows: collegesCollection }),
+  });
+  const courses = useLiveQuery({
+    query: (q) => q.from({ rows: coursesCollection }),
+  });
+  const coursePrefixes = useLiveQuery({
+    query: (q) => q.from({ rows: coursePrefixesCollection }),
+  });
+  const departments = useLiveQuery({
+    query: (q) => q.from({ rows: departmentsCollection }),
+  });
+  const instructionalMethods = useLiveQuery({
+    query: (q) => q.from({ rows: instructionalMethodsCollection }),
+  });
+  const partOfTerms = useLiveQuery({
+    query: (q) => q.from({ rows: partOfTermCollection }),
+  });
+  const programs = useLiveQuery({
+    query: (q) => q.from({ rows: programsCollection }),
+  });
+  const registrationStatuses = useLiveQuery({
+    query: (q) => q.from({ rows: registrationStatusCollection }),
+  });
 
   const isLoading =
     academicStandings.isLoading ||

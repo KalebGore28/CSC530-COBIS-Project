@@ -57,7 +57,9 @@ export function ManagedTableContent({
 }
 
 function AcademicStandingsContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: academicStandingCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: academicStandingCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return (
     <AcademicStandingTable data={data} filterColumn={filterColumn} filterValue={filterValue} />
@@ -65,37 +67,49 @@ function AcademicStandingsContent({ filterColumn, filterValue }: FilterProps) {
 }
 
 function AdmitCodesContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: admitCodesCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: admitCodesCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <AdmitCodesTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function CollegesContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: collegesCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: collegesCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <CollegeTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function CoursesContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: coursesCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: coursesCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <CoursesTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function CoursePrefixesContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: coursePrefixesCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: coursePrefixesCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <CoursePrefixesTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function DepartmentsContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: departmentsCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: departmentsCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <DepartmentsTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function InstructionalMethodsContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: instructionalMethodsCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: instructionalMethodsCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return (
     <InstructionalMethodsTable data={data} filterColumn={filterColumn} filterValue={filterValue} />
@@ -103,19 +117,25 @@ function InstructionalMethodsContent({ filterColumn, filterValue }: FilterProps)
 }
 
 function PartOfTermsContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: partOfTermCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: partOfTermCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <PartOfTermTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function ProgramsContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: programsCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: programsCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return <ProgramsTable data={data} filterColumn={filterColumn} filterValue={filterValue} />;
 }
 
 function RegistrationStatusesContent({ filterColumn, filterValue }: FilterProps) {
-  const { data, isLoading } = useLiveQuery((q) => q.from({ rows: registrationStatusCollection }));
+  const { data, isLoading } = useLiveQuery({
+    query: (q) => q.from({ rows: registrationStatusCollection }),
+  });
   if (isLoading) return <Skeleton className="h-96 w-full" />;
   return (
     <RegistrationStatusTable data={data} filterColumn={filterColumn} filterValue={filterValue} />

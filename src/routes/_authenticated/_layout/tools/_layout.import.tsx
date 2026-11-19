@@ -124,9 +124,10 @@ function ImportPage() {
 
   const dbClient = useDbClient();
   const queryClient = useQueryClient();
-  const { data: jobs, isLoading: jobsLoading } = useLiveQuery((q) =>
-    q.from({ jobs: importJobsCollection }).orderBy(({ jobs }) => jobs.createdAt, "desc"),
-  );
+  const { data: jobs, isLoading: jobsLoading } = useLiveQuery({
+    query: (q) =>
+      q.from({ jobs: importJobsCollection }).orderBy(({ jobs }) => jobs.createdAt, "desc"),
+  });
   // Imports run one file at a time, including ones started from another tab or by someone else
   const otherImportRunning = jobs.some(
     (job) => (job.status === "pending" || job.status === "processing") && job.id !== importId,

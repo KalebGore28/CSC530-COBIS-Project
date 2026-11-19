@@ -270,15 +270,16 @@ function RouteComponent() {
     enabled: canCompare,
   });
 
-  const { data: termNames } = useLiveQuery((q) => q.from({ terms: termsCollection }));
-  const { data: department } = useLiveQuery(
-    (q) =>
+  const { data: termNames } = useLiveQuery({
+    query: (q) => q.from({ terms: termsCollection }),
+  });
+  const { data: department } = useLiveQuery({
+    query: (q) =>
       q
         .from({ departments: departmentsCollection })
         .where(({ departments }) => eq(departments.id, departmentId))
         .findOne(),
-    [departmentId],
-  );
+  });
 
   const termLabel = (t: EnrollmentTerm) =>
     `${termNames.find((name) => name.id === t.term_id)?.description ?? t.term_id} ${t.year}`;
@@ -383,7 +384,9 @@ function RouteComponent() {
       <Tabs
         value={tab}
         onValueChange={(value) =>
-          void navigate({ search: (prev) => ({ ...prev, tab: value as EnrollmentTab }) })
+          void navigate({
+            search: (prev) => ({ ...prev, tab: value as EnrollmentTab }),
+          })
         }
       >
         <TabsList variant="line" className="max-md:w-full">

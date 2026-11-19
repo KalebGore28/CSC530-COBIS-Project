@@ -27,19 +27,20 @@ export function useCurrentTerm() {
 }
 
 export function CurrentTermProvider({ children }: { children: JSX.Element }) {
-  const { data: currentTerm, isLoading } = useLiveQuery((q) =>
-    q
-      .from({ current_term: currentTermCollection })
-      .leftJoin({ terms: termsCollection }, ({ current_term, terms }) =>
-        eq(current_term.term_id, terms.id),
-      )
-      .select(({ current_term, terms }) => ({
-        year: current_term.year,
-        term_id: current_term.term_id,
-        description: terms?.description,
-      }))
-      .findOne(),
-  );
+  const { data: currentTerm, isLoading } = useLiveQuery({
+    query: (q) =>
+      q
+        .from({ current_term: currentTermCollection })
+        .leftJoin({ terms: termsCollection }, ({ current_term, terms }) =>
+          eq(current_term.term_id, terms.id),
+        )
+        .select(({ current_term, terms }) => ({
+          year: current_term.year,
+          term_id: current_term.term_id,
+          description: terms?.description,
+        }))
+        .findOne(),
+  });
 
   const normalizedData = {
     year: currentTerm?.year || 1970,
