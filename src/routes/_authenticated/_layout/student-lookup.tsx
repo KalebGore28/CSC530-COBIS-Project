@@ -46,6 +46,11 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { MultiPicker } from "@/components/student-lookup/multi-picker";
 import { SaveReportButton, SavedReportsButton } from "@/components/saved-reports/saved-reports";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAccessReasons } from "@/hooks/use-access-reasons";
+import { distinguishingReasons } from "@/lib/access-reasons";
+import { AccessChip } from "@/components/students/access-chip";
+import { StudentSheet } from "@/components/students/student-sheet";
+import type { SheetStudent } from "@/components/students/student-sheet";
 import { useAuthentication } from "@/lib/auth-client";
 import { requirePageCapability } from "@/lib/page-guards";
 import { lookupParams, lookupScope, studentLookupQuery } from "@/lib/student-lookup";
@@ -164,6 +169,9 @@ function StudentLookup() {
 
   const isMobile = useIsMobile();
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [sheetStudent, setSheetStudent] = useState<SheetStudent | null>(null);
+  // Lookup isn't about one term, so advisees from any term count
+  const access = useAccessReasons();
 
   const results = useQuery({ ...studentLookupQuery(search), placeholderData: keepPreviousData });
 
@@ -194,6 +202,20 @@ function StudentLookup() {
   const firstShown = data ? (data.page - 1) * data.pageSize + 1 : 0;
   const lastShown = data ? firstShown + data.students.length - 1 : 0;
   const lastPage = data ? Math.max(1, Math.ceil(data.total / data.pageSize)) : 1;
+
+  // Why the viewer can see each student on this page. Lookup has no course in view, so only
+  // program and advising reasons apply; a reason every row shares is left off the chips.
+  const reasonsByStudent = new Map(
+    (data?.students ?? []).map((student) => [
+      student.mnumber,
+      access.reasonsFor({
+        mnumber: student.mnumber,
+        programIds: student.programs.map((program) => program.program_id),
+        courses: [],
+      }),
+    ]),
+  );
+  const distinct = distinguishingReasons([...reasonsByStudent.values()]);
 
   const filterControls = (
     <>
@@ -527,7 +549,21 @@ function StudentLookup() {
                   data.students.map((student) => (
                     <TableRow key={student.mnumber}>
                       <TableCell className="whitespace-normal">
-                        <div className="font-medium">{fullName(student)}</div>
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <button
+                            type="button"
+                            className="font-medium hover:underline"
+                            onClick={() =>
+                              setSheetStudent({ mnumber: student.mnumber, name: fullName(student) })
+                            }
+                          >
+                            {fullName(student)}
+                          </button>
+                          <AccessChip
+                            shown={distinct(reasonsByStudent.get(student.mnumber) ?? [])}
+                            all={reasonsByStudent.get(student.mnumber) ?? []}
+                          />
+                        </div>
                         <div className="text-muted-foreground text-xs">{student.mnumber}</div>
                       </TableCell>
                       <TableCell className="max-md:hidden">
@@ -596,6 +632,7 @@ function StudentLookup() {
           )}
         </Card>
       )}
+      <StudentSheet student={sheetStudent} onClose={() => setSheetStudent(null)} />
     </div>
   );
 }
